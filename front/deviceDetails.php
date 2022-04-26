@@ -190,9 +190,9 @@
                         </div>
                       </div>
 
-                      <!-- Favorite -->
+                      <!-- Favourite -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label">Favorite</label>
+                        <label class="col-sm-3 control-label">Favourite</label>
                         <div class="col-sm-9" style="padding-top:6px;">
                           <input class="checkbox blue hidden" id="chkFavorite" type="checkbox">
                         </div>
