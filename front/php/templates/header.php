@@ -85,47 +85,6 @@
           <!-- Server Name -->
           <li><a style="pointer-events:none;"><?php echo gethostname(); ?></a></li>
 
-          <!-- Header right info -->
-          <li class="dropdown user user-menu">
-            <!-- Menu Toggle Button -->
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <!-- The user image in the navbar-->
-              <img src="img/pialertLogoWhite.png" class="user-image" style="border-radius: initial" alt="Pi.Alert Logo">
-              <!-- hidden-xs hides the username on small devices so only the image appears. -->
-              <span class="hidden-xs">Pi.Alert</span>
-            </a>
-            <ul class="dropdown-menu">
-              <!-- The user image in the menu -->
-              <li class="user-header">
-                <img src="img/pialertLogoWhite.png" class="img-circle" alt="Pi.Alert Logo" style="border-color:transparent">
-                <p>
-                  Open Source Network Guard
-                  <small>Designed for Raspberry Pi</small>
-                </p>
-              </li>
-
-              <!-- Menu Body -->
-              <li class="user-body">
-                <div class="row">
-                  <div class="col-xs-4 text-center">
-                    <a target="_blank" href="https://github.com/pucherot/Pi.Alert">GitHub Pi.Alert</a>
-                  </div>
-                  <div class="col-xs-4 text-center">
-                    <a href="mailto:pi.alert.application@gmail.com">email Support</a>
-                  </div>
-                  <div class="col-xs-4 text-center">
-                    <a target="_blank" href="https://github.com/pucherot/Pi.Alert/blob/main/LICENSE.txt">GNU GPLv3</a>
-                  </div>
-                  <!--
-                  <div class="col-xs-4 text-center">
-                    <a href="#">Updates</a>
-                  </div>
-                  -->
-                </div>
-                <!-- /.row -->
-              </li>
-            </ul>
-          </li>
         </ul>
       </div>
     </nav>
