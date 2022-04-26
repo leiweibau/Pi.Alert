@@ -34,9 +34,9 @@ curl $1 -# -O http://standards-oui.ieee.org/oui/oui.txt
 
 
 # ----------------------------------------------------------------------
-echo ""
-echo Updating... /usr/share/arp-scan/
-cd /usr/share/arp-scan
+# echo ""
+# echo Updating... /usr/share/arp-scan/
+# cd /usr/share/arp-scan
 
 # Update from /usb/lib/ieee-data
 # get-iab -v
