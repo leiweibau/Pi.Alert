@@ -1029,8 +1029,8 @@ function getDeviceData (readAllData=false) {
       // Status
       $('#deviceStatus').html (deviceData['dev_Status']);
       switch (deviceData['dev_Status']) {
-        case 'On-line':   icon='fa fa-check';    color='text-green';   break;
-        case 'Off-line':  icon='fa fa-close';    color='text-gray';    break;
+        case 'Online':   icon='fa fa-check';    color='text-green';   break;
+        case 'Offline':  icon='fa fa-close';    color='text-gray';    break;
         case 'Down':      icon='fa fa-warning';  color='text-red';     break;
         case null:        icon='fa fa-warning';  color='text-red';     $('#deviceStatus').html ('???');  break;
         default:          icon='';               color='';             break;
