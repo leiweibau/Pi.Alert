@@ -97,13 +97,6 @@
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
 
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel">
-        <a href="." class="logo">
-          <img src="img/pialertLogoGray80.png" class="img-responsive" alt="Pi.Alert Logo"/>
-        </a>
-      </div>
-
       <!-- search form (Optional) -->
         <!-- DELETED -->
 
