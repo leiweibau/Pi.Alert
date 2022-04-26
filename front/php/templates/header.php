@@ -14,7 +14,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Pi.Alert</title>
+  <title>lan.alert</title>
 
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -66,7 +66,7 @@
     <!-- Logo -->
     <a href="." class="logo">
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg">Pi<b>.Alert</b></span>
+      <span class="logo-lg">lan.alert</b></span>
     </a>
 
 <!-- ----------------------------------------------------------------------- -->

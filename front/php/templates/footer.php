@@ -25,7 +25,7 @@
     <?php
       $conf_file = '../config/version.conf';
       $conf_data = parse_ini_file($conf_file);
-      echo '<a target="_blank" href="https://github.com/pucherot/Pi.Alert">Pi.Alert&nbsp&nbsp'. $conf_data['VERSION'] .'&nbsp&nbsp<small>('. $conf_data['VERSION_DATE'] .')</small></a>';
+      echo '<a target="_blank" href="https://github.com/pucherot/Pi.Alert">lan.alert&nbsp&nbsp'. $conf_data['VERSION'] .'&nbsp&nbsp<small>('. $conf_data['VERSION_DATE'] .')</small></a>';
     ?>
     </div>
   </footer>
