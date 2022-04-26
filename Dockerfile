@@ -2,7 +2,7 @@ FROM alpine
 
 COPY . /pialert
 
-RUN apk add --no-cache cronie lighttpd php php-cgi php-fpm php-sqlite3 php-json sqlite python3 sudo curl perl perl-lwp-useragent-determined bind-tools git nmap \
+RUN apk add --no-cache cronie lighttpd php php-cgi php-fpm php-sqlite3 php-json sqlite python3 curl perl perl-lwp-useragent-determined bind-tools nmap \
     && apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing arp-scan \
     && sed -i 's/var\/www\/localhost/pialert\/front/g' /etc/lighttpd/lighttpd.conf \
     && sed -i 's/^.*server.port.*$/server.port = 20211/g' /etc/lighttpd/lighttpd.conf \
