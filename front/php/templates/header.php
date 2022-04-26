@@ -65,8 +65,6 @@
 <!-- ----------------------------------------------------------------------- -->
     <!-- Logo -->
     <a href="." class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini">P<b>a</b></span>
       <!-- logo for regular state and mobile devices -->
       <span class="logo-lg">Pi<b>.Alert</b></span>
     </a>
