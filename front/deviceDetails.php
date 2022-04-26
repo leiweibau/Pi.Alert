@@ -17,21 +17,6 @@
 <!-- Content header--------------------------------------------------------- -->
     <section class="content-header">
       <?php require 'php/templates/notification.php'; ?>
-
-      <h1 id="pageTitle">
-        &nbsp<small>Quering device info...</small>
-      </h1>
-
-      <!-- period selector -->
-      <span class="breadcrumb" style="top: 0px;">
-        <select class="form-control" id="period" onchange="javascript: periodChanged();">
-          <option value="1 day">Today</option>
-          <option value="7 days">Last Week</option>
-          <option value="1 month" selected>Last Month</option>
-          <option value="1 year">Last Year</option>
-          <option value="100 years">All info</option>
-        </select>
-      </span>
     </section>
     
 <!-- Main content ---------------------------------------------------------- -->
@@ -56,7 +41,7 @@
             <div class="small-box bg-green pa-small-box-green pa-small-box-2">
               <div class="inner"> <h3 id="deviceSessions"> -- </h3> </div>
               <div class="icon"> <i class="fa fa-plug"></i> </div>
-              <div class="small-box-footer pa-small-box-footer"> Sesions <i class="fa fa-arrow-circle-right"></i> </div>
+              <div class="small-box-footer pa-small-box-footer"> Sessions <i class="fa fa-arrow-circle-right"></i> </div>
             </div>
           </a>
         </div>
@@ -87,6 +72,24 @@
       <!-- /.row -->
 
 <!-- tab control------------------------------------------------------------ -->
+      <div class="row">
+        <div class="col-xs-12">
+          <div id="tableDevicesBox" class="box">
+
+	   <!-- box-header -->
+	   <div class="box-header">
+	   <h1 id="pageTitle" class="box-title text-black">Querying device info...</h1>
+	   	<span class="content">
+	   	<select class="form-group" id="period" onchange="javascript: periodChanged();">
+	   		<option value="1 day">Today</option>
+	   		<option value="7 days">Last Week</option>
+	   		<option value="1 month" selected>Last Month</option>
+	   		<option value="1 year">Last Year</option>
+	   		<option value="100 years">All info</option>
+	   	</select>
+	   	</span>		
+	   </div>   
+
       <div class="row">
         <div class="col-lg-12 col-sm-12 col-xs-12">
         <!-- <div class="box-transparent"> -->
@@ -187,9 +190,9 @@
                         </div>
                       </div>
 
-                      <!-- Favorite -->
+                      <!-- Favourite -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label">Favorite</label>
+                        <label class="col-sm-3 control-label">Favourite</label>
                         <div class="col-sm-9" style="padding-top:6px;">
                           <input class="checkbox blue hidden" id="chkFavorite" type="checkbox">
                         </div>
@@ -1029,8 +1032,8 @@ function getDeviceData (readAllData=false) {
       // Status
       $('#deviceStatus').html (deviceData['dev_Status']);
       switch (deviceData['dev_Status']) {
-        case 'On-line':   icon='fa fa-check';    color='text-green';   break;
-        case 'Off-line':  icon='fa fa-close';    color='text-gray';    break;
+        case 'Online':   icon='fa fa-check';    color='text-green';   break;
+        case 'Offline':  icon='fa fa-close';    color='text-gray';    break;
         case 'Down':      icon='fa fa-warning';  color='text-red';     break;
         case null:        icon='fa fa-warning';  color='text-red';     $('#deviceStatus').html ('???');  break;
         default:          icon='';               color='';             break;

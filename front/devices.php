@@ -14,13 +14,6 @@
 <!-- Page ------------------------------------------------------------------ -->
   <div class="content-wrapper">
 
-<!-- Content header--------------------------------------------------------- -->
-    <section class="content-header">
-      <h1 id="pageTitle">
-         Devices
-      </h1>
-    </section>
-
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
 
@@ -54,7 +47,7 @@
             <div  class="small-box bg-yellow pa-small-box-yellow pa-small-box-2">
               <div class="inner"> <h3 id="devicesFavorites"> -- </h3> </div>
               <div class="icon"> <i class="fa fa-star text-yellow-20"></i> </div>
-              <div class="small-box-footer pa-small-box-footer"> Favorites <i class="fa fa-arrow-circle-right"></i> </div>
+              <div class="small-box-footer pa-small-box-footer"> Favourites <i class="fa fa-arrow-circle-right"></i> </div>
             </div>
           </a>
         </div>
@@ -113,7 +106,7 @@
                   <th>Name</th>
                   <th>Owner</th>
                   <th>Type</th>
-                  <th>Favorite</th>
+                  <th>Favourite</th>
                   <th>Group</th>
                   <th>First Session</th>
                   <th>Last Session</th>
@@ -257,8 +250,8 @@ function initializeDatatable () {
           switch (cellData) {
             case 'Down':      color='red';              break;
             case 'New':       color='yellow';           break;
-            case 'On-line':   color='green';            break;
-            case 'Off-line':  color='gray text-white';  break;
+            case 'Online':   color='green';            break;
+            case 'Offline':  color='gray text-white';  break;
             case 'Archived':  color='gray text-white';  break;
             default:          color='aqua';             break;
           };

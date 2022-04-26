@@ -14,13 +14,6 @@
 <!-- Page ------------------------------------------------------------------ -->
   <div class="content-wrapper">
 
-<!-- Content header--------------------------------------------------------- -->
-    <section class="content-header">
-      <h1 id="pageTitle">
-         Presence by Device
-      </h1>
-    </section>
-
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
 
@@ -54,7 +47,7 @@
             <div  class="small-box bg-yellow pa-small-box-yellow pa-small-box-2">
               <div class="inner"> <h3 id="devicesFavorites"> -- </h3> </div>
               <div class="icon"> <i class="fa fa-star text-yellow-20"></i> </div>
-              <div class="small-box-footer pa-small-box-footer"> Favorites <i class="fa fa-arrow-circle-right"></i> </div>
+              <div class="small-box-footer pa-small-box-footer"> Favourites <i class="fa fa-arrow-circle-right"></i> </div>
             </div>
           </a>
         </div>

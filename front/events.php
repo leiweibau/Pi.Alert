@@ -14,24 +14,6 @@
 <!-- Page ------------------------------------------------------------------ -->
   <div class="content-wrapper">
 
-<!-- Content header--------------------------------------------------------- -->
-    <section class="content-header">
-      <h1 id="pageTitle">
-         Events
-      </h1>
-
-      <!-- period selector -->
-      <span class="breadcrumb" style="top: 0px;">
-        <select class="form-control" id="period" onchange="javascript: periodChanged();">
-          <option value="1 day">Today</option>
-          <option value="7 days">Last Week</option>
-          <option value="1 month" selected>Last Month</option>
-          <option value="1 year">Last Year</option>
-          <option value="100 years">All info</option>
-        </select>
-      </span>
-    </section>
-
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
 
@@ -114,6 +96,15 @@
             <!-- box-header -->
             <div class="box-header">
               <h3 id="tableEventsTitle" class="box-title text-gray">Events</h3>
+                <span class="content" style="top: 0px;">
+                  <select class="form-group" id="period" onchange="javascript: periodChanged();">
+                    <option value="1 day">Today</option>
+                    <option value="7 days">Last Week</option>
+                    <option value="1 month" selected>Last Month</option>
+                    <option value="1 year">Last Year</option>
+                    <option value="100 years">All info</option>
+                  </select>
+                </span>														
             </div>
 
             <!-- table -->

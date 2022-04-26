@@ -14,7 +14,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Pi.Alert</title>
+  <title>lan.alert</title>
 
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -34,7 +34,7 @@
   <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
         page. However, you can choose any other skin. Make sure you
         apply the skin class to the body tag so the changes take effect. -->
-  <link rel="stylesheet" href="lib/AdminLTE/dist/css/skins/skin-yellow-light.min.css">
+  <link rel="stylesheet" href="lib/AdminLTE/dist/css/skins/skin-purple-light.min.css">
 
   <!-- Pi.Alert CSS -->
   <link rel="stylesheet" href="css/pialert.css">
@@ -55,7 +55,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 <!-- Layout Boxed Yellow -->
-<body class="hold-transition skin-yellow-light layout-boxed sidebar-mini" style="background-image: url('img/background.png');">
+<body class="hold-transition skin-purple-light layout-boxed sidebar-mini" style="background-color:#eeeeee;">
 <!-- Site wrapper -->
 <div class="wrapper">
 
@@ -65,10 +65,8 @@
 <!-- ----------------------------------------------------------------------- -->
     <!-- Logo -->
     <a href="." class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini">P<b>a</b></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg">Pi<b>.Alert</b></span>
+      <span class="logo-lg">lan.alert</b></span>
     </a>
 
 <!-- ----------------------------------------------------------------------- -->
@@ -85,47 +83,6 @@
           <!-- Server Name -->
           <li><a style="pointer-events:none;"><?php echo gethostname(); ?></a></li>
 
-          <!-- Header right info -->
-          <li class="dropdown user user-menu">
-            <!-- Menu Toggle Button -->
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <!-- The user image in the navbar-->
-              <img src="img/pialertLogoWhite.png" class="user-image" style="border-radius: initial" alt="Pi.Alert Logo">
-              <!-- hidden-xs hides the username on small devices so only the image appears. -->
-              <span class="hidden-xs">Pi.Alert</span>
-            </a>
-            <ul class="dropdown-menu">
-              <!-- The user image in the menu -->
-              <li class="user-header">
-                <img src="img/pialertLogoWhite.png" class="img-circle" alt="Pi.Alert Logo" style="border-color:transparent">
-                <p>
-                  Open Source Network Guard
-                  <small>Designed for Raspberry Pi</small>
-                </p>
-              </li>
-
-              <!-- Menu Body -->
-              <li class="user-body">
-                <div class="row">
-                  <div class="col-xs-4 text-center">
-                    <a target="_blank" href="https://github.com/pucherot/Pi.Alert">GitHub Pi.Alert</a>
-                  </div>
-                  <div class="col-xs-4 text-center">
-                    <a href="mailto:pi.alert.application@gmail.com">email Support</a>
-                  </div>
-                  <div class="col-xs-4 text-center">
-                    <a target="_blank" href="https://github.com/pucherot/Pi.Alert/blob/main/LICENSE.txt">GNU GPLv3</a>
-                  </div>
-                  <!--
-                  <div class="col-xs-4 text-center">
-                    <a href="#">Updates</a>
-                  </div>
-                  -->
-                </div>
-                <!-- /.row -->
-              </li>
-            </ul>
-          </li>
         </ul>
       </div>
     </nav>
@@ -137,13 +94,6 @@
 
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
-
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel">
-        <a href="." class="logo">
-          <img src="img/pialertLogoGray80.png" class="img-responsive" alt="Pi.Alert Logo"/>
-        </a>
-      </div>
 
       <!-- search form (Optional) -->
         <!-- DELETED -->

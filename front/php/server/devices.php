@@ -59,8 +59,8 @@ function getDeviceData() {
   // Device Data
   $sql = 'SELECT rowid, *,
             CASE WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
-                 WHEN dev_PresentLastScan=1 THEN "On-line"
-                 ELSE "Off-line" END as dev_Status
+                 WHEN dev_PresentLastScan=1 THEN "Online"
+                 ELSE "Offline" END as dev_Status
           FROM Devices
           WHERE dev_MAC="'. $mac .'" or cast(rowid as text)="'. $mac. '"';
   $result = $db->query($sql);
@@ -185,7 +185,7 @@ function getDevicesTotals() {
   $row = $result -> fetchArray (SQLITE3_NUM);
   $devices = $row[0];
   
-  // On-Line
+  // Online
   $result = $db->query('SELECT COUNT(*) FROM Devices '. getDeviceCondition ('connected') );
   $row = $result -> fetchArray (SQLITE3_NUM);
   $connected = $row[0];
@@ -226,8 +226,8 @@ function getDevicesList() {
   $sql = 'SELECT rowid, *, CASE
             WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
             WHEN dev_NewDevice=1 THEN "New"
-            WHEN dev_PresentLastScan=1 THEN "On-line"
-            ELSE "Off-line"
+            WHEN dev_PresentLastScan=1 THEN "Online"
+            ELSE "Offline"
           END AS dev_Status
           FROM Devices '. $condition;
   $result = $db->query($sql);
@@ -333,9 +333,9 @@ function getDeviceTypes() {
           WHERE dev_DeviceType NOT IN ("",
                  "Smartphone", "Tablet",
                  "Laptop", "Mini PC", "PC", "Printer", "Server", "Singleboard Computer (SBC)",
-                 "Game Console", "SmartTV", "TV Decoder", "Virtual Assistance",
+                 "Domotic", "Game Console", "SmartTV", "TV Decoder", "Virtual Assistance",
                  "Clock", "House Appliance", "Phone", "Radio",
-                 "AP", "NAS", "PLC", "Router")
+                 "AP", "NAS", "PLC", "Router", "USB LAN Adapter", "USB WIFI Adapter", "Other")
 
           UNION SELECT 1 as dev_Order, "Smartphone"
           UNION SELECT 1 as dev_Order, "Tablet"
