@@ -20,18 +20,14 @@
 echo Updating... /usr/share/ieee-data/
 cd /usr/share/ieee-data/
 
-curl $1 -# -O http://standards-oui.ieee.org/iab/iab.csv
-curl $1 -# -O http://standards-oui.ieee.org/iab/iab.txt
-
-curl $1 -# -O http://standards-oui.ieee.org/oui28/mam.csv
-curl $1 -# -O http://standards-oui.ieee.org/oui28/mam.txt
-
-curl $1 -# -O http://standards-oui.ieee.org/oui36/oui36.csv
-curl $1 -# -O http://standards-oui.ieee.org/oui36/oui36.txt
-
-curl $1 -# -O http://standards-oui.ieee.org/oui/oui.csv
-curl $1 -# -O http://standards-oui.ieee.org/oui/oui.txt
-
+curl -L $1 -# -O https://standards-oui.ieee.org/iab/iab.csv
+curl -L $1 -# -O https://standards-oui.ieee.org/iab/iab.txt
+curl -L $1 -# -O https://standards-oui.ieee.org/oui28/mam.csv
+curl -L $1 -# -O https://standards-oui.ieee.org/oui28/mam.txt
+curl -L $1 -# -O https://standards-oui.ieee.org/oui36/oui36.csv
+curl -L $1 -# -O https://standards-oui.ieee.org/oui36/oui36.txt
+curl -L $1 -# -O https://standards-oui.ieee.org/oui/oui.csv
+curl -L $1 -# -O https://standards-oui.ieee.org/oui/oui.txt
 
 # ----------------------------------------------------------------------
 # echo ""
