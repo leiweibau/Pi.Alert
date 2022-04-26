@@ -55,7 +55,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 <!-- Layout Boxed Yellow -->
-<body class="hold-transition skin-yellow-light layout-boxed sidebar-mini" style="background-image: url('img/background.png');">
+<body class="hold-transition skin-yellow-light layout-boxed sidebar-mini" style="background-color:#eeeeee;">
 <!-- Site wrapper -->
 <div class="wrapper">
 
