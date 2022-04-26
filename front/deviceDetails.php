@@ -17,21 +17,6 @@
 <!-- Content header--------------------------------------------------------- -->
     <section class="content-header">
       <?php require 'php/templates/notification.php'; ?>
-
-      <h1 id="pageTitle">
-        &nbsp<small>Quering device info...</small>
-      </h1>
-
-      <!-- period selector -->
-      <span class="breadcrumb" style="top: 0px;">
-        <select class="form-control" id="period" onchange="javascript: periodChanged();">
-          <option value="1 day">Today</option>
-          <option value="7 days">Last Week</option>
-          <option value="1 month" selected>Last Month</option>
-          <option value="1 year">Last Year</option>
-          <option value="100 years">All info</option>
-        </select>
-      </span>
     </section>
     
 <!-- Main content ---------------------------------------------------------- -->
@@ -87,6 +72,24 @@
       <!-- /.row -->
 
 <!-- tab control------------------------------------------------------------ -->
+      <div class="row">
+        <div class="col-xs-12">
+          <div id="tableDevicesBox" class="box">
+
+	   <!-- box-header -->
+	   <div class="box-header">
+	   <h1 id="pageTitle" class="box-title text-black">Querying device info...</h1>
+	   	<span class="content">
+	   	<select class="form-group" id="period" onchange="javascript: periodChanged();">
+	   		<option value="1 day">Today</option>
+	   		<option value="7 days">Last Week</option>
+	   		<option value="1 month" selected>Last Month</option>
+	   		<option value="1 year">Last Year</option>
+	   		<option value="100 years">All info</option>
+	   	</select>
+	   	</span>		
+	   </div>   
+
       <div class="row">
         <div class="col-lg-12 col-sm-12 col-xs-12">
         <!-- <div class="box-transparent"> -->
