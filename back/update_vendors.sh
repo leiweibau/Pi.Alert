@@ -46,8 +46,8 @@ sudo mkdir -p 2_backup
 sudo cp *.txt 2_backup
 
 # Update from /usb/lib/ieee-data
-sudo get-iab -v
-sudo get-oui -v
+# sudo get-iab -v
+# sudo get-oui -v
 
 # Update from ieee website
 # sudo get-iab -v -u http://standards-oui.ieee.org/iab/iab.txt
