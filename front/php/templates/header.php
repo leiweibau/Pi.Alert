@@ -34,7 +34,7 @@
   <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
         page. However, you can choose any other skin. Make sure you
         apply the skin class to the body tag so the changes take effect. -->
-  <link rel="stylesheet" href="lib/AdminLTE/dist/css/skins/skin-yellow-light.min.css">
+  <link rel="stylesheet" href="lib/AdminLTE/dist/css/skins/skin-purple-light.min.css">
 
   <!-- Pi.Alert CSS -->
   <link rel="stylesheet" href="css/pialert.css">
@@ -55,7 +55,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 <!-- Layout Boxed Yellow -->
-<body class="hold-transition skin-yellow-light layout-boxed sidebar-mini" style="background-color:#eeeeee;">
+<body class="hold-transition skin-purple-light layout-boxed sidebar-mini" style="background-color:#eeeeee;">
 <!-- Site wrapper -->
 <div class="wrapper">
 
