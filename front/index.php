@@ -250,8 +250,8 @@ function initializeDatatable () {
           switch (cellData) {
             case 'Down':      color='red';              break;
             case 'New':       color='yellow';           break;
-            case 'On-line':   color='green';            break;
-            case 'Off-line':  color='gray text-white';  break;
+            case 'Online':   color='green';            break;
+            case 'Offline':  color='gray text-white';  break;
             case 'Archived':  color='gray text-white';  break;
             default:          color='aqua';             break;
           };
