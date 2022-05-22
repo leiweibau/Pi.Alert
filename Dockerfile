@@ -1,5 +1,7 @@
 FROM alpine
 
+LABEL org.opencontainers.image.source="https://github.com/0x5f3/lan.alert"
+
 COPY . /pialert
 
 RUN apk add --no-cache cronie lighttpd php php-cgi php-fpm php-sqlite3 php-json sqlite python3 curl perl perl-lwp-useragent-determined bind-tools nmap \
