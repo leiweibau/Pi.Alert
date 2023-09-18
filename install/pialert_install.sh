@@ -390,6 +390,7 @@ install_python() {
     fi
     print_msg "    - Install additional packages"
     # sudo should not be necessary
+    rm -rf /usr/lib/python3.*/EXTERNALLY-MANAGED
     pip3 -q install mac-vendor-lookup                                                           2>&1 >> "$LOG"
     pip3 -q install fritzconnection                                                             2>&1 >> "$LOG"
 
