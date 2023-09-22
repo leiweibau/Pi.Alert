@@ -16,7 +16,7 @@ Estimated time: 20'
 
 ## One-step Automated Install:
 <!--- --------------------------------------------------------------------- --->
-  #### `curl -sSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh | bash`
+  #### `curl -sSL https://github.com/piapiacz/Pi.Alert/raw/main/install/pialert_install.sh | bash`
 
 ## Uninstall process
 <!--- --------------------------------------------------------------------- --->
@@ -211,13 +211,15 @@ block is not necessary
   ```
   pip3 install mac-vendor-lookup
   pip3 install fritzconnection
+  pip3 install routeros_api
+  pip3 install unifi
   ```
 
 ### Pi.Alert
 <!--- --------------------------------------------------------------------- --->
 5.1 - Download Pi.Alert and uncompress
   ```
-curl -sL https://github.com/leiweibau/Pi.Alert/raw/main/tar/pialert_latest.tar | tar xf - -C $HOME
+curl -sL https://github.com/piapiacz/Pi.Alert/raw/main/tar/pialert_latest.tar | tar xf - -C $HOME
   ```
 
 5.2 - Public the front portal

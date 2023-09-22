@@ -45,6 +45,10 @@ a notification can be sent.
   - **Fritzbox**. This method is optional. If you use a Fritzbox (a router from the company "AVM"), 
         it is possible to perform a query of the active hosts. This also 
         includes hosts of the guest WLAN and Powerline devices from "AVM".
+  - **Mikrotik**. This method is optional. If you use Mikrotik RouterBoard as DHCP server,
+        it is possible to read DHCP leases.
+  - **UniFi**. This method is optional. If you use UniFi controller,
+        it is possible to read clients (Client Devices)
   - **Web service monitoring**. This method is optional. An HTTP request is 
         sent and the web server's response is processed. If self signed 
         certificates are used, no validation of the certificate is performed.
