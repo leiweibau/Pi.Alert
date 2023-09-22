@@ -720,8 +720,6 @@ def read_mikrotik_leases ():
     api = conn.get_api()
     ret = api.get_resource('/ip/dhcp-server/lease').get()
     conn.disconnect()
-    #{'id': '*3', 'address': '10.0.0.41', 'mac-address': '7C:2F:80:A4:A4:BF', 'address-lists': '', 'dhcp-option': '', 'status': 'waiting', 'last-seen': '185w22h27m2s', 'host-name': 'C530-IP', 'radius': 'false', 'dynamic': 'false', 'blocked': 'false', 'disabled': 'false', 'comment': 'Gigaset C530-IP'}
-    #{'id': '*16', 'address': '10.0.0.26', 'mac-address': '3C:33:00:48:43:59', 'client-id': '1:3c:33:0:48:43:59', 'address-lists': '', 'dhcp-option': '', 'status': 'bound', 'expires-after': '5m43s', 'last-seen': '4m17s', 'active-address': '10.0.0.26', 'active-mac-address': '3C:33:00:48:43:59', 'active-client-id': '1:3c:33:0:48:43:59', 'active-server': 'dhcp1', 'radius': 'false', 'dynamic': 'false', 'blocked': 'false', 'disabled': 'false', 'comment': ' int.kmera  escam   QF002'}
     for row in ret:
         if 'active-mac-address' in row:
             mac = row['active-mac-address'].lower()
