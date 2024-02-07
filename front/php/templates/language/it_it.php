@@ -89,6 +89,7 @@ $pia_lang['Device_TableHead_LastIPOrder'] = 'Ultimo Ordine IP';
 $pia_lang['Device_TableHead_Rowid'] = 'Numero di Riga';
 $pia_lang['Device_TableHead_Status'] = 'Stato';
 $pia_lang['Device_TableHead_ConnectionType'] = 'Tipo di Connessione';
+$pia_lang['Device_TableHead_WakeOnLAN'] = 'WoL';
 $pia_lang['Device_Searchbox'] = 'Ricerca';
 $pia_lang['Device_Tablelenght'] = 'Mostra _MENU_ voci';
 $pia_lang['Device_Tablelenght_all'] = 'Tutte';
@@ -261,6 +262,9 @@ $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';
 $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'Il comando Wake-on-LAN viene inviato all&apos;indirizzo di broadcast. Se la destinazione non è nella stessa subnet/VLAN di Pi.Alert, il dispositivo di destinazione potrebbe non rispondere.';
 $pia_lang['BackDevDetail_Tools_WOL_okay'] = 'Il comando è stato eseguito';
 $pia_lang['BackDevDetail_Tools_WOL_error'] = 'Il comando non è stato eseguito';
+$pia_lang['DevDetail_Speedtest_note_a'] = 'Il test di velocità automatico inizia alle ore ';
+$pia_lang['DevDetail_Speedtest_note_b'] = ' e ';
+$pia_lang['DevDetail_Speedtest_note_c'] = '';
 
 //////////////////////////////////////////////////////////////////
 // WebServices Details Page
@@ -619,6 +623,7 @@ $pia_lang['Updatecheck_new'] = 'Ultima versione di Pi.Alert su Github';
 $pia_lang['GeoLiteDB_Title'] = 'Controllo database GeoLite2';
 $pia_lang['GeoLiteDB_cur'] = 'Database GeoLite2 attualmente caricato';
 $pia_lang['GeoLiteDB_new'] = 'Ultimo database GeoLite2 su Github';
+$pia_lang['Auto_Updatecheck_RN'] = 'Ricerca automatica degli aggiornamenti';
 $pia_lang['Updatecheck_RN'] = 'Note sull&apos;aggiornamento di Pi.Alert';
 $pia_lang['Updatecheck_RN2'] = 'Verifica aggiornamento di Pi.Alert';
 $pia_lang['Updatecheck_U2D'] = 'Stai già utilizzando l&apos;ultima versione';
@@ -681,6 +686,7 @@ $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
 // cronjob
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
 $pia_journ_lang['c_010'] = $pia_journ_lang['a_010'];
+$pia_journ_lang['c_060'] = $pia_journ_lang['a_060'];
 // LogStrings
 $pia_journ_lang['LogStr_0001'] = 'Aggiunta voce';
 $pia_journ_lang['LogStr_0002'] = 'Voce modificata';
@@ -731,6 +737,8 @@ $pia_journ_lang['LogStr_0062'] = 'Nessun aggiornamento Pi.Alert disponibile';
 $pia_journ_lang['LogStr_0063'] = 'Aggiornamento GeoLite2 DB disponibile';
 $pia_journ_lang['LogStr_0064'] = 'Nessun aggiornamento GeoLite2 DB disponibile';
 $pia_journ_lang['LogStr_0065'] = 'GeoLite2 DB non installato';
+$pia_journ_lang['LogStr_0066'] = 'Errore: Informazioni di aggiornamento non valide';
+$pia_journ_lang['LogStr_0067'] = 'Non è stata trovata una versione più recente';
 $pia_journ_lang['LogStr_0101'] = 'Ottimizzazione e pulizia del database';
 $pia_journ_lang['LogStr_0210'] = 'Scansione nmap personalizzata eseguita';
 $pia_journ_lang['LogStr_0251'] = 'Eseguito Wake-on-lan';

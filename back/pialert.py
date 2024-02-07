@@ -24,6 +24,8 @@ from base64 import b64encode
 from urllib.parse import urlparse
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from pathlib import Path
+from datetime import datetime
 import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json
 
 #===============================================================================
@@ -54,9 +56,9 @@ def main():
     global sql
 
     # Header
-    print('\nPi.Alert ' + VERSION +' ('+ VERSION_DATE +')')
+    print('\nPi.Alert v'+ VERSION_DATE)
     print('---------------------------------------------------------')
-    print("Current User: %s \n" % get_username())
+    print(f"Executing user: {get_username()}\n")
 
     # Initialize global variables
     log_timestamp  = datetime.datetime.now()
@@ -114,7 +116,20 @@ def get_username():
     return pwd.getpwuid(os.getuid())[0]
 
 # ------------------------------------------------------------------------------
-def set_pia_reports_permissions():
+def set_db_file_permissions():
+    print(f"\nPrepare Scan...")
+    print(f"    Force file permissions on Pi.Alert db...")
+    # Set permissions
+    os.system("sudo chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
+    os.system("sudo chmod 775 " + PIALERT_DB_FILE)
+    # Get permissions
+    fileinfo = Path(PIALERT_DB_FILE)
+    file_stat = fileinfo.stat()
+    print(f"        DB permission mask: {oct(file_stat.st_mode)[-3:]}")
+    print(f"        DB Owner and Group: {fileinfo.owner()}:{fileinfo.group()}")
+
+# ------------------------------------------------------------------------------
+def set_reports_file_permissions():
     os.system("sudo chown -R " + get_username() + ":www-data " + REPORTPATH_WEBGUI)
     os.system("sudo chmod -R 775 " + REPORTPATH_WEBGUI)
 
@@ -219,18 +234,83 @@ def check_internet_IP():
             print('\nSkipping Speedtest... Not installed!')
     else :
         print('\nSkipping Speedtest...')
+
+    # Run automated UpdateCheck
+    if AUTO_UPDATE_CHECK :
+        if startTime.hour in [9, 15, 21] and startTime.minute == 0:
+            checkNewVersion()
+    else:
+        NewVersion_FrontendNotification(False,"")
+
     return 0
+
+# ------------------------------------------------------------------------------
+def NewVersion_FrontendNotification(newVersion,update_notes):
+    file_path = PIALERT_PATH + "/front/auto_Update.info"
+    if newVersion == True:
+        if not os.path.exists(file_path):
+            print("    Create Frontend Notification.")
+        else:
+            print("    Update Frontend Notification.")    
+        with open(file_path, 'w') as file:
+            file.write(update_notes)
+    else:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print("    Remove Frontend Notification.")
+
+# ------------------------------------------------------------------------------
+def checkNewVersion():
+    newVersion = False
+    currentversion = VERSION_DATE
+
+    print(f"\nAuto Update-Check...")
+    print(f"    Current Version: {currentversion}")
+
+    UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1"
+    data = ""
+    update_notes = ""
+
+    try:
+        url = requests.get(UPDATE_CHECK_URL)
+        text = url.text
+        data = json.loads(text)
+    except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as e:
+        print("    ERROR: Couldn't check for new release.")
+        data = ""
+
+    openDB()
+    if data != "" and len(data) > 0 and isinstance(data, list) and "commit" in data[0]:
+        dateTimeStr = data[0]['commit']['author']['date']
+        update_notes = data[0]['commit']['message']
+        date_obj = datetime.datetime.strptime(dateTimeStr, '%Y-%m-%dT%H:%M:%SZ')
+        latestversion = date_obj.strftime('%Y-%m-%d')
+
+        if latestversion > currentversion:
+            print(f"    New version {latestversion} is available!")
+            newVersion = True
+            NewVersion_FrontendNotification(newVersion,update_notes)
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_060', 'cronjob', 'LogStr_0061', '', '') """, (startTime,))
+        else:
+            print("    Running the latest version.")
+            NewVersion_FrontendNotification(newVersion,update_notes)
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_060', 'cronjob', 'LogStr_0067', '', '') """, (startTime,))
+    else:
+        NewVersion_FrontendNotification(newVersion,update_notes)
+        sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+               VALUES (?, 'c_060', 'cronjob', 'LogStr_0066', '', '') """, (startTime,))
+    closeDB()
 
 #-------------------------------------------------------------------------------
 def run_speedtest_task():
     # Define the command and arguments
-    command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "-p", "no", "-f", "json"]
+    command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
     if len(SPEEDTEST_TASK_HOUR) != 0:
         openDB()
-        speedtest_actual_hour = startTime.hour
-        speedtest_actual_min = startTime.minute
         for value in SPEEDTEST_TASK_HOUR:
-            if value == speedtest_actual_hour and speedtest_actual_min == 0:
+            if value == startTime.hour and startTime.minute == 0:
                 try:
                     output = subprocess.check_output(command, text=True)
                     # Parse the JSON output
@@ -453,6 +533,9 @@ def scan_network():
     # Header
     print('Scan Devices')
     print('    Timestamp:', startTime )
+
+    # correct db permission every scan (user must/should be sudoer)
+    set_db_file_permissions()
 
     # Query ScanCycle properties
     print_log ('Query ScanCycle confinguration...')
@@ -1566,7 +1649,7 @@ def rogue_dhcp_detection():
     sql.execute("DELETE FROM Nmap_DHCP_Server")
     sql_connection.commit()
 
-    # Execute 10 probes and insert in list
+    # Execute 15 probes and insert in list
     dhcp_probes = 15
     dhcp_server_list = []
     dhcp_server_list.append(strftime("%Y-%m-%d %H:%M:%S"))
@@ -1981,7 +2064,7 @@ def service_monitoring():
     print("\nStart Services Monitoring...")
     print("    Prepare Logfile...")
     with open(PIALERT_WEBSERVICES_LOG, 'w') as monitor_logfile:
-        monitor_logfile.write("\nPi.Alert " + VERSION + " (" + VERSION_DATE + "):\n---------------------------------------------------------\n")
+        monitor_logfile.write("\nPi.Alert v" + VERSION_DATE + ":\n---------------------------------------------------------\n")
         monitor_logfile.write("Current User: %s \n\n" % get_username())
         monitor_logfile.write("Monitor Web-Services\n")
         monitor_logfile.write("    Timestamp: " + strftime("%Y-%m-%d %H:%M:%S") + "\n")
@@ -2607,7 +2690,7 @@ def send_webgui (_Text):
         f = open(REPORTPATH_WEBGUI + _webgui_filename, "w")
         f.write(_webgui_Text)
         f.close()
-    set_pia_reports_permissions()
+    set_reports_file_permissions()
 
 #===============================================================================
 # Sending Notofications

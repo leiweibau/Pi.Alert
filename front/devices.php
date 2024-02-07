@@ -56,14 +56,15 @@ $Pia_Graph_Device_Arch = $graph_arrays[4];
 
 <!-- Page ------------------------------------------------------------------ -->
   <div class="content-wrapper">
+    <section class="content-header">
+    	<?php require 'php/templates/notification.php';?>
 
 <?php
 // ################### Start Bulk-Editor #######################################
 if ($_REQUEST['mod'] == 'bulkedit') {
-	require 'php/templates/notification.php';
 
-	echo '<section class="content-header">
-          <h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
+	echo '
+					<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
           <a href="./devices.php" class="btn btn-success pull-right" role="button" style="position: absolute; display: inline-block; top: 5px; right: 15px;">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
         </section>';
 
@@ -436,7 +437,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	?>
 
 <!-- Content header--------------------------------------------------------- -->
-    <section class="content-header">
+
       <h1 id="pageTitle">
            <?=$pia_lang['Device_Title'];?>
       </h1>
@@ -580,7 +581,8 @@ $file = '../db/setting_devicelist';
 			'MACType' => 1,
 			'MACAddress' => 0,
 			'Location' => 0,
-			'ConnectionType' => 0);
+			'ConnectionType' => 0,
+			'WakeOnLAN' => 0);
 	}
 
 	$devlistcol_hide = '';
@@ -595,6 +597,7 @@ $file = '../db/setting_devicelist';
 	if ($table_config['LastIP'] == 0) {$devlistcol_hide = $devlistcol_hide . '9, ';}
 	if ($table_config['MACType'] == 0) {$devlistcol_hide = $devlistcol_hide . '10, ';}
 	if ($table_config['MACAddress'] == 0) {$devlistcol_hide = $devlistcol_hide . '11, ';}
+	if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide = $devlistcol_hide . '15, ';}
 	?>
                   <th><?=$pia_lang['Device_TableHead_Name'];?></th>
                   <th><?=$pia_lang['Device_TableHead_ConnectionType'];?></th>
@@ -611,6 +614,7 @@ $file = '../db/setting_devicelist';
                   <th><?=$pia_lang['Device_TableHead_Status'];?></th>
                   <th><?=$pia_lang['Device_TableHead_LastIPOrder'];?></th>
                   <th><?=$pia_lang['Device_TableHead_Rowid'];?></th>
+                  <th><?=$pia_lang['Device_TableHead_WakeOnLAN'];?></th>
                 </tr>
                 </thead>
               </table>
@@ -698,10 +702,11 @@ function initializeDatatable () {
 
     'columnDefs'   : [
       {visible:   false,         targets: [<?=$devlistcol_hide;?>13, 14] },
-      {className: 'text-center', targets: [4, 9, 10, 11, 12] },
+      {className: 'text-center', targets: [4, 9, 10, 11, 12, 15] },
       {width:     '100px',       targets: [7, 8] },
       {width:     '30px',        targets: [10] },
       {width:     '0px',         targets: [12] },
+      {width:     '20px',         targets: [15] },
       {orderData: [13],          targets: [9] },
 
       // Device Name
@@ -712,9 +717,7 @@ function initializeDatatable () {
         	} else {
             $(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="">'+ cellData +'</a></b>');
         	}
-
       } },
-
       // Favorite
       {targets: [4],
         'createdCell': function (td, cellData, rowData, row, col) {
@@ -724,13 +727,11 @@ function initializeDatatable () {
             $(td).html ('');
           }
       } },
-
       // Dates
       {targets: [7, 8],
         'createdCell': function (td, cellData, rowData, row, col) {
           $(td).html (translateHTMLcodes (cellData));
       } },
-
       // Random MAC
       {targets: [10],
         'createdCell': function (td, cellData, rowData, row, col) {
@@ -740,13 +741,11 @@ function initializeDatatable () {
             $(td).html ('');
           }
       } },
-
       //MAC-Address
       {targets: [11],
         'createdCell': function (td, cellData, rowData, row, col) {
             $(td).html (rowData[11]);
       } },
-
       // Status color
       {targets: [12],
         'createdCell': function (td, cellData, rowData, row, col) {
@@ -758,9 +757,23 @@ function initializeDatatable () {
             case 'Archived':  color='gray text-white';  break;
             default:          color='aqua';             break;
           };
-
           $(td).html ('<a href="deviceDetails.php?mac='+ rowData[11] +'" class="badge bg-'+ color +'">'+ rowData[12].replace('-', '') +'</a>');
       } },
+      // WakeonLAN
+      {targets: -1, // last column
+         data : null,
+         orderable: false,
+         "render": function (data, type, row, meta) {
+         	 // Deactivation of WoL buttons for devices where it probably makes no sense
+         	 var includeValues = ["Mini PC", "Server", "Laptop", "NAS", "PC"];
+
+         	 if (includeValues.indexOf(row[3]) !== -1 && row[11] !== "Internet") {
+              return '<a href="#" onclick="askwakeonlan(\'' + row[11] + '\', \'' + row[9] + '\')"><i class="fa-solid fa-power-off text-red"></i></a>';
+           } else {
+           	return '';
+           }
+         }
+      },
     ],
 
     // Processing
@@ -840,6 +853,42 @@ function getDevicesList (status) {
   $('#tableDevices').DataTable().ajax.url(
     'php/server/devices.php?action=getDevicesList&status=' + deviceStatus).load();
 };
+
+
+
+function askwakeonlan(fmac,fip) {
+  window.global_fmac = fmac;
+  window.global_fip = fip;
+  
+  showModalWarning('<?=$pia_lang['DevDetail_Tools_WOL_noti'];?>', '<?=$pia_lang['DevDetail_Tools_WOL_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'wakeonlan');
+}
+function wakeonlan() {
+  var fmac = window.global_fmac;
+  var fip = window.global_fip;
+
+  $.get('php/server/devices.php?action=wakeonlan&'
+    + '&mac='         + fmac
+    + '&ip='          + fip
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+
+
+// function wakeonlan(fmac, fip) {
+//   var userConfirmed = confirm('Möchten Sie das Gerät wirklich starten?');
+
+//   if (userConfirmed) {
+// 	  $.get('php/server/devices.php?action=wakeonlan&'
+// 	    + '&mac='         + fmac
+// 	    + '&ip='          + fip
+// 	    , function(msg) {
+// 	    showMessage (msg);
+// 	  });
+//   }
+// }
+
 </script>
 
 <?php

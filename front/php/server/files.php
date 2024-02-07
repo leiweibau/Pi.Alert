@@ -78,14 +78,27 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'GetServerTime':GetServerTime();
 		break;
+	case 'GetUpdateStatus':GetUpdateStatus();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
+
+function GetUpdateStatus() {
+	$updatenotification = '../../auto_Update.info';
+	if (file_exists($updatenotification)) {
+		$answer[0] = "i";
+		echo (json_encode($answer));
+	} else {
+		$answer[0] = "";
+		echo (json_encode($answer));
+	}
+}
+
 function GetServerTime() {
 	echo date("Y,n,j,G,i,s");
 }
-
 
 // Read logfiles --------------------------------------------------------------
 function GetLogfiles() {
@@ -149,7 +162,15 @@ function SaveConfigFile() {
 	}
 	if ($configArray['PUSHSAFER_PRIO'] == "") {$configArray['PUSHSAFER_PRIO'] = 0;}
 	if ($configArray['PUSHOVER_PRIO'] == "") {$configArray['PUSHOVER_PRIO'] = 0;}
-	if ($configArray['NETWORK_DNS_SERVER'] == "") {$configArray['NETWORK_DNS_SERVER'] = "localhost";}
+	
+	$configArray['NETWORK_DNS_SERVER'] = str_replace(" ", "", $configArray['NETWORK_DNS_SERVER']);
+	if ($configArray['NETWORK_DNS_SERVER'] == "") {
+		$configArray['NETWORK_DNS_SERVER'] = "localhost";
+	} else {
+		if (filter_var(gethostbyname($configArray['NETWORK_DNS_SERVER']), FILTER_VALIDATE_IP)) {
+		    $configArray['NETWORK_DNS_SERVER'] = $configArray['NETWORK_DNS_SERVER'];
+		} else {$configArray['NETWORK_DNS_SERVER'] = "localhost";}
+	}
 
 
 	$config_template = "# General Settings
@@ -163,6 +184,7 @@ PIALERT_APIKEY         = '" . $configArray['PIALERT_APIKEY'] . "'
 PIALERT_WEB_PROTECTION = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']) . "
 PIALERT_WEB_PASSWORD   = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
 NETWORK_DNS_SERVER     = '" . $configArray['NETWORK_DNS_SERVER'] . "'
+AUTO_UPDATE_CHECK      = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
 
 # Other Modules
 # ----------------------
@@ -489,8 +511,9 @@ function setDeviceListCol() {
 	if (($_REQUEST['mactype'] == 0) || ($_REQUEST['mactype'] == 1)) {$Set_MACType = $_REQUEST['mactype'];} else {echo "Error. Wrong variable value!";exit;}
 	if (($_REQUEST['macaddress'] == 0) || ($_REQUEST['macaddress'] == 1)) {$Set_MACAddress = $_REQUEST['macaddress'];} else {echo "Error. Wrong variable value!";exit;}
 	if (($_REQUEST['location'] == 0) || ($_REQUEST['location'] == 1)) {$Set_Location = $_REQUEST['location'];} else {echo "Error. Wrong variable value!";exit;}
+	if (($_REQUEST['wakeonlan'] == 0) || ($_REQUEST['wakeonlan'] == 1)) {$Set_WakeOnLAN = $_REQUEST['wakeonlan'];} else {echo "Error. Wrong variable value!";exit;}
 	echo $pia_lang['BackDevices_DevListCol_noti_text'];
-	$config_array = array('ConnectionType' => $Set_ConnectionType, 'Favorites' => $Set_Favorites, 'Group' => $Set_Group, 'Owner' => $Set_Owner, 'Type' => $Set_Type, 'FirstSession' => $Set_First_Session, 'LastSession' => $Set_Last_Session, 'LastIP' => $Set_LastIP, 'MACType' => $Set_MACType, 'MACAddress' => $Set_MACAddress, 'Location' => $Set_Location);
+	$config_array = array('ConnectionType' => $Set_ConnectionType, 'Favorites' => $Set_Favorites, 'Group' => $Set_Group, 'Owner' => $Set_Owner, 'Type' => $Set_Type, 'FirstSession' => $Set_First_Session, 'LastSession' => $Set_Last_Session, 'LastIP' => $Set_LastIP, 'MACType' => $Set_MACType, 'MACAddress' => $Set_MACAddress, 'Location' => $Set_Location, 'WakeOnLAN' => $Set_WakeOnLAN);
 	$DevListCol_file = '../../../db/setting_devicelist';
 	$DevListCol_new = fopen($DevListCol_file, 'w');
 	fwrite($DevListCol_new, json_encode($config_array));

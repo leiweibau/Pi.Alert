@@ -56,15 +56,15 @@ else:
 #===============================================================================
 # MAIN
 #===============================================================================
-def main ():
+def main():
     global startTime
     global cycle
     global log_timestamp
 
     # Header
-    print ('\nPi.Alert ' + VERSION +' ('+ VERSION_DATE +')')
-    print ('---------------------------------------------------------')
-    print("Current User: %s \n" % get_username())
+    print('\nPi.Alert v'+ VERSION_DATE)
+    print('---------------------------------------------------------')
+    print(f"Executing user: {get_username()}\n")
 
     # Initialize global variables
     log_timestamp  = datetime.datetime.now()
@@ -100,14 +100,14 @@ def get_username():
     return pwd.getpwuid(os.getuid())[0]
 
 # ------------------------------------------------------------------------------
-def set_pia_reports_permissions():
+def set_reports_file_permissions():
   os.system(f"sudo chown -R {get_username()}:www-data {REPORTPATH_WEBGUI}")
   os.system(f"sudo chmod -R 775 {REPORTPATH_WEBGUI}")
 
 #===============================================================================
 # Sending Notofications
 #===============================================================================
-def sending_notifications_test (_Mode):
+def sending_notifications_test(_Mode):
     if _Mode == 'Test' :
         notiMessage = "Test-Notification"
     elif _Mode == 'noti_Timerstart' :
@@ -168,7 +168,7 @@ def send_ntfy_test(_notiMessage):
   requests.post(f"{NTFY_HOST}/{NTFY_TOPIC}", data=_notiMessage, headers=headers)
 
 #-------------------------------------------------------------------------------
-def send_pushsafer_test (_notiMessage):
+def send_pushsafer_test(_notiMessage):
     try:
         notification_target = PUSHSAFER_DEVICE
     except NameError:
@@ -196,7 +196,7 @@ def send_pushsafer_test (_notiMessage):
     requests.post(url, data=post_fields)
 
 #-------------------------------------------------------------------------------
-def send_pushover_test (_notiMessage):
+def send_pushover_test(_notiMessage):
     try:
         result = PUSHOVER_PRIO
     except NameError:
@@ -221,13 +221,11 @@ def send_telegram_test(_notiMessage):
 
 #-------------------------------------------------------------------------------
 def send_webgui_test(_notiMessage):
-  # Remove one linebrake between "Server" and the headline of the event type
-  # extract event type headline to use it in the notification headline
   _webgui_filename = time.strftime("%Y%m%d-%H%M%S") + "_Test.txt"
   if (os.path.exists(REPORTPATH_WEBGUI + _webgui_filename) == False):
     with open(REPORTPATH_WEBGUI + _webgui_filename, "w") as f:
       f.write(_notiMessage)
-  set_pia_reports_permissions()
+  set_reports_file_permissions()
 
 #-------------------------------------------------------------------------------
 def remove_tag(pText, pTag):
@@ -259,7 +257,7 @@ def append_line_to_file(pPath, pText):
   file.close() 
 
 #-------------------------------------------------------------------------------
-def send_email (pText, pHTML):
+def send_email(pText, pHTML):
     # Compose email
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'Pi.Alert Report'
@@ -287,7 +285,7 @@ def SafeParseGlobalBool(boolVariable):
 #===============================================================================
 # UTIL
 #===============================================================================
-def print_log (pText):
+def print_log(pText):
     global log_timestamp
 
     # Check LOG actived

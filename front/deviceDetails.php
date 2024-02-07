@@ -76,6 +76,10 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
 
+    <div id="sticky-back-button" class="navbar navbar-default navbar-fixed-bottom" style="background-color: #000;">
+      <a class="btn btn-lg btn-default btn-block" href="./devices.php" role="button"><?=$pia_lang['Device_Table_nav_prev'];?></a>
+    </div>
+
 <!-- top small box  ------------------------------------------------------- -->
       <div class="row">
 
@@ -719,7 +723,31 @@ if ($_REQUEST['mac'] == 'Internet') {
 <?php
 // Check if Ookla Speedtest is installed
 	if (file_exists('../back/speedtest/speedtest')) {
-		//echo '<h4 class="">' . $pia_lang['ookla_devdetails_tab_headline'] . '</h4>';
+    // Show Speedtest Config
+    $speedtest_config = substr(str_replace(' ', '', get_config_parmeter('SPEEDTEST_TASK_HOUR')),1,-1);
+    if (strlen($speedtest_config) > 0) {
+      echo '<div style="margin-bottom: 30px;">';
+      $speedtest_hours = array();
+      $speedtest_hours = explode(',', $speedtest_config);
+      $speedtest_hours_count = sizeof($speedtest_hours);
+      if ($speedtest_hours_count == 1) {
+        echo $pia_lang['DevDetail_Speedtest_note_a'] . $speedtest_config . $pia_lang['DevDetail_Speedtest_note_c'];
+      } elseif ($speedtest_hours_count > 1) {
+        echo $pia_lang['DevDetail_Speedtest_note_a'];
+        for ($i=0;$i<$speedtest_hours_count;++$i) {
+          if ($i+2 < $speedtest_hours_count) {
+            echo $speedtest_hours[$i].', ';
+          } elseif ($i+2 == $speedtest_hours_count) {
+            echo $speedtest_hours[$i].$pia_lang['DevDetail_Speedtest_note_b'];
+          } else {
+            echo $speedtest_hours[$i];
+          }
+        }
+        echo $pia_lang['DevDetail_Speedtest_note_c'];
+      }
+      echo '</div>';
+    }
+
 		echo '<table id="tableSpeedtest" class="table table-bordered table-hover table-striped">
             <thead>
               <tr>
@@ -1727,7 +1755,7 @@ function setTextValue (textElement, textValue) {
   activateSaveRestoreData ();
 }
 
-// Restore Configfile
+// WakeOnLAN
 function askwakeonlan() {
   // Ask
   showModalWarning('<?=$pia_lang['DevDetail_Tools_WOL_noti'];?>', '<?=$pia_lang['DevDetail_Tools_WOL_noti_text'];?>',

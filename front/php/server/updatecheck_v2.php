@@ -19,17 +19,21 @@ $curl_handle = curl_init();
 curl_setopt($curl_handle, CURLOPT_URL, 'https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1');
 curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
 curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($curl_handle, CURLOPT_FRESH_CONNECT, TRUE);
 curl_setopt($curl_handle, CURLOPT_USERAGENT, 'PHP');
 $query = curl_exec($curl_handle);
 curl_close($curl_handle);
 // Generate JSON (Pi.Alert)
 $pialert_update = json_decode($query, true);
+// Check if json seems correct
+if ($pialert_update['0']['commit']['author']['date'] != "") {$valid_update_notes = True;} else {$valid_update_notes = False;}
 
 // Get MaxMind DB Release
 $curl_handle = curl_init();
 curl_setopt($curl_handle, CURLOPT_URL, 'https://api.github.com/repos/P3TERX/GeoLite.mmdb/releases/latest');
 curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
 curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($curl_handle, CURLOPT_FRESH_CONNECT, TRUE);
 curl_setopt($curl_handle, CURLOPT_USERAGENT, 'PHP');
 $query = curl_exec($curl_handle);
 curl_close($curl_handle);
@@ -47,10 +51,15 @@ if (file_exists($geoliteDB_file)) {
 // $geolite_cur_version = '2023-05-28';
 
 // Get Pi.Alert Version fro Github timestamp
-$utc_ts = strtotime($pialert_update['0']['commit']['author']['date']);
-$offset = date("Z");
-$local_ts = $utc_ts + $offset;
-$local_time = date("d.m.Y, H:i", $utc_ts);
+if ($valid_update_notes) {
+	$utc_ts = strtotime($pialert_update['0']['commit']['author']['date']);
+	$offset = date("Z");
+	$local_ts = $utc_ts + $offset;
+	$local_time = date("d.m.Y, H:i", $utc_ts);
+} else {
+	$local_time = date("d.m.Y, H:i");
+}
+
 // Pi.Alert Version from config file
 $pialert_cur_version = $conf_data['VERSION_DATE'];
 
@@ -75,8 +84,6 @@ if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_ver
 				' . $pia_lang['GeoLiteDB_cur'] . ': 	<span class="text-green">	' . $geolite_cur_version . '</span><br>
 				' . $pia_lang['GeoLiteDB_new'] . ': 	<span class="text-red">		' . $geolite_new_version . '</span>
 				</p>
-
-
 
           <div class="row" style="margin-top: 30px;">
             <style>
@@ -103,10 +110,8 @@ if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_ver
             </div>
           </div>
 
-
 			</div>
 		  </div>';
-	// Logging
 	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0063', '', '');
 } elseif ($geolite_cur_version == "###") {
 // No DB present
@@ -117,7 +122,6 @@ if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_ver
 				<p>' . $pia_lang['GeoLiteDB_Installnotes'] . '</p>
 			</div>
 		  </div>';
-	// Logging
 	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0065', '', '');
 } else {
 // DB present an newer as github version
@@ -127,12 +131,11 @@ if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_ver
 				<p class="text-green" style="font-size: 16px; font-weight: bold;">' . $pia_lang['Updatecheck_U2D'] . '</p>
 			</div>
 		  </div>';
-	// Logging
 	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0064', '', '');
 }
 
 // Print Update Box for Pi.Alert
-if ($pialert_cur_version != $pialert_new_version) {
+if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 // github version is not equal to local version (only a local dev version could be newer than github version)
 	echo '<div class="box">
     		<div class="box-body">
@@ -143,15 +146,28 @@ if ($pialert_cur_version != $pialert_new_version) {
 				</p>
 			</div>
 		  </div>';
+} elseif (!$valid_update_notes) {
+// github not reachable or no json response
+	echo '<div class="box">
+    		<div class="box-body">
+				<h4 class="text-aqua" style="text-align: center;"><span class="text-red">' . $pia_lang['Gen_error'] . '</span> ' . $local_time . ' ' . $pia_lang['Maintenance_Github_package_b'] . '</h4>
+				<p style="font-size: 16px; font-weight: bold;">
+				' . $pia_lang['Updatecheck_cur'] . ': 	<span class="text-green">	' . $pialert_cur_version . '</span><br>
+				' . $pia_lang['Updatecheck_new'] . ': 	<span class="text-red">		' . $pia_lang['Gen_error'] . '</span>
+				</p>
+			</div>
+		  </div>';
+	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0066', '', '');
 }
 
 // Print Update Box for Pi.Alert
-if ($pialert_cur_version != $pialert_new_version) {
+if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 	echo '<div class="box">
     <div class="box-body">
 		<h4 class="text-aqua" style="text-align: center;">' . $pia_lang['Updatecheck_RN'] . '</h4><div>';
 // Transform release notes
 	foreach ($updatenotes_array as $row) {
+		$row = str_replace("BREAKING CHANGES", "<span class=\"text-red\">BREAKING CHANGES</span>", $row);
 		if (stristr($row, "Update Notes: ")) {
 			echo '<span style="font-size: 16px; font-weight: bold; text-decoration: underline;">' . $row . '</span><br>';
 		} elseif (stristr($row, "New:")) {
@@ -179,7 +195,6 @@ if ($pialert_cur_version != $pialert_new_version) {
         <a class="btn btn-default pull-left" href="https://leiweibau.net/archive/pialert/" target="_blank">Version History (leiweibau.net)</a>
     </div>
 </div>';
-// Logging
 	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0061', '', '');
 
 }
@@ -192,10 +207,8 @@ if ($pialert_cur_version == $pialert_new_version) {
 				<p class="text-green" style="font-size: 16px; font-weight: bold;">' . $pia_lang['Updatecheck_U2D'] . '</p>
 			</div>
 		  </div>';
-// Logging
 	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0062', '', '');
 }
-
 echo '</div>';
 echo '</div>';
 
