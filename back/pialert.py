@@ -2016,7 +2016,7 @@ def service_monitoring_notification():
     text_line_template = '{}{}\n\t{}\t\t\t{}\n\t{}\t\t\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}{}\n\t{}\t\t{}\n\n'
     html_line_template = '<tr bgcolor=#909090 style="color:#F0F0F0"><td colspan="2" style="width:50%; font-size:1.2em;"><b>URL:</b> {} </td><td colspan="2" style="width:50%; font-size:1.2em;"><b>Tag:</b> {} </td></tr>\n'+ \
                          '<tr><td style="width:25%"><b>ScanTime:</b> {} </td>  <td style="width:25%"><b>IP:</b> {} </td>          <td style="width:25%"><b>prev. IP:</b> {} </td>          <td style="width:25%"><b>Latency:</b> {} </td>    <tr>\n'+ \
-                         '<tr><td style="width:25%">&nbsp;</td>                <td style="width:25%"><b>StatusCode:</b> {} </td>  <td style="width:25%"><b>prev. StatusCode:</b> {} </td>  <td style="width:25%"><b>SSL Codee:</b> {} </td>  </tr>\n'
+                         '<tr><td style="width:25%">&nbsp;</td>                <td style="width:25%"><b>StatusCode:</b> {} </td>  <td style="width:25%"><b>prev. StatusCode:</b> {} </td>  <td style="width:25%"><b>SSL Code:</b> {} </td>  </tr>\n'
 
     sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_tags
                     FROM Services_CurrentScan
