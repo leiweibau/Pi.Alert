@@ -340,22 +340,22 @@ function get_service_from_unique_device($func_unique_device) {
                                 <input type="text" class="form-control" id="serviceTag" placeholder="Tag">
                               </div>
                             </div>
-                              <div class="form-group col-xs-12">
-                                <label class="col-xs-3 control-label"><?=$pia_lang['WebServices_label_MAC'];?></label>
-                                <div class="col-xs-9">
-                                  <div class="input-group">
-                                    <div class="input-group-btn">
-                                      <button type="button" class="btn btn-default dropdown-toggle black-tooltip" data-toggle="dropdown" aria-expanded="false"><?=$pia_lang['WebServices_label_MAC_Select'];?>
-                                        <span class="fa fa-caret-down"></span></button>
-                                      <ul class="dropdown-menu">
-                                        <?php getDeviceMacs();?>
-                                      </ul>
-                                    </div>
-                                    <!-- /btn-group -->
-                                    <input type="text" id="serviceMAC" class="form-control" data-enpassusermodified="yes">
-                                  </div>
-                                </div>
-                              </div>
+	                        <div class="form-group col-xs-12">
+	                          <label class="col-xs-3 control-label"><?=$pia_lang['WebServices_label_MAC'];?></label>
+	                          <div class="col-xs-9">
+	                            <div class="input-group">
+	                              <div class="input-group-btn">
+	                                <button type="button" class="btn btn-default dropdown-toggle black-tooltip" data-toggle="dropdown" aria-expanded="false"><?=$pia_lang['WebServices_label_MAC_Select'];?>
+	                                  <span class="fa fa-caret-down"></span></button>
+	                                <ul class="dropdown-menu">
+	                                  <?php getDeviceMacs();?>
+	                                </ul>
+	                              </div>
+	                            <!-- /btn-group -->
+	                              <input type="text" id="serviceMAC" class="form-control" data-enpassusermodified="yes">
+	                            </div>
+	                          </div>
+	                        </div>
                             <div class="form-group col-xs-12">
                                 <label class="col-xs-3 control-label"><?=$pia_lang['WebServices_label_AlertEvents'];?></label>
                                 <div class="col-xs-9" style="margin-top: 0px;">

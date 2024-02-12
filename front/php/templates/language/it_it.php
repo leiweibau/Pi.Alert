@@ -1,5 +1,24 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Device_predef_table_filter'] = 'Crea filtro predefinito';
+$pia_lang['Device_del_table_filter_noti'] = 'Elimina filtro tabella';
+$pia_lang['Device_del_table_filter_noti_text'] = 'Vuoi eliminare il filtro della tabella salvato? Questo rimuoverà solo l&apos;entrata nella barra laterale. I dispositivi filtrati rimangono invariati.';
+$pia_lang['Device_del_table_filtername'] = 'Nome del filtro';
+$pia_lang['Device_del_table_filterstring'] = 'Filtro';
+$pia_lang['Device_del_table_filtername_help'] = 'Nome nella barra laterale';
+$pia_lang['Device_del_table_filterstring_help'] = 'Termine di ricerca';
+
+$pia_lang['BackDevices_table_filter_ok_a'] = 'Il filtro ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' con il valore ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' è stato salvato';
+
+$pia_lang['BackDevices_table_filter_error_a'] = 'Il filtro ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' con il valore ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' non è stato possibile salvare';
+$pia_lang['BackDevices_table_filter_error_d'] = 'Non tutti i campi obbligatori sono stati compilati';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Errore durante la creazione della tabella dei filtri';
+
 //////////////////////////////////////////////////////////////////
 // About
 //////////////////////////////////////////////////////////////////

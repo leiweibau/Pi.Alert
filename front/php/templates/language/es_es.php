@@ -1,5 +1,24 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Device_predef_table_filter'] = 'Crear filtro predefinido';
+$pia_lang['Device_del_table_filter_noti'] = 'Eliminar filtro de tabla';
+$pia_lang['Device_del_table_filter_noti_text'] = '¿Desea eliminar el filtro de tabla guardado? Esto solo eliminará la entrada en la barra lateral. Los dispositivos filtrados permanecen sin cambios.';
+$pia_lang['Device_del_table_filtername'] = 'Nombre del filtro';
+$pia_lang['Device_del_table_filterstring'] = 'Filtro';
+$pia_lang['Device_del_table_filtername_help'] = 'Nombre en la barra lateral';
+$pia_lang['Device_del_table_filterstring_help'] = 'Término de búsqueda';
+
+$pia_lang['BackDevices_table_filter_ok_a'] = 'El filtro ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' con el valor ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' ha sido guardado';
+
+$pia_lang['BackDevices_table_filter_error_a'] = 'El filtro ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' con el valor ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' no se pudo guardar';
+$pia_lang['BackDevices_table_filter_error_d'] = 'No se completaron todos los campos requeridos';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Error al crear la tabla de filtros';
+
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////

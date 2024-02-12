@@ -439,7 +439,12 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 <!-- Content header--------------------------------------------------------- -->
 
       <h1 id="pageTitle">
-           <?=$pia_lang['Device_Title'];?>
+           <?php
+           echo $pia_lang['Device_Title'];
+           if ($_REQUEST['predefined_filter']) {
+           	echo ' ('.$_REQUEST['predefined_filter'].')';
+           }
+           ?>
       </h1>
     </section>
 
@@ -559,6 +564,61 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
             <div class="box-header">
               <h3 id="tableDevicesTitle" class="box-title text-gray">Devices</h3>
               <a href="./devices.php?mod=bulkedit" class="btn btn-xs btn-default" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil" style="font-size:1.5rem"></i></a>
+              <?php
+              # Create or remove custom filters
+              if (!$_REQUEST['predefined_filter']) {
+              	# no active filter
+              	echo '<a href="#" class="btn btn-xs btn-default" role="button" data-toggle="modal" data-target="#modal-set-predefined-filter" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter" style="font-size:1.5rem"></i></a>';
+              } else {
+              	# active filter
+              	echo '<a href="#" class="btn btn-xs btn-default" role="button" onclick="askDeleteDeviceFilter()" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter-circle-xmark" style="font-size:1.5rem"></i></a>';
+              	echo '
+              	<style>
+									.dataTables_wrapper .dataTables_filter {
+									float: right;
+									text-align: right;
+									visibility: hidden;
+									}
+              	</style>';
+              }
+
+							echo '<div class="modal fade" id="modal-set-predefined-filter">
+							        <div class="modal-dialog modal-dialog-centered">
+							            <div class="modal-content">
+							                <div class="modal-header">
+							                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							                        <span aria-hidden="true">×</span></button>
+							                    <h4 class="modal-title">'.$pia_lang['Device_predef_table_filter'].'</h4>
+							                </div>
+							                <div class="modal-body main_logviwer_text_layout">
+							                    <div class="main_logviwer_log" style="max-height: 70vh;" id="modal-set-filter-content">
+								                    <div style="height: 150px;">
+								                      <div class="form-group col-xs-12">
+								                        <label class="col-xs-3 control-label">'.$pia_lang['Device_del_table_filtername'].'</label>
+								                        <div class="col-xs-9">
+								                          <input type="text" class="form-control" id="txtFilterName" placeholder="'.$pia_lang['Device_del_table_filtername_help'].'">
+								                        </div>
+								                      </div>
+								                      <div class="form-group col-xs-12">
+								                        <label class="col-xs-3 control-label">'.$pia_lang['Device_del_table_filterstring'].'</label>
+								                        <div class="col-xs-9">
+								                          <input type="text" class="form-control" id="txtFilterString" placeholder="'.$pia_lang['Device_del_table_filterstring_help'].'">
+								                        </div>
+								                      </div>
+								                    </div>
+								                    <br>
+							                    </div>
+							                </div>
+					                    <div class="modal-footer">
+					                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">'.$pia_lang['Gen_Close'].'</button>
+					                        <button type="button" class="btn btn-primary" id="btnInsert" onclick="SetDeviceFilter()" >'.$pia_lang['Gen_Save'].'</button>
+					                    </div>
+									        </div>
+									    </div>
+									 </div>';
+
+
+              ?>
             </div>
 
             <div class="box-body table-responsive">
@@ -636,13 +696,12 @@ $file = '../db/setting_devicelist';
 
 <?php
 require 'php/templates/footer.php';
-	?>
+?>
 
 <!-- Datatable -->
 <link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
 <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
 
 <!-- page script ----------------------------------------------------------- -->
 <script>
@@ -690,6 +749,7 @@ function initializeDatatable () {
     'lengthChange' : true,
     'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, '<?=$pia_lang['Device_Tablelenght_all'];?>']],
     'searching'    : true,
+    'oSearch'      : {'sSearch': '<?=$_REQUEST['predefined_filter'];?>'},
 
     'ordering'     : true,
     'info'         : true,
@@ -854,8 +914,6 @@ function getDevicesList (status) {
     'php/server/devices.php?action=getDevicesList&status=' + deviceStatus).load();
 };
 
-
-
 function askwakeonlan(fmac,fip) {
   window.global_fmac = fmac;
   window.global_fip = fip;
@@ -875,19 +933,26 @@ function wakeonlan() {
   });
 }
 
+// Remove Device List Column
+function askDeleteDeviceFilter() {
+  showModalWarning('<?=$pia_lang['Device_del_table_filter_noti'];?>', '<?=$pia_lang['Device_del_table_filter_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteDeviceFilter');
+}
+function DeleteDeviceFilter() {
+    $.get('php/server/devices.php?action=DeleteDeviceFilter&filterstring=<?=$_REQUEST['predefined_filter'];?>'
+    , function(msg) {
+    showMessage (msg);
+  });
+}
 
-// function wakeonlan(fmac, fip) {
-//   var userConfirmed = confirm('Möchten Sie das Gerät wirklich starten?');
-
-//   if (userConfirmed) {
-// 	  $.get('php/server/devices.php?action=wakeonlan&'
-// 	    + '&mac='         + fmac
-// 	    + '&ip='          + fip
-// 	    , function(msg) {
-// 	    showMessage (msg);
-// 	  });
-//   }
-// }
+function SetDeviceFilter() {
+    $.get('php/server/devices.php?action=SetDeviceFilter&'
+    + '&filtername='            + $('#txtFilterName').val()
+    + '&filterstring='          + $('#txtFilterString').val()
+    , function(msg) {
+    showMessage (msg);
+  });
+}
 
 </script>
 

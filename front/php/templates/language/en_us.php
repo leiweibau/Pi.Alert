@@ -1,5 +1,24 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Device_predef_table_filter'] = 'Create predefined filter';
+$pia_lang['Device_del_table_filter_noti'] = 'Delete table filter';
+$pia_lang['Device_del_table_filter_noti_text'] = 'Do you want to delete the saved table filter? This will only remove the entry in the sidebar. The filtered devices remain unaffected.';
+$pia_lang['Device_del_table_filtername'] = 'Filter name';
+$pia_lang['Device_del_table_filterstring'] = 'Filter';
+$pia_lang['Device_del_table_filtername_help'] = 'Name in sidebar';
+$pia_lang['Device_del_table_filterstring_help'] = 'Search term';
+
+$pia_lang['BackDevices_table_filter_ok_a'] = 'The filter ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' with the value ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' has been saved';
+
+$pia_lang['BackDevices_table_filter_error_a'] = 'The filter ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' with the value ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' could not be saved';
+$pia_lang['BackDevices_table_filter_error_d'] = 'Not all required fields were filled out';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Error creating the filter table';
+
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////

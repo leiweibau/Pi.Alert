@@ -1,5 +1,24 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Device_predef_table_filter'] = 'Créer un filtre prédéfini';
+$pia_lang['Device_del_table_filter_noti'] = 'Supprimer le filtre de table';
+$pia_lang['Device_del_table_filter_noti_text'] = 'Voulez-vous supprimer le filtre de table enregistré ? Cela supprimera uniquement l&apos;entrée dans la barre latérale. Les appareils filtrés restent inchangés.';
+$pia_lang['Device_del_table_filtername'] = 'Nom du filtre';
+$pia_lang['Device_del_table_filterstring'] = 'Filtre';
+$pia_lang['Device_del_table_filtername_help'] = 'Nom dans la barre latérale';
+$pia_lang['Device_del_table_filterstring_help'] = 'Terme de recherche';
+
+$pia_lang['BackDevices_table_filter_ok_a'] = 'Le filtre ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' avec la valeur ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' a été enregistré';
+
+$pia_lang['BackDevices_table_filter_error_a'] = 'Le filtre ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' avec la valeur ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' n&apos;a pas pu être enregistré';
+$pia_lang['BackDevices_table_filter_error_d'] = 'Tous les champs requis n&apos;ont pas été remplis';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Erreur lors de la création de la table de filtres';
+
 //////////////////////////////////////////////////////////////////
 // About - ready
 //////////////////////////////////////////////////////////////////

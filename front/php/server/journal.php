@@ -21,8 +21,6 @@ function calc_configfile_hash_top() {
 function pialert_logging($LogClass, $Trigger, $LogString, $Hash, $Additional_Info) {
 	global $db;
 
-	$journalFile = '../db/temp_journal.sql';
-
 	if (file_exists('../../../config/pialert.conf')) {
 		$journalFile = '../../../db/pialert_journal_buffer';
 	} else {
@@ -53,12 +51,6 @@ function pialert_logging($LogClass, $Trigger, $LogString, $Hash, $Additional_Inf
 			$queries = file($journalFile, FILE_IGNORE_NEW_LINES);
 			foreach ($queries as $query) {
 				$result = $db->exec($query);
-
-				// if ($result !== false) {
-				// 	echo "Query executed successfully. Rows affected: " . $result . PHP_EOL;
-				// } else {
-				// 	echo "Error executing query: " . $db->lastErrorMsg() . PHP_EOL;
-				// }
 			}
 			unlink($journalFile);
 		}

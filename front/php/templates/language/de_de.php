@@ -1,5 +1,24 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Device_predef_table_filter'] = 'Vordefinierten Filter erstellen';
+$pia_lang['Device_del_table_filter_noti'] = 'Tabellenfilter löschen';
+$pia_lang['Device_del_table_filter_noti_text'] = 'Möchtest du den gespeicherten Tabellenfilter löschen? Hierbei wird nur der Eintrag in der Seitenleiste entfern. Die gefilterten Geräte bleiben unbeeinflusst.';
+$pia_lang['Device_del_table_filtername'] = 'Filterbezeichnung';
+$pia_lang['Device_del_table_filterstring'] = 'Filter';
+$pia_lang['Device_del_table_filtername_help'] = 'Bezeichnung in der Seitenleiste';
+$pia_lang['Device_del_table_filterstring_help'] = 'Suchbegriff';
+
+$pia_lang['BackDevices_table_filter_ok_a'] = 'Der Filter ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' mit dem Wert ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' wurde gespeichert';
+
+$pia_lang['BackDevices_table_filter_error_a'] = 'Der Filter ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' mit dem Wert ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' konnte nicht gespeichert werden';
+$pia_lang['BackDevices_table_filter_error_d'] = 'Nicht alle erforderlichen Felder wurden ausgefüllt';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Fehler beim Erstellen der Filter-Tabelle';
+
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////
@@ -256,7 +275,7 @@ $pia_lang['DevDetail_Tools_nmap_buttonFast'] = 'Schneller Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonDefault'] = 'Standard Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonDetail'] = 'Detailierter Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonFast_text'] = 'Schneller Scan: Überprüft nur die wichtigsten 100 Ports (wenige Sekunden)';
-$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Standard Scan: Nmap scannt die ersten 1.000 Ports für jedes angeforderte Scan-Protokoll. Damit werden etwa 93% der TCP-Ports und 49% der UDP-Ports erfasst. (ca. 5-10 Sekunden)';
+$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Standard Scan: Nmap scannt die ersten 1.000 Ports für jedes angeforderte Scan-Protokoll. (ca. 5-10 Sekunden)';
 $pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Detailierter Scan: Standardscan mit aktivierter Betriebssystemerkennung, Versionserkennung, Skript-Scan und Traceroute (bis zu 30 oder mehr Sekunden)';
 $pia_lang['DevDetail_Tools_WOL'] = 'Sende Wol Befehl an ';
 $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';

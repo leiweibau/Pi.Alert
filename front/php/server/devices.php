@@ -84,16 +84,74 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'GetARPStatus':GetARPStatus();
 		break;
+	case 'DeleteDeviceFilter':DeleteDeviceFilter();
+		break;
+	case 'SetDeviceFilter':SetDeviceFilter();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
+
+
+function SetDeviceFilter() {
+	global $db;
+	global $pia_lang;
+
+	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
+	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+
+	$sql = "CREATE TABLE IF NOT EXISTS Devices_table_filter (
+	            id INTEGER PRIMARY KEY,
+	            filtername TEXT NOT NULL,
+	            filterstring TEXT NOT NULL,
+	            reserve_a INTEGER,
+	            reserve_b TEXT,
+	            reserve_c TEXT
+	        )";
+
+	try {
+		$result = $db->query($sql);
+		
+		if ($filtername != "" && $filterstring != "") {
+			try {
+				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring") 
+		                               VALUES ("' . $filtername . '", "' . $filterstring . '")';
+
+			    $result = $db->query($sql_insert_data);
+			    echo $pia_lang['BackDevices_table_filter_ok_a'] . $filtername . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
+			} catch (Exception $e) {
+			    die($pia_lang['BackDevices_table_filter_error_a'] . $filtername . $pia_lang['BackDevices_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_error_c']);
+			}
+		} else {
+			echo $pia_lang['BackDevices_table_filter_error_d'];
+		}
+
+	} catch (Exception $e) {
+	    die($pia_lang['BackDevices_table_filter_error_e']);
+	}
+	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
+	
+}
+
+function DeleteDeviceFilter() {
+	global $db;
+
+	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+	$sql = 'DELETE FROM Devices_table_filter WHERE filterstring="' . $filterstring . '"';
+	// execute sql
+	$result = $db->query($sql);
+
+	echo 'Der Filter "'. $filterstring.'" gelöscht';
+	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
+}
+
 function GetARPStatus() {
 	$execstring = 'ps -aux | grep "/pialert/back/pialert.py 1" | grep -v grep | grep -v "/pialert/log/pialert.1.log"';
 	$pia_arpscans = "";
 	exec($execstring, $pia_arpscans);
 	$result = array(sizeof($pia_arpscans));
-	echo (json_encode($result));
+	echo json_encode($result);
 }
 
 
@@ -156,7 +214,7 @@ function getDeviceData() {
 	$row = $result->fetchArray(SQLITE3_NUM);
 	$deviceData['dev_PresenceHours'] = round($row[0]);
 	// Return json
-	echo (json_encode($deviceData));
+	echo json_encode($deviceData);
 }
 
 //  Update Device Data
@@ -363,7 +421,7 @@ function getDevicesTotals() {
         (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived') . ') as archived
    ');
 	$row = $result->fetchArray(SQLITE3_NUM);
-	echo (json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5])));
+	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5]));
 }
 
 //  Query the List of devices in a determined Status
@@ -404,7 +462,7 @@ function getDevicesList() {
 		$tableData['data'] = '';
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of devices for calendar
@@ -426,7 +484,7 @@ function getDevicesListCalendar() {
 			'favorite' => $row['dev_Favorite']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of Owners
@@ -454,7 +512,7 @@ function getOwners() {
 			'name' => $row['dev_Owner']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of types
@@ -505,7 +563,7 @@ function getDeviceTypes() {
 			'name' => $row['dev_DeviceType']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of groups
@@ -530,7 +588,7 @@ function getGroups() {
 	}
 
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of locations
@@ -575,7 +633,7 @@ function getLocations() {
 			'name' => $row['dev_Location']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query Device Data
@@ -597,7 +655,7 @@ function getNetworkNodes() {
 		$tableData = [];
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Status Where conditions
