@@ -1,24 +1,6 @@
 <?php
 unset($pia_lang);
 
-$pia_lang['Device_predef_table_filter'] = 'Crear filtro predefinido';
-$pia_lang['Device_del_table_filter_noti'] = 'Eliminar filtro de tabla';
-$pia_lang['Device_del_table_filter_noti_text'] = '¿Desea eliminar el filtro de tabla guardado? Esto solo eliminará la entrada en la barra lateral. Los dispositivos filtrados permanecen sin cambios.';
-$pia_lang['Device_del_table_filtername'] = 'Nombre del filtro';
-$pia_lang['Device_del_table_filterstring'] = 'Filtro';
-$pia_lang['Device_del_table_filtername_help'] = 'Nombre en la barra lateral';
-$pia_lang['Device_del_table_filterstring_help'] = 'Término de búsqueda';
-
-$pia_lang['BackDevices_table_filter_ok_a'] = 'El filtro ';
-$pia_lang['BackDevices_table_filter_ok_b'] = ' con el valor ';
-$pia_lang['BackDevices_table_filter_ok_c'] = ' ha sido guardado';
-
-$pia_lang['BackDevices_table_filter_error_a'] = 'El filtro ';
-$pia_lang['BackDevices_table_filter_error_b'] = ' con el valor ';
-$pia_lang['BackDevices_table_filter_error_c'] = ' no se pudo guardar';
-$pia_lang['BackDevices_table_filter_error_d'] = 'No se completaron todos los campos requeridos';
-$pia_lang['BackDevices_table_filter_error_e'] = 'Error al crear la tabla de filtros';
-
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////
@@ -131,6 +113,13 @@ $pia_lang['Device_bulkDel_info_text'] = 'Con esta función se borran uno o vario
 $pia_lang['Device_bulkDel_back_before'] = 'Número de unidades antes';
 $pia_lang['Device_bulkDel_back_after'] = 'Número actual de unidades';
 $pia_lang['Device_bulkDel_back_hosts'] = 'Direcciones MAC a eliminar';
+$pia_lang['Device_predef_table_filter'] = 'Crear filtro predefinido';
+$pia_lang['Device_del_table_filter_noti'] = 'Eliminar filtro de tabla';
+$pia_lang['Device_del_table_filter_noti_text'] = '¿Desea eliminar el filtro de tabla guardado? Esto solo eliminará la entrada en la barra lateral. Los dispositivos filtrados permanecen sin cambios.';
+$pia_lang['Device_del_table_filtername'] = 'Nombre del filtro';
+$pia_lang['Device_del_table_filterstring'] = 'Filtro';
+$pia_lang['Device_del_table_filtername_help'] = 'Nombre en la barra lateral';
+$pia_lang['Device_del_table_filterstring_help'] = 'Término de búsqueda';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page - Update by @TeroRERO 25jul2022
@@ -573,6 +562,15 @@ $pia_lang['BackDevices_Report_Delete'] = ' Notificación(es) eliminada(s).';
 $pia_lang['BackFiles_FavIcon_invalidURL'] = 'Se ha ingresado una URL no válida.';
 $pia_lang['BackFiles_FavIcon_ErrorURL'] = 'Un FavIcon ingresado manualmente debe ser una URL. Las referencias de ruta para un archivo local no se guardarán.';
 $pia_lang['BackFiles_FavIcon_okay'] = 'El nuevo FavIcon se ha guardado.';
+$pia_lang['BackDevices_table_filter_ok_a'] = 'El filtro ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' con el valor ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' ha sido guardado';
+$pia_lang['BackDevices_table_delfilter_ok'] = 'Este filtro ha sido eliminado: ';
+$pia_lang['BackDevices_table_filter_error_a'] = 'El filtro ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' con el valor ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' no se pudo guardar';
+$pia_lang['BackDevices_table_filter_error_d'] = 'No se completaron todos los campos requeridos';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Error al crear la tabla de filtros';
 
 //////////////////////////////////////////////////////////////////
 // Network Page - Update by @TeroRERO 01ago2022
@@ -737,6 +735,11 @@ $pia_journ_lang['LogStr_0033'] = 'Se agregó dispositivo no escaneable (Hubs, di
 $pia_journ_lang['LogStr_0034'] = 'Se editó dispositivo no escaneable (Hubs, dispositivos PoE, Docker, etc.)';
 $pia_journ_lang['LogStr_0035'] = 'Se eliminó dispositivo no escaneable (Hubs, dispositivos PoE, Docker, etc.)';
 $pia_journ_lang['LogStr_0036'] = 'Dispositivos, servicios web y hosts ICMP exportados en formato CSV.';
+$pia_journ_lang['LogStr_0041'] = 'Error al guardar el filtro predefinido';
+$pia_journ_lang['LogStr_0042'] = 'Se ha guardado el filtro predefinido';
+$pia_journ_lang['LogStr_0043'] = 'El filtro predefinido estaba incompleto y no se guardó';
+$pia_journ_lang['LogStr_0044'] = 'No se pudo crear la tabla de filtros';
+$pia_journ_lang['LogStr_0045'] = 'Se ha eliminado el filtro predefinido';
 $pia_journ_lang['LogStr_0050'] = 'Protección de contraseña de Pi.Alert habilitada';
 $pia_journ_lang['LogStr_0051'] = 'Protección de contraseña de Pi.Alert deshabilitada';
 $pia_journ_lang['LogStr_0052'] = 'Se cambió la configuración de columnas de la lista de dispositivos';

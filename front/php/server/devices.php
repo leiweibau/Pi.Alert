@@ -93,14 +93,13 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 	}
 }
 
-
 function SetDeviceFilter() {
 	global $db;
 	global $pia_lang;
 
 	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
 	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
-
+	// Create table if not exist
 	$sql = "CREATE TABLE IF NOT EXISTS Devices_table_filter (
 	            id INTEGER PRIMARY KEY,
 	            filtername TEXT NOT NULL,
@@ -109,7 +108,7 @@ function SetDeviceFilter() {
 	            reserve_b TEXT,
 	            reserve_c TEXT
 	        )";
-
+	// Write filter in db
 	try {
 		$result = $db->query($sql);
 		
@@ -119,19 +118,21 @@ function SetDeviceFilter() {
 		                               VALUES ("' . $filtername . '", "' . $filterstring . '")';
 
 			    $result = $db->query($sql_insert_data);
-			    echo $pia_lang['BackDevices_table_filter_ok_a'] . $filtername . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
+			    echo $pia_lang['BackDevices_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
+			    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);
 			} catch (Exception $e) {
-			    die($pia_lang['BackDevices_table_filter_error_a'] . $filtername . $pia_lang['BackDevices_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_error_c']);
+			    die($pia_lang['BackDevices_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_error_c']);
+			    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0041', '', '');
 			}
 		} else {
 			echo $pia_lang['BackDevices_table_filter_error_d'];
+			pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0043', '', '');
 		}
-
 	} catch (Exception $e) {
 	    die($pia_lang['BackDevices_table_filter_error_e']);
+	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0044', '', '');
 	}
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
-	
 }
 
 function DeleteDeviceFilter() {
@@ -142,7 +143,8 @@ function DeleteDeviceFilter() {
 	// execute sql
 	$result = $db->query($sql);
 
-	echo 'Der Filter "'. $filterstring.'" gelöscht';
+	echo 'Dieser Filter wurde gelöscht: '. $filterstring;
+	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
 }
 

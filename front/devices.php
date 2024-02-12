@@ -586,8 +586,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 							        <div class="modal-dialog modal-dialog-centered">
 							            <div class="modal-content">
 							                <div class="modal-header">
-							                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							                        <span aria-hidden="true">×</span></button>
+							                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 							                    <h4 class="modal-title">'.$pia_lang['Device_predef_table_filter'].'</h4>
 							                </div>
 							                <div class="modal-body main_logviwer_text_layout">
@@ -616,11 +615,8 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 									        </div>
 									    </div>
 									 </div>';
-
-
               ?>
             </div>
-
             <div class="box-body table-responsive">
               <table id="tableDevices" class="table table-bordered table-hover table-striped">
                 <thead>
@@ -631,34 +627,23 @@ $file = '../db/setting_devicelist';
 		$get = file_get_contents($file, true);
 		$table_config = json_decode($get, true);
 	} else {
-		$table_config = array('Favorites' => 1,
-			'Group' => 1,
-			'Owner' => 1,
-			'Type' => 1,
-			'FirstSession' => 1,
-			'LastSession' => 1,
-			'LastIP' => 1,
-			'MACType' => 1,
-			'MACAddress' => 0,
-			'Location' => 0,
-			'ConnectionType' => 0,
-			'WakeOnLAN' => 0);
+		$table_config = array('Favorites' => 1, 'Group' => 1, 'Owner' => 1, 'Type' => 1, 'FirstSession' => 1, 'LastSession' => 1, 'LastIP' => 1, 'MACType' => 1, 'MACAddress' => 0, 'Location' => 0, 'ConnectionType' => 0, 'WakeOnLAN' => 0);
 	}
 
-	$devlistcol_hide = '';
-	if ($table_config['ConnectionType'] == 0) {$devlistcol_hide = $devlistcol_hide . '1, ';}
-	if ($table_config['Owner'] == 0) {$devlistcol_hide = $devlistcol_hide . '2, ';}
-	if ($table_config['Type'] == 0) {$devlistcol_hide = $devlistcol_hide . '3, ';}
-	if ($table_config['Favorites'] == 0) {$devlistcol_hide = $devlistcol_hide . '4, ';}
-	if ($table_config['Group'] == 0) {$devlistcol_hide = $devlistcol_hide . '5, ';}
-	if ($table_config['Location'] == 0) {$devlistcol_hide = $devlistcol_hide . '6, ';}
-	if ($table_config['FirstSession'] == 0) {$devlistcol_hide = $devlistcol_hide . '7, ';}
-	if ($table_config['LastSession'] == 0) {$devlistcol_hide = $devlistcol_hide . '8, ';}
-	if ($table_config['LastIP'] == 0) {$devlistcol_hide = $devlistcol_hide . '9, ';}
-	if ($table_config['MACType'] == 0) {$devlistcol_hide = $devlistcol_hide . '10, ';}
-	if ($table_config['MACAddress'] == 0) {$devlistcol_hide = $devlistcol_hide . '11, ';}
-	if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide = $devlistcol_hide . '15, ';}
-	?>
+$devlistcol_hide = '';
+if ($table_config['ConnectionType'] == 0) {$devlistcol_hide = $devlistcol_hide . '1, ';}
+if ($table_config['Owner'] == 0) {$devlistcol_hide = $devlistcol_hide . '2, ';}
+if ($table_config['Type'] == 0) {$devlistcol_hide = $devlistcol_hide . '3, ';}
+if ($table_config['Favorites'] == 0) {$devlistcol_hide = $devlistcol_hide . '4, ';}
+if ($table_config['Group'] == 0) {$devlistcol_hide = $devlistcol_hide . '5, ';}
+if ($table_config['Location'] == 0) {$devlistcol_hide = $devlistcol_hide . '6, ';}
+if ($table_config['FirstSession'] == 0) {$devlistcol_hide = $devlistcol_hide . '7, ';}
+if ($table_config['LastSession'] == 0) {$devlistcol_hide = $devlistcol_hide . '8, ';}
+if ($table_config['LastIP'] == 0) {$devlistcol_hide = $devlistcol_hide . '9, ';}
+if ($table_config['MACType'] == 0) {$devlistcol_hide = $devlistcol_hide . '10, ';}
+if ($table_config['MACAddress'] == 0) {$devlistcol_hide = $devlistcol_hide . '11, ';}
+if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide = $devlistcol_hide . '15, ';}
+?>
                   <th><?=$pia_lang['Device_TableHead_Name'];?></th>
                   <th><?=$pia_lang['Device_TableHead_ConnectionType'];?></th>
                   <th><?=$pia_lang['Device_TableHead_Owner'];?></th>
@@ -680,7 +665,6 @@ $file = '../db/setting_devicelist';
               </table>
             </div>
             <!-- /.box-body -->
-
           </div>
           <!-- /.box -->
         </div>
@@ -730,10 +714,8 @@ function main () {
       if (Array.isArray (result) ) {
         tableOrder = result;
       }
-
       // Initialize components with parameters
       initializeDatatable();
-
       // query data
       getDevicesTotals();
       getDevicesList (deviceStatus);
@@ -914,17 +896,16 @@ function getDevicesList (status) {
     'php/server/devices.php?action=getDevicesList&status=' + deviceStatus).load();
 };
 
+// WakeonLAN
 function askwakeonlan(fmac,fip) {
   window.global_fmac = fmac;
   window.global_fip = fip;
-  
   showModalWarning('<?=$pia_lang['DevDetail_Tools_WOL_noti'];?>', '<?=$pia_lang['DevDetail_Tools_WOL_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'wakeonlan');
 }
 function wakeonlan() {
   var fmac = window.global_fmac;
   var fip = window.global_fip;
-
   $.get('php/server/devices.php?action=wakeonlan&'
     + '&mac='         + fmac
     + '&ip='          + fip
@@ -945,6 +926,7 @@ function DeleteDeviceFilter() {
   });
 }
 
+// Set Device Filter
 function SetDeviceFilter() {
     $.get('php/server/devices.php?action=SetDeviceFilter&'
     + '&filtername='            + $('#txtFilterName').val()
@@ -953,6 +935,13 @@ function SetDeviceFilter() {
     showMessage (msg);
   });
 }
+// Copy Filter from Searchbox
+$('#modal-set-predefined-filter').on('shown.bs.modal', function () {
+ 		var tableDevicesFilter = $("#tableDevices_filter .form-control.input-sm").val();
+    if (tableDevicesFilter.length > 0) {
+        $("#txtFilterString").val(tableDevicesFilter);
+    }
+});
 
 </script>
 
