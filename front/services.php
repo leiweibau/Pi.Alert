@@ -184,7 +184,7 @@ function list_standalone_services() {
                         <div class="servicebox_box">
                             <div style="display: block; margin-top:5px;"><span class="servicebox_box_prot">' . strtoupper($url_array[0]) . '</span></div>
                             <div style="display: block;"><span class="servicebox_box_code">' . $row['mon_LastStatus'] . '</span></div>
-                            <i class="fa fa-globe" style="position: relative; top: -58px; left: 0px; font-size: 58px; opacity: 0.2;"></i>
+                            <i class="fa fa-globe services_icon"></i>
                         </div>
                     </div>
                     <div class="servicebox_text">
@@ -265,7 +265,7 @@ function get_service_from_unique_device($func_unique_device) {
                         <div class="servicebox_box">
                             <div style="display: block; margin-top:5px;"><span class="servicebox_box_prot">' . strtoupper($url_array[0]) . '</span></div>
                             <div style="display: block;"><span class="servicebox_box_code">' . $row['mon_LastStatus'] . '</span></div>
-                            <i class="fa fa-globe" style="position: relative; top: -58px; left: 0px; font-size: 58px; opacity: 0.2;"></i>
+                            <i class="fa fa-globe services_icon"></i>
                         </div>
                     </div>
                     <div class="servicebox_text">

@@ -709,3 +709,15 @@ input[type="password"]::-webkit-caps-lock-indicator {
 .sysinfo_services {
   background-color: rgba(0, 0, 0, 0.3);
 }
+
+
+@media (min-width: 768px) {
+    #sticky-back-button{
+        display: none;
+        visibility: hidden;
+    }
+}
+.services_icon {position: relative; top: -58px; left: 0px; font-size: 58px; opacity: 0.2;}
+.service_httpcode_box {display: inline-block;font-size: 18px; margin: 0; line-height: 1;}
+#btnDeleteEvents, #btnDelete, #btnRestore, #btnSave { margin-left:6px; margin-top:6px;}
+#manualnmap_fast, #manualnmap_normal, #manualnmap_detail {margin-bottom: 20px; margin-left: 10px; margin-right: 10px;}

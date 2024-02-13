@@ -491,6 +491,8 @@ body.modal-open {
 .fixed_container { overflow:visible visible; }
 /* ----------------- Services ----------------------------------------------- */
 .icmplist_add_ip {display: inline-block; margin-top: -5px; margin-left: 15px;}
+.services_icon {position: relative; top: -58px; left: 0px; font-size: 58px; opacity: 0.2;}
+.service_httpcode_box {display: inline-block;font-size: 18px; margin: 0; line-height: 1;}
 /* ----------------- Network ------------------------------------------------ */
 .network_tab_icon {font-size: 16px; position: relative;}
 .flip-horizontal { transform: scaleX(-1); display: inline-block;}
