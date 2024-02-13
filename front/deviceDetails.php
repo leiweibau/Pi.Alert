@@ -129,10 +129,9 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 <!-- tab control------------------------------------------------------------ -->
       <div class="row">
         <div class="col-lg-12 col-sm-12 col-xs-12">
-        <!-- <div class="box-transparent"> -->
-
+        
           <div id="navDevice" class="nav-tabs-custom">
-            <ul class="nav nav-tabs" style="fon t-size:16px;">
+            <ul class="nav nav-tabs">
               <li> <a id="tabDetails"  href="#panDetails"  data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Details'];?>  </a></li>
 <?php
 if ($_REQUEST['mac'] == 'Internet') {$DevDetail_Tap_temp = "Tools";} else { $DevDetail_Tap_temp = $pia_lang['DevDetail_Tab_Nmap'];}
@@ -147,12 +146,9 @@ if ($_REQUEST['mac'] == 'Internet') {
 }
 ?>
               <div class="btn-group pull-right">
-                <button type="button" class="btn btn-default"  style="padding: 10px; min-width: 30px;"
-                  id="btnPrevious" onclick="previousRecord()"> <i class="fa fa-chevron-left"></i> </button>
-                <div class="btn pa-btn-records"  style="padding: 10px; min-width: 30px; margin-left: 1px;"
-                  id="txtRecord"     > 0 / 0 </div>
-                <button type="button" class="btn btn-default"  style="padding: 10px; min-width: 30px; margin-left: 1px;"
-                  id="btnNext"     onclick="nextRecord()"> <i class="fa fa-chevron-right"></i> </button>
+                <button type="button" class="btn btn-default" id="btnPrevious" onclick="previousRecord()"><i class="fa fa-chevron-left"></i></button>
+                <div class="btn pa-btn-records" id="txtRecord"> 0 / 0 </div>
+                <button type="button" class="btn btn-default" id="btnNext" onclick="nextRecord()"><i class="fa fa-chevron-right"></i></button>
               </div>
             </ul>
 
@@ -476,12 +472,9 @@ if ($_REQUEST['mac'] == 'Internet') {
                 </div>
                     <div style="width: 100%; position: relative; top: 12px; right: -10px;">
                       <div class="btn-group pull-right" style="position: relative; right: 0px;">
-                        <button type="button" class="btn btn-default" style="padding: 10px; min-width: 30px;"
-                          id="btnPrevious_down" onclick="previousRecord()"> <i class="fa fa-chevron-left"></i> </button>
-                        <div class="btn pa-btn-records"  style="padding: 10px; min-width: 30px; margin-left: 1px;"
-                          id="txtRecord_down"> 0 / 0 </div>
-                        <button type="button" class="btn btn-default" style="padding: 10px; min-width: 30px; margin-left: 1px;"
-                          id="btnNext_down" onclick="nextRecord()"> <i class="fa fa-chevron-right"></i> </button>
+                        <button type="button" class="btn btn-default" id="btnPrevious_down" onclick="previousRecord()"> <i class="fa fa-chevron-left"></i> </button>
+                        <div class="btn pa-btn-records" id="txtRecord_down"> 0 / 0 </div>
+                        <button type="button" class="btn btn-default" id="btnNext_down" onclick="nextRecord()"> <i class="fa fa-chevron-right"></i> </button>
                       </div>
                     </div>
               </div>
@@ -511,13 +504,13 @@ if ($_REQUEST['mac'] == 'Internet') {
 	?>
                 <h4 class="">Online Speedtest</h4>
                 <div style="width:100%; text-align: center; margin-bottom: 50px; display: inline-block;">
-                  <button type="button" id="speedtestcli" class="btn btn-primary pa-btn" style="margin-left: 10px; margin-right: 10px;" onclick="speedtestcli()">Start Speedtest-cli</button>
+                  <button type="button" id="speedtestcli" class="btn btn-primary pa-btn" onclick="speedtestcli()">Start Speedtest-cli</button>
 <?php
 $speedtest_binary = '../back/speedtest/speedtest';
 	if (file_exists($speedtest_binary)) {
-		echo '<button type="button" id="speedtestcli" class="btn btn-primary pa-btn" style="margin-left: 10px; margin-right: 10px;" onclick="speedtest_ookla(\'test\')">Start Speedtest (Ookla)</button>';
+		echo '<button type="button" id="speedtestcli_ookla" class="btn btn-primary pa-btn" onclick="speedtest_ookla(\'test\')">Start Speedtest (Ookla)</button>';
 	} else {
-		echo '<button type="button" id="speedtestcli" class="btn btn-primary pa-btn" style="margin-left: 10px; margin-right: 10px;" onclick="speedtest_ookla(\'get\')">Download Speedtest-Client</button>';
+		echo '<button type="button" id="speedtestcli_ookla" class="btn btn-primary pa-btn" onclick="speedtest_ookla(\'get\')">Download Speedtest-Client</button>';
 	}
 	?>
                 </div>
@@ -562,10 +555,10 @@ if ($_REQUEST['mac'] != 'Internet') {
                 <div style="width:100%; text-align: center;">
                   <script>
                       setTimeout(function(){
-                        document.getElementById('wakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
+                        document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
                       }, 2000);
                   </script>
-                  <button type="button" id="wakeonlan" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="askwakeonlan()">Loading...</button>
+                  <button type="button" id="btnwakeonlan" class="btn btn-primary pa-btn" onclick="askwakeonlan()">Loading...</button>
                 </div>
 <?php
 }
@@ -808,7 +801,11 @@ function main () {
     $.get('php/server/parameters.php?action=get&parameter='+ parTab, function(data) {
       var result = JSON.parse(data);
       if (result) {
-        tab = result;
+        if (mac !== "Internet" && result === "tabSpeedtest") {
+          tab = "tabDetails";
+        } else {
+          tab = result;
+        }
       }
 
       // get parameter value
@@ -849,7 +846,6 @@ function main () {
                 devicesList = [];
             }
 
-
             // query data
             getDeviceData(true);
             getSessionsPresenceEvents();
@@ -880,15 +876,6 @@ function main () {
 function initializeTabs () {
   // Activate panel
   $('.nav-tabs a[id='+ tab +']').tab('show');
-
-  //   Not necessary if first panel is not active
-  //   // Force show first panel
-  //   var panel = $('.nav-tabs a[id='+ tab +']').attr('href');
-  //   panel = panel.substring(1);
-  //   var element = $('#'+panel)[0];
-  //   element.classList.add('in');
-  //   element.classList.add('active');
-
   // When changed save new current tab
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     setParameter (parTab, $(e.target).attr('id'));

@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 session_start();
+ini_set('max_execution_time', '60');
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');

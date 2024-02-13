@@ -117,12 +117,12 @@ function SetDeviceFilter() {
 				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring") 
 		                               VALUES ("' . $filtername . '", "' . $filterstring . '")';
 
-			    $result = $db->query($sql_insert_data);
-			    echo $pia_lang['BackDevices_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
-			    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);
+				$result = $db->query($sql_insert_data);
+				echo $pia_lang['BackDevices_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
+				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);
 			} catch (Exception $e) {
-			    die($pia_lang['BackDevices_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_error_c']);
-			    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0041', '', '');
+				die($pia_lang['BackDevices_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_error_c']);
+				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0041', '', '');
 			}
 		} else {
 			echo $pia_lang['BackDevices_table_filter_error_d'];
@@ -155,7 +155,6 @@ function GetARPStatus() {
 	$result = array(sizeof($pia_arpscans));
 	echo json_encode($result);
 }
-
 
 //  Query Device Data
 function getDeviceData() {

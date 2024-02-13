@@ -721,3 +721,8 @@ input[type="password"]::-webkit-caps-lock-indicator {
 .service_httpcode_box {display: inline-block;font-size: 18px; margin: 0; line-height: 1;}
 #btnDeleteEvents, #btnDelete, #btnRestore, #btnSave { margin-left:6px; margin-top:6px;}
 #manualnmap_fast, #manualnmap_normal, #manualnmap_detail {margin-bottom: 20px; margin-left: 10px; margin-right: 10px;}
+#btnPrevious, #btnPrevious_down {padding: 10px; min-width: 30px;}
+#btnNext, #btnNext_down {padding: 10px; min-width: 30px; margin-left: 1px;}
+#txtRecord, #txtRecord_down {padding: 10px; min-width: 30px; margin-left: 1px;}
+#speedtestcli, #speedtestcli_ookla {margin-left: 10px; margin-right: 10px;}
+#btnwakeonlan {margin-bottom: 20px; margin-left: 10px; margin-right: 10px;}

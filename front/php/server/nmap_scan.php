@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+ini_set('max_execution_time', '60');
+
 require 'db.php';
 require 'journal.php';
 
