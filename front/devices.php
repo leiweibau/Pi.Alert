@@ -169,7 +169,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           <input type="hidden" id="savedata" name="savedata" value="yes">';
 
 	print_box_top_element($pia_lang['Device_bulkEditor_hostbox_title']);
-
 	$sql = 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown FROM Devices ORDER BY dev_Name COLLATE NOCASE ASC';
 	$results = $db->query($sql);
 	while ($row = $results->fetchArray()) {
@@ -184,24 +183,19 @@ if ($_REQUEST['mod'] == 'bulkedit') {
              <label class="control-label ' . $status_text_color . '" for="' . $row[1] . '" style="">' . $row[0] . '</label>
           </div>';
 	}
-
 	// Check/Uncheck All Button
 	echo '<button type="button" class="btn btn-warning pull-right checkall" style="display: block; margin-top: 20px; margin-bottom: 10px; min-width: 180px;">' . $pia_lang['Device_bulkEditor_selectall'] . '</button>';
 	echo '<script>
-
             var clicked = false;
             $(".checkall").on("click", function() {
               $(".hostselection").prop("checked", !clicked);
               clicked = !clicked;
               this.innerHTML = clicked ? \'' . $pia_lang['Device_bulkEditor_selectnone'] . '\' : \'' . $pia_lang['Device_bulkEditor_selectall'] . '\';
             });
-
         </script>';
-
 	print_box_bottom_element();
 
 	print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
-
 	// Inputs
 	echo '<table style="margin-bottom:30px; width: 100%">
           <tr>
@@ -418,9 +412,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 						    showMessage (msg);
 						  });
 						}
-
         </script>';
-
 	print_box_bottom_element();
 
 	echo '</form>';
@@ -437,7 +429,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	?>
 
 <!-- Content header--------------------------------------------------------- -->
-
       <h1 id="pageTitle">
            <?php
            echo $pia_lang['Device_Title'];

@@ -499,6 +499,8 @@ body.modal-open {
   color: #fff;
   margin-right: 5px;
 }
+#btnDeleteEvents, #btnDelete, #btnRestore, #btnSave { margin-left:6px; margin-top:6px;}
+#manualnmap_fast, #manualnmap_normal, #manualnmap_detail {margin-bottom: 20px; margin-left: 10px; margin-right: 10px;}
 
 @media (min-width: 768px) {
     #sticky-back-button{
