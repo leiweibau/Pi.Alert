@@ -88,6 +88,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'SetDeviceFilter':SetDeviceFilter();
 		break;
+	case 'DeleteSpeedtestResults':DeleteSpeedtestResults();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
@@ -808,5 +810,23 @@ function EnableMainScan() {
 	}
 }
 
+//  Delete all Events
+function DeleteSpeedtestResults() {
+	global $db;
+	global $pia_lang;
+
+	$sql = 'DELETE FROM Tools_Speedtest_History';
+	$result = $db->query($sql);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BackDevices_DBTools_DelSpeedtest'];
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0028', '', '');
+	} else {
+		echo $pia_lang['BackDevices_DBTools_DelSpeedtestError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0029', '', '');
+	}
+}
 //  End
 ?>
