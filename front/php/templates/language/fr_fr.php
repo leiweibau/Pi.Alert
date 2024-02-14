@@ -23,6 +23,7 @@ $pia_lang['Gen_Save'] = 'Sauvez';
 $pia_lang['Gen_Close'] = 'Close';
 $pia_lang['Gen_on'] = 'On';
 $pia_lang['Gen_off'] = 'Off';
+$pia_lang['Gen_error'] = 'Error';
 
 //////////////////////////////////////////////////////////////////
 // Login Page - ready
@@ -367,7 +368,7 @@ $pia_lang['Maintenance_notification_config'] = 'Notifications (Devices, ICMP)';
 $pia_lang['Maintenance_notification_config_webmon'] = 'Notifications (Service Mon.)';
 $pia_lang['Maintenance_Tools_Logviewer_Scan'] = 'Scan';
 $pia_lang['Maintenance_Tools_Logviewer_Scan_empty'] = 'Il est probablement en train d&apos;effectuer un scan';
-$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Internet IP';
+$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Internet / Speedtest / Update Check';
 $pia_lang['Maintenance_Tools_Logviewer_IPLog_empty'] = 'Pas de log disponible';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor'] = 'Mise à jour du vendeur';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor_empty'] = 'Pas de log disponible';

@@ -237,11 +237,15 @@ def check_internet_IP():
 
     # Run automated UpdateCheck
     if AUTO_UPDATE_CHECK :
-        if startTime.hour in [9, 15, 21] and startTime.minute == 0:
+        if startTime.hour in [3, 9, 15, 21] and startTime.minute == 0:
             checkNewVersion()
+        else:
+            print(f"\nAuto Update-Check...")
+            print(f"    Time to search for a new version has not yet been reached\n    (3, 9, 15 or 21 o'clock).")
     else:
         NewVersion_FrontendNotification(False,"")
-
+        print(f"\nAuto Update-Check...")
+        print(f"    Skipping Auto Update-Check... Not activated!")
     return 0
 
 # ------------------------------------------------------------------------------
@@ -268,6 +272,7 @@ def checkNewVersion():
     print(f"    Current Version: {currentversion}")
 
     UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1"
+        #UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&sha=next_update&page=1&per_page=1"
     data = ""
     update_notes = ""
 

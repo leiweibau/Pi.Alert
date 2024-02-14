@@ -23,6 +23,7 @@ $pia_lang['Gen_Save'] = 'Salvar';
 $pia_lang['Gen_Close'] = 'Cerrar';
 $pia_lang['Gen_on'] = 'On';
 $pia_lang['Gen_off'] = 'Off';
+$pia_lang['Gen_error'] = 'Error';
 
 //////////////////////////////////////////////////////////////////
 // Login Page - Update by @TeroRERO 03ago2022
@@ -367,7 +368,7 @@ $pia_lang['Maintenance_notification_config'] = 'Notifications (Devices, ICMP)';
 $pia_lang['Maintenance_notification_config_webmon'] = 'Notifications (Service Mon.)';
 $pia_lang['Maintenance_Tools_Logviewer_Scan'] = 'Scan';
 $pia_lang['Maintenance_Tools_Logviewer_Scan_empty'] = 'Se está realizando una exploración';
-$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Internet IP';
+$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Internet / Speedtest / Update Check';
 $pia_lang['Maintenance_Tools_Logviewer_IPLog_empty'] = 'No hay protocolo disponible';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor'] = 'Vendor Update';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor_empty'] = 'No hay protocolo disponible';
