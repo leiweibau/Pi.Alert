@@ -303,7 +303,7 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 									    <tr><td class="help_table_gen_a">UNIFI_IP</td>
 									        <td class="help_table_gen_b">Adresse IP du système Unifi.</td></tr>
 									    <tr><td class="help_table_gen_a">UNIFI_API</td>
-									        <td class="help_table_gen_b">Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS</td></tr>
+									        <td class="help_table_gen_b">Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default</td></tr>
 									    <tr><td class="help_table_gen_a">UNIFI_USER</td>
 									        <td class="help_table_gen_b">Nom d&apos;utilisateur</td></tr>
 									    <tr><td class="help_table_gen_a">UNIFI_PASS</td>

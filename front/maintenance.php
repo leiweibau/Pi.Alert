@@ -682,31 +682,37 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
         <div class="tab-pane <?=$pia_tab_tool;?>" id="tab_DBTools">
             <div class="db_info_table">
                 <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
+                    <div class="db_tools_table_cell_a">
                         <button type="button" class="btn btn-default dbtools-button" id="btnDeleteMAC" onclick="askDeleteAllDevices()"><?=$pia_lang['Maintenance_Tool_del_alldev'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_alldev_text'];?></div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
+                    <div class="db_tools_table_cell_a">
                         <button type="button" class="btn btn-default dbtools-button" id="btnDeleteUnknown" onclick="askDeleteUnknown()"><?=$pia_lang['Maintenance_Tool_del_unknowndev'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_unknowndev_text'];?></div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
-                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteEvents" onclick="askDeleteEvents()"><?=$pia_lang['Maintenance_Tool_del_allevents'];?></button>
+                    <div class="db_tools_table_cell_a">
+                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteAllEvents" onclick="askDeleteEvents()"><?=$pia_lang['Maintenance_Tool_del_allevents'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_allevents_text'];?></div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
+                    <div class="db_tools_table_cell_a">
                         <button type="button" class="btn btn-default dbtools-button" id="btnDeleteActHistory" onclick="askDeleteActHistory()"><?=$pia_lang['Maintenance_Tool_del_ActHistory'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_ActHistory_text'];?></div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
+                    <div class="db_tools_table_cell_a">
+                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteInactiveHosts" onclick="askDeleteSpeedtestResults()"><?=$pia_lang['Maintenance_Tool_del_speedtest'];?></button>
+                    </div>
+                    <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_speedtest_text'];?></div>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="db_tools_table_cell_a">
                         <button type="button" class="btn btn-default dbtools-button" id="btnDeleteInactiveHosts" onclick="askDeleteInactiveHosts()"><?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts_text'];?></div>
@@ -920,13 +926,22 @@ function deleteEvents() {
 	$.get('php/server/devices.php?action=deleteEvents', function(msg) {showMessage (msg);});
 }
 
-// delete Hostory
+// delete History
 function askDeleteActHistory() {
   showModalWarning('<?=$pia_lang['Maintenance_Tool_del_ActHistory_noti'];?>', '<?=$pia_lang['Maintenance_Tool_del_ActHistory_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteActHistory');
 }
 function deleteActHistory() {
 	$.get('php/server/devices.php?action=deleteActHistory', function(msg) {showMessage (msg);});
+}
+
+// delete Speedtest results
+function askDeleteSpeedtestResults() {
+  showModalWarning('<?=$pia_lang['Maintenance_Tool_del_speedtest'];?>', '<?=$pia_lang['Maintenance_Tool_del_speedtest_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteSpeedtestResults');
+}
+function DeleteSpeedtestResults() {
+	$.get('php/server/devices.php?action=DeleteSpeedtestResults', function(msg) {showMessage (msg);});
 }
 
 // Backup DB to Archive

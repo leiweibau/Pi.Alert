@@ -84,18 +84,79 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'GetARPStatus':GetARPStatus();
 		break;
+	case 'DeleteDeviceFilter':DeleteDeviceFilter();
+		break;
+	case 'SetDeviceFilter':SetDeviceFilter();
+		break;
+	case 'DeleteSpeedtestResults':DeleteSpeedtestResults();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
+
+function SetDeviceFilter() {
+	global $db;
+	global $pia_lang;
+
+	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
+	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+	// Create table if not exist
+	$sql = "CREATE TABLE IF NOT EXISTS Devices_table_filter (
+	            id INTEGER PRIMARY KEY,
+	            filtername TEXT NOT NULL,
+	            filterstring TEXT NOT NULL,
+	            reserve_a INTEGER,
+	            reserve_b TEXT,
+	            reserve_c TEXT
+	        )";
+	// Write filter in db
+	try {
+		$result = $db->query($sql);
+		
+		if ($filtername != "" && $filterstring != "") {
+			try {
+				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring") 
+		                               VALUES ("' . $filtername . '", "' . $filterstring . '")';
+
+				$result = $db->query($sql_insert_data);
+				echo $pia_lang['BackDevices_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
+				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);
+			} catch (Exception $e) {
+				die($pia_lang['BackDevices_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_error_c']);
+				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0041', '', '');
+			}
+		} else {
+			echo $pia_lang['BackDevices_table_filter_error_d'];
+			pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0043', '', '');
+		}
+	} catch (Exception $e) {
+	    die($pia_lang['BackDevices_table_filter_error_e']);
+	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0044', '', '');
+	}
+	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
+}
+
+function DeleteDeviceFilter() {
+	global $db;
+
+	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+	$sql = 'DELETE FROM Devices_table_filter WHERE filterstring="' . $filterstring . '"';
+	// execute sql
+	$result = $db->query($sql);
+
+	echo 'Dieser Filter wurde gelöscht: '. $filterstring;
+	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
+	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
+}
+
 function GetARPStatus() {
 	$execstring = 'ps -aux | grep "/pialert/back/pialert.py 1" | grep -v grep | grep -v "/pialert/log/pialert.1.log"';
 	$pia_arpscans = "";
 	exec($execstring, $pia_arpscans);
 	$result = array(sizeof($pia_arpscans));
-	echo (json_encode($result));
+	echo json_encode($result);
 }
-
 
 //  Query Device Data
 function getDeviceData() {
@@ -156,7 +217,7 @@ function getDeviceData() {
 	$row = $result->fetchArray(SQLITE3_NUM);
 	$deviceData['dev_PresenceHours'] = round($row[0]);
 	// Return json
-	echo (json_encode($deviceData));
+	echo json_encode($deviceData);
 }
 
 //  Update Device Data
@@ -363,7 +424,7 @@ function getDevicesTotals() {
         (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived') . ') as archived
    ');
 	$row = $result->fetchArray(SQLITE3_NUM);
-	echo (json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5])));
+	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5]));
 }
 
 //  Query the List of devices in a determined Status
@@ -404,7 +465,7 @@ function getDevicesList() {
 		$tableData['data'] = '';
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of devices for calendar
@@ -426,7 +487,7 @@ function getDevicesListCalendar() {
 			'favorite' => $row['dev_Favorite']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of Owners
@@ -454,7 +515,7 @@ function getOwners() {
 			'name' => $row['dev_Owner']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of types
@@ -505,7 +566,7 @@ function getDeviceTypes() {
 			'name' => $row['dev_DeviceType']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of groups
@@ -530,7 +591,7 @@ function getGroups() {
 	}
 
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query the List of locations
@@ -575,7 +636,7 @@ function getLocations() {
 			'name' => $row['dev_Location']);
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query Device Data
@@ -597,7 +658,7 @@ function getNetworkNodes() {
 		$tableData = [];
 	}
 	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Status Where conditions
@@ -749,5 +810,23 @@ function EnableMainScan() {
 	}
 }
 
+//  Delete all Events
+function DeleteSpeedtestResults() {
+	global $db;
+	global $pia_lang;
+
+	$sql = 'DELETE FROM Tools_Speedtest_History';
+	$result = $db->query($sql);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BackDevices_DBTools_DelSpeedtest'];
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0028', '', '');
+	} else {
+		echo $pia_lang['BackDevices_DBTools_DelSpeedtestError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0029', '', '');
+	}
+}
 //  End
 ?>

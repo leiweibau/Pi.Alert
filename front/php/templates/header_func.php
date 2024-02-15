@@ -211,6 +211,23 @@ function set_userimage($skinname) {
 	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
 }
 
+// Get DeviceList Filters
+function get_devices_filter_list() {
+	$database = '../db/pialert.db';
+	$db = new SQLite3($database);
+	$sql_select = 'SELECT * FROM Devices_table_filter ORDER BY filtername ASC';
+	$result = $db->query($sql_select);
+	if ($result) {
+		if ($result->numColumns() > 0) {
+	        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+	        	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
+	            echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+	        }
+		}
+	} else {echo "";}
+	$db->close();
+}
+
 // Arp Histroy Graph
 if (file_exists('../db/setting_noonlinehistorygraph')) {$ENABLED_HISTOY_GRAPH = False;} else { $ENABLED_HISTOY_GRAPH = True;}
 

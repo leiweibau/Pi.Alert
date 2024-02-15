@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+
 //////////////////////////////////////////////////////////////////
 // About
 //////////////////////////////////////////////////////////////////
@@ -22,6 +23,7 @@ $pia_lang['Gen_Save'] = 'Salva';
 $pia_lang['Gen_Close'] = 'Chiudi';
 $pia_lang['Gen_on'] = 'Acceso';
 $pia_lang['Gen_off'] = 'Spento';
+$pia_lang['Gen_error'] = 'Error';
 
 //////////////////////////////////////////////////////////////////
 // Login Page
@@ -112,6 +114,13 @@ $pia_lang['Device_bulkDel_info_text'] = 'Con questa funzione è possibile elimin
 $pia_lang['Device_bulkDel_back_before'] = 'Numero di dispositivi prima';
 $pia_lang['Device_bulkDel_back_after'] = 'Numero di dispositivi ora';
 $pia_lang['Device_bulkDel_back_hosts'] = 'Indirizzi MAC da eliminare';
+$pia_lang['Device_predef_table_filter'] = 'Crea filtro predefinito';
+$pia_lang['Device_del_table_filter_noti'] = 'Elimina filtro tabella';
+$pia_lang['Device_del_table_filter_noti_text'] = 'Vuoi eliminare il filtro della tabella salvato? Questo rimuoverà solo l&apos;entrata nella barra laterale. I dispositivi filtrati rimangono invariati.';
+$pia_lang['Device_del_table_filtername'] = 'Nome del filtro';
+$pia_lang['Device_del_table_filterstring'] = 'Filtro';
+$pia_lang['Device_del_table_filtername_help'] = 'Nome nella barra laterale';
+$pia_lang['Device_del_table_filterstring_help'] = 'Termine di ricerca';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page
@@ -255,8 +264,8 @@ $pia_lang['DevDetail_Tools_nmap_buttonFast'] = 'Scansione rapida';
 $pia_lang['DevDetail_Tools_nmap_buttonDefault'] = 'Scansione predefinita';
 $pia_lang['DevDetail_Tools_nmap_buttonDetail'] = 'Scansione dettagliata';
 $pia_lang['DevDetail_Tools_nmap_buttonFast_text'] = 'Scansione rapida: controlla solo le prime 100 porte più importanti (alcuni secondi)';
-$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Scansione predefinita: Nmap esegue una scansione delle prime 1.000 porte per ogni protocollo richiesto. Ciò copre circa il 93% delle porte TCP e il 49% delle porte UDP (circa 5-10 secondi)';
-$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Scansione dettagliata: Scansione predefinita con rilevamento del sistema operativo, rilevamento della versione, scansione degli script e traceroute (fino a 30 o più secondi)';
+$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Scansione predefinita: Nmap esegue una scansione delle prime 1.000 porte per ogni protocollo richiesto. (circa 5-10 secondi)';
+$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Scansione dettagliata: La scansione è stata estesa per includere alcune porte UDP. Inoltre, è stata aumentata la gamma di porte TCP.';
 $pia_lang['DevDetail_Tools_WOL'] = 'Invia comando Wake-on-LAN a ';
 $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';
 $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'Il comando Wake-on-LAN viene inviato all&apos;indirizzo di broadcast. Se la destinazione non è nella stessa subnet/VLAN di Pi.Alert, il dispositivo di destinazione potrebbe non rispondere.';
@@ -359,7 +368,7 @@ $pia_lang['Maintenance_notification_config'] = 'Notifica (Dispositivi, ICMP)';
 $pia_lang['Maintenance_notification_config_webmon'] = 'Notifica (Servizi)';
 $pia_lang['Maintenance_Tools_Logviewer_Scan'] = 'Scansione';
 $pia_lang['Maintenance_Tools_Logviewer_Scan_empty'] = 'Probabilmente una scansione è in corso';
-$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Log IP Internet';
+$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Internet / Speedtest / Update Check';
 $pia_lang['Maintenance_Tools_Logviewer_IPLog_empty'] = 'Nessun log disponibile';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor'] = 'Aggiornamento Vendor';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor_empty'] = 'Nessun log disponibile';
@@ -464,6 +473,8 @@ $pia_lang['Maintenance_Tool_del_ActHistory'] = 'Cancella la cronologia di attivi
 $pia_lang['Maintenance_Tool_del_ActHistory_text'] = 'Il grafico dell&apos;attività di rete verrà ripristinato, ma gli eventi non saranno influenzati.';
 $pia_lang['Maintenance_Tool_del_ActHistory_noti'] = 'Cancella la cronologia di attività di rete';
 $pia_lang['Maintenance_Tool_del_ActHistory_noti_text'] = 'Sei sicuro di voler ripristinare la cronologia di attività di rete?';
+$pia_lang['Maintenance_Tool_del_speedtest'] = 'Elimina risultati del test di velocità';
+$pia_lang['Maintenance_Tool_del_speedtest_text'] = 'Tutti i risultati del test di velocità salvati verranno eliminati. I test di velocità automatici già configurati continueranno ad essere eseguiti.';
 $pia_lang['Maintenance_Tool_loginenable'] = 'Abilita accesso';
 $pia_lang['Maintenance_Tool_loginenable_text'] = 'Dopo l&apos;attivazione, verrai reindirizzato automaticamente alla pagina di accesso. Se non hai già impostato una password, la password predefinita è "123456".';
 $pia_lang['Maintenance_Tool_loginenable_noti'] = 'Abilita accesso';
@@ -537,6 +548,8 @@ $pia_lang['BackDevices_DBTools_DelActHistory'] = 'Cronologia dell&apos;attività
 $pia_lang['BackDevices_DBTools_DelActHistoryError'] = 'Errore nel ripristino della cronologia dell&apos;attività di rete.';
 $pia_lang['BackDevices_DBTools_DelInactHosts'] = 'Host inattivi eliminati con successo.';
 $pia_lang['BackDevices_DBTools_DelInactHostsError'] = 'Errore nell&apos;eliminazione degli host inattivi.';
+$pia_lang['BackDevices_DBTools_DelSpeedtest'] = 'I risultati del test di velocità sono stati eliminati.';
+$pia_lang['BackDevices_DBTools_DelSpeedtestError'] = 'Errore nell&apos;eliminare i risultati del test di velocità.';
 $pia_lang['BackDevices_Login_disabled'] = 'Accesso disabilitato.';
 $pia_lang['BackDevices_Login_enabled'] = 'Accesso abilitato.';
 $pia_lang['BackDevices_Theme_set'] = 'Tema applicato.';
@@ -554,6 +567,15 @@ $pia_lang['BackDevices_Report_Delete'] = 'Notifica/e eliminata/e.';
 $pia_lang['BackFiles_FavIcon_invalidURL'] = 'È stata inserita un URL non valida.';
 $pia_lang['BackFiles_FavIcon_ErrorURL'] = 'Un FavIcon inserito manualmente deve essere un URL. I riferimenti al percorso per un file locale non verranno salvati.';
 $pia_lang['BackFiles_FavIcon_okay'] = 'Il nuovo FavIcon è stato salvato.';
+$pia_lang['BackDevices_table_filter_ok_a'] = 'Il filtro ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' con il valore ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' è stato salvato';
+$pia_lang['BackDevices_table_delfilter_ok'] = 'Questo filtro è stato eliminato: ';
+$pia_lang['BackDevices_table_filter_error_a'] = 'Il filtro ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' con il valore ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' non è stato possibile salvare';
+$pia_lang['BackDevices_table_filter_error_d'] = 'Non tutti i campi obbligatori sono stati compilati';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Errore durante la creazione della tabella dei filtri';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -655,6 +677,8 @@ $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Download';
 $pia_lang['ookla_devdetails_table_up'] = 'Upload';
 
+$pia_lang['nmap_no_scan_results'] = 'Nessuna porta aperta scoperta';
+
 // =============================================================================================================
 $pia_journ_lang['Journal_TableHead_Class'] = 'Classe';
 $pia_journ_lang['Journal_TableHead_Trigger'] = 'Trigger';
@@ -715,6 +739,8 @@ $pia_journ_lang['LogStr_0024'] = 'Eliminati tutti gli eventi';
 $pia_journ_lang['LogStr_0025'] = 'Eliminati tutti gli eventi (con errore)';
 $pia_journ_lang['LogStr_0026'] = 'Reimpostata l&apos;attività di rete';
 $pia_journ_lang['LogStr_0027'] = 'Reimpostata l&apos;attività di rete (con errore)';
+$pia_journ_lang['LogStr_0028'] = 'Elimina risultati del test di velocità';
+$pia_journ_lang['LogStr_0029'] = 'Elimina risultati del test di velocità (con errore)';
 $pia_journ_lang['LogStr_0030'] = 'Aggiunto componente di rete attivo (switch, router, ecc.)';
 $pia_journ_lang['LogStr_0031'] = 'Modificato componente di rete attivo (switch, router, ecc.)';
 $pia_journ_lang['LogStr_0032'] = 'Eliminato componente di rete attivo (switch, router, ecc.)';
@@ -722,6 +748,11 @@ $pia_journ_lang['LogStr_0033'] = 'Aggiunto dispositivo non scansionabile (hub, d
 $pia_journ_lang['LogStr_0034'] = 'Modificato dispositivo non scansionabile (hub, dispositivi PoE, Docker, ecc.)';
 $pia_journ_lang['LogStr_0035'] = 'Eliminato dispositivo non scansionabile (hub, dispositivi PoE, Docker, ecc.)';
 $pia_journ_lang['LogStr_0036'] = 'Dispositivi, servizi web e host ICMP esportati in formato CSV.';
+$pia_journ_lang['LogStr_0041'] = 'Errore durante il salvataggio del filtro predefinito';
+$pia_journ_lang['LogStr_0042'] = 'Il filtro predefinito è stato salvato';
+$pia_journ_lang['LogStr_0043'] = 'Il filtro predefinito era incompleto e non è stato salvato';
+$pia_journ_lang['LogStr_0044'] = 'Impossibile creare la tabella dei filtri';
+$pia_journ_lang['LogStr_0045'] = 'Il filtro predefinito è stato eliminato';
 $pia_journ_lang['LogStr_0050'] = 'Attivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0051'] = 'Disattivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0052'] = 'Modificata configurazione delle colonne della lista dei dispositivi';

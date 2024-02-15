@@ -314,7 +314,7 @@ UNIFI_IP     = '" . $configArray['UNIFI_IP'] . "'
 UNIFI_API    = '" . $configArray['UNIFI_API'] . "'
 UNIFI_USER   = '" . $configArray['UNIFI_USER'] . "'
 UNIFI_PASS   = '" . $configArray['UNIFI_PASS'] . "'
-# Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS
+# Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
 
 # Maintenance Tasks Cron
 # ----------------------

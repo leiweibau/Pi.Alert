@@ -237,11 +237,15 @@ def check_internet_IP():
 
     # Run automated UpdateCheck
     if AUTO_UPDATE_CHECK :
-        if startTime.hour in [9, 15, 21] and startTime.minute == 0:
+        if startTime.hour in [3, 9, 15, 21] and startTime.minute == 0:
             checkNewVersion()
+        else:
+            print(f"\nAuto Update-Check...")
+            print(f"    Time to search for a new version has not yet been reached\n    (3, 9, 15 or 21 o'clock).")
     else:
         NewVersion_FrontendNotification(False,"")
-
+        print(f"\nAuto Update-Check...")
+        print(f"    Skipping Auto Update-Check... Not activated!")
     return 0
 
 # ------------------------------------------------------------------------------
@@ -268,6 +272,7 @@ def checkNewVersion():
     print(f"    Current Version: {currentversion}")
 
     UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1"
+        #UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&sha=next_update&page=1&per_page=1"
     data = ""
     update_notes = ""
 
@@ -1975,14 +1980,16 @@ def service_monitoring_notification():
     mail_section_services_down = False
     mail_text_services_down = ''
     mail_html_services_down = ''
-    text_line_template = '{}{}\n\t{}\t\t\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
-    html_line_template     = '<tr>\n'+ \
-        '  <td> {} </td>\n  <td> {} </td>\n'+ \
-        '  <td> {} </td>\n  <td> {} </td>\n</tr>\n'
+    text_line_template = '{}{}\n\t{}\t\t\t{}\n\t{}\t\t\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
+    html_line_template = '<tr bgcolor=#909090 style="color:#F0F0F0;"><td colspan="2" style="width:50%; font-size:1.2em;"><b>URL:</b> {} </td><td colspan="2" style="width:50%; font-size:1.2em;"><b>Tag:</b> {} </td></tr>\n'+ \
+                         '<tr><td colspan="2" style="width:50%"><b>ScanTime:</b> {} </td><td style="width:25%"><b>IP:</b>  {} </td><td style="width:25%"><b>prev. IP:</b> {} </td></tr>\n'
 
-    sql.execute ("""SELECT * FROM Services_CurrentScan
-                    WHERE cur_AlertDown = 1 AND cur_LatencyChanged = 1
-                    ORDER BY cur_DateTime""")
+    sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_tags
+                    FROM Services_CurrentScan
+                    JOIN Services ON Services_CurrentScan.cur_URL = Services.mon_URL
+                    WHERE Services_CurrentScan.cur_AlertDown = 1 
+                    AND Services_CurrentScan.cur_LatencyChanged = 1
+                    ORDER BY Services_CurrentScan.cur_DateTime""")
 
     for eventAlert in sql :
         if eventAlert['cur_TargetIP'] == '':
@@ -1996,12 +2003,13 @@ def service_monitoring_notification():
 
         mail_section_services_down = True
         mail_text_services_down += text_line_template.format (
-            'Service: ', eventAlert['cur_URL'], 
+            'Service: ', eventAlert['cur_URL'],
+            'Tag: ', eventAlert['mon_tags'], 
             'Time: ', eventAlert['cur_DateTime'], 
             'Destination IP: ', _func_cur_TargetIP,
             'prev. Destination IP: ', _func_cur_TargetIP_prev)
         mail_html_services_down += html_line_template.format (
-            eventAlert['cur_URL'], eventAlert['cur_DateTime'], _func_cur_TargetIP, _func_cur_TargetIP_prev)
+            eventAlert['cur_URL'], eventAlert['mon_tags'], eventAlert['cur_DateTime'], _func_cur_TargetIP, _func_cur_TargetIP_prev)
 
     format_report_section_services (mail_section_services_down, 'SECTION_DEVICES_DOWN',
         'TABLE_DEVICES_DOWN', mail_text_services_down, mail_html_services_down)
@@ -2010,15 +2018,17 @@ def service_monitoring_notification():
     mail_section_events = False
     mail_text_events   = ''
     mail_html_events   = ''
-    text_line_template = '{}{}\n\t{}\t\t\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}{}\n\t{}\t\t{}\n\n'
-    html_line_template = '<tr>\n  <td>'+ \
-            '  {} </td>\n  <td> {} </td>\n'+ \
-            '  <td> {} </td>\n <td> {} </td>\n  <td> {} </td>\n  <td> {} </td>\n'+ \
-            '  <td> {} </td>\n <td> {} </td>\n</tr>\n'
+    text_line_template = '{}{}\n\t{}\t\t\t{}\n\t{}\t\t\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}{}\n\t{}\t\t{}\n\n'
+    html_line_template = '<tr bgcolor=#909090 style="color:#F0F0F0"><td colspan="2" style="width:50%; font-size:1.2em;"><b>URL:</b> {} </td><td colspan="2" style="width:50%; font-size:1.2em;"><b>Tag:</b> {} </td></tr>\n'+ \
+                         '<tr><td style="width:25%"><b>ScanTime:</b> {} </td>  <td style="width:25%"><b>IP:</b> {} </td>          <td style="width:25%"><b>prev. IP:</b> {} </td>          <td style="width:25%"><b>Latency:</b> {} </td>    <tr>\n'+ \
+                         '<tr><td style="width:25%">&nbsp;</td>                <td style="width:25%"><b>StatusCode:</b> {} </td>  <td style="width:25%"><b>prev. StatusCode:</b> {} </td>  <td style="width:25%"><b>SSL Code:</b> {} </td>  </tr>\n'
 
-    sql.execute ("""SELECT * FROM Services_CurrentScan
-                    WHERE cur_AlertEvents = 1 AND cur_StatusChanged = 1
-                    ORDER BY cur_DateTime""")
+    sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_tags
+                    FROM Services_CurrentScan
+                    JOIN Services ON Services_CurrentScan.cur_URL = Services.mon_URL
+                    WHERE Services_CurrentScan.cur_AlertEvents = 1 
+                    AND Services_CurrentScan.cur_StatusChanged = 1
+                    ORDER BY Services_CurrentScan.cur_DateTime""")
 
     for eventAlert in sql :
         if eventAlert['cur_TargetIP'] == '':
@@ -2032,17 +2042,18 @@ def service_monitoring_notification():
 
         mail_section_events = True
         mail_text_events += text_line_template.format (
-            'Service: ', eventAlert['cur_URL'], 
-            'Time: ', eventAlert['cur_DateTime'], 
+            'Service: ', eventAlert['cur_URL'],
+            'Tag: ', eventAlert['mon_tags'],
+            'Time: ', eventAlert['cur_DateTime'],
             'Destination IP: ', _func_cur_TargetIP,
-            'prev. Destination IP: ', _func_cur_TargetIP_prev, 
-            'HTTP Status Code: ', eventAlert['cur_StatusCode'], 
+            'prev. Destination IP: ', _func_cur_TargetIP_prev,
+            'HTTP Status Code: ', eventAlert['cur_StatusCode'],
             'prev. HTTP Status Code: ', eventAlert['cur_StatusCode_prev'],
             'SSL Status: ', eventAlert['cur_ssl_fc'])
         mail_html_events += html_line_template.format (
-            eventAlert['cur_URL'], eventAlert['cur_Latency'], _func_cur_TargetIP,
-            _func_cur_TargetIP_prev, eventAlert['cur_DateTime'], eventAlert['cur_StatusCode'],
-            eventAlert['cur_StatusCode_prev'], eventAlert['cur_ssl_fc'])
+            eventAlert['cur_URL'], eventAlert['mon_tags'], 
+            eventAlert['cur_DateTime'], _func_cur_TargetIP, _func_cur_TargetIP_prev, eventAlert['cur_Latency'], 
+            eventAlert['cur_StatusCode'], eventAlert['cur_StatusCode_prev'], eventAlert['cur_ssl_fc'])
 
     format_report_section_services (mail_section_events, 'SECTION_EVENTS',
         'TABLE_EVENTS', mail_text_events, mail_html_events)

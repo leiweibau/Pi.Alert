@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////
@@ -22,6 +23,7 @@ $pia_lang['Gen_Save'] = 'Save';
 $pia_lang['Gen_Close'] = 'Close';
 $pia_lang['Gen_on'] = 'On';
 $pia_lang['Gen_off'] = 'Off';
+$pia_lang['Gen_error'] = 'Error';
 
 //////////////////////////////////////////////////////////////////
 // Login Page
@@ -112,6 +114,13 @@ $pia_lang['Device_bulkDel_info_text'] = 'With this function, you delete one or m
 $pia_lang['Device_bulkDel_back_before'] = 'Number of devices before';
 $pia_lang['Device_bulkDel_back_after'] = 'Current number of devices';
 $pia_lang['Device_bulkDel_back_hosts'] = 'MAC addresses to be deleted';
+$pia_lang['Device_predef_table_filter'] = 'Create predefined filter';
+$pia_lang['Device_del_table_filter_noti'] = 'Delete table filter';
+$pia_lang['Device_del_table_filter_noti_text'] = 'Do you want to delete the saved table filter? This will only remove the entry in the sidebar. The filtered devices remain unaffected.';
+$pia_lang['Device_del_table_filtername'] = 'Filter name';
+$pia_lang['Device_del_table_filterstring'] = 'Filter';
+$pia_lang['Device_del_table_filtername_help'] = 'Name in sidebar';
+$pia_lang['Device_del_table_filterstring_help'] = 'Search term';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page
@@ -255,8 +264,8 @@ $pia_lang['DevDetail_Tools_nmap_buttonFast'] = 'Fast Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonDefault'] = 'Default Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonDetail'] = 'Detailed Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonFast_text'] = 'Fast Scan: Scan fewer ports (100) than the default scan (a few seconds)';
-$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Default Scan: Nmap scans the top 1,000 ports for each scan protocol requested. This catches roughly 93% of the TCP ports and 49% of the UDP ports. (about 5 seconds)';
-$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Detailed Scan: Default scan with enabled OS detection, version detection, script scanning and traceroute (up to 30 seconds or more)';
+$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Default Scan: Nmap scans the top 1,000 ports for each scan protocol requested. (about 5 seconds)';
+$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Detailed Scan: The scan has been expanded to include some UDP ports. Also, the range of TCP ports has been increased.';
 $pia_lang['DevDetail_Tools_WOL'] = 'Send Wol command to ';
 $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';
 $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'The Wake-on-LAN command is sent to the broadcast address. If the target is not in the subnet/vlan of Pi.Alert, the target device will not respond.';
@@ -359,7 +368,7 @@ $pia_lang['Maintenance_notification_config'] = 'Notifications (Devices, ICMP)';
 $pia_lang['Maintenance_notification_config_webmon'] = 'Notifications (Service Mon.)';
 $pia_lang['Maintenance_Tools_Logviewer_Scan'] = 'Scan';
 $pia_lang['Maintenance_Tools_Logviewer_Scan_empty'] = 'It is probably currently running scan';
-$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Internet IP';
+$pia_lang['Maintenance_Tools_Logviewer_IPLog'] = 'Internet / Speedtest / Update Check';
 $pia_lang['Maintenance_Tools_Logviewer_IPLog_empty'] = 'No log available';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor'] = 'Vendor Update';
 $pia_lang['Maintenance_Tools_Logviewer_Vendor_empty'] = 'No log available';
@@ -464,6 +473,8 @@ $pia_lang['Maintenance_Tool_del_ActHistory'] = 'Deleting the network activity';
 $pia_lang['Maintenance_Tool_del_ActHistory_text'] = 'The network activity graph is reset. This does not affect the events.';
 $pia_lang['Maintenance_Tool_del_ActHistory_noti'] = 'Delete network activity';
 $pia_lang['Maintenance_Tool_del_ActHistory_noti_text'] = 'Are you sure you want to reset the network activity?';
+$pia_lang['Maintenance_Tool_del_speedtest'] = 'Delete Speed Test Results';
+$pia_lang['Maintenance_Tool_del_speedtest_text'] = 'All saved Speed Test results will be deleted. Already configured automatic Speed Tests will continue to run.';
 $pia_lang['Maintenance_Tool_loginenable'] = 'Enable Login';
 $pia_lang['Maintenance_Tool_loginenable_text'] = 'After activation, you will automatically be taken to the login page. If you have not set a password before, "123456" is the default password.';
 $pia_lang['Maintenance_Tool_loginenable_noti'] = 'Enable Login';
@@ -537,6 +548,8 @@ $pia_lang['BackDevices_DBTools_DelActHistory'] = 'Network aktivity reset success
 $pia_lang['BackDevices_DBTools_DelActHistoryError'] = 'Network aktivity reset not successful';
 $pia_lang['BackDevices_DBTools_DelInactHosts'] = 'Inactive hosts have been deleted.';
 $pia_lang['BackDevices_DBTools_DelInactHostsError'] = 'An error occurred when trying to delete inactive hosts.';
+$pia_lang['BackDevices_DBTools_DelSpeedtest'] = 'The Speed Test results have been deleted.';
+$pia_lang['BackDevices_DBTools_DelSpeedtestError'] = 'Error deleting Speed Test results.';
 $pia_lang['BackDevices_Login_disabled'] = 'Login disabled.';
 $pia_lang['BackDevices_Login_enabled'] = 'Login enabled.';
 $pia_lang['BackDevices_Theme_set'] = 'Theme applied';
@@ -554,6 +567,15 @@ $pia_lang['BackDevices_Report_Delete'] = ' Notification(s) has been deleted.';
 $pia_lang['BackFiles_FavIcon_invalidURL'] = 'An invalid URL has been entered.';
 $pia_lang['BackFiles_FavIcon_ErrorURL'] = 'A manually entered FavIcon must be a URL. Path references for a local file will not be saved.';
 $pia_lang['BackFiles_FavIcon_okay'] = 'The new FavIcon has been saved.';
+$pia_lang['BackDevices_table_filter_ok_a'] = 'The filter ';
+$pia_lang['BackDevices_table_filter_ok_b'] = ' with the value ';
+$pia_lang['BackDevices_table_filter_ok_c'] = ' has been saved';
+$pia_lang['BackDevices_table_delfilter_ok'] = 'This filter has been deleted: ';
+$pia_lang['BackDevices_table_filter_error_a'] = 'The filter ';
+$pia_lang['BackDevices_table_filter_error_b'] = ' with the value ';
+$pia_lang['BackDevices_table_filter_error_c'] = ' could not be saved';
+$pia_lang['BackDevices_table_filter_error_d'] = 'Not all required fields were filled out';
+$pia_lang['BackDevices_table_filter_error_e'] = 'Error creating the filter table';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -650,6 +672,8 @@ $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Download';
 $pia_lang['ookla_devdetails_table_up'] = 'Upload';
 
+$pia_lang['nmap_no_scan_results'] = 'No open ports discovered';
+
 // =============================================================================================================
 
 $pia_journ_lang['Journal_TableHead_Class'] = 'Method';
@@ -711,6 +735,8 @@ $pia_journ_lang['LogStr_0024'] = 'Delete all events';
 $pia_journ_lang['LogStr_0025'] = 'Delete all events (with error)';
 $pia_journ_lang['LogStr_0026'] = 'Reset network activity';
 $pia_journ_lang['LogStr_0027'] = 'Reset network activity (with error)';
+$pia_journ_lang['LogStr_0028'] = 'Delete Speed Test Results';
+$pia_journ_lang['LogStr_0029'] = 'Delete Speed Test Results (with error)';
 $pia_journ_lang['LogStr_0030'] = 'Added active network component (Switch, Router, etc.)';
 $pia_journ_lang['LogStr_0031'] = 'Edited active network component (Switch, Router, etc.)';
 $pia_journ_lang['LogStr_0032'] = 'Deleted active network component (Switch, Router, etc.)';
@@ -718,6 +744,11 @@ $pia_journ_lang['LogStr_0033'] = 'Added non-scannable device (Hubs, PoE devices,
 $pia_journ_lang['LogStr_0034'] = 'Edited non-scannable device (Hubs, PoE devices, Docker, etc.)';
 $pia_journ_lang['LogStr_0035'] = 'Deleted non-scannable device (Hubs, PoE devices, Docker, etc.)';
 $pia_journ_lang['LogStr_0036'] = 'Devices, Web Services, and ICMP Hosts exported in CSV format.';
+$pia_journ_lang['LogStr_0041'] = 'Error while saving the predefined filter';
+$pia_journ_lang['LogStr_0042'] = 'Predefined filter has been saved';
+$pia_journ_lang['LogStr_0043'] = 'Predefined filter was incomplete and was not saved';
+$pia_journ_lang['LogStr_0044'] = 'The table for the filters could not be created';
+$pia_journ_lang['LogStr_0045'] = 'Predefined filter has been deleted';
 $pia_journ_lang['LogStr_0050'] = 'Enabled Pi.Alert password protection';
 $pia_journ_lang['LogStr_0051'] = 'Disabled Pi.Alert password protection';
 $pia_journ_lang['LogStr_0052'] = 'Changed device list column configuration';
