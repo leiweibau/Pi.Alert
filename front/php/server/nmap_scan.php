@@ -3,8 +3,23 @@ ini_set('max_execution_time', '60');
 set_time_limit(60);
 session_start();
 
+if ($_SESSION["login"] != 1) {
+	header('Location: ../../index.php');
+	exit;
+}
+
+foreach (glob("../../../db/setting_language*") as $filename) {
+	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
+}
+if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
+
 require 'db.php';
 require 'journal.php';
+require '../templates/language/' . $pia_lang_selected . '.php';
+
+$DBFILE = '../../../db/pialert.db';
+$PIA_HOST_IP = $_REQUEST['scan'];
+$PIA_SCAN_MODE = $_REQUEST['mode'];
 
 // Open DB
 OpenDB();
@@ -51,11 +66,6 @@ function nmap_trim_portlist($P_start, $P_end, $array) {
 	}
 	return $final_portlist;
 }
-
-$DBFILE = '../../../db/pialert.db';
-
-$PIA_HOST_IP = $_REQUEST['scan'];
-$PIA_SCAN_MODE = $_REQUEST['mode'];
 
 // Check if IP is valid
 if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
@@ -104,7 +114,7 @@ if (sizeof($nmap_scan_portlist) > 0) {
 		}
 	}
 } else {
-	echo "Keine offenen Port entdeckt";
+	echo $pia_lang['nmap_no_scan_results'];
 }
 
 echo '</pre>';
