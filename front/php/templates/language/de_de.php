@@ -265,7 +265,7 @@ $pia_lang['DevDetail_Tools_nmap_buttonDefault'] = 'Standard Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonDetail'] = 'Detailierter Scan';
 $pia_lang['DevDetail_Tools_nmap_buttonFast_text'] = 'Schneller Scan: Überprüft nur die wichtigsten 100 Ports (wenige Sekunden)';
 $pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Standard Scan: Nmap scannt die ersten 1.000 Ports für jedes angeforderte Scan-Protokoll. (ca. 5-10 Sekunden)';
-$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Detailierter Scan: Standardscan mit aktivierter Betriebssystemerkennung, Versionserkennung, Skript-Scan und Traceroute (bis zu 30 oder mehr Sekunden)';
+$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Detailierter Scan: Der Scan wurde um einige UDP Ports erweitert. Ebenfalls wurde die Range der TCP Ports vergrößert.';
 $pia_lang['DevDetail_Tools_WOL'] = 'Sende Wol Befehl an ';
 $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';
 $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'Das Wake-on-LAN Kommando wird an die Broadcast Adresse gesendet. Wenn das Ziel nicht in dem Subnet/vlan von Pi.Alert ist, wird das Ziel-Gerät nicht reagieren.';
@@ -676,6 +676,8 @@ $pia_lang['ookla_devdetails_table_server'] = 'Server';
 $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Download';
 $pia_lang['ookla_devdetails_table_up'] = 'Upload';
+
+$pia_lang['nmap_no_scan_results'] = 'Keine offenen Ports entdeckt';
 
 // =============================================================================================================
 

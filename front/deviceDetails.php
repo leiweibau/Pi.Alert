@@ -593,6 +593,7 @@ if ($_REQUEST['mac'] != 'Internet') {
                     $.ajax({
                       method: "POST",
                       url: "./php/server/nmap_scan.php",
+                      timeout: 60000,
                       data: { scan: targetip, mode: mode },
                       beforeSend: function() { $('#scanoutput').addClass("ajax_scripts_loading"); },
                       complete: function() { $('#scanoutput').removeClass("ajax_scripts_loading"); },

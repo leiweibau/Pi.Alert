@@ -264,8 +264,8 @@ $pia_lang['DevDetail_Tools_nmap_buttonFast'] = 'Scansione rapida';
 $pia_lang['DevDetail_Tools_nmap_buttonDefault'] = 'Scansione predefinita';
 $pia_lang['DevDetail_Tools_nmap_buttonDetail'] = 'Scansione dettagliata';
 $pia_lang['DevDetail_Tools_nmap_buttonFast_text'] = 'Scansione rapida: controlla solo le prime 100 porte più importanti (alcuni secondi)';
-$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Scansione predefinita: Nmap esegue una scansione delle prime 1.000 porte per ogni protocollo richiesto. Ciò copre circa il 93% delle porte TCP e il 49% delle porte UDP (circa 5-10 secondi)';
-$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Scansione dettagliata: Scansione predefinita con rilevamento del sistema operativo, rilevamento della versione, scansione degli script e traceroute (fino a 30 o più secondi)';
+$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'] = 'Scansione predefinita: Nmap esegue una scansione delle prime 1.000 porte per ogni protocollo richiesto. (circa 5-10 secondi)';
+$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'] = 'Scansione dettagliata: La scansione è stata estesa per includere alcune porte UDP. Inoltre, è stata aumentata la gamma di porte TCP.';
 $pia_lang['DevDetail_Tools_WOL'] = 'Invia comando Wake-on-LAN a ';
 $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';
 $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'Il comando Wake-on-LAN viene inviato all&apos;indirizzo di broadcast. Se la destinazione non è nella stessa subnet/VLAN di Pi.Alert, il dispositivo di destinazione potrebbe non rispondere.';
@@ -676,6 +676,8 @@ $pia_lang['ookla_devdetails_table_server'] = 'Server';
 $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Download';
 $pia_lang['ookla_devdetails_table_up'] = 'Upload';
+
+$pia_lang['nmap_no_scan_results'] = 'Nessuna porta aperta scoperta';
 
 // =============================================================================================================
 $pia_journ_lang['Journal_TableHead_Class'] = 'Classe';
