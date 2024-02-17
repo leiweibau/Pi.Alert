@@ -595,6 +595,43 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 								                          <input type="text" class="form-control" id="txtFilterString" placeholder="'.$pia_lang['Device_del_table_filterstring_help'].'">
 								                        </div>
 								                      </div>
+								                      <div class="form-group col-xs-12">
+								                        <label class="col-xs-12 control-label">'.$pia_lang['Device_del_table_columns'].'</label>
+								                        <div class="col-xs-12" style="display: flex;flex-wrap: wrap;">
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterName" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Name'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterOwner" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Owner'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterGroup" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Group'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterLocation" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Location'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterType" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Type'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterIP" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_LastIP'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterMac" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_MACaddress'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:160px;">
+							                              <input class="checkbox blue" id="chkFilterConnectionType" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_ConnectionType'] .'</label>
+							                            </div>
+								                        </div>
+								                      </div>
 								                    </div>
 								                    <br>
 							                    </div>
@@ -678,6 +715,10 @@ require 'php/templates/footer.php';
 <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
+<!-- iCheck -->
+<link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
+<script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
+
 <!-- page script ----------------------------------------------------------- -->
 <script>
   var deviceStatus    = 'all';
@@ -712,6 +753,7 @@ function main () {
       getDevicesList (deviceStatus);
      });
    });
+  initializeiCheck();
 }
 
 // -----------------------------------------------------------------------------
@@ -741,6 +783,7 @@ function initializeDatatable () {
       {width:     '0px',         targets: [12] },
       {width:     '20px',         targets: [15] },
       {orderData: [13],          targets: [9] },
+      { "targets": [<?=$_REQUEST['filter_fields'];?>], "searchable": false },
 
       // Device Name
       {targets: [0],
@@ -920,8 +963,16 @@ function DeleteDeviceFilter() {
 // Set Device Filter
 function SetDeviceFilter() {
     $.get('php/server/devices.php?action=SetDeviceFilter&'
-    + '&filtername='            + $('#txtFilterName').val()
-    + '&filterstring='          + $('#txtFilterString').val()
+    + '&filtername='    + $('#txtFilterName').val()
+    + '&filterstring='  + $('#txtFilterString').val()
+    + '&fname='         + ($('#chkFilterName')[0].checked * 1)
+    + '&fowner='        + ($('#chkFilterOwner')[0].checked * 1)
+    + '&fgroup='        + ($('#chkFilterGroup')[0].checked * 1)
+    + '&flocation='     + ($('#chkFilterLocation')[0].checked * 1)
+    + '&ftype='         + ($('#chkFilterType')[0].checked * 1)
+    + '&fip='           + ($('#chkFilterIP')[0].checked * 1)
+    + '&fmac='          + ($('#chkFilterMac')[0].checked * 1)
+    + '&fconnectiont='  + ($('#chkFilterConnectionType')[0].checked * 1)
     , function(msg) {
     showMessage (msg);
   });

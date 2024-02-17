@@ -119,6 +119,7 @@ $pia_lang['Device_del_table_filter_noti'] = 'Supprimer le filtre de table';
 $pia_lang['Device_del_table_filter_noti_text'] = 'Voulez-vous supprimer le filtre de table enregistré ? Cela supprimera uniquement l&apos;entrée dans la barre latérale. Les appareils filtrés restent inchangés.';
 $pia_lang['Device_del_table_filtername'] = 'Nom du filtre';
 $pia_lang['Device_del_table_filterstring'] = 'Filtre';
+$pia_lang['Device_del_table_columns'] = 'Définir les colonnes pour la recherche';
 $pia_lang['Device_del_table_filtername_help'] = 'Nom dans la barre latérale';
 $pia_lang['Device_del_table_filterstring_help'] = 'Terme de recherche';
 
@@ -427,7 +428,7 @@ $pia_lang['Maintenance_Tool_setapikey_noti_text'] = 'Tu souhaites remplacer une 
 $pia_lang['Maintenance_Tool_ignorelist'] = 'Liste d&apos;ignorés';
 $pia_lang['Maintenance_Tool_ignorelist_false'] = 'Aucune liste d&apos;ignorés configurée';
 $pia_lang['Maintenance_arpscantimer_empty'] = 'Définir un timer';
-$pia_lang['Maintenance_Tool_arpscansw'] = 'Arrêter/démarrer le scan';
+$pia_lang['Maintenance_Tool_arpscansw'] = 'Arrêter/démarrer Pi.Alert';
 $pia_lang['Maintenance_Tool_arpscansw_text'] = 'Active ou désactive le scan arp. Si aucune période n&apos;a été définie lors de l&apos;activation de la minuterie, Pi.Alert se remet en marche après une pause de 10 minutes avec le prochain scan en cours. Les scans déjà en cours ne sont pas interrompus.';
 $pia_lang['Maintenance_Tool_arpscansw_noti'] = 'Arrêter/démarrer le scan arp';
 $pia_lang['Maintenance_Tool_arpscansw_noti_text'] = 'Si le scan est désactivé, il reste éteint jusqu&apos;à ce qu&apos;il soit réactivé.';

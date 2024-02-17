@@ -119,6 +119,7 @@ $pia_lang['Device_del_table_filter_noti'] = 'Eliminar filtro de tabla';
 $pia_lang['Device_del_table_filter_noti_text'] = '¿Desea eliminar el filtro de tabla guardado? Esto solo eliminará la entrada en la barra lateral. Los dispositivos filtrados permanecen sin cambios.';
 $pia_lang['Device_del_table_filtername'] = 'Nombre del filtro';
 $pia_lang['Device_del_table_filterstring'] = 'Filtro';
+$pia_lang['Device_del_table_columns'] = 'Define las columnas para la búsqueda';
 $pia_lang['Device_del_table_filtername_help'] = 'Nombre en la barra lateral';
 $pia_lang['Device_del_table_filterstring_help'] = 'Término de búsqueda';
 
@@ -427,7 +428,7 @@ $pia_lang['Maintenance_Tool_setapikey_noti_text'] = '¿Desea sustituir una clave
 $pia_lang['Maintenance_Tool_ignorelist'] = 'Lista de ignorados';
 $pia_lang['Maintenance_Tool_ignorelist_false'] = 'No hay lista de ignorados configurada';
 $pia_lang['Maintenance_arpscantimer_empty'] = 'Período establecido';
-$pia_lang['Maintenance_Tool_arpscansw'] = 'Activar scan (on/off)';
+$pia_lang['Maintenance_Tool_arpscansw'] = 'Activar Pi.Alert (on/off)';
 $pia_lang['Maintenance_Tool_arpscansw_text'] = 'Activa o desactiva el escaneo arp. Si no se ha establecido ningún periodo de tiempo para la desactivación, Pi.Alert se enciende de nuevo tras una pausa de 10 minutos con la siguiente exploración pendiente. Los escaneos que ya están en curso no se terminan.';
 $pia_lang['Maintenance_Tool_arpscansw_noti'] = 'Activar arp-scan on or off';
 $pia_lang['Maintenance_Tool_arpscansw_noti_text'] = 'Cuando el escaneo se ha apagado, permanece apagado hasta que se active nuevamente.';

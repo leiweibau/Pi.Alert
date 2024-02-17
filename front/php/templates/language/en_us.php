@@ -119,6 +119,7 @@ $pia_lang['Device_del_table_filter_noti'] = 'Delete table filter';
 $pia_lang['Device_del_table_filter_noti_text'] = 'Do you want to delete the saved table filter? This will only remove the entry in the sidebar. The filtered devices remain unaffected.';
 $pia_lang['Device_del_table_filtername'] = 'Filter name';
 $pia_lang['Device_del_table_filterstring'] = 'Filter';
+$pia_lang['Device_del_table_columns'] = 'Define the columns for the search';
 $pia_lang['Device_del_table_filtername_help'] = 'Name in sidebar';
 $pia_lang['Device_del_table_filterstring_help'] = 'Search term';
 
@@ -427,7 +428,7 @@ $pia_lang['Maintenance_Tool_setapikey_noti_text'] = 'Do you want to replace an e
 $pia_lang['Maintenance_Tool_ignorelist'] = 'Ignore list';
 $pia_lang['Maintenance_Tool_ignorelist_false'] = 'No ignore list configured';
 $pia_lang['Maintenance_arpscantimer_empty'] = 'Set period';
-$pia_lang['Maintenance_Tool_arpscansw'] = 'Toggle Scans (on/off)';
+$pia_lang['Maintenance_Tool_arpscansw'] = 'Toggle Pi.Alert (on/off)';
 $pia_lang['Maintenance_Tool_arpscansw_text'] = 'Switches all scans of Pi.Alert on or off. If no time period has been defined for timer activation, Pi.Alert switches on again after a pause of 10 min with the next pending scan. Scans that are already running will not be terminated.';
 $pia_lang['Maintenance_Tool_arpscansw_noti'] = 'Toggle arp-Scan on or off';
 $pia_lang['Maintenance_Tool_arpscansw_noti_text'] = 'When the scan has been switched off it remains off until it is activated again.';

@@ -221,7 +221,7 @@ function get_devices_filter_list() {
 		if ($result->numColumns() > 0) {
 	        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 	        	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
-	            echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+	            echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
 	        }
 		}
 	} else {echo "";}
