@@ -278,6 +278,14 @@ AUTO_UPDATE_CHECK      = True
 EOF
 fi
 
+# 2024-02-21
+if ! grep -Fq "NTFY_CLICKABLE" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+NTFY_CLICKABLE      = True
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

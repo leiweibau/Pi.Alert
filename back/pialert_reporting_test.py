@@ -150,22 +150,24 @@ def sending_notifications_test(_Mode):
 
 #-------------------------------------------------------------------------------
 def send_ntfy_test(_notiMessage):
-  headers = {
-      "Title": "Pi.Alert Notification",
-      "Click": REPORT_DASHBOARD_URL,
-      "Priority": NTFY_PRIORITY,
-      "Tags": "warning"
-  }
-  if NTFY_USER != "" and NTFY_PASSWORD != "":
+    headers = {
+        "Title": "Pi.Alert Notification",
+        "Priority": NTFY_PRIORITY,
+        "Tags": "warning"
+    }
+
+    if NTFY_CLICKABLE == True:
+        headers["Click"] = REPORT_DASHBOARD_URL
+    if NTFY_USER != "" and NTFY_PASSWORD != "":
     # Generate hash for basic auth
-    usernamepassword = f"{NTFY_USER}:{NTFY_PASSWORD}"
-    basichash = b64encode(bytes(f'{NTFY_USER}:{NTFY_PASSWORD}',
+        usernamepassword = f"{NTFY_USER}:{NTFY_PASSWORD}"
+        basichash = b64encode(bytes(f'{NTFY_USER}:{NTFY_PASSWORD}',
                                 "utf-8")).decode("ascii")
 
     # add authorization header with hash
-    headers["Authorization"] = f"Basic {basichash}"
+        headers["Authorization"] = f"Basic {basichash}"
 
-  requests.post(f"{NTFY_HOST}/{NTFY_TOPIC}", data=_notiMessage, headers=headers)
+    requests.post(f"{NTFY_HOST}/{NTFY_TOPIC}", data=_notiMessage, headers=headers)
 
 #-------------------------------------------------------------------------------
 def send_pushsafer_test(_notiMessage):

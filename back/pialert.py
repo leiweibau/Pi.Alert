@@ -2659,10 +2659,12 @@ def send_ntfy (_Text):
     # Prepare header
     headers = {
         "Title": "Pi.Alert Notification",
-        "Click": REPORT_DASHBOARD_URL,
         "Priority": NTFY_PRIORITY,
         "Tags": "warning"
     }
+
+    if NTFY_CLICKABLE == True:
+        headers["Click"] = REPORT_DASHBOARD_URL
     # if username and password are set generate hash and update header
     if NTFY_USER != "" and NTFY_PASSWORD != "":
     # Generate hash for basic auth
