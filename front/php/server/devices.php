@@ -113,6 +113,7 @@ function SetDeviceFilter() {
 
 	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
 	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
 	// Create table if not exist
 	$sql = "CREATE TABLE IF NOT EXISTS Devices_table_filter (
 	            id INTEGER PRIMARY KEY,
@@ -129,8 +130,8 @@ function SetDeviceFilter() {
 		
 		if ($filtername != "" && $filterstring != "") {
 			try {
-				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_b") 
-		                               VALUES ("' . $filtername . '", "' . $filterstring . '", "' . $newcolfilter . '")';
+				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_b", "reserve_c") 
+		                               VALUES ("' . $filtername . '", "' . $filterstring . '", "' . $newcolfilter . '", "' . $filtergroup . '")';
 
 				$result = $db->query($sql_insert_data);
 				echo $pia_lang['BackDevices_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
@@ -152,6 +153,7 @@ function SetDeviceFilter() {
 
 function DeleteDeviceFilter() {
 	global $db;
+	global $pia_lang;
 
 	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
 	$sql = 'DELETE FROM Devices_table_filter WHERE filterstring="' . $filterstring . '"';

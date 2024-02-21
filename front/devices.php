@@ -596,37 +596,43 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 								                        </div>
 								                      </div>
 								                      <div class="form-group col-xs-12">
+								                        <label class="col-xs-3 control-label">'.$pia_lang['Device_del_table_filtergroup'].'</label>
+								                        <div class="col-xs-9">
+								                          <input type="text" class="form-control" id="txtFilterGroup" placeholder="'.$pia_lang['Device_del_table_filtergroup_help'].'">
+								                        </div>
+								                      </div>
+								                      <div class="form-group col-xs-12">
 								                        <label class="col-xs-12 control-label">'.$pia_lang['Device_del_table_columns'].'</label>
 								                        <div class="col-xs-12" style="display: flex;flex-wrap: wrap;">
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterName" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Name'] .'</label>
 							                            </div>
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterOwner" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Owner'] .'</label>
 							                            </div>
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterGroup" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Group'] .'</label>
 							                            </div>
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterLocation" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Location'] .'</label>
 							                            </div>
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterType" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Type'] .'</label>
 							                            </div>
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterIP" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_LastIP'] .'</label>
 							                            </div>
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterMac" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_MACaddress'] .'</label>
 							                            </div>
-							                            <div class="table_settings_col_box" style="width:160px;">
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterConnectionType" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_ConnectionType'] .'</label>
 							                            </div>
@@ -638,7 +644,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 							                </div>
 					                    <div class="modal-footer">
 					                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">'.$pia_lang['Gen_Close'].'</button>
-					                        <button type="button" class="btn btn-primary" id="btnInsert" onclick="SetDeviceFilter()" >'.$pia_lang['Gen_Save'].'</button>
+					                        <button type="button" class="btn btn-primary" id="btnFilterSave" onclick="SetDeviceFilter()">'.$pia_lang['Gen_Save'].'</button>
 					                    </div>
 									        </div>
 									    </div>
@@ -965,6 +971,7 @@ function SetDeviceFilter() {
     $.get('php/server/devices.php?action=SetDeviceFilter&'
     + '&filtername='    + $('#txtFilterName').val()
     + '&filterstring='  + $('#txtFilterString').val()
+    + '&filtergroup='   + $('#txtFilterGroup').val()
     + '&fname='         + ($('#chkFilterName')[0].checked * 1)
     + '&fowner='        + ($('#chkFilterOwner')[0].checked * 1)
     + '&fgroup='        + ($('#chkFilterGroup')[0].checked * 1)

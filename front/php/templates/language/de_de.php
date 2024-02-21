@@ -117,11 +117,13 @@ $pia_lang['Device_bulkDel_back_hosts'] = 'Zu löschende MAC-Adressen';
 $pia_lang['Device_predef_table_filter'] = 'Vordefinierten Filter erstellen';
 $pia_lang['Device_del_table_filter_noti'] = 'Tabellenfilter löschen';
 $pia_lang['Device_del_table_filter_noti_text'] = 'Möchtest du den gespeicherten Tabellenfilter löschen? Hierbei wird nur der Eintrag in der Seitenleiste entfern. Die gefilterten Geräte bleiben unbeeinflusst.';
-$pia_lang['Device_del_table_filtername'] = 'Filterbezeichnung';
+$pia_lang['Device_del_table_filtername'] = 'Filtername';
 $pia_lang['Device_del_table_filterstring'] = 'Filter';
 $pia_lang['Device_del_table_columns'] = 'Lege die Spalten für die Suche fest';
 $pia_lang['Device_del_table_filtername_help'] = 'Bezeichnung in der Seitenleiste';
 $pia_lang['Device_del_table_filterstring_help'] = 'Suchbegriff';
+$pia_lang['Device_del_table_filtergroup'] = 'Filter-Gruppe';
+$pia_lang['Device_del_table_filtergroup_help'] = 'Kann mehrere Filter gruppieren';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page

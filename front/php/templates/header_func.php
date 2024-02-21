@@ -217,15 +217,69 @@ function get_devices_filter_list() {
 	$db = new SQLite3($database);
 	$sql_select = 'SELECT * FROM Devices_table_filter ORDER BY filtername ASC';
 	$result = $db->query($sql_select);
+	$_SESSION['Filter_Table'] = array();
 	if ($result) {
 		if ($result->numColumns() > 0) {
 	        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-	        	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
-	            echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+	        	array_push($_SESSION['Filter_Table'], $row);
 	        }
 		}
 	} else {echo "";}
 	$db->close();
+	// Unset Var
+	unset($row);
+
+	show_group_filters();
+	show_groupless_filters();
+}
+
+function show_groupless_filters() {
+	$filter_table = $_SESSION['Filter_Table'];
+	foreach ($filter_table as $row) {
+    	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
+    	if ($row['reserve_c'] == "" || !isset($row['reserve_c'])) {
+        	echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+    	}
+    }
+}
+
+function show_group_filters() {
+	if (isset($_REQUEST['g'])) {$active_group = $_REQUEST['g'];}
+	$filter_table = $_SESSION['Filter_Table'];
+	$filter_groups = get_filter_group_list();
+	for ($i = 0; $i < sizeof($filter_groups); $i++) {
+		$temp_filter_group = $filter_groups[$i];
+		if ($i == $active_group && isset($active_group)) {$group_state['menu'] = 'menu-open'; $group_state['list'] = 'block';} else {{$group_state['menu'] = ''; $group_state['list'] = 'none';}}
+		echo '<li class="treeview '.$group_state['menu'].'" style="height: auto;">
+				<a href="#" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
+	    			<i class="fa-solid fa-filter"></i>
+	    			<span style="font-style: italic;">&nbsp;'.$temp_filter_group.'</span>
+	    			<span class="pull-right-container">
+	      				<i class="fa fa-angle-left pull-right"></i>
+	    			</span>
+	  			</a>
+	  			<ul class="treeview-menu" style="display: '.$group_state['list'].';">';
+
+		foreach ($filter_table as $row) {
+	    	if ($row['reserve_c'] == $temp_filter_group) {
+	    		if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle"; } else {$filterlist_icon = "fa-regular fa-circle"; }
+	    		echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'&g='.$i.'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:22px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+	    	}
+	    }
+	    echo '</ul></li>';
+	}
+}
+
+function get_filter_group_list() {
+	$filter_table = $_SESSION['Filter_Table'];
+	$filter_groups = array();
+	foreach ($filter_table as $row) {
+    	if ($row['reserve_c'] != "") {
+    		array_push($filter_groups, $row['reserve_c']);
+    	}
+    }
+    $filter_groups = array_values(array_unique($filter_groups));
+    return $filter_groups;
 }
 
 // Arp Histroy Graph
