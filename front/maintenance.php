@@ -677,21 +677,12 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                         </div>
                     </td>
                 </tr>
-
-
-
-                <tr><td colspan="2"><h4 class="bottom-border-aqua">Konfig Filter Reihenfolge</h4></td></tr>
+                <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['Maintenance_Tools_Tab_Subheadline_f'];?></h4></td></tr>
                 <tr>
                     <td colspan="2" style="text-align: center;">
-                        <div class="form-group">
-                            <?php show_filter_editor();?>
-                        </div>
+                        <?php show_filter_editor();?>
                     </td>
                 </tr>
-
-
-
-
             </table>
         </div>
         <div class="tab-pane <?=$pia_tab_tool;?>" id="tab_DBTools">

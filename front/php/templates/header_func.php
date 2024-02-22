@@ -233,27 +233,27 @@ function get_devices_filter_list() {
 }
 // Show filter editor from array
 function show_filter_editor() {
+	global $pia_lang;
 	$filter_table = $_SESSION['Filter_Table'];
 	foreach ($filter_table as $row) {
-		echo '<div class="row"><div class="form-group">';
-    	echo '<div class="col-md-3">
+		echo '<div class="row">';
+    	echo '<div class="col-md-2 col-md-offset-1">
     			<div class="form-group" style="text-align: left;">
-    				<label class="control-label">Filtername</label>
+    				<label class="control-label">' . $pia_lang['Device_del_table_filtername'] . '</label>
     				<input class="form-control" id="txt_' . $row['id'] . '_ID" type="hidden" value="' . $row['id'] . '">
     				<input class="form-control" id="txt_' . $row['id'] . '_name" type="text" value="' . $row['filtername'] . '">
     			</div>
     		  </div>';
-    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">Filter</label><input class="form-control" id="txt_' . $row['id'] . '_string" type="text" value="' . $row['filterstring'] . '"></div></div>';
-    	echo '<div class="col-md-1"><div class="form-group" style="text-align: left;"><label class="control-label">Index</label><input class="form-control" id="txt_' . $row['id'] . '_index" type="text" value="' . $row['reserve_a'] . '"></div></div>';
-    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">Spalten</label><input class="form-control" id="txt_' . $row['id'] . '_column" type="text" value="' . $row['reserve_b'] . '"></div></div>';
-    	echo '<div class="col-md-3"><div class="form-group" style="text-align: left;"><label class="control-label">Gruppe</label><input class="form-control" id="txt_' . $row['id'] . '_group" type="text" value="' . $row['reserve_c'] . '"></div></div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filterstring'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_string" type="text" value="' . $row['filterstring'] . '"></div></div>';
+    	echo '<div class="col-md-1"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filterindex'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_index" type="text" value="' . $row['reserve_a'] . '"></div></div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filtercol'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_column" type="text" value="' . $row['reserve_b'] . '"></div></div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filtergroup'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_group" type="text" value="' . $row['reserve_c'] . '"></div></div>';
     	echo '<div class="col-md-1">
     			<div class="form-group" style="text-align: left;">
-    				
-    				<button type="button" class="btn btn-warning" style="margin-top: 26px; width:40px;" id="btnSaveFilter_7" onclick="SaveFilterID_' . $row['id'] . '(\'' . $row['filtername'] . '\',\'' . $row['id'] . '\')" ><i class="fa-regular fa-floppy-disk"></i></button>
+    				<button type="button" class="btn btn-warning btn-block" style="margin-top: 27px;" id="btnSaveFilter_' . $row['id'] . '" onclick="SaveFilterID_' . $row['id'] . '(\'' . $row['filtername'] . '\',\'' . $row['id'] . '\')" ><i class="fa-regular fa-floppy-disk"></i></button>
     			</div>
     		  </div>';
-    	echo '</div></div>';
+    	echo '</div>';
     }
 }
 // Show filter editor from array
@@ -262,7 +262,7 @@ function create_filter_editor_js() {
 
 	$filter_table = $_SESSION['Filter_Table'];
 	foreach ($filter_table as $row) {
-echo '
+		echo '
 function SaveFilterID_' . $row['id'] . '() {
 	$.get(\'php/server/devices.php?action=SaveFilterID&\'
     + \'&filterid=\'      + $(\'#txt_' . $row['id'] . '_ID\').val()
@@ -274,11 +274,9 @@ function SaveFilterID_' . $row['id'] . '() {
      , function(msg) {
      showMessage (msg);
    });
- }
-';
+}';
     }
 }
-
 // Show groupless filters in Sidebar from session array
 function show_groupless_filters() {
 	$filter_table = $_SESSION['Filter_Table'];

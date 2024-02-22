@@ -122,6 +122,10 @@ $pia_lang['Device_del_table_filterstring'] = 'Filter';
 $pia_lang['Device_del_table_columns'] = 'Define the columns for the search';
 $pia_lang['Device_del_table_filtername_help'] = 'Name in sidebar';
 $pia_lang['Device_del_table_filterstring_help'] = 'Search term';
+$pia_lang['Device_del_table_filtergroup'] = 'Filter Group';
+$pia_lang['Device_del_table_filtergroup_help'] = 'Can group multiple filters';
+$pia_lang['Device_del_table_filterindex'] = 'Index';
+$pia_lang['Device_del_table_filtercol'] = 'Disabled Columns';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page
@@ -403,6 +407,7 @@ $pia_lang['Maintenance_Tools_Tab_Subheadline_c'] = 'Security';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e_Intro'] = 'You can enter your desired FavIcon URL in the field, or choose between local or remote (https://github.com/leiweibau/Pi.Alert) FavIcons. Depending on the configuration, local FavIcons may not work as a HomeScreen icon.';
+$pia_lang['Maintenance_Tools_Tab_Subheadline_f'] = 'Filter Editor (Sidebar)';
 $pia_lang['Maintenance_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['Maintenance_Tool_darkmode_noti'] = 'Toggle Modes';
 $pia_lang['Maintenance_Tool_darkmode_noti_text'] = 'After the theme switch, the page tries to reload itself to activate the change. If necessary, the cache must be cleared.';
@@ -577,6 +582,8 @@ $pia_lang['BackDevices_table_filter_error_b'] = ' with the value ';
 $pia_lang['BackDevices_table_filter_error_c'] = ' could not be saved';
 $pia_lang['BackDevices_table_filter_error_d'] = 'Not all required fields were filled out';
 $pia_lang['BackDevices_table_filter_error_e'] = 'Error creating the filter table';
+$pia_lang['BackDevices_Upd_Filter'] = 'Filter successfully updated.';
+$pia_lang['BackDevices_Upd_FilterError'] = 'Error updating the filter.';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -750,6 +757,8 @@ $pia_journ_lang['LogStr_0042'] = 'Predefined filter has been saved';
 $pia_journ_lang['LogStr_0043'] = 'Predefined filter was incomplete and was not saved';
 $pia_journ_lang['LogStr_0044'] = 'The table for the filters could not be created';
 $pia_journ_lang['LogStr_0045'] = 'Predefined filter has been deleted';
+$pia_journ_lang['LogStr_0046'] = 'Predefined filter was updated';
+$pia_journ_lang['LogStr_0047'] = 'Predefined filter was not updated';
 $pia_journ_lang['LogStr_0050'] = 'Enabled Pi.Alert password protection';
 $pia_journ_lang['LogStr_0051'] = 'Disabled Pi.Alert password protection';
 $pia_journ_lang['LogStr_0052'] = 'Changed device list column configuration';

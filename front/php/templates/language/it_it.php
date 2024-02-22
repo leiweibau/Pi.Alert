@@ -122,6 +122,10 @@ $pia_lang['Device_del_table_filterstring'] = 'Filtro';
 $pia_lang['Device_del_table_columns'] = 'Definisci le colonne per la ricerca';
 $pia_lang['Device_del_table_filtername_help'] = 'Nome nella barra laterale';
 $pia_lang['Device_del_table_filterstring_help'] = 'Termine di ricerca';
+$pia_lang['Device_del_table_filtergroup'] = 'Gruppo di filtri';
+$pia_lang['Device_del_table_filtergroup_help'] = 'Può raggruppare più filtri';
+$pia_lang['Device_del_table_filterindex'] = 'Indice';
+$pia_lang['Device_del_table_filtercol'] = 'Colonne disabilitate';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page
@@ -403,6 +407,7 @@ $pia_lang['Maintenance_Tools_Tab_Subheadline_c'] = 'Sicurezza';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e_Intro'] = 'Puoi inserire l&apos;URL del FavIcon desiderato nel campo, o scegliere tra FavIcons locali o remoti (https://github.com/leiweibau/Pi.Alert). A seconda della configurazione, i FavIcons locali potrebbero non funzionare come icona della schermata principale.';
+$pia_lang['Maintenance_Tools_Tab_Subheadline_f'] = 'Editor dei filtri (barra laterale)';
 $pia_lang['Maintenance_Tool_darkmode'] = 'Modalità Scuro';
 $pia_lang['Maintenance_Tool_darkmode_noti'] = 'Cambio Modalità';
 $pia_lang['Maintenance_Tool_darkmode_noti_text'] = 'Cambia tra la modalità chiara e quella scura. Se il cambio di modalità dovesse non funzionare correttamente, prova a cancellare la cache del browser.';
@@ -577,6 +582,8 @@ $pia_lang['BackDevices_table_filter_error_b'] = ' con il valore ';
 $pia_lang['BackDevices_table_filter_error_c'] = ' non è stato possibile salvare';
 $pia_lang['BackDevices_table_filter_error_d'] = 'Non tutti i campi obbligatori sono stati compilati';
 $pia_lang['BackDevices_table_filter_error_e'] = 'Errore durante la creazione della tabella dei filtri';
+$pia_lang['BackDevices_Upd_Filter'] = 'Filtro aggiornato con successo.';
+$pia_lang['BackDevices_Upd_FilterError'] = 'Errore durante l\'aggiornamento del filtro.';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -754,6 +761,8 @@ $pia_journ_lang['LogStr_0042'] = 'Il filtro predefinito è stato salvato';
 $pia_journ_lang['LogStr_0043'] = 'Il filtro predefinito era incompleto e non è stato salvato';
 $pia_journ_lang['LogStr_0044'] = 'Impossibile creare la tabella dei filtri';
 $pia_journ_lang['LogStr_0045'] = 'Il filtro predefinito è stato eliminato';
+$pia_journ_lang['LogStr_0046'] = 'Il filtro predefinito è stato aggiornato';
+$pia_journ_lang['LogStr_0047'] = 'Il filtro predefinito non è stato aggiornato';
 $pia_journ_lang['LogStr_0050'] = 'Attivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0051'] = 'Disattivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0052'] = 'Modificata configurazione delle colonne della lista dei dispositivi';

@@ -108,8 +108,6 @@ function SaveFilterID() {
 	$filtercolumn = filter_var($_REQUEST['filtercolumn'], FILTER_SANITIZE_STRING);
 	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
 
-	echo $_REQUEST['filterid'] . ' - ' . $_REQUEST['filtername'] . ' - ' . $_REQUEST['filterstring'] . ' - ' . $_REQUEST['filtercolumn'] . ' - ' . $_REQUEST['filtergroup'];
-
 	// sql
 	$sql = 'UPDATE Devices_table_filter SET
                  filtername      = "' . quotes($filtername) . '",
@@ -121,13 +119,13 @@ function SaveFilterID() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_UpdDev'];
+		echo $pia_lang['BackDevices_Upd_Filter'];
 		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $filterid);
+		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid);
 	} else {
-		echo $pia_lang['BackDevices_DBTools_UpdDevError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BackDevices_Upd_FilterError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $filterid);
+		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid);
 	}
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>");
 }

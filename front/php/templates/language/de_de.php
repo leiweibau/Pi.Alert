@@ -124,6 +124,8 @@ $pia_lang['Device_del_table_filtername_help'] = 'Bezeichnung in der Seitenleiste
 $pia_lang['Device_del_table_filterstring_help'] = 'Suchbegriff';
 $pia_lang['Device_del_table_filtergroup'] = 'Filter-Gruppe';
 $pia_lang['Device_del_table_filtergroup_help'] = 'Kann mehrere Filter gruppieren';
+$pia_lang['Device_del_table_filterindex'] = 'Index';
+$pia_lang['Device_del_table_filtercol'] = 'deaktivierte Spalten';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page
@@ -405,6 +407,7 @@ $pia_lang['Maintenance_Tools_Tab_Subheadline_c'] = 'Sicherheit';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e_Intro'] = 'Du kannst in dem Feld eine eigene URL zu deinem gewünschten FavIcon eintragen, oder zwischen lokalen oder remote (https://github.com/leiweibau/Pi.Alert) FavIcons wählen. Je nach Konfiguration kann es sein, dass lokale FavIcons nicht als HomeScreen Icon funktionieren.';
+$pia_lang['Maintenance_Tools_Tab_Subheadline_f'] = 'Filter Editor (Seitenleiste)';
 $pia_lang['Maintenance_Tool_darkmode'] = 'Dunkel Modus';
 $pia_lang['Maintenance_Tool_darkmode_noti'] = 'Darstellungswechsel';
 $pia_lang['Maintenance_Tool_darkmode_noti_text'] = 'Wechselt zwischen der hellen und der dunklen Darstellung. Wenn die Umschaltung nicht ordentlich funktionieren sollte, versuchen Sie den Browsercache zu löschen.';
@@ -579,6 +582,8 @@ $pia_lang['BackDevices_table_filter_error_b'] = ' mit dem Wert ';
 $pia_lang['BackDevices_table_filter_error_c'] = ' konnte nicht gespeichert werden';
 $pia_lang['BackDevices_table_filter_error_d'] = 'Nicht alle erforderlichen Felder wurden ausgefüllt';
 $pia_lang['BackDevices_table_filter_error_e'] = 'Fehler beim Erstellen der Filter-Tabelle';
+$pia_lang['BackDevices_Upd_Filter'] = 'Filter erfolgreich aktualisiert.';
+$pia_lang['BackDevices_Upd_FilterError'] = 'Fehler beim Aktualisieren des Filters.';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -757,6 +762,8 @@ $pia_journ_lang['LogStr_0042'] = 'Vordefinierter Filter wurde gespeichert';
 $pia_journ_lang['LogStr_0043'] = 'Vordefinierter Filter war unvollständig und wurde nicht gespeichert';
 $pia_journ_lang['LogStr_0044'] = 'Die Tabelle für die Filter konnte nicht erstellt werden';
 $pia_journ_lang['LogStr_0045'] = 'Vordefinierter Filter wurde gelöscht';
+$pia_journ_lang['LogStr_0046'] = 'Vordefinierter Filter wurde aktualisiert';
+$pia_journ_lang['LogStr_0047'] = 'Vordefinierter Filter wurde nicht aktualisiert';
 $pia_journ_lang['LogStr_0050'] = 'Passwortschutz von Pi.Alert aktiviert';
 $pia_journ_lang['LogStr_0051'] = 'Passwortschutz von Pi.Alert deaktiviert';
 $pia_journ_lang['LogStr_0052'] = 'Spaltenkonfiguration der Geräte-Liste geändert';
