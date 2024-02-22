@@ -624,51 +624,51 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                     <td colspan="2" style="text-align: center;">
                         <?php $col_checkbox = set_column_checkboxes(read_DevListCol());?>
                         <div class="form-group">
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkConnectionType" type="checkbox" <?=$col_checkbox['ConnectionType'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_ConnectionType'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkOwner" type="checkbox" <?=$col_checkbox['Owner'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Owner'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkType" type="checkbox" <?=$col_checkbox['Type'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Type'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkFavorite" type="checkbox" <?=$col_checkbox['Favorites'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Favorite'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkGroup" type="checkbox" <?=$col_checkbox['Group'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Group'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkLocation" type="checkbox" <?=$col_checkbox['Location'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Location'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkfirstSess" type="checkbox" <?=$col_checkbox['FirstSession'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_FirstSession'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chklastSess" type="checkbox" <?=$col_checkbox['LastSession'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_LastSession'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chklastIP" type="checkbox" <?=$col_checkbox['LastIP'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_LastIP'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkMACtype" type="checkbox" <?=$col_checkbox['MACType'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_MAC'];?></label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkMACaddress" type="checkbox" <?=$col_checkbox['MACAddress'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_MAC'];?>-Address</label>
                             </div>
-                            <div class="table_settings_col_box" style="">
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkWakeOnLAN" type="checkbox" <?=$col_checkbox['WakeOnLAN'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_WakeOnLAN'];?> (WakeOnLAN)</label>
                             </div>
@@ -677,6 +677,21 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                         </div>
                     </td>
                 </tr>
+
+
+
+                <tr><td colspan="2"><h4 class="bottom-border-aqua">Konfig Filter Reihenfolge</h4></td></tr>
+                <tr>
+                    <td colspan="2" style="text-align: center;">
+                        <div class="form-group">
+                            <?php show_filter_editor();?>
+                        </div>
+                    </td>
+                </tr>
+
+
+
+
             </table>
         </div>
         <div class="tab-pane <?=$pia_tab_tool;?>" id="tab_DBTools">
@@ -1166,6 +1181,7 @@ function update_tabURL(url, tab) {
     url = url.replace('?tab=1','');
     url = url.replace('?tab=2','');
     url = url.replace('?tab=3','');
+    url = url.replace('?tab=4','');
     url = url.replace('#','');
     window.history.pushState(stateObj,
              "Tab"+tab, url + "?tab=" + tab);
@@ -1180,6 +1196,9 @@ function initializeiCheck () {
    });
 
 }
+
+// JS created by php while loop
+<?=create_filter_editor_js();?>
 
 var StatusBoxARPCountdown; 
 

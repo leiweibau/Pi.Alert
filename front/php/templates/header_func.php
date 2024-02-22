@@ -210,12 +210,11 @@ function set_userimage($skinname) {
 		$_SESSION['UserLogo'] = 'pialertLogoBlack';
 	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
 }
-
-// Get DeviceList Filters
+// Get DeviceList Filters and create session array to reduce sqlite3 queries
 function get_devices_filter_list() {
 	$database = '../db/pialert.db';
 	$db = new SQLite3($database);
-	$sql_select = 'SELECT * FROM Devices_table_filter ORDER BY filtername ASC';
+	$sql_select = 'SELECT * FROM Devices_table_filter ORDER BY reserve_a ASC, filtername ASC';
 	$result = $db->query($sql_select);
 	$_SESSION['Filter_Table'] = array();
 	if ($result) {
@@ -232,7 +231,55 @@ function get_devices_filter_list() {
 	show_group_filters();
 	show_groupless_filters();
 }
+// Show filter editor from array
+function show_filter_editor() {
+	$filter_table = $_SESSION['Filter_Table'];
+	foreach ($filter_table as $row) {
+		echo '<div class="row"><div class="form-group">';
+    	echo '<div class="col-md-3">
+    			<div class="form-group" style="text-align: left;">
+    				<label class="control-label">Filtername</label>
+    				<input class="form-control" id="txt_' . $row['id'] . '_ID" type="hidden" value="' . $row['id'] . '">
+    				<input class="form-control" id="txt_' . $row['id'] . '_name" type="text" value="' . $row['filtername'] . '">
+    			</div>
+    		  </div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">Filter</label><input class="form-control" id="txt_' . $row['id'] . '_string" type="text" value="' . $row['filterstring'] . '"></div></div>';
+    	echo '<div class="col-md-1"><div class="form-group" style="text-align: left;"><label class="control-label">Index</label><input class="form-control" id="txt_' . $row['id'] . '_index" type="text" value="' . $row['reserve_a'] . '"></div></div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">Spalten</label><input class="form-control" id="txt_' . $row['id'] . '_column" type="text" value="' . $row['reserve_b'] . '"></div></div>';
+    	echo '<div class="col-md-3"><div class="form-group" style="text-align: left;"><label class="control-label">Gruppe</label><input class="form-control" id="txt_' . $row['id'] . '_group" type="text" value="' . $row['reserve_c'] . '"></div></div>';
+    	echo '<div class="col-md-1">
+    			<div class="form-group" style="text-align: left;">
+    				
+    				<button type="button" class="btn btn-warning" style="margin-top: 26px; width:40px;" id="btnSaveFilter_7" onclick="SaveFilterID_' . $row['id'] . '(\'' . $row['filtername'] . '\',\'' . $row['id'] . '\')" ><i class="fa-regular fa-floppy-disk"></i></button>
+    			</div>
+    		  </div>';
+    	echo '</div></div>';
+    }
+}
+// Show filter editor from array
+function create_filter_editor_js() {
+	global $pia_lang;
 
+	$filter_table = $_SESSION['Filter_Table'];
+	foreach ($filter_table as $row) {
+echo '
+function SaveFilterID_' . $row['id'] . '() {
+	$.get(\'php/server/devices.php?action=SaveFilterID&\'
+    + \'&filterid=\'      + $(\'#txt_' . $row['id'] . '_ID\').val()
+    + \'&filtername=\'    + $(\'#txt_' . $row['id'] . '_name\').val()
+    + \'&filterstring=\'  + $(\'#txt_' . $row['id'] . '_string\').val()
+    + \'&filterindex=\'   + $(\'#txt_' . $row['id'] . '_index\').val()
+    + \'&filtercolumn=\'  + $(\'#txt_' . $row['id'] . '_column\').val()
+    + \'&filtergroup=\'   + $(\'#txt_' . $row['id'] . '_group\').val()
+     , function(msg) {
+     showMessage (msg);
+   });
+ }
+';
+    }
+}
+
+// Show groupless filters in Sidebar from session array
 function show_groupless_filters() {
 	$filter_table = $_SESSION['Filter_Table'];
 	foreach ($filter_table as $row) {
@@ -242,7 +289,7 @@ function show_groupless_filters() {
     	}
     }
 }
-
+// Show grouped filters in Sidebar from session array
 function show_group_filters() {
 	if (isset($_REQUEST['g'])) {$active_group = $_REQUEST['g'];}
 	$filter_table = $_SESSION['Filter_Table'];
@@ -269,7 +316,7 @@ function show_group_filters() {
 	    echo '</ul></li>';
 	}
 }
-
+// Get list of filter groups from session array
 function get_filter_group_list() {
 	$filter_table = $_SESSION['Filter_Table'];
 	$filter_groups = array();
@@ -278,7 +325,9 @@ function get_filter_group_list() {
     		array_push($filter_groups, $row['reserve_c']);
     	}
     }
-    $filter_groups = array_values(array_unique($filter_groups));
+    $filter_groups = array_unique($filter_groups);
+    natsort($filter_groups);
+    $filter_groups = array_values($filter_groups);
     return $filter_groups;
 }
 

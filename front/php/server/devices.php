@@ -90,9 +90,46 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'DeleteSpeedtestResults':DeleteSpeedtestResults();
 		break;
+	case 'SaveFilterID':SaveFilterID();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function SaveFilterID() {
+	global $db;
+	global $pia_lang;
+
+	$filterid = filter_var($_REQUEST['filterid'], FILTER_SANITIZE_STRING);
+	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
+	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+	$filterindex = filter_var($_REQUEST['filterindex'], FILTER_SANITIZE_STRING);
+	$filtercolumn = filter_var($_REQUEST['filtercolumn'], FILTER_SANITIZE_STRING);
+	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
+
+	echo $_REQUEST['filterid'] . ' - ' . $_REQUEST['filtername'] . ' - ' . $_REQUEST['filterstring'] . ' - ' . $_REQUEST['filtercolumn'] . ' - ' . $_REQUEST['filtergroup'];
+
+	// sql
+	$sql = 'UPDATE Devices_table_filter SET
+                 filtername      = "' . quotes($filtername) . '",
+                 filterstring    = "' . quotes($filterstring) . '",
+                 reserve_a       = "' . quotes($filterindex) . '",
+                 reserve_b       = "' . quotes($filtercolumn) . '",
+                 reserve_c       = "' . quotes($filtergroup) . '"
+          WHERE id="' . $filterid . '"';
+	$result = $db->query($sql);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BackDevices_DBTools_UpdDev'];
+		// Logging
+		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $filterid);
+	} else {
+		echo $pia_lang['BackDevices_DBTools_UpdDevError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $filterid);
+	}
+	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>");
 }
 
 function SetDeviceFilter() {
