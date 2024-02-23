@@ -135,6 +135,7 @@ move_files() {
 move_files_again() {
   if [ -e "$PIALERT_HOME/config/speedtest/speedtest" ] ; then
     echo "- Moving speedtest from temporary directory..."
+    rm -rf "$PIALERT_HOME/back/speedtest"
     mv "$PIALERT_HOME/config/speedtest" "$PIALERT_HOME/back"
   fi
 }
