@@ -47,6 +47,7 @@ main() {
   download_pialert
   update_config
   update_db
+  move_files_again
   update_permissions
   start_pialert
 
@@ -119,13 +120,22 @@ create_backup() {
 }
 
 # ------------------------------------------------------------------------------
-# Move files to the new directory
+# Move files to the temp directory
 # ------------------------------------------------------------------------------
 move_files() {
-  if [ -e "$PIALERT_HOME/back/pialert.conf" ] ; then
-    print_msg "- Moving pialert.conf to the new directory..."
-    mkdir -p "$PIALERT_HOME/config"
-    mv "$PIALERT_HOME/back/pialert.conf" "$PIALERT_HOME/config"
+  if [ -e "$PIALERT_HOME/back/speedtest/speedtest" ] ; then
+    echo "- Moving speedtest to temporary directory..."
+    mv "$PIALERT_HOME/back/speedtest" "$PIALERT_HOME/config"
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# Move files from the temp directory
+# ------------------------------------------------------------------------------
+move_files_again() {
+  if [ -e "$PIALERT_HOME/config/speedtest/speedtest" ] ; then
+    echo "- Moving speedtest from temporary directory..."
+    mv "$PIALERT_HOME/config/speedtest" "$PIALERT_HOME/back"
   fi
 }
 
