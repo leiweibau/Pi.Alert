@@ -493,8 +493,10 @@ body.modal-open {
 .bulked_dev_chk_cont {display: inline-block; height: 32px; width: 36px; margin-right: 3px; padding-left: 8px; padding-top: 6px;}
 .bulked_dev_chkbox {position: relative; margin-top:-3px !important; margin-right: 3px !important;}
 .bulked_table_cell_a {padding-left: 10px; height: 70px;}
+.bulked_online_border {border: 1px solid #00A000; box-shadow: inset 0px 0px 5px 0px #00A000;}
+.bulked_offline_border {border: 1px solid #888;}
 #bulked_checkall {display: block; margin-top: 20px; margin-bottom: 10px; min-width: 180px;}
-#bulk_editor_quit {position: absolute; display: inline-block; top: 5px; right: 15px;}
+.bulk_editor_quit {position: absolute; display: inline-block; top: 5px; right: 15px;}
 /* ----------------- Services ----------------------------------------------- */
 .icmplist_add_ip {display: inline-block; margin-top: -5px; margin-left: 15px;}
 .services_icon {position: relative; top: -58px; left: 0px; font-size: 58px; opacity: 0.2;}

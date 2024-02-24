@@ -65,7 +65,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 	echo '
 					<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
-          <a href="./devices.php" class="btn btn-success pull-right" role="button" id="bulk_editor_quit">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
+          <a href="./devices.php" class="btn btn-success pull-right bulk_editor_quit" role="button">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
         </section>';
 
 	echo '<section class="content">
@@ -172,11 +172,10 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	$sql = 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown FROM Devices ORDER BY dev_Name COLLATE NOCASE ASC';
 	$results = $db->query($sql);
 	while ($row = $results->fetchArray()) {
-		if ($row[2] == 1) {$status_border = 'border: 1px solid #00A000; box-shadow: inset 0px 0px 5px 0px #00A000;';} else { $status_border = 'border: 1px solid #888;';}
+		if ($row[2] == 1) {$status_border = 'bulked_online_border';} else { $status_border = 'bulked_offline_border';}
 		if ($row[3] == 1) {$status_box = 'background-color: #aaa;';} elseif ($row[4] == 1) {$status_box = 'background-color: #b1720c;';} else { $status_box = 'background-color: transparent;';}
 		if ($row[5] == 1 && $row[6] == 1) {$status_text_color = 'bulked_checkbox_label_alldown';} elseif ($row[5] == 1) {$status_text_color = 'bulked_checkbox_label_all';} elseif ($row[6] == 1) {$status_text_color = 'bulked_checkbox_label_down';} else { $status_text_color = '';}
-		//if ($row[4] == 1) {$status_box = 'background-color: #b1720c;';} else { $status_box = 'background-color: transparent;';}
-		echo '<div class="bulked_dev_box" style="' . $status_border . '">
+		echo '<div class="bulked_dev_box ' . $status_border . '">
              <div class="bulked_dev_chk_cont" style="' . $status_box . '">
              		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . $row[1] . '" name="' . $row[1] . '" type="checkbox">
              </div>

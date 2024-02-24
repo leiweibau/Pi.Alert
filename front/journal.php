@@ -94,7 +94,7 @@ function get_pialert_journal() {
 		$logclass = "";
 
 		echo '<tr>
-              <td style="">' . $row['Journal_DateTime'] . '</td>
+              <td>' . $row['Journal_DateTime'] . '</td>
               <td>' . $logclass . '</td>
               <td>' . $logcode . '</td>
               <td style="white-space: nowrap;">' . $pia_journ_lang[$row['LogClass']] . '</td>
