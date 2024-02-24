@@ -77,21 +77,19 @@ def main():
         return
     cycle = str(sys.argv[1])
 
-    ## Main Commands
-    if cycle == 'internet_IP':
-        res = check_internet_IP()
-    elif cycle == 'cleanup':
-        res = cleanup_database()
-    elif cycle == 'update_vendors':
-        res = update_devices_MAC_vendors()
-    elif cycle == 'update_vendors_silent':
-        res = update_devices_MAC_vendors('-s')
-    elif os.path.exists(STOPPIALERT) == True :
-        res = start_arpscan_countdown()
-    elif os.path.exists(STOPPIALERT) == False :
-        res = scan_network()
-    else:
-        res = 0
+    if os.path.exists(STOPPIALERT) == True :
+        res = check_pialert_countdown()
+    else :
+        if cycle == 'internet_IP':
+            res = check_internet_IP()
+        elif cycle == 'cleanup':
+            res = cleanup_database()
+        elif cycle == 'update_vendors':
+            res = update_devices_MAC_vendors()
+        elif cycle == 'update_vendors_silent':
+            res = update_devices_MAC_vendors('-s')
+        else:
+            res = scan_network()
 
     # Check error
     if res != 0 :
@@ -136,7 +134,7 @@ def set_reports_file_permissions():
 #===============================================================================
 # Countdown
 #===============================================================================
-def start_arpscan_countdown():
+def check_pialert_countdown():
 
     openDB()
     if os.path.exists(STOPPIALERT):
@@ -146,26 +144,25 @@ def start_arpscan_countdown():
             # print("Timer in min: %s" % data)
 
         FILETIME = int(os.path.getctime(STOPPIALERT))
-
-        print(f"Timer Start: {time.ctime(FILETIME)}")
-        STOPTIME = FILETIME+data*60
-        print(f"Timer Ende : {time.ctime(STOPTIME)}")
-        print("----------------------------------------")
-
         ACTUALTIME = int(time.time())
+        STOPTIME = FILETIME+(data*60)-60
 
         if ( ACTUALTIME > STOPTIME ):
-           print("File will be deleted")
-           os.remove(STOPPIALERT)
-           os.system('/usr/bin/python3 ' + PIALERT_BACK_PATH + '/pialert_reporting_test.py reporting_stoptimer')
+            print("The file \"setting_stoppialert\" will be deleted")
+            os.remove(STOPPIALERT)
+            os.system('/usr/bin/python3 ' + PIALERT_BACK_PATH + '/pialert_reporting_test.py reporting_stoptimer')
 
-           sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                            VALUES (?, 'c_002', 'cronjob', 'LogStr_0513', '', '') """, (startTime,))
 
-           sql_connection.commit()
-           scan_network()
+            sql_connection.commit()
         else:
-           print("Timer still running")
+            print(f"Timer Start: {time.ctime(FILETIME)}")
+            # Check 1min before cowntdown ends
+            # Delete stop file 1 min before countdown ends
+            print(f"Timer Ende : {time.ctime(STOPTIME+60)}")
+            print("----------------------------------------")
+            print("Timer still running")
 
     closeDB()
 
@@ -2662,10 +2659,12 @@ def send_ntfy (_Text):
     # Prepare header
     headers = {
         "Title": "Pi.Alert Notification",
-        "Click": REPORT_DASHBOARD_URL,
         "Priority": NTFY_PRIORITY,
         "Tags": "warning"
     }
+
+    if NTFY_CLICKABLE == True:
+        headers["Click"] = REPORT_DASHBOARD_URL
     # if username and password are set generate hash and update header
     if NTFY_USER != "" and NTFY_PASSWORD != "":
     # Generate hash for basic auth

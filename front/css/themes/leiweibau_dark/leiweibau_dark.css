@@ -726,3 +726,8 @@ input[type="password"]::-webkit-caps-lock-indicator {
 #txtRecord, #txtRecord_down {padding: 10px; min-width: 30px; margin-left: 1px;}
 #speedtestcli, #speedtestcli_ookla {margin-left: 10px; margin-right: 10px;}
 #btnwakeonlan {margin-bottom: 20px; margin-left: 10px; margin-right: 10px;}
+
+.skin-blue .sidebar-menu > li > .treeview-menu {
+  margin: 0 1px;
+  background-color: rgba(0, 0, 0, 0.5);
+}

@@ -789,3 +789,6 @@ input[type="password"]::-webkit-caps-lock-indicator {
 .help_table_gen_a {border: solid 1px #666;}
 .help_table_gen_b {border: solid 1px #666;}
 .help_table_gen_section {border: solid 1px #666; background-color: #1a2226;}
+#btnFilterSave{color:#fff}
+
+.btn-default:hover, .btn-default:active {color:#000 !important;}

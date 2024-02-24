@@ -117,10 +117,15 @@ $pia_lang['Device_bulkDel_back_hosts'] = 'Zu löschende MAC-Adressen';
 $pia_lang['Device_predef_table_filter'] = 'Vordefinierten Filter erstellen';
 $pia_lang['Device_del_table_filter_noti'] = 'Tabellenfilter löschen';
 $pia_lang['Device_del_table_filter_noti_text'] = 'Möchtest du den gespeicherten Tabellenfilter löschen? Hierbei wird nur der Eintrag in der Seitenleiste entfern. Die gefilterten Geräte bleiben unbeeinflusst.';
-$pia_lang['Device_del_table_filtername'] = 'Filterbezeichnung';
+$pia_lang['Device_del_table_filtername'] = 'Filtername';
 $pia_lang['Device_del_table_filterstring'] = 'Filter';
+$pia_lang['Device_del_table_columns'] = 'Lege die Spalten für die Suche fest';
 $pia_lang['Device_del_table_filtername_help'] = 'Bezeichnung in der Seitenleiste';
 $pia_lang['Device_del_table_filterstring_help'] = 'Suchbegriff';
+$pia_lang['Device_del_table_filtergroup'] = 'Filter-Gruppe';
+$pia_lang['Device_del_table_filtergroup_help'] = 'Kann mehrere Filter gruppieren';
+$pia_lang['Device_del_table_filterindex'] = 'Index';
+$pia_lang['Device_del_table_filtercol'] = 'deaktivierte Spalten';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page
@@ -402,6 +407,7 @@ $pia_lang['Maintenance_Tools_Tab_Subheadline_c'] = 'Sicherheit';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e_Intro'] = 'Du kannst in dem Feld eine eigene URL zu deinem gewünschten FavIcon eintragen, oder zwischen lokalen oder remote (https://github.com/leiweibau/Pi.Alert) FavIcons wählen. Je nach Konfiguration kann es sein, dass lokale FavIcons nicht als HomeScreen Icon funktionieren.';
+$pia_lang['Maintenance_Tools_Tab_Subheadline_f'] = 'Filter Editor (Seitenleiste)';
 $pia_lang['Maintenance_Tool_darkmode'] = 'Dunkel Modus';
 $pia_lang['Maintenance_Tool_darkmode_noti'] = 'Darstellungswechsel';
 $pia_lang['Maintenance_Tool_darkmode_noti_text'] = 'Wechselt zwischen der hellen und der dunklen Darstellung. Wenn die Umschaltung nicht ordentlich funktionieren sollte, versuchen Sie den Browsercache zu löschen.';
@@ -427,7 +433,7 @@ $pia_lang['Maintenance_Tool_setapikey_noti_text'] = 'Möchtest du einen eventuel
 $pia_lang['Maintenance_Tool_ignorelist'] = 'Ignorierliste';
 $pia_lang['Maintenance_Tool_ignorelist_false'] = 'Keine Ignorierliste konfiguriert';
 $pia_lang['Maintenance_arpscantimer_empty'] = 'Timer setzen';
-$pia_lang['Maintenance_Tool_arpscansw'] = 'Scans stoppen/starten';
+$pia_lang['Maintenance_Tool_arpscansw'] = 'Pi.Alert stoppen/starten';
 $pia_lang['Maintenance_Tool_arpscansw_text'] = 'Schaltet alle Scans von Pi.Alert an oder aus. Wenn bei der Aktivierung des Timers kein Zeit&shy;raum festgelegt wur&shy;de, schal&shy;tet sich Pi.Alert nach einer Pause von 10min mit dem nächsten an&shy;ste&shy;henden Scan wieder ein. Bereits laufende Scans wer&shy;den dabei nicht beendet.';
 $pia_lang['Maintenance_Tool_arpscansw_noti'] = 'arp-Scan stoppen/starten';
 $pia_lang['Maintenance_Tool_arpscansw_noti_text'] = 'Wenn der Scan aus ist, bleibt er so lange aus bis er wieder aktiviert wird.';
@@ -576,6 +582,8 @@ $pia_lang['BackDevices_table_filter_error_b'] = ' mit dem Wert ';
 $pia_lang['BackDevices_table_filter_error_c'] = ' konnte nicht gespeichert werden';
 $pia_lang['BackDevices_table_filter_error_d'] = 'Nicht alle erforderlichen Felder wurden ausgefüllt';
 $pia_lang['BackDevices_table_filter_error_e'] = 'Fehler beim Erstellen der Filter-Tabelle';
+$pia_lang['BackDevices_Upd_Filter'] = 'Filter erfolgreich aktualisiert.';
+$pia_lang['BackDevices_Upd_FilterError'] = 'Fehler beim Aktualisieren des Filters.';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -754,6 +762,8 @@ $pia_journ_lang['LogStr_0042'] = 'Vordefinierter Filter wurde gespeichert';
 $pia_journ_lang['LogStr_0043'] = 'Vordefinierter Filter war unvollständig und wurde nicht gespeichert';
 $pia_journ_lang['LogStr_0044'] = 'Die Tabelle für die Filter konnte nicht erstellt werden';
 $pia_journ_lang['LogStr_0045'] = 'Vordefinierter Filter wurde gelöscht';
+$pia_journ_lang['LogStr_0046'] = 'Vordefinierter Filter wurde aktualisiert';
+$pia_journ_lang['LogStr_0047'] = 'Vordefinierter Filter wurde nicht aktualisiert';
 $pia_journ_lang['LogStr_0050'] = 'Passwortschutz von Pi.Alert aktiviert';
 $pia_journ_lang['LogStr_0051'] = 'Passwortschutz von Pi.Alert deaktiviert';
 $pia_journ_lang['LogStr_0052'] = 'Spaltenkonfiguration der Geräte-Liste geändert';

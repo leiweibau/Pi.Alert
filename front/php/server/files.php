@@ -244,6 +244,7 @@ NTFY_TOPIC          = '" . $configArray['NTFY_TOPIC'] . "'
 NTFY_USER           = '" . $configArray['NTFY_USER'] . "'
 NTFY_PASSWORD	    = '" . $configArray['NTFY_PASSWORD'] . "'
 NTFY_PRIORITY 	    = '" . $configArray['NTFY_PRIORITY'] . "'
+NTFY_CLICKABLE 	    = " . convert_bool($configArray['NTFY_CLICKABLE']) . "
 
 # Shoutrrr
 # ----------------------

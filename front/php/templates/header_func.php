@@ -210,22 +210,123 @@ function set_userimage($skinname) {
 		$_SESSION['UserLogo'] = 'pialertLogoBlack';
 	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
 }
-
-// Get DeviceList Filters
+// Get DeviceList Filters and create session array to reduce sqlite3 queries
 function get_devices_filter_list() {
 	$database = '../db/pialert.db';
 	$db = new SQLite3($database);
-	$sql_select = 'SELECT * FROM Devices_table_filter ORDER BY filtername ASC';
+	$sql_select = 'SELECT * FROM Devices_table_filter ORDER BY reserve_a ASC, filtername ASC';
 	$result = $db->query($sql_select);
+	$_SESSION['Filter_Table'] = array();
 	if ($result) {
 		if ($result->numColumns() > 0) {
 	        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-	        	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
-	            echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+	        	array_push($_SESSION['Filter_Table'], $row);
 	        }
 		}
 	} else {echo "";}
 	$db->close();
+	// Unset Var
+	unset($row);
+
+	show_group_filters();
+	show_groupless_filters();
+}
+// Show filter editor from array
+function show_filter_editor() {
+	global $pia_lang;
+	$filter_table = $_SESSION['Filter_Table'];
+	foreach ($filter_table as $row) {
+		echo '<div class="row">';
+    	echo '<div class="col-md-2 col-md-offset-1">
+    			<div class="form-group" style="text-align: left;">
+    				<label class="control-label">' . $pia_lang['Device_del_table_filtername'] . '</label>
+    				<input class="form-control" id="txt_' . $row['id'] . '_ID" type="hidden" value="' . $row['id'] . '">
+    				<input class="form-control" id="txt_' . $row['id'] . '_name" type="text" value="' . $row['filtername'] . '">
+    			</div>
+    		  </div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filterstring'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_string" type="text" value="' . $row['filterstring'] . '"></div></div>';
+    	echo '<div class="col-md-1"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filterindex'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_index" type="text" value="' . $row['reserve_a'] . '"></div></div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filtercol'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_column" type="text" value="' . $row['reserve_b'] . '"></div></div>';
+    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filtergroup'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_group" type="text" value="' . $row['reserve_c'] . '"></div></div>';
+    	echo '<div class="col-md-1">
+    			<div class="form-group" style="text-align: left;">
+    				<button type="button" class="btn btn-warning btn-block" style="margin-top: 27px;" id="btnSaveFilter_' . $row['id'] . '" onclick="SaveFilterID_' . $row['id'] . '(\'' . $row['filtername'] . '\',\'' . $row['id'] . '\')" ><i class="fa-regular fa-floppy-disk"></i></button>
+    			</div>
+    		  </div>';
+    	echo '</div>';
+    }
+}
+// Show filter editor from array
+function create_filter_editor_js() {
+	global $pia_lang;
+
+	$filter_table = $_SESSION['Filter_Table'];
+	foreach ($filter_table as $row) {
+		echo '
+function SaveFilterID_' . $row['id'] . '() {
+	$.get(\'php/server/devices.php?action=SaveFilterID&\'
+    + \'&filterid=\'      + $(\'#txt_' . $row['id'] . '_ID\').val()
+    + \'&filtername=\'    + $(\'#txt_' . $row['id'] . '_name\').val()
+    + \'&filterstring=\'  + $(\'#txt_' . $row['id'] . '_string\').val()
+    + \'&filterindex=\'   + $(\'#txt_' . $row['id'] . '_index\').val()
+    + \'&filtercolumn=\'  + $(\'#txt_' . $row['id'] . '_column\').val()
+    + \'&filtergroup=\'   + $(\'#txt_' . $row['id'] . '_group\').val()
+     , function(msg) {
+     showMessage (msg);
+   });
+}';
+    }
+}
+// Show groupless filters in Sidebar from session array
+function show_groupless_filters() {
+	$filter_table = $_SESSION['Filter_Table'];
+	foreach ($filter_table as $row) {
+    	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
+    	if ($row['reserve_c'] == "" || !isset($row['reserve_c'])) {
+        	echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+    	}
+    }
+}
+// Show grouped filters in Sidebar from session array
+function show_group_filters() {
+	if (isset($_REQUEST['g'])) {$active_group = $_REQUEST['g'];}
+	$filter_table = $_SESSION['Filter_Table'];
+	$filter_groups = get_filter_group_list();
+	for ($i = 0; $i < sizeof($filter_groups); $i++) {
+		$temp_filter_group = $filter_groups[$i];
+		if ($i == $active_group && isset($active_group)) {$group_state['menu'] = 'menu-open'; $group_state['list'] = 'block';} else {{$group_state['menu'] = ''; $group_state['list'] = 'none';}}
+		echo '<li class="treeview '.$group_state['menu'].'" style="height: auto;">
+				<a href="#" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
+	    			<i class="fa-solid fa-filter"></i>
+	    			<span style="font-style: italic;">&nbsp;'.$temp_filter_group.'</span>
+	    			<span class="pull-right-container">
+	      				<i class="fa fa-angle-left pull-right"></i>
+	    			</span>
+	  			</a>
+	  			<ul class="treeview-menu" style="display: '.$group_state['list'].';">';
+
+		foreach ($filter_table as $row) {
+	    	if ($row['reserve_c'] == $temp_filter_group) {
+	    		if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle"; } else {$filterlist_icon = "fa-regular fa-circle"; }
+	    		echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'&g='.$i.'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:22px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+	    	}
+	    }
+	    echo '</ul></li>';
+	}
+}
+// Get list of filter groups from session array
+function get_filter_group_list() {
+	$filter_table = $_SESSION['Filter_Table'];
+	$filter_groups = array();
+	foreach ($filter_table as $row) {
+    	if ($row['reserve_c'] != "") {
+    		array_push($filter_groups, $row['reserve_c']);
+    	}
+    }
+    $filter_groups = array_unique($filter_groups);
+    natsort($filter_groups);
+    $filter_groups = array_values($filter_groups);
+    return $filter_groups;
 }
 
 // Arp Histroy Graph

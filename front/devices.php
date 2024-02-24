@@ -65,7 +65,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 	echo '
 					<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
-          <a href="./devices.php" class="btn btn-success pull-right" role="button" style="position: absolute; display: inline-block; top: 5px; right: 15px;">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
+          <a href="./devices.php" class="btn btn-success pull-right bulk_editor_quit" role="button">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
         </section>';
 
 	echo '<section class="content">
@@ -172,22 +172,21 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	$sql = 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown FROM Devices ORDER BY dev_Name COLLATE NOCASE ASC';
 	$results = $db->query($sql);
 	while ($row = $results->fetchArray()) {
-		if ($row[2] == 1) {$status_border = 'border: 1px solid #00A000; box-shadow: inset 0px 0px 5px 0px #00A000;';} else { $status_border = 'border: 1px solid #888;';}
+		if ($row[2] == 1) {$status_border = 'bulked_online_border';} else { $status_border = 'bulked_offline_border';}
 		if ($row[3] == 1) {$status_box = 'background-color: #aaa;';} elseif ($row[4] == 1) {$status_box = 'background-color: #b1720c;';} else { $status_box = 'background-color: transparent;';}
 		if ($row[5] == 1 && $row[6] == 1) {$status_text_color = 'bulked_checkbox_label_alldown';} elseif ($row[5] == 1) {$status_text_color = 'bulked_checkbox_label_all';} elseif ($row[6] == 1) {$status_text_color = 'bulked_checkbox_label_down';} else { $status_text_color = '';}
-		//if ($row[4] == 1) {$status_box = 'background-color: #b1720c;';} else { $status_box = 'background-color: transparent;';}
-		echo '<div class="table_settings_col_box" style="padding-left: 0px; padding-top: 0px; ' . $status_border . '">
-             <div style="display: inline-block; ' . $status_box . ' height: 32px; width: 36px; margin-right: 3px; padding-left: 8px; padding-top: 6px;">
-             		<input class="icheckbox_flat-blue hostselection" id="' . $row[1] . '" name="' . $row[1] . '" type="checkbox" style="position: relative; margin-top:-3px; margin-right: 3px;">
+		echo '<div class="bulked_dev_box ' . $status_border . '">
+             <div class="bulked_dev_chk_cont" style="' . $status_box . '">
+             		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . $row[1] . '" name="' . $row[1] . '" type="checkbox">
              </div>
-             <label class="control-label ' . $status_text_color . '" for="' . $row[1] . '" style="">' . $row[0] . '</label>
+             <label class="control-label ' . $status_text_color . '" for="' . $row[1] . '">' . $row[0] . '</label>
           </div>';
 	}
 	// Check/Uncheck All Button
-	echo '<button type="button" class="btn btn-warning pull-right checkall" style="display: block; margin-top: 20px; margin-bottom: 10px; min-width: 180px;">' . $pia_lang['Device_bulkEditor_selectall'] . '</button>';
+	echo '<button type="button" class="btn btn-warning pull-right" id="bulked_checkall">' . $pia_lang['Device_bulkEditor_selectall'] . '</button>';
 	echo '<script>
             var clicked = false;
-            $(".checkall").on("click", function() {
+            $("#bulked_checkall").on("click", function() {
               $(".hostselection").prop("checked", !clicked);
               clicked = !clicked;
               this.innerHTML = clicked ? \'' . $pia_lang['Device_bulkEditor_selectnone'] . '\' : \'' . $pia_lang['Device_bulkEditor_selectall'] . '\';
@@ -199,14 +198,14 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	// Inputs
 	echo '<table style="margin-bottom:30px; width: 100%">
           <tr>
-            <td style="padding-left: 10px; height: 70px; width: 80px;"><input class="icheckbox_flat-blue" id="en_bulk_owner" name="en_bulk_owner" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a" style="width: 80px;"><input class="icheckbox_flat-blue" id="en_bulk_owner" name="en_bulk_owner" type="checkbox"></td>
+            <td>
                 <label for="bulk_owner">' . $pia_lang['DevDetail_MainInfo_Owner'] . ':</label><br>
                 <input type="text" class="form-control" id="bulk_owner" name="bulk_owner" style="max-width: 400px;" disabled></td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_type" name="en_bulk_type" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_type" name="en_bulk_type" type="checkbox"></td>
+            <td>
                 <label for="bulk_type">' . $pia_lang['DevDetail_MainInfo_Type'] . ':</label><br>
                 <div class="input-group" style="max-width: 400px;">
                   <input class="form-control" id="bulk_type" name="bulk_type" type="text" disabled>
@@ -230,8 +229,8 @@ if ($_REQUEST['mod'] == 'bulkedit') {
             </td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_group" name="en_bulk_group" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_group" name="en_bulk_group" type="checkbox"></td>
+            <td>
                 <label for="bulk_group">' . $pia_lang['DevDetail_MainInfo_Group'] . ':</label><br>
                 <div class="input-group" style="max-width: 400px;">
                   <input class="form-control" id="bulk_group" name="bulk_group" type="text" disabled>
@@ -250,8 +249,8 @@ if ($_REQUEST['mod'] == 'bulkedit') {
             </td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_location" name="en_bulk_location" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_location" name="en_bulk_location" type="checkbox"></td>
+            <td>
                 <label for="bulk_location">' . $pia_lang['DevDetail_MainInfo_Location'] . ':</label><br>
                 <div class="input-group" style="max-width: 400px;">
                   <input class="form-control" id="bulk_location" name="bulk_location" type="text" disabled>
@@ -272,14 +271,14 @@ if ($_REQUEST['mod'] == 'bulkedit') {
             </td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_comments" name="en_bulk_comments" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_comments" name="en_bulk_comments" type="checkbox"></td>
+            <td>
                 <label for="bulk_comments">' . $pia_lang['DevDetail_MainInfo_Comments'] . ':</label><br>
                 <textarea class="form-control" rows="3" id="bulk_comments" name="bulk_comments" spellcheck="false" data-gramm="false" style="max-width: 400px;" disabled></textarea></td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_connectiontype" name="en_bulk_connectiontype" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_connectiontype" name="en_bulk_connectiontype" type="checkbox"></td>
+            <td>
                 <label for="bulk_connectiontype">' . $pia_lang['DevDetail_MainInfo_Network_ConnectType'] . ':</label><br>
                 <div class="input-group" style="max-width: 400px;">
                   <input class="form-control" id="bulk_connectiontype" name="bulk_connectiontype" type="text" disabled>
@@ -297,26 +296,26 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           </tr>
 
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_AlertAllEvents" name="en_bulk_AlertAllEvents" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_AlertAllEvents" name="en_bulk_AlertAllEvents" type="checkbox"></td>
+            <td>
                 <label for="bulk_AlertAllEvents" style="width: 200px;">' . $pia_lang['DevDetail_EveandAl_AlertAllEvents'] . ':</label>
                 <input class="icheckbox_flat-blue" id="bulk_AlertAllEvents" name="bulk_AlertAllEvents" type="checkbox" disabled></td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_AlertDown" name="en_bulk_AlertDown" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_AlertDown" name="en_bulk_AlertDown" type="checkbox"></td>
+            <td>
                 <label for="bulk_AlertDown" style="width: 200px;">' . $pia_lang['DevDetail_EveandAl_AlertDown'] . ':</label>
                 <input class="icheckbox_flat-blue" id="bulk_AlertDown" name="bulk_AlertDown" type="checkbox" disabled></td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_NewDevice" name="en_bulk_NewDevice" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_NewDevice" name="en_bulk_NewDevice" type="checkbox"></td>
+            <td>
                 <label for="bulk_NewDevice" style="width: 200px;">' . $pia_lang['DevDetail_EveandAl_NewDevice'] . ':</label>
                 <input class="icheckbox_flat-blue" id="bulk_NewDevice" name="bulk_NewDevice" type="checkbox" disabled></td>
           </tr>
           <tr>
-            <td style="padding-left: 10px; height: 70px;"><input class="icheckbox_flat-blue" id="en_bulk_Archived" name="en_bulk_Archived" type="checkbox"></td>
-            <td style="">
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_Archived" name="en_bulk_Archived" type="checkbox"></td>
+            <td>
                 <label for="bulk_Archived" style="width: 200px;">' . $pia_lang['DevDetail_EveandAl_Archived'] . ':</label>
                 <input class="icheckbox_flat-blue" id="bulk_Archived" name="bulk_Archived" type="checkbox" disabled></td>
           </tr>
@@ -595,13 +594,56 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 								                          <input type="text" class="form-control" id="txtFilterString" placeholder="'.$pia_lang['Device_del_table_filterstring_help'].'">
 								                        </div>
 								                      </div>
+								                      <div class="form-group col-xs-12">
+								                        <label class="col-xs-3 control-label">'.$pia_lang['Device_del_table_filtergroup'].'</label>
+								                        <div class="col-xs-9">
+								                          <input type="text" class="form-control" id="txtFilterGroup" placeholder="'.$pia_lang['Device_del_table_filtergroup_help'].'">
+								                        </div>
+								                      </div>
+								                      <div class="form-group col-xs-12">
+								                        <label class="col-xs-12 control-label">'.$pia_lang['Device_del_table_columns'].'</label>
+								                        <div class="col-xs-12" style="display: flex;flex-wrap: wrap;">
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterName" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Name'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterOwner" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Owner'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterGroup" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Group'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterLocation" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Location'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterType" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Type'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterIP" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_LastIP'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterMac" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_MACaddress'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterConnectionType" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_ConnectionType'] .'</label>
+							                            </div>
+								                        </div>
+								                      </div>
 								                    </div>
 								                    <br>
 							                    </div>
 							                </div>
 					                    <div class="modal-footer">
 					                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">'.$pia_lang['Gen_Close'].'</button>
-					                        <button type="button" class="btn btn-primary" id="btnInsert" onclick="SetDeviceFilter()" >'.$pia_lang['Gen_Save'].'</button>
+					                        <button type="button" class="btn btn-primary" id="btnFilterSave" onclick="SetDeviceFilter()">'.$pia_lang['Gen_Save'].'</button>
 					                    </div>
 									        </div>
 									    </div>
@@ -678,6 +720,10 @@ require 'php/templates/footer.php';
 <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
+<!-- iCheck -->
+<link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
+<script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
+
 <!-- page script ----------------------------------------------------------- -->
 <script>
   var deviceStatus    = 'all';
@@ -712,6 +758,7 @@ function main () {
       getDevicesList (deviceStatus);
      });
    });
+  initializeiCheck();
 }
 
 // -----------------------------------------------------------------------------
@@ -741,6 +788,7 @@ function initializeDatatable () {
       {width:     '0px',         targets: [12] },
       {width:     '20px',         targets: [15] },
       {orderData: [13],          targets: [9] },
+      { "targets": [<?=$_REQUEST['filter_fields'];?>], "searchable": false },
 
       // Device Name
       {targets: [0],
@@ -920,8 +968,17 @@ function DeleteDeviceFilter() {
 // Set Device Filter
 function SetDeviceFilter() {
     $.get('php/server/devices.php?action=SetDeviceFilter&'
-    + '&filtername='            + $('#txtFilterName').val()
-    + '&filterstring='          + $('#txtFilterString').val()
+    + '&filtername='    + $('#txtFilterName').val()
+    + '&filterstring='  + $('#txtFilterString').val()
+    + '&filtergroup='   + $('#txtFilterGroup').val()
+    + '&fname='         + ($('#chkFilterName')[0].checked * 1)
+    + '&fowner='        + ($('#chkFilterOwner')[0].checked * 1)
+    + '&fgroup='        + ($('#chkFilterGroup')[0].checked * 1)
+    + '&flocation='     + ($('#chkFilterLocation')[0].checked * 1)
+    + '&ftype='         + ($('#chkFilterType')[0].checked * 1)
+    + '&fip='           + ($('#chkFilterIP')[0].checked * 1)
+    + '&fmac='          + ($('#chkFilterMac')[0].checked * 1)
+    + '&fconnectiont='  + ($('#chkFilterConnectionType')[0].checked * 1)
     , function(msg) {
     showMessage (msg);
   });

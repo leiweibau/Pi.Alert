@@ -90,17 +90,65 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'DeleteSpeedtestResults':DeleteSpeedtestResults();
 		break;
+	case 'SaveFilterID':SaveFilterID();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function SaveFilterID() {
+	global $db;
+	global $pia_lang;
+
+	$filterid = filter_var($_REQUEST['filterid'], FILTER_SANITIZE_STRING);
+	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
+	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+	$filterindex = filter_var($_REQUEST['filterindex'], FILTER_SANITIZE_STRING);
+	$filtercolumn = filter_var($_REQUEST['filtercolumn'], FILTER_SANITIZE_STRING);
+	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
+
+	// sql
+	$sql = 'UPDATE Devices_table_filter SET
+                 filtername      = "' . quotes($filtername) . '",
+                 filterstring    = "' . quotes($filterstring) . '",
+                 reserve_a       = "' . quotes($filterindex) . '",
+                 reserve_b       = "' . quotes($filtercolumn) . '",
+                 reserve_c       = "' . quotes($filtergroup) . '"
+          WHERE id="' . $filterid . '"';
+	$result = $db->query($sql);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BackDevices_Upd_Filter'];
+		// Logging
+		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid);
+	} else {
+		echo $pia_lang['BackDevices_Upd_FilterError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid);
+	}
+	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>");
 }
 
 function SetDeviceFilter() {
 	global $db;
 	global $pia_lang;
 
+	$colfilterarray = array();
+	if ($_REQUEST['fname'] == 0) {array_push($colfilterarray, "0");}
+	if ($_REQUEST['fowner'] == 0) {array_push($colfilterarray, "2");}
+	if ($_REQUEST['fgroup'] == 0) {array_push($colfilterarray, "5");}
+	if ($_REQUEST['flocation'] == 0) {array_push($colfilterarray, "6");}
+	if ($_REQUEST['ftype'] == 0) {array_push($colfilterarray, "3");}
+	if ($_REQUEST['fip'] == 0) {array_push($colfilterarray, "9");}
+	if ($_REQUEST['fmac'] == 0) {array_push($colfilterarray, "11");}
+	if ($_REQUEST['fconnectiont'] == 0) {array_push($colfilterarray, "1");}
+
+	$newcolfilter = implode(",", $colfilterarray);
+
 	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
 	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
+	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
 	// Create table if not exist
 	$sql = "CREATE TABLE IF NOT EXISTS Devices_table_filter (
 	            id INTEGER PRIMARY KEY,
@@ -111,13 +159,14 @@ function SetDeviceFilter() {
 	            reserve_c TEXT
 	        )";
 	// Write filter in db
+	// reserve_b is for select column for search
 	try {
 		$result = $db->query($sql);
 		
 		if ($filtername != "" && $filterstring != "") {
 			try {
-				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring") 
-		                               VALUES ("' . $filtername . '", "' . $filterstring . '")';
+				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_b", "reserve_c") 
+		                               VALUES ("' . $filtername . '", "' . $filterstring . '", "' . $newcolfilter . '", "' . $filtergroup . '")';
 
 				$result = $db->query($sql_insert_data);
 				echo $pia_lang['BackDevices_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
@@ -139,13 +188,14 @@ function SetDeviceFilter() {
 
 function DeleteDeviceFilter() {
 	global $db;
+	global $pia_lang;
 
 	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
 	$sql = 'DELETE FROM Devices_table_filter WHERE filterstring="' . $filterstring . '"';
 	// execute sql
 	$result = $db->query($sql);
 
-	echo 'Dieser Filter wurde gelöscht: '. $filterstring;
+	echo $pia_lang['BackDevices_table_delfilter_ok'] . $filterstring;
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
 }

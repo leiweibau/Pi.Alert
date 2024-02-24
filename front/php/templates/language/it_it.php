@@ -119,8 +119,13 @@ $pia_lang['Device_del_table_filter_noti'] = 'Elimina filtro tabella';
 $pia_lang['Device_del_table_filter_noti_text'] = 'Vuoi eliminare il filtro della tabella salvato? Questo rimuoverà solo l&apos;entrata nella barra laterale. I dispositivi filtrati rimangono invariati.';
 $pia_lang['Device_del_table_filtername'] = 'Nome del filtro';
 $pia_lang['Device_del_table_filterstring'] = 'Filtro';
+$pia_lang['Device_del_table_columns'] = 'Definisci le colonne per la ricerca';
 $pia_lang['Device_del_table_filtername_help'] = 'Nome nella barra laterale';
 $pia_lang['Device_del_table_filterstring_help'] = 'Termine di ricerca';
+$pia_lang['Device_del_table_filtergroup'] = 'Gruppo di filtri';
+$pia_lang['Device_del_table_filtergroup_help'] = 'Può raggruppare più filtri';
+$pia_lang['Device_del_table_filterindex'] = 'Indice';
+$pia_lang['Device_del_table_filtercol'] = 'Colonne disabilitate';
 
 //////////////////////////////////////////////////////////////////
 // Presence Page
@@ -402,6 +407,7 @@ $pia_lang['Maintenance_Tools_Tab_Subheadline_c'] = 'Sicurezza';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['Maintenance_Tools_Tab_Subheadline_e_Intro'] = 'Puoi inserire l&apos;URL del FavIcon desiderato nel campo, o scegliere tra FavIcons locali o remoti (https://github.com/leiweibau/Pi.Alert). A seconda della configurazione, i FavIcons locali potrebbero non funzionare come icona della schermata principale.';
+$pia_lang['Maintenance_Tools_Tab_Subheadline_f'] = 'Editor dei filtri (barra laterale)';
 $pia_lang['Maintenance_Tool_darkmode'] = 'Modalità Scuro';
 $pia_lang['Maintenance_Tool_darkmode_noti'] = 'Cambio Modalità';
 $pia_lang['Maintenance_Tool_darkmode_noti_text'] = 'Cambia tra la modalità chiara e quella scura. Se il cambio di modalità dovesse non funzionare correttamente, prova a cancellare la cache del browser.';
@@ -427,7 +433,7 @@ $pia_lang['Maintenance_Tool_setapikey_noti_text'] = 'Vuoi sostituire un eventual
 $pia_lang['Maintenance_Tool_ignorelist'] = 'Lista Ignorata';
 $pia_lang['Maintenance_Tool_ignorelist_false'] = 'Nessuna lista ignorata configurata';
 $pia_lang['Maintenance_arpscantimer_empty'] = 'Imposta timer';
-$pia_lang['Maintenance_Tool_arpscansw'] = 'Arp-scan attiva/disattiva';
+$pia_lang['Maintenance_Tool_arpscansw'] = 'Pi.Alert attiva/disattiva';
 $pia_lang['Maintenance_Tool_arpscansw_text'] = 'Attiva o disattiva tutti gli Arp-scan di Pi.Alert. Se il timer non è stato impostato durante l&apos;attivazione, Pi.Alert si riattiverà dopo una pausa di 10 minuti con la successiva scansione programmata. Le scansioni attualmente in corso non verranno interrotte.';
 $pia_lang['Maintenance_Tool_arpscansw_noti'] = 'Attiva/Disattiva arp-scan';
 $pia_lang['Maintenance_Tool_arpscansw_noti_text'] = 'Quando la scansione è disattivata, rimarrà disattivata fino a quando non verrà riattivata.';
@@ -576,6 +582,8 @@ $pia_lang['BackDevices_table_filter_error_b'] = ' con il valore ';
 $pia_lang['BackDevices_table_filter_error_c'] = ' non è stato possibile salvare';
 $pia_lang['BackDevices_table_filter_error_d'] = 'Non tutti i campi obbligatori sono stati compilati';
 $pia_lang['BackDevices_table_filter_error_e'] = 'Errore durante la creazione della tabella dei filtri';
+$pia_lang['BackDevices_Upd_Filter'] = 'Filtro aggiornato con successo.';
+$pia_lang['BackDevices_Upd_FilterError'] = 'Errore durante l\'aggiornamento del filtro.';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -753,6 +761,8 @@ $pia_journ_lang['LogStr_0042'] = 'Il filtro predefinito è stato salvato';
 $pia_journ_lang['LogStr_0043'] = 'Il filtro predefinito era incompleto e non è stato salvato';
 $pia_journ_lang['LogStr_0044'] = 'Impossibile creare la tabella dei filtri';
 $pia_journ_lang['LogStr_0045'] = 'Il filtro predefinito è stato eliminato';
+$pia_journ_lang['LogStr_0046'] = 'Il filtro predefinito è stato aggiornato';
+$pia_journ_lang['LogStr_0047'] = 'Il filtro predefinito non è stato aggiornato';
 $pia_journ_lang['LogStr_0050'] = 'Attivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0051'] = 'Disattivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0052'] = 'Modificata configurazione delle colonne della lista dei dispositivi';

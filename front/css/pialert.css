@@ -489,6 +489,14 @@ body.modal-open {
 .bulked_checkbox_label_all { color: #5196d5; }
 .bulked_checkbox_label_down { color: #dd7768; }
 .fixed_container { overflow:visible visible; }
+.bulked_dev_box { display: inline-block; margin: 6px 10px; padding-right: 10px; border: 1px solid #aaa; padding-left: 0px; padding-top: 0px;}
+.bulked_dev_chk_cont {display: inline-block; height: 32px; width: 36px; margin-right: 3px; padding-left: 8px; padding-top: 6px;}
+.bulked_dev_chkbox {position: relative; margin-top:-3px !important; margin-right: 3px !important;}
+.bulked_table_cell_a {padding-left: 10px; height: 70px;}
+.bulked_online_border {border: 1px solid #00A000; box-shadow: inset 0px 0px 5px 0px #00A000;}
+.bulked_offline_border {border: 1px solid #888;}
+#bulked_checkall {display: block; margin-top: 20px; margin-bottom: 10px; min-width: 180px;}
+.bulk_editor_quit {position: absolute; display: inline-block; top: 5px; right: 15px;}
 /* ----------------- Services ----------------------------------------------- */
 .icmplist_add_ip {display: inline-block; margin-top: -5px; margin-left: 15px;}
 .services_icon {position: relative; top: -58px; left: 0px; font-size: 58px; opacity: 0.2;}
@@ -496,7 +504,7 @@ body.modal-open {
 /* ----------------- Network ------------------------------------------------ */
 .network_tab_icon {font-size: 16px; position: relative;}
 .flip-horizontal { transform: scaleX(-1); display: inline-block;}
-/* ----------------- Network ------------------------------------------------ */
+/* ----------------- Spacer ------------------------------------------------ */
 .navbar-servertime{
   color: #fff;
   margin-right: 5px;
