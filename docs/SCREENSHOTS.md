@@ -76,8 +76,8 @@
 [Screen_Dev_list_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_01.png            "Screen Dev. List 01"
 [Screen_Dev_list_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_02.png            "Screen Dev. List 02"
 [Screen_Dev_list_03]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_03.png            "Screen Dev. List 03"
-[Screen_Dev_list_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_04.png            "Screen Dev. List 04"
-[Screen_Dev_list_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_05.png            "Screen Dev. List 05"
+[Screen_Dev_list_04]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_04.png            "Screen Dev. List 04"
+[Screen_Dev_list_05]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_05.png            "Screen Dev. List 05"
 
 [Screen_Dev_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_01.png            "Screen Devices 01"
 [Screen_Dev_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_02.png            "Screen Devices 02"
