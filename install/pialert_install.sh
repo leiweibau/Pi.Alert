@@ -691,6 +691,11 @@ check_pialert_home() {
 # ------------------------------------------------------------------------------
 install_dependencies() {
   print_msg "- Installing dependencies..."
+  if [ $(id -u) -eq 0 ] && ! command -v sudo &> /dev/null; then
+      apt-get update
+      apt-get install sudo
+  fi
+
   sudo apt-get install cron whiptail -y                          2>&1 >> "$LOG"
 }
 
