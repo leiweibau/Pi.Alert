@@ -226,6 +226,7 @@ REPORT_PUSHSAFER_WEBMON  = " . convert_bool($configArray['REPORT_PUSHSAFER_WEBMO
 PUSHSAFER_TOKEN          = '" . $configArray['PUSHSAFER_TOKEN'] . "'
 PUSHSAFER_DEVICE         = '" . $configArray['PUSHSAFER_DEVICE'] . "'
 PUSHSAFER_PRIO           = " . $configArray['PUSHSAFER_PRIO'] . "
+PUSHSAFER_SOUND          = " . $configArray['PUSHSAFER_SOUND'] . "
 
 # Pushover
 # ----------------------
@@ -234,6 +235,7 @@ REPORT_PUSHOVER_WEBMON  = " . convert_bool($configArray['REPORT_PUSHOVER_WEBMON'
 PUSHOVER_TOKEN          = '" . $configArray['PUSHOVER_TOKEN'] . "'
 PUSHOVER_USER           = '" . $configArray['PUSHOVER_USER'] . "'
 PUSHOVER_PRIO           = " . $configArray['PUSHOVER_PRIO'] . "
+PUSHOVER_SOUND          = '" . $configArray['PUSHOVER_SOUND'] . "'
 
 # NTFY
 #---------------------------
