@@ -119,6 +119,19 @@ $stat['process_count'] = shell_exec("ps -e --no-headers | wc -l");
     <section class="content">
 <?php
 // Client ----------------------------------------------------------
+echo '
+		<div class="row">
+		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+			  <a href="./reports.php" class="btn btn-danger"><i class="fa-solid fa-power-off custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text">Shutdown System</div></a>
+		  </div>
+		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+		      <a href="./reports.php" class="btn btn-warning"><i class="fa-solid fa-rotate-right custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text">Reboot System</div></a>
+		  </div>
+		</div>';
+
+
+
+// Client ----------------------------------------------------------
 echo '<div class="box box-solid">
             <div class="box-header">
               <h3 class="box-title sysinfo_headline"><i class="bi bi-globe"></i> This Client</h3>

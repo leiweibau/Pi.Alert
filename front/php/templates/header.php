@@ -135,24 +135,24 @@ insert_back_button();
               </li>
               <!-- Menu Body -->
               <li class="user-footer" style="padding-top: 15px; padding-bottom: 0px;">
-                <div class="" style="text-align: center;">
+                <div style="text-align: center;">
                   <label>
                     <input type="checkbox" id="autoReloadCheckbox" style="margin-right: 10px;"> Auto Page Reload (2min)
                   </label>
                 </div>
               </li>
               <li class="user-footer">
-                <div class="" style="text-align: center;">
+                <div style="text-align: center;">
                   <a href="./deviceDetails.php?mac=Internet" id="custom-menu-default-button" class="btn btn-default"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Internet</div></a>
                 </div>
               </li>
               <li class="user-footer">
-                <div class="" style="text-align: center;">
+                <div style="text-align: center;">
                   <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?></div></a>
                 </div>
               </li>
               <li class="user-footer">
-                <div class="" style="text-align: center;">
+                <div style="text-align: center;">
                   <a href="./index.php?action=logout" id="custom-menu-logout-button" class="btn btn-danger"><i class="fa-solid fa-arrow-right-from-bracket custom-menu-button-icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Exit'];?></div></a>
                 </div>
               </li>
