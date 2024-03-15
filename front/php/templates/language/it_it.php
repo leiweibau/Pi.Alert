@@ -669,6 +669,13 @@ $pia_lang['GeoLiteDB_absent'] = 'Database non installato';
 //////////////////////////////////////////////////////////////////
 
 $pia_lang['SysInfo_storage_note'] = 'È possibile che l&apos;utilizzo dello spazio su disco non possa essere determinato per tutti i dischi elencati sopra. Questo dipende dal modo in cui i dischi sono montati con l&apos;utente in uso.';
+$pia_lang['SysInfo_Shutdown'] = 'Spegnimento di Pi.Alert in corso';
+$pia_lang['SysInfo_Reboot'] = 'Riavvio di Pi.Alert in corso';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Spegnimento di Pi.Alert';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Non solo Pi.Alert verrà spento, ma anche l&apos;host su cui è installato';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Riavvio di Pi.Alert';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Non solo Pi.Alert verrà riavviato, ma anche l&apos;host su cui è installato';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Esecuzione del comando';
 
 //////////////////////////////////////////////////////////////////
 // Speedtest
@@ -802,6 +809,8 @@ $pia_journ_lang['LogStr_9003'] = 'Errore nell&apos;accesso (password errata!)';
 $pia_journ_lang['LogStr_9004'] = 'Accesso all&apos;interfaccia web avviato (con cookie)';
 $pia_journ_lang['LogStr_9991'] = $pia_lang['BackDevices_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BackDevices_MainScan_disabled'];
+$pia_journ_lang['LogStr_9993'] = 'Riavvio avviato';
+$pia_journ_lang['LogStr_9994'] = 'Spegnimento avviato';
 $pia_journ_lang['LogStr_9999'] = 'Modificato il file di configurazione';
 
 ?>

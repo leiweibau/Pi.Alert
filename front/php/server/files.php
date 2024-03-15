@@ -251,9 +251,9 @@ NTFY_CLICKABLE 	    = " . convert_bool($configArray['NTFY_CLICKABLE']) . "
 # Shoutrrr
 # ----------------------
 SHOUTRRR_BINARY    = '" . $configArray['SHOUTRRR_BINARY'] . "'
-#SHOUTRRR_BINARY    = 'armhf'
-#SHOUTRRR_BINARY    = 'arm64'
-#SHOUTRRR_BINARY    = 'x86'
+# SHOUTRRR_BINARY    = 'armhf'
+# SHOUTRRR_BINARY    = 'arm64'
+# SHOUTRRR_BINARY    = 'x86'
 
 # Telegram via Shoutrrr
 # ----------------------

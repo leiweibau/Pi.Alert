@@ -664,6 +664,13 @@ $pia_lang['GeoLiteDB_absent'] = 'DB not installed';
 //////////////////////////////////////////////////////////////////
 
 $pia_lang['SysInfo_storage_note'] = 'Il est possible que l&apos;utilisation de la mémoire ne puisse pas être déterminée pour tous les lecteurs énumérés ci-dessus. Cela dépend de l&apos;utilisateur sous lequel les lecteurs sont montés.';
+$pia_lang['SysInfo_Shutdown'] = 'Arrêt de Pi.Alert en cours';
+$pia_lang['SysInfo_Reboot'] = 'Redémarrage de Pi.Alert en cours';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Arrêt de Pi.Alert';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Non seulement Pi.Alert sera arrêté, mais aussi l&apos;hôte sur lequel il est installé';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Redémarrage de Pi.Alert';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Non seulement Pi.Alert sera redémarré, mais aussi l&apos;hôte sur lequel il est installé';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Exécution de la commande';
 
 //////////////////////////////////////////////////////////////////
 // Speedtest
@@ -795,6 +802,8 @@ $pia_journ_lang['LogStr_9003'] = 'Erreur de connexion (mot de passe incorrect !)
 $pia_journ_lang['LogStr_9004'] = 'Accès à l&apos;interface web commencé (avec cookie)';
 $pia_journ_lang['LogStr_9991'] = $pia_lang['BackDevices_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BackDevices_MainScan_disabled'];
+$pia_journ_lang['LogStr_9993'] = 'Redémarrage déclenché';
+$pia_journ_lang['LogStr_9994'] = 'Arrêt déclenché';
 $pia_journ_lang['LogStr_9999'] = 'Fichier de configuration modifié';
 
 ?>
