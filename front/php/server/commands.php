@@ -51,7 +51,7 @@ function PialertReboot() {
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9993', '', '');
 	echo $pia_lang['SysInfo_Gen_execute_command'];
-	exec('sudo /usr/sbin/shutdown -r 5', $output);
+	exec('sleep 5 && sudo /usr/sbin/shutdown -r 0', $output);
 }
 
 //  PiAlert Shutdown
@@ -60,7 +60,7 @@ function PialertShutdown() {
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9994', '', '');
 	echo $pia_lang['SysInfo_Gen_execute_command'];
-	exec('sudo /usr/sbin/shutdown -h 5', $output);
+	exec('sleep 5 && sudo /usr/sbin/shutdown -h 0', $output);
 }
 
 ?>
