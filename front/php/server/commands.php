@@ -51,7 +51,7 @@ function PialertReboot() {
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9993', '', '');
 	echo $pia_lang['SysInfo_Gen_execute_command'];
-	exec('/usr/sbin/reboot', $output);
+	exec('/usr/sbin/shutdown -r 0', $output);
 }
 
 //  PiAlert Shutdown
