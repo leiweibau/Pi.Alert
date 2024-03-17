@@ -119,6 +119,19 @@ $stat['process_count'] = shell_exec("ps -e --no-headers | wc -l");
     <section class="content">
 <?php
 // Client ----------------------------------------------------------
+echo '
+		<div class="row">
+		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+			  <a href="#" class="btn btn-danger"><i class="fa-solid fa-power-off custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text" onclick="askPialertShutdown()">'.$pia_lang['SysInfo_Shutdown_noti_head'].'</div></a>
+		  </div>
+		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+		      <a href="#" class="btn btn-warning"><i class="fa-solid fa-rotate-right custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text" onclick="askPialertReboot()">'.$pia_lang['SysInfo_Reboot_noti_head'].'</div></a>
+		  </div>
+		</div>';
+
+
+
+// Client ----------------------------------------------------------
 echo '<div class="box box-solid">
             <div class="box-header">
               <h3 class="box-title sysinfo_headline"><i class="bi bi-globe"></i> This Client</h3>
@@ -215,16 +228,18 @@ for ($x = 0; $x < sizeof($storage_lsblk_line); $x++) {
 }
 
 for ($x = 0; $x < sizeof($storage_lsblk_line); $x++) {
-	echo '<div class="row">';
-	if (preg_match('~[0-9]+~', $storage_lsblk_line[$x][0])) {
-		echo '<div class="col-sm-4 sysinfo_gerneral_a">Mount point "' . $storage_lsblk_line[$x][3] . '"</div>';
-	} else {
-		echo '<div class="col-sm-4 sysinfo_gerneral_a">"' . str_replace('_', ' ', $storage_lsblk_line[$x][3]) . '"</div>';
+	if (strtolower($storage_lsblk_line[$x][2]) != "loop") {
+		echo '<div class="row">';
+		if (preg_match('~[0-9]+~', $storage_lsblk_line[$x][0])) {
+			echo '<div class="col-sm-4 sysinfo_gerneral_a">Mount point "' . $storage_lsblk_line[$x][3] . '"</div>';
+		} else {
+			echo '<div class="col-sm-4 sysinfo_gerneral_a">"' . str_replace('_', ' ', $storage_lsblk_line[$x][3]) . '"</div>';
+		}
+		echo '<div class="col-sm-3 sysinfo_gerneral_b">Device: /dev/' . $storage_lsblk_line[$x][0] . '</div>';
+		echo '<div class="col-sm-2 sysinfo_gerneral_b">Size: ' . $storage_lsblk_line[$x][1] . '</div>';
+		echo '<div class="col-sm-2 sysinfo_gerneral_b">Type: ' . $storage_lsblk_line[$x][2] . '</div>';
+		echo '</div>';
 	}
-	echo '<div class="col-sm-3 sysinfo_gerneral_b">Device: /dev/' . $storage_lsblk_line[$x][0] . '</div>';
-	echo '<div class="col-sm-2 sysinfo_gerneral_b">Size: ' . $storage_lsblk_line[$x][1] . '</div>';
-	echo '<div class="col-sm-2 sysinfo_gerneral_b">Type: ' . $storage_lsblk_line[$x][2] . '</div>';
-	echo '</div>';
 }
 echo '      </div>
       </div>';
@@ -347,3 +362,25 @@ echo '<br>';
 <?php
 require 'php/templates/footer.php';
 ?>
+
+<script type="text/javascript">
+
+// Pialert Reboot
+function askPialertReboot() {
+  showModalWarning('<?=$pia_lang['SysInfo_Reboot_noti_head'];?>', '<?=$pia_lang['SysInfo_Reboot_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'PialertReboot');
+}
+function PialertReboot() {
+	$.get('php/server/commands.php?action=PialertReboot', function(msg) {showMessage (msg);});
+}
+
+
+// Pialert Shutdown
+function askPialertShutdown() {
+  showModalWarning('<?=$pia_lang['SysInfo_Shutdown_noti_head'];?>', '<?=$pia_lang['SysInfo_Shutdown_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'PialertShutdown');
+}
+function PialertShutdown() {
+	$.get('php/server/commands.php?action=PialertShutdown', function(msg) {showMessage (msg);});
+}
+</script>

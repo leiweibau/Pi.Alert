@@ -664,6 +664,13 @@ $pia_lang['GeoLiteDB_absent'] = 'DB not installed';
 //////////////////////////////////////////////////////////////////
 
 $pia_lang['SysInfo_storage_note'] = 'Es posible que no se pueda determinar el uso de memoria para todas las unidades enumeradas anteriormente. Esto depende del usuario bajo el cual están montadas las unidades.';
+$pia_lang['SysInfo_Shutdown'] = 'Apagando Pi.Alert';
+$pia_lang['SysInfo_Reboot'] = 'Reiniciando Pi.Alert';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Apagando Pi.Alert';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'No solo se apagará Pi.Alert, sino también el host en el que está instalado';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Reiniciando Pi.Alert';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'No solo se reiniciará Pi.Alert, sino también el host en el que está instalado';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Ejecutando el comando';
 
 //////////////////////////////////////////////////////////////////
 // Speedtest
@@ -795,6 +802,8 @@ $pia_journ_lang['LogStr_9003'] = 'Error de inicio de sesión (¡contraseña inco
 $pia_journ_lang['LogStr_9004'] = 'Inicio de acceso a la interfaz web (con cookie)';
 $pia_journ_lang['LogStr_9991'] = $pia_lang['BackDevices_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BackDevices_MainScan_disabled'];
+$pia_journ_lang['LogStr_9993'] = 'Reinicio iniciado';
+$pia_journ_lang['LogStr_9994'] = 'Apagado iniciado';
 $pia_journ_lang['LogStr_9999'] = 'Archivo de configuración editado';
 
 ?>

@@ -2608,6 +2608,11 @@ def send_pushsafer(_Text):
     except NameError:
         PUSHSAFER_PRIO = 0
 
+    try:
+        notification_sound = PUSHSAFER_SOUND
+    except NameError:
+        notification_sound = 22
+
     # Remove one linebrake between "Server" and the headline of the event type
     _pushsafer_Text = _Text.replace('\n\n\n', '\n\n')
     # extract event type headline to use it in the notification headline
@@ -2617,7 +2622,7 @@ def send_pushsafer(_Text):
     post_fields = {
         "t" : 'Pi.Alert Message - '+subheadline,
         "m" : _pushsafer_Text,
-        "s" : 22,
+        "s" : notification_sound,
         "v" : 3,
         "i" : 148,
         "c" : '#ef7f7f',
@@ -2644,6 +2649,11 @@ def send_pushover (_Text):
     except NameError:
         PUSHOVER_PRIO = 0
 
+    try:
+        notification_sound = PUSHOVER_SOUND
+    except NameError:
+        notification_sound = 'siren'
+
     url = 'https://api.pushover.net/1/messages.json'
     post_fields = {
         "token": PUSHOVER_TOKEN,
@@ -2651,6 +2661,7 @@ def send_pushover (_Text):
         "title" : 'Pi.Alert Message - '+subheadline,
         "message" : _pushover_Text,
         "priority" : PUSHOVER_PRIO,
+        "sound" : notification_sound,
         }
     requests.post(url, data=post_fields)
 

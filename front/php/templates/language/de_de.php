@@ -656,7 +656,7 @@ $pia_lang['GeoLiteDB_new'] = 'Neueste GeoLite2 DB auf Github';
 $pia_lang['Auto_Updatecheck_RN'] = 'Automatische Update Suche';
 $pia_lang['Updatecheck_RN'] = 'Pi.Alert Update Hinweise';
 $pia_lang['Updatecheck_RN2'] = 'Pi.Alert Update Prüfung';
-$pia_lang['Updatecheck_U2D'] = 'Du nutzt bereits die aktuellest Version';
+$pia_lang['Updatecheck_U2D'] = 'Du nutzt bereits die aktuellste Version';
 $pia_lang['GeoLiteDB_button_del'] = 'GeoLite2-Datenbank löschen';
 $pia_lang['GeoLiteDB_button_ins'] = 'GeoLite2-Datenbank installieren';
 $pia_lang['GeoLiteDB_button_upd'] = 'GeoLite2-Datenbank aktualisieren';
@@ -669,6 +669,13 @@ $pia_lang['GeoLiteDB_absent'] = 'DB nicht installiert';
 //////////////////////////////////////////////////////////////////
 
 $pia_lang['SysInfo_storage_note'] = 'Es ist möglich, dass die Speicherbelegung nicht für alle oben gelisteten Laufwerke ermittelt werden kann. Dies ist abhängig davon, unter welchem Benutzer die Laufwerke gemoutet sind.';
+$pia_lang['SysInfo_Shutdown'] = 'Pi.ALert wird heruntergefahren';
+$pia_lang['SysInfo_Reboot'] = 'Pi.Alert wird neu gestartet';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Pi.Alert herunterfahren';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Es wird nicht nur Pi.Alert, sondern der Host, auf dem es installiert ist, heruntergefahren';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Pi.Alert neu starten';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Es wird nicht nur Pi.Alert, sondern der Host, auf dem es installiert ist, neu gestartet';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Das Kommando wird ausgeführt';
 
 //////////////////////////////////////////////////////////////////
 // Speedtest
@@ -803,6 +810,8 @@ $pia_journ_lang['LogStr_9003'] = 'Fehler bei der Anmeldung (Passwort falsch!)';
 $pia_journ_lang['LogStr_9004'] = 'Zugriff auf die Web-Oberfläche gestartet (mit Cookie)';
 $pia_journ_lang['LogStr_9991'] = $pia_lang['BackDevices_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BackDevices_MainScan_disabled'];
+$pia_journ_lang['LogStr_9993'] = 'Neustart ausgelöst';
+$pia_journ_lang['LogStr_9994'] = 'Herunterfahren ausgelöst';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsdatei bearbeitet';
 
 ?>

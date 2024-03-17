@@ -297,6 +297,15 @@ NTFY_CLICKABLE      = True
 EOF
 fi
 
+# 2024-03-12
+if ! grep -Fq "PUSHOVER_SOUND" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+PUSHOVER_SOUND      = 'siren'
+PUSHSAFER_SOUND     = 22
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

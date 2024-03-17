@@ -664,6 +664,13 @@ $pia_lang['GeoLiteDB_absent'] = 'DB not installed';
 //////////////////////////////////////////////////////////////////
 
 $pia_lang['SysInfo_storage_note'] = 'It is possible that the memory usage cannot be determined for all drives listed above. This depends on the user under which the drives are mounted.';
+$pia_lang['SysInfo_Shutdown'] = 'Shutting down Pi.Alert';
+$pia_lang['SysInfo_Reboot'] = 'Restarting Pi.Alert';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Shutting down Pi.Alert';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Not only Pi.Alert will be shut down, but also the host on which it is installed';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Restarting Pi.Alert';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Not only Pi.Alert will be restarted, but also the host on which it is installed';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Executing the command';
 
 //////////////////////////////////////////////////////////////////
 // Speedtest
@@ -795,6 +802,8 @@ $pia_journ_lang['LogStr_9003'] = 'Login error (incorrect password!)';
 $pia_journ_lang['LogStr_9004'] = 'Access to the web interface started (with cookie)';
 $pia_journ_lang['LogStr_9991'] = $pia_lang['BackDevices_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BackDevices_MainScan_disabled'];
+$pia_journ_lang['LogStr_9993'] = 'Restart triggered';
+$pia_journ_lang['LogStr_9994'] = 'Shutdown triggered';
 $pia_journ_lang['LogStr_9999'] = 'Configuration file edited';
 
 ?>
