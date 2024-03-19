@@ -556,7 +556,7 @@ if ($_REQUEST['mac'] != 'Internet') {
                   <script>
                       setTimeout(function(){
                         document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
-                      }, 2000);
+                      }, 3000);
                   </script>
                   <button type="button" id="btnwakeonlan" class="btn btn-primary pa-btn" onclick="askwakeonlan()">Loading...</button>
                 </div>
@@ -570,23 +570,25 @@ if ($_REQUEST['mac'] != 'Internet') {
                         document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
                         document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtLastIP').value +')';
                         document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtLastIP').value +')';
-                      }, 2000);
+                      }, 3000);
                   </script>
 
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'normal')">Loading...</button>
                   <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'detail')">Loading...</button>
 
-                  <div style="text-align: left;">
+<!--                   <div style="text-align: left;">
                     <ul style="padding:20px;">
                       <li><?=$pia_lang['DevDetail_Tools_nmap_buttonFast_text'];?></li>
                       <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'];?></li>
                       <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'];?></li>
                     </ul>
-                  </div>
+                  </div> -->
                 </div>
 
-                <div id="scanoutput" style="margin-top: 30px;"></div>
+                <div id="scanoutput" style="margin-top: 30px;">
+
+                </div>
                   <script>
                   function manualnmapscan(targetip, mode) {
                     $( "#scanoutput" ).empty();
@@ -1663,5 +1665,22 @@ function wakeonlan() {
     showMessage (msg);
   });
 }
+
+function showmanualnmapscan(targetip) {
+  $( "#scanoutput" ).empty();
+  $.ajax({
+    method: "POST",
+    url: "./php/server/nmap_scan.php",
+    timeout: 60000,
+    data: { scan: targetip, mode: "view" },
+    success: function(data, textStatus) {
+        $("#scanoutput").html(data);
+    }
+  })
+}
+
+setTimeout(function(){
+  showmanualnmapscan(document.getElementById('txtLastIP').value);
+}, 3000);
 
 </script>

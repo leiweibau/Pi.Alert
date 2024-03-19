@@ -361,7 +361,14 @@ $help_lang['Cat_Detail_302_text'] = 'Einige moderne Geräte generieren aus Daten
 									MAC-Adressen-Generierung deaktivierst.';
 $help_lang['Cat_Detail_303_head'] = 'Was ist Nmap und wozu dient es?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap ist ein Netzwerkscanner mit vielfältigen Möglichkeiten.<br>
-									Wenn ein neues Gerät in deiner Liste auftaucht, hast du die Möglichkeit über den Nmap-Scan genauere Informationen über das Gerät zu erhalten.';
+									Wenn ein neues Gerät in deiner Liste auftaucht, hast du die Möglichkeit über den Nmap-Scan genauere Informationen über das Gerät zu erhalten. 
+									<br>Pi.Alert bietet 3 verschiedene voreingestellte Scans an:
+									<br>
+									<ul>
+									<li>Schneller Scan: Überprüft nur die wichtigsten 100 Ports (wenige Sekunden)</li>
+									<li>Standard Scan: Nmap scannt die ersten 1.000 Ports für jedes angeforderte Scan-Protokoll. (ca. 5-10 Sekunden)</li>
+									<li>Detailierter Scan (Timeout 60s): Der Scan ist um einige UDP Ports erweitert. Ebenfalls ist die Range der TCP Ports vergrößert.</li>
+									</ul>';
 $help_lang['Cat_Presence_400_head'] = 'Geräte werden mit einer gelben Markierung und dem Hinweis "missing Event" angezeigt.';
 $help_lang['Cat_Presence_400_text'] = 'Wenn dies geschieht hast du die Möglickeit, bei dem betreffenden Gerät (Detailsansicht) die Events zu löschen. Eine andere Möglichkeit wäre, das Gerät einzuschalten und zu warten, bis Pi.Alert mit dem nächsten
 									  Scan das Gerät als "Online" erkennt und anschließend das Gerät einfach wieder ausschalten. Nun sollte Pi.Alert mit dem nächsten Scan den Zustand des Gerätes ordentlich in der Datenbank vermerken.';
