@@ -554,9 +554,7 @@ if ($_REQUEST['mac'] != 'Internet') {
                 <h4 class="">Wake-on-LAN</h4>
                 <div style="width:100%; text-align: center;">
                   <script>
-                      setTimeout(function(){
-                        document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
-                      }, 3000);
+                      
                   </script>
                   <button type="button" id="btnwakeonlan" class="btn btn-primary pa-btn" onclick="askwakeonlan()">Loading...</button>
                 </div>
@@ -566,11 +564,7 @@ if ($_REQUEST['mac'] != 'Internet') {
                 <h4 class="">Nmap Scans</h4>
                 <div style="width:100%; text-align: center;">
                   <script>
-                      setTimeout(function(){
-                        document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
-                        document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtLastIP').value +')';
-                        document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtLastIP').value +')';
-                      }, 3000);
+
                   </script>
 
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'fast')">Loading...</button>
@@ -1372,6 +1366,7 @@ function getDeviceData (readAllData=false) {
         else                                         {$('#iconRandomMACactive').addClass      ('hidden');
                                                       $('#iconRandomMACinactive').removeClass ('hidden'); };
         deactivateSaveRestoreData ();
+        initToolsSection();
       }
 
       // Check if device is part of the devicesList
@@ -1431,6 +1426,7 @@ function previousRecord () {
     pos--;
     mac = devicesList[pos].toString();
     getDeviceData (true);
+    initToolsSection();
   }
 }
 
@@ -1446,6 +1442,7 @@ function nextRecord () {
     pos++;
     mac = devicesList[pos].toString();
     getDeviceData (true);
+    initToolsSection();
   }
 }
 
@@ -1679,8 +1676,14 @@ function showmanualnmapscan(targetip) {
   })
 }
 
+function initToolsSection () {
 setTimeout(function(){
-  showmanualnmapscan(document.getElementById('txtLastIP').value);
-}, 3000);
+   document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
+   document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtLastIP').value +')';
+   document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtLastIP').value +')';
+   document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
+   showmanualnmapscan(document.getElementById('txtLastIP').value);
+}, 1000);
+}
 
 </script>
