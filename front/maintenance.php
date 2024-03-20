@@ -317,7 +317,6 @@ read_arpscan_timer(); ?></div>
             <button type="button" id="wefwfwefewdf" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-iplog"><?=$pia_lang['Maintenance_Tools_Logviewer_IPLog'];?></button>
             <button type="button" id="tzhrsreawefw" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-vendor"><?=$pia_lang['Maintenance_Tools_Logviewer_Vendor'];?></button>
             <button type="button" id="arzuozhrsfga" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-cleanup"><?=$pia_lang['Maintenance_Tools_Logviewer_Cleanup'];?></button>
-            <button type="button" id="ufiienfflgze" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-nmap"><?=$pia_lang['Maintenance_Tools_Logviewer_Nmap'];?></button>
 <?php
 if ($_SESSION['Scan_WebServices'] == True) {
 	echo '<button type="button" id="erftttwrdwqqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices">' . $pia_lang['Maintenance_Tools_Logviewer_WebServices'] . '</button>';
@@ -339,10 +338,6 @@ print_logviewer_modal_head('vendor', 'pialert.vendors.log (File)');
 print_logviewer_modal_foot();
 // // Cleanup
 print_logviewer_modal_head('cleanup', 'pialert.cleanup.log (File)');
-print_logviewer_modal_foot();
-// // Nmap
-print_logviewer_modal_head('nmap', 'last Nmap Scan (Memory)');
-if (!isset($_SESSION['ScanShortMem_NMAP'])) {echo $pia_lang['Maintenance_Tools_Logviewer_Nmap_empty'];} else {echo $_SESSION['ScanShortMem_NMAP'];}
 print_logviewer_modal_foot();
 // // WebServices
 if ($_SESSION['Scan_WebServices'] == True) {

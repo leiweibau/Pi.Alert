@@ -554,9 +554,7 @@ if ($_REQUEST['mac'] != 'Internet') {
                 <h4 class="">Wake-on-LAN</h4>
                 <div style="width:100%; text-align: center;">
                   <script>
-                      setTimeout(function(){
-                        document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
-                      }, 2000);
+                      
                   </script>
                   <button type="button" id="btnwakeonlan" class="btn btn-primary pa-btn" onclick="askwakeonlan()">Loading...</button>
                 </div>
@@ -566,27 +564,25 @@ if ($_REQUEST['mac'] != 'Internet') {
                 <h4 class="">Nmap Scans</h4>
                 <div style="width:100%; text-align: center;">
                   <script>
-                      setTimeout(function(){
-                        document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
-                        document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtLastIP').value +')';
-                        document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtLastIP').value +')';
-                      }, 2000);
+
                   </script>
 
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'normal')">Loading...</button>
                   <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'detail')">Loading...</button>
 
-                  <div style="text-align: left;">
+<!--                   <div style="text-align: left;">
                     <ul style="padding:20px;">
                       <li><?=$pia_lang['DevDetail_Tools_nmap_buttonFast_text'];?></li>
                       <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'];?></li>
                       <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'];?></li>
                     </ul>
-                  </div>
+                  </div> -->
                 </div>
 
-                <div id="scanoutput" style="margin-top: 30px;"></div>
+                <div id="scanoutput" style="margin-top: 30px;">
+
+                </div>
                   <script>
                   function manualnmapscan(targetip, mode) {
                     $( "#scanoutput" ).empty();
@@ -1370,6 +1366,7 @@ function getDeviceData (readAllData=false) {
         else                                         {$('#iconRandomMACactive').addClass      ('hidden');
                                                       $('#iconRandomMACinactive').removeClass ('hidden'); };
         deactivateSaveRestoreData ();
+        initToolsSection();
       }
 
       // Check if device is part of the devicesList
@@ -1429,6 +1426,7 @@ function previousRecord () {
     pos--;
     mac = devicesList[pos].toString();
     getDeviceData (true);
+    initToolsSection();
   }
 }
 
@@ -1444,6 +1442,7 @@ function nextRecord () {
     pos++;
     mac = devicesList[pos].toString();
     getDeviceData (true);
+    initToolsSection();
   }
 }
 
@@ -1662,6 +1661,29 @@ function wakeonlan() {
     , function(msg) {
     showMessage (msg);
   });
+}
+
+function showmanualnmapscan(targetip) {
+  $( "#scanoutput" ).empty();
+  $.ajax({
+    method: "POST",
+    url: "./php/server/nmap_scan.php",
+    timeout: 60000,
+    data: { scan: targetip, mode: "view" },
+    success: function(data, textStatus) {
+        $("#scanoutput").html(data);
+    }
+  })
+}
+
+function initToolsSection () {
+setTimeout(function(){
+   document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
+   document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtLastIP').value +')';
+   document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtLastIP').value +')';
+   document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
+   showmanualnmapscan(document.getElementById('txtLastIP').value);
+}, 1000);
 }
 
 </script>
