@@ -352,8 +352,15 @@ $help_lang['Cat_Detail_302_text'] = 'Algunos dispositivos modernos generan direc
 									Pi.Alert detecta si se trata de una dirección MAC aleatoria y activa este "campo" automáticamente. Para deshabilitar este comportamiento, debe buscar en su dispositivo cómo deshabilitar la
 									aleatorización de direcciones MAC.';
 $help_lang['Cat_Detail_303_head'] = '¿Qué es Nmap y para qué sirve?';
-$help_lang['Cat_Detail_303_text'] = 'Nmap es un escáner de red con múltiples capacidades.<br>
-									Cuando aparece un nuevo dispositivo en su lista, tiene la posibilidad de obtener información más detallada sobre el dispositivo a través del escaneo de Nmap.';
+$help_lang['Cat_Detail_303_text'] = 'Nmap es un escáner de red con diversas capacidades.<br>
+                                    Cuando aparece un nuevo dispositivo en tu lista, tienes la opción de obtener información más detallada sobre el dispositivo a través del escaneo de Nmap.
+                                    <br>Pi.Alert ofrece 3 escaneos preestablecidos diferentes:
+                                    <br>
+                                    <ul>
+                                    <li>Escaneo rápido: Verifica solo los 100 puertos más importantes (unos segundos)</li>
+                                    <li>Escaneo estándar: Nmap escanea los primeros 1,000 puertos para cada protocolo de escaneo solicitado. (aprox. 5-10 segundos)</li>
+                                    <li>Escaneo detallado (Tiempo de espera 60s): El escaneo se ha ampliado para incluir algunos puertos UDP. Además, se ha aumentado el rango de puertos TCP.</li>
+                                    </ul>';
 $help_lang['Cat_Presence_400_head'] = 'Los dispositivos se muestran con un marcador amarillo y la nota "evento faltante".';
 $help_lang['Cat_Presence_400_text'] = 'Si esto sucede, tiene la opción de eliminar los eventos en el dispositivo en cuestión (vista de detalles).  Otra posibilidad sería encender el dispositivo y esperar hasta que Pi.Alert detecte el dispositivo como "online" con el siguiente
 										escaneo y luego simplemente apagar el dispositivo nuevamente.  Ahora Pi.Alert debería anotar correctamente el estado del dispositivo en la base de datos con el próximo escaneo.';

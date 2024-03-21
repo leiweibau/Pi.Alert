@@ -353,7 +353,15 @@ $help_lang['Cat_Detail_302_text'] = 'Alcuni dispositivi moderni generano indiriz
 									connette alla rete. Pi.Alert riconosce automaticamente se si tratta di un indirizzo MAC casuale e attiva automaticamente questo campo. Per disattivare questa funzionalità, è necessario verificare
 									le impostazioni del dispositivo per vedere come disattivare la generazione di indirizzi MAC casuali.';
 $help_lang['Cat_Detail_303_head'] = 'Cos&apos;è Nmap e a cosa serve?';
-$help_lang['Cat_Detail_303_text'] = 'Nmap è uno scanner di rete con molte funzionalità. Quando un nuovo dispositivo appare nella tua lista, puoi utilizzare la scansione Nmap per ottenere informazioni dettagliate sul dispositivo.';
+$help_lang['Cat_Detail_303_text'] = 'Nmap è uno scanner di rete con diverse funzionalità.<br>
+                                    Quando appare un nuovo dispositivo nella tua lista, hai la possibilità di ottenere informazioni più dettagliate sul dispositivo tramite la scansione Nmap.
+                                    <br>Pi.Alert offre 3 scansioni predefinite diverse:
+                                    <br>
+                                    <ul>
+                                    <li>Scansione rapida: Verifica solo i 100 porte più importanti (alcuni secondi)</li>
+                                    <li>Scansione standard: Nmap esegue la scansione dei primi 1.000 porte per ogni protocollo di scansione richiesto. (circa 5-10 secondi)</li>
+                                    <li>Scansione dettagliata (Timeout 60s): La scansione è stata ampliata per includere alcune porte UDP. Inoltre, è stata aumentata la gamma di porte TCP.</li>
+                                    </ul>';
 $help_lang['Cat_Presence_400_head'] = 'I dispositivi vengono visualizzati con una barra gialla e la scritta "missing Event".';
 $help_lang['Cat_Presence_400_text'] = 'Se ciò accade, hai la possibilità di eliminare gli eventi per il dispositivo in questione (nella vista dettagli). Un&apos;altra opzione potrebbe essere quella di accendere il dispositivo e
 									  attendere che Pi.Alert lo riconosca come "Online" con la successiva scansione, quindi spegnere nuovamente il dispositivo. Ora Pi.Alert dovrebbe registrare correttamente lo stato del dispositivo nella prossima scansione.';

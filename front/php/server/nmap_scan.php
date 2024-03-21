@@ -75,11 +75,41 @@ function create_portlist_table($portliststring) {
 		$temp_ports = explode("###", $temp_array[$i]);
 		echo '<div class="row">
 		          <div class="col-xs-2">'.$temp_ports[0] .'</div>
-		          <div class="col-xs-2">'. $temp_ports[1] .'</div>
+		          <div class="col-xs-3">'. $temp_ports[1] .'</div>
 		          <div class="col-xs-2">'. $temp_ports[2] . '</div>
-		          <div class="col-xs-6">'. $temp_ports[3] . '</div>
+		          <div class="col-xs-5">'. $temp_ports[3] . '</div>
 		      </div>';
 	}
+}
+
+function create_scanoutput_box($date, $type, $target, $box_type) {
+	if ($box_type == 'previous') {
+		$headline = 'Previous Nmap scan results of';
+		$text_color = '';}
+	elseif ($box_type == 'latest') {
+		$headline = 'Latest Nmap scan results of';
+		$text_color = '';}
+	elseif ($box_type == 'current') {
+		$headline = 'Current Nmap scan results of';
+		$text_color = "text-danger";}
+	echo '<div class="col-md-6" style="margin-bottom:20px">
+			<div class="row" style="padding-bottom:5px;">
+			   <div class="col-xs-12"><p class="'.$text_color.'" style="font-size:18px">'.$headline.' ' . $target . '</p></div>
+			</div>
+			<div class="row" style="padding-bottom:5px;">
+			   <div class="col-xs-4"><b>Scan Date:</b></div>
+			   <div class="col-xs-6 '.$text_color.'"> '.$date.'</div>
+			</div>
+			<div class="row" style="padding-bottom:5px;">
+			   <div class="col-xs-4"><b>Scan Mode:</b></div>
+			   <div class="col-xs-6"> '.$type.'</div>
+			</div>
+			<div class="row" style="">
+           	   <div class="col-xs-2 text-uppercase"><strong>Port</strong></div>
+               <div class="col-xs-3 text-uppercase"><strong>Protocol</strong></div>
+               <div class="col-xs-2 text-uppercase"><strong>Status</strong></div>
+               <div class="col-xs-5 text-uppercase"><strong>Service</strong></div>
+    	    </div>';
 }
 
 // Main action (Scan Mode)-------------------------------------------------------
@@ -112,34 +142,14 @@ if ($_REQUEST['mode'] != "view") {
 	    $nmap_scan_portlist = array();
 	}
 
+	echo '<div class="row">';
 	// Show prev. results
 	$res = $db->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC LIMIT 1');
 	$row = $res->fetchArray();
 	if ($row != "") {
-		echo '<div class="row">
-  				<div class="col-md-6">
-  					<div class="row" style="padding-bottom:5px;">
-  					   <div class="col-xs-12"><h4>Previous scan results of ' . $row['scan_target'] . '</h4></div>
-  					</div>
-  					<div class="row" style="padding-bottom:5px;">
-  					   <div class="col-xs-4"><b>Scan Date:</b></div>
-  					   <div class="col-xs-6"> '.$row['scan_date'].'</div>
-  					</div>
-  					<div class="row" style="padding-bottom:5px;">
-  					   <div class="col-xs-4"><b>Scan Mode:</b></div>
-  					   <div class="col-xs-6"> '.$row['scan_type'].'</div>
-  					</div>
-  					<div class="row" style="">
-			           <div class="col-xs-2 text-uppercase"><strong>Port</strong></div>
-			           <div class="col-xs-2 text-uppercase"><strong>Protocol</strong></div>
-			           <div class="col-xs-2 text-uppercase"><strong>Status</strong></div>
-			           <div class="col-xs-6 text-uppercase"><strong>Service</strong></div>
-			    	</div>';
+		create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'previous');
 		create_portlist_table($row['scan_result']);
 		echo '  </div>';
-	} else {
-		//Open row if no prev scan
-		echo '<div class="row">';
 	}
 
 	// Process formated nmap report
@@ -153,24 +163,7 @@ if ($_REQUEST['mode'] != "view") {
 		}
 		// Output
 		if (strlen($PIA_SCAN_RESULT) > 2) {
-			echo '<div class="col-md-6">
-					<div class="row" style="padding-bottom:5px;">
-	  				   <div class="col-xs-12"><h4 class="text-danger">Current scan results of ' . $PIA_HOST_IP . '</h4></div>
-	  				</div>
-	  				<div class="row" style="padding-bottom:5px;">
-	  				   <div class="col-xs-4"><b>Scan Date:</b></div>
-					   <div class="col-xs-6 text-danger"> '.$PIA_SCAN_TIME.'</div>
-	  				</div>
-	  				<div class="row" style="padding-bottom:5px;">
-	  				   <div class="col-xs-4"><b>Scan Mode:</b></div>
-	  				   <div class="col-xs-6"> '.$PIA_SCAN_MODE.'</div>
-					</div>
-	  				<div class="row" style="">
-				       <div class="col-xs-2 text-uppercase"><strong>Port</strong></div>
-			           <div class="col-xs-2 text-uppercase"><strong>Protocol</strong></div>
-			           <div class="col-xs-2 text-uppercase"><strong>Status</strong></div>
-			           <div class="col-xs-6 text-uppercase"><strong>Service</strong></div>
-			    	</div>';
+			create_scanoutput_box($PIA_SCAN_TIME, $PIA_SCAN_MODE, $PIA_HOST_IP, 'current');
 			create_portlist_table($PIA_SCAN_RESULT);
 			echo '</div>';
 
@@ -194,31 +187,18 @@ if ($_REQUEST['mode'] != "view") {
 		$row = $res->fetchArray();
 
 		if ($row != "") {
-			echo '<h4>Last scan Results of ' . $row['scan_target'] . '</h4>';
-			echo '<div class="row">
-      				<div class="col-md-6">
-      					<div class="row" style="padding-bottom:5px;">
-      					   <div class="col-xs-4"><b>Scan Date:</b></div>
-      					   <div class="col-xs-6"> '.$row['scan_date'].'</div>
-      					</div>
-      					<div class="row" style="padding-bottom:5px;">
-      					   <div class="col-xs-4"><b>Scan Mode:</b></div>
-      					   <div class="col-xs-6"> '.$row['scan_type'].'</div>
-      					</div>
-      					<div class="row" style="">
-				           <div class="col-xs-2 text-uppercase"><strong>Port</strong></div>
-				           <div class="col-xs-2 text-uppercase"><strong>Protocol</strong></div>
-				           <div class="col-xs-2 text-uppercase"><strong>Status</strong></div>
-				           <div class="col-xs-6 text-uppercase"><strong>Service</strong></div>
-				    	</div>';
+	    	$query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
+	    	$scancounter = $db->querySingle($query);
+
+			echo '<div class="row">';
+			create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'latest');
 			create_portlist_table($row['scan_result']);
-			echo '  </div>
+			echo '</div>
 			      </div>';
+
+			echo 'Es befinden sich ' . $scancounter . ' Scan-Ergebnisse in der Datenbank';
 		}
-
 	}
-
-
 }
 
 ?>
