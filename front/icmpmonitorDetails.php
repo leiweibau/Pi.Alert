@@ -294,7 +294,7 @@ function get_host_statistic($hostip) {
       <div class="row">
         <div class="col-lg-12 col-sm-12 col-xs-12">
           <div id="navDevice" class="nav-tabs-custom">
-            <ul class="nav nav-tabs" style="font-size:16px;">
+            <ul class="nav nav-tabs">
               <li class=""> <a id="tabDetails" href="#panDetails" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Details'];?></a></li>
               <li class=""> <a id="tabNmap" href="#panNmap" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Nmap'];?>     </a></li>
               <li class=""> <a id="tabEvents" href="#panEvents" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Events'];?></a></li>
@@ -484,25 +484,10 @@ function get_host_statistic($hostip) {
 
                 <h4 class="">Nmap Scans</h4>
                 <div style="width:100%; text-align: center;">
-                  <script>
-                      setTimeout(function(){
-                        document.getElementById('piamanualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtIP').value +')';
-                        document.getElementById('piamanualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtIP').value +')';
-                        document.getElementById('piamanualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtIP').value +')';
-                      }, 2000);
-                  </script>
+                  <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'fast')">Loading...</button>
+                  <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'normal')">Loading...</button>
+                  <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'detail')">Loading...</button>
 
-                  <button type="button" id="piamanualnmap_fast" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'fast')">Loading...</button>
-                  <button type="button" id="piamanualnmap_normal" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'normal')">Loading...</button>
-                  <button type="button" id="piamanualnmap_detail" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'detail')">Loading...</button>
-
-                  <div style="text-align: left;">
-                    <ul style="padding:20px;">
-                      <li><?=$pia_lang['DevDetail_Tools_nmap_buttonFast_text'];?></li>
-                      <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'];?></li>
-                      <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'];?></li>
-                    </ul>
-                  </div>
                 </div>
 
                 <div id="scanoutput" style="margin-top: 30px;"></div>
@@ -690,7 +675,7 @@ function main () {
   getEventsTotalsforICMPHost();
   initializeDatatable();
   initializeCombos();
-
+	initToolsSection();
 <?php
 if (isset($_REQUEST['icmpfilter'])) {
 	echo "$('.nav-tabs a[id=tabEvents]').tab('show');";
@@ -963,4 +948,25 @@ function initializeCombo (HTMLelement, queryAction, txtDataField) {
   });
 }
 
+function showmanualnmapscan(targetip) {
+  $( "#scanoutput" ).empty();
+  $.ajax({
+    method: "POST",
+    url: "./php/server/nmap_scan.php",
+    timeout: 60000,
+    data: { scan: targetip, mode: "view" },
+    success: function(data, textStatus) {
+        $("#scanoutput").html(data);
+    }
+  })
+}
+
+function initToolsSection () {
+setTimeout(function(){
+   document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtIP').value +')';
+   document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtIP').value +')';
+   document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtIP').value +')';
+   showmanualnmapscan(document.getElementById('txtIP').value);
+}, 1000);
+}
 </script>
