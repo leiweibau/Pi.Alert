@@ -90,6 +90,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'DeleteSpeedtestResults':DeleteSpeedtestResults();
 		break;
+	case 'DeleteNmapScansResults':DeleteNmapScansResults();
+		break;
 	case 'SaveFilterID':SaveFilterID();
 		break;
 	default:logServerConsole('Action: ' . $action);
@@ -860,7 +862,7 @@ function EnableMainScan() {
 	}
 }
 
-//  Delete all Events
+//  Delete all Speedtests
 function DeleteSpeedtestResults() {
 	global $db;
 	global $pia_lang;
@@ -876,6 +878,25 @@ function DeleteSpeedtestResults() {
 		echo $pia_lang['BackDevices_DBTools_DelSpeedtestError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0029', '', '');
+	}
+}
+
+//  Delete all Nmap Scans
+function DeleteNmapScansResults() {
+	global $db;
+	global $pia_lang;
+
+	$sql = 'DELETE FROM Tools_Nmap_ManScan';
+	$result = $db->query($sql);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BackDevices_DBTools_DelNmapScans'];
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0037', '', '');
+	} else {
+		echo $pia_lang['BackDevices_DBTools_DelNmapScansError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0038', '', '');
 	}
 }
 //  End

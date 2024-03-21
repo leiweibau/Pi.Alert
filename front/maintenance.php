@@ -708,9 +708,15 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_tools_table_cell_a">
-                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteInactiveHosts" onclick="askDeleteSpeedtestResults()"><?=$pia_lang['Maintenance_Tool_del_speedtest'];?></button>
+                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteSpeedtests" onclick="askDeleteSpeedtestResults()"><?=$pia_lang['Maintenance_Tool_del_speedtest'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_speedtest_text'];?></div>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="db_tools_table_cell_a">
+                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteNmapScans" onclick="askDeleteNmapScansResults()"><?=$pia_lang['Maintenance_Tool_del_nmapscans'];?></button>
+                    </div>
+                    <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_nmapscans_text'];?></div>
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_tools_table_cell_a">
@@ -943,6 +949,15 @@ function askDeleteSpeedtestResults() {
 }
 function DeleteSpeedtestResults() {
 	$.get('php/server/devices.php?action=DeleteSpeedtestResults', function(msg) {showMessage (msg);});
+}
+
+// delete Nmap results
+function askDeleteNmapScansResults() {
+  showModalWarning('<?=$pia_lang['Maintenance_Tool_del_nmapscans'];?>', '<?=$pia_lang['Maintenance_Tool_del_nmapscans_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteNmapScansResults');
+}
+function DeleteNmapScansResults() {
+	$.get('php/server/devices.php?action=DeleteNmapScansResults', function(msg) {showMessage (msg);});
 }
 
 // Backup DB to Archive

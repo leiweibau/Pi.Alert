@@ -1,6 +1,13 @@
 <?php
 unset($pia_lang);
 
+$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Eliminar todos los escaneos de Nmap';
+$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Se eliminarán todos los resultados de escaneos de todos los dispositivos.';
+$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Se han eliminado los escaneos de Nmap.';
+$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Error al eliminar los escaneos de Nmap.';
+$pia_journ_lang['LogStr_0037'] = 'Eliminar resultados de Nmap';
+$pia_journ_lang['LogStr_0038'] = 'Eliminar resultados de Nmap (con error)';
+
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////

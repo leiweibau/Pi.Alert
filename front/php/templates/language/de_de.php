@@ -1,6 +1,13 @@
 <?php
 unset($pia_lang);
 
+$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Alle Nmap Scans löschen';
+$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Es werden alle Scan-Ergebnisse von allen Geräten gelöscht.';
+$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Die Nmap-Scans wurden gelöscht.';
+$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Fehler beim löschen der Nmap-Scans.';
+$pia_journ_lang['LogStr_0037'] = 'Nmap Resultate löschen';
+$pia_journ_lang['LogStr_0038'] = 'Nmap Resultate löschen (mit Fehler)';
+
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////
@@ -761,6 +768,7 @@ $pia_journ_lang['LogStr_0033'] = 'Nicht scanbares Gerät hinzugefügt (Hubs, PoE
 $pia_journ_lang['LogStr_0034'] = 'Nicht scanbares Gerät bearbeitet (Hubs, PoE Geräte, Docker, etc.)';
 $pia_journ_lang['LogStr_0035'] = 'Nicht scanbares Gerät gelöscht (Hubs, PoE Geräte, Docker, etc.)';
 $pia_journ_lang['LogStr_0036'] = 'Geräte, Web Services und ICMP Hosts im CSV-Format exportiert.';
+
 $pia_journ_lang['LogStr_0041'] = 'Fehler beim Speichern des vordefinierten Filters';
 $pia_journ_lang['LogStr_0042'] = 'Vordefinierter Filter wurde gespeichert';
 $pia_journ_lang['LogStr_0043'] = 'Vordefinierter Filter war unvollständig und wurde nicht gespeichert';
