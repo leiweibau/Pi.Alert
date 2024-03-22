@@ -22,8 +22,8 @@ body:
     description: In which environment Pi.Alert is installed.
     placeholder: |
         - **OS**: Ubuntu 20.04
-        - **Node**: 13.14.0
-        - **npm**: 7.6.3
+        - **Environment**: Container or native
+        - **Plattform**: Arm, x86_32, x86_64
   validations:
     required: false
 - type: textarea
