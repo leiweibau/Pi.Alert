@@ -29,16 +29,12 @@ OpenDB();
 // Check given host/mac
 function crosscheckIP($query_ip) {
 	global $db;
-	$sql = 'SELECT * FROM Devices WHERE dev_LastIP="' . $query_ip . '"';
+
+	$sql = 'SELECT dev_LastIP FROM Devices WHERE dev_LastIP="' . $query_ip . '" UNION
+        SELECT icmp_ip AS dev_LastIP FROM ICMP_Mon WHERE icmp_ip="' . $query_ip . '"';
 	$result = $db->query($sql);
 	$row = $result->fetchArray(SQLITE3_ASSOC);
 	$neededIP = $row['dev_LastIP'];
-	if ($neededIP == "") {
-		$sql = 'SELECT * FROM ICMP_Mon WHERE icmp_ip="' . $query_ip . '"';
-		$result = $db->query($sql);
-		$row = $result->fetchArray(SQLITE3_ASSOC);
-		$neededIP = $row['icmp_ip'];
-	}
 	return $neededIP;
 }
 // Find start and end of the nmap port list
@@ -83,26 +79,40 @@ function create_portlist_table($portliststring) {
 }
 
 function create_scanoutput_box($date, $type, $target, $box_type) {
+	global $pia_lang;
+
 	if ($box_type == 'previous') {
-		$headline = 'Previous Nmap scan results of';
+		$headline = $pia_lang['DevDetail_Tools_nmap_head_prev'];
 		$text_color = '';}
 	elseif ($box_type == 'latest') {
-		$headline = 'Latest Nmap scan results of';
+		$headline = $pia_lang['DevDetail_Tools_nmap_head_latest'];
 		$text_color = '';}
 	elseif ($box_type == 'current') {
-		$headline = 'Current Nmap scan results of';
+		$headline = $pia_lang['DevDetail_Tools_nmap_head_cur'];
 		$text_color = "text-danger";}
+
+	if ($type == 'fast') {
+		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonFast'];}
+	elseif ($type == 'normal') {
+		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonDefault'];}
+	elseif ($type == 'detail') {
+		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonDetail'];}
+
 	echo '<div class="col-md-6" style="margin-bottom:20px">
 			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-12"><p class="'.$text_color.'" style="font-size:18px">'.$headline.' ' . $target . '</p></div>
+			   <div class="col-xs-12"><p class="'.$text_color.'" style="font-size:18px">'.$headline.'</p></div>
 			</div>
 			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-4"><b>Scan Date:</b></div>
-			   <div class="col-xs-6 '.$text_color.'"> '.$date.'</div>
+			   <div class="col-xs-4"><b>'.$pia_lang['ookla_devdetails_table_time'].':</b></div>
+			   <div class="col-xs-6 '.$text_color.'">'.$date.'</div>
 			</div>
 			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-4"><b>Scan Mode:</b></div>
-			   <div class="col-xs-6"> '.$type.'</div>
+			   <div class="col-xs-4"><b>'.$pia_lang['nmap_devdetails_scanmode'].':</b></div>
+			   <div class="col-xs-6">'.$type_lang.'</div>
+			</div>
+			<div class="row" style="padding-bottom:5px;">
+			   <div class="col-xs-4"><b>'.$pia_lang['WebServices_tablehead_TargetIP'].':</b></div>
+			   <div class="col-xs-6">' . $target . '</div>
 			</div>
 			<div class="row" style="">
            	   <div class="col-xs-2 text-uppercase"><strong>Port</strong></div>
@@ -169,7 +179,7 @@ if ($_REQUEST['mode'] != "view") {
 
 			// Save to db, only if results available
 			$sql = 'INSERT INTO "Tools_Nmap_ManScan" ("scan_date", "scan_target", "scan_type", "scan_result", "reserve_a", "reserve_b", "reserve_c", "reserve_d") VALUES("' . $PIA_SCAN_TIME . '", "' . $PIA_HOST_IP . '", "' . $PIA_SCAN_MODE . '", "' . $PIA_SCAN_RESULT . '", "", "", "", "")';
-			$result = $db->exec($sql);			
+			$result = $db->exec($sql);
 		} else {
 			echo '<div class="col-md-6">'.$pia_lang['nmap_no_scan_results'].'</div>';
 		}
@@ -179,6 +189,10 @@ if ($_REQUEST['mode'] != "view") {
 	} else {
 		echo '<div class="col-md-6">'.$pia_lang['nmap_no_scan_results'].'</div></div>';
 	}
+
+    $query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
+	$scancounter = $db->querySingle($query);
+	echo 'Es befinden sich ' . $scancounter . ' Scan-Ergebnisse in der Datenbank';
 
 } elseif ($_REQUEST['mode'] == "view") {
 // Main action (View Mode)-------------------------------------------------------
@@ -193,10 +207,20 @@ if ($_REQUEST['mode'] != "view") {
 			echo '<div class="row">';
 			create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'latest');
 			create_portlist_table($row['scan_result']);
-			echo '</div>
-			      </div>';
+			echo '</div>';
 
-			echo 'Es befinden sich ' . $scancounter . ' Scan-Ergebnisse in der Datenbank';
+			echo '<div class="col-md-6">
+					<div class="row">
+						<div class="col-xs-12 text-center" style="margin-top:30px">Es befinden sich ' . $scancounter . ' Scan-Ergebnisse in der Datenbank</div>
+				  	</div>';
+			echo '	<div class="row">
+						<div class="col-xs-12 text-center" style="margin-top:20px">
+							<button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn">'.$pia_lang['nmap_devdetails_download'].'</button>
+						</div>
+				  	</div>
+				  </div>';
+			// Close row
+			echo '</div>';
 		}
 	}
 }

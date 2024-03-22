@@ -1,13 +1,6 @@
 <?php
 unset($pia_lang);
 
-$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Alle Nmap Scans löschen';
-$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Es werden alle Scan-Ergebnisse von allen Geräten gelöscht.';
-$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Die Nmap-Scans wurden gelöscht.';
-$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Fehler beim löschen der Nmap-Scans.';
-$pia_journ_lang['LogStr_0037'] = 'Nmap Resultate löschen';
-$pia_journ_lang['LogStr_0038'] = 'Nmap Resultate löschen (mit Fehler)';
-
 //////////////////////////////////////////////////////////////////
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////
@@ -278,8 +271,9 @@ $pia_lang['DevDetail_Tools_nmap_buttonDetail'] = 'Detailierter Scan';
 $pia_lang['DevDetail_Tools_WOL'] = 'Sende Wol Befehl an ';
 $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';
 $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'Das Wake-on-LAN Kommando wird an die Broadcast Adresse gesendet. Wenn das Ziel nicht in dem Subnet/vlan von Pi.Alert ist, wird das Ziel-Gerät nicht reagieren.';
-$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'Das Kommando wurde ausgeführt';
-$pia_lang['BackDevDetail_Tools_WOL_error'] = 'Das Kommando wurde nicht ausgeführt';
+$pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Ergebnis des letzten Nmap Scans';
+$pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Ergebnis des aktuellen Nmap Scans';
+$pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Ergebnis des vorherigen Nmap Scans';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Der automatische Speedtest startet ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' und ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' Uhr';
@@ -485,6 +479,8 @@ $pia_lang['Maintenance_Tool_del_ActHistory_noti'] = 'Netzwerkaktivität löschen
 $pia_lang['Maintenance_Tool_del_ActHistory_noti_text'] = 'Sind Sie sicher, dass Sie die Netzwerkaktivität zurücksetzen möchten?';
 $pia_lang['Maintenance_Tool_del_speedtest'] = 'Speedtest Resultate löschen';
 $pia_lang['Maintenance_Tool_del_speedtest_text'] = 'Alle gespeicherten Speedtest Ergebnisse werden gelöscht. Bereits Konfigurierte automatische Speedtests werden weiterhin ausgeführt.';
+$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Alle Nmap Scans löschen';
+$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Es werden alle Scan-Ergebnisse von allen Geräten gelöscht.';
 $pia_lang['Maintenance_Tool_loginenable'] = 'Login aktivieren';
 $pia_lang['Maintenance_Tool_loginenable_text'] = 'Nach der Aktivierung gelangst du automatisch auf die Anmeldeseite. Wenn du zuvor noch kein Passwort gesetzt hast, ist "123456" das Standardpasswort.';
 $pia_lang['Maintenance_Tool_loginenable_noti'] = 'Login aktivieren';
@@ -588,6 +584,10 @@ $pia_lang['BackDevices_table_filter_error_d'] = 'Nicht alle erforderlichen Felde
 $pia_lang['BackDevices_table_filter_error_e'] = 'Fehler beim Erstellen der Filter-Tabelle';
 $pia_lang['BackDevices_Upd_Filter'] = 'Filter erfolgreich aktualisiert.';
 $pia_lang['BackDevices_Upd_FilterError'] = 'Fehler beim Aktualisieren des Filters.';
+$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Die Nmap-Scans wurden gelöscht.';
+$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Fehler beim Löschen der Nmap-Scans.';
+$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'Das Kommando wurde ausgeführt';
+$pia_lang['BackDevDetail_Tools_WOL_error'] = 'Das Kommando wurde nicht ausgeführt';
 
 //////////////////////////////////////////////////////////////////
 // Network Page
@@ -696,7 +696,13 @@ $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Download';
 $pia_lang['ookla_devdetails_table_up'] = 'Upload';
 
+//////////////////////////////////////////////////////////////////
+// Manuel Nmap
+//////////////////////////////////////////////////////////////////
+
 $pia_lang['nmap_no_scan_results'] = 'Keine offenen Ports entdeckt';
+$pia_lang['nmap_devdetails_scanmode'] = 'Modus';
+$pia_lang['nmap_devdetails_download'] = 'Scans als CVS speichern';
 
 // =============================================================================================================
 
@@ -768,7 +774,8 @@ $pia_journ_lang['LogStr_0033'] = 'Nicht scanbares Gerät hinzugefügt (Hubs, PoE
 $pia_journ_lang['LogStr_0034'] = 'Nicht scanbares Gerät bearbeitet (Hubs, PoE Geräte, Docker, etc.)';
 $pia_journ_lang['LogStr_0035'] = 'Nicht scanbares Gerät gelöscht (Hubs, PoE Geräte, Docker, etc.)';
 $pia_journ_lang['LogStr_0036'] = 'Geräte, Web Services und ICMP Hosts im CSV-Format exportiert.';
-
+$pia_journ_lang['LogStr_0037'] = 'Nmap Resultate löschen';
+$pia_journ_lang['LogStr_0038'] = 'Nmap Resultate löschen (mit Fehler)';
 $pia_journ_lang['LogStr_0041'] = 'Fehler beim Speichern des vordefinierten Filters';
 $pia_journ_lang['LogStr_0042'] = 'Vordefinierter Filter wurde gespeichert';
 $pia_journ_lang['LogStr_0043'] = 'Vordefinierter Filter war unvollständig und wurde nicht gespeichert';

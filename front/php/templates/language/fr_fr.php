@@ -1,13 +1,6 @@
 <?php
 unset($pia_lang);
 
-$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Supprimer tous les scans Nmap';
-$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Tous les résultats de scans de tous les appareils seront supprimés.';
-$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Les scans Nmap ont été supprimés.';
-$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Erreur lors de la suppression des scans Nmap.';
-$pia_journ_lang['LogStr_0037'] = 'Supprimer les résultats Nmap';
-$pia_journ_lang['LogStr_0038'] = 'Supprimer les résultats Nmap (avec erreur)';
-
 //////////////////////////////////////////////////////////////////
 // About - ready
 //////////////////////////////////////////////////////////////////
@@ -278,11 +271,12 @@ $pia_lang['DevDetail_Tools_nmap_buttonDetail'] = 'Scan détaillé';
 $pia_lang['DevDetail_Tools_WOL'] = 'Send Wol command to ';
 $pia_lang['DevDetail_Tools_WOL_noti'] = 'Wake-on-LAN';
 $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'The Wake-on-LAN command is sent to the broadcast address. If the target is not in the subnet/vlan of Pi.Alert, the target device will not respond.';
-$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
-$pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Le test de vitesse automatique démarre à ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' et ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' heures';
+$pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Résultat du dernier Scan Nmap';
+$pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Résultat du Scan Nmap actuel';
+$pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Résultat du Scan Nmap précédent';
 
 //////////////////////////////////////////////////////////////////
 // WebServices Details Page
@@ -359,7 +353,7 @@ $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Hors ligne/Indisponible';
 $pia_lang['ICMPMonitor_Availability'] = 'Availability';
 
 /////////////////////////////////////////////////////////////////////////////
-// Maintenance Page - ready
+// Maintenance Page
 /////////////////////////////////////////////////////////////////////////////
 
 $pia_lang['Maintenance_Title'] = 'Réglages et maintenance';
@@ -485,6 +479,8 @@ $pia_lang['Maintenance_Tool_del_ActHistory_noti'] = 'Supprimer l&apos;activité 
 $pia_lang['Maintenance_Tool_del_ActHistory_noti_text'] = 'Êtes-vous sûr de vouloir réinitialiser l&apos;activité réseau ?';
 $pia_lang['Maintenance_Tool_del_speedtest'] = 'Supprimer les résultats du test de vitesse';
 $pia_lang['Maintenance_Tool_del_speedtest_text'] = 'Tous les résultats du test de vitesse enregistrés seront supprimés. Les tests de vitesse automatiques déjà configurés continueront de s&apos;exécuter.';
+$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Supprimer tous les scans Nmap';
+$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Tous les résultats de scans de tous les appareils seront supprimés.';
 $pia_lang['Maintenance_Tool_loginenable'] = 'Activer le login';
 $pia_lang['Maintenance_Tool_loginenable_text'] = 'Après l&apos;activation, tu arrives automatiquement sur la page de connexion. Si tu n&apos;as pas encore défini de mot de passe, "123456" est le mot de passe par défaut.';
 $pia_lang['Maintenance_Tool_loginenable_noti'] = 'Activer le login';
@@ -519,7 +515,7 @@ $pia_lang['FavIcon_local'] = 'local';
 $pia_lang['FavIcon_remote'] = 'remote';
 
 /////////////////////////////////////////////////////////////////////////////
-// Maintenance Page (Backend) - ready
+// Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 
 $pia_lang['BackDevices_Arpscan_disabled'] = 'arp-scan automatique désactivé.';
@@ -560,6 +556,10 @@ $pia_lang['BackDevices_DBTools_DelInactHosts'] = 'Les hôtes inactifs ont été 
 $pia_lang['BackDevices_DBTools_DelInactHostsError'] = 'Une erreur s&apos;est produite lors de la tentative de suppression des hôtes inactifs.';
 $pia_lang['BackDevices_DBTools_DelSpeedtest'] = 'Les résultats du test de vitesse ont été supprimés.';
 $pia_lang['BackDevices_DBTools_DelSpeedtestError'] = 'Erreur lors de la suppression des résultats du test de vitesse.';
+$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Les scans Nmap ont été supprimés.';
+$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Erreur lors de la suppression des scans Nmap.';
+$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
+$pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 $pia_lang['BackDevices_Login_disabled'] = 'Login désactivé.';
 $pia_lang['BackDevices_Login_enabled'] = 'Login activé.';
 $pia_lang['BackDevices_Theme_set'] = 'Le thème est appliqué.';
@@ -691,7 +691,13 @@ $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Téléchargement';
 $pia_lang['ookla_devdetails_table_up'] = 'Téléversement';
 
+//////////////////////////////////////////////////////////////////
+// Manuel Nmap
+//////////////////////////////////////////////////////////////////
+
 $pia_lang['nmap_no_scan_results'] = 'Nessuna porta aperta scoperta';
+$pia_lang['nmap_devdetails_scanmode'] = 'Mode';
+$pia_lang['nmap_devdetails_download'] = 'Enregistrer les Scans en CVS';
 
 // =============================================================================================================
 
@@ -763,6 +769,8 @@ $pia_journ_lang['LogStr_0033'] = 'Appareil non scannable ajouté (Hubs, appareil
 $pia_journ_lang['LogStr_0034'] = 'Appareil non scannable modifié (Hubs, appareils PoE, Docker, etc.)';
 $pia_journ_lang['LogStr_0035'] = 'Appareil non scannable supprimé (Hubs, appareils PoE, Docker, etc.)';
 $pia_journ_lang['LogStr_0036'] = 'Export des appareils, des services Web et des hôtes ICMP au format CSV.';
+$pia_journ_lang['LogStr_0037'] = 'Supprimer les résultats Nmap';
+$pia_journ_lang['LogStr_0038'] = 'Supprimer les résultats Nmap (avec erreur)';
 $pia_journ_lang['LogStr_0041'] = 'Erreur lors de l&apos;enregistrement du filtre prédéfini';
 $pia_journ_lang['LogStr_0042'] = 'Le filtre prédéfini a été enregistré';
 $pia_journ_lang['LogStr_0043'] = 'Le filtre prédéfini était incomplet et n&apos;a pas été enregistré';

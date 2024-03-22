@@ -563,21 +563,9 @@ if ($_REQUEST['mac'] != 'Internet') {
 ?>
                 <h4 class="">Nmap Scans</h4>
                 <div style="width:100%; text-align: center;">
-                  <script>
-
-                  </script>
-
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'normal')">Loading...</button>
                   <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'detail')">Loading...</button>
-
-<!--                   <div style="text-align: left;">
-                    <ul style="padding:20px;">
-                      <li><?=$pia_lang['DevDetail_Tools_nmap_buttonFast_text'];?></li>
-                      <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDefault_text'];?></li>
-                      <li><?=$pia_lang['DevDetail_Tools_nmap_buttonDetail_text'];?></li>
-                    </ul>
-                  </div> -->
                 </div>
 
                 <div id="scanoutput" style="margin-top: 30px;">

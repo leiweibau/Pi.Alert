@@ -1,13 +1,6 @@
 <?php
 unset($pia_lang);
 
-$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Elimina tutti gli scansione Nmap';
-$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Tutti i risultati delle scansioni di tutti i dispositivi saranno eliminati.';
-$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Le scansioni Nmap sono state eliminate.';
-$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Errore nell&apos;eliminazione delle scansioni Nmap.';
-$pia_journ_lang['LogStr_0037'] = 'Elimina risultati Nmap';
-$pia_journ_lang['LogStr_0038'] = 'Elimina risultati Nmap (con errore)';
-
 //////////////////////////////////////////////////////////////////
 // About
 //////////////////////////////////////////////////////////////////
@@ -283,6 +276,9 @@ $pia_lang['BackDevDetail_Tools_WOL_error'] = 'Il comando non è stato eseguito';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Il test di velocità automatico inizia alle ore ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' e ';
 $pia_lang['DevDetail_Speedtest_note_c'] = '';
+$pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Risultato dell&apos;ultimo Scansione Nmap';
+$pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Risultato della Scansione Nmap attuale';
+$pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Risultato della Scansione Nmap precedente';
 
 //////////////////////////////////////////////////////////////////
 // WebServices Details Page
@@ -485,6 +481,8 @@ $pia_lang['Maintenance_Tool_del_ActHistory_noti'] = 'Cancella la cronologia di a
 $pia_lang['Maintenance_Tool_del_ActHistory_noti_text'] = 'Sei sicuro di voler ripristinare la cronologia di attività di rete?';
 $pia_lang['Maintenance_Tool_del_speedtest'] = 'Elimina risultati del test di velocità';
 $pia_lang['Maintenance_Tool_del_speedtest_text'] = 'Tutti i risultati del test di velocità salvati verranno eliminati. I test di velocità automatici già configurati continueranno ad essere eseguiti.';
+$pia_lang['Maintenance_Tool_del_nmapscans'] = 'Elimina tutti gli scansione Nmap';
+$pia_lang['Maintenance_Tool_del_nmapscans_text'] = 'Tutti i risultati delle scansioni di tutti i dispositivi saranno eliminati.';
 $pia_lang['Maintenance_Tool_loginenable'] = 'Abilita accesso';
 $pia_lang['Maintenance_Tool_loginenable_text'] = 'Dopo l&apos;attivazione, verrai reindirizzato automaticamente alla pagina di accesso. Se non hai già impostato una password, la password predefinita è "123456".';
 $pia_lang['Maintenance_Tool_loginenable_noti'] = 'Abilita accesso';
@@ -560,6 +558,8 @@ $pia_lang['BackDevices_DBTools_DelInactHosts'] = 'Host inattivi eliminati con su
 $pia_lang['BackDevices_DBTools_DelInactHostsError'] = 'Errore nell&apos;eliminazione degli host inattivi.';
 $pia_lang['BackDevices_DBTools_DelSpeedtest'] = 'I risultati del test di velocità sono stati eliminati.';
 $pia_lang['BackDevices_DBTools_DelSpeedtestError'] = 'Errore nell&apos;eliminare i risultati del test di velocità.';
+$pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Le scansioni Nmap sono state eliminate.';
+$pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Errore nell&apos;eliminazione delle scansioni Nmap.';
 $pia_lang['BackDevices_Login_disabled'] = 'Accesso disabilitato.';
 $pia_lang['BackDevices_Login_enabled'] = 'Accesso abilitato.';
 $pia_lang['BackDevices_Theme_set'] = 'Tema applicato.';
@@ -696,7 +696,13 @@ $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Download';
 $pia_lang['ookla_devdetails_table_up'] = 'Upload';
 
+//////////////////////////////////////////////////////////////////
+// Manuel Nmap
+//////////////////////////////////////////////////////////////////
+
 $pia_lang['nmap_no_scan_results'] = 'Nessuna porta aperta scoperta';
+$pia_lang['nmap_devdetails_scanmode'] = 'Mode';
+$pia_lang['nmap_devdetails_download'] = 'Salva Scansione come CVS';
 
 // =============================================================================================================
 $pia_journ_lang['Journal_TableHead_Class'] = 'Classe';
@@ -767,6 +773,8 @@ $pia_journ_lang['LogStr_0033'] = 'Aggiunto dispositivo non scansionabile (hub, d
 $pia_journ_lang['LogStr_0034'] = 'Modificato dispositivo non scansionabile (hub, dispositivi PoE, Docker, ecc.)';
 $pia_journ_lang['LogStr_0035'] = 'Eliminato dispositivo non scansionabile (hub, dispositivi PoE, Docker, ecc.)';
 $pia_journ_lang['LogStr_0036'] = 'Dispositivi, servizi web e host ICMP esportati in formato CSV.';
+$pia_journ_lang['LogStr_0037'] = 'Elimina risultati Nmap';
+$pia_journ_lang['LogStr_0038'] = 'Elimina risultati Nmap (con errore)';
 $pia_journ_lang['LogStr_0041'] = 'Errore durante il salvataggio del filtro predefinito';
 $pia_journ_lang['LogStr_0042'] = 'Il filtro predefinito è stato salvato';
 $pia_journ_lang['LogStr_0043'] = 'Il filtro predefinito era incompleto e non è stato salvato';
