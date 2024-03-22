@@ -1,5 +1,5 @@
 name: Bug Report
-description: File a bug/issue
+description: Create a bug report
 title: "[BUG] <title>"
 labels: ["Bug", "Needs Triage"]
 body:
@@ -8,7 +8,7 @@ body:
     label: Is there an existing issue for this?
     description: Please check whether a problem already exists for the error you have encountered, or whether this problem is already mentioned in the Help/FAQ section of Pi.Alert.
     options:
-    - label: I have searched the existing issues and the help/FAQ section of Pi.Alert
+    - label: I have searched the existing issues and the Help/FAQ section of Pi.Alert
       required: true
 - type: textarea
   attributes:
