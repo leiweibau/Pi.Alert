@@ -215,7 +215,7 @@ if ($_REQUEST['mode'] != "view") {
 				  	</div>';
 			echo '	<div class="row">
 						<div class="col-xs-12 text-center" style="margin-top:20px">
-							<button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn">'.$pia_lang['nmap_devdetails_download'].'</button>
+							<a role="button" class="btn btn-primary pa-btn" href="./download/hostnmapresultscvs.php?host='.$PIA_HOST_IP.'">'.$pia_lang['nmap_devdetails_download'].'</a>
 						</div>
 				  	</div>
 				  </div>';

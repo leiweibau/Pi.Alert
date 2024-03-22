@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if ($_SESSION["login"] != 1) {
+	header('Location: ../index.php');
+	exit;
+}
+
 foreach (glob("../db/setting_language*") as $filename) {
 	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
 }
@@ -31,7 +38,20 @@ if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 	$db_crosscheck = crosscheckIP($PIA_HOST_IP);
 	if (isset($db_crosscheck)) {
 
-		$CSVFILE = '"test","Test2","Test3"';
+		$CSVFILE = '';
+		$results = $db->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC');
+		while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+		    $CSVFILE = $CSVFILE . '"' . $row['ID'] . '",';
+		    $CSVFILE = $CSVFILE . '"' . $row['scan_date'] . '",';
+		    $CSVFILE = $CSVFILE . '"' . $row['scan_target'] . '",';
+		    $CSVFILE = $CSVFILE . '"' . $row['scan_type'] . '",';
+		    $CSVFILE = $CSVFILE . '"' . str_replace("\n", " / ", str_replace("###", "-", $row['scan_result'])) . '"';
+		    $CSVFILE = $CSVFILE . '"' . $row['reserve_a'] . '",';
+		    $CSVFILE = $CSVFILE . '"' . $row['reserve_b'] . '",';
+		    $CSVFILE = $CSVFILE . '"' . $row['reserve_c'] . '",';
+		    $CSVFILE = $CSVFILE . '"' . $row['reserve_d'] . '",';
+		    $CSVFILE = $CSVFILE . "\n";
+		}
 
 		header('Content-Description: File Transfer');
 		header("Content-Type: text/csv");
@@ -40,6 +60,7 @@ if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 		header('Cache-Control: must-revalidate');
 		header('Pragma: public');
 		header('Content-Length: ' . strlen($CSVFILE));
+
 		echo $CSVFILE;
 
 		// Logging
@@ -51,6 +72,8 @@ if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 		exit;}
 } else {
 	echo "Wrong parameter";
+	// Logging
+	//pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0210', '', $PIA_SCAN_MODE . ' Scan: ' . $PIA_HOST_IP);
 	exit;
 }
 
