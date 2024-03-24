@@ -108,9 +108,10 @@ This is the list of supported commands
     The script tries to make the database compatible for this fork.
 
 2024 leiweibau (https://github.com/leiweibau/Pi.Alert) (https://leiweibau.net)
+
 EOM
 
-    echo -e "$PIALERTCLI_MANUAL" | more
+    echo -e "$PIALERTCLI_MANUAL" | more -e
     ;;
 
   set_login)
