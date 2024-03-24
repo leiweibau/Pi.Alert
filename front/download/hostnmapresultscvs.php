@@ -41,16 +41,16 @@ if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 		$CSVFILE = '';
 		$results = $db->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC');
 		while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-		    $CSVFILE = $CSVFILE . '"' . $row['ID'] . '",';
-		    $CSVFILE = $CSVFILE . '"' . $row['scan_date'] . '",';
-		    $CSVFILE = $CSVFILE . '"' . $row['scan_target'] . '",';
-		    $CSVFILE = $CSVFILE . '"' . $row['scan_type'] . '",';
-		    $CSVFILE = $CSVFILE . '"' . str_replace("\n", " / ", str_replace("###", "-", $row['scan_result'])) . '"';
-		    $CSVFILE = $CSVFILE . '"' . $row['reserve_a'] . '",';
-		    $CSVFILE = $CSVFILE . '"' . $row['reserve_b'] . '",';
-		    $CSVFILE = $CSVFILE . '"' . $row['reserve_c'] . '",';
-		    $CSVFILE = $CSVFILE . '"' . $row['reserve_d'] . '",';
-		    $CSVFILE = $CSVFILE . "\n";
+		    $CSVFILE .= '"' . $row['ID'] . '",';
+		    $CSVFILE .= '"' . $row['scan_date'] . '",';
+		    $CSVFILE .= '"' . $row['scan_target'] . '",';
+		    $CSVFILE .= '"' . $row['scan_type'] . '",';
+		    $CSVFILE .= '"' . str_replace("\n", " / ", str_replace("###", "-", $row['scan_result'])) . '",';
+		    $CSVFILE .= '"' . $row['reserve_a'] . '",';
+		    $CSVFILE .= '"' . $row['reserve_b'] . '",';
+		    $CSVFILE .= '"' . $row['reserve_c'] . '",';
+		    $CSVFILE .= '"' . $row['reserve_d'] . '",';
+		    $CSVFILE .= "\n";
 		}
 
 		header('Content-Description: File Transfer');
