@@ -1,14 +1,10 @@
 <?php
 unset($pia_lang);
-
-//////////////////////////////////////////////////////////////////
-// About - Update by @TeroRERO 07ago2022
+// About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
 $pia_lang['About_Exit'] = 'Sign out';
 $pia_lang['About_Reports'] = 'Show notifications';
-
-//////////////////////////////////////////////////////////////////
 // General
 //////////////////////////////////////////////////////////////////
 $pia_lang['Gen_Delete'] = 'Delete';
@@ -24,11 +20,8 @@ $pia_lang['Gen_Close'] = 'Close';
 $pia_lang['Gen_on'] = 'On';
 $pia_lang['Gen_off'] = 'Off';
 $pia_lang['Gen_error'] = 'Error';
-
-//////////////////////////////////////////////////////////////////
 // Login Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Login_Box'] = 'Enter your password';
 $pia_lang['Login_Remember'] = 'Remember';
 $pia_lang['Login_Remember_small'] = '(valid for 7 days)';
@@ -41,11 +34,8 @@ $pia_lang['Login_Psw-box'] = 'Password';
 $pia_lang['Login_Toggle_Info'] = 'Password Information';
 $pia_lang['Login_Toggle_Info_headline'] = 'Password Information';
 $pia_lang['Login_Toggle_Alert_headline'] = 'Password Alert!';
-
-//////////////////////////////////////////////////////////////////
 // Sidebar
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Navigation_Devices'] = 'Devices';
 $pia_lang['Navigation_Services'] = 'Web Services';
 $pia_lang['Navigation_Presence'] = 'Presence';
@@ -61,11 +51,8 @@ $pia_lang['Navigation_UpdateCheck'] = 'Update Check';
 $pia_lang['Navigation_Section_A'] = 'MAIN MENU';
 $pia_lang['Navigation_Section_B'] = 'EVENTS & JOURNAL';
 $pia_lang['Navigation_Section_C'] = 'SETTINGS & HELP';
-
-//////////////////////////////////////////////////////////////////
 // Device Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Device_Title'] = 'Devices';
 $pia_lang['Device_Shortcut_AllDevices'] = 'All Devices';
 $pia_lang['Device_Shortcut_Connected'] = 'Connected';
@@ -126,11 +113,8 @@ $pia_lang['Device_del_table_filtergroup'] = 'Filter Group';
 $pia_lang['Device_del_table_filtergroup_help'] = 'Can group multiple filters';
 $pia_lang['Device_del_table_filterindex'] = 'Index';
 $pia_lang['Device_del_table_filtercol'] = 'Disabled Columns';
-
-//////////////////////////////////////////////////////////////////
 // Presence Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Presence_Title'] = 'Presence by Device';
 $pia_lang['Presence_Shortcut_AllDevices'] = 'All Devices';
 $pia_lang['Presence_Shortcut_Connected'] = 'Connected';
@@ -139,7 +123,6 @@ $pia_lang['Presence_Shortcut_NewDevices'] = 'New Devices';
 $pia_lang['Presence_Shortcut_DownAlerts'] = 'Down Alerts';
 $pia_lang['Presence_Shortcut_Archived'] = 'Archived';
 $pia_lang['Presence_Shortcut_Devices'] = 'Devices';
-
 // Localizationfiles under pialert/front/lib/AdminLTE/bower_components/fullcalendar/dist/locale
 $pia_lang['Presence_CallHead_Devices'] = 'Devices';
 $pia_lang['Presence_CalHead_lang'] = 'en-us';
@@ -148,11 +131,8 @@ $pia_lang['Presence_CalHead_quarter'] = 'quarter';
 $pia_lang['Presence_CalHead_month'] = 'month';
 $pia_lang['Presence_CalHead_week'] = 'week';
 $pia_lang['Presence_CalHead_day'] = 'day';
-
-//////////////////////////////////////////////////////////////////
 // Events Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Events_Title'] = 'Events';
 $pia_lang['Events_Periodselect_today'] = 'Today';
 $pia_lang['Events_Periodselect_LastWeek'] = 'Last Week';
@@ -184,11 +164,8 @@ $pia_lang['Events_Tablelenght_all'] = 'All';
 $pia_lang['Events_Table_info'] = 'Showing _START_ to _END_ of _TOTAL_ entries';
 $pia_lang['Events_Table_nav_next'] = 'Next';
 $pia_lang['Events_Table_nav_prev'] = 'Previous';
-
-//////////////////////////////////////////////////////////////////
 // WebServices Events Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['WebServices_Events_Title'] = 'Web Services - Events';
 $pia_lang['WebServices_Events_Shortcut_All'] = 'All Events';
 $pia_lang['WebServices_Events_Shortcut_HTTP2xx'] = 'HTTP Code 2xx';
@@ -201,11 +178,8 @@ $pia_lang['WebServices_Events_TableHead_TargetIP'] = 'Dest. IP';
 $pia_lang['WebServices_Events_TableHead_ScanTime'] = 'Scan Time';
 $pia_lang['WebServices_Events_TableHead_StatusCode'] = 'Status Code';
 $pia_lang['WebServices_Events_TableHead_ResponsTime'] = 'Response Time';
-
-//////////////////////////////////////////////////////////////////
 // Device Details Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['DevDetail_Periodselect_today'] = 'Today';
 $pia_lang['DevDetail_Periodselect_LastWeek'] = 'Last Week';
 $pia_lang['DevDetail_Periodselect_LastMonth'] = 'Last Month';
@@ -279,11 +253,8 @@ $pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'The automatic speed test starts at ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' and ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' o&apos;clock';
-
-//////////////////////////////////////////////////////////////////
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['WebServices_Title'] = 'Web Services';
 $pia_lang['WebServices_unknown_Device'] = 'Unknown Device';
 $pia_lang['WebServices_tablehead_TargetIP'] = 'Dest. IP';
@@ -321,22 +292,16 @@ $pia_lang['WebServices_Stats_Location'] = 'Location';
 $pia_lang['WebServices_Stats_IP'] = 'Current IP';
 $pia_lang['WebServices_Stats_IPLocation'] = 'Country Mapping';
 $pia_lang['WebServices_Stats_comment_a'] = '(Calculated from all scans of this service.)';
-
-//////////////////////////////////////////////////////////////////
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['BackWebServices_UpdServ'] = 'The web service was updated';
 $pia_lang['BackWebServices_UpdServError'] = 'The web service was not updated';
 $pia_lang['BackWebServices_InsServ'] = 'The web service was saved';
 $pia_lang['BackWebServices_InsServError'] = 'The web service was not saved';
 $pia_lang['BackWebServices_DelServ'] = 'The web service was deleted from the database';
 $pia_lang['BackWebServices_DelServError'] = 'The web service could not be deleted, or could not be deleted completely';
-
-//////////////////////////////////////////////////////////////////
 // ICMP Monitoring Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['ICMPMonitor_Title'] = 'ICMP Monitor';
 $pia_lang['ICMPMonitor_headline_IP'] = 'Monitor New IP Address';
 $pia_lang['ICMPMonitor_label_IP'] = 'Host IP';
@@ -353,11 +318,8 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'The ICMP host could not be updated';
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Online';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Down';
 $pia_lang['ICMPMonitor_Availability'] = 'Availability';
-
-//////////////////////////////////////////////////////////////////
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Maintenance_Title'] = 'Settings and Maintenance';
 $pia_lang['Maintenance_database_path'] = 'Database-Path';
 $pia_lang['Maintenance_database_size'] = 'Database-Size';
@@ -515,11 +477,8 @@ $pia_lang['FavIcon_mode_glass'] = 'glass';
 $pia_lang['FavIcon_mode_flat'] = 'flat';
 $pia_lang['FavIcon_local'] = 'local';
 $pia_lang['FavIcon_remote'] = 'remote';
-
-//////////////////////////////////////////////////////////////////
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['BackDevices_Arpscan_disabled'] = 'Arp-Scan Disabled';
 $pia_lang['BackDevices_Arpscan_enabled'] = 'Arp-Scan Enabled';
 $pia_lang['BackDevices_setapikey'] = 'API-Key set';
@@ -588,11 +547,8 @@ $pia_lang['BackDevices_table_filter_error_d'] = 'Not all required fields were fi
 $pia_lang['BackDevices_table_filter_error_e'] = 'Error creating the filter table';
 $pia_lang['BackDevices_Upd_Filter'] = 'Filter successfully updated.';
 $pia_lang['BackDevices_Upd_FilterError'] = 'Error updating the filter.';
-
-//////////////////////////////////////////////////////////////////
 // Network Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Network_Title'] = 'Network Overview';
 $pia_lang['Network_ManageDevices'] = 'Manage Devices';
 $pia_lang['Network_ManageAdd_Name'] = 'Device Name';
@@ -628,21 +584,15 @@ $pia_lang['Network_Unmanaged_Devices_Connected'] = 'Connected to';
 $pia_lang['Network_Unmanaged_Devices_Connected_text'] = 'Select Device';
 $pia_lang['Network_Unmanaged_Devices_Port'] = 'On Port';
 $pia_lang['Network_Unmanaged_Devices_Port_text'] = 'On Port number on the selected device';
-
-//////////////////////////////////////////////////////////////////
 // Reports Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Reports_Title'] = 'Notifications';
 $pia_lang['Reports_delete_all'] = 'Delete all notifications';
 $pia_lang['Reports_delete_all_noti'] = 'Delete all notifications';
 $pia_lang['Reports_delete_all_noti_text'] = 'All notifications are deleted. The counter is being reset with this.';
 $pia_lang['Reports_Rogue_hint'] = 'A new message about an unknown DHCP server will only be displayed after this message has been deleted.';
-
-//////////////////////////////////////////////////////////////////
 // UpdateCheck
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['Maintenance_Tools_Updatecheck'] = 'Check for Updates';
 $pia_lang['Maintenance_Github_package_a'] = 'Latest Version: ';
 $pia_lang['Maintenance_Github_package_b'] = 'o\'clock';
@@ -662,11 +612,8 @@ $pia_lang['GeoLiteDB_button_upd'] = 'Update GeoLite2 Database';
 $pia_lang['GeoLiteDB_credits'] = 'The database is downloaded from <a href="https://github.com/P3TERX/GeoLite.mmdb" target="_blank">github.com/P3TERX/GeoLite.mmdb</a>. The GeoLite2 database is a product of <a href="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data" target="_blank">MaxMind</a>.';
 $pia_lang['GeoLiteDB_Installnotes'] = 'You can install the database via the ' . $pia_lang['WebServices_Tab_Graph'] . ' tab on the details page of any web service.';
 $pia_lang['GeoLiteDB_absent'] = 'DB not installed';
-
-//////////////////////////////////////////////////////////////////
 // System Info Page
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['SysInfo_storage_note'] = 'It is possible that the memory usage cannot be determined for all drives listed above. This depends on the user under which the drives are mounted.';
 $pia_lang['SysInfo_Shutdown'] = 'Shutting down Pi.Alert';
 $pia_lang['SysInfo_Reboot'] = 'Restarting Pi.Alert';
@@ -675,11 +622,8 @@ $pia_lang['SysInfo_Shutdown_noti_text'] = 'Not only Pi.Alert will be shut down, 
 $pia_lang['SysInfo_Reboot_noti_head'] = 'Restarting Pi.Alert';
 $pia_lang['SysInfo_Reboot_noti_text'] = 'Not only Pi.Alert will be restarted, but also the host on which it is installed';
 $pia_lang['SysInfo_Gen_execute_command'] = 'Executing the command';
-
-//////////////////////////////////////////////////////////////////
 // Speedtest
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['ookla_postinstall_note'] = 'Before you can use the Ookla Speedtest client, you need to execute the command "sudo ./speedtest" once in the directory "$HOME/pialert/back/speedtest/." The Speedtest button will be enabled after reloading the page, but it will only work after accepting the Ookla license.';
 $pia_lang['ookla_devdetails_tab_title'] = 'Speedtest History';
 $pia_lang['ookla_devdetails_required'] = 'The history of Speedtest results is currently supported only with the official Speedtest by Ookla (<a href="https://www.speedtest.net/apps/cli" target="blank">speedtest.net</a>).';
@@ -690,20 +634,18 @@ $pia_lang['ookla_devdetails_table_server'] = 'Server';
 $pia_lang['ookla_devdetails_table_ping'] = 'Ping';
 $pia_lang['ookla_devdetails_table_down'] = 'Download';
 $pia_lang['ookla_devdetails_table_up'] = 'Upload';
-
-//////////////////////////////////////////////////////////////////
 // Manuel Nmap
 //////////////////////////////////////////////////////////////////
-
 $pia_lang['nmap_no_scan_results'] = 'No open ports discovered';
 $pia_lang['nmap_devdetails_scanmode'] = 'Mode';
 $pia_lang['nmap_devdetails_download'] = 'Save All Scans as CVS';
-
+$pia_lang['nmap_devdetails_countmsg_a'] = 'There are <span class="text-aqua">';
+$pia_lang['nmap_devdetails_countmsg_b'] = '</span> scan results in the database';
 // =============================================================================================================
-
+// Journal
+// =============================================================================================================
 $pia_journ_lang['Journal_TableHead_Class'] = 'Method';
 $pia_journ_lang['Journal_TableHead_Trigger'] = 'Trigger';
-
 $pia_journ_lang['Title'] = 'Application Journal';
 $pia_journ_lang['File_hash'] = 'pialert.conf - Hash';
 // Frontend
@@ -797,6 +739,9 @@ $pia_journ_lang['LogStr_0066'] = 'Error: Invalid update information';
 $pia_journ_lang['LogStr_0067'] = 'No newer version found';
 $pia_journ_lang['LogStr_0101'] = 'Database cleaned and optimized';
 $pia_journ_lang['LogStr_0210'] = 'Performed individual nmap scan';
+$pia_journ_lang['LogStr_0221'] = 'Nmap results exported as CSV';
+$pia_journ_lang['LogStr_0222'] = 'Nmap results not exported due to an error (Invalid IP)';
+$pia_journ_lang['LogStr_0223'] = 'Nmap results not exported due to an error (Incorrect parameter)';
 $pia_journ_lang['LogStr_0251'] = 'Wake-on-lan executed';
 $pia_journ_lang['LogStr_0255'] = 'Online Speedtest executed';
 $pia_journ_lang['LogStr_0301'] = $pia_lang['BackDevices_webservicemon_enabled'];

@@ -195,7 +195,7 @@ if ($_REQUEST['mode'] != "view") {
 
     $query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
 	$scancounter = $db->querySingle($query);
-	echo 'Es befinden sich <span class="text-aqua">' . $scancounter . '</span> Scan-Ergebnisse in der Datenbank';
+	echo $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'];
 
 } elseif ($_REQUEST['mode'] == "view") {
 // Main action (View Mode)-------------------------------------------------------
@@ -217,7 +217,7 @@ if ($_REQUEST['mode'] != "view") {
 						<div class="col-xs-12 text-center" style="margin-top:30px">Es befinden sich <span class="text-aqua">' . $scancounter . '</span> Scan-Ergebnisse in der Datenbank</div>
 				  	</div>';
 			echo '	<div class="row">
-						<div class="col-xs-12 text-center" style="margin-top:20px">
+						<div class="col-xs-12 text-center" style="margin-top:20px;margin-bottom:20px">
 							<a role="button" class="btn btn-primary pa-btn" href="./download/hostnmapresultscvs.php?host='.$PIA_HOST_IP.'">'.$pia_lang['nmap_devdetails_download'].'</a>
 						</div>
 				  	</div>

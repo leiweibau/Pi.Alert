@@ -64,16 +64,16 @@ if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 		echo $CSVFILE;
 
 		// Logging
-		//pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0210', '', $PIA_SCAN_MODE . ' Scan: ' . $PIA_HOST_IP);
+		pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0221', '', '');
 	} else {
 		echo "Unknown IP";
 		// Logging
-		//pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0210', '', $PIA_SCAN_MODE . ' Scan: ' . $PIA_HOST_IP);
+		pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0222', '', '');
 		exit;}
 } else {
 	echo "Wrong parameter";
 	// Logging
-	//pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0210', '', $PIA_SCAN_MODE . ' Scan: ' . $PIA_HOST_IP);
+	pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0223', '', '');
 	exit;
 }
 
