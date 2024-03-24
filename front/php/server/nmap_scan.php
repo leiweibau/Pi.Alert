@@ -83,13 +83,16 @@ function create_scanoutput_box($date, $type, $target, $box_type) {
 
 	if ($box_type == 'previous') {
 		$headline = $pia_lang['DevDetail_Tools_nmap_head_prev'];
-		$text_color = '';}
+		$text_color = '';
+		$reloadlink = '<a class="nmappagerelaod" href="#" onclick="showmanualnmapscan(\''.$target.'\')"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
 	elseif ($box_type == 'latest') {
 		$headline = $pia_lang['DevDetail_Tools_nmap_head_latest'];
-		$text_color = '';}
+		$text_color = '';
+		$reloadlink = '';}
 	elseif ($box_type == 'current') {
 		$headline = $pia_lang['DevDetail_Tools_nmap_head_cur'];
-		$text_color = "text-danger";}
+		$text_color = "text-danger";
+		$reloadlink = '<a class="nmappagerelaod" href="#" onclick="showmanualnmapscan(\''.$target.'\')"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
 
 	if ($type == 'fast') {
 		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonFast'];}
@@ -100,7 +103,7 @@ function create_scanoutput_box($date, $type, $target, $box_type) {
 
 	echo '<div class="col-md-6" style="margin-bottom:20px">
 			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-12"><p class="'.$text_color.'" style="font-size:18px">'.$headline.'</p></div>
+			   <div class="col-xs-12"><span class="'.$text_color.'" style="font-size:18px">'.$headline.'</span> '.$reloadlink.'</div>
 			</div>
 			<div class="row" style="padding-bottom:5px;">
 			   <div class="col-xs-4"><b>'.$pia_lang['ookla_devdetails_table_time'].':</b></div>
@@ -192,7 +195,7 @@ if ($_REQUEST['mode'] != "view") {
 
     $query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
 	$scancounter = $db->querySingle($query);
-	echo 'Es befinden sich ' . $scancounter . ' Scan-Ergebnisse in der Datenbank';
+	echo 'Es befinden sich <span class="text-aqua">' . $scancounter . '</span> Scan-Ergebnisse in der Datenbank';
 
 } elseif ($_REQUEST['mode'] == "view") {
 // Main action (View Mode)-------------------------------------------------------
@@ -211,7 +214,7 @@ if ($_REQUEST['mode'] != "view") {
 
 			echo '<div class="col-md-6">
 					<div class="row">
-						<div class="col-xs-12 text-center" style="margin-top:30px">Es befinden sich ' . $scancounter . ' Scan-Ergebnisse in der Datenbank</div>
+						<div class="col-xs-12 text-center" style="margin-top:30px">Es befinden sich <span class="text-aqua">' . $scancounter . '</span> Scan-Ergebnisse in der Datenbank</div>
 				  	</div>';
 			echo '	<div class="row">
 						<div class="col-xs-12 text-center" style="margin-top:20px">
