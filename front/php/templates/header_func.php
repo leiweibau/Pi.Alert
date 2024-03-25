@@ -1,12 +1,12 @@
 <?php
-// Delete Single WebGUI Reports
+// Header - Delete Single WebGUI Reports
 function useRegex($input) {
 	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
 	return preg_match($regex, $input);
 }
+// Header - Delete Single WebGUI Reports
 function delete_single_webgui_report() {
 	global $db;
-
 	if (isset($_REQUEST['remove_report'])) {
 		$prep_remove_report = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['remove_report']) . '.txt';
 		if (useRegex($prep_remove_report) == TRUE) {
@@ -18,7 +18,7 @@ function delete_single_webgui_report() {
 		}
 	}
 }
-// Pause Arp Scan Section
+// Maintenance Page - Pause Arp Scan Section
 function arpscanstatus() {
 	global $pia_lang;
 	if (!file_exists('../db/setting_stoppialert')) {
@@ -37,7 +37,7 @@ function arpscanstatus() {
 		$_SESSION['arpscan_sidebarstate_light'] = 'red fa-gradient-red';
 	}
 }
-// Systeminfo in Sidebar
+// Sidebar - Systeminfo
 function getTemperature() {
 	if (file_exists('/sys/class/thermal/thermal_zone0/temp')) {
 		$output = rtrim(file_get_contents('/sys/class/thermal/thermal_zone0/temp'));
@@ -46,7 +46,6 @@ function getTemperature() {
 	} else {
 		$output = '';
 	}
-	// Test if we succeeded in getting the temperature
 	if (is_numeric($output)) {
 		// $output could be either 4-5 digits or 2-3, and we only divide by 1000 if it's 4-5 (ex. 39007 vs 39)
 		$celsius = intval($output);
@@ -64,7 +63,7 @@ function getTemperature() {
 	}
 	return array($celsius, $limit);
 }
-
+// Sidebar - Systeminfo
 function getMemUsage() {
 	$data = explode("\n", file_get_contents('/proc/meminfo'));
 	$meminfo = array();
@@ -83,21 +82,13 @@ function getMemUsage() {
 	}
 	return $memusage;
 }
-
+// Sidebar - Systeminfo
 function format_MemUsage($memory_usage) {
 	echo '<span><i class="fa fa-w fa-circle ';
-	if ($memory_usage > 0.75 || $memory_usage < 0.0) {
-		echo 'text-red fa-gradient-red';
-	} else {
-		echo 'text-green-light fa-gradient-green';
-	}
-	if ($memory_usage > 0.0) {
-		echo '"></i> Memory usage:&nbsp;&nbsp;' . sprintf('%.1f', 100.0 * $memory_usage) . '&thinsp;%</span>';
-	} else {
-		echo '"></i> Memory usage:&nbsp;&nbsp; N/A</span>';
-	}
+	if ($memory_usage > 0.75 || $memory_usage < 0.0) {echo 'text-red fa-gradient-red';} else {echo 'text-green-light fa-gradient-green';}
+	if ($memory_usage > 0.0) {echo '"></i> Memory usage:&nbsp;&nbsp;' . sprintf('%.1f', 100.0 * $memory_usage) . '&thinsp;%</span>';} else {echo '"></i> Memory usage:&nbsp;&nbsp; N/A</span>';}
 }
-
+// Sidebar - Systeminfo
 function format_sysloadavg($loaddata) {
 	$nproc = shell_exec('nproc');
 	if (!is_numeric($nproc)) {
@@ -106,27 +97,21 @@ function format_sysloadavg($loaddata) {
 		$nproc = count($matches[0]);
 	}
 	echo '<span title="Detected ' . $nproc . ' cores"><i class="fa fa-w fa-circle ';
-	if ($loaddata[0] > $nproc) {
-		echo 'text-red fa-gradient-red';
-	} else {
-		echo 'text-green-light fa-gradient-green';
-	}
+	if ($loaddata[0] > $nproc) {echo 'text-red fa-gradient-red';} else {echo 'text-green-light fa-gradient-green';}
 	echo '"></i> Load:&nbsp;&nbsp;' . round($loaddata[0], 2) . '&nbsp;&nbsp;' . round($loaddata[1], 2) . '&nbsp;&nbsp;' . round($loaddata[2], 2) . '</span>';
 }
-
+// Sidebar - Systeminfo
 function format_temperature($celsius, $temperaturelimit) {
 	if ($celsius >= -273.15) {
 		// Only show temp info if any data is available -->
 		$tempcolor = 'text-vivid-blue';
-		if (isset($temperaturelimit) && $celsius > $temperaturelimit) {
-			$tempcolor = 'text-red fa-gradient-red';
-		}
+		if (isset($temperaturelimit) && $celsius > $temperaturelimit) {$tempcolor = 'text-red fa-gradient-red';}
 		echo '<span id="temperature"><i class="fa fa-w fa-fire ' . $tempcolor . '" style="width: 1em !important"></i> ';
 		echo 'Temp:&nbsp;<span id="rawtemp" hidden>' . $celsius . '</span>';
 		echo '<span id="tempdisplay"></span></span>';
 	}
 }
-// Web Services Menu Items
+// Sidebar Menu - Web Services Menu Items
 function toggle_webservices_menu($section) {
 	global $pia_lang;
 	if (($_SESSION['Scan_WebServices'] == True) && ($section == "Main")) {
@@ -145,7 +130,7 @@ function toggle_webservices_menu($section) {
               </li>';
 	}
 }
-// ICPMScan Menu Items
+// Sidebar Menu - ICPMScan Menu Items
 function toggle_icmpscan_menu($section) {
 	global $pia_lang;
 	if (($_SESSION['ICMPScan'] == True) && ($section == "Main")) {
@@ -175,7 +160,6 @@ if (get_config_parmeter('ICMPSCAN_ACTIVE') == 1) {$_SESSION['ICMPScan'] = True;}
 if (get_config_parmeter('SCAN_WEBSERVICES') == 1) {$_SESSION['Scan_WebServices'] = True;} else { $_SESSION['Scan_WebServices'] = False;}
 if (get_config_parmeter('ARPSCAN_ACTIVE') == 1) {$_SESSION['Scan_MainScan'] = True;} else { $_SESSION['Scan_MainScan'] = False;}
 if (get_config_parmeter('AUTO_UPDATE_CHECK') == 1) {$_SESSION['Auto_Update_Check'] = True;} else { $_SESSION['Auto_Update_Check'] = False;}
-
 // State for Toggle Buttons
 function convert_state($state, $revert) {
 	global $pia_lang;
@@ -185,32 +169,21 @@ function convert_state($state, $revert) {
 		if ($state != 1) {return $pia_lang['Gen_off'];} else {return $pia_lang['Gen_on'];}
 	}
 }
-
-// Back button for details pages
+// Top Navbar - Back button for details pages
 function insert_back_button() {
 	$pagename = basename($_SERVER['PHP_SELF']);
-	if ($pagename == 'serviceDetails.php') {
-		$backto = 'services.php';
-	}
-	if ($pagename == 'deviceDetails.php') {
-		$backto = 'devices.php';
-	}
-	if ($pagename == 'icmpmonitorDetails.php') {
-		$backto = 'icmpmonitor.php';
-	}
-	if (isset($backto)) {
-		echo '<a id="navbar-back-button" href="./' . $backto . '" role="button" style="">
-        <i class="fa fa-chevron-left"></i>
-      </a>';
-	}
+	if ($pagename == 'serviceDetails.php') {$backto = 'services.php';}
+	if ($pagename == 'deviceDetails.php') {$backto = 'devices.php';}
+	if ($pagename == 'icmpmonitorDetails.php') {$backto = 'icmpmonitor.php';}
+	if (isset($backto)) {echo '<a id="navbar-back-button" href="./' . $backto . '" role="button"><i class="fa fa-chevron-left"></i></a>';}
 }
-// Adjust Logo Color
+// Theme Fix - Adjust Logo Color
 function set_userimage($skinname) {
 	if ($skinname == 'skin-black-light' || $skinname == 'skin-black'|| $skinname == 'leiweibau_light') {
 		$_SESSION['UserLogo'] = 'pialertLogoBlack';
 	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
 }
-// Get DeviceList Filters and create session array to reduce sqlite3 queries
+// Sidebar Menu - Get DeviceList Filters and create session array to reduce sqlite3 queries
 function get_devices_filter_list() {
 	$database = '../db/pialert.db';
 	$db = new SQLite3($database);
@@ -227,11 +200,10 @@ function get_devices_filter_list() {
 	$db->close();
 	// Unset Var
 	unset($row);
-
 	show_group_filters();
 	show_groupless_filters();
 }
-// Show filter editor from array
+// Sidebar Menu - Show filter editor from array
 function show_filter_editor() {
 	global $pia_lang;
 	$filter_table = $_SESSION['Filter_Table'];
@@ -256,10 +228,9 @@ function show_filter_editor() {
     	echo '</div>';
     }
 }
-// Show filter editor from array
+// Sidebar Menu - Show filter editor from array
 function create_filter_editor_js() {
 	global $pia_lang;
-
 	$filter_table = $_SESSION['Filter_Table'];
 	foreach ($filter_table as $row) {
 		echo '
@@ -277,7 +248,7 @@ function SaveFilterID_' . $row['id'] . '() {
 }';
     }
 }
-// Show groupless filters in Sidebar from session array
+// Sidebar Menu - Show groupless filters in Sidebar from session array
 function show_groupless_filters() {
 	$filter_table = $_SESSION['Filter_Table'];
 	foreach ($filter_table as $row) {
@@ -287,7 +258,7 @@ function show_groupless_filters() {
     	}
     }
 }
-// Show grouped filters in Sidebar from session array
+// Sidebar Menu - Show grouped filters in Sidebar from session array
 function show_group_filters() {
 	if (isset($_REQUEST['g'])) {$active_group = $_REQUEST['g'];}
 	$filter_table = $_SESSION['Filter_Table'];
@@ -304,7 +275,6 @@ function show_group_filters() {
 	    			</span>
 	  			</a>
 	  			<ul class="treeview-menu" style="display: '.$group_state['list'].';">';
-
 		foreach ($filter_table as $row) {
 	    	if ($row['reserve_c'] == $temp_filter_group) {
 	    		if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle"; } else {$filterlist_icon = "fa-regular fa-circle"; }
@@ -314,7 +284,7 @@ function show_group_filters() {
 	    echo '</ul></li>';
 	}
 }
-// Get list of filter groups from session array
+// Sidebar Menu - Get list of filter groups from session array
 function get_filter_group_list() {
 	$filter_table = $_SESSION['Filter_Table'];
 	$filter_groups = array();
@@ -328,11 +298,106 @@ function get_filter_group_list() {
     $filter_groups = array_values($filter_groups);
     return $filter_groups;
 }
-
-// Arp Histroy Graph
+// Maintenance Page - Statusbox
+function format_notifications($source_array) {
+	$format_array_true = array();
+	$format_array_false = array();
+	$text_reference = array('WEBGUI', 'TELEGRAM', 'MAIL', 'PUSHSAFER', 'PUSHOVER', 'NTFY');
+	$text_format = array('WebGUI', 'Telegram', 'Mail', 'Pushsafer', 'Pushover', 'NTFY');
+	for ($x = 0; $x < sizeof($source_array); $x++) {
+		$temp = explode("=", $source_array[$x]);
+		$temp[0] = trim($temp[0]);
+		$temp[1] = trim($temp[1]);
+		if (strtolower($temp[1]) == "true") {
+			$temp[0] = str_replace('REPORT_', '', $temp[0]);
+			$temp[0] = str_replace('_WEBMON', '', $temp[0]);
+			$key = array_search($temp[0], $text_reference);
+			array_push($format_array_true, '<span style="color: green;">' . $text_format[$key] . '</span>');
+		}
+		if (strtolower($temp[1]) == "false") {
+			$temp[0] = str_replace('REPORT_', '', $temp[0]);
+			$temp[0] = str_replace('_WEBMON', '', $temp[0]);
+			$key = array_search($temp[0], $text_reference);
+			array_push($format_array_false, '<span style="color: red;">' . $text_format[$key] . '</span>');
+		}
+	}
+	natsort($format_array_true);
+	natsort($format_array_false);
+	$output = implode(", ", $format_array_true) . ', ' . implode(", ", $format_array_false);
+	echo $output;
+}
+// Maintenance Page - Aprscan read Timer
+function read_arpscan_timer() {
+	$file = '../db/setting_stoppialert';
+	if (file_exists($file)) {
+		$timer_arpscan = file_get_contents($file, true);
+		if ($timer_arpscan == 10 || $timer_arpscan == 15 || $timer_arpscan == 30) {
+			$timer_output = ' (' . $timer_arpscan . 'min)';
+		}
+		if ($timer_arpscan == 60 || $timer_arpscan == 120 || $timer_arpscan == 720 || $timer_arpscan == 1440) {
+			$timer_arpscan = $timer_arpscan / 60;
+			$timer_output = ' (' . $timer_arpscan . 'h)';
+		}
+		if ($timer_arpscan == 1051200) {
+			$timer_output = ' (very long)';
+		}
+	}
+	$timer_output = '<span style="color:red;">' . $timer_output . '</span>';
+	echo $timer_output;
+}
+// Maintenance Page - Get Device List Columns
+function read_DevListCol() {
+	$file = '../db/setting_devicelist';
+	if (file_exists($file)) {
+		$get = file_get_contents($file, true);
+		$output_array = json_decode($get, true);
+	} else {
+		$output_array = array('ConnectionType' => 0, 'Favorites' => 1, 'Group' => 1, 'Owner' => 1, 'Type' => 1, 'FirstSession' => 1, 'LastSession' => 1, 'LastIP' => 1, 'MACType' => 1, 'MACAddress' => 0, 'Location' => 0, 'WakeOnLAN' => 0);
+	}
+	return $output_array;
+}
+// Maintenance Page - Set preset checkboxes for Columnconfig
+function set_column_checkboxes($table_config) {
+	if ($table_config['ConnectionType'] == 1) {$col_checkbox['ConnectionType'] = "checked";}
+	if ($table_config['Favorites'] == 1) {$col_checkbox['Favorites'] = "checked";}
+	if ($table_config['Group'] == 1) {$col_checkbox['Group'] = "checked";}
+	if ($table_config['Owner'] == 1) {$col_checkbox['Owner'] = "checked";}
+	if ($table_config['Type'] == 1) {$col_checkbox['Type'] = "checked";}
+	if ($table_config['FirstSession'] == 1) {$col_checkbox['FirstSession'] = "checked";}
+	if ($table_config['LastSession'] == 1) {$col_checkbox['LastSession'] = "checked";}
+	if ($table_config['LastIP'] == 1) {$col_checkbox['LastIP'] = "checked";}
+	if ($table_config['MACType'] == 1) {$col_checkbox['MACType'] = "checked";}
+	if ($table_config['MACAddress'] == 1) {$col_checkbox['MACAddress'] = "checked";}
+	if ($table_config['Location'] == 1) {$col_checkbox['Location'] = "checked";}
+	if ($table_config['WakeOnLAN'] == 1) {$col_checkbox['WakeOnLAN'] = "checked";}
+	return $col_checkbox;
+}
+// Maintenance Page - Top Modal Block
+function print_logviewer_modal_head($id, $title) {
+	echo '<div class="modal fade" id="modal-logviewer-' . $id . '">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title">Viewer: ' . $title . '</h4>
+                </div>
+                <div class="modal-body main_logviwer_text_layout">
+                    <div class="main_logviwer_log" style="max-height: 70vh;" id="modal_'.$id.'_content">';
+}
+// Maintenance Page - Bottom Modal Block
+function print_logviewer_modal_foot() {
+	global $pia_lang;
+	echo '                <br></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">' . $pia_lang['Gen_Close'] . '</button></div>
+            </div>
+        </div>
+    </div>';
+}
+// Devicelist, ICMP Monitor - Enable Arp Histroy Graph
 if (file_exists('../db/setting_noonlinehistorygraph')) {$ENABLED_HISTOY_GRAPH = False;} else { $ENABLED_HISTOY_GRAPH = True;}
-
-// Prüfe ob es ein Theme gibt, wenn ja, Darkmode soll über css ausgeblendet werden
+// Theme - If Theme is used, hide Darkmode Button
 $themefile = '../db/setting_theme*';
 $theme_result = glob($themefile);
 // Check if any matching files were found
@@ -363,13 +428,12 @@ if (!empty($theme_result)) {
 		set_userimage("skin-blue");
 	}
 }
-
-// Language
+// UI - Language
 foreach (glob("../db/setting_language*") as $filename) {
 	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
 }
 if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
-// FavIcon
+// UI - FavIcon
 if (file_exists('../db/setting_favicon')) {
 	$FRONTEND_FAVICON = file('../db/setting_favicon', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)[0];
 } else {

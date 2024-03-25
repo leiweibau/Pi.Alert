@@ -54,34 +54,6 @@ $CONFIG_FILE_KEY_LINE = file($CONFIG_FILE_SOURCE);
 $CONFIG_FILE_FILTER_VALUE_ARP = array_values(preg_grep("/(REPORT_MAIL|REPORT_NTFY|REPORT_WEBGUI|REPORT_PUSHSAFER|REPORT_PUSHOVER|REPORT_TELEGRAM)(?!_)/i", $CONFIG_FILE_KEY_LINE));
 $CONFIG_FILE_FILTER_VALUE_WEB = array_values(preg_grep("/(REPORT_MAIL_WEBMON|REPORT_NTFY_WEBMON|REPORT_WEBGUI_WEBMON|REPORT_PUSHSAFER_WEBMON|REPORT_PUSHOVER_WEBMON |REPORT_TELEGRAM_WEBMON)/i", $CONFIG_FILE_KEY_LINE));
 
-function format_notifications($source_array) {
-	$format_array_true = array();
-	$format_array_false = array();
-	$text_reference = array('WEBGUI', 'TELEGRAM', 'MAIL', 'PUSHSAFER', 'PUSHOVER', 'NTFY');
-	$text_format = array('WebGUI', 'Telegram', 'Mail', 'Pushsafer', 'Pushover', 'NTFY');
-	for ($x = 0; $x < sizeof($source_array); $x++) {
-		$temp = explode("=", $source_array[$x]);
-		$temp[0] = trim($temp[0]);
-		$temp[1] = trim($temp[1]);
-		if (strtolower($temp[1]) == "true") {
-			$temp[0] = str_replace('REPORT_', '', $temp[0]);
-			$temp[0] = str_replace('_WEBMON', '', $temp[0]);
-			$key = array_search($temp[0], $text_reference);
-			array_push($format_array_true, '<span style="color: green;">' . $text_format[$key] . '</span>');
-		}
-		if (strtolower($temp[1]) == "false") {
-			$temp[0] = str_replace('REPORT_', '', $temp[0]);
-			$temp[0] = str_replace('_WEBMON', '', $temp[0]);
-			$key = array_search($temp[0], $text_reference);
-			array_push($format_array_false, '<span style="color: red;">' . $text_format[$key] . '</span>');
-		}
-	}
-	natsort($format_array_true);
-	natsort($format_array_false);
-	$output = implode(", ", $format_array_true) . ', ' . implode(", ", $format_array_false);
-	echo $output;
-}
-
 // Size and last mod of DB ----------------------------------------------------
 $DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
 $DB_SIZE_DATA = number_format((filesize($DB_SOURCE) / 1000000), 2, ",", ".") . ' MB';
@@ -119,87 +91,12 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
 
-// Aprscan read Timer ---------------------------------------------------------
-function read_arpscan_timer() {
-	$file = '../db/setting_stoppialert';
-	if (file_exists($file)) {
-		$timer_arpscan = file_get_contents($file, true);
-		if ($timer_arpscan == 10 || $timer_arpscan == 15 || $timer_arpscan == 30) {
-			$timer_output = ' (' . $timer_arpscan . 'min)';
-		}
-		if ($timer_arpscan == 60 || $timer_arpscan == 120 || $timer_arpscan == 720 || $timer_arpscan == 1440) {
-			$timer_arpscan = $timer_arpscan / 60;
-			$timer_output = ' (' . $timer_arpscan . 'h)';
-		}
-		if ($timer_arpscan == 1051200) {
-			$timer_output = ' (very long)';
-		}
-	}
-	$timer_output = '<span style="color:red;">' . $timer_output . '</span>';
-	echo $timer_output;
-}
-
 // Buffer active --------------------------------------------------------------
 	$file = '../db/pialert_journal_buffer';
 	if (file_exists($file)) {
 		$buffer_indicator = '(<span style="color:red;">*</span>)';
 	} else {$buffer_indicator = '';}
 
-// Get Device List Columns ----------------------------------------------------
-function read_DevListCol() {
-	$file = '../db/setting_devicelist';
-	if (file_exists($file)) {
-		$get = file_get_contents($file, true);
-		$output_array = json_decode($get, true);
-	} else {
-		$output_array = array('ConnectionType' => 0, 'Favorites' => 1, 'Group' => 1, 'Owner' => 1, 'Type' => 1, 'FirstSession' => 1, 'LastSession' => 1, 'LastIP' => 1, 'MACType' => 1, 'MACAddress' => 0, 'Location' => 0, 'WakeOnLAN' => 0);
-	}
-	return $output_array;
-}
-
-// Set preset checkboxes for Columnconfig -------------------------------------
-function set_column_checkboxes($table_config) {
-	if ($table_config['ConnectionType'] == 1) {$col_checkbox['ConnectionType'] = "checked";}
-	if ($table_config['Favorites'] == 1) {$col_checkbox['Favorites'] = "checked";}
-	if ($table_config['Group'] == 1) {$col_checkbox['Group'] = "checked";}
-	if ($table_config['Owner'] == 1) {$col_checkbox['Owner'] = "checked";}
-	if ($table_config['Type'] == 1) {$col_checkbox['Type'] = "checked";}
-	if ($table_config['FirstSession'] == 1) {$col_checkbox['FirstSession'] = "checked";}
-	if ($table_config['LastSession'] == 1) {$col_checkbox['LastSession'] = "checked";}
-	if ($table_config['LastIP'] == 1) {$col_checkbox['LastIP'] = "checked";}
-	if ($table_config['MACType'] == 1) {$col_checkbox['MACType'] = "checked";}
-	if ($table_config['MACAddress'] == 1) {$col_checkbox['MACAddress'] = "checked";}
-	if ($table_config['Location'] == 1) {$col_checkbox['Location'] = "checked";}
-	if ($table_config['WakeOnLAN'] == 1) {$col_checkbox['WakeOnLAN'] = "checked";}
-	return $col_checkbox;
-}
-
-// Top Modal Block ------------------------------------------------------------
-function print_logviewer_modal_head($id, $title) {
-	echo '<div class="modal fade" id="modal-logviewer-' . $id . '">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span></button>
-                    <h4 class="modal-title">Viewer: ' . $title . '</h4>
-                </div>
-                <div class="modal-body main_logviwer_text_layout">
-                    <div class="main_logviwer_log" style="max-height: 70vh;" id="modal_'.$id.'_content">';
-}
-
-// Bottom Modal Block ---------------------------------------------------------
-function print_logviewer_modal_foot() {
-	global $pia_lang;
-	echo '                <br></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">' . $pia_lang['Gen_Close'] . '</button>
-                </div>
-            </div>
-        </div>
-    </div>';
-}
 // Set Tab --------------------------------------------------------------------
 if ($_REQUEST['tab'] == '1') {
 	$pia_tab_setting = 'active';
