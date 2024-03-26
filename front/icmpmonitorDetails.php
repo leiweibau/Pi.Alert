@@ -78,11 +78,11 @@ function set_table_headline($icmpfilter) {
 	global $pia_lang;
 
 	if ($icmpfilter == 'all') {
-		echo '<h3 class="text-aqua" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1;">' . $pia_lang['WebServices_Events_Shortcut_All'] . '</h3>';
+		echo '<h3 class="text-aqua" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['WebServices_Events_Shortcut_All'] . '</h3>';
 	} elseif ($icmpfilter == 'Online') {
-		echo '<h3 class="text-green" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1;">' . $pia_lang['ICMPMonitor_Shortcut_Online'] . '</h3>';
+		echo '<h3 class="text-green" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['ICMPMonitor_Shortcut_Online'] . '</h3>';
 	} elseif ($icmpfilter == 'Offline') {
-		echo '<h3 class="text-red" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1;">' . $pia_lang['ICMPMonitor_Shortcut_Offline'] . '</h3>';
+		echo '<h3 class="text-red" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['ICMPMonitor_Shortcut_Offline'] . '</h3>';
 	}
 }
 
@@ -538,7 +538,7 @@ get_icmphost_events_table($hostip, $icmpfilter);
 
 <!-- Graph ------------------------------------------------------------ -->
               <div class="tab-pane fade table-responsive" id="panGraph" style="height:100%;">
-                <h4 class="text-aqua" style="font-size: 18px;margin: 0;line-height: 1; margin-bottom: 20px;"><?=$pia_lang['WebServices_Chart_a'];?> <span class="maxlogage-interval">24</span> <?=$pia_lang['WebServices_Chart_b'];?></h4>
+                <h4 class="text-aqua" style="font-size: 18px; margin: 0; line-height: 1; margin-bottom: 20px;"><?=$pia_lang['WebServices_Chart_a'];?> <span class="maxlogage-interval">24</span> <?=$pia_lang['WebServices_Chart_b'];?></h4>
                 <div class="col-md-12">
                   <div class="chart" style="height: 150px;">
                     <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
