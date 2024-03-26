@@ -5,7 +5,7 @@
 //
 //  icmpmonitor.php - Front module. Ping polling
 //------------------------------------------------------------------------------
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 session_start();
 error_reporting(0);

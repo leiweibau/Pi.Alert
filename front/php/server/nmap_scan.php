@@ -91,7 +91,7 @@ function create_scanoutput_box($date, $type, $target, $box_type) {
 		$reloadlink = '';}
 	elseif ($box_type == 'current') {
 		$headline = $pia_lang['DevDetail_Tools_nmap_head_cur'];
-		$text_color = "text-danger";
+		$text_color = "text-red";
 		$reloadlink = '<a class="nmappagerelaod" href="#" onclick="showmanualnmapscan(\''.$target.'\')"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
 
 	if ($type == 'fast') {

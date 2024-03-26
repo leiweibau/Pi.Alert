@@ -6,7 +6,7 @@
 #------------------------------------------------------------------------------
 #  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
 #  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-#  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+#  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 #-------------------------------------------------------------------------- -->
 
 <?php
@@ -204,7 +204,6 @@ read_arpscan_timer(); ?></div>
     </div>
 
 <!-- Log Viewer ----------------------------------------------------------- -->
-
     <div class="box">
         <div class="box-header with-border">
             <h3 class="box-title">Log Viewer</h3>
@@ -219,7 +218,7 @@ if ($_SESSION['Scan_WebServices'] == True) {
 	echo '<button type="button" id="erftttwrdwqqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices">' . $pia_lang['Maintenance_Tools_Logviewer_WebServices'] . '</button>';
 }
 ?>
-      </div>
+      	</div>
     </div>
 
 <?php
