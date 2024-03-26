@@ -193,7 +193,6 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 		$updatecommand = 'bash -c &quot;$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/ct/pialert.sh)&quot;';
 		$updateenv = ' (LXC Container Env.)';
 	}
-    echo "The directory $dirname exists.";
 
 	echo '<br><br>
 			<lable for="bashupdatecommand" class="text-red"><i>Update command'.$updateenv.':</i></lable>
