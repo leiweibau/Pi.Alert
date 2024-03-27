@@ -1169,6 +1169,7 @@ function UpdateStatusBox() {
 
 setInterval(UpdateStatusBox, 15000);
 GetModalLogContent();
+GetARPStatus();
 startCountdown();
 </script>
 

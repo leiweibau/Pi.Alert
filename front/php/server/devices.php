@@ -203,10 +203,12 @@ function DeleteDeviceFilter() {
 }
 
 function GetARPStatus() {
+	global $pia_lang;
 	$execstring = 'ps -aux | grep "/pialert/back/pialert.py 1" | grep -v grep | grep -v "/pialert/log/pialert.1.log"';
 	$pia_arpscans = "";
 	exec($execstring, $pia_arpscans);
-	$result = array(sizeof($pia_arpscans));
+	if (sizeof($pia_arpscans) == 0) {$result = array($pia_lang['Maintenance_arpscancout_norun']);} else {$result = array('');}
+	// $result = array(sizeof($pia_arpscans));
 	echo json_encode($result);
 }
 

@@ -318,6 +318,7 @@ $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Down';
 $pia_lang['ICMPMonitor_Availability'] = 'Verfügbarkeit';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
+$pia_lang['Maintenance_arpscancout_norun'] = 'Keine';
 $pia_lang['Maintenance_Title'] = 'Einstellungen und Wartung';
 $pia_lang['Maintenance_database_path'] = 'Datenbank-Pfad';
 $pia_lang['Maintenance_database_size'] = 'Datenbank-Größe';

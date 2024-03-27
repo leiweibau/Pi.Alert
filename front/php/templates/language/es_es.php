@@ -321,6 +321,7 @@ $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Fuera de línea/No disponible';
 $pia_lang['ICMPMonitor_Availability'] = 'Availability';
 // Maintenance Page - Update by @TeroRERO 07ago2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
+$pia_lang['Maintenance_arpscancout_norun'] = 'No';
 $pia_lang['Maintenance_Title'] = 'Herramientas de mantenimiento';
 $pia_lang['Maintenance_database_path'] = 'Ruta de la base de datos:';
 $pia_lang['Maintenance_database_size'] = 'Tamaño de base de datos';

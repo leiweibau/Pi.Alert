@@ -22,17 +22,13 @@ function delete_single_webgui_report() {
 function arpscanstatus() {
 	global $pia_lang;
 	if (!file_exists('../db/setting_stoppialert')) {
-		$execstring = 'ps -aux | grep "/pialert/back/pialert.py 1" | grep -v grep | sed \'/>~\/pialert\/log\/pialert.1.log/d\'';
-		$pia_arpscans = "";
-		exec($execstring, $pia_arpscans);
-		$arp_proc_count = sizeof($pia_arpscans);
 		unset($_SESSION['arpscan_timerstart']);
-		$_SESSION['arpscan_result'] = '<span id="arpproccounter">' . $arp_proc_count . '</span> ' . $pia_lang['Maintenance_arp_status_on'] . ' <div id="nextscancountdown" style="display: inline-block;"></div>';
+		$_SESSION['arpscan_result'] = '<span id="arpproccounter"></span> ' . $pia_lang['Maintenance_arp_status_on'] . ' <div id="nextscancountdown" style="display: inline-block;"></div>';
 		$_SESSION['arpscan_sidebarstate'] = 'Active';
 		$_SESSION['arpscan_sidebarstate_light'] = 'green-light fa-gradient-green';
 	} else {
 		$_SESSION['arpscan_timerstart'] = date("H:i:s", filectime('../db/setting_stoppialert'));
-		$_SESSION['arpscan_result'] = '<span style="color:red;">arp-Scan ' . $pia_lang['Maintenance_arp_status_off'] . '</span> <div id="nextscancountdown" style="display: none;"></div>';
+		$_SESSION['arpscan_result'] = '<span style="color:red;">Pi.Alert ' . $pia_lang['Maintenance_arp_status_off'] . '</span> <div id="nextscancountdown" style="display: none;"></div>';
 		$_SESSION['arpscan_sidebarstate'] = 'Disabled&nbsp;&nbsp;&nbsp;(' . $_SESSION['arpscan_timerstart'] . ')';
 		$_SESSION['arpscan_sidebarstate_light'] = 'red fa-gradient-red';
 	}

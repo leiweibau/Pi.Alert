@@ -320,6 +320,7 @@ $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Down';
 $pia_lang['ICMPMonitor_Availability'] = 'Disponibilità';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
+$pia_lang['Maintenance_arpscancout_norun'] = 'No';
 $pia_lang['Maintenance_Title'] = 'Impostazioni e Manutenzione';
 $pia_lang['Maintenance_database_path'] = 'Percorso del Database';
 $pia_lang['Maintenance_database_size'] = 'Dimensione del Database';
