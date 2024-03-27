@@ -138,7 +138,7 @@ if ($_REQUEST['tab'] == '1') {
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell" style="min-width: 140px"><?=$pia_lang['Maintenance_database_path'];?></div>
                     <div class="db_info_table_cell" style="width: 70%">
-                        <input readonly value="<?=$DB_SOURCE;?>" style="width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;">
+                        <input readonly value="<?=$DB_SOURCE;?>" class="statusbox_ro_inputs">
                     </div>
                 </div>
                 <div class="db_info_table_row">
@@ -174,7 +174,7 @@ read_arpscan_timer(); ?></div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell">Api-Key</div>
                     <div class="db_info_table_cell" style="overflow-wrap: anywhere;">
-                        <input readonly value="<?=$APIKEY;?>" style="width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;">
+                        <input readonly value="<?=$APIKEY;?>" class="statusbox_ro_inputs">
                     </div>
                 </div>
                 <div class="db_info_table_row">

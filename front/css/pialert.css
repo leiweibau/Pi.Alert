@@ -453,6 +453,7 @@ body.modal-open {
 #updatecheck {text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;}
 #configeditor {text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;}
 .configeditor_help {text-align: left; margin-top: 10px;}
+.statusbox_ro_inputs {width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;}
 /* ----------------- Services ----------------------------------------------- */
 .servicelist_entry {display: flex; width: 100%; margin-bottom: 5px; margin-top: 5px;}
 .servicebox_httpstat_hover {display: flex; width: 70px; height: 70px;}

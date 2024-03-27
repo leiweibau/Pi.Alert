@@ -19,7 +19,7 @@ if ($_SESSION["login"] != 1) {
 if (filter_var($_REQUEST['hostip'], FILTER_FLAG_IPV4) || filter_var($_REQUEST['hostip'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
 	$hostip = $_REQUEST['hostip'];
 } else {
-	header('Location: /pialert/index.php');
+	header('Location: ./index.php');
 	exit;
 }
 
