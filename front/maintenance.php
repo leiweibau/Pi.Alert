@@ -620,6 +620,12 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts_text'];?></div>
                 </div>
+                <div class="db_info_table_row">
+                    <div class="db_tools_table_cell_a">
+                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteWebServices" onclick="askDeleteAllWebServices()"><?=$pia_lang['Maintenance_Tool_del_allserv'];?></button>
+                    </div>
+                    <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_allserv_text'];?></div>
+                </div>
             </div>
         </div>
         <div class="tab-pane <?=$pia_tab_backup;?>" id="tab_BackupRestore">
@@ -809,6 +815,15 @@ function askDeleteAllDevices() {
 }
 function deleteAllDevices() {
 	$.get('php/server/devices.php?action=deleteAllDevices', function(msg) {showMessage (msg);});
+}
+
+// delete all webservices
+function askDeleteAllWebServices() {
+  showModalWarning('<?=$pia_lang['Maintenance_Tool_del_allserv_noti'];?>', '<?=$pia_lang['Maintenance_Tool_del_allserv_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteAllWebServices');
+}
+function DeleteAllWebServices() {
+    $.get('php/server/services.php?action=DeleteAllWebServices', function(msg) {showMessage (msg);});
 }
 
 // delete all (unknown) devices
