@@ -5,20 +5,19 @@
 #  footer.php - Front module. Common footer to all the web pages
 #-------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2023                                          GNU GPLv3
+#  leiweibau 2024                                          GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
   <!-- Main Footer -->
   <footer class="main-footer">
     <!-- Default to the left -->
-
 <?php
 echo '<span style="display:inline-block; transform: rotate(180deg)">&copy;</span> ' . $conf_data['VERSION_YEAR'] . ' Puche & leiweibau';
 ?>
     <!-- To the right -->
     <div class="pull-right no-hidden-xs">
 <?php
-echo '' . $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE'] . ')</small>';
+echo $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE'] . ')</small>';
 ?>
     </div>
   </footer>
@@ -79,7 +78,6 @@ echo '' . $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_D
         $('#header_updatecheck_notification').html(UpdateCheckbadge[0].toLocaleString());
       } );
     }
-
 
     function getReportTotalsBadge() {
       // get totals and put in boxes

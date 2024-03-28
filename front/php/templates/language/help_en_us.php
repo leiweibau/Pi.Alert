@@ -357,8 +357,15 @@ $help_lang['Cat_Detail_302_text'] = 'Some modern devices generate random MAC add
 									Pi.Alert detects if it is such a random MAC address and activates this "field" automatically. To disable this behavior you have to look in your device how to disable
 									MAC address randomization.';
 $help_lang['Cat_Detail_303_head'] = 'What is Nmap and what is it for?';
-$help_lang['Cat_Detail_303_text'] = 'Nmap is a network scanner with multiple capabilities.<br>
-									When a new device appears in your list, you have the possibility to get more detailed information about the device via the Nmap scan.';
+$help_lang['Cat_Detail_303_text'] = 'Nmap is a network scanner with various capabilities.<br>
+                                    When a new device appears in your list, you have the option to obtain more detailed information about the device through the Nmap scan.
+                                    <br>Pi.Alert offers 3 different preset scans:
+                                    <br>
+                                    <ul>
+                                    <li>Quick Scan: Checks only the most important 100 ports (a few seconds)</li>
+                                    <li>Standard Scan: Nmap scans the first 1,000 ports for each requested scan protocol. (approx. 5-10 seconds)</li>
+                                    <li>Detailed Scan (Timeout 60s): The scan has been expanded to include some UDP ports. Also, the range of TCP ports has been increased.</li>
+                                    </ul>';
 $help_lang['Cat_Presence_400_head'] = 'Devices are displayed with a yellow marker and the note "missing event".';
 $help_lang['Cat_Presence_400_text'] = 'If this happens, you have the option to delete the events on the device in question (details view). Another possibility would be to switch on the device and wait until Pi.Alert detects the device as "online" with the next
 									  scan and then simply turn the device off again. Now Pi.Alert should properly note the state of the device in the database with the next scan.';

@@ -348,8 +348,15 @@ $help_lang['Cat_Detail_302_text'] = 'Some modern devices generate random MAC add
 									Pi.Alert detects if it is such a random MAC address and activates this "field" automatically. To disable this behavior you have to look in your device how to disable
 									MAC address randomization.';
 $help_lang['Cat_Detail_303_head'] = 'What is Nmap and what is it for?';
-$help_lang['Cat_Detail_303_text'] = 'Nmap is a network scanner with multiple capabilities.<br>
-									When a new device appears in your list, you have the possibility to get more detailed information about the device via the Nmap scan.';
+$help_lang['Cat_Detail_303_text'] = 'Nmap est un scanner réseau avec diverses capacités.<br>
+                                    Lorsqu&apos;un nouveau périphérique apparaît dans votre liste, vous avez la possibilité d&apos;obtenir des informations plus détaillées sur le périphérique grâce au scan Nmap.
+                                    <br>Pi.Alert propose 3 scans prédéfinis différents :
+                                    <br>
+                                    <ul>
+                                    <li>Scan rapide : Vérifie uniquement les 100 ports les plus importants (quelques secondes)</li>
+                                    <li>Scan standard : Nmap scanne les 1 000 premiers ports pour chaque protocole de scan demandé. (environ 5 à 10 secondes)</li>
+                                    <li>Scan détaillé (Délai d&apos;attente 60s) : Le scan a été étendu pour inclure certains ports UDP. De plus, la plage de ports TCP a été augmentée.</li>
+                                    </ul>';
 $help_lang['Cat_Presence_400_head'] = 'Devices are displayed with a yellow marker and the note "missing event".';
 $help_lang['Cat_Presence_400_text'] = 'If this happens, you have the option to delete the events on the device in question (details view). Another possibility would be to switch on the device and wait until Pi.Alert detects the device as "online" with the next
 									  scan and then simply turn the device off again. Now Pi.Alert should properly note the state of the device in the database with the next scan.';

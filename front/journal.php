@@ -4,7 +4,7 @@
 #
 #  journal.php - Front module. Journal page
 #-------------------------------------------------------------------------------
-#  leiweibau 2023                                          GNU GPLv3
+#  leiweibau 2024                                          GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
 <?php
@@ -40,14 +40,23 @@ $db->exec('PRAGMA journal_mode = wal;');
 <!-- datatable ------------------------------------------------------------- -->
       <div class="row">
         <div class="col-xs-12">
-          <div id="tableEventsBox" class="box">
+          <div id="tableJournalBox" class="box">
 
             <div class="box-header">
-              <h3 id="tableEventsTitle" class="box-title text-aqua">Journal</h3>
+              <h3 id="tableJournalTitle" class="box-title text-aqua">Journal</h3>
+              <a href="#" onclick="clearInput();"><span id="reset_joursearch" class="text-red pull-right"><i class="fa-solid fa-filter-circle-xmark"></i></span></a>
             </div>
 
+<script>
+function clearInput() {
+   var table = $('#tableJournal').DataTable(); 
+   table.search(''); //clear search item 
+   table.draw(); //redraw table
+}
+</script>
+
             <div class="box-body table-responsive">
-              <table id="tableEvents" class="table table-bordered table-hover table-striped ">
+              <table id="tableJournal" class="table table-bordered table-hover table-striped ">
                 <thead>
                 <tr>
                   <th style="min-width: 120px;"><?=$pia_lang['Events_TableHead_Date'];?></th>
@@ -125,7 +134,7 @@ function main () {
 }
 
 function initializeDatatable () {
-  $('#tableEvents').DataTable({
+  $('#tableJournal').DataTable({
     'paging'       : true,
     'lengthChange' : true,
     'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, 'All']],
@@ -189,4 +198,5 @@ function initializeDatatable () {
     },
   });
 };
+
 </script>

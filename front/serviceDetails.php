@@ -4,9 +4,8 @@
 #
 #  serviceDetails.php - Front module. Service management page
 #-------------------------------------------------------------------------------
-#  leiweibau 2023                                          GNU GPLv3
+#  leiweibau 2024                                          GNU GPLv3
 #--------------------------------------------------------------------------- -->
-
 
 <?php
 session_start();
@@ -23,7 +22,7 @@ if (filter_var($_REQUEST['url'], FILTER_VALIDATE_URL)) {
 	$service_details_title = $_REQUEST['url'];
 	$service_details_title_array = explode('://', $_REQUEST['url']);
 } else {
-	header('Location: /pialert/index.php');
+	header('Location: ./index.php');
 	exit;
 }
 
@@ -73,12 +72,12 @@ function get_service_events_table($service_URL, $service_filter) {
 			$func_TargetIP = $row['moneve_TargetIP'];
 			$current_service_IP = $row['moneve_TargetIP'];}
 		echo '<tr>
-                  <td>' . $func_TargetIP . '</td>
-                  <td>' . $row['moneve_DateTime'] . '</td>
-                  <td>' . $row['moneve_StatusCode'] . '</td>
-                  <td>' . $row['moneve_Latency'] . '</td>
-                  <td>' . $row['moneve_ssl_fc'] . '</td>
-              </tr>';
+              <td>' . $func_TargetIP . '</td>
+              <td>' . $row['moneve_DateTime'] . '</td>
+              <td>' . $row['moneve_StatusCode'] . '</td>
+              <td>' . $row['moneve_Latency'] . '</td>
+              <td>' . $row['moneve_ssl_fc'] . '</td>
+          </tr>';
 	}
 }
 
@@ -382,17 +381,13 @@ function get_service_statistic($service) {
                       <!-- URL -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_URL'];?></label>
-                        <div class="col-sm-9">
-                          <input class="form-control" id="txtURL" type="text" readonly value="<?=$servicedetails['mon_URL']?>">
-                        </div>
+                        <div class="col-sm-9"><input class="form-control" id="txtURL" type="text" readonly value="<?=$servicedetails['mon_URL']?>"></div>
                       </div>
 
                       <!-- Tags -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_Tags'];?></label>
-                        <div class="col-sm-9">
-                          <input class="form-control" id="txtTags" type="text" value="<?=$servicedetails['mon_Tags']?>">
-                        </div>
+                        <div class="col-sm-9"><input class="form-control" id="txtTags" type="text" value="<?=$servicedetails['mon_Tags']?>"></div>
                       </div>
 
                       <!-- Mac address -->
@@ -427,9 +422,7 @@ while ($row = $dev_res->fetchArray()) {
                       <!-- Notes -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_Notes'];?></label>
-                        <div class="col-sm-9">
-                          <input class="form-control" id="txtNotes" type="text" readonly value="<?=$servicedetails['mon_Notes']?>">
-                        </div>
+                        <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=$servicedetails['mon_Notes']?>"></div>
                       </div>
 
                     </div>
@@ -443,57 +436,43 @@ while ($row = $dev_res->fetchArray()) {
                       <!-- Last HTTP Status -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_StatusCode'];?></label>
-                        <div class="col-sm-8">
-                          <input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_LastStatus']?>">
-                        </div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_LastStatus']?>"></div>
                       </div>
 
                       <!-- Last HTTP Status -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label">SSL Status</label>
-                        <div class="col-sm-8">
-                          <input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_fc']?>">
-                        </div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_fc']?>"></div>
                       </div>
 
                       <!-- Last IP -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_TargetIP'];?></label>
-                        <div class="col-sm-8">
-                          <input class="form-control" id="txtLastIP" type="text" readonly value="<?=$servicedetails['mon_TargetIP']?>">
-                        </div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastIP" type="text" readonly value="<?=$servicedetails['mon_TargetIP']?>"></div>
                       </div>
 
                       <!-- Last Scan -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_ScanTime'];?></label>
-                        <div class="col-sm-8">
-                          <input class="form-control" id="txtLastScan" type="text" readonly value="<?=$servicedetails['mon_LastScan']?>">
-                        </div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastScan" type="text" readonly value="<?=$servicedetails['mon_LastScan']?>"></div>
                       </div>
 
                       <!-- Last Latency -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_Response_Time'];?></label>
-                        <div class="col-sm-8">
-                          <input class="form-control" id="txtLastLatency" type="text" readonly value="<?=$servicedetails['mon_LastLatency']?>">
-                        </div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastLatency" type="text" readonly value="<?=$servicedetails['mon_LastLatency']?>"></div>
                       </div>
 
                       <!-- Alert events -->
                       <div class="form-group">
                         <label class="col-xs-4 control-label"><?=$pia_lang['WebServices_label_AlertEvents'];?></label>
-                        <div class="col-xs-4" style="padding-top:6px;">
-                          <input class="checkbox blue" id="chkAlertEvents" <?php if ($servicedetails['mon_AlertEvents'] == 1) {echo 'checked';}?> type="checkbox">
-                        </div>
+                        <div class="col-xs-4" style="padding-top:6px;"><input class="checkbox blue" id="chkAlertEvents" <?php if ($servicedetails['mon_AlertEvents'] == 1) {echo 'checked';}?> type="checkbox"></div>
                       </div>
 
                       <!-- Alert Down -->
                       <div class="form-group">
                         <label class="col-xs-4 control-label"><?=$pia_lang['WebServices_label_AlertDown'];?></label>
-                        <div class="col-xs-4" style="padding-top:6px;">
-                          <input class="checkbox red" id="chkAlertDown" <?php if ($servicedetails['mon_AlertDown'] == 1) {echo 'checked';}?> type="checkbox">
-                        </div>
+                        <div class="col-xs-4" style="padding-top:6px;"><input class="checkbox red" id="chkAlertDown" <?php if ($servicedetails['mon_AlertDown'] == 1) {echo 'checked';}?> type="checkbox"></div>
                       </div>
 
                     </div>
@@ -501,29 +480,20 @@ while ($row = $dev_res->fetchArray()) {
 								</div>
 
 								<div class="row" style="margin-bottom: 20px;">
-                  	<div class="col-xs-12">
-                    <h4 class="bottom-border-aqua">SSL Certificate Info</h4>
-                    <div class="box-body form-horizontal">
-                        <label class="col-sm-2 control-label">Subject</label>
-                        <div class="col-sm-10">
-                          <input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_subject']))?>">
-                        </div>
-                        <label class="col-sm-2 control-label">Issuer</label>
-                        <div class="col-sm-10">
-                          <input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_issuer']))?>">
-                        </div>
-                        <label class="col-sm-2 control-label">Valid from</label>
-                        <div class="col-sm-10">
-                          <input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_from']?>">
-                        </div>
-                        <label class="col-sm-2 control-label">Valid to</label>
-                        <div class="col-sm-10">
-                          <input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_to']?>">
-                        </div>
-                      </div>
-                  </div>
+                   <div class="col-xs-12">
+	                    <h4 class="bottom-border-aqua">SSL Certificate Info</h4>
+	                    <div class="box-body form-horizontal">
+	                        <label class="col-sm-2 control-label">Subject</label>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_subject']))?>"></div>
+	                        <label class="col-sm-2 control-label">Issuer</label>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_issuer']))?>"></div>
+	                        <label class="col-sm-2 control-label">Valid from</label>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_from']?>"></div>
+	                        <label class="col-sm-2 control-label">Valid to</label>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_to']?>"></div>
+	                    </div>
+                   </div>
                 </div>
-
 
 								<div class="row">
                   <!-- Buttons -->
@@ -703,7 +673,6 @@ if ($output[0] != "######") {
 }
 ?>
                 <!-- Closing  <div class="col-md-12">   -->
-
               </div>
 
             </div>

@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.18'
+SCRIPTVERSION='v1.19'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -107,10 +107,11 @@ This is the list of supported commands
  ${bold}update_db${normal}
     The script tries to make the database compatible for this fork.
 
-2023 leiweibau (https://github.com/leiweibau/Pi.Alert) (https://leiweibau.net)
+2024 leiweibau (https://github.com/leiweibau/Pi.Alert) (https://leiweibau.net)
+
 EOM
 
-    echo -e "$PIALERTCLI_MANUAL" | more
+    echo -e "$PIALERTCLI_MANUAL" | more -e
     ;;
 
   set_login)
@@ -533,6 +534,9 @@ EOM
     echo -e "...Insert new table 'Tools_Speedtest_History' to DB"
     sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Tools_Speedtest_History' ('ID' INTEGER, 'speed_date' TEXT, 'speed_isp' TEXT, 'speed_server' TEXT, 'speed_ping' NUMERIC, 'speed_down' NUMERIC, 'speed_up' INUMERIC, PRIMARY KEY(\"ID\" AUTOINCREMENT));"
 
+    # Tools_Nmap_ManScan
+    echo -e "...Insert new table 'Tools_Nmap_ManScan' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Tools_Nmap_ManScan' ('ID' INTEGER, 'scan_date' DATETIME NOT NULL, 'scan_target' STRING(50) NOT NULL, 'scan_type' STRING(50) NOT NULL, 'scan_result' TEXT, 'reserve_a' INTEGER, 'reserve_b' TEXT, 'reserve_c' TEXT, 'reserve_d' TEXT, PRIMARY KEY(\"ID\" AUTOINCREMENT));"
 
     echo -e "\nUpdate finished!\n"
 
