@@ -536,7 +536,7 @@ EOM
 
     # Tools_Nmap_ManScan
     echo -e "...Insert new table 'Tools_Nmap_ManScan' to DB"
-    sqlite3 $PIA_DB_FILE "CREATE TABLE 'Tools_Nmap_ManScan' ('ID' INTEGER, 'scan_date' DATETIME NOT NULL, 'scan_target' STRING(50) NOT NULL, 'scan_type' STRING(50) NOT NULL, 'scan_result' TEXT, 'reserve_a' INTEGER, 'reserve_b' TEXT, 'reserve_c' TEXT, 'reserve_d' TEXT, PRIMARY KEY(\"ID\" AUTOINCREMENT));"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Tools_Nmap_ManScan' ('ID' INTEGER, 'scan_date' DATETIME NOT NULL, 'scan_target' STRING(50) NOT NULL, 'scan_type' STRING(50) NOT NULL, 'scan_result' TEXT, 'reserve_a' INTEGER, 'reserve_b' TEXT, 'reserve_c' TEXT, 'reserve_d' TEXT, PRIMARY KEY(\"ID\" AUTOINCREMENT));"
 
     echo -e "\nUpdate finished!\n"
 
