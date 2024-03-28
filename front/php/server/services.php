@@ -78,6 +78,7 @@ function DeleteAllWebServices() {
 		echo $pia_lang['BackDevices_DBTools_DelServ'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0039', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./services.php'>");
 	} else {
 		echo $pia_lang['BackDevices_DBTools_DelServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
