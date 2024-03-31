@@ -937,11 +937,17 @@ function initializeCombo (HTMLelement, queryAction, txtDataField) {
       {
         id = item['id'];
       }
-
-      // add dropdown item
-      HTMLelement.innerHTML +=
-        '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-        txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'
+      if (queryAction == "getNetworkNodes") {
+      // add NetworkNodes dropdown item
+        HTMLelement.innerHTML +=
+          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
+          txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
+      } else {
+        // add dropdown item
+        HTMLelement.innerHTML +=
+          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
+          txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
+      }
     });
   });
 }
