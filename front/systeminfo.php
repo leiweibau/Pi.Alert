@@ -118,7 +118,7 @@ $stat['process_count'] = shell_exec("ps -e --no-headers | wc -l");
     <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
 <?php
-// Client ----------------------------------------------------------
+// Reboot Shutdown ----------------------------------------------------------
 echo '
 		<div class="row">
 		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
@@ -133,19 +133,52 @@ echo '
 
 // Client ----------------------------------------------------------
 echo '<div class="box box-solid">
-            <div class="box-header">
-              <h3 class="box-title sysinfo_headline"><i class="bi bi-globe"></i> This Client</h3>
-            </div>
-            <div class="box-body">
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">User Agent</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $_SERVER['HTTP_USER_AGENT'] . '</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Browser Resolution:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b" id="resolution"></div>
-				</div>
-            </div>
+        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-globe"></i> This Client</h3></div>
+        <div class="box-body">
+					<div class="row">
+					  <div class="col-sm-3 sysinfo_gerneral_a">User Agent</div>
+					  <div class="col-sm-9 sysinfo_gerneral_b">' . $_SERVER['HTTP_USER_AGENT'] . '</div>
+					</div>
+					<div class="row">
+					  <div class="col-sm-3 sysinfo_gerneral_a">Browser Resolution:</div>
+					  <div class="col-sm-9 sysinfo_gerneral_b" id="resolution"></div>
+					</div>
+        </div>
+      </div>';
+
+// Client ----------------------------------------------------------
+echo '<div class="box box-solid">
+        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Database Details</h3></div>
+        <div class="box-body">
+        	<div style="height: 300px; overflow-y: scroll; overflow-x: hidden;">';
+
+// SQLite-Datenbank öffnen
+$db = new SQLite3('../db/pialert.db');
+
+// Query zum Abrufen der Tabellennamen
+$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table'");
+
+// Durch die Tabellen iterieren
+while ($table = $tablesQuery->fetchArray()) {
+    $tableName = $table['name'];
+    
+    // Query zum Abrufen der Zeilenanzahl für jede Tabelle
+    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
+    $rowCount = $rowCountQuery->fetchArray()['count'];
+    
+    // Ausgabe von Tabellenname und Zeilenanzahl
+    echo '<div class="row">';
+    echo '<div class="col-sm-4 col-xs-8 sysinfo_gerneral_a">'.$tableName. '</div>'; 
+    echo '<div class="col-sm-1 col-xs-1">&rarr;</div>';
+    echo '<div class="col-sm-2 col-xs-3 sysinfo_gerneral_b "><span class="pull-right">'.$rowCount.'</span></div>';
+    echo '</div>';
+}
+
+// Datenbankverbindung schließen
+$db->close();
+
+echo '		</div>
+        </div>
       </div>';
 
 // General ----------------------------------------------------------
