@@ -16,6 +16,9 @@
   * [Create a device](#create-a-device)
   * [Edit a device](#edit-a-device)
   * [Delete a device](#delete-a-device-1)
+* [Edge cases](#edge-cases)
+  * [LAGG Host/Server to one Switch or Router](#lagg-hostserver-to-one-switch)
+  * [Multiple Hosts on one Switch or Router port](#multiple-hosts-on-one-switch-or-router-port)
 
 ### Requirements
 
@@ -185,6 +188,31 @@ Clicking on an "Unmanaged Device" opens the "Settings - Network Overview" page. 
 
 To remove a manually created device from the network overview, simply select it in the "Manage Non-Scannable Devices" section, in the red area and click the "Delete Device" button. 
 
+### Edge cases
+
+At this point, I would like to take another look at cases that are configurable but are only likely to be relevant for a few users.
+
+#### <ins>LAGG Host/Server to one Switch</ins>
+
+If a server is connected to a switch or router via several cables, but only one MAC address is used (LAGG), there are various ways to display this in the network overview:
+1. You can enter an additional port in the "Target Port Number" field on the details page, separated by a ","
+2. You can enter the MAC address of the relevant server in the manual port configuration of the switch/router in the network overview, followed by the port number (aa-bb-cc-11-22-33,10). Several ports can also be specified here. In this case, the sysntax would look as follows: aa-bb-cc-11-22-33,10;aa-bb-cc-11-22-33,11;aa-bb-cc-11-22-33,12
+
+Case 1
+| ![Edge Case LAGG 1][EdgeCase_lagg_1] | ![Edge Case LAGG 2][EdgeCase_lagg_2] |
+| -------------------------------------|--------------------------------------|
+
+Case 2
+| ![Edge Case LAGG 3][EdgeCase_lagg_3] | ![Edge Case LAGG 4][EdgeCase_lagg_4] | ![Edge Case LAGG 2][EdgeCase_lagg_2] |
+| -------------------------------------|--------------------------------------|--------------------------------------|
+
+#### <ins>Multiple Hosts on one Switch or Router port</ins>
+
+If a host provides a virtual machine, i.e. it is also operated on the same port, it is possible to specify the same "Uplink Target" with the same "Target Port Number" on the details page of the virtual machine.
+
+| ![Edge Case Multi 1][EdgeCase_multi_1] |
+| -------------------------------------|
+
 [Back](https://github.com/leiweibau/Pi.Alert#front)
 
 [Manage_Net_Devices]:                 https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_1.png                "Manage Net Devices"
@@ -194,6 +222,13 @@ To remove a manually created device from the network overview, simply select it 
 [Manage_Net_Devices_add_3]:           https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_add_3.jpg            "Manage Net Devices - add 3"
 [Manage_Net_Devices_add_4]:           https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_add_4.jpg            "Manage Net Devices - add 4"
 [Manage_Net_Devices_add_5]:           https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_add_5.png            "Manage Net Devices - add 5"
+
+[EdgeCase_lagg_1]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_01.png                      "Edge Case LAGG 1"
+[EdgeCase_lagg_2]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_02.png                      "Edge Case LAGG 2"
+[EdgeCase_lagg_3]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_03.png                      "Edge Case LAGG 3"
+[EdgeCase_lagg_4]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_04.png                      "Edge Case LAGG 4"
+
+[EdgeCase_multi_1]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_multi_01.png                      "Edge Case Multi 1"
 
 [Management_tab_1]:      		          https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_tab_1.jpg            "Management Tab 1"
 [Management_tab_2]:      		          https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_tab_2.jpg            "Management Tab 2"
