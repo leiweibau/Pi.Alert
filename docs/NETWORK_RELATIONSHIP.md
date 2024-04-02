@@ -210,6 +210,9 @@ Case 2
 
 If a host provides a virtual machine, i.e. it is also operated on the same port, it is possible to specify the same "Uplink Target" with the same "Target Port Number" on the details page of the virtual machine.
 
+| ![Edge Case Multi 1][EdgeCase_multi_1] |
+| -------------------------------------|
+
 [Back](https://github.com/leiweibau/Pi.Alert#front)
 
 [Manage_Net_Devices]:                 https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_1.png                "Manage Net Devices"
@@ -224,6 +227,8 @@ If a host provides a virtual machine, i.e. it is also operated on the same port,
 [EdgeCase_lagg_2]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_02.png                      "Edge Case LAGG 2"
 [EdgeCase_lagg_3]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_03.png                      "Edge Case LAGG 3"
 [EdgeCase_lagg_4]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_04.png                      "Edge Case LAGG 4"
+
+[EdgeCase_multi_1]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_multi_01.png                      "Edge Case Multi 1"
 
 [Management_tab_1]:      		          https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_tab_1.jpg            "Management Tab 1"
 [Management_tab_2]:      		          https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_tab_2.jpg            "Management Tab 2"
