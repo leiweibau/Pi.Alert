@@ -220,10 +220,10 @@ If a host provides a virtual machine, i.e. it is also operated on the same port,
 [Manage_Net_Devices_add_4]:           https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_add_4.jpg            "Manage Net Devices - add 4"
 [Manage_Net_Devices_add_5]:           https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_add_5.png            "Manage Net Devices - add 5"
 
-[EdgeCase_lagg_1]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_1.jpg                      "Edge Case LAGG 1"
-[EdgeCase_lagg_2]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_2.jpg                      "Edge Case LAGG 2"
-[EdgeCase_lagg_3]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_3.jpg                      "Edge Case LAGG 3"
-[EdgeCase_lagg_4]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_4.jpg                      "Edge Case LAGG 4"
+[EdgeCase_lagg_1]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_1.png                      "Edge Case LAGG 1"
+[EdgeCase_lagg_2]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_2.png                      "Edge Case LAGG 2"
+[EdgeCase_lagg_3]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_3.png                      "Edge Case LAGG 3"
+[EdgeCase_lagg_4]:                    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_lagg_4.png                      "Edge Case LAGG 4"
 
 [Management_tab_1]:      		          https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_tab_1.jpg            "Management Tab 1"
 [Management_tab_2]:      		          https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/netrel_management_tab_2.jpg            "Management Tab 2"
