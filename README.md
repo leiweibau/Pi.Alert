@@ -201,7 +201,7 @@ An archive of older versions can be found at [https://leiweibau.net/archive/pial
 
   A personal thank you :pray: to every sponsor of my fork.
 
-  [jbierwiler](https://github.com/jbierwiler), [tcoombs](https://github.com/tcoombs), [hspindel](https://github.com/hspindel), [accessiblepixel](https://github.com/accessiblepixel)
+  [jbierwiler](https://github.com/jbierwiler), [tcoombs](https://github.com/tcoombs), [hspindel](https://github.com/hspindel), [accessiblepixel](https://github.com/accessiblepixel), [AJ Tatum](https://github.com/ajtatum)
 
 
 ### Additionally used components and services
