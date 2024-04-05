@@ -148,33 +148,35 @@ echo '<div class="box box-solid">
 
 // Client ----------------------------------------------------------
 echo '<div class="box box-solid">
-        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Database Details</h3></div>
+        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert Database Details</h3></div>
         <div class="box-body">
         	<div style="height: 300px; overflow-y: scroll; overflow-x: hidden;">';
 
-// SQLite-Datenbank öffnen
+
 $db = new SQLite3('../db/pialert.db');
-
-// Query zum Abrufen der Tabellennamen
-$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table'");
-
-// Durch die Tabellen iterieren
+$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
+echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
+echo '<thead>
+		<tr role="row">
+			<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
+			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
+		</tr>
+	  </thead>';
+$table_color = 'odd';
 while ($table = $tablesQuery->fetchArray()) {
+	if ($table_color == 'odd') {$table_color = 'even';} else { $table_color = 'odd';}
     $tableName = $table['name'];
     
-    // Query zum Abrufen der Zeilenanzahl für jede Tabelle
     $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
     $rowCount = $rowCountQuery->fetchArray()['count'];
-    
-    // Ausgabe von Tabellenname und Zeilenanzahl
-    echo '<div class="row">';
-    echo '<div class="col-sm-4 col-xs-8 sysinfo_gerneral_a">'.$tableName. '</div>'; 
-    echo '<div class="col-sm-1 col-xs-1">&rarr;</div>';
-    echo '<div class="col-sm-2 col-xs-3 sysinfo_gerneral_b "><span class="pull-right">'.$rowCount.'</span></div>';
-    echo '</div>';
-}
 
-// Datenbankverbindung schließen
+    echo '<tr class="' . $table_color . '">
+    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
+    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
+    	</tr>';
+}
+echo '</table>';
+
 $db->close();
 
 echo '		</div>

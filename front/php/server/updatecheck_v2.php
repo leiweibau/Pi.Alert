@@ -46,6 +46,7 @@ $geolite_new_version = $geolite_update['name'];
 $geoliteDB_file = '../../../db/GeoLite2-Country.mmdb';
 if (file_exists($geoliteDB_file)) {
 	$geolite_cur_version = date("Y.m.d", filemtime($geoliteDB_file));
+	$geolite_cur_filesize = round((filesize($geoliteDB_file)/1048576),2);
 } else { $geolite_cur_version = "###";}
 // DEBUG
 // $geolite_cur_version = '2023-05-28';
@@ -81,7 +82,7 @@ if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_ver
     		<div class="box-body">
 				<h4 class="text-aqua" style="text-align: center;">' . $pia_lang['GeoLiteDB_Title'] . '</h4>
 				<p class="updatechk_font_a">
-				' . $pia_lang['GeoLiteDB_cur'] . ': 	<span class="text-green">	' . $geolite_cur_version . '</span><br>
+				' . $pia_lang['GeoLiteDB_cur'] . ': 	<span class="text-green">	' . $geolite_cur_version . '</span> <span style="font-weight: normal;">('.$geolite_cur_filesize.' MB)</span><br>
 				' . $pia_lang['GeoLiteDB_new'] . ': 	<span class="text-red">		' . $geolite_new_version . '</span>
 				</p>
 

@@ -214,7 +214,7 @@ if ($_REQUEST['mode'] != "view") {
 
 			echo '<div class="col-md-6">
 					<div class="row">
-						<div class="col-xs-12 text-center" style="margin-top:30px">Es befinden sich <span class="text-aqua">' . $scancounter . '</span> Scan-Ergebnisse in der Datenbank</div>
+						<div class="col-xs-12 text-center" style="margin-top:30px">' . $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'] . '</div>
 				  	</div>';
 			echo '	<div class="row">
 						<div class="col-xs-12 text-center" style="margin-top:20px;margin-bottom:20px">
