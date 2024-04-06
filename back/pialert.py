@@ -92,7 +92,6 @@ def main():
             res = update_devices_MAC_vendors('-s')
         else:
             res = scan_network()
-            # res = handle_scan_network()
 
     # Check error
     if res != 0 :
@@ -252,9 +251,12 @@ def check_internet_IP():
         print(f"    Skipping Auto Update-Check... Not activated!")
 
     # Auto Backup
-    AUTOBACKUP_CRON = "51 * * * *"
+    AUTOBACKUP_CRON = "30 * * * *"
     print(f"\nAuto Backup...")
-    create_autobackup(startTime, AUTOBACKUP_CRON)
+    if not os.path.exists(STATUS_FILE_BACKUP):
+        create_autobackup(startTime, AUTOBACKUP_CRON)
+    else:
+        print("    Backup function pending.")
 
     return 0
 
@@ -281,6 +283,8 @@ def create_autobackup(start_time, crontab_string):
         while os.path.exists(STATUS_FILE_SCAN):
             if time.time() - start_time.timestamp() >= 300:  # Check whether 5 minutes have passed
                 #print("The status file has not been deleted after 5 minutes. The script is terminated.")
+                if os.path.exists(STATUS_FILE_BACKUP):
+                    os.remove(STATUS_FILE_BACKUP)
                 return
             time.sleep(1)  # wait 1 second
         else:
@@ -292,7 +296,6 @@ def create_autobackup(start_time, crontab_string):
     # remove status file
     if os.path.exists(STATUS_FILE_BACKUP):
         os.remove(STATUS_FILE_BACKUP)
-
 
 # ------------------------------------------------------------------------------
 def NewVersion_FrontendNotification(newVersion,update_notes):
