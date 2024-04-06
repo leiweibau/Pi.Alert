@@ -1106,7 +1106,6 @@ function initializeiCheck () {
      radioClass:    'iradio_flat-blue',
      increaseArea:  '20%'
    });
-
 }
 
 // JS created by php while loop
@@ -1157,9 +1156,9 @@ function formatTime(time) {
 }
 
 function GetARPStatus() {
-  $.get('php/server/devices.php?action=GetARPStatus', function(data) {
+  $.get('php/server/files.php?action=GetARPStatus', function(data) {
     var arpproccount = JSON.parse(data);
-
+    
     $('#arpproccounter').html(arpproccount[0].toLocaleString());
   } );
 }

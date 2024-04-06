@@ -80,9 +80,17 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'GetUpdateStatus':GetUpdateStatus();
 		break;
+	case 'GetARPStatus':GetARPStatus();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function GetARPStatus() {
+	global $pia_lang;
+	if (!file_exists("../../../back/.scanning")) {$result = array($pia_lang['Maintenance_arpscancout_norun']);} else {$result = array('');}
+	echo json_encode($result);
 }
 
 function GetUpdateStatus() {

@@ -82,8 +82,6 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'EnableMainScan':EnableMainScan();
 		break;
-	case 'GetARPStatus':GetARPStatus();
-		break;
 	case 'DeleteDeviceFilter':DeleteDeviceFilter();
 		break;
 	case 'SetDeviceFilter':SetDeviceFilter();
@@ -200,16 +198,6 @@ function DeleteDeviceFilter() {
 	echo $pia_lang['BackDevices_table_delfilter_ok'] . $filterstring;
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
-}
-
-function GetARPStatus() {
-	global $pia_lang;
-	$execstring = 'ps -aux | grep "/pialert/back/pialert.py 1" | grep -v grep | grep -v "/pialert/log/pialert.1.log"';
-	$pia_arpscans = "";
-	exec($execstring, $pia_arpscans);
-	if (sizeof($pia_arpscans) == 0) {$result = array($pia_lang['Maintenance_arpscancout_norun']);} else {$result = array('');}
-	// $result = array(sizeof($pia_arpscans));
-	echo json_encode($result);
 }
 
 //  Query Device Data

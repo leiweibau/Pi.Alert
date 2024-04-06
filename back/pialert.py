@@ -37,6 +37,8 @@ PIALERT_WEBSERVICES_LOG = PIALERT_PATH + "/log/pialert.webservices.log"
 STOPPIALERT = PIALERT_PATH + "/db/setting_stoppialert"
 PIALERT_DB_FILE = PIALERT_PATH + "/db/pialert.db"
 REPORTPATH_WEBGUI = PIALERT_PATH + "/front/reports/"
+STATUS_FILE_SCAN = PIALERT_BACK_PATH + "/.scanning"
+STATUS_FILE_BACKUP = PIALERT_BACK_PATH + "/.backup"
 
 if (sys.version_info > (3,0)):
     exec(open(PIALERT_PATH + "/config/version.conf").read())
@@ -90,6 +92,7 @@ def main():
             res = update_devices_MAC_vendors('-s')
         else:
             res = scan_network()
+            # res = handle_scan_network()
 
     # Check error
     if res != 0 :
@@ -97,11 +100,15 @@ def main():
         return res
 
     # Reporting
-    if cycle != 'internet_IP' and cycle != 'cleanup':
+    if cycle not in ['internet_IP', 'cleanup']:
         email_reporting()
 
     # Close SQL
     closeDB()
+
+    # Remove scan status file created in scan_network()
+    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent'] and os.path.exists(STATUS_FILE_SCAN):
+        os.remove(STATUS_FILE_SCAN)
 
     # Final menssage
     print('\nDONE!!!\n\n')
@@ -243,7 +250,49 @@ def check_internet_IP():
         NewVersion_FrontendNotification(False,"")
         print(f"\nAuto Update-Check...")
         print(f"    Skipping Auto Update-Check... Not activated!")
+
+    # Auto Backup
+    AUTOBACKUP_CRON = "51 * * * *"
+    print(f"\nAuto Backup...")
+    create_autobackup(startTime, AUTOBACKUP_CRON)
+
     return 0
+
+# ------------------------------------------------------------------------------
+def create_autobackup(start_time, crontab_string):
+    # create status file
+    with open(STATUS_FILE_BACKUP, "w") as f:
+        f.write("")
+
+    # convert cron string
+    crontab_parts = crontab_string.split()
+    minute = int(crontab_parts[0])
+    hour = int(crontab_parts[1]) if crontab_parts[1] != '*' else -1
+    day_of_month = int(crontab_parts[2]) if crontab_parts[2] != '*' else -1
+    month = int(crontab_parts[3]) if crontab_parts[3] != '*' else -1
+    day_of_week = int(crontab_parts[4]) if crontab_parts[4] != '*' else -1
+
+    # Compare cron
+    if (start_time.minute == minute) and (start_time.hour == hour or hour == -1) and \
+       (start_time.day == day_of_month or day_of_month == -1) and \
+       (start_time.month == month or month == -1) and \
+       (start_time.weekday() == day_of_week or day_of_week == -1):
+
+        while os.path.exists(STATUS_FILE_SCAN):
+            if time.time() - start_time.timestamp() >= 300:  # Check whether 5 minutes have passed
+                #print("The status file has not been deleted after 5 minutes. The script is terminated.")
+                return
+            time.sleep(1)  # wait 1 second
+        else:
+            print("    Backup is started...")
+            print(f"    {str(datetime.datetime.now())}")
+    else:
+        print("    Backup function was NOT executed.")
+
+    # remove status file
+    if os.path.exists(STATUS_FILE_BACKUP):
+        os.remove(STATUS_FILE_BACKUP)
+
 
 # ------------------------------------------------------------------------------
 def NewVersion_FrontendNotification(newVersion,update_notes):
@@ -534,6 +583,10 @@ def query_MAC_vendor(pMAC):
 # SCAN NETWORK
 #===============================================================================
 def scan_network():
+    # Create scan status file
+    with open(STATUS_FILE_SCAN, "w") as f:
+        f.write("")
+
     # Header
     print('Scan Devices')
     print('    Timestamp:', startTime )
