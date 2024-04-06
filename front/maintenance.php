@@ -172,6 +172,10 @@ if ($_REQUEST['tab'] == '1') {
 read_arpscan_timer(); ?></div>
                 </div>
                 <div class="db_info_table_row">
+                    <div class="db_info_table_cell">Auto-Backup Status</div>
+                    <div class="db_info_table_cell"><span id="autobackupstatus"></span></div>
+                </div>
+                <div class="db_info_table_row">
                     <div class="db_info_table_cell">Api-Key</div>
                     <div class="db_info_table_cell" style="overflow-wrap: anywhere;">
                         <input readonly value="<?=$APIKEY;?>" class="statusbox_ro_inputs">
@@ -1163,6 +1167,14 @@ function GetARPStatus() {
   } );
 }
 
+function GetAutoBackupStatus() {
+  $.get('php/server/files.php?action=GetAutoBackupStatus', function(data) {
+    var arpproccount = JSON.parse(data);
+    
+    $('#autobackupstatus').html(arpproccount[0].toLocaleString());
+  } );
+}
+
 function GetModalLogContent() {
   $.get('php/server/files.php?action=GetLogfiles', function(data) {
     var logcollection = JSON.parse(data);
@@ -1178,12 +1190,13 @@ function GetModalLogContent() {
 function UpdateStatusBox() {
 	GetModalLogContent();
 	GetARPStatus();
+    GetAutoBackupStatus();
 	startCountdown();
 }
 
 setInterval(UpdateStatusBox, 15000);
 GetModalLogContent();
-GetARPStatus();
+GetAutoBackupStatus();
 startCountdown();
 </script>
 

@@ -231,8 +231,9 @@ def check_internet_IP():
         # Check if Speedtest is installed
         speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
         if os.path.exists(speedtest_binary):
-            print('\nRun daily Speedtest...')
-            run_speedtest_task()
+            print(f"\nRun planed Speedtest... [{SPEEDTEST_TASK_CRON}]")
+            print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
+            run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
         else:
             print('\nSkipping Speedtest... Not installed!')
     else :
@@ -251,12 +252,15 @@ def check_internet_IP():
         print(f"    Skipping Auto Update-Check... Not activated!")
 
     # Auto Backup
-    AUTOBACKUP_CRON = "30 * * * *"
-    print(f"\nAuto Backup...")
-    if not os.path.exists(STATUS_FILE_BACKUP):
-        create_autobackup(startTime, AUTOBACKUP_CRON)
+    if AUTO_DB_BACKUP :
+        print(f"\nAuto Backup... [{AUTO_DB_BACKUP_CRON}]")
+        print(f"    Crontab: {AUTO_DB_BACKUP_CRON}")
+        if not os.path.exists(STATUS_FILE_BACKUP):
+            create_autobackup(startTime, AUTO_DB_BACKUP_CRON)
+        else:
+            print("    Backup function pending.")
     else:
-        print("    Backup function pending.")
+        print(f"Skipping Auto Backup... Not activated!")
 
     return 0
 
@@ -268,17 +272,15 @@ def create_autobackup(start_time, crontab_string):
 
     # convert cron string
     crontab_parts = crontab_string.split()
-    minute = int(crontab_parts[0])
-    hour = int(crontab_parts[1]) if crontab_parts[1] != '*' else -1
-    day_of_month = int(crontab_parts[2]) if crontab_parts[2] != '*' else -1
-    month = int(crontab_parts[3]) if crontab_parts[3] != '*' else -1
-    day_of_week = int(crontab_parts[4]) if crontab_parts[4] != '*' else -1
+    minute = parse_cron_part(crontab_parts[0], start_time.minute)
+    hour = parse_cron_part(crontab_parts[1], start_time.hour)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
+    month = parse_cron_part(crontab_parts[3], start_time.month)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
 
     # Compare cron
-    if (start_time.minute == minute) and (start_time.hour == hour or hour == -1) and \
-       (start_time.day == day_of_month or day_of_month == -1) and \
-       (start_time.month == month or month == -1) and \
-       (start_time.weekday() == day_of_week or day_of_week == -1):
+    if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
+       (start_time.month in month) and (start_time.weekday() in day_of_week):
 
         while os.path.exists(STATUS_FILE_SCAN):
             if time.time() - start_time.timestamp() >= 300:  # Check whether 5 minutes have passed
@@ -289,13 +291,31 @@ def create_autobackup(start_time, crontab_string):
             time.sleep(1)  # wait 1 second
         else:
             print("    Backup is started...")
-            print(f"    {str(datetime.datetime.now())}")
+            # Create Backup
+            BACKUP_FILE_DATE = str(start_time)
+            BACKUP_FILE = PIALERT_BACK_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".txt"
+            with open(BACKUP_FILE, "w") as f:
+                f.write(str(datetime.datetime.now()))
+            #print(f"    {str(datetime.datetime.now())}")
     else:
-        print("    Backup function was NOT executed.")
+        print(f"    Backup function was NOT executed.")
 
     # remove status file
     if os.path.exists(STATUS_FILE_BACKUP):
         os.remove(STATUS_FILE_BACKUP)
+
+# ------------------------------------------------------------------------------
+def parse_cron_part(cron_part, current_value):
+    if cron_part == '*':
+        return set(range(60))  # Jeder Wert von 0 bis 59 ist gültig
+    elif '/' in cron_part:
+        step = int(cron_part.split('/')[1])
+        return set(range(0, 60, step))  # Start bei 0, Schrittweise in Schritten von 'step'
+    elif '-' in cron_part:
+        start, end = map(int, cron_part.split('-'))
+        return set(range(start, end + 1))
+    else:
+        return {int(cron_part)}
 
 # ------------------------------------------------------------------------------
 def NewVersion_FrontendNotification(newVersion,update_notes):
@@ -358,49 +378,56 @@ def checkNewVersion():
     closeDB()
 
 #-------------------------------------------------------------------------------
-def run_speedtest_task():
+def run_speedtest_task(start_time, crontab_string):
+    # convert cron string
+    crontab_parts = crontab_string.split()
+    minute = parse_cron_part(crontab_parts[0], start_time.minute)
+    hour = parse_cron_part(crontab_parts[1], start_time.hour)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
+    month = parse_cron_part(crontab_parts[3], start_time.month)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+
     # Define the command and arguments
     command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
-    if len(SPEEDTEST_TASK_HOUR) != 0:
+    # Compare cron
+    if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
+       (start_time.month in month) and (start_time.weekday() in day_of_week):
         openDB()
-        for value in SPEEDTEST_TASK_HOUR:
-            if value == startTime.hour and startTime.minute == 0:
-                try:
-                    output = subprocess.check_output(command, text=True)
-                    # Parse the JSON output
-                    result = json.loads(output)
-                    # Access the speed test results
-                    speedtest_isp = result['isp']
-                    speedtest_server = result['server']['name'] + ' (' + result['server']['location'] + ') (' + result['server']['host'] + ')'
-                    speedtest_ping = result['ping']['latency']
-                    speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
-                    speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
-                    # Build output
-                    speedtest_output = ""
-                    speedtest_output += f"    ISP:            {speedtest_isp}\n"
-                    speedtest_output += f"    Server:         {speedtest_server}\n\n"
-                    speedtest_output += f"    Ping:           {speedtest_ping} ms\n"
-                    speedtest_output += f"    Download Speed: {speedtest_down} Mbps\n"
-                    speedtest_output += f"    Upload Speed:   {speedtest_up} Mbps\n"
-                    print(speedtest_output)
-                    # Prepare db string
-                    speedtest_db_output = speedtest_output.replace("\n", "<br>")
-                    # Insert in db
-                    sql.execute ("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
-                                    VALUES (?, ?, ?, ?, ?, ?) """, (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
-                    # Logging
-                    sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                                    VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """, (startTime, speedtest_db_output))
-                    sql_connection.commit()
-                except subprocess.CalledProcessError as e:
-                    print(f"Error running 'speedtest': {e}")
-                except json.JSONDecodeError as e:
-                    print(f"Error parsing JSON output: {e}")
-            else :
-                print (f"    Planned time ({value}:00) not reached yet")
+        try:
+            output = subprocess.check_output(command, text=True)
+            # Parse the JSON output
+            result = json.loads(output)
+            # Access the speed test results
+            speedtest_isp = result['isp']
+            speedtest_server = result['server']['name'] + ' (' + result['server']['location'] + ') (' + result['server']['host'] + ')'
+            speedtest_ping = result['ping']['latency']
+            speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
+            speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
+            # Build output
+            speedtest_output = ""
+            speedtest_output += f"    ISP:            {speedtest_isp}\n"
+            speedtest_output += f"    Server:         {speedtest_server}\n\n"
+            speedtest_output += f"    Ping:           {speedtest_ping} ms\n"
+            speedtest_output += f"    Download Speed: {speedtest_down} Mbps\n"
+            speedtest_output += f"    Upload Speed:   {speedtest_up} Mbps\n"
+            print(speedtest_output)
+            # Prepare db string
+            speedtest_db_output = speedtest_output.replace("\n", "<br>")
+            # Insert in db
+            sql.execute ("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
+                            VALUES (?, ?, ?, ?, ?, ?) """, (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
+            # Logging
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                            VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """, (startTime, speedtest_db_output))
+            sql_connection.commit()
+        except subprocess.CalledProcessError as e:
+            print(f"Error running 'speedtest': {e}")
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON output: {e}")
+
         closeDB()
     else:
-        print("    The Parameter SPEEDTEST_TASK_HOUR is not set.")
+        print("    Speedtest function was NOT executed.")
     return 0
 
 #-------------------------------------------------------------------------------

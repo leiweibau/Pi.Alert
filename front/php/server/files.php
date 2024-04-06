@@ -82,9 +82,17 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'GetARPStatus':GetARPStatus();
 		break;
+	case 'GetAutoBackupStatus':GetAutoBackupStatus();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function GetAutoBackupStatus() {
+	global $pia_lang;
+	if (file_exists("../../../back/.backup")) {$result = array('Task pending');} else {$result = array('paused');}
+	echo json_encode($result);
 }
 
 function GetARPStatus() {

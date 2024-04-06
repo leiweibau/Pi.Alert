@@ -102,9 +102,9 @@ function format_temperature($celsius, $temperaturelimit) {
 		// Only show temp info if any data is available -->
 		$tempcolor = 'text-vivid-blue';
 		if (isset($temperaturelimit) && $celsius > $temperaturelimit) {$tempcolor = 'text-red fa-gradient-red';}
-		echo '<span id="temperature"><i class="fa fa-w fa-fire ' . $tempcolor . '" style="width: 1em !important"></i> ';
-		echo 'Temp:&nbsp;<span id="rawtemp" hidden>' . $celsius . '</span>';
-		echo '<span id="tempdisplay"></span></span>';
+		echo '<span id="temperature">
+		         <i class="fa fa-w fa-fire ' . $tempcolor . '" style="width: 1em !important"></i> Temp:&nbsp;<span id="rawtemp" hidden>' . $celsius . '</span><span id="tempdisplay"></span>
+		      </span>';
 	}
 }
 // Sidebar Menu - Web Services Menu Items
