@@ -97,7 +97,7 @@ function GetAutoBackupStatus() {
 
 function GetARPStatus() {
 	global $pia_lang;
-	if (!file_exists("../../../back/.scanning")) {$result = array($pia_lang['Maintenance_arpscancout_norun']);} else {$result = array('');}
+	if (file_exists("../../../back/.scanning")) {$result = array('');} else {$result = array($pia_lang['Maintenance_arpscancout_norun']);}
 	echo json_encode($result);
 }
 
@@ -201,6 +201,8 @@ PIALERT_WEB_PROTECTION = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']
 PIALERT_WEB_PASSWORD   = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
 NETWORK_DNS_SERVER     = '" . $configArray['NETWORK_DNS_SERVER'] . "'
 AUTO_UPDATE_CHECK      = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
+AUTO_DB_BACKUP         = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
+AUTO_DB_BACKUP_CRON    = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
 
 # Other Modules
 # ----------------------
@@ -289,7 +291,7 @@ DDNS_UPDATE_URL   = '" . $configArray['DDNS_UPDATE_URL'] . "'
 # Automatic Speedtest
 # ----------------------
 SPEEDTEST_TASK_ACTIVE = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIVE']) . "
-SPEEDTEST_TASK_HOUR   = " . $configArray['SPEEDTEST_TASK_HOUR'] . "
+SPEEDTEST_TASK_CRON   = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
 
 # Arp-scan Options & Samples
 # ----------------------

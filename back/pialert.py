@@ -231,7 +231,7 @@ def check_internet_IP():
         # Check if Speedtest is installed
         speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
         if os.path.exists(speedtest_binary):
-            print(f"\nRun planed Speedtest... [{SPEEDTEST_TASK_CRON}]")
+            print(f"\nRun planed Speedtest...")
             print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
             run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
         else:
@@ -253,14 +253,15 @@ def check_internet_IP():
 
     # Auto Backup
     if AUTO_DB_BACKUP :
-        print(f"\nAuto Backup... [{AUTO_DB_BACKUP_CRON}]")
+        print(f"\nAuto Backup...")
         print(f"    Crontab: {AUTO_DB_BACKUP_CRON}")
         if not os.path.exists(STATUS_FILE_BACKUP):
             create_autobackup(startTime, AUTO_DB_BACKUP_CRON)
         else:
             print("    Backup function pending.")
     else:
-        print(f"Skipping Auto Backup... Not activated!")
+        print(f"\nAuto Backup...")
+        print(f"    Skipping Auto Backup... Not activated!")
 
     return 0
 
@@ -294,9 +295,11 @@ def create_autobackup(start_time, crontab_string):
             # Create Backup
             BACKUP_FILE_DATE = str(start_time)
             BACKUP_FILE = PIALERT_BACK_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".txt"
+            time.sleep(10)  # wait 15s to finish the reporting
+            #### Backuptask start ####
             with open(BACKUP_FILE, "w") as f:
                 f.write(str(datetime.datetime.now()))
-            #print(f"    {str(datetime.datetime.now())}")
+            #### Backuptask end ####
     else:
         print(f"    Backup function was NOT executed.")
 
@@ -314,6 +317,9 @@ def parse_cron_part(cron_part, current_value):
     elif '-' in cron_part:
         start, end = map(int, cron_part.split('-'))
         return set(range(start, end + 1))
+    elif ',' in cron_part:
+        values = cron_part.split(',')
+        return set(int(value) for value in values)
     else:
         return {int(cron_part)}
 

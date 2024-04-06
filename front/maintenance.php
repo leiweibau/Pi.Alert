@@ -1169,9 +1169,9 @@ function GetARPStatus() {
 
 function GetAutoBackupStatus() {
   $.get('php/server/files.php?action=GetAutoBackupStatus', function(data) {
-    var arpproccount = JSON.parse(data);
+    var backupproccount = JSON.parse(data);
     
-    $('#autobackupstatus').html(arpproccount[0].toLocaleString());
+    $('#autobackupstatus').html(backupproccount[0].toLocaleString());
   } );
 }
 
@@ -1196,6 +1196,7 @@ function UpdateStatusBox() {
 
 setInterval(UpdateStatusBox, 15000);
 GetModalLogContent();
+GetARPStatus();
 GetAutoBackupStatus();
 startCountdown();
 </script>
