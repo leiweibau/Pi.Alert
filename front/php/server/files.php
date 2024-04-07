@@ -201,6 +201,7 @@ PIALERT_WEB_PROTECTION = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']
 PIALERT_WEB_PASSWORD   = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
 NETWORK_DNS_SERVER     = '" . $configArray['NETWORK_DNS_SERVER'] . "'
 AUTO_UPDATE_CHECK      = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
+AUTO_UPDATE_CHECK_CRON = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
 AUTO_DB_BACKUP         = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
 AUTO_DB_BACKUP_CRON    = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
 

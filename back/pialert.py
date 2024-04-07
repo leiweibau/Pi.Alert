@@ -227,40 +227,36 @@ def check_internet_IP():
         print('\nSkipping Dynamic DNS update...')
 
     # Run automated Speedtest
+    print(f"\nAuto Speedtest...")
     if SPEEDTEST_TASK_ACTIVE :
         # Check if Speedtest is installed
         speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
         if os.path.exists(speedtest_binary):
-            print(f"\nRun planed Speedtest...")
             print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
             run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
         else:
-            print('\nSkipping Speedtest... Not installed!')
+            print('    Skipping Speedtest... Not installed!')
     else :
-        print('\nSkipping Speedtest...')
+        print('    Skipping Speedtest... Not activated!')
 
     # Run automated UpdateCheck
+    print(f"\nAuto Update-Check...")
     if AUTO_UPDATE_CHECK :
-        if startTime.hour in [3, 9, 15, 21] and startTime.minute == 0:
-            checkNewVersion()
-        else:
-            print(f"\nAuto Update-Check...")
-            print(f"    Time to search for a new version has not yet been reached\n    (3, 9, 15 or 21 o'clock).")
+        print(f"    Crontab: {AUTO_UPDATE_CHECK_CRON}")
+        checkNewVersion(startTime, AUTO_UPDATE_CHECK_CRON)
     else:
         NewVersion_FrontendNotification(False,"")
-        print(f"\nAuto Update-Check...")
         print(f"    Skipping Auto Update-Check... Not activated!")
 
-    # Auto Backup
+    # Run automated Backup
+    print(f"\nAuto Backup...")
     if AUTO_DB_BACKUP :
-        print(f"\nAuto Backup...")
         print(f"    Crontab: {AUTO_DB_BACKUP_CRON}")
         if not os.path.exists(STATUS_FILE_BACKUP):
             create_autobackup(startTime, AUTO_DB_BACKUP_CRON)
         else:
             print("    Backup function pending.")
     else:
-        print(f"\nAuto Backup...")
         print(f"    Skipping Auto Backup... Not activated!")
 
     return 0
@@ -339,49 +335,64 @@ def NewVersion_FrontendNotification(newVersion,update_notes):
             print("    Remove Frontend Notification.")
 
 # ------------------------------------------------------------------------------
-def checkNewVersion():
-    newVersion = False
-    currentversion = VERSION_DATE
+def checkNewVersion(start_time, crontab_string):
 
-    print(f"\nAuto Update-Check...")
-    print(f"    Current Version: {currentversion}")
+    # convert cron string
+    crontab_parts = crontab_string.split()
+    minute = parse_cron_part(crontab_parts[0], start_time.minute)
+    hour = parse_cron_part(crontab_parts[1], start_time.hour)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
+    month = parse_cron_part(crontab_parts[3], start_time.month)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
 
-    UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1"
+    # Compare cron
+    if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
+       (start_time.month in month) and (start_time.weekday() in day_of_week):
+
+        newVersion = False
+        currentversion = VERSION_DATE
+
+        print(f"    Current Version: {currentversion}")
+
+        UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1"
         #UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&sha=next_update&page=1&per_page=1"
-    data = ""
-    update_notes = ""
-
-    try:
-        url = requests.get(UPDATE_CHECK_URL)
-        text = url.text
-        data = json.loads(text)
-    except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as e:
-        print("    ERROR: Couldn't check for new release.")
         data = ""
+        update_notes = ""
 
-    openDB()
-    if data != "" and len(data) > 0 and isinstance(data, list) and "commit" in data[0]:
-        dateTimeStr = data[0]['commit']['author']['date']
-        update_notes = data[0]['commit']['message']
-        date_obj = datetime.datetime.strptime(dateTimeStr, '%Y-%m-%dT%H:%M:%SZ')
-        latestversion = date_obj.strftime('%Y-%m-%d')
+        try:
+            url = requests.get(UPDATE_CHECK_URL)
+            text = url.text
+            data = json.loads(text)
+        except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as e:
+            print("    ERROR: Couldn't check for new release.")
+            data = ""
 
-        if latestversion > currentversion:
-            print(f"    New version {latestversion} is available!")
-            newVersion = True
-            NewVersion_FrontendNotification(newVersion,update_notes)
-            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                           VALUES (?, 'c_060', 'cronjob', 'LogStr_0061', '', '') """, (startTime,))
+        openDB()
+        if data != "" and len(data) > 0 and isinstance(data, list) and "commit" in data[0]:
+            dateTimeStr = data[0]['commit']['author']['date']
+            update_notes = data[0]['commit']['message']
+            date_obj = datetime.datetime.strptime(dateTimeStr, '%Y-%m-%dT%H:%M:%SZ')
+            latestversion = date_obj.strftime('%Y-%m-%d')
+
+            if latestversion > currentversion:
+                print(f"    New version {latestversion} is available!")
+                newVersion = True
+                NewVersion_FrontendNotification(newVersion,update_notes)
+                sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                               VALUES (?, 'c_060', 'cronjob', 'LogStr_0061', '', '') """, (startTime,))
+            else:
+                print("    Running the latest version.")
+                NewVersion_FrontendNotification(newVersion,update_notes)
+                sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                               VALUES (?, 'c_060', 'cronjob', 'LogStr_0067', '', '') """, (startTime,))
         else:
-            print("    Running the latest version.")
             NewVersion_FrontendNotification(newVersion,update_notes)
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                           VALUES (?, 'c_060', 'cronjob', 'LogStr_0067', '', '') """, (startTime,))
+                   VALUES (?, 'c_060', 'cronjob', 'LogStr_0066', '', '') """, (startTime,))
+        closeDB()
+
     else:
-        NewVersion_FrontendNotification(newVersion,update_notes)
-        sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-               VALUES (?, 'c_060', 'cronjob', 'LogStr_0066', '', '') """, (startTime,))
-    closeDB()
+        print(f"    Version Ceck function was NOT executed.")
 
 #-------------------------------------------------------------------------------
 def run_speedtest_task(start_time, crontab_string):
