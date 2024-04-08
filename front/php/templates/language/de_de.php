@@ -1,5 +1,12 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Maintenance_autobackup'] = 'Auto-Backup';
+$pia_lang['Maintenance_autobackup_on'] = 'Aktiviert';
+$pia_lang['Maintenance_autobackup_off'] = 'Deaktiviert';
+$pia_lang['BackFiles_autobackup_pause'] = 'Pausiert';
+$pia_lang['BackFiles_autobackup_pending'] = 'In Warteschleife';
+
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';

@@ -135,12 +135,12 @@ if ($_REQUEST['tab'] == '1') {
         </div>
         <div class="box-body" style="padding-bottom: 5px;">
             <div class="db_info_table">
-                <div class="db_info_table_row">
+<!--                 <div class="db_info_table_row">
                     <div class="db_info_table_cell" style="min-width: 140px"><?=$pia_lang['Maintenance_database_path'];?></div>
                     <div class="db_info_table_cell" style="width: 70%">
                         <input readonly value="<?=$DB_SOURCE;?>" class="statusbox_ro_inputs">
                     </div>
-                </div>
+                </div> -->
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_size'];?></div>
                     <div class="db_info_table_cell">
@@ -168,12 +168,19 @@ if ($_REQUEST['tab'] == '1') {
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_arp_status'];?></div>
                     <div class="db_info_table_cell">
-                        <?php echo $_SESSION['arpscan_result'];
-read_arpscan_timer(); ?></div>
+<?php 
+echo $_SESSION['arpscan_result'];
+read_arpscan_timer();
+?>                  </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell">Auto-Backup Status</div>
-                    <div class="db_info_table_cell"><span id="autobackupstatus"></span></div>
+                    <div class="db_info_table_cell"><?=$pia_lang['Maintenance_autobackup'];?></div>
+                    <div class="db_info_table_cell">
+<?php
+if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['Maintenance_autobackup_on'].' / ';} else {echo $pia_lang['Maintenance_autobackup_off'];}
+?>  
+                        <span id="autobackupstatus"></span>
+                    </div>
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell">Api-Key</div>
@@ -1143,7 +1150,6 @@ function startCountdown() {
                 // Reset countdown for the next 5-minute interval
                 countdownMinutes = 4;
                 countdownSeconds = 59;
-                GetARPStatus();
             }
         }
         displayCountdown(countdownMinutes, countdownSeconds);
@@ -1153,6 +1159,10 @@ function startCountdown() {
 function displayCountdown(minutes, seconds) {
     var countdownElement = document.getElementById('nextscancountdown');
     countdownElement.textContent = '(next Scan in: ' + formatTime(minutes) + ':' + formatTime(seconds) + ')';
+    if (minutes == 4 && seconds == 59) {
+        GetARPStatus();
+        GetAutoBackupStatus();
+    }
 }
 
 function formatTime(time) {

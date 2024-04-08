@@ -42,6 +42,9 @@ $geolite_update = json_decode($query, true);
 
 // Get GeoIP Version from Tag Name
 $geolite_new_version = $geolite_update['name'];
+for ($x=0;$x<=2;$x++) {
+	if ($geolite_update['assets'][$x]['name'] == "GeoLite2-Country.mmdb") {$geolite_update_filesize = round(($geolite_update['assets'][$x]['size']/1024/1024), 2);}
+}
 // GeoIP Version from file system
 $geoliteDB_file = '../../../db/GeoLite2-Country.mmdb';
 if (file_exists($geoliteDB_file)) {
@@ -83,7 +86,7 @@ if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_ver
 				<h4 class="text-aqua" style="text-align: center;">' . $pia_lang['GeoLiteDB_Title'] . '</h4>
 				<p class="updatechk_font_a">
 				' . $pia_lang['GeoLiteDB_cur'] . ': 	<span class="text-green">	' . $geolite_cur_version . '</span> <span style="font-weight: normal;">('.$geolite_cur_filesize.' MB)</span><br>
-				' . $pia_lang['GeoLiteDB_new'] . ': 	<span class="text-red">		' . $geolite_new_version . '</span>
+				' . $pia_lang['GeoLiteDB_new'] . ': 	<span class="text-red">		' . $geolite_new_version . '</span> <span style="font-weight: normal;">('.$geolite_update_filesize.' MB)</span>
 				</p>
 
           <div class="row" style="margin-top: 30px;">

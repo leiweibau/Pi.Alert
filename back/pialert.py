@@ -7,7 +7,7 @@
 #  pialert.py - Back module. Network scanner, Web service monitor
 #-------------------------------------------------------------------------------
 #  Puche 2021                                              GNU GPLv3
-#  leiweibau 2023                                          GNU GPLv3
+#  leiweibau 2024                                          GNU GPLv3
 #  piapiacz, hspindel
 #-------------------------------------------------------------------------------
 
@@ -288,7 +288,6 @@ def create_autobackup(start_time, crontab_string):
             time.sleep(1)  # wait 1 second
         else:
             print("    Backup is started...")
-            # Create Backup
             BACKUP_FILE_DATE = str(start_time)
             BACKUP_FILE = PIALERT_BACK_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".txt"
             time.sleep(10)  # wait 15s to finish the reporting
@@ -382,10 +381,12 @@ def checkNewVersion(start_time, crontab_string):
                                VALUES (?, 'c_060', 'cronjob', 'LogStr_0061', '', '') """, (startTime,))
             else:
                 print("    Running the latest version.")
+                # newVersion is still FALSE
                 NewVersion_FrontendNotification(newVersion,update_notes)
                 sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                                VALUES (?, 'c_060', 'cronjob', 'LogStr_0067', '', '') """, (startTime,))
         else:
+            # newVersion is still FALSE
             NewVersion_FrontendNotification(newVersion,update_notes)
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                    VALUES (?, 'c_060', 'cronjob', 'LogStr_0066', '', '') """, (startTime,))

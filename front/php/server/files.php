@@ -91,7 +91,7 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 
 function GetAutoBackupStatus() {
 	global $pia_lang;
-	if (file_exists("../../../back/.backup")) {$result = array('Task pending');} else {$result = array('paused');}
+	if (file_exists("../../../back/.backup")) {$result = array($pia_lang['BackFiles_autobackup_pending']);} else {$result = array($pia_lang['BackFiles_autobackup_pause']);}
 	echo json_encode($result);
 }
 
