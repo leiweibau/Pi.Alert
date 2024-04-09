@@ -34,8 +34,9 @@ import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, req
 PIALERT_BACK_PATH = os.path.dirname(os.path.abspath(__file__))
 PIALERT_PATH = PIALERT_BACK_PATH + "/.."
 PIALERT_WEBSERVICES_LOG = PIALERT_PATH + "/log/pialert.webservices.log"
-STOPPIALERT = PIALERT_PATH + "/db/setting_stoppialert"
+STOPPIALERT = PIALERT_PATH + "/config/setting_stoppialert"
 PIALERT_DB_FILE = PIALERT_PATH + "/db/pialert.db"
+PIALERT_DB_PATH = PIALERT_PATH + "/db"
 REPORTPATH_WEBGUI = PIALERT_PATH + "/front/reports/"
 STATUS_FILE_SCAN = PIALERT_BACK_PATH + "/.scanning"
 STATUS_FILE_BACKUP = PIALERT_BACK_PATH + "/.backup"
@@ -289,11 +290,16 @@ def create_autobackup(start_time, crontab_string):
         else:
             print("    Backup is started...")
             BACKUP_FILE_DATE = str(start_time)
-            BACKUP_FILE = PIALERT_BACK_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".txt"
-            time.sleep(10)  # wait 15s to finish the reporting
+            BACKUP_FILE = PIALERT_DB_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".zip"
+            time.sleep(20)  # wait 15s to finish the reporting
             #### Backuptask start ####
-            with open(BACKUP_FILE, "w") as f:
-                f.write(str(datetime.datetime.now()))
+
+            sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
+            subprocess.run(sqlite_command, check=True)
+            subprocess.run(['zip', '-j', '-qq', BACKUP_FILE, '/home/devola/pialert/back/../db/temp/pialert.db'], check=True)
+            time.sleep(4)
+            os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
+
             #### Backuptask end ####
     else:
         print(f"    Backup function was NOT executed.")
