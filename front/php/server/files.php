@@ -15,14 +15,10 @@ if ($_SESSION["login"] != 1) {
 	exit;
 }
 
-foreach (glob("../../../db/setting_language*") as $filename) {
-	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
-}
-if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
-
 require 'db.php';
 require 'util.php';
 require 'journal.php';
+require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
 // Action selector
@@ -536,7 +532,7 @@ function setDeviceListCol() {
 	if (($_REQUEST['wakeonlan'] == 0) || ($_REQUEST['wakeonlan'] == 1)) {$Set_WakeOnLAN = $_REQUEST['wakeonlan'];} else {echo "Error. Wrong variable value!";exit;}
 	echo $pia_lang['BackDevices_DevListCol_noti_text'];
 	$config_array = array('ConnectionType' => $Set_ConnectionType, 'Favorites' => $Set_Favorites, 'Group' => $Set_Group, 'Owner' => $Set_Owner, 'Type' => $Set_Type, 'FirstSession' => $Set_First_Session, 'LastSession' => $Set_Last_Session, 'LastIP' => $Set_LastIP, 'MACType' => $Set_MACType, 'MACAddress' => $Set_MACAddress, 'Location' => $Set_Location, 'WakeOnLAN' => $Set_WakeOnLAN);
-	$DevListCol_file = '../../../db/setting_devicelist';
+	$DevListCol_file = '../../../config/setting_devicelist';
 	$DevListCol_new = fopen($DevListCol_file, 'w');
 	fwrite($DevListCol_new, json_encode($config_array));
 	fclose($DevListCol_new);
@@ -552,7 +548,7 @@ function PurgeDBBackups() {
 	// Clean DB Backups
 	$Pia_Archive_Path = '../../../db';
 	$Pia_Backupfiles = array();
-	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.db', 'pialertdb-reset.zip', 'temp', 'GeoLite2-Country.mmdb', 'pialert.db-shm', 'pialert.db-wal', 'pialertcsv.zip'));
+	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.db', 'temp', 'GeoLite2-Country.mmdb', 'pialert.db-shm', 'pialert.db-wal', 'pialertcsv.zip'));
 	foreach ($files as &$item) {
 		$item = $Pia_Archive_Path . '/' . $item;
 		if (stristr($item, 'setting_') == '') {array_push($Pia_Backupfiles, $item);}
@@ -572,7 +568,7 @@ function PurgeDBBackups() {
 	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.conf', 'version.conf', 'pialert-prev.bak', 'pialert.conf.back'));
 	foreach ($files as &$item) {
 		$item = $Pia_Archive_Path . '/' . $item;
-		array_push($Pia_Backupfiles, $item);
+		if (stristr($item, 'setting_') == '') {array_push($Pia_Backupfiles, $item);}
 	}
 	if (sizeof($Pia_Backupfiles) > 3) {
 		rsort($Pia_Backupfiles);
@@ -591,7 +587,7 @@ function PurgeDBBackups() {
 
 //  Toggle Dark/Light Themes
 function EnableDarkmode() {
-	$file = '../../../db/setting_darkmode';
+	$file = '../../../config/setting_darkmode';
 	global $pia_lang;
 
 	if (file_exists($file)) {
@@ -612,7 +608,7 @@ function EnableDarkmode() {
 
 //  Toggle History Graph Themes
 function EnableOnlineHistoryGraph() {
-	$file = '../../../db/setting_noonlinehistorygraph';
+	$file = '../../../config/setting_noonlinehistorygraph';
 	global $pia_lang;
 
 	if (file_exists($file)) {
@@ -664,7 +660,7 @@ function setTheme() {
 		'leiweibau_light');
 
 	if (isset($_REQUEST['SkinSelection'])) {
-		$skin_set_dir = '../../../db/';
+		$skin_set_dir = '../../../config/';
 		// echo "Enter Level 1";
 		$skin_selector = htmlspecialchars($_REQUEST['SkinSelection']);
 		if (in_array($skin_selector, $installed_skins)) {
@@ -734,7 +730,7 @@ function setLanguage() {
 		'it_it');
 
 	if (isset($_REQUEST['LangSelection'])) {
-		$pia_lang_set_dir = '../../../db/';
+		$pia_lang_set_dir = '../../../config/';
 		$pia_lang_selector = htmlspecialchars($_REQUEST['LangSelection']);
 		if (in_array($pia_lang_selector, $pia_installed_langs)) {
 			foreach ($pia_installed_langs as $file) {
@@ -767,8 +763,8 @@ function setArpTimer() {
 	global $pia_lang;
 
 	if (isset($_REQUEST['ArpTimer'])) {
-		$pia_lang_set_dir = '../../../db/';
-		$file = '../../../db/setting_stoppialert';
+		#$pia_lang_set_dir = '../../../config/';
+		$file = '../../../config/setting_stoppialert';
 		if (file_exists($file)) {
 			echo $pia_lang['BackDevices_Arpscan_enabled'];
 			// Logging
@@ -933,7 +929,7 @@ function setFavIconURL() {
 				echo $pia_lang['BackFiles_FavIcon_ErrorURL'];
 			}
 		}
-		$file_path = '../../../db/setting_favicon';
+		$file_path = '../../../config/setting_favicon';
 		file_put_contents($file_path, $newfavicon_url);
 	}
 

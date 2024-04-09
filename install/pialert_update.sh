@@ -127,6 +127,12 @@ move_files() {
     echo "- Moving speedtest to temporary directory..."
     mv "$PIALERT_HOME/back/speedtest" "$PIALERT_HOME/config"
   fi
+  if ls "$PIALERT_HOME/db/setting_"* 1> /dev/null 2>&1; then
+    echo "- Moving setting-files to new directory..."
+    mv "$PIALERT_HOME/db/setting_"* "$PIALERT_HOME/config/"
+  fi
+
+
 }
 
 # ------------------------------------------------------------------------------
@@ -219,17 +225,6 @@ update_config() {
   cp "$PIALERT_HOME/config/pialert.conf" "$PIALERT_HOME/config/pialert.conf.back"  2>&1 >> "$LOG"
 
   print_msg "- Updating config file..."
-
-# 2023-09-22
-if ! grep -Fq "# ICMP Monitoring Options" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# ICMP Monitoring Options
-# ----------------------
-ICMP_ONLINE_TEST  = 1
-ICMP_GET_AVG_RTT  = 2
-EOF
-fi
 
 # 2023-10-09
 if ! grep -Fq "UNIFI_API" "$PIALERT_HOME/config/pialert.conf" ; then

@@ -15,15 +15,11 @@ if ($_SESSION["login"] != 1) {
 	exit;
 }
 
-foreach (glob("../../../db/setting_language*") as $filename) {
-	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
-}
-if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
-
 // External files
 require 'db.php';
 require 'util.php';
 require 'journal.php';
+require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
 //  Action selector
