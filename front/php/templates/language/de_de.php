@@ -657,7 +657,7 @@ $pia_lang['ookla_devdetails_table_up'] = 'Upload';
 //////////////////////////////////////////////////////////////////
 $pia_lang['nmap_no_scan_results'] = 'Keine offenen Ports entdeckt';
 $pia_lang['nmap_devdetails_scanmode'] = 'Modus';
-$pia_lang['nmap_devdetails_download'] = 'Scans als CVS speichern';
+$pia_lang['nmap_devdetails_download'] = 'Scans als CSV speichern';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Es befinden sich <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> Scan-Ergebnisse in der Datenbank';
 // =============================================================================================================

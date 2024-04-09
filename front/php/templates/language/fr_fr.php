@@ -645,7 +645,7 @@ $pia_lang['ookla_devdetails_table_up'] = 'Téléversement';
 //////////////////////////////////////////////////////////////////
 $pia_lang['nmap_no_scan_results'] = 'Nessuna porta aperta scoperta';
 $pia_lang['nmap_devdetails_scanmode'] = 'Mode';
-$pia_lang['nmap_devdetails_download'] = 'Enregistrer les Scans en CVS';
+$pia_lang['nmap_devdetails_download'] = 'Enregistrer les Scans en CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Il y a <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> résultats de scan dans la base de données';
 // =============================================================================================================

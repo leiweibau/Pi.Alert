@@ -646,7 +646,7 @@ $pia_lang['ookla_devdetails_table_up'] = 'Carga';
 //////////////////////////////////////////////////////////////////
 $pia_lang['nmap_no_scan_results'] = 'Aucun port ouvert découvert';
 $pia_lang['nmap_devdetails_scanmode'] = 'Mode';
-$pia_lang['nmap_devdetails_download'] = 'Guardar Escaneos como CVS';
+$pia_lang['nmap_devdetails_download'] = 'Guardar Escaneos como CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Hay <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> resultados de escaneos en la base de datos';
 // =============================================================================================================
