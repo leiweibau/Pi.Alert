@@ -146,11 +146,14 @@ echo '<div class="box box-solid">
         </div>
       </div>';
 
-// Client ----------------------------------------------------------
+// DB Info ----------------------------------------------------------
 echo '<div class="box box-solid">
         <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert Database Details</h3></div>
         <div class="box-body">
         	<div style="height: 300px; overflow-y: scroll; overflow-x: hidden;">';
+
+$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
+echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
 
 
 $db = new SQLite3('../db/pialert.db');

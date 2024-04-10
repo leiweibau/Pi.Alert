@@ -1,5 +1,12 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Maintenance_autobackup'] = 'Auto-Backup';
+$pia_lang['Maintenance_autobackup_on'] = 'Abilitato';
+$pia_lang['Maintenance_autobackup_off'] = 'Disabilitato';
+$pia_lang['BackFiles_autobackup_pause'] = 'In pausa';
+$pia_lang['BackFiles_autobackup_pending'] = 'In attesa';
+
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Guardia di Rete Open Source';
@@ -322,9 +329,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Disponibilità';
 //////////////////////////////////////////////////////////////////
 $pia_lang['Maintenance_arpscancout_norun'] = 'No';
 $pia_lang['Maintenance_Title'] = 'Impostazioni e Manutenzione';
-$pia_lang['Maintenance_database_path'] = 'Percorso del Database';
-$pia_lang['Maintenance_database_size'] = 'Dimensione del Database';
-$pia_lang['Maintenance_database_lastmod'] = 'Ultimo aggiornamento (DB)';
+$pia_lang['Maintenance_database_lastmod'] = 'Ultimo aggiornamento / Dimensione (DB)';
 $pia_lang['Maintenance_database_backup'] = 'Backup: DB';
 $pia_lang['Maintenance_config_backup'] = 'Backup: Configurazione';
 $pia_lang['Maintenance_database_backup_found'] = 'Backup disponibili';
@@ -683,6 +688,7 @@ $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
 // cronjob
+$pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
 $pia_journ_lang['c_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['c_060'] = $pia_journ_lang['a_060'];

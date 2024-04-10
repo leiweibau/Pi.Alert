@@ -291,14 +291,29 @@ def create_autobackup(start_time, crontab_string):
             print("    Backup is started...")
             BACKUP_FILE_DATE = str(start_time)
             BACKUP_FILE = PIALERT_DB_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".zip"
-            time.sleep(20)  # wait 15s to finish the reporting
+            time.sleep(20)  # wait 20s to finish the reporting
             #### Backuptask start ####
 
+            # Backup DB (no further checks)
             sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
-            subprocess.run(sqlite_command, check=True)
-            subprocess.run(['zip', '-j', '-qq', BACKUP_FILE, '/home/devola/pialert/back/../db/temp/pialert.db'], check=True)
+            subprocess.check_output(sqlite_command, universal_newlines=True)
+            subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, '/home/devola/pialert/back/../db/temp/pialert.db'], universal_newlines=True)
             time.sleep(4)
             os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
+
+            # Backup config file
+            BACKUP_CONF_FILE = PIALERT_PATH + "/config/pialert-" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".bak"
+            subprocess.check_output('cp ' + PIALERT_PATH + '/config/pialert.conf ' + BACKUP_CONF_FILE, shell=True)
+
+            openDB()
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_010', 'cronjob', 'LogStr_0011', '', '') """, (startTime,))
+            sql_connection.commit()
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_000', 'cronjob', 'LogStr_0007', '', '') """, (startTime,))
+
+            sql_connection.commit()
+            closeDB()
 
             #### Backuptask end ####
     else:

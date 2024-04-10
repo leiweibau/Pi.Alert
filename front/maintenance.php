@@ -136,21 +136,15 @@ if ($_REQUEST['tab'] == '1') {
         <div class="box-body" style="padding-bottom: 5px;">
             <div class="db_info_table">
 <!--                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell" style="min-width: 140px"><?=$pia_lang['Maintenance_database_path'];?></div>
-                    <div class="db_info_table_cell" style="width: 70%">
-                        <input readonly value="<?=$DB_SOURCE;?>" class="statusbox_ro_inputs">
-                    </div>
-                </div> -->
-                <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_size'];?></div>
                     <div class="db_info_table_cell">
                         <?=$DB_SIZE_DATA;?>
                     </div>
-                </div>
+                </div> -->
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_lastmod'];?></div>
                     <div class="db_info_table_cell">
-                        <?=$DB_MOD_DATA.' '.$buffer_indicator;?>
+                        <?=$DB_MOD_DATA.' '.$buffer_indicator;?> /  <?=$DB_SIZE_DATA;?>
                     </div>
                 </div>
                 <div class="db_info_table_row">

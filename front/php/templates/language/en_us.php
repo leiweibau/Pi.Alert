@@ -1,5 +1,12 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Maintenance_autobackup'] = 'Auto-Backup';
+$pia_lang['Maintenance_autobackup_on'] = 'Enabled';
+$pia_lang['Maintenance_autobackup_off'] = 'Disabled';
+$pia_lang['BackFiles_autobackup_pause'] = 'Paused';
+$pia_lang['BackFiles_autobackup_pending'] = 'Pending';
+
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
@@ -322,9 +329,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Availability';
 //////////////////////////////////////////////////////////////////
 $pia_lang['Maintenance_arpscancout_norun'] = 'No';
 $pia_lang['Maintenance_Title'] = 'Settings and Maintenance';
-$pia_lang['Maintenance_database_path'] = 'Database-Path';
-$pia_lang['Maintenance_database_size'] = 'Database-Size';
-$pia_lang['Maintenance_database_lastmod'] = 'Last Update (DB)';
+$pia_lang['Maintenance_database_lastmod'] = 'Last Update / Size (DB)';
 $pia_lang['Maintenance_database_backup'] = 'DB Backups';
 $pia_lang['Maintenance_config_backup'] = 'Config Backups';
 $pia_lang['Maintenance_database_backup_found'] = 'backups were found';
@@ -678,6 +683,7 @@ $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
 // cronjob
+$pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
 $pia_journ_lang['c_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['c_060'] = $pia_journ_lang['a_060'];
