@@ -146,46 +146,6 @@ echo '<div class="box box-solid">
         </div>
       </div>';
 
-// DB Info ----------------------------------------------------------
-echo '<div class="box box-solid">
-        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert Database Details</h3></div>
-        <div class="box-body">
-        	<div style="height: 300px; overflow-y: scroll; overflow-x: hidden;">';
-
-$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
-echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
-
-
-$db = new SQLite3('../db/pialert.db');
-$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
-echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
-echo '<thead>
-		<tr role="row">
-			<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
-			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
-		</tr>
-	  </thead>';
-$table_color = 'odd';
-while ($table = $tablesQuery->fetchArray()) {
-	if ($table_color == 'odd') {$table_color = 'even';} else { $table_color = 'odd';}
-    $tableName = $table['name'];
-    
-    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
-    $rowCount = $rowCountQuery->fetchArray()['count'];
-
-    echo '<tr class="' . $table_color . '">
-    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
-    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
-    	</tr>';
-}
-echo '</table>';
-
-$db->close();
-
-echo '		</div>
-        </div>
-      </div>';
-
 // General ----------------------------------------------------------
 echo '<div class="box box-solid">
             <div class="box-header">
@@ -237,6 +197,46 @@ echo '<script>
 	var resolutionDiv = document.getElementById("resolution");
 	resolutionDiv.innerHTML = "Width: " + w + "px / Height: " + h + "px<br> " + "Width: " + rw + "px / Height: " + rh + "px (native)";
 </script>';
+
+// DB Info ----------------------------------------------------------
+echo '<div class="box box-solid">
+        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert Database Details</h3></div>
+        <div class="box-body">
+        	<div style="height: 300px; overflow-y: scroll; overflow-x: hidden;">';
+
+$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
+echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+
+
+$db = new SQLite3('../db/pialert.db');
+$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
+echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
+echo '<thead>
+		<tr role="row">
+			<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
+			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
+		</tr>
+	  </thead>';
+$table_color = 'odd';
+while ($table = $tablesQuery->fetchArray()) {
+	if ($table_color == 'odd') {$table_color = 'even';} else { $table_color = 'odd';}
+    $tableName = $table['name'];
+    
+    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
+    $rowCount = $rowCountQuery->fetchArray()['count'];
+
+    echo '<tr class="' . $table_color . '">
+    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
+    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
+    	</tr>';
+}
+echo '</table>';
+
+$db->close();
+
+echo '		</div>
+        </div>
+      </div>';
 
 // User Crontab -----------------------------------------------------
 echo '<div class="box box-solid">
