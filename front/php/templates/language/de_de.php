@@ -327,7 +327,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Verfügbarkeit';
 //////////////////////////////////////////////////////////////////
 $pia_lang['Maintenance_arpscancout_norun'] = 'Keine';
 $pia_lang['Maintenance_Title'] = 'Einstellungen und Wartung';
-$pia_lang['Maintenance_database_lastmod'] = 'Letzte Aktualisierung / Größe (DB)';
+$pia_lang['Maintenance_database_lastmod'] = 'Letzte Änderung / Größe (DB)';
 $pia_lang['Maintenance_database_backup'] = 'Sicherung: DB';
 $pia_lang['Maintenance_config_backup'] = 'Sicherung: Config';
 $pia_lang['Maintenance_database_backup_found'] = 'Sicherungen vorhanden';

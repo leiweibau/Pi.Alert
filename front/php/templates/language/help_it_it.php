@@ -113,6 +113,16 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
                                             <td class="help_table_gen_b">Attiva o disattiva la protezione con password dell&apos;interfaccia web di Pi.Alert.</td></tr>
                                         <tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
                                             <td class="help_table_gen_b">Questo campo contiene la password "hashata" per l&apos;interfaccia web. La password non può essere inserita in chiaro qui ma deve essere impostata tramite <span class="text-maroon help_faq_code">pialert-cli</span>.</td></tr>
+ 									    <tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
+									        <td class="help_table_gen_b"></td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
+									        <td class="help_table_gen_b"></td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
+									        <td class="help_table_gen_b"></td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
+									        <td class="help_table_gen_b"></td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
+									        <td class="help_table_gen_b"></td></tr>
                                     </table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">Altri moduli</td></tr>
@@ -179,6 +189,10 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
                                             <td class="help_table_gen_b">Questo è la chiave privata visualizzabile sulla pagina Pushsafer.</td></tr>
                                         <tr><td class="help_table_gen_a">PUSHSAFER_DEVICE</td>
                                             <td class="help_table_gen_b">L&apos;ID del dispositivo a cui inviare il messaggio. &apos;<span class="text-maroon help_faq_code">a</span>&apos; significa che il messaggio sarà inviato a tutti i dispositivi configurati e utilizzerà quindi molti API call.</td></tr>
+									    <tr><td class="help_table_gen_a">PUSHSAFER_PRIO</td>
+									        <td class="help_table_gen_b"></td></tr>
+									    <tr><td class="help_table_gen_a">PUSHSAFER_SOUND</td>
+									        <td class="help_table_gen_b"></td></tr>
                                     </table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">Pushover</td></tr>
@@ -190,6 +204,10 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
                                             <td class="help_table_gen_b">Noti anche come "APP TOKEN" o "API TOKEN". Questo token può essere ottenuto dalla pagina Pushover.</td></tr>
                                         <tr><td class="help_table_gen_a">PUSHOVER_USER</td>
                                             <td class="help_table_gen_b">O "USER KEY". Questo codice viene mostrato sulla homepage di Pushover subito dopo il login.</td></tr>
+									    <tr><td class="help_table_gen_a">PUSHOVER_PRIO</td>
+									        <td class="help_table_gen_b"></td></tr>
+									    <tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
+									        <td class="help_table_gen_b"></td></tr>
                                     </table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
@@ -207,6 +225,8 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
                                             <td class="help_table_gen_b">La password utilizzata per l&apos;autenticazione presso il server NTFY.</td></tr>
                                         <tr><td class="help_table_gen_a">NTFY_PRIORITY</td>
                                             <td class="help_table_gen_b">La priorità delle notifiche inviate tramite NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_CLICKABLE</td>
+									        <td class="help_table_gen_b"></td></tr>
                                     </table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">Shoutrrr</td></tr>
@@ -241,7 +261,7 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
 									    <tr><td class="help_table_gen_section" colspan="2">Automatic Speedtest</td></tr>
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_ACTIVE</td>
 									        <td class="help_table_gen_b">Attivare/disattivare il test di velocità automatico. Ciò richiede l&apos;installazione dello speed test di Ookla nella scheda "Strumenti" del dispositivo "Internet". Seguire le istruzioni durante l&apos;installazione.</td></tr>
-									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_HOUR</td>
+									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_CRON</td>
 									        <td class="help_table_gen_b">Ora intera, o ore separate da virgole, in cui deve essere avviato il test di velocità.</td></tr>
 									</table>
 									<table class="help_table_gen">
