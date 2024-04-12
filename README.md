@@ -2,10 +2,8 @@
 
 * [Introduction](#pialert)
 * [Scan Methodes](#scan-methods)
-* [Components](#components)
-  * [Back](#back)
-  * [Front](#front)
-  * [API](#api)
+* [Backend](#backend-back)
+* [Frontend](#frontend-front)
 * [Installation](#installation)
 * [Update](#update)
 * Additional information
@@ -34,104 +32,52 @@ include the detection of unwanted/foreign DHCP servers and device monitoring usi
 [Compare this fork with the main project](docs/VERSIONCOMPARE.md)
 
 
-## Scan Methods
+### Scan Methods
 
-  - **arp-scan**. The arp-scan system utility is used to search
-        for devices on the network using arp frames.
-  - **Pi-hole**. This method is optional. If the Pi-hole DNS server is active, Pi.Alert examines its
-        activity looking for active devices using DNS that have not been
-        detected by method 1.
-  - **dnsmasq**. This method is optional. If the DHCP server dnsmasq is active, Pi.Alert
-        examines the DHCP leases (addresses assigned) to find active devices
-        that were not discovered by the other methods.
-  - **Fritzbox**. This method is optional. If you use a Fritzbox (a router from the company "AVM"), 
-        it is possible to perform a query of the active hosts. This also 
-        includes hosts of the guest WLAN and Powerline devices from "AVM".
-  - **Mikrotik**. This method is optional. If you use Mikrotik RouterBoard as DHCP server,
-        it is possible to read DHCP leases.
-  - **UniFi**. This method is optional. If you use UniFi controller,
-        it is possible to read clients (Client Devices)
-  - **Web service monitoring**. This method is optional. An HTTP request is 
-        sent and the web server's response is processed. If self signed 
-        certificates are used, no validation of the certificate is performed.
-  - **ICMP monitoring**. This method is optional. A "ping" is sent to a manually specified
-        IP/hostname/domain name and the response is evaluated
-  - **DHCP Server Scan**. This method is optional. Nmap is used to send DHCP 
-        requests into the network to detect unknown (rogue) DHCP servers.
+  - **arp-scan**. The arp-scan system utility is used to search for devices on the network using arp frames.
+  - **Pi-hole**. If the Pi-hole DNS server is active, Pi.Alert examines its activity looking for active devices using DNS that have not been detected by other methods.
+  - **dnsmasq**. If the DHCP server dnsmasq is active, Pi.Alert examines the DHCP leases (addresses assigned) to find active devices that were not discovered by the other methods.
+  - **Fritzbox**. If you use a Fritzbox (a router from the company "AVM"), it is possible to perform a query of the active hosts. This also includes hosts of the guest WLAN and Powerline devices from "AVM".
+  - **Mikrotik**. If you use Mikrotik Router as DHCP server, it is possible to read DHCP leases.
+  - **UniFi**. If you use UniFi controller, it is possible to read clients (Client Devices)
+  - **Web service monitoring**. An HTTP request is sent and the web server's response is processed. If self signed certificates are used, no validation of the certificate is performed.
+  - **ICMP monitoring**. A "ping" is sent to a manually specified IP/hostname/domain name and the response is evaluated
+  - **DHCP Server Scan**. Nmap is used to send DHCP requests into the network to detect unknown (rogue) DHCP servers.
 
-## Components
-
-### Back
+### Backend (back)
 
 The backend is started at regular intervals via cronjobs of the user who installed Pi.Alert.
 
-<details>
-  <summary>:information_source: Expand for further information</summary>
+The system scans the network to detect connected devices using various scanning methods as described earlier. 
+It also verifies the accessibility of web services and notifies about any changes in SSL certificates. 
+The gathered information is stored in the database. Detected changes are reported via email and/or other services 
+such as [Pushsafer](https://www.pushsafer.com/), [Pushover](https://pushover.net/), NTFY, Gotify, and Telegram through [shoutrrr](docs/SHOUTRRR.md), as well as to the Frontend. Automated 
+tasks for cleaning up and optionally backing up the database are also performed. Additionally, optional speed tests of the Internet 
+connection can be conducted. Users can utilize the [pialert-cli](docs/PIALERTCLI.md) tool to configure login, password, and other 
+settings conveniently.
 
-  - Scan the network searching connected devices using the scanning methods described earlier
-  - Checks the reachability of web services and informs about SSL certificate changes
-  - Store the information in the DB
-  - Report the changes detected by e-mail and/or other services ([Pushsafer](https://www.pushsafer.com/), [Pushover](https://pushover.net/), NTFY, Gotify and Telegram via [shoutrrr](https://github.com/containrrr/shoutrrr/)) and to the Frontend
-  - automated DB cleanup tasks
-  - Optional speed tests of the Internet connection
-  - a [pialert-cli](docs/PIALERTCLI.md) that helps to configure login, password and some other things
+### Frontend (front)
 
-</details>
+A configurable login feature is available to prevent unauthorized access, with the default password set to "123456". By default, this feature is disabled. 
+To enable password protection, adjust the configuration settings either in the ~/pialert/config/pialert.conf file or via the pialert-cli tool.
 
-:bulb: <ins> Additional components and information</ins>
+Moreover, the system offers extensive functionalities:
 
-  - [pialert-cli - Overview of supported commands](docs/PIALERTCLI.md)
-  - [shoutrrr - Implementation notes](docs/SHOUTRRR.md)
+It manages device inventory and characteristics, facilitating individual management or bulk edits. The collected data, including sessions, connected devices, 
+favorites, events, presence, and internet IP address changes, is visually represented. For enhanced device management, manual Nmap scans and Wake-on-LAN 
+(if supported) are available, alongside speed tests for the "Internet" device in the details view.
 
-### Front
+Additionally, it provides insights into network relationships through a simple display. Users can perform various maintenance tasks and customize settings, 
+including language selection (English, German, Spanish, French, Italian), AdminLTE-Skins/Theme/Favicons selection, API-key configuration, login management, 
+database maintenance tools, and config file editing.
 
-There is a configurable login to prevent unauthorized use. The default password is "123456". By default, this is disabled. If you want to use password protection, enable it in the configuration file `~/pialert/config/pialert.conf` or via [pialert-cli](docs/PIALERTCLI.md).
+For support, a comprehensive Help/FAQ section is accessible. Notifications with download options keep users informed, while a journal tracks operations 
+performed via the frontend, pialert-cli, and cronjob. 
 
-<details>
-  <summary>:information_source: Expand for further information</summary>
+New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
+iOS devices, icons can be directly linked from the repository, as iOS devices may not load homescreen icons from insecure sources (without SSL or self-signed SSL).
 
-  - Manage the devices inventory and the characteristics (individually or with a [bulk editor](docs/BULKEDITOR.md))
-  - Display in a visual way all the information collected by the back *(Sessions, Connected devices, Favorites, Events, Presence, Internet IP address changes, ...)*
-  - Manual Nmap scans and Wake-on-LAN (must be supported by the target device) for regular devices and speedtest for the device "Internet" in the details view
-  - Simple [network relationship](docs/NETWORK_RELATIONSHIP.md) display
-  - Various maintenance tasks and settings (Selection):
-    - Language selection *(english, german, spanish, french, italian)*
-    - AdminLTE-Skins/Theme/FavIcon selection
-    - Set API-key
-    - Enable/Disable login
-    - DB maintenance tools
-    - Config file editor, and many more ...
-  - Help/FAQ section
-  - Notification page with download options
-  - Journal that tracks operations via the frontend, pialert-cli and cronjob
-
-</details>
-
-:bulb: <ins>Additional components and information</ins>
-
-  - Based on the original, I have created new icons according to the skins. Since I made the experience that iOS devices do not load homescreen icons from insecure sources (no SSL or selfsigned SSL), you can also link the icons directly from this repository.
-  - [List of Favicons/Homescreen icons](docs/ICONS.md)
-
-### API
-
-There are various ways to submit a request to the backend. I will use curl/bash and curl/php as examples in the following. 
-
-<details>
-  <summary>:information_source: Expand for further information</summary>
-
-Currently the API offers the possibility to query 6 things:
-  - System status *(Scan on or off, Counts all, online, offline, archived and new devices)*
-  - All online devices *(MAC, Name, Vendor, LastIP, Infrastructure, Infrastructure_port)*
-  - All offline devices *(MAC, Name, Vendor, LastIP, Infrastructure, Infrastructure_port)*
-  - All online ICMP devices *(IP, Name, RTT)*
-  - All offline ICMP devices *(IP, Name)*
-  - Information about a specific device *(all information, without events and presence)*
-
-</details>
-
-:bulb: <ins>Additional components and information</ins>
-
- - [Pi.Alert API Usage and Examples / Home Assistant integration](docs/API-USAGE.md)
+There are [various ways](docs/API-USAGE.md) to submit a request to the backend with the help of a API. I will use curl/bash and curl/php as examples in the following. 
 
 # Installation
 <!--- --------------------------------------------------------------------- --->
@@ -203,25 +149,19 @@ An archive of older versions can be found at [https://leiweibau.net/archive/pial
 
   [jbierwiler](https://github.com/jbierwiler), [tcoombs](https://github.com/tcoombs), [hspindel](https://github.com/hspindel), [accessiblepixel](https://github.com/accessiblepixel), [AJ Tatum](https://github.com/ajtatum)
 
+  Also a big thank you to the direct or indirect contributors.
+
+  [Macleykun](https://github.com/Macleykun), [Final-Hawk](https://github.com/Final-Hawk), [TeroRERO](https://github.com/terorero), [jokob-sk](https://github.com/jokob-sk/Pi.Alert), [tteck](https://github.com/tteck/Proxmox) and many more
 
 ### Additionally used components and services
-  - Animated GIF (Loading Animation) https://commons.wikimedia.org/wiki/File:Loading_Animation.gif
-  - Selfhosted Fonts https://github.com/adobe-fonts/source-sans
-  - Bootstrap Icons https://github.com/twbs/icons
-  - For final processing of background images https://www.imgonline.com.ua/eng/make-seamless-texture.php
-  - Translations: https://www.deepl.com and ChatGPT (https://chat.openai.com)
+[Animated GIF (Loading Animation)](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif), [Selfhosted Fonts](https://github.com/adobe-fonts/source-sans), 
+[Bootstrap Icons](https://github.com/twbs/icons), [For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
+[DeepL](https://www.deepl.com), [ChatGPT](https://chat.openai.com)
 
 
 ### License
   GPL 3.0
   [Read more here](LICENSE.txt)
-
-
-### Special contributors
-
-  This code is a collaborative body of work, with special thanks to:
-
-[Macleykun](https://github.com/Macleykun), [Final-Hawk](https://github.com/Final-Hawk), [TeroRERO](https://github.com/terorero), [jokob-sk](https://github.com/jokob-sk/Pi.Alert), [tteck](https://github.com/tteck/Proxmox) and many more
 
 ### Contact
 
