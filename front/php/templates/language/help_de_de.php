@@ -121,11 +121,11 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
 									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die automatische Suche nach Pi.Alert Updates.</td></tr>
 									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
-									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem nach neuen Updates von Pi.Alert gesucht werden soll.</td></tr>
+									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem nach neuen Updates von Pi.Alert gesucht werden soll. Der kürzeste Intervall beträgt 3 Minuten. Alle größeren Intervalle müssen ein ganzzahliges Vielfaches von 3 Minuten sein (15, 30, 36 etc).</td></tr>
 									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
 									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die automatische Erstellung von Datenbank- und Konfigurationssicherungen</td></tr>
 									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
-									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem die automatischen Backups erstellt werden sollen.</td></tr>
+									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem die automatischen Backups erstellt werden sollen. Der kürzeste Intervall beträgt 3 Minuten. Alle größeren Intervalle müssen ein ganzzahliges Vielfaches von 3 Minuten sein (15, 30, 36 etc).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -265,7 +265,7 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_ACTIVE</td>
 									        <td class="help_table_gen_b">Automatischen Speedtest aktivieren/deaktivieren. Hierfür ist die Installation des Ookla Speedtests im Tab "Tools" des Gerätes "Internet" erforderlich. Beachte die Hinweise bei der Installation.</td></tr>
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_CRON</td>
-									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem der automatische Speedtest durchgeführt werden soll.</td></tr>
+									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem der automatische Speedtest durchgeführt werden soll. Der kürzeste Intervall beträgt 3 Minuten. Alle größeren Intervalle müssen ein ganzzahliges Vielfaches von 3 Minuten sein (15, 30, 36 etc).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Arp-scan Options & Samples</td></tr>

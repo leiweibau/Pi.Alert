@@ -122,11 +122,11 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
 										    <td class="help_table_gen_b">Activa o desactiva la búsqueda automática de actualizaciones de Pi.Alert.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
-										    <td class="help_table_gen_b">Intervalo, en sintaxis de crontab, en el que se debe buscar nuevas actualizaciones de Pi.Alert.</td></tr>
+										    <td class="help_table_gen_b">Intervalo, en sintaxis de crontab, en el que se debe buscar nuevas actualizaciones de Pi.Alert. El intervalo más corto es de 3 minutos. Todos los intervalos mayores deben ser múltiplos enteros de 3 minutos (15, 30, 36, etc)</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
 										    <td class="help_table_gen_b">Activa o desactiva la creación automática de copias de seguridad de base de datos y configuración.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
-										    <td class="help_table_gen_b">Intervalo, en sintaxis de crontab, en el que se deben crear las copias de seguridad automáticas.</td></tr>
+										    <td class="help_table_gen_b">Intervalo, en sintaxis de crontab, en el que se deben crear las copias de seguridad automáticas. El intervalo más corto es de 3 minutos. Todos los intervalos mayores deben ser múltiplos enteros de 3 minutos (15, 30, 36, etc)</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -262,7 +262,7 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_ACTIVE</td>
 									        <td class="help_table_gen_b">Activar/desactivar el test de velocidad automático. Para ello, instale el test de velocidad Ookla en la pestaña "Herramientas" del dispositivo "Internet". Siga las instrucciones durante la instalación.</td></tr>
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_CRON</td>
-									        <td class="help_table_gen_b">Hora completa, u horas separadas por comas, a la que debe iniciarse la prueba de velocidad.</td></tr>
+									        <td class="help_table_gen_b">Hora completa, u horas separadas por comas, a la que debe iniciarse la prueba de velocidad. El intervalo más corto es de 3 minutos. Todos los intervalos mayores deben ser múltiplos enteros de 3 minutos (15, 30, 36, etc)</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Arp-scan Options & Samples</td></tr>

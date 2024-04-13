@@ -157,6 +157,11 @@ if (get_config_parmeter('SCAN_WEBSERVICES') == 1) {$_SESSION['Scan_WebServices']
 if (get_config_parmeter('ARPSCAN_ACTIVE') == 1) {$_SESSION['Scan_MainScan'] = True;} else { $_SESSION['Scan_MainScan'] = False;}
 if (get_config_parmeter('AUTO_UPDATE_CHECK') == 1) {$_SESSION['Auto_Update_Check'] = True;} else { $_SESSION['Auto_Update_Check'] = False;}
 if (get_config_parmeter('AUTO_DB_BACKUP') == 1) {$_SESSION['AUTO_DB_BACKUP'] = True;} else { $_SESSION['AUTO_DB_BACKUP'] = False;}
+if (get_config_parmeter('SPEEDTEST_TASK_ACTIVE') == 1) {$_SESSION['SPEEDTEST_TASK_ACTIVE'] = True;} else { $_SESSION['SPEEDTEST_TASK_ACTIVE'] = False;}
+$_SESSION['AUTO_UPDATE_CHECK_CRON'] = get_config_parmeter('AUTO_UPDATE_CHECK_CRON');
+$_SESSION['AUTO_DB_BACKUP_CRON'] = get_config_parmeter('AUTO_DB_BACKUP_CRON');
+$_SESSION['SPEEDTEST_TASK_CRON'] = get_config_parmeter('SPEEDTEST_TASK_CRON');
+
 // State for Toggle Buttons
 function convert_state($state, $revert) {
 	global $pia_lang;
