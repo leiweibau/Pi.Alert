@@ -171,9 +171,8 @@ read_arpscan_timer();
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_autobackup'];?></div>
                     <div class="db_info_table_cell">
 <?php
-if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['Maintenance_autobackup_on'].' / ';} else {echo $pia_lang['Maintenance_autobackup_off'];}
-?>  
-                        <span id="autobackupstatus"></span>
+if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['Maintenance_autobackup_on'].' / <span id="autobackupstatus"></span>';} else {echo $pia_lang['Maintenance_autobackup_off'].' <span hidden id="autobackupstatus"></span>';}
+?> 
                     </div>
                 </div>
                 <div class="db_info_table_row">

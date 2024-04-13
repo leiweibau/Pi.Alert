@@ -129,7 +129,7 @@ move_files() {
   fi
   if ls "$PIALERT_HOME/db/setting_"* 1> /dev/null 2>&1; then
     echo "- Moving setting-files to new directory..."
-    mv "$PIALERT_HOME/db/setting_"* "$PIALERT_HOME/config/"
+    mv -f "$PIALERT_HOME/db/setting_"* "$PIALERT_HOME/config/"
   fi
 
 
