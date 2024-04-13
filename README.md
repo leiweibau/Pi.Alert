@@ -48,7 +48,7 @@ include the detection of unwanted/foreign DHCP servers and device monitoring usi
 
 The backend is started at regular intervals via cronjobs of the user who installed Pi.Alert.
 
-The system scans the network to detect connected devices using various scanning methods as described earlier. 
+The system scans the network to detect connected devices using various scanning methods as described above. 
 It also verifies the accessibility of web services and notifies about any changes in SSL certificates. 
 The gathered information is stored in the database. Detected changes are reported via email and/or other services 
 such as [Pushsafer](https://www.pushsafer.com/), [Pushover](https://pushover.net/), NTFY, Gotify, and Telegram through [shoutrrr](docs/SHOUTRRR.md), as well as to the Frontend. Automated 
