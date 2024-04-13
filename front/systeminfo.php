@@ -217,15 +217,13 @@ echo '<thead>
 			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
 		</tr>
 	  </thead>';
-$table_color = 'odd';
 while ($table = $tablesQuery->fetchArray()) {
-	if ($table_color == 'odd') {$table_color = 'even';} else { $table_color = 'odd';}
     $tableName = $table['name'];
     
     $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
     $rowCount = $rowCountQuery->fetchArray()['count'];
 
-    echo '<tr class="' . $table_color . '">
+    echo '<tr>
     	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
     	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
     	</tr>';
@@ -245,6 +243,42 @@ echo '<div class="box box-solid">
             </div>
             <div class="box-body">
             <pre style="background-color: transparent; border: none;">'.$stat['usercron'].'</pre>
+            </div>
+      </div>';
+
+// Pi.Alert Crontab -----------------------------------------------------
+echo '<div class="box box-solid">
+            <div class="box-header">
+              <h3 class="box-title sysinfo_headline"><i class="bi bi-list-task"></i> Pi.Alert Crons</h3>
+            </div>
+            <div class="box-body">
+            <table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">
+			<thead>
+				<tr role="row">
+					<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Cron Name</th>
+					<th class="sysinfo_services" style="padding: 8px;">Cron</th>
+					<th class="sysinfo_services" style="padding: 8px;">Status</th>
+				</tr>
+	  		</thead>';
+function convert_bool_to_status($status) {
+	if ($status == True) {return "enabled";} else {return "disabled";}
+}
+echo '<tr>
+		<td style="padding: 3px; padding-left: 10px;">Update Ceck</td>
+		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['AUTO_UPDATE_CHECK_CRON'].'</td>
+		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['Auto_Update_Check']).'</td>
+	  </tr>';
+echo '<tr>
+		<td style="padding: 3px; padding-left: 10px;">Backup</td>
+		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['AUTO_DB_BACKUP_CRON'].'</td>
+		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['AUTO_DB_BACKUP']).'</td>
+	  </tr>';
+echo '<tr>
+		<td style="padding: 3px; padding-left: 10px;">Speedtest</td>
+		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['SPEEDTEST_TASK_CRON'].'</td>
+		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['SPEEDTEST_TASK_ACTIVE']).'</td>
+	  </tr>';
+echo '      </table>
             </div>
       </div>';
 
@@ -349,16 +383,13 @@ echo '<thead>
 			<th class="sysinfo_services" style="padding: 8px;">Service Description</th>
 		</tr>
 	  </thead>';
-$table_color = 'odd';
 for ($x = 0; $x < sizeof($running_services); $x++) {
 	if (stristr($running_services[$x], '.service')) {
 		$temp_services_arr = array_values(array_filter(explode(' ', trim($running_services[$x]))));
 		$servives_name = $temp_services_arr[0];
 		unset($temp_services_arr[0], $temp_services_arr[1], $temp_services_arr[2], $temp_services_arr[3]);
 		$servives_description = implode(" ", $temp_services_arr);
-		if ($table_color == 'odd') {$table_color = 'even';} else { $table_color = 'odd';}
-
-		echo '<tr class="' . $table_color . '"><td style="padding: 3px; padding-left: 10px;">' . substr($servives_name, 0, -8) . '</td><td style="padding: 3px; padding-left: 10px;">' . $servives_description . '</td></tr>';
+		echo '<tr><td style="padding: 3px; padding-left: 10px;">' . substr($servives_name, 0, -8) . '</td><td style="padding: 3px; padding-left: 10px;">' . $servives_description . '</td></tr>';
 	}
 }
 echo '</table>';
@@ -374,15 +405,12 @@ echo '<div class="box box-solid">
             <div class="box-body">';
 echo '         <table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
 
-$table_color = 'odd';
 sort($usb_devices_mount);
 for ($x = 0; $x < sizeof($usb_devices_mount); $x++) {
 	$cut_pos = strpos($usb_devices_mount[$x], ':');
 	$usb_bus = substr($usb_devices_mount[$x], 0, $cut_pos);
 	$usb_dev = substr($usb_devices_mount[$x], $cut_pos + 1);
-
-	if ($table_color == 'odd') {$table_color = 'even';} else { $table_color = 'odd';}
-	echo '<tr class="' . $table_color . '"><td style="padding: 3px; padding-left: 10px; width: 150px;"><b>' . str_replace('Device', 'Dev.', $usb_bus) . '</b></td><td style="padding: 3px; padding-left: 10px;">' . $usb_dev . '</td></tr>';
+	echo '<tr><td style="padding: 3px; padding-left: 10px; width: 150px;"><b>' . str_replace('Device', 'Dev.', $usb_bus) . '</b></td><td style="padding: 3px; padding-left: 10px;">' . $usb_dev . '</td></tr>';
 }
 echo '         </table>';
 echo '      </div>

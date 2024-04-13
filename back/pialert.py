@@ -297,7 +297,7 @@ def create_autobackup(start_time, crontab_string):
             # Backup DB (no further checks)
             sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
             subprocess.check_output(sqlite_command, universal_newlines=True)
-            subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, '/home/devola/pialert/back/../db/temp/pialert.db'], universal_newlines=True)
+            subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
             time.sleep(4)
             os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
 
