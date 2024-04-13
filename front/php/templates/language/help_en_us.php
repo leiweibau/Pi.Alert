@@ -118,16 +118,16 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									        <td class="help_table_gen_b">Enables or disables the password protection of the Pi.Alert web interface.</td></tr>
 									    <tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
 									        <td class="help_table_gen_b">This field contains the hashed password for the web interface. The password cannot be entered here in plain text, but must be set with <span class="text-maroon help_faq_code">pialert-cli</span></td></tr>
-									    <tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
-									        <td class="help_table_gen_b"></td></tr>
+										<tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
+										    <td class="help_table_gen_b">IP address of the DNS server in the network</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
+										    <td class="help_table_gen_b">Enables or disables automatic search for Pi.Alert updates.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
+										    <td class="help_table_gen_b">Interval, in crontab syntax, at which to search for new updates from Pi.Alert.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
+										    <td class="help_table_gen_b">Enables or disables automatic creation of database and configuration backups.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
+										    <td class="help_table_gen_b">Interval, in crontab syntax, at which the automatic backups should be created.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -194,10 +194,10 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									        <td class="help_table_gen_b">This is the private key that can be viewed on the pushsafer page.</td></tr>
 									    <tr><td class="help_table_gen_a">PUSHSAFER_DEVICE</td>
 									        <td class="help_table_gen_b">The device ID to which the message will be sent. &lsquo;<span class="text-maroon help_faq_code">a</span>&rsquo; means the message will be sent to all configuring devices and will consume a corresponding number of API calls.</td></tr>
-									    <tr><td class="help_table_gen_a">PUSHSAFER_PRIO</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">PUSHSAFER_SOUND</td>
-									        <td class="help_table_gen_b"></td></tr>
+										<tr><td class="help_table_gen_a">PUSHSAFER_PRIO</td>
+										    <td class="help_table_gen_b">Priority level of the message.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHSAFER_SOUND</td>
+										    <td class="help_table_gen_b">Notification sound (integer).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Pushover</td></tr>
@@ -209,10 +209,10 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									        <td class="help_table_gen_b">Also called "APP TOKEN" or "API TOKEN". This token can be queried on the pushover page.</td></tr>
 									    <tr><td class="help_table_gen_a">PUSHOVER_USER</td>
 									        <td class="help_table_gen_b">Also called "USER KEY". This key is displayed right after login on the start page.</td></tr>
-									    <tr><td class="help_table_gen_a">PUSHOVER_PRIO</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
-									        <td class="help_table_gen_b"></td></tr>
+										<tr><td class="help_table_gen_a">PUSHOVER_PRIO</td>
+										    <td class="help_table_gen_b">Priority level of the message.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
+										    <td class="help_table_gen_b">Notification sound.</td></tr>
 									</table>
 									<table class="help_table_gen">
 			    						<tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>

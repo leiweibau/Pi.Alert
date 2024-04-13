@@ -113,16 +113,16 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 									        <td class="help_table_gen_b">Active ou désactive la protection par mot de passe de l&apos;interface web de Pi.Alert.</td></tr>
 									    <tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
 									        <td class="help_table_gen_b">Ce champ contient le mot de passe haché pour l&apos;interface web. Le mot de passe ne peut pas être saisi ici en texte brut, mais doit être défini avec <span class="text-maroon help_faq_code">pialert-cli</span></td></tr>
-									    <tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
-									        <td class="help_table_gen_b"></td></tr>
+										<tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
+										    <td class="help_table_gen_b">Adresse IP du serveur DNS dans le réseau</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
+										    <td class="help_table_gen_b">Active ou désactive la recherche automatique des mises à jour de Pi.Alert.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
+										    <td class="help_table_gen_b">Intervalle, en syntaxe crontab, à laquelle rechercher de nouvelles mises à jour de Pi.Alert.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
+										    <td class="help_table_gen_b">Active ou désactive la création automatique de sauvegardes de base de données et de configuration.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
+										    <td class="help_table_gen_b">Intervalle, en syntaxe crontab, auquel les sauvegardes automatiques doivent être créées.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -185,10 +185,10 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 									        <td class="help_table_gen_b">Il s&apos;agit de la clé privée qui peut être consultée sur la page Pushsafer.</td></tr>
 									    <tr><td class="help_table_gen_a">PUSHSAFER_DEVICE</td>
 									        <td class="help_table_gen_b">L&apos;ID du périphérique vers lequel le message sera envoyé. &lsquo;<span class="text-maroon help_faq_code">a</span>&rsquo; signifie que le message sera envoyé à tous les périphériques configurés et consommera un nombre correspondant d&apos;appels API.</td></tr>
-									    <tr><td class="help_table_gen_a">PUSHSAFER_PRIO</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">PUSHSAFER_SOUND</td>
-									        <td class="help_table_gen_b"></td></tr>
+										<tr><td class="help_table_gen_a">PUSHSAFER_PRIO</td>
+										    <td class="help_table_gen_b">Niveau de priorité du message.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHSAFER_SOUND</td>
+										    <td class="help_table_gen_b">Son de notification (entier).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Pushover</td></tr>
@@ -200,10 +200,10 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 									        <td class="help_table_gen_b">Aussi appelé "APP TOKEN" ou "API TOKEN". Ce jeton peut être consulté sur la page Pushover.</td></tr>
 									    <tr><td class="help_table_gen_a">PUSHOVER_USER</td>
 									        <td class="help_table_gen_b">Aussi appelé "USER KEY". Cette clé s&apos;affiche immédiatement après la connexion sur la page d&apos;accueil.</td></tr>
-									    <tr><td class="help_table_gen_a">PUSHOVER_PRIO</td>
-									        <td class="help_table_gen_b"></td></tr>
-									    <tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
-									        <td class="help_table_gen_b"></td></tr>
+										<tr><td class="help_table_gen_a">PUSHOVER_PRIO</td>
+										    <td class="help_table_gen_b">Niveau de priorité du message.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
+										    <td class="help_table_gen_b">Son de notification.</td></tr>
 									</table>
 									<table class="help_table_gen">
 			    						<tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
