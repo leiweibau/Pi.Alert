@@ -285,9 +285,9 @@ fi
 if ! grep -Fq "AUTO_DB_BACKUP_CRON" "$PIALERT_HOME/config/pialert.conf" ; then
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
 
-AUTO_UPDATE_CHECK_CRON = '05 3,9,15,21 * * *'
+AUTO_UPDATE_CHECK_CRON = '0 3,9,15,21 * * *'
 AUTO_DB_BACKUP         = False
-AUTO_DB_BACKUP_CRON    = '5 12 */3 * *'
+AUTO_DB_BACKUP_CRON    = '0 1 * * 1'
 SPEEDTEST_TASK_CRON   = '0 7,22 * * *'
 EOF
 fi
