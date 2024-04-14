@@ -198,8 +198,10 @@ PIALERT_WEB_PASSWORD   = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
 NETWORK_DNS_SERVER     = '" . $configArray['NETWORK_DNS_SERVER'] . "'
 AUTO_UPDATE_CHECK      = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
 AUTO_UPDATE_CHECK_CRON = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
+# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
 AUTO_DB_BACKUP         = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
 AUTO_DB_BACKUP_CRON    = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
+# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
 
 # Other Modules
 # ----------------------
@@ -289,6 +291,7 @@ DDNS_UPDATE_URL   = '" . $configArray['DDNS_UPDATE_URL'] . "'
 # ----------------------
 SPEEDTEST_TASK_ACTIVE = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIVE']) . "
 SPEEDTEST_TASK_CRON   = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
+# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
 
 # Arp-scan Options & Samples
 # ----------------------
