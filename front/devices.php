@@ -655,7 +655,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
                 <thead>
                 <tr>
 <?php
-$file = '../db/setting_devicelist';
+$file = '../config/setting_devicelist';
 	if (file_exists($file)) {
 		$get = file_get_contents($file, true);
 		$table_config = json_decode($get, true);

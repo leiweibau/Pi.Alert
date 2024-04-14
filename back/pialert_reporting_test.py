@@ -42,7 +42,7 @@ import glob
 PIALERT_BACK_PATH = os.path.dirname(os.path.abspath(__file__))
 PIALERT_PATH = f"{PIALERT_BACK_PATH}/.."
 PIALERT_WEBSERVICES_LOG = f"{PIALERT_PATH}/log/pialert.webservices.log"
-STOPPIALERT = f"{PIALERT_PATH}/db/setting_stoppialert"
+STOPPIALERT = f"{PIALERT_PATH}/config/setting_stoppialert"
 PIALERT_DB_FILE = f"{PIALERT_PATH}/db/pialert.db"
 REPORTPATH_WEBGUI = f"{PIALERT_PATH}/front/reports/"
 

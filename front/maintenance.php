@@ -56,8 +56,8 @@ $CONFIG_FILE_FILTER_VALUE_WEB = array_values(preg_grep("/(REPORT_MAIL_WEBMON|REP
 
 // Size and last mod of DB ----------------------------------------------------
 $DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
-$DB_SIZE_DATA = number_format((filesize($DB_SOURCE) / 1000000), 2, ",", ".") . ' MB';
-$DB_MOD_DATA = date("d.m.Y, H:i:s", filemtime($DB_SOURCE)) . ' Uhr';
+$DB_SIZE_DATA = number_format((filesize($DB_SOURCE) / 1000000), 2, ",", ".") . '&nbsp;MB';
+$DB_MOD_DATA = date("d.m.Y, H:i:s", filemtime($DB_SOURCE)) . '';
 
 // Count Config Backups -------------------------s-----------------------------
 $CONFIG_FILE_DIR = str_replace('front', 'config', getcwd()) . '/';
@@ -135,22 +135,16 @@ if ($_REQUEST['tab'] == '1') {
         </div>
         <div class="box-body" style="padding-bottom: 5px;">
             <div class="db_info_table">
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell" style="min-width: 140px"><?=$pia_lang['Maintenance_database_path'];?></div>
-                    <div class="db_info_table_cell" style="width: 70%">
-                        <input readonly value="<?=$DB_SOURCE;?>" class="statusbox_ro_inputs">
-                    </div>
-                </div>
-                <div class="db_info_table_row">
+<!--                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_size'];?></div>
                     <div class="db_info_table_cell">
                         <?=$DB_SIZE_DATA;?>
                     </div>
-                </div>
+                </div> -->
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_lastmod'];?></div>
                     <div class="db_info_table_cell">
-                        <?=$DB_MOD_DATA.' '.$buffer_indicator;?>
+                        <?=$DB_MOD_DATA.' '.$buffer_indicator;?> /  <?=$DB_SIZE_DATA;?>
                     </div>
                 </div>
                 <div class="db_info_table_row">
@@ -168,8 +162,18 @@ if ($_REQUEST['tab'] == '1') {
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_arp_status'];?></div>
                     <div class="db_info_table_cell">
-                        <?php echo $_SESSION['arpscan_result'];
-read_arpscan_timer(); ?></div>
+<?php 
+echo $_SESSION['arpscan_result'];
+read_arpscan_timer();
+?>                  </div>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="db_info_table_cell"><?=$pia_lang['Maintenance_autobackup'];?></div>
+                    <div class="db_info_table_cell">
+<?php
+if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['Maintenance_autobackup_on'].' / <span id="autobackupstatus"></span>';} else {echo $pia_lang['Maintenance_autobackup_off'].' <span hidden id="autobackupstatus"></span>';}
+?> 
+                    </div>
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell">Api-Key</div>
@@ -1106,7 +1110,6 @@ function initializeiCheck () {
      radioClass:    'iradio_flat-blue',
      increaseArea:  '20%'
    });
-
 }
 
 // JS created by php while loop
@@ -1140,7 +1143,6 @@ function startCountdown() {
                 // Reset countdown for the next 5-minute interval
                 countdownMinutes = 4;
                 countdownSeconds = 59;
-                GetARPStatus();
             }
         }
         displayCountdown(countdownMinutes, countdownSeconds);
@@ -1150,6 +1152,10 @@ function startCountdown() {
 function displayCountdown(minutes, seconds) {
     var countdownElement = document.getElementById('nextscancountdown');
     countdownElement.textContent = '(next Scan in: ' + formatTime(minutes) + ':' + formatTime(seconds) + ')';
+    if (minutes == 4 && seconds == 59) {
+        GetARPStatus();
+        GetAutoBackupStatus();
+    }
 }
 
 function formatTime(time) {
@@ -1157,10 +1163,18 @@ function formatTime(time) {
 }
 
 function GetARPStatus() {
-  $.get('php/server/devices.php?action=GetARPStatus', function(data) {
+  $.get('php/server/files.php?action=GetARPStatus', function(data) {
     var arpproccount = JSON.parse(data);
-
+    
     $('#arpproccounter').html(arpproccount[0].toLocaleString());
+  } );
+}
+
+function GetAutoBackupStatus() {
+  $.get('php/server/files.php?action=GetAutoBackupStatus', function(data) {
+    var backupproccount = JSON.parse(data);
+    
+    $('#autobackupstatus').html(backupproccount[0].toLocaleString());
   } );
 }
 
@@ -1179,12 +1193,14 @@ function GetModalLogContent() {
 function UpdateStatusBox() {
 	GetModalLogContent();
 	GetARPStatus();
+    GetAutoBackupStatus();
 	startCountdown();
 }
 
 setInterval(UpdateStatusBox, 15000);
 GetModalLogContent();
 GetARPStatus();
+GetAutoBackupStatus();
 startCountdown();
 </script>
 

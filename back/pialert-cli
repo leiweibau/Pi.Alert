@@ -206,7 +206,7 @@ EOM
        STOPTIMER=10
     fi
     sudo killall arp-scan
-    echo $STOPTIMER > ${SCRIPTPATH}/../db/setting_stoppialert
+    echo $STOPTIMER > ${SCRIPTPATH}/../config/setting_stoppialert
     /usr/bin/python3 ${SCRIPTPATH}/pialert_reporting_test.py reporting_starttimer
     echo "Configured Pi.Alert scans are disabled"
     if [ "$CURRENT_USER" != "www-data" ]; then
@@ -216,7 +216,7 @@ EOM
     ;;
 
   enable_scan)
-    rm ${SCRIPTPATH}/../db/setting_stoppialert
+    rm ${SCRIPTPATH}/../config/setting_stoppialert
     /usr/bin/python3 ${SCRIPTPATH}/pialert_reporting_test.py reporting_stoptimer
     echo "Configured Pi.Alert scans are enabled"
     if [ "$CURRENT_USER" != "www-data" ]; then

@@ -127,6 +127,12 @@ move_files() {
     echo "- Moving speedtest to temporary directory..."
     mv "$PIALERT_HOME/back/speedtest" "$PIALERT_HOME/config"
   fi
+  if ls "$PIALERT_HOME/db/setting_"* 1> /dev/null 2>&1; then
+    echo "- Moving setting-files to new directory..."
+    mv -f "$PIALERT_HOME/db/setting_"* "$PIALERT_HOME/config/"
+  fi
+
+
 }
 
 # ------------------------------------------------------------------------------
@@ -220,37 +226,6 @@ update_config() {
 
   print_msg "- Updating config file..."
 
-# 2023-09-22
-if ! grep -Fq "# Mikrotik Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# Mikrotik Configuration
-# ----------------------
-MIKROTIK_ACTIVE = False
-MIKROTIK_IP     = '10.0.0.1'
-MIKROTIK_USER   = 'user'
-MIKROTIK_PASS   = 'password'
-
-# UniFi Configuration
-# -------------------
-UNIFI_ACTIVE = False
-UNIFI_IP     = '10.0.0.2'
-UNIFI_USER   = 'user'
-UNIFI_PASS   = 'password'
-EOF
-fi
-
-# 2023-09-22
-if ! grep -Fq "# ICMP Monitoring Options" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# ICMP Monitoring Options
-# ----------------------
-ICMP_ONLINE_TEST  = 1
-ICMP_GET_AVG_RTT  = 2
-EOF
-fi
-
 # 2023-10-09
 if ! grep -Fq "UNIFI_API" "$PIALERT_HOME/config/pialert.conf" ; then
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
@@ -303,6 +278,17 @@ if ! grep -Fq "PUSHOVER_SOUND" "$PIALERT_HOME/config/pialert.conf" ; then
 
 PUSHOVER_SOUND      = 'siren'
 PUSHSAFER_SOUND     = 22
+EOF
+fi
+
+# 2024-04-07
+if ! grep -Fq "AUTO_DB_BACKUP_CRON" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+AUTO_UPDATE_CHECK_CRON = '0 3,9,15,21 * * *'
+AUTO_DB_BACKUP         = False
+AUTO_DB_BACKUP_CRON    = '0 1 * * 1'
+SPEEDTEST_TASK_CRON   = '0 7,22 * * *'
 EOF
 fi
 

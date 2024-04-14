@@ -1,5 +1,12 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Maintenance_autobackup'] = 'Auto-Backup';
+$pia_lang['Maintenance_autobackup_on'] = 'Abilitato';
+$pia_lang['Maintenance_autobackup_off'] = 'Disabilitato';
+$pia_lang['BackFiles_autobackup_pause'] = 'In pausa';
+$pia_lang['BackFiles_autobackup_pending'] = 'In attesa';
+
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Guardia di Rete Open Source';
@@ -322,9 +329,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Disponibilità';
 //////////////////////////////////////////////////////////////////
 $pia_lang['Maintenance_arpscancout_norun'] = 'No';
 $pia_lang['Maintenance_Title'] = 'Impostazioni e Manutenzione';
-$pia_lang['Maintenance_database_path'] = 'Percorso del Database';
-$pia_lang['Maintenance_database_size'] = 'Dimensione del Database';
-$pia_lang['Maintenance_database_lastmod'] = 'Ultimo aggiornamento (DB)';
+$pia_lang['Maintenance_database_lastmod'] = 'Ultimo aggiornamento / Dimensione (DB)';
 $pia_lang['Maintenance_database_backup'] = 'Backup: DB';
 $pia_lang['Maintenance_config_backup'] = 'Backup: Configurazione';
 $pia_lang['Maintenance_database_backup_found'] = 'Backup disponibili';
@@ -426,7 +431,7 @@ $pia_lang['Maintenance_Tool_backup'] = 'Backup del database';
 $pia_lang['Maintenance_Tool_backup_text'] = 'I backup del database si trovano nella directory del database, compressi come archivi zip e denominati con la data di creazione. Non c&apos;è un limite massimo di backup.';
 $pia_lang['Maintenance_Tool_backup_noti'] = 'Backup del database';
 $pia_lang['Maintenance_Tool_backup_noti_text'] = 'Sei sicuro di voler eseguire ora il backup del database? Assicurati che non siano in corso scansioni.';
-$pia_lang['Maintenance_Tool_backupcsv'] = 'Backup dispositivi/servizi su<br>File CSV';
+$pia_lang['Maintenance_Tool_backupcsv'] = 'Backup dispositivi/servizi su File CSV';
 $pia_lang['Maintenance_Tool_backupcsv_text'] = 'I dispositivi, i servizi web e i dispositivi dal monitoraggio ICMP saranno esportati su file CSV e salvati come archivi zip. Questo serve come soluzione di emergenza nel caso in cui tutto debba essere reinserito a causa di un database difettoso. Al momento l&apos;importazione non è possibile.';
 $pia_lang['Maintenance_Tool_backupcsv_noti'] = 'Backup dispositivi/servizi su file CSV';
 $pia_lang['Maintenance_Tool_backupcsv_noti_text'] = 'Sei sicuro di voler esportare le liste di dispositivi e servizi web come file CSV adesso?';
@@ -650,7 +655,7 @@ $pia_lang['ookla_devdetails_table_up'] = 'Upload';
 //////////////////////////////////////////////////////////////////
 $pia_lang['nmap_no_scan_results'] = 'Nessuna porta aperta scoperta';
 $pia_lang['nmap_devdetails_scanmode'] = 'Mode';
-$pia_lang['nmap_devdetails_download'] = 'Salva Scansione come CVS';
+$pia_lang['nmap_devdetails_download'] = 'Salva Scansione come CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Ci sono <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> risultati di scansione nel database';
 // =============================================================================================================
@@ -678,11 +683,12 @@ $pia_journ_lang['a_060'] = 'Controllo Aggiornamenti';
 $pia_journ_lang['a_070'] = 'API';
 // pialert-cli
 $pia_journ_lang['b_002'] = $pia_journ_lang['a_002'];
-$pia_journ_lang['b_010'] = 'Manutenzione DB';
+$pia_journ_lang['b_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
 // cronjob
+$pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
 $pia_journ_lang['c_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['c_060'] = $pia_journ_lang['a_060'];

@@ -31,7 +31,7 @@ $config_file = "../config/pialert.conf";
 $config_file_lines = file($config_file);
 
 // Login language settings
-foreach (glob("../db/setting_language*") as $filename) {
+foreach (glob("../config/setting_language*") as $filename) {
 	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
 }
 if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
@@ -80,7 +80,7 @@ if ($_SESSION["login"] != 1) {
 		// Logging
 		pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9003', '', '');
 	}
-	if (file_exists('../db/setting_darkmode')) {$ENABLED_DARKMODE = True;}
+	if (file_exists('../config/setting_darkmode')) {$ENABLED_DARKMODE = True;}
 	if ($Pia_Password == '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92') {
 		$login_info = 'Defaultpassword "123456" is still active';
 		$login_mode = 'danger';

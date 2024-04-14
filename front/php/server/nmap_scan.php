@@ -8,13 +8,9 @@ if ($_SESSION["login"] != 1) {
 	exit;
 }
 
-foreach (glob("../../../db/setting_language*") as $filename) {
-	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
-}
-if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
-
 require 'db.php';
 require 'journal.php';
+require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
 $DBFILE = '../../../db/pialert.db';
@@ -214,7 +210,7 @@ if ($_REQUEST['mode'] != "view") {
 
 			echo '<div class="col-md-6">
 					<div class="row">
-						<div class="col-xs-12 text-center" style="margin-top:30px">Es befinden sich <span class="text-aqua">' . $scancounter . '</span> Scan-Ergebnisse in der Datenbank</div>
+						<div class="col-xs-12 text-center" style="margin-top:30px">' . $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'] . '</div>
 				  	</div>';
 			echo '	<div class="row">
 						<div class="col-xs-12 text-center" style="margin-top:20px;margin-bottom:20px">

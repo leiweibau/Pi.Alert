@@ -116,6 +116,16 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									        <td class="help_table_gen_b">Aktiviert bzw. deaktiviert den Passwortschutz der Weboberfläche von Pi.Alert</td></tr>
 									    <tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
 									        <td class="help_table_gen_b">Dieses Feld beinhaltet das "gehashte" Passwort für die Weboberfläche. Das Passwort kann nicht im Klartext hier eingetragen, sondern muss mit <span class="text-maroon help_faq_code">pialert-cli</span> gesetzt werden</td></tr>
+									    <tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
+									        <td class="help_table_gen_b">IP des DNS-Servers im Netzwerk</td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
+									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die automatische Suche nach Pi.Alert Updates.</td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
+									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem nach neuen Updates von Pi.Alert gesucht werden soll. Der kürzeste Intervall beträgt 3 Minuten. Alle größeren Intervalle müssen ein ganzzahliges Vielfaches von 3 Minuten sein (15, 30, 36 etc).</td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
+									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die automatische Erstellung von Datenbank- und Konfigurationssicherungen</td></tr>
+									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
+									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem die automatischen Backups erstellt werden sollen. Der kürzeste Intervall beträgt 3 Minuten. Alle größeren Intervalle müssen ein ganzzahliges Vielfaches von 3 Minuten sein (15, 30, 36 etc).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -182,6 +192,10 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									        <td class="help_table_gen_b">Hierbei handelt es sich um den privaten Schlüssel, den man auf der pushsafer-Seite einsehen kann.</td></tr>
 									    <tr><td class="help_table_gen_a">PUSHSAFER_DEVICE</td>
 									        <td class="help_table_gen_b">Die Device-ID, an die die Nachricht gesendet wird. &lsquo;<span class="text-maroon help_faq_code">a</span>&rsquo; bedeutet, die Nachricht wird an alle konfigurieren Geräte gesendet und verbraucht entsprechend viele API-Calls</td></tr>
+									    <tr><td class="help_table_gen_a">PUSHSAFER_PRIO</td>
+									        <td class="help_table_gen_b">Prioritätsstufe der Nachricht.</td></tr>
+									    <tr><td class="help_table_gen_a">PUSHSAFER_SOUND</td>
+									        <td class="help_table_gen_b">Benachrichtigungston (Integer)</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Pushover</td></tr>
@@ -193,6 +207,10 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									        <td class="help_table_gen_b">Auch "APP TOKEN" oder "API TOKEN" genannt. Dieser Token kann auf der pushover-Seite abgefragt werden</td></tr>
 									    <tr><td class="help_table_gen_a">PUSHOVER_USER</td>
 									        <td class="help_table_gen_b">Oder auch "USER KEY". Dieser Key wird, gleich nach dem Login, auf der pushover-Startseite angezeigt.</td></tr>
+									    <tr><td class="help_table_gen_a">PUSHOVER_PRIO</td>
+									        <td class="help_table_gen_b">Prioritätsstufe der Nachricht.</td></tr>
+									    <tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
+									        <td class="help_table_gen_b">Benachrichtigungston</td></tr>
 									</table>
 									<table class="help_table_gen">
 			    						<tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
@@ -210,6 +228,8 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									        <td class="help_table_gen_b">Das Passwort, das für die Authentifizierung beim NTFY-Server verwendet wird.</td></tr>
 									    <tr><td class="help_table_gen_a">NTFY_PRIORITY</td>
 									        <td class="help_table_gen_b">Priorisierung der über NTFY gesendeten Benachrichtigungen</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_CLICKABLE</td>
+									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die Klick-Aktion für die Benachrichtigung.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Shoutrrr</td></tr>
@@ -244,8 +264,8 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									    <tr><td class="help_table_gen_section" colspan="2">Automatic Speedtest</td></tr>
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_ACTIVE</td>
 									        <td class="help_table_gen_b">Automatischen Speedtest aktivieren/deaktivieren. Hierfür ist die Installation des Ookla Speedtests im Tab "Tools" des Gerätes "Internet" erforderlich. Beachte die Hinweise bei der Installation.</td></tr>
-									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_HOUR</td>
-									        <td class="help_table_gen_b">Volle Stunde, oder durch Komma getrennte Stunden, zu denen der Speedtest gestartet werden soll.</td></tr>
+									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_CRON</td>
+									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem der automatische Speedtest durchgeführt werden soll. Der kürzeste Intervall beträgt 3 Minuten. Alle größeren Intervalle müssen ein ganzzahliges Vielfaches von 3 Minuten sein (15, 30, 36 etc).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Arp-scan Options & Samples</td></tr>

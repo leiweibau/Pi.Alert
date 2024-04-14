@@ -1,5 +1,12 @@
 <?php
 unset($pia_lang);
+
+$pia_lang['Maintenance_autobackup'] = 'Auto-Backup';
+$pia_lang['Maintenance_autobackup_on'] = 'Aktiviert';
+$pia_lang['Maintenance_autobackup_off'] = 'Deaktiviert';
+$pia_lang['BackFiles_autobackup_pause'] = 'Pausiert';
+$pia_lang['BackFiles_autobackup_pending'] = 'In Warteschleife';
+
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
@@ -320,9 +327,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Verfügbarkeit';
 //////////////////////////////////////////////////////////////////
 $pia_lang['Maintenance_arpscancout_norun'] = 'Keine';
 $pia_lang['Maintenance_Title'] = 'Einstellungen und Wartung';
-$pia_lang['Maintenance_database_path'] = 'Datenbank-Pfad';
-$pia_lang['Maintenance_database_size'] = 'Datenbank-Größe';
-$pia_lang['Maintenance_database_lastmod'] = 'Letzte Aktualisierung (DB)';
+$pia_lang['Maintenance_database_lastmod'] = 'Letzte Änderung / Größe (DB)';
 $pia_lang['Maintenance_database_backup'] = 'Sicherung: DB';
 $pia_lang['Maintenance_config_backup'] = 'Sicherung: Config';
 $pia_lang['Maintenance_database_backup_found'] = 'Sicherungen vorhanden';
@@ -650,7 +655,7 @@ $pia_lang['ookla_devdetails_table_up'] = 'Upload';
 //////////////////////////////////////////////////////////////////
 $pia_lang['nmap_no_scan_results'] = 'Keine offenen Ports entdeckt';
 $pia_lang['nmap_devdetails_scanmode'] = 'Modus';
-$pia_lang['nmap_devdetails_download'] = 'Scans als CVS speichern';
+$pia_lang['nmap_devdetails_download'] = 'Scans als CSV speichern';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Es befinden sich <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> Scan-Ergebnisse in der Datenbank';
 // =============================================================================================================
@@ -678,11 +683,12 @@ $pia_journ_lang['a_060'] = 'Update Check';
 $pia_journ_lang['a_070'] = 'API';
 // pialert-cli
 $pia_journ_lang['b_002'] = $pia_journ_lang['a_002'];
-$pia_journ_lang['b_010'] = 'DB Wartung';
+$pia_journ_lang['b_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
 // cronjob
+$pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
 $pia_journ_lang['c_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['c_060'] = $pia_journ_lang['a_060'];

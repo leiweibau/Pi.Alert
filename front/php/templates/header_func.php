@@ -21,13 +21,13 @@ function delete_single_webgui_report() {
 // Maintenance Page - Pause Arp Scan Section
 function arpscanstatus() {
 	global $pia_lang;
-	if (!file_exists('../db/setting_stoppialert')) {
+	if (!file_exists('../config/setting_stoppialert')) {
 		unset($_SESSION['arpscan_timerstart']);
 		$_SESSION['arpscan_result'] = '<span id="arpproccounter"></span> ' . $pia_lang['Maintenance_arp_status_on'] . ' <div id="nextscancountdown" style="display: inline-block;"></div>';
 		$_SESSION['arpscan_sidebarstate'] = 'Active';
 		$_SESSION['arpscan_sidebarstate_light'] = 'green-light fa-gradient-green';
 	} else {
-		$_SESSION['arpscan_timerstart'] = date("H:i:s", filectime('../db/setting_stoppialert'));
+		$_SESSION['arpscan_timerstart'] = date("H:i:s", filectime('../config/setting_stoppialert'));
 		$_SESSION['arpscan_result'] = '<span style="color:red;">Pi.Alert ' . $pia_lang['Maintenance_arp_status_off'] . '</span> <div id="nextscancountdown" style="display: none;"></div>';
 		$_SESSION['arpscan_sidebarstate'] = 'Disabled&nbsp;&nbsp;&nbsp;(' . $_SESSION['arpscan_timerstart'] . ')';
 		$_SESSION['arpscan_sidebarstate_light'] = 'red fa-gradient-red';
@@ -102,9 +102,9 @@ function format_temperature($celsius, $temperaturelimit) {
 		// Only show temp info if any data is available -->
 		$tempcolor = 'text-vivid-blue';
 		if (isset($temperaturelimit) && $celsius > $temperaturelimit) {$tempcolor = 'text-red fa-gradient-red';}
-		echo '<span id="temperature"><i class="fa fa-w fa-fire ' . $tempcolor . '" style="width: 1em !important"></i> ';
-		echo 'Temp:&nbsp;<span id="rawtemp" hidden>' . $celsius . '</span>';
-		echo '<span id="tempdisplay"></span></span>';
+		echo '<span id="temperature">
+		         <i class="fa fa-w fa-fire ' . $tempcolor . '" style="width: 1em !important"></i> Temp:&nbsp;<span id="rawtemp" hidden>' . $celsius . '</span><span id="tempdisplay"></span>
+		      </span>';
 	}
 }
 // Sidebar Menu - Web Services Menu Items
@@ -156,6 +156,12 @@ if (get_config_parmeter('ICMPSCAN_ACTIVE') == 1) {$_SESSION['ICMPScan'] = True;}
 if (get_config_parmeter('SCAN_WEBSERVICES') == 1) {$_SESSION['Scan_WebServices'] = True;} else { $_SESSION['Scan_WebServices'] = False;}
 if (get_config_parmeter('ARPSCAN_ACTIVE') == 1) {$_SESSION['Scan_MainScan'] = True;} else { $_SESSION['Scan_MainScan'] = False;}
 if (get_config_parmeter('AUTO_UPDATE_CHECK') == 1) {$_SESSION['Auto_Update_Check'] = True;} else { $_SESSION['Auto_Update_Check'] = False;}
+if (get_config_parmeter('AUTO_DB_BACKUP') == 1) {$_SESSION['AUTO_DB_BACKUP'] = True;} else { $_SESSION['AUTO_DB_BACKUP'] = False;}
+if (get_config_parmeter('SPEEDTEST_TASK_ACTIVE') == 1) {$_SESSION['SPEEDTEST_TASK_ACTIVE'] = True;} else { $_SESSION['SPEEDTEST_TASK_ACTIVE'] = False;}
+$_SESSION['AUTO_UPDATE_CHECK_CRON'] = get_config_parmeter('AUTO_UPDATE_CHECK_CRON');
+$_SESSION['AUTO_DB_BACKUP_CRON'] = get_config_parmeter('AUTO_DB_BACKUP_CRON');
+$_SESSION['SPEEDTEST_TASK_CRON'] = get_config_parmeter('SPEEDTEST_TASK_CRON');
+
 // State for Toggle Buttons
 function convert_state($state, $revert) {
 	global $pia_lang;
@@ -324,7 +330,7 @@ function format_notifications($source_array) {
 }
 // Maintenance Page - Aprscan read Timer
 function read_arpscan_timer() {
-	$file = '../db/setting_stoppialert';
+	$file = '../config/setting_stoppialert';
 	if (file_exists($file)) {
 		$timer_arpscan = file_get_contents($file, true);
 		if ($timer_arpscan == 10 || $timer_arpscan == 15 || $timer_arpscan == 30) {
@@ -343,7 +349,7 @@ function read_arpscan_timer() {
 }
 // Maintenance Page - Get Device List Columns
 function read_DevListCol() {
-	$file = '../db/setting_devicelist';
+	$file = '../config/setting_devicelist';
 	if (file_exists($file)) {
 		$get = file_get_contents($file, true);
 		$output_array = json_decode($get, true);
@@ -392,9 +398,9 @@ function print_logviewer_modal_foot() {
     </div>';
 }
 // Devicelist, ICMP Monitor - Enable Arp Histroy Graph
-if (file_exists('../db/setting_noonlinehistorygraph')) {$ENABLED_HISTOY_GRAPH = False;} else { $ENABLED_HISTOY_GRAPH = True;}
+if (file_exists('../config/setting_noonlinehistorygraph')) {$ENABLED_HISTOY_GRAPH = False;} else { $ENABLED_HISTOY_GRAPH = True;}
 // Theme - If Theme is used, hide Darkmode Button
-$themefile = '../db/setting_theme*';
+$themefile = '../config/setting_theme*';
 $theme_result = glob($themefile);
 // Check if any matching files were found
 if (!empty($theme_result)) {
@@ -409,9 +415,9 @@ if (!empty($theme_result)) {
 	}
 } else {
 	// Darkmode
-	if (file_exists('../db/setting_darkmode')) {$ENABLED_DARKMODE = True;} else { $ENABLED_DARKMODE = False;}
+	if (file_exists('../config/setting_darkmode')) {$ENABLED_DARKMODE = True;} else { $ENABLED_DARKMODE = False;}
 	// Use saved AdminLTE Skin
-	foreach (glob("../db/setting_skin*") as $filename) {
+	foreach (glob("../config/setting_skin*") as $filename) {
 		$skinname_file = str_replace('setting_', '', basename($filename));
 		$skin_selected_head = '<link rel="stylesheet" href="lib/AdminLTE/dist/css/skins/' . $skinname_file . '.min.css">';
 		$skin_selected_body = '<body class="hold-transition ' . $skinname_file . ' sidebar-mini" >';
@@ -425,13 +431,13 @@ if (!empty($theme_result)) {
 	}
 }
 // UI - Language
-foreach (glob("../db/setting_language*") as $filename) {
+foreach (glob("../config/setting_language*") as $filename) {
 	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
 }
 if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
 // UI - FavIcon
-if (file_exists('../db/setting_favicon')) {
-	$FRONTEND_FAVICON = file('../db/setting_favicon', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)[0];
+if (file_exists('../config/setting_favicon')) {
+	$FRONTEND_FAVICON = file('../config/setting_favicon', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)[0];
 } else {
 	$FRONTEND_FAVICON = 'img/favicons/flat_blue_white.png';
 }

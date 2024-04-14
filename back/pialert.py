@@ -7,7 +7,7 @@
 #  pialert.py - Back module. Network scanner, Web service monitor
 #-------------------------------------------------------------------------------
 #  Puche 2021                                              GNU GPLv3
-#  leiweibau 2023                                          GNU GPLv3
+#  leiweibau 2024                                          GNU GPLv3
 #  piapiacz, hspindel
 #-------------------------------------------------------------------------------
 
@@ -34,9 +34,12 @@ import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, req
 PIALERT_BACK_PATH = os.path.dirname(os.path.abspath(__file__))
 PIALERT_PATH = PIALERT_BACK_PATH + "/.."
 PIALERT_WEBSERVICES_LOG = PIALERT_PATH + "/log/pialert.webservices.log"
-STOPPIALERT = PIALERT_PATH + "/db/setting_stoppialert"
+STOPPIALERT = PIALERT_PATH + "/config/setting_stoppialert"
 PIALERT_DB_FILE = PIALERT_PATH + "/db/pialert.db"
+PIALERT_DB_PATH = PIALERT_PATH + "/db"
 REPORTPATH_WEBGUI = PIALERT_PATH + "/front/reports/"
+STATUS_FILE_SCAN = PIALERT_BACK_PATH + "/.scanning"
+STATUS_FILE_BACKUP = PIALERT_BACK_PATH + "/.backup"
 
 if (sys.version_info > (3,0)):
     exec(open(PIALERT_PATH + "/config/version.conf").read())
@@ -97,11 +100,15 @@ def main():
         return res
 
     # Reporting
-    if cycle != 'internet_IP' and cycle != 'cleanup':
+    if cycle not in ['internet_IP', 'cleanup']:
         email_reporting()
 
     # Close SQL
     closeDB()
+
+    # Remove scan status file created in scan_network()
+    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent'] and os.path.exists(STATUS_FILE_SCAN):
+        os.remove(STATUS_FILE_SCAN)
 
     # Final menssage
     print('\nDONE!!!\n\n')
@@ -221,29 +228,116 @@ def check_internet_IP():
         print('\nSkipping Dynamic DNS update...')
 
     # Run automated Speedtest
+    print(f"\nAuto Speedtest...")
     if SPEEDTEST_TASK_ACTIVE :
         # Check if Speedtest is installed
         speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
         if os.path.exists(speedtest_binary):
-            print('\nRun daily Speedtest...')
-            run_speedtest_task()
+            print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
+            run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
         else:
-            print('\nSkipping Speedtest... Not installed!')
+            print('    Skipping Speedtest... Not installed!')
     else :
-        print('\nSkipping Speedtest...')
+        print('    Skipping Speedtest... Not activated!')
 
     # Run automated UpdateCheck
+    print(f"\nAuto Update-Check...")
     if AUTO_UPDATE_CHECK :
-        if startTime.hour in [3, 9, 15, 21] and startTime.minute == 0:
-            checkNewVersion()
-        else:
-            print(f"\nAuto Update-Check...")
-            print(f"    Time to search for a new version has not yet been reached\n    (3, 9, 15 or 21 o'clock).")
+        print(f"    Crontab: {AUTO_UPDATE_CHECK_CRON}")
+        checkNewVersion(startTime, AUTO_UPDATE_CHECK_CRON)
     else:
         NewVersion_FrontendNotification(False,"")
-        print(f"\nAuto Update-Check...")
         print(f"    Skipping Auto Update-Check... Not activated!")
+
+    # Run automated Backup
+    print(f"\nAuto Backup...")
+    if AUTO_DB_BACKUP :
+        print(f"    Crontab: {AUTO_DB_BACKUP_CRON}")
+        if not os.path.exists(STATUS_FILE_BACKUP):
+            create_autobackup(startTime, AUTO_DB_BACKUP_CRON)
+        else:
+            print("    Backup function pending.")
+    else:
+        print(f"    Skipping Auto Backup... Not activated!")
+
     return 0
+
+# ------------------------------------------------------------------------------
+def create_autobackup(start_time, crontab_string):
+    # create status file
+    with open(STATUS_FILE_BACKUP, "w") as f:
+        f.write("")
+
+    # convert cron string
+    crontab_parts = crontab_string.split()
+    minute = parse_cron_part(crontab_parts[0], start_time.minute)
+    hour = parse_cron_part(crontab_parts[1], start_time.hour)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
+    month = parse_cron_part(crontab_parts[3], start_time.month)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+
+    # Compare cron
+    if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
+       (start_time.month in month) and (start_time.weekday() in day_of_week):
+
+        while os.path.exists(STATUS_FILE_SCAN):
+            if time.time() - start_time.timestamp() >= 300:  # Check whether 5 minutes have passed
+                #print("The status file has not been deleted after 5 minutes. The script is terminated.")
+                if os.path.exists(STATUS_FILE_BACKUP):
+                    os.remove(STATUS_FILE_BACKUP)
+                return
+            time.sleep(1)  # wait 1 second
+        else:
+            print("    Backup is started...")
+            BACKUP_FILE_DATE = str(start_time)
+            BACKUP_FILE = PIALERT_DB_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".zip"
+            time.sleep(20)  # wait 20s to finish the reporting
+            #### Backuptask start ####
+
+            # Backup DB (no further checks)
+            sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
+            subprocess.check_output(sqlite_command, universal_newlines=True)
+            subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
+            time.sleep(4)
+            os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
+
+            # Backup config file
+            BACKUP_CONF_FILE = PIALERT_PATH + "/config/pialert-" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".bak"
+            subprocess.check_output('cp ' + PIALERT_PATH + '/config/pialert.conf ' + BACKUP_CONF_FILE, shell=True)
+
+            openDB()
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_010', 'cronjob', 'LogStr_0011', '', '') """, (startTime,))
+            sql_connection.commit()
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_000', 'cronjob', 'LogStr_0007', '', '') """, (startTime,))
+
+            sql_connection.commit()
+            closeDB()
+
+            #### Backuptask end ####
+    else:
+        print(f"    Backup function was NOT executed.")
+
+    # remove status file
+    if os.path.exists(STATUS_FILE_BACKUP):
+        os.remove(STATUS_FILE_BACKUP)
+
+# ------------------------------------------------------------------------------
+def parse_cron_part(cron_part, current_value):
+    if cron_part == '*':
+        return set(range(60))  # Jeder Wert von 0 bis 59 ist gültig
+    elif '/' in cron_part:
+        step = int(cron_part.split('/')[1])
+        return set(range(0, 60, step))  # Start bei 0, Schrittweise in Schritten von 'step'
+    elif '-' in cron_part:
+        start, end = map(int, cron_part.split('-'))
+        return set(range(start, end + 1))
+    elif ',' in cron_part:
+        values = cron_part.split(',')
+        return set(int(value) for value in values)
+    else:
+        return {int(cron_part)}
 
 # ------------------------------------------------------------------------------
 def NewVersion_FrontendNotification(newVersion,update_notes):
@@ -261,94 +355,118 @@ def NewVersion_FrontendNotification(newVersion,update_notes):
             print("    Remove Frontend Notification.")
 
 # ------------------------------------------------------------------------------
-def checkNewVersion():
-    newVersion = False
-    currentversion = VERSION_DATE
+def checkNewVersion(start_time, crontab_string):
 
-    print(f"\nAuto Update-Check...")
-    print(f"    Current Version: {currentversion}")
+    # convert cron string
+    crontab_parts = crontab_string.split()
+    minute = parse_cron_part(crontab_parts[0], start_time.minute)
+    hour = parse_cron_part(crontab_parts[1], start_time.hour)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
+    month = parse_cron_part(crontab_parts[3], start_time.month)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
 
-    UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1"
+    # Compare cron
+    if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
+       (start_time.month in month) and (start_time.weekday() in day_of_week):
+
+        newVersion = False
+        currentversion = VERSION_DATE
+
+        print(f"    Current Version: {currentversion}")
+
+        UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&page=1&per_page=1"
         #UPDATE_CHECK_URL = "https://api.github.com/repos/leiweibau/Pi.Alert/commits?path=tar%2Fpialert_latest.tar&sha=next_update&page=1&per_page=1"
-    data = ""
-    update_notes = ""
-
-    try:
-        url = requests.get(UPDATE_CHECK_URL)
-        text = url.text
-        data = json.loads(text)
-    except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as e:
-        print("    ERROR: Couldn't check for new release.")
         data = ""
+        update_notes = ""
 
-    openDB()
-    if data != "" and len(data) > 0 and isinstance(data, list) and "commit" in data[0]:
-        dateTimeStr = data[0]['commit']['author']['date']
-        update_notes = data[0]['commit']['message']
-        date_obj = datetime.datetime.strptime(dateTimeStr, '%Y-%m-%dT%H:%M:%SZ')
-        latestversion = date_obj.strftime('%Y-%m-%d')
+        try:
+            url = requests.get(UPDATE_CHECK_URL)
+            text = url.text
+            data = json.loads(text)
+        except (requests.exceptions.ConnectionError, json.decoder.JSONDecodeError) as e:
+            print("    ERROR: Couldn't check for new release.")
+            data = ""
 
-        if latestversion > currentversion:
-            print(f"    New version {latestversion} is available!")
-            newVersion = True
-            NewVersion_FrontendNotification(newVersion,update_notes)
-            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                           VALUES (?, 'c_060', 'cronjob', 'LogStr_0061', '', '') """, (startTime,))
+        openDB()
+        if data != "" and len(data) > 0 and isinstance(data, list) and "commit" in data[0]:
+            dateTimeStr = data[0]['commit']['author']['date']
+            update_notes = data[0]['commit']['message']
+            date_obj = datetime.datetime.strptime(dateTimeStr, '%Y-%m-%dT%H:%M:%SZ')
+            latestversion = date_obj.strftime('%Y-%m-%d')
+
+            if latestversion > currentversion:
+                print(f"    New version {latestversion} is available!")
+                newVersion = True
+                NewVersion_FrontendNotification(newVersion,update_notes)
+                sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                               VALUES (?, 'c_060', 'cronjob', 'LogStr_0061', '', '') """, (startTime,))
+            else:
+                print("    Running the latest version.")
+                # newVersion is still FALSE
+                NewVersion_FrontendNotification(newVersion,update_notes)
+                sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                               VALUES (?, 'c_060', 'cronjob', 'LogStr_0067', '', '') """, (startTime,))
         else:
-            print("    Running the latest version.")
+            # newVersion is still FALSE
             NewVersion_FrontendNotification(newVersion,update_notes)
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                           VALUES (?, 'c_060', 'cronjob', 'LogStr_0067', '', '') """, (startTime,))
+                   VALUES (?, 'c_060', 'cronjob', 'LogStr_0066', '', '') """, (startTime,))
+        closeDB()
+
     else:
-        NewVersion_FrontendNotification(newVersion,update_notes)
-        sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-               VALUES (?, 'c_060', 'cronjob', 'LogStr_0066', '', '') """, (startTime,))
-    closeDB()
+        print(f"    Version Ceck function was NOT executed.")
 
 #-------------------------------------------------------------------------------
-def run_speedtest_task():
+def run_speedtest_task(start_time, crontab_string):
+    # convert cron string
+    crontab_parts = crontab_string.split()
+    minute = parse_cron_part(crontab_parts[0], start_time.minute)
+    hour = parse_cron_part(crontab_parts[1], start_time.hour)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
+    month = parse_cron_part(crontab_parts[3], start_time.month)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+
     # Define the command and arguments
     command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
-    if len(SPEEDTEST_TASK_HOUR) != 0:
+    # Compare cron
+    if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
+       (start_time.month in month) and (start_time.weekday() in day_of_week):
         openDB()
-        for value in SPEEDTEST_TASK_HOUR:
-            if value == startTime.hour and startTime.minute == 0:
-                try:
-                    output = subprocess.check_output(command, text=True)
-                    # Parse the JSON output
-                    result = json.loads(output)
-                    # Access the speed test results
-                    speedtest_isp = result['isp']
-                    speedtest_server = result['server']['name'] + ' (' + result['server']['location'] + ') (' + result['server']['host'] + ')'
-                    speedtest_ping = result['ping']['latency']
-                    speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
-                    speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
-                    # Build output
-                    speedtest_output = ""
-                    speedtest_output += f"    ISP:            {speedtest_isp}\n"
-                    speedtest_output += f"    Server:         {speedtest_server}\n\n"
-                    speedtest_output += f"    Ping:           {speedtest_ping} ms\n"
-                    speedtest_output += f"    Download Speed: {speedtest_down} Mbps\n"
-                    speedtest_output += f"    Upload Speed:   {speedtest_up} Mbps\n"
-                    print(speedtest_output)
-                    # Prepare db string
-                    speedtest_db_output = speedtest_output.replace("\n", "<br>")
-                    # Insert in db
-                    sql.execute ("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
-                                    VALUES (?, ?, ?, ?, ?, ?) """, (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
-                    # Logging
-                    sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                                    VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """, (startTime, speedtest_db_output))
-                    sql_connection.commit()
-                except subprocess.CalledProcessError as e:
-                    print(f"Error running 'speedtest': {e}")
-                except json.JSONDecodeError as e:
-                    print(f"Error parsing JSON output: {e}")
-            else :
-                print (f"    Planned time ({value}:00) not reached yet")
+        try:
+            output = subprocess.check_output(command, text=True)
+            # Parse the JSON output
+            result = json.loads(output)
+            # Access the speed test results
+            speedtest_isp = result['isp']
+            speedtest_server = result['server']['name'] + ' (' + result['server']['location'] + ') (' + result['server']['host'] + ')'
+            speedtest_ping = result['ping']['latency']
+            speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
+            speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
+            # Build output
+            speedtest_output = ""
+            speedtest_output += f"    ISP:            {speedtest_isp}\n"
+            speedtest_output += f"    Server:         {speedtest_server}\n\n"
+            speedtest_output += f"    Ping:           {speedtest_ping} ms\n"
+            speedtest_output += f"    Download Speed: {speedtest_down} Mbps\n"
+            speedtest_output += f"    Upload Speed:   {speedtest_up} Mbps\n"
+            print(speedtest_output)
+            # Prepare db string
+            speedtest_db_output = speedtest_output.replace("\n", "<br>")
+            # Insert in db
+            sql.execute ("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
+                            VALUES (?, ?, ?, ?, ?, ?) """, (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
+            # Logging
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                            VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """, (startTime, speedtest_db_output))
+            sql_connection.commit()
+        except subprocess.CalledProcessError as e:
+            print(f"Error running 'speedtest': {e}")
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON output: {e}")
+
         closeDB()
     else:
-        print("    The Parameter SPEEDTEST_TASK_HOUR is not set.")
+        print("    Speedtest function was NOT executed.")
     return 0
 
 #-------------------------------------------------------------------------------
@@ -534,6 +652,10 @@ def query_MAC_vendor(pMAC):
 # SCAN NETWORK
 #===============================================================================
 def scan_network():
+    # Create scan status file
+    with open(STATUS_FILE_SCAN, "w") as f:
+        f.write("")
+
     # Header
     print('Scan Devices')
     print('    Timestamp:', startTime )

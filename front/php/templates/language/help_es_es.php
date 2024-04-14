@@ -117,6 +117,16 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										    <td class="help_table_gen_b">Activa o desactiva la protección con contraseña de la interfaz web de Pi.Alert.</td></tr>
 										<tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
 										    <td class="help_table_gen_b">Este campo contiene la contraseña cifrada para la interfaz web. La contraseña no se puede ingresar aquí en texto plano, sino que debe establecerse con <span class="text-maroon help_faq_code">pialert-cli</span>.</td></tr>
+										<tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
+										    <td class="help_table_gen_b">Dirección IP del servidor DNS en la red</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
+										    <td class="help_table_gen_b">Activa o desactiva la búsqueda automática de actualizaciones de Pi.Alert.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
+										    <td class="help_table_gen_b">Intervalo, en sintaxis de crontab, en el que se debe buscar nuevas actualizaciones de Pi.Alert. El intervalo más corto es de 3 minutos. Todos los intervalos mayores deben ser múltiplos enteros de 3 minutos (15, 30, 36, etc)</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
+										    <td class="help_table_gen_b">Activa o desactiva la creación automática de copias de seguridad de base de datos y configuración.</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
+										    <td class="help_table_gen_b">Intervalo, en sintaxis de crontab, en el que se deben crear las copias de seguridad automáticas. El intervalo más corto es de 3 minutos. Todos los intervalos mayores deben ser múltiplos enteros de 3 minutos (15, 30, 36, etc)</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -179,6 +189,10 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										    <td class="help_table_gen_b">Esta es la clave privada que se puede ver en la página de Pushsafer.</td></tr>
 										<tr><td class="help_table_gen_a">PUSHSAFER_DEVICE</td>
 										    <td class="help_table_gen_b">El ID del dispositivo al cual se enviará el mensaje. &lsquo;<span class="text-maroon help_faq_code">a</span>&rsquo; significa que el mensaje se enviará a todos los dispositivos configurados y consumirá un número correspondiente de llamadas API.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHSAFER_PRIO</td>
+										    <td class="help_table_gen_b">Nivel de prioridad del mensaje.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHSAFER_SOUND</td>
+										    <td class="help_table_gen_b">Sonido de notificación (entero).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Pushover</td></tr>
@@ -190,6 +204,10 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										    <td class="help_table_gen_b">También conocido como "APP TOKEN" o "API TOKEN". Este token se puede obtener en la página de Pushover.</td></tr>
 										<tr><td class="help_table_gen_a">PUSHOVER_USER</td>
 										    <td class="help_table_gen_b">También conocido como "USER KEY". Esta clave se muestra justo después de iniciar sesión en la página de inicio.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHOVER_PRIO</td>
+										    <td class="help_table_gen_b">Nivel de prioridad del mensaje.</td></tr>
+										<tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
+										    <td class="help_table_gen_b">Sonido de notificación.</td></tr>
 									</table>
 									<table class="help_table_gen">
 			    						<tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
@@ -207,6 +225,8 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										    <td class="help_table_gen_b">La contraseña utilizada para autenticarse en el servidor NTFY.</td></tr>
 										<tr><td class="help_table_gen_a">NTFY_PRIORITY</td>
 										    <td class="help_table_gen_b">La prioridad de las notificaciones enviadas a través de NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_CLICKABLE</td>
+									        <td class="help_table_gen_b"></td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Shoutrrr</td></tr>
@@ -241,8 +261,8 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									    <tr><td class="help_table_gen_section" colspan="2">Automatic Speedtest</td></tr>
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_ACTIVE</td>
 									        <td class="help_table_gen_b">Activar/desactivar el test de velocidad automático. Para ello, instale el test de velocidad Ookla en la pestaña "Herramientas" del dispositivo "Internet". Siga las instrucciones durante la instalación.</td></tr>
-									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_HOUR</td>
-									        <td class="help_table_gen_b">Hora completa, u horas separadas por comas, a la que debe iniciarse la prueba de velocidad.</td></tr>
+									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_CRON</td>
+									        <td class="help_table_gen_b">Hora completa, u horas separadas por comas, a la que debe iniciarse la prueba de velocidad. El intervalo más corto es de 3 minutos. Todos los intervalos mayores deben ser múltiplos enteros de 3 minutos (15, 30, 36, etc)</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Arp-scan Options & Samples</td></tr>
