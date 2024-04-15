@@ -264,7 +264,7 @@ function convert_bool_to_status($status) {
 	if ($status == True) {return "enabled";} else {return "disabled";}
 }
 echo '<tr>
-		<td style="padding: 3px; padding-left: 10px;">Update Ceck</td>
+		<td style="padding: 3px; padding-left: 10px;">Update Check</td>
 		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['AUTO_UPDATE_CHECK_CRON'].'</td>
 		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['Auto_Update_Check']).'</td>
 	  </tr>';
