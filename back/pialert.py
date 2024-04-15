@@ -414,7 +414,7 @@ def checkNewVersion(start_time, crontab_string):
         closeDB()
 
     else:
-        print(f"    Version Ceck function was NOT executed.")
+        print(f"    Version Check function was NOT executed.")
 
 #-------------------------------------------------------------------------------
 def run_speedtest_task(start_time, crontab_string):
