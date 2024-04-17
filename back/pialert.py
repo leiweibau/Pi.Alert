@@ -270,11 +270,11 @@ def create_autobackup(start_time, crontab_string):
 
     # convert cron string
     crontab_parts = crontab_string.split()
-    minute = parse_cron_part(crontab_parts[0], start_time.minute)
-    hour = parse_cron_part(crontab_parts[1], start_time.hour)
-    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
-    month = parse_cron_part(crontab_parts[3], start_time.month)
-    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+    minute = parse_cron_part(crontab_parts[0], start_time.minute, 0, 60) # last value is the exit value, meaning the 1. invalid value
+    hour = parse_cron_part(crontab_parts[1], start_time.hour, 0, 60)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day, 1, 32)
+    month = parse_cron_part(crontab_parts[3], start_time.month, 1, 13)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Compare cron
     if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
@@ -300,10 +300,16 @@ def create_autobackup(start_time, crontab_string):
             subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
             time.sleep(4)
             os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
+            # Set Permissions for www-data (testing)
+            os.system("sudo chown www-data:www-data " + BACKUP_FILE)
+            os.system("sudo chmod 644 " + BACKUP_FILE)
 
             # Backup config file
             BACKUP_CONF_FILE = PIALERT_PATH + "/config/pialert-" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".bak"
             subprocess.check_output('cp ' + PIALERT_PATH + '/config/pialert.conf ' + BACKUP_CONF_FILE, shell=True)
+            # Set Permissions for www-data (testing)
+            os.system("sudo chown www-data:www-data " + BACKUP_CONF_FILE)
+            os.system("sudo chmod 644 " + BACKUP_CONF_FILE)
 
             openDB()
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
@@ -324,12 +330,12 @@ def create_autobackup(start_time, crontab_string):
         os.remove(STATUS_FILE_BACKUP)
 
 # ------------------------------------------------------------------------------
-def parse_cron_part(cron_part, current_value):
+def parse_cron_part(cron_part, current_value, cron_min_value, cron_max_value):
     if cron_part == '*':
-        return set(range(60))  # Jeder Wert von 0 bis 59 ist gültig
+        return set(range(cron_min_value, cron_max_value))
     elif '/' in cron_part:
         step = int(cron_part.split('/')[1])
-        return set(range(0, 60, step))  # Start bei 0, Schrittweise in Schritten von 'step'
+        return set(range(cron_min_value, cron_max_value, step))
     elif '-' in cron_part:
         start, end = map(int, cron_part.split('-'))
         return set(range(start, end + 1))
@@ -359,11 +365,11 @@ def checkNewVersion(start_time, crontab_string):
 
     # convert cron string
     crontab_parts = crontab_string.split()
-    minute = parse_cron_part(crontab_parts[0], start_time.minute)
-    hour = parse_cron_part(crontab_parts[1], start_time.hour)
-    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
-    month = parse_cron_part(crontab_parts[3], start_time.month)
-    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+    minute = parse_cron_part(crontab_parts[0], start_time.minute, 0, 60) # last value is the exit value, meaning the 1. invalid value
+    hour = parse_cron_part(crontab_parts[1], start_time.hour, 0, 60)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day, 1, 32)
+    month = parse_cron_part(crontab_parts[3], start_time.month, 1, 13)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Compare cron
     if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
@@ -420,11 +426,11 @@ def checkNewVersion(start_time, crontab_string):
 def run_speedtest_task(start_time, crontab_string):
     # convert cron string
     crontab_parts = crontab_string.split()
-    minute = parse_cron_part(crontab_parts[0], start_time.minute)
-    hour = parse_cron_part(crontab_parts[1], start_time.hour)
-    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
-    month = parse_cron_part(crontab_parts[3], start_time.month)
-    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+    minute = parse_cron_part(crontab_parts[0], start_time.minute, 0, 60) # last value is the exit value, meaning the 1. invalid value
+    hour = parse_cron_part(crontab_parts[1], start_time.hour, 0, 60)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day, 1, 32)
+    month = parse_cron_part(crontab_parts[3], start_time.month, 1, 13)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Define the command and arguments
     command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
