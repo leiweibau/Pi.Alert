@@ -303,6 +303,12 @@ def create_autobackup(start_time, crontab_string):
             # Set Permissions for www-data (testing)
             os.system("sudo chown www-data:www-data " + BACKUP_FILE)
             os.system("sudo chmod 644 " + BACKUP_FILE)
+            # Cleanup
+            bak_files = glob.glob(os.path.join(PIALERT_DB_PATH, "pialertdb_20*.zip"))
+            bak_files.sort(key=os.path.getmtime, reverse=True)
+            for file in bak_files[5:]:
+                os.remove(file)
+            print(f"    Cleanup Backups")
 
             # Backup config file
             BACKUP_CONF_FILE = PIALERT_PATH + "/config/pialert-" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".bak"
@@ -310,6 +316,12 @@ def create_autobackup(start_time, crontab_string):
             # Set Permissions for www-data (testing)
             os.system("sudo chown www-data:www-data " + BACKUP_CONF_FILE)
             os.system("sudo chmod 644 " + BACKUP_CONF_FILE)
+            # Cleanup
+            bak_files = glob.glob(os.path.join(PIALERT_PATH + "/config", "pialert-20*.bak"))
+            bak_files.sort(key=os.path.getmtime, reverse=True)
+            for file in bak_files[5:]:
+                os.remove(file)
+            print(f"    Cleanup Backups")
 
             openDB()
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
