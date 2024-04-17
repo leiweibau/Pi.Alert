@@ -308,7 +308,7 @@ def create_autobackup(start_time, crontab_string):
             bak_files.sort(key=os.path.getmtime, reverse=True)
             for file in bak_files[5:]:
                 os.remove(file)
-            print(f"    Cleanup Backups")
+            print(f"    Cleanup DB Backups")
 
             # Backup config file
             BACKUP_CONF_FILE = PIALERT_PATH + "/config/pialert-" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".bak"
@@ -321,7 +321,7 @@ def create_autobackup(start_time, crontab_string):
             bak_files.sort(key=os.path.getmtime, reverse=True)
             for file in bak_files[5:]:
                 os.remove(file)
-            print(f"    Cleanup Backups")
+            print(f"    Cleanup Config Backups")
 
             openDB()
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
@@ -2856,7 +2856,7 @@ def send_webgui (_Text):
     set_reports_file_permissions()
 
 #===============================================================================
-# Sending Notofications
+# Sending Notifications
 #===============================================================================
 def sending_notifications (_type, _html_text, _txt_text):
     if _type in ['webservice']:
