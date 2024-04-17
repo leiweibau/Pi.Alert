@@ -88,6 +88,21 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 function GetAutoBackupStatus() {
 	global $pia_lang;
 	if (file_exists("../../../back/.backup")) {$result = array($pia_lang['BackFiles_autobackup_pending']);} else {$result = array($pia_lang['BackFiles_autobackup_pause']);}
+	//Count db backups
+	$backupdir = "../../../db";
+	$backupfiles = glob($backupdir . "/pialertdb_20*.zip");
+	$result[] = count($backupfiles);
+	//Calc Backup size
+	$backupfile_size = 0;
+	foreach ($backupfiles as $file) {
+		$backupfile_size = $backupfile_size + filesize($file);
+	}
+	//Count config backups
+	$backupdir = "../../../config";
+	$backupfiles = glob($backupdir . "/pialert-20*.bak");
+	$result[] = count($backupfiles);
+
+	$result[] = number_format(($backupfile_size / 1000000), 2, ",", ".") . ' MB';
 	echo json_encode($result);
 }
 
