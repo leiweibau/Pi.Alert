@@ -135,19 +135,14 @@ function createnetworktab($pia_func_netdevid, $pia_func_netdevname, $pia_func_ne
 		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-wifi network_tab_icon text-aqua" style="top: 1px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Powerline') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-plug-fill network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Router') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-router-fill network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Switch') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-ethernet network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Internet') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-globe network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Hypervisor') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-hdd-stack-fill network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} else {
 		// No tab icon (first 2 chars "x_" removed)
