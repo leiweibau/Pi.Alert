@@ -448,6 +448,14 @@ function get_host_statistic($hostip) {
                         </div>
                       </div>
 
+                      <div class="form-group">
+                        <label class="col-xs-4 control-label"><?=$pia_lang['DevDetail_EveandAl_Archived'];?></label>
+                        <div class="col-xs-4" style="padding-top:6px;">
+                          <input class="checkbox blue" id="chkArchived" <?php if ($icmpmonitorDetails['icmp_Archived'] == 1) {echo 'checked';}?> type="checkbox">
+                        </div>
+                      </div>
+
+
                       <!-- Alert events -->
                       <div class="form-group">
                         <label class="col-xs-4 control-label"><?=$pia_lang['WebServices_label_AlertEvents'];?></label>
@@ -811,6 +819,7 @@ function setICMPHostData(refreshCallback='') {
     + '&icmp_owner='      + $('#txtOwner').val()
     + '&icmp_notes='      + $('#txtNotes').val()
     + '&favorit='         + ($('#chkFavorit')[0].checked * 1)
+    + '&archived='        + ($('#chkArchived')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
     + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
     , function(msg) {

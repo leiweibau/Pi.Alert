@@ -162,7 +162,7 @@ function prepare_speedtestresults_graph() {
 	$Speedtest_Graph_ping = array();
 	$Speedtest_Graph_Down = array();
 	$Speedtest_Graph_Up = array();
-	$results = $db->query('SELECT speed_date, speed_ping, speed_down, speed_up FROM Tools_Speedtest_History ORDER BY speed_date DESC LIMIT 10');
+	$results = $db->query('SELECT speed_date, speed_ping, speed_down, speed_up FROM Tools_Speedtest_History ORDER BY speed_date DESC LIMIT 20');
 	while ($row = $results->fetchArray()) {
 		$time_raw = explode(' ', $row['speed_date']);
 		$time = explode(':', $time_raw[1]);

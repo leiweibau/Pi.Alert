@@ -39,7 +39,8 @@ function graph_online_history_main(online_history_time, online_history_ondev, on
             yAxes: [{
                 ticks: {
                     beginAtZero:true,
-                    fontColor: '#A0A0A0'
+                    fontColor: '#A0A0A0',
+                    stepSize: 1
                 },
                 gridLines: {
                     color: "rgba(0, 0, 0, 0)",

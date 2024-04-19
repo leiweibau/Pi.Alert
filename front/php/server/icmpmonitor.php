@@ -55,13 +55,13 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 function getICMPHostTotals() {
 	global $db;
 
-	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_PresentLastScan=0 AND icmp_AlertDown=1";
+	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_Archived=0 AND icmp_PresentLastScan=0 AND icmp_AlertDown=1";
 	$alertDown_Count = $db->querySingle($query);
-	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_PresentLastScan=1";
+	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_Archived=0 AND icmp_PresentLastScan=1";
 	$online_Count = $db->querySingle($query);
-	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_Favorite=1";
+	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_Archived=0 AND icmp_Favorite=1";
 	$favorite_Count = $db->querySingle($query);
-	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon";
+	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_Archived=0";
 	$all_Count = $db->querySingle($query);
 	$query = "SELECT COUNT(*) AS rowCount FROM ICMP_Mon WHERE icmp_Archived=1";
 	$archived_Count = $db->querySingle($query);
@@ -141,7 +141,8 @@ function setICMPHostData() {
                 icmp_notes       = "' . quotes($_REQUEST['icmp_notes']) . '",
                 icmp_AlertEvents = "' . quotes($_REQUEST['alertevents']) . '",
                 icmp_AlertDown   = "' . quotes($_REQUEST['alertdown']) . '",
-                icmp_Favorite    = "' . quotes($_REQUEST['favorit']) . '"
+                icmp_Favorite    = "' . quotes($_REQUEST['favorit']) . '",
+                icmp_Archived    = "' . quotes($_REQUEST['archived']) . '"
           WHERE icmp_ip="' . $_REQUEST['icmp_ip'] . '"';
 
 	$result = $db->query($sql);
