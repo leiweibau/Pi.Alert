@@ -46,11 +46,11 @@ function print_box_bottom_element() {
 // Get Online Graph Arrays
 $graph_arrays = array();
 $graph_arrays = prepare_graph_arrays_history("mainscan");
-$Pia_Graph_Device_Time = $graph_arrays[0];
-$Pia_Graph_Device_Down = $graph_arrays[1];
-$Pia_Graph_Device_All = $graph_arrays[2];
-$Pia_Graph_Device_Online = $graph_arrays[3];
-$Pia_Graph_Device_Arch = $graph_arrays[4];
+$Graph_Device_Time = $graph_arrays[0];
+$Graph_Device_Down = $graph_arrays[1];
+$Graph_Device_All = $graph_arrays[2];
+$Graph_Device_Online = $graph_arrays[3];
+$Graph_Device_Arch = $graph_arrays[4];
 
 ?>
 
@@ -534,10 +534,10 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
       </div>
       <script src="js/graph_online_history.js"></script>
       <script>
-        var online_history_time = [<?php pia_graph_devices_data($Pia_Graph_Device_Time);?>];
-        var online_history_ondev = [<?php pia_graph_devices_data($Pia_Graph_Device_Online);?>];
-        var online_history_dodev = [<?php pia_graph_devices_data($Pia_Graph_Device_Down);?>];
-        var online_history_ardev = [<?php pia_graph_devices_data($Pia_Graph_Device_Arch);?>];
+        var online_history_time = [<?php pia_graph_devices_data($Graph_Device_Time);?>];
+        var online_history_ondev = [<?php pia_graph_devices_data($Graph_Device_Online);?>];
+        var online_history_dodev = [<?php pia_graph_devices_data($Graph_Device_Down);?>];
+        var online_history_ardev = [<?php pia_graph_devices_data($Graph_Device_Arch);?>];
         graph_online_history_main(online_history_time, online_history_ondev, online_history_dodev, online_history_ardev);
       </script>
 

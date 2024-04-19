@@ -217,6 +217,7 @@ AUTO_UPDATE_CHECK_CRON = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
 AUTO_DB_BACKUP         = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
 AUTO_DB_BACKUP_CRON    = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
 # The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
+AUTO_DB_BACKUP_KEEP    = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
 
 # Other Modules
 # ----------------------

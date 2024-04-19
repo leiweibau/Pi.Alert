@@ -292,7 +292,6 @@ def create_autobackup(start_time, crontab_string):
             BACKUP_FILE_DATE = str(start_time)
             BACKUP_FILE = PIALERT_DB_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".zip"
             time.sleep(20)  # wait 20s to finish the reporting
-            #### Backuptask start ####
 
             # Backup DB (no further checks)
             sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
@@ -319,7 +318,7 @@ def create_autobackup(start_time, crontab_string):
             # Cleanup
             bak_files = glob.glob(os.path.join(PIALERT_PATH + "/config", "pialert-20*.bak"))
             bak_files.sort(key=os.path.getmtime, reverse=True)
-            for file in bak_files[5:]:
+            for file in bak_files[AUTO_DB_BACKUP_KEEP:]:
                 os.remove(file)
             print(f"    Cleanup Config Backups")
 
@@ -329,11 +328,9 @@ def create_autobackup(start_time, crontab_string):
             sql_connection.commit()
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                            VALUES (?, 'c_000', 'cronjob', 'LogStr_0007', '', '') """, (startTime,))
-
             sql_connection.commit()
             closeDB()
 
-            #### Backuptask end ####
     else:
         print(f"    Backup function was NOT executed.")
 
@@ -2362,7 +2359,7 @@ def icmp_save_scandata(data):
 
 # -----------------------------------------------------------------------------
 def get_icmphost_list():
-    sql.execute("SELECT icmp_ip FROM ICMP_Mon")
+    sql.execute("SELECT icmp_ip FROM ICMP_Mon  WHERE icmp_Archived = 0 ")
     rows = sql.fetchall()
 
     return [row[0] for row in rows]
@@ -2450,9 +2447,13 @@ def get_icmphost_name(_icmp_ip):
 
 # -----------------------------------------------------------------------------
 def calc_activity_history_icmp(History_Online_Devices, History_Offline_Devices):
-    History_ALL_Devices = History_Online_Devices + History_Offline_Devices
-    sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Data_Source) "+
-                 "VALUES ( ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, 'icmp_scan') )
+    sql.execute("SELECT * FROM ICMP_Mon WHERE icmp_Archived = 1")
+    Querry_Archived_Devices = sql.fetchall()
+    History_Archived_Devices  = len(Querry_Archived_Devices)
+
+    History_ALL_Devices = History_Online_Devices + History_Offline_Devices + History_Archived_Devices
+    sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Archived_Devices, Data_Source) "+
+                 "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'icmp_scan') )
     sql_connection.commit()
 
 # -----------------------------------------------------------------------------
