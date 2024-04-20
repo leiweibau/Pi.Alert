@@ -221,6 +221,9 @@ echo '    };';
     $('#txtNetworkDeviceDownlinkMac').val(port_config);
     var port_count = netdev_arrays[value][4];
     $('#NewNetworkDevicePort').val(port_count);
+
+loadNetworkDevices(netdev_type);
+
 };
 </script>
               <div class="form-group has-warning">
@@ -236,6 +239,7 @@ echo '    };';
                     <option value="2_Switch">Switch</option>
                     <option value="3_WLAN">WLAN</option>
                     <option value="4_Powerline">Powerline</option>
+                    <option value="5_Hypervisor">Hypervisor</option>
                   </select>
               </div>
               <div class="form-group has-warning">
@@ -250,13 +254,7 @@ echo '    };';
                             <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkDeviceDownlinkMac">
                                 <span class="fa fa-caret-down"></span>
                             </button>
-                            <ul id="dropdownNetworkDeviceDownlinkMac" class="dropdown-menu dropdown-menu-right">
-                              <li class="divider"></li>
-<?php
-//network_infrastructurelist();
-network_device_downlink_mac();
-?>
-                            </ul>
+                            <ul id="dropdownNetworkDeviceDownlinkMac" class="dropdown-menu dropdown-menu-right"></ul>
                           </div>
                   </div>
               </div>
@@ -436,20 +434,45 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
         <!-- /.box-body -->
       </div>
 
+  <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
 <script>
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val(textValue);
 }
+
 function appendTextValue(textElement, textValue) {
-  var existingText = $('#' + textElement).val();
-        $('#' + textElement).val(existingText + textValue);
+    var existingText = $('#' + textElement).val();
+    $('#' + textElement).val(existingText + textValue);
+}
+
+function loadNetworkDevices(nodetyp) {
+  // get totals and put in boxes
+  $.get('php/server/devices.php?action=network_device_downlink&nodetyp=' + nodetyp, function(data) {
+    $("#dropdownNetworkDeviceDownlinkMac").html(data);
+  } );
+
+  // changePlaceholderById(nodetyp);
+  set_placeholder("txtNetworkDeviceDownlinkMac", nodetyp);
+}
+
+// Function to set placeholder
+function set_placeholder(inputId, typ) {
+
+    var placeholders = ["WLAN","Powerline","Hypervisor"];
+    var inputElement = document.getElementById(inputId);
+    var trimmed_typ = typ.substring(2);
+
+    if (placeholders.includes(trimmed_typ)) {
+        inputElement.placeholder = "<?=$pia_lang['Network_ManageEdit_Downlink_alttext'];?>";
+    } else {
+        inputElement.placeholder = "<?=$pia_lang['Network_ManageEdit_Downlink_text'];?>";
     }
+}
+
 </script>
 
 <?php
-// #####################################
-// ## Start Function Setup
-// #####################################
+
 function network_infrastructurelist() {
 	global $db;
 	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point", "Hypervisor") OR "dev_MAC" = "Internet"';
@@ -460,17 +483,6 @@ function network_infrastructurelist() {
 	}
 }
 
-function network_device_downlink_mac() {
-	global $db;
-	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet"';
-	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
-	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="appendTextValue(\'txtNetworkDeviceDownlinkMac\',\'' . $func_res['dev_MAC'] . ',\')">' . $func_res['dev_Name'] . '</a></li>';
-	}
-}
-// #####################################
-// ## End Function Setup
-// #####################################
 ?>
 
   <div style="width: 100%; height: 20px;"></div>

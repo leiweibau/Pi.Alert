@@ -230,7 +230,7 @@ function get_host_statistic($hostip) {
       <?php require 'php/templates/notification.php';?>
 
       <h1 id="pageTitle">
-        <?=$hostip;?>
+        <?php echo $icmpmonitorDetails['icmp_hostname'] . ' (' . $hostip .')';?>
       </h1>
     </section>
 

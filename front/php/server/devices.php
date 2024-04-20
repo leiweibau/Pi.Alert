@@ -88,10 +88,34 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'SaveFilterID':SaveFilterID();
 		break;
+
+	case 'network_device_downlink':network_device_downlink();
+		break;
+
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
+
+function network_device_downlink() {
+	global $db;
+	$node_typ = substr($_REQUEST['nodetyp'],2);
+	$special_dev = array("Router", "Switch", "AP", "Access Point");
+
+	if (in_array($node_typ, $special_dev)) {
+		$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet" ';
+		$value_seperator = ',';
+	} else {
+		$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" NOT IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet"';
+		$value_seperator = ';';
+	}
+	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
+	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
+		echo '<li><a href="javascript:void(0)" onclick="appendTextValue(\'txtNetworkDeviceDownlinkMac\',\'' . $func_res['dev_MAC'] . $value_seperator .'\')">' . $func_res['dev_Name'] . '</a></li>';
+	}
+}
+
+
 
 function SaveFilterID() {
 	global $db;
