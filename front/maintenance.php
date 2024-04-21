@@ -112,7 +112,7 @@ if ($_REQUEST['tab'] == '1') {
 <!-- Status Box ----------------------------------------------------------- -->
     <div class="box" id="Maintain-Status">
         <div class="box-header with-border">
-            <h3 class="box-title">Status</h3>
+            <h3 class="box-title">Status</h3> <a href="./systeminfo.php"><i class="bi bi-info-circle text-aqua" style="position: relative; top: -5px; margin-left: 5px;"></i></a>
         </div>
         <div class="box-body" style="padding-bottom: 5px;">
             <div class="db_info_table">
