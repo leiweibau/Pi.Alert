@@ -58,7 +58,6 @@ if ($_REQUEST['Networkdelete'] == "yes") {
 	// Logging
 	pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0032', '', '');
 }
-
 // Add New unmanaged Device
 if ($_REQUEST['NetworkUnmanagedDevinsert'] == "yes") {
 	if (isset($_REQUEST['NetworkUnmanagedDevName']) && isset($_REQUEST['NetworkUnmanagedDevConnect'])) {
@@ -130,12 +129,7 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
                             <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkNodeMac">
                                 <span class="fa fa-caret-down"></span>
                             </button>
-                            <ul id="dropdownNetworkNodeMac" class="dropdown-menu dropdown-menu-right">
-                              <li class="divider"></li>
-<?php
-network_infrastructurelist();
-?>
-                            </ul>
+                            <ul id="dropdownNetworkNodeMac" class="dropdown-menu dropdown-menu-right"></ul>
                           </div>
                   </div>
               </div>
@@ -223,7 +217,6 @@ echo '    };';
     $('#NewNetworkDevicePort').val(port_count);
 
 loadNetworkDevices(netdev_type);
-
 };
 </script>
               <div class="form-group has-warning">
@@ -415,7 +408,6 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['id'])) {
 		continue;
 	}
-
 	echo '<option value="' . $res['id'] . '">' . $res['dev_Name'] . '</option>';
 }
 ?>
@@ -436,6 +428,10 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 
   <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
 <script>
+function main(){
+  network_infrastructurelist();
+}
+
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val(textValue);
 }
@@ -446,45 +442,32 @@ function appendTextValue(textElement, textValue) {
 }
 
 function loadNetworkDevices(nodetyp) {
-  // get totals and put in boxes
-  $.get('php/server/devices.php?action=network_device_downlink&nodetyp=' + nodetyp, function(data) {
+  $.get('php/server/network.php?action=network_device_downlink&nodetyp=' + nodetyp, function(data) {
     $("#dropdownNetworkDeviceDownlinkMac").html(data);
   } );
-
-  // changePlaceholderById(nodetyp);
   set_placeholder("txtNetworkDeviceDownlinkMac", nodetyp);
+}
+
+function network_infrastructurelist() {
+  $.get('php/server/network.php?action=network_infrastructurelist', function(data) {
+    $("#dropdownNetworkNodeMac").html(data);
+  } );
 }
 
 // Function to set placeholder
 function set_placeholder(inputId, typ) {
-
-    var placeholders = ["WLAN","Powerline","Hypervisor"];
+    var placeholders = ["3_WLAN","4_Powerline","5_Hypervisor"];
     var inputElement = document.getElementById(inputId);
-    var trimmed_typ = typ.substring(2);
 
-    if (placeholders.includes(trimmed_typ)) {
+    if (placeholders.includes(typ)) {
         inputElement.placeholder = "<?=$pia_lang['Network_ManageEdit_Downlink_alttext'];?>";
     } else {
         inputElement.placeholder = "<?=$pia_lang['Network_ManageEdit_Downlink_text'];?>";
     }
 }
 
+main();
 </script>
-
-<?php
-
-function network_infrastructurelist() {
-	global $db;
-	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point", "Hypervisor") OR "dev_MAC" = "Internet"';
-
-	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
-	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtNetworkNodeMac\',\'' . $func_res['dev_Name'] . '\')">' . $func_res['dev_Name'] . '/' . $func_res['dev_DeviceType'] . '</a></li>';
-	}
-}
-
-?>
-
   <div style="width: 100%; height: 20px;"></div>
 </section>
 

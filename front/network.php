@@ -110,13 +110,42 @@ function getNodeOnlineState($pia_node_name) {
 	return $node_state;
 }
 
+function getNodeOnlineState_by_mac($pia_node_mac) {
+	global $db;
+	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_MAC" = "' . $pia_node_mac . '"';
+	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
+	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
+		if ($func_res['dev_PresentLastScan'] == 1) {$node_state = 'online';} else { $node_state = 'offline';}
+	}
+	if (!isset($node_state)) {$node_state = "offline";}
+	return $node_state;
+}
+
 function getNodeClientsOnlineState($pia_node_id) {
 	global $db;
 	$func_sql = 'SELECT COUNT(*) as count FROM "Devices" WHERE "dev_PresentLastScan" = 1 AND "dev_Infrastructure" = "' . $pia_node_id . '"';
 	$rows = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	$row = $rows->fetchArray();
-	$count = $row['count'];
-	//$count = 0;
+	$count_a = $row['count'];
+	$count_b = 0;
+	// Check the Devices of manual Port Config
+	// supported Types
+	$non_port_types = array("3_WLAN", "4_Powerline", "5_Hypervisor");
+	if (in_array($row['net_device_typ'], $non_port_types)) {
+		$sql = 'SELECT * FROM "network_infrastructure" WHERE "device_id" = "' . $pia_node_id . '"';
+		$result = $db->query($sql);
+		$row = $result->fetchArray(SQLITE3_ASSOC);
+
+		if (strlen($row['net_downstream_devices']) > 16) {
+			$customlist = explode(";", $row['net_downstream_devices']);
+			for ($x=0;$x<sizeof($customlist);$x++) {
+					if (getNodeOnlineState_by_mac($customlist[$x]) == "online") {
+						$count_b++;
+					}
+			}
+		}
+	}
+	$count = $count_a + $count_b;
 	if ($count > 0) {$node_state = 'online';} else { $node_state = 'offline';}
 	$state_data = array($node_state, $count);
 	return $state_data;
@@ -185,7 +214,6 @@ function get_all_devices_from_tables($pia_func_netdevid) {
 	while ($row1 = $func_result1->fetchArray(SQLITE3_ASSOC)) {
 		$combinedResults[] = $row1;
 	}
-
 	while ($row2 = $func_result2->fetchArray(SQLITE3_ASSOC)) {
 		$combinedResults[] = $row2;
 	}
