@@ -133,18 +133,17 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
                           </div>
                   </div>
               </div>
-              <!-- /.form-group -->
               <div class="form-group has-success">
-               <label><?=$pia_lang['Network_ManageAdd_Type'];?>:</label>
-                  <select class="form-control" name="NetworkDeviceTyp">
-                    <option value=""><?=$pia_lang['Network_ManageAdd_Type_text'];?></option>
-                    <option value="0_Internet">Internet</option>
-                    <option value="1_Router">Router</option>
-                    <option value="2_Switch">Switch</option>
-                    <option value="3_WLAN">WLAN</option>
-                    <option value="4_Powerline">Powerline</option>
-                    <option value="5_Hypervisor">Hypervisor</option>
-                  </select>
+                  <label for="NetworkDeviceTyp"><?=$pia_lang['Network_ManageAdd_Type'];?>:</label>
+                  <div class="input-group">
+                      <input class="form-control" id="txtNetworkDeviceTyp" name="NetworkDeviceTyp" type="text" readonly placeholder="<?=$pia_lang['Network_ManageAdd_Type_text'];?>">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkDeviceTyp">
+                                <span class="fa fa-caret-down"></span>
+                            </button>
+                            <ul id="dropdownNetworkDeviceTyp" class="dropdown-menu dropdown-menu-right"></ul>
+                          </div>
+                  </div>
               </div>
               <div class="form-group has-success">
                 <label for="NetworkDevicePort"><?=$pia_lang['Network_ManageAdd_Port'];?>:</label>
@@ -210,7 +209,7 @@ echo '    };';
     var netdev_name = netdev_arrays[value][1];
     $('#NewNetworkDeviceName').val(netdev_name);
     var netdev_type = netdev_arrays[value][2];
-    $('#NewNetworkDeviceTyp').val(netdev_type);
+    $('#txtNewNetworkDeviceTyp').val(netdev_type);
     var port_config = netdev_arrays[value][3];
     $('#txtNetworkDeviceDownlinkMac').val(port_config);
     var port_count = netdev_arrays[value][4];
@@ -224,16 +223,16 @@ loadNetworkDevices(netdev_type);
                 <input type="text" class="form-control" id="NewNetworkDeviceName" name="NewNetworkDeviceName" placeholder="<?=$pia_lang['Network_ManageEdit_Name_text'];?>">
               </div>
               <div class="form-group has-warning">
-               <label><?=$pia_lang['Network_ManageEdit_Type'];?>:</label>
-                  <select class="form-control" name="NewNetworkDeviceTyp" id="NewNetworkDeviceTyp">
-                    <option value=""><?=$pia_lang['Network_ManageEdit_Type_text'];?></option>
-                    <option value="0_Internet">Internet</option>
-                    <option value="1_Router">Router</option>
-                    <option value="2_Switch">Switch</option>
-                    <option value="3_WLAN">WLAN</option>
-                    <option value="4_Powerline">Powerline</option>
-                    <option value="5_Hypervisor">Hypervisor</option>
-                  </select>
+                  <label for="NewNetworkDeviceTyp"><?=$pia_lang['Network_ManageEdit_Type'];?>:</label>
+                  <div class="input-group">
+                      <input class="form-control" id="txtNewNetworkDeviceTyp" name="NewNetworkDeviceTyp" type="text" readonly placeholder="<?=$pia_lang['Network_ManageEdit_Type_text'];?>">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNewNetworkDeviceTyp">
+                                <span class="fa fa-caret-down"></span>
+                            </button>
+                            <ul id="dropdownNewNetworkDeviceTyp" class="dropdown-menu dropdown-menu-right"></ul>
+                          </div>
+                  </div>
               </div>
               <div class="form-group has-warning">
                 <label for="NetworkDevicePort"><?=$pia_lang['Network_ManageEdit_Port'];?>:</label>
@@ -429,7 +428,9 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
   <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
 <script>
 function main(){
-  network_infrastructurelist();
+  NetworkInfrastructure_list();
+  NetworkDeviceTyp_list("add");
+  NetworkDeviceTyp_list("edit");
 }
 
 function setTextValue (textElement, textValue) {
@@ -448,9 +449,20 @@ function loadNetworkDevices(nodetyp) {
   set_placeholder("txtNetworkDeviceDownlinkMac", nodetyp);
 }
 
-function network_infrastructurelist() {
-  $.get('php/server/network.php?action=network_infrastructurelist', function(data) {
+function NetworkInfrastructure_list() {
+  $.get('php/server/network.php?action=NetworkInfrastructure_list', function(data) {
     $("#dropdownNetworkNodeMac").html(data);
+  } );
+}
+
+function NetworkDeviceTyp_list(mode) {
+  $.get('php/server/network.php?action=NetworkDeviceTyp_list&mode=' + mode, function(data) {
+    if (mode == "add") {
+      $("#dropdownNetworkDeviceTyp").html(data);
+    }
+    if (mode == "edit") {
+      $("#dropdownNewNetworkDeviceTyp").html(data);
+    }
   } );
 }
 

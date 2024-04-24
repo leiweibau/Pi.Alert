@@ -34,7 +34,9 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 	switch ($action) {
 	case 'network_device_downlink':network_device_downlink();
 		break;
-	case 'network_infrastructurelist':network_infrastructurelist();
+	case 'NetworkInfrastructure_list':NetworkInfrastructure_list();
+		break;
+	case 'NetworkDeviceTyp_list':NetworkDeviceTyp_list();
 		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
@@ -62,8 +64,7 @@ function network_device_downlink() {
 	}
 }
 
-
-function network_infrastructurelist() {
+function NetworkInfrastructure_list() {
 	global $db;
 	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point", "Hypervisor") OR "dev_MAC" = "Internet"';
 
@@ -73,5 +74,15 @@ function network_infrastructurelist() {
 	}
 }
 
+function NetworkDeviceTyp_list() {
+	if ($_REQUEST['mode'] == "add") {$inputfield = "txtNetworkDeviceTyp";}
+	if ($_REQUEST['mode'] == "edit") {$inputfield = "txtNewNetworkDeviceTyp";}
+	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'0_Interne\')">0. Internet</a></li>';
+	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'1_Router\')">1. Router</a></li>';
+	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'2_Switch\')">2. Switch</a></li>';
+	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'3_WLAN\')">3. WLAN</a></li>';
+	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'4_Powerline\')">4. Powerline</a></li>';
+	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'5_Hypervisor\')">5. Hypervisor</a></li>';
+}
 //  End
 ?>
