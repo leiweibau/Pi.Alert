@@ -270,11 +270,11 @@ def create_autobackup(start_time, crontab_string):
 
     # convert cron string
     crontab_parts = crontab_string.split()
-    minute = parse_cron_part(crontab_parts[0], start_time.minute)
-    hour = parse_cron_part(crontab_parts[1], start_time.hour)
-    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
-    month = parse_cron_part(crontab_parts[3], start_time.month)
-    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+    minute = parse_cron_part(crontab_parts[0], start_time.minute, 0, 60) # last value is the exit value, meaning the 1. invalid value
+    hour = parse_cron_part(crontab_parts[1], start_time.hour, 0, 60)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day, 1, 32)
+    month = parse_cron_part(crontab_parts[3], start_time.month, 1, 13)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Compare cron
     if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
@@ -292,7 +292,6 @@ def create_autobackup(start_time, crontab_string):
             BACKUP_FILE_DATE = str(start_time)
             BACKUP_FILE = PIALERT_DB_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".zip"
             time.sleep(20)  # wait 20s to finish the reporting
-            #### Backuptask start ####
 
             # Backup DB (no further checks)
             sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
@@ -300,10 +299,28 @@ def create_autobackup(start_time, crontab_string):
             subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
             time.sleep(4)
             os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
+            # Set Permissions for www-data (testing)
+            os.system("sudo chown www-data:www-data " + BACKUP_FILE)
+            os.system("sudo chmod 644 " + BACKUP_FILE)
+            # Cleanup
+            bak_files = glob.glob(os.path.join(PIALERT_DB_PATH, "pialertdb_20*.zip"))
+            bak_files.sort(key=os.path.getmtime, reverse=True)
+            for file in bak_files[5:]:
+                os.remove(file)
+            print(f"    Cleanup DB Backups")
 
             # Backup config file
             BACKUP_CONF_FILE = PIALERT_PATH + "/config/pialert-" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".bak"
             subprocess.check_output('cp ' + PIALERT_PATH + '/config/pialert.conf ' + BACKUP_CONF_FILE, shell=True)
+            # Set Permissions for www-data (testing)
+            os.system("sudo chown www-data:www-data " + BACKUP_CONF_FILE)
+            os.system("sudo chmod 644 " + BACKUP_CONF_FILE)
+            # Cleanup
+            bak_files = glob.glob(os.path.join(PIALERT_PATH + "/config", "pialert-20*.bak"))
+            bak_files.sort(key=os.path.getmtime, reverse=True)
+            for file in bak_files[AUTO_DB_BACKUP_KEEP:]:
+                os.remove(file)
+            print(f"    Cleanup Config Backups")
 
             openDB()
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
@@ -311,11 +328,9 @@ def create_autobackup(start_time, crontab_string):
             sql_connection.commit()
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                            VALUES (?, 'c_000', 'cronjob', 'LogStr_0007', '', '') """, (startTime,))
-
             sql_connection.commit()
             closeDB()
 
-            #### Backuptask end ####
     else:
         print(f"    Backup function was NOT executed.")
 
@@ -324,12 +339,12 @@ def create_autobackup(start_time, crontab_string):
         os.remove(STATUS_FILE_BACKUP)
 
 # ------------------------------------------------------------------------------
-def parse_cron_part(cron_part, current_value):
+def parse_cron_part(cron_part, current_value, cron_min_value, cron_max_value):
     if cron_part == '*':
-        return set(range(60))  # Jeder Wert von 0 bis 59 ist gültig
+        return set(range(cron_min_value, cron_max_value))
     elif '/' in cron_part:
         step = int(cron_part.split('/')[1])
-        return set(range(0, 60, step))  # Start bei 0, Schrittweise in Schritten von 'step'
+        return set(range(cron_min_value, cron_max_value, step))
     elif '-' in cron_part:
         start, end = map(int, cron_part.split('-'))
         return set(range(start, end + 1))
@@ -359,11 +374,11 @@ def checkNewVersion(start_time, crontab_string):
 
     # convert cron string
     crontab_parts = crontab_string.split()
-    minute = parse_cron_part(crontab_parts[0], start_time.minute)
-    hour = parse_cron_part(crontab_parts[1], start_time.hour)
-    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
-    month = parse_cron_part(crontab_parts[3], start_time.month)
-    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+    minute = parse_cron_part(crontab_parts[0], start_time.minute, 0, 60) # last value is the exit value, meaning the 1. invalid value
+    hour = parse_cron_part(crontab_parts[1], start_time.hour, 0, 60)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day, 1, 32)
+    month = parse_cron_part(crontab_parts[3], start_time.month, 1, 13)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Compare cron
     if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
@@ -414,17 +429,17 @@ def checkNewVersion(start_time, crontab_string):
         closeDB()
 
     else:
-        print(f"    Version Ceck function was NOT executed.")
+        print(f"    Version Check function was NOT executed.")
 
 #-------------------------------------------------------------------------------
 def run_speedtest_task(start_time, crontab_string):
     # convert cron string
     crontab_parts = crontab_string.split()
-    minute = parse_cron_part(crontab_parts[0], start_time.minute)
-    hour = parse_cron_part(crontab_parts[1], start_time.hour)
-    day_of_month = parse_cron_part(crontab_parts[2], start_time.day)
-    month = parse_cron_part(crontab_parts[3], start_time.month)
-    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday())
+    minute = parse_cron_part(crontab_parts[0], start_time.minute, 0, 60) # last value is the exit value, meaning the 1. invalid value
+    hour = parse_cron_part(crontab_parts[1], start_time.hour, 0, 60)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day, 1, 32)
+    month = parse_cron_part(crontab_parts[3], start_time.month, 1, 13)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Define the command and arguments
     command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
@@ -2344,7 +2359,7 @@ def icmp_save_scandata(data):
 
 # -----------------------------------------------------------------------------
 def get_icmphost_list():
-    sql.execute("SELECT icmp_ip FROM ICMP_Mon")
+    sql.execute("SELECT icmp_ip FROM ICMP_Mon  WHERE icmp_Archived = 0 ")
     rows = sql.fetchall()
 
     return [row[0] for row in rows]
@@ -2432,9 +2447,13 @@ def get_icmphost_name(_icmp_ip):
 
 # -----------------------------------------------------------------------------
 def calc_activity_history_icmp(History_Online_Devices, History_Offline_Devices):
-    History_ALL_Devices = History_Online_Devices + History_Offline_Devices
-    sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Data_Source) "+
-                 "VALUES ( ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, 'icmp_scan') )
+    sql.execute("SELECT * FROM ICMP_Mon WHERE icmp_Archived = 1")
+    Querry_Archived_Devices = sql.fetchall()
+    History_Archived_Devices  = len(Querry_Archived_Devices)
+
+    History_ALL_Devices = History_Online_Devices + History_Offline_Devices + History_Archived_Devices
+    sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Archived_Devices, Data_Source) "+
+                 "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'icmp_scan') )
     sql_connection.commit()
 
 # -----------------------------------------------------------------------------
@@ -2838,7 +2857,7 @@ def send_webgui (_Text):
     set_reports_file_permissions()
 
 #===============================================================================
-# Sending Notofications
+# Sending Notifications
 #===============================================================================
 def sending_notifications (_type, _html_text, _txt_text):
     if _type in ['webservice']:

@@ -105,7 +105,7 @@ def set_reports_file_permissions():
   os.system(f"sudo chmod -R 775 {REPORTPATH_WEBGUI}")
 
 #===============================================================================
-# Sending Notofications
+# Sending Notifications
 #===============================================================================
 def sending_notifications_test(_Mode):
     if _Mode == 'Test' :

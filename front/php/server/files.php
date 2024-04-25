@@ -88,6 +88,21 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 function GetAutoBackupStatus() {
 	global $pia_lang;
 	if (file_exists("../../../back/.backup")) {$result = array($pia_lang['BackFiles_autobackup_pending']);} else {$result = array($pia_lang['BackFiles_autobackup_pause']);}
+	//Count db backups
+	$backupdir = "../../../db";
+	$backupfiles = glob($backupdir . "/pialertdb_20*.zip");
+	$result[] = count($backupfiles);
+	//Calc Backup size
+	$backupfile_size = 0;
+	foreach ($backupfiles as $file) {
+		$backupfile_size = $backupfile_size + filesize($file);
+	}
+	//Count config backups
+	$backupdir = "../../../config";
+	$backupfiles = glob($backupdir . "/pialert-20*.bak");
+	$result[] = count($backupfiles);
+
+	$result[] = number_format(($backupfile_size / 1000000), 2, ",", ".") . ' MB';
 	echo json_encode($result);
 }
 
@@ -202,6 +217,7 @@ AUTO_UPDATE_CHECK_CRON = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
 AUTO_DB_BACKUP         = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
 AUTO_DB_BACKUP_CRON    = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
 # The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
+AUTO_DB_BACKUP_KEEP    = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
 
 # Other Modules
 # ----------------------

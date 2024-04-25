@@ -59,27 +59,8 @@ $DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
 $DB_SIZE_DATA = number_format((filesize($DB_SOURCE) / 1000000), 2, ",", ".") . '&nbsp;MB';
 $DB_MOD_DATA = date("d.m.Y, H:i:s", filemtime($DB_SOURCE)) . '';
 
-// Count Config Backups -------------------------s-----------------------------
-$CONFIG_FILE_DIR = str_replace('front', 'config', getcwd()) . '/';
-$files = glob($CONFIG_FILE_DIR . "pialert-20*.bak");
-if ($files) {
-	$CONFIG_FILE_COUNT = count($files);
-} else { $CONFIG_FILE_COUNT = 0;}
-
-// Count and Calc DB Backups --------------------------------------------------
-$ARCHIVE_PATH = str_replace('front', 'db', getcwd()) . '/';
-$ARCHIVE_COUNT = 0;
-$ARCHIVE_DISKUSAGE = 0;
-$files = glob($ARCHIVE_PATH . "pialertdb_*.zip");
-if ($files) {
-	$ARCHIVE_COUNT = count($files);
-}
-foreach ($files as $result) {
-	$ARCHIVE_DISKUSAGE = $ARCHIVE_DISKUSAGE + filesize($result);
-}
-$ARCHIVE_DISKUSAGE = number_format(($ARCHIVE_DISKUSAGE / 1000000), 2, ",", ".") . ' MB';
-
 // Find latest DB Backup for restore and download -----------------------------
+$ARCHIVE_PATH = str_replace('front', 'db', getcwd()) . '/';
 $LATEST_FILES = glob($ARCHIVE_PATH . "pialertdb_*.zip");
 if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = $pia_lang['Maintenance_Tool_restore_blocked'];
@@ -131,16 +112,10 @@ if ($_REQUEST['tab'] == '1') {
 <!-- Status Box ----------------------------------------------------------- -->
     <div class="box" id="Maintain-Status">
         <div class="box-header with-border">
-            <h3 class="box-title">Status</h3>
+            <h3 class="box-title">Status</h3> <a href="./systeminfo.php"><i class="bi bi-info-circle text-aqua" style="position: relative; top: -5px; margin-left: 5px;"></i></a>
         </div>
         <div class="box-body" style="padding-bottom: 5px;">
             <div class="db_info_table">
-<!--                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_size'];?></div>
-                    <div class="db_info_table_cell">
-                        <?=$DB_SIZE_DATA;?>
-                    </div>
-                </div> -->
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_lastmod'];?></div>
                     <div class="db_info_table_cell">
@@ -149,13 +124,13 @@ if ($_REQUEST['tab'] == '1') {
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_database_backup'];?></div>
-                    <div class="db_info_table_cell">
-                        <?=$ARCHIVE_COUNT . ' ' . $pia_lang['Maintenance_database_backup_found'] . ' / ' . $pia_lang['Maintenance_database_backup_total'] . ': ' . $ARCHIVE_DISKUSAGE;?>
+                    <div class="db_info_table_cell"><span id="autobackupdbcount"></span>
+                        <?=$ARCHIVE_COUNT . ' ' . $pia_lang['Maintenance_database_backup_found'] . ' / ' . $pia_lang['Maintenance_database_backup_total'];?>: <span id="autobackupdbsize"></span> 
                     </div>
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell"><?=$pia_lang['Maintenance_config_backup'];?></div>
-                    <div class="db_info_table_cell">
+                    <div class="db_info_table_cell"><span id="autobackupconfcount"></span>
                         <?=$CONFIG_FILE_COUNT . ' ' . $pia_lang['Maintenance_database_backup_found'];?>
                     </div>
                 </div>
@@ -1175,6 +1150,9 @@ function GetAutoBackupStatus() {
     var backupproccount = JSON.parse(data);
     
     $('#autobackupstatus').html(backupproccount[0].toLocaleString());
+    $('#autobackupdbcount').html(backupproccount[1].toLocaleString());
+    $('#autobackupconfcount').html(backupproccount[2].toLocaleString());
+    $('#autobackupdbsize').html(backupproccount[3].toLocaleString());
   } );
 }
 

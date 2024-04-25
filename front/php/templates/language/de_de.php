@@ -580,6 +580,7 @@ $pia_lang['Network_ManageEdit_Port'] = 'Neue Portanzahl';
 $pia_lang['Network_ManageEdit_Port_text'] = 'Bei WLAN oder Powerline leer lassen';
 $pia_lang['Network_ManageEdit_Downlink'] = 'manuelle Port-Konfiguration (Ziel-MAC,lokaler Port)';
 $pia_lang['Network_ManageEdit_Downlink_text'] = '0a:1b:3c:4d:5e:6f,16;Ziel-MAC 2,Port 2;';
+$pia_lang['Network_ManageEdit_Downlink_alttext'] = '0a:1b:3c:4d:5e:6f;Ziel-MAC 2;';
 $pia_lang['Network_ManageEdit_Submit'] = 'Bearbeitung speichern';
 $pia_lang['Network_ManageDel_Name'] = 'Gerät zum Löschen auswählen';
 $pia_lang['Network_ManageDel_Name_text'] = '-- Gerät wählen --';

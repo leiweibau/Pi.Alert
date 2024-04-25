@@ -58,7 +58,6 @@ if ($_REQUEST['Networkdelete'] == "yes") {
 	// Logging
 	pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0032', '', '');
 }
-
 // Add New unmanaged Device
 if ($_REQUEST['NetworkUnmanagedDevinsert'] == "yes") {
 	if (isset($_REQUEST['NetworkUnmanagedDevName']) && isset($_REQUEST['NetworkUnmanagedDevConnect'])) {
@@ -130,27 +129,21 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
                             <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkNodeMac">
                                 <span class="fa fa-caret-down"></span>
                             </button>
-                            <ul id="dropdownNetworkNodeMac" class="dropdown-menu dropdown-menu-right">
-                              <li class="divider"></li>
-<?php
-network_infrastructurelist();
-?>
-                            </ul>
+                            <ul id="dropdownNetworkNodeMac" class="dropdown-menu dropdown-menu-right"></ul>
                           </div>
                   </div>
               </div>
-              <!-- /.form-group -->
               <div class="form-group has-success">
-               <label><?=$pia_lang['Network_ManageAdd_Type'];?>:</label>
-                  <select class="form-control" name="NetworkDeviceTyp">
-                    <option value=""><?=$pia_lang['Network_ManageAdd_Type_text'];?></option>
-                    <option value="0_Internet">Internet</option>
-                    <option value="1_Router">Router</option>
-                    <option value="2_Switch">Switch</option>
-                    <option value="3_WLAN">WLAN</option>
-                    <option value="4_Powerline">Powerline</option>
-                    <option value="5_Hypervisor">Hypervisor</option>
-                  </select>
+                  <label for="NetworkDeviceTyp"><?=$pia_lang['Network_ManageAdd_Type'];?>:</label>
+                  <div class="input-group">
+                      <input class="form-control" id="txtNetworkDeviceTyp" name="NetworkDeviceTyp" type="text" readonly placeholder="<?=$pia_lang['Network_ManageAdd_Type_text'];?>">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkDeviceTyp">
+                                <span class="fa fa-caret-down"></span>
+                            </button>
+                            <ul id="dropdownNetworkDeviceTyp" class="dropdown-menu dropdown-menu-right"></ul>
+                          </div>
+                  </div>
               </div>
               <div class="form-group has-success">
                 <label for="NetworkDevicePort"><?=$pia_lang['Network_ManageAdd_Port'];?>:</label>
@@ -216,11 +209,13 @@ echo '    };';
     var netdev_name = netdev_arrays[value][1];
     $('#NewNetworkDeviceName').val(netdev_name);
     var netdev_type = netdev_arrays[value][2];
-    $('#NewNetworkDeviceTyp').val(netdev_type);
+    $('#txtNewNetworkDeviceTyp').val(netdev_type);
     var port_config = netdev_arrays[value][3];
     $('#txtNetworkDeviceDownlinkMac').val(port_config);
     var port_count = netdev_arrays[value][4];
     $('#NewNetworkDevicePort').val(port_count);
+
+loadNetworkDevices(netdev_type);
 };
 </script>
               <div class="form-group has-warning">
@@ -228,15 +223,16 @@ echo '    };';
                 <input type="text" class="form-control" id="NewNetworkDeviceName" name="NewNetworkDeviceName" placeholder="<?=$pia_lang['Network_ManageEdit_Name_text'];?>">
               </div>
               <div class="form-group has-warning">
-               <label><?=$pia_lang['Network_ManageEdit_Type'];?>:</label>
-                  <select class="form-control" name="NewNetworkDeviceTyp" id="NewNetworkDeviceTyp">
-                    <option value=""><?=$pia_lang['Network_ManageEdit_Type_text'];?></option>
-                    <option value="0_Internet">Internet</option>
-                    <option value="1_Router">Router</option>
-                    <option value="2_Switch">Switch</option>
-                    <option value="3_WLAN">WLAN</option>
-                    <option value="4_Powerline">Powerline</option>
-                  </select>
+                  <label for="NewNetworkDeviceTyp"><?=$pia_lang['Network_ManageEdit_Type'];?>:</label>
+                  <div class="input-group">
+                      <input class="form-control" id="txtNewNetworkDeviceTyp" name="NewNetworkDeviceTyp" type="text" readonly placeholder="<?=$pia_lang['Network_ManageEdit_Type_text'];?>">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNewNetworkDeviceTyp">
+                                <span class="fa fa-caret-down"></span>
+                            </button>
+                            <ul id="dropdownNewNetworkDeviceTyp" class="dropdown-menu dropdown-menu-right"></ul>
+                          </div>
+                  </div>
               </div>
               <div class="form-group has-warning">
                 <label for="NetworkDevicePort"><?=$pia_lang['Network_ManageEdit_Port'];?>:</label>
@@ -250,13 +246,7 @@ echo '    };';
                             <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkDeviceDownlinkMac">
                                 <span class="fa fa-caret-down"></span>
                             </button>
-                            <ul id="dropdownNetworkDeviceDownlinkMac" class="dropdown-menu dropdown-menu-right">
-                              <li class="divider"></li>
-<?php
-//network_infrastructurelist();
-network_device_downlink_mac();
-?>
-                            </ul>
+                            <ul id="dropdownNetworkDeviceDownlinkMac" class="dropdown-menu dropdown-menu-right"></ul>
                           </div>
                   </div>
               </div>
@@ -417,7 +407,6 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['id'])) {
 		continue;
 	}
-
 	echo '<option value="' . $res['id'] . '">' . $res['dev_Name'] . '</option>';
 }
 ?>
@@ -436,43 +425,61 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
         <!-- /.box-body -->
       </div>
 
+  <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
 <script>
+function main(){
+  NetworkInfrastructure_list();
+  NetworkDeviceTyp_list("add");
+  NetworkDeviceTyp_list("edit");
+}
+
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val(textValue);
 }
+
 function appendTextValue(textElement, textValue) {
-  var existingText = $('#' + textElement).val();
-        $('#' + textElement).val(existingText + textValue);
+    var existingText = $('#' + textElement).val();
+    $('#' + textElement).val(existingText + textValue);
+}
+
+function loadNetworkDevices(nodetyp) {
+  $.get('php/server/network.php?action=network_device_downlink&nodetyp=' + nodetyp, function(data) {
+    $("#dropdownNetworkDeviceDownlinkMac").html(data);
+  } );
+  set_placeholder("txtNetworkDeviceDownlinkMac", nodetyp);
+}
+
+function NetworkInfrastructure_list() {
+  $.get('php/server/network.php?action=NetworkInfrastructure_list', function(data) {
+    $("#dropdownNetworkNodeMac").html(data);
+  } );
+}
+
+function NetworkDeviceTyp_list(mode) {
+  $.get('php/server/network.php?action=NetworkDeviceTyp_list&mode=' + mode, function(data) {
+    if (mode == "add") {
+      $("#dropdownNetworkDeviceTyp").html(data);
     }
+    if (mode == "edit") {
+      $("#dropdownNewNetworkDeviceTyp").html(data);
+    }
+  } );
+}
+
+// Function to set placeholder
+function set_placeholder(inputId, typ) {
+    var placeholders = ["3_WLAN","4_Powerline","5_Hypervisor"];
+    var inputElement = document.getElementById(inputId);
+
+    if (placeholders.includes(typ)) {
+        inputElement.placeholder = "<?=$pia_lang['Network_ManageEdit_Downlink_alttext'];?>";
+    } else {
+        inputElement.placeholder = "<?=$pia_lang['Network_ManageEdit_Downlink_text'];?>";
+    }
+}
+
+main();
 </script>
-
-<?php
-// #####################################
-// ## Start Function Setup
-// #####################################
-function network_infrastructurelist() {
-	global $db;
-	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point", "Hypervisor") OR "dev_MAC" = "Internet"';
-
-	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
-	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtNetworkNodeMac\',\'' . $func_res['dev_Name'] . '\')">' . $func_res['dev_Name'] . '/' . $func_res['dev_DeviceType'] . '</a></li>';
-	}
-}
-
-function network_device_downlink_mac() {
-	global $db;
-	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet"';
-	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
-	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="appendTextValue(\'txtNetworkDeviceDownlinkMac\',\'' . $func_res['dev_MAC'] . ',\')">' . $func_res['dev_Name'] . '</a></li>';
-	}
-}
-// #####################################
-// ## End Function Setup
-// #####################################
-?>
-
   <div style="width: 100%; height: 20px;"></div>
 </section>
 

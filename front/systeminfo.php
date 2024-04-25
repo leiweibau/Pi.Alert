@@ -255,9 +255,9 @@ echo '<div class="box box-solid">
             <table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">
 			<thead>
 				<tr role="row">
-					<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Cron Name</th>
-					<th class="sysinfo_services" style="padding: 8px;">Cron</th>
-					<th class="sysinfo_services" style="padding: 8px;">Status</th>
+					<th class="sysinfo_services col-xs-4" style="padding: 8px;">Cron Name</th>
+					<th class="sysinfo_services col-xs-4" style="padding: 8px;">Cron</th>
+					<th class="sysinfo_services col-xs-4" style="padding: 8px;">Status</th>
 				</tr>
 	  		</thead>';
 function convert_bool_to_status($status) {

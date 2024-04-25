@@ -51,7 +51,7 @@ function unassigned_devices() {
 function get_downstream_devices($pia_func_down_devid) {
 	global $db;
 
-	$manual_downstream_ports = array();
+	//$manual_downstream_ports = array();
 	$func_sql = 'SELECT * FROM "network_infrastructure" WHERE "device_id" = "' . $pia_func_down_devid . '"';
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
@@ -63,6 +63,19 @@ function get_downstream_devices($pia_func_down_devid) {
 		$temp_port_array = explode(',', trim($clean_group_array[$x]));
 		$downstream_devices[trim($temp_port_array[1])] = trim(strtolower($temp_port_array[0]));
 	}
+	return $downstream_devices;
+}
+
+function get_downstream_devices_b($pia_func_down_devid) {
+	global $db;
+
+	//$manual_downstream_ports = array();
+	$func_sql = 'SELECT * FROM "network_infrastructure" WHERE "device_id" = "' . $pia_func_down_devid . '"';
+	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
+	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
+		$temp_group_array = explode(';', $func_res['net_downstream_devices']);
+	}
+	$downstream_devices = array_filter($temp_group_array);
 	return $downstream_devices;
 }
 
@@ -97,16 +110,51 @@ function getNodeOnlineState($pia_node_name) {
 	return $node_state;
 }
 
+function getNodeOnlineState_by_mac($pia_node_mac) {
+	global $db;
+	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_MAC" = "' . $pia_node_mac . '"';
+	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
+	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
+		if ($func_res['dev_PresentLastScan'] == 1) {$node_state = 'online';} else { $node_state = 'offline';}
+	}
+	if (!isset($node_state)) {$node_state = "offline";}
+	return $node_state;
+}
+
 function getNodeClientsOnlineState($pia_node_id) {
 	global $db;
 	$func_sql = 'SELECT COUNT(*) as count FROM "Devices" WHERE "dev_PresentLastScan" = 1 AND "dev_Infrastructure" = "' . $pia_node_id . '"';
 	$rows = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	$row = $rows->fetchArray();
-	$count = $row['count'];
-	//$count = 0;
+	$count_a = $row['count'];
+	$count_b = 0;
+	// Check the Devices of manual Port Config
+	// supported Types
+	$non_port_types = array("3_WLAN", "4_Powerline", "5_Hypervisor");
+	if (in_array($row['net_device_typ'], $non_port_types)) {
+		$sql = 'SELECT * FROM "network_infrastructure" WHERE "device_id" = "' . $pia_node_id . '"';
+		$result = $db->query($sql);
+		$row = $result->fetchArray(SQLITE3_ASSOC);
+
+		if (strlen($row['net_downstream_devices']) > 16) {
+			$customlist = explode(";", $row['net_downstream_devices']);
+			for ($x=0;$x<sizeof($customlist);$x++) {
+					if (getNodeOnlineState_by_mac($customlist[$x]) == "online") {
+						$count_b++;
+					}
+			}
+		}
+	}
+	$count = $count_a + $count_b;
 	if ($count > 0) {$node_state = 'online';} else { $node_state = 'offline';}
 	$state_data = array($node_state, $count);
 	return $state_data;
+}
+
+function port_badge($status) {
+	if ($status == "online") {echo '<span class="badge bg-green text-white" style="width: 60px;">Online</span>';}
+	if ($status == "offline") {echo '<span class="badge bg-gray text-white" style="width: 60px;">Offline</span>';}
+	if ($status == "dumb") {echo '<span class="badge bg-yellow text-white" style="width: 60px;">UM</span>';}
 }
 
 // Create the Tabs
@@ -135,19 +183,14 @@ function createnetworktab($pia_func_netdevid, $pia_func_netdevname, $pia_func_ne
 		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-wifi network_tab_icon text-aqua" style="top: 1px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Powerline') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-plug-fill network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Router') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-router-fill network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Switch') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-ethernet network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Internet') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-globe network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} elseif (substr($pia_func_netdevtyp, 2) == 'Hypervisor') {
-		// Tab icon depending on the pia_func_netdevty (first 2 chars "x_" removed)
 		echo '<i class="bi bi-hdd-stack-fill network_tab_icon text-aqua" style="top: 2px;"></i>';
 	} else {
 		// No tab icon (first 2 chars "x_" removed)
@@ -158,14 +201,28 @@ function createnetworktab($pia_func_netdevid, $pia_func_netdevname, $pia_func_ne
 	//if ($pia_func_netdevport != "") {echo ' (' . $pia_func_netdevport . ')';}
 	echo '</a></li>';
 }
+
+function get_all_devices_from_tables($pia_func_netdevid) {
+	global $db;
+	// Query detected Devices
+	$func_sql1 = 'SELECT * FROM "Devices" WHERE "dev_Infrastructure" = "' . $pia_func_netdevid . '" AND "dev_Archived" = 0';
+	$func_result1 = $db->query($func_sql1); //->fetchArray(SQLITE3_ASSOC);
+	// Query dumb Devices
+	$func_sql2 = 'SELECT * FROM "network_dumb_dev" WHERE "dev_Infrastructure" = "' . $pia_func_netdevid . '"';
+	$func_result2 = $db->query($func_sql2); //->fetchArray(SQLITE3_ASSOC);
+
+	while ($row1 = $func_result1->fetchArray(SQLITE3_ASSOC)) {
+		$combinedResults[] = $row1;
+	}
+	while ($row2 = $func_result2->fetchArray(SQLITE3_ASSOC)) {
+		$combinedResults[] = $row2;
+	}
+	return $combinedResults;
+}
+
 // Create the Tabspage
 function createnetworktabcontent($pia_func_netdevid, $pia_func_netdevname, $pia_func_netdevtyp, $pia_func_netdevport, $activetab) {
 	global $pia_lang;
-
-//	if ($pia_func_netdevname != "Internet") {
-//		$nodestate = getNodeClientsOnlineState($pia_func_netdevid);
-//		$clientstate = ' (' . $nodestate[1] . ' Clients online)';
-//	} else { $clientstate = "";}
 
 	echo '<div class="tab-pane ' . $activetab . '" id="' . $pia_func_netdevid . '">
 	      <h4>' . $pia_func_netdevname . '</h4><br>';
@@ -188,28 +245,12 @@ function createnetworktabcontent($pia_func_netdevid, $pia_func_netdevname, $pia_
 	$network_device_portmac = array();
 	$network_device_portip = array();
 	$network_device_portstate = array();
+
 	// make sql query for Network Hardware ID
-	global $db;
-	// Query detected Devices
-	$func_sql1 = 'SELECT * FROM "Devices" WHERE "dev_Infrastructure" = "' . $pia_func_netdevid . '" AND "dev_Archived" = 0';
-	$func_result1 = $db->query($func_sql1); //->fetchArray(SQLITE3_ASSOC);
-	// Query dumb Devices
-	$func_sql2 = 'SELECT * FROM "network_dumb_dev" WHERE "dev_Infrastructure" = "' . $pia_func_netdevid . '"';
-	$func_result2 = $db->query($func_sql2); //->fetchArray(SQLITE3_ASSOC);
+	$combinedResults = get_all_devices_from_tables($pia_func_netdevid);
 
-	while ($row1 = $func_result1->fetchArray(SQLITE3_ASSOC)) {
-		$combinedResults[] = $row1;
-	}
-
-	while ($row2 = $func_result2->fetchArray(SQLITE3_ASSOC)) {
-		$combinedResults[] = $row2;
-	}
-
-//	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
 	foreach ($combinedResults as $func_res) {
-		//if(!isset($func_res['dev_Name'])) continue;
-		if ($func_res['dev_PresentLastScan'] == 1) {$port_state = '<div class="badge bg-green text-white" style="width: 60px;">Online</div>';} else { $port_state = '<div class="badge bg-gray text-white" style="width: 60px;">Offline</div>';}
-		// Prepare Table with Port > push values in array
+		// Prepare Table with Port > enter values in the arrays
 		if ($pia_func_netdevport > 1) {
 			if (stristr($func_res['dev_Infrastructure_port'], ',') == '') {
 				if ($network_device_portname[$func_res['dev_Infrastructure_port']] != '') {$network_device_portname[$func_res['dev_Infrastructure_port']] = $network_device_portname[$func_res['dev_Infrastructure_port']] . ',' . $func_res['dev_Name'];} else { $network_device_portname[$func_res['dev_Infrastructure_port']] = $func_res['dev_Name'];}
@@ -228,21 +269,14 @@ function createnetworktabcontent($pia_func_netdevid, $pia_func_netdevname, $pia_
 				unset($multiport);
 			}
 		} else {
-			// Table without Port > echo values
-			// Specific icon for devicetype
-			if (substr($pia_func_netdevtyp, 2) == "WLAN") {$dev_port_icon = 'fa-wifi';}
-			if (substr($pia_func_netdevtyp, 2) == "Powerline") {$dev_port_icon = 'fa-flash';}
-			if (substr($pia_func_netdevtyp, 2) == "Hypervisor") {$dev_port_icon = 'fa-computer';}
-
-			if ($func_res['dev_MAC'] != "dumb") {
-				// detectable Device
-				echo '<tr><td style="text-align: center;"><i class="fa ' . $dev_port_icon . '"></i></td><td>' . $port_state . '</td><td style="padding-left: 10px;"><a href="./deviceDetails.php?mac=' . $func_res['dev_MAC'] . '"><b>' . $func_res['dev_Name'] . '</b></a></td><td>' . $func_res['dev_LastIP'] . '</td></tr>';
-			} else {
-				// dumb Devices
-				echo '<tr><td style="text-align: center;"><i class="fa ' . $dev_port_icon . '"></i></td><td>' . $port_state . '</td><td style="padding-left: 10px;"><a href="./networkSettings.php#hostedit"><b>' . $func_res['dev_Name'] . '</b></a></td><td>' . $func_res['dev_LastIP'] . '</td></tr>';
-			}
+		// Prepare Table with Port > enter values in the arrays
+			$network_device_portname[]=$func_res['dev_Name'];
+			$network_device_portmac[]=$func_res['dev_MAC'];
+			$network_device_portip[]=$func_res['dev_LastIP'];
+			$network_device_portstate[]=$func_res['dev_PresentLastScan'];
 		}
 	}
+
 	// Create table with Port
 	if ($pia_func_netdevport > 1) {
 		for ($x = 1; $x <= $pia_func_netdevport; $x++) {
@@ -254,28 +288,22 @@ function createnetworktabcontent($pia_func_netdevid, $pia_func_netdevname, $pia_
 				$network_device_portstate[$x] = $downstream_device_resolved['dev_PresentLastScan'];
 				$network_device_portip[$x] = $downstream_device_resolved['dev_LastIP'];
 			}
-			// Prepare online/offline badge for later functions
-			$online_badge = '<div class="badge bg-green text-white" style="width: 60px;">Online</div>';
-			$offline_badge = '<div class="badge bg-gray text-white" style="width: 60px;">Offline</div>';
-			$dumb_badge = '<div class="badge bg-yellow text-white" style="width: 60px;">UM</div>';
-			// Set online/offline badge
 			echo '<tr>';
 			echo '<td style="text-align: right; padding-right:16px;">' . $x . '</td>';
-			// Set online/offline badge
 			// Check if multiple badges necessary
 			if (stristr($network_device_portstate[$x], ',') == '') {
 				// Set single online/offline badge
-				if ($network_device_portstate[$x] == "1") {$port_state = $online_badge;} elseif ($network_device_portstate[$x] === "dumb") {$port_state = $dumb_badge;} else { $port_state = $offline_badge;}
-				echo '<td>' . $port_state . '</td>';
+				echo '<td>';
+				if ($network_device_portstate[$x] == "1") {port_badge('online');} elseif ($network_device_portstate[$x] === "dumb") {port_badge('dumb');} else {port_badge('offline');}
+				echo '</td>';
 			} else {
 				// Set multiple online/offline badges
 				$multistate = array();
 				$multistate = explode(',', $network_device_portstate[$x]);
 				echo '<td>';
 				foreach ($multistate as $key => $value) {
-					//if ($value == "1") {$port_state = $online_badge;} else { $port_state = $offline_badge;}
-					if ($value == "1") {$port_state = $online_badge;} elseif ($value === "dumb") {$port_state = $dumb_badge;} else { $port_state = $offline_badge;}
-					echo $port_state . '<br>';
+					if ($value == "1") {port_badge('online');} elseif ($value === "dumb") {port_badge('dumb');} else {port_badge('offline');}
+					echo '<br>';
 				}
 				echo '</td>';
 				unset($multistate);
@@ -326,6 +354,38 @@ function createnetworktabcontent($pia_func_netdevid, $pia_func_netdevname, $pia_
 				unset($multiip);
 			}
 			echo '</tr>';
+		}
+	} else {
+		// Create table without Port
+		if (substr($pia_func_netdevtyp, 2) == "WLAN") {$dev_port_icon = 'fa-wifi';}
+		if (substr($pia_func_netdevtyp, 2) == "Powerline") {$dev_port_icon = 'fa-flash';}
+		if (substr($pia_func_netdevtyp, 2) == "Hypervisor") {$dev_port_icon = 'fa-computer';}
+
+		$manual_device_links = get_downstream_devices_b($pia_func_netdevid);
+
+		if (isset($manual_device_links)) {
+			for ($i = 0; $i < sizeof($manual_device_links); $i++){
+				$manual_device_links_resolved = get_downstream_from_mac($manual_device_links[$i]);
+				$network_device_portmac[] = $manual_device_links[$i];
+				$network_device_portname[] = $manual_device_links_resolved['dev_Name'];
+				$network_device_portstate[] = $manual_device_links_resolved['dev_PresentLastScan'];
+				$network_device_portip[] = $manual_device_links_resolved['dev_LastIP'];
+			}
+		}
+		natcasesort($network_device_portname);
+		foreach($network_device_portname as $key => $network_device_portname_sort) {
+			if ($network_device_portstate[$key] == 1) {$port_state = 'online';} else { $port_state = 'offline';}
+			if ($func_res['dev_MAC'] != "dumb") {
+				// detectable Device
+				echo '<tr><td style="text-align: center;"><i class="fa ' . $dev_port_icon . '"></i></td><td>';
+				port_badge($port_state);
+				echo '</td><td style="padding-left: 10px;"><a href="./deviceDetails.php?mac=' . $network_device_portmac[$key] . '"><b>' . $network_device_portname_sort . '</b></a></td><td>' . $network_device_portip[$key] . '</td></tr>';
+			} else {
+				// dumb Devices
+				echo '<tr><td style="text-align: center;"><i class="fa ' . $dev_port_icon . '"></i></td><td>';
+				port_badge($port_state);
+				echo '</td><td style="padding-left: 10px;"><a href="./networkSettings.php#hostedit"><b>' . $network_device_portname_sort . '</b></a></td><td>' . $network_device_portip[$key] . '</td></tr>';
+			}	
 		}
 	}
 	echo '        </tbody></table>

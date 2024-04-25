@@ -533,10 +533,17 @@ EOM
     # Tools_Speedtest_History
     echo -e "...Insert new table 'Tools_Speedtest_History' to DB"
     sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Tools_Speedtest_History' ('ID' INTEGER, 'speed_date' TEXT, 'speed_isp' TEXT, 'speed_server' TEXT, 'speed_ping' NUMERIC, 'speed_down' NUMERIC, 'speed_up' INUMERIC, PRIMARY KEY(\"ID\" AUTOINCREMENT));"
-
     # Tools_Nmap_ManScan
     echo -e "...Insert new table 'Tools_Nmap_ManScan' to DB"
     sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Tools_Nmap_ManScan' ('ID' INTEGER, 'scan_date' DATETIME NOT NULL, 'scan_target' STRING(50) NOT NULL, 'scan_type' STRING(50) NOT NULL, 'scan_result' TEXT, 'reserve_a' INTEGER, 'reserve_b' TEXT, 'reserve_c' TEXT, 'reserve_d' TEXT, PRIMARY KEY(\"ID\" AUTOINCREMENT));"
+    # ICMP_Mon.icmp_Archived
+    echo -e "...Insert new column 'icmp_Archived' to table 'ICMP_Mon' to DB"
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('ICMP_Mon');" | awk -F\| '{print $2}' | grep -wci "icmp_Archived")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'ICMP_Mon' ADD COLUMN 'icmp_Archived' BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'icmp_Archived' already exists in the 'ICMP_Mon' table."
+    fi
 
     echo -e "\nUpdate finished!\n"
 

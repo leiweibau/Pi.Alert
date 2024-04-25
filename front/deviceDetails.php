@@ -355,6 +355,7 @@ if ($_REQUEST['mac'] == 'Internet') {
                                 <span class="fa fa-caret-down"></span></button>
                               <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right">
                                 <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Ethernet')">        Ethernet</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Fibre')">           Fibre</a></li>
                                 <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','WiFi')">            WiFi</a></li>
                                 <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Bluetooth')">       Bluetooth</a></li>
                                 <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Virtual Machine')"> Virtual Machine</a></li>

@@ -46,10 +46,11 @@ function print_box_bottom_element() {
 // Get Online Graph Arrays
 $graph_arrays = array();
 $graph_arrays = prepare_graph_arrays_history("icmpscan");
-$Pia_Graph_Device_Time = $graph_arrays[0];
-$Pia_Graph_Device_Down = $graph_arrays[1];
-$Pia_Graph_Device_All = $graph_arrays[2];
-$Pia_Graph_Device_Online = $graph_arrays[3];
+$Graph_Device_Time = $graph_arrays[0];
+$Graph_Device_Down = $graph_arrays[1];
+$Graph_Device_All = $graph_arrays[2];
+$Graph_Device_Online = $graph_arrays[3];
+$Graph_Device_Arch = $graph_arrays[4];
 ?>
 
 <!-- Page ------------------------------------------------------------------ -->
@@ -435,7 +436,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
     <section class="content">
 
       <div class="row">
-        <div class="col-lg-3 col-sm-3 col-xs-6">
+        <div class="col-lg-2 col-sm-4 col-xs-6">
         	<a href="#" onclick="javascript: getDevicesList('all');">
           <div class="small-box bg-aqua">
             <div class="inner"><h3 id="devicesAll"> -- </h3>
@@ -446,7 +447,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
         </a>
         </div>
 
-        <div class="col-lg-3 col-sm-3 col-xs-6">
+        <div class="col-lg-2 col-sm-4 col-xs-6">
         	<a href="#" onclick="javascript: getDevicesList('connected');">
           <div class="small-box bg-green">
             <div class="inner"><h3 id="devicesConnected"> -- </h3>
@@ -457,7 +458,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
         	</a>
         </div>
 
-        <div class="col-lg-3 col-sm-3 col-xs-6">
+        <div class="col-lg-2 col-sm-4 col-xs-6">
         	<a href="#" onclick="javascript: getDevicesList('favorites');">
           <div class="small-box bg-yellow">
             <div class="inner"><h3 id="devicesFavorites"> -- </h3>
@@ -468,13 +469,24 @@ if ($_REQUEST['mod'] == 'bulkedit') {
         	</a>
         </div>
 
-        <div class="col-lg-3 col-sm-3 col-xs-6">
+        <div class="col-lg-2 col-sm-4 col-xs-6">
         	<a href="#" onclick="javascript: getDevicesList('down');">
           <div class="small-box bg-red">
             <div class="inner"><h3 id="devicesDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></p>
             </div>
             <div class="icon"><i class="fa fa-warning text-red-40"></i></div>
+          </div>
+        	</a>
+        </div>
+
+        <div class="col-lg-2 col-sm-4 col-xs-6">
+        	<a href="#" onclick="javascript: getDevicesList('archived');">
+          <div class="small-box bg-gray top_small_box_gray_text">
+            <div class="inner"><h3 id="devicesArchived"> -- </h3>
+                <p class="infobox_label"><?=$pia_lang['Device_Shortcut_Archived'];?></p>
+            </div>
+            <div class="icon"><i class="fa fa-eye-slash text-gray-40"></i></div>
           </div>
         	</a>
         </div>
@@ -505,10 +517,17 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 
       <script src="js/graph_online_history.js"></script>
       <script>
-        var pia_js_online_history_time = [<?php pia_graph_devices_data($Pia_Graph_Device_Time);?>];
-        var pia_js_online_history_ondev = [<?php pia_graph_devices_data($Pia_Graph_Device_Online);?>];
-        var pia_js_online_history_dodev = [<?php pia_graph_devices_data($Pia_Graph_Device_Down);?>];
-        graph_online_history_icmp(pia_js_online_history_time, pia_js_online_history_ondev, pia_js_online_history_dodev);
+        // var pia_js_online_history_time = [<?php pia_graph_devices_data($Graph_Device_Time);?>];
+        // var pia_js_online_history_ondev = [<?php pia_graph_devices_data($Graph_Device_Online);?>];
+        // var pia_js_online_history_dodev = [<?php pia_graph_devices_data($Graph_Device_Down);?>];
+        // graph_online_history_icmp(pia_js_online_history_time, pia_js_online_history_ondev, pia_js_online_history_dodev);
+
+        var online_history_time = [<?php pia_graph_devices_data($Graph_Device_Time);?>];
+        var online_history_ondev = [<?php pia_graph_devices_data($Graph_Device_Online);?>];
+        var online_history_dodev = [<?php pia_graph_devices_data($Graph_Device_Down);?>];
+        var online_history_ardev = [<?php pia_graph_devices_data($Graph_Device_Arch);?>];
+        graph_online_history_icmp(online_history_time, online_history_ondev, online_history_dodev, online_history_ardev);
+
       </script>
 <?php
 }
@@ -598,7 +617,7 @@ function initializeiCheck () {
 function main () {
     initializeiCheck();
     initializeDatatable();
-    getDevicesList();
+    getDevicesList (deviceStatus);
     getICMPHostTotals();
 }
 
@@ -691,6 +710,7 @@ function getDevicesList(status) {
     case 'connected':  tableTitle = '<?=$pia_lang['Device_Shortcut_Connected']?>';   color = 'green';   break;
     case 'favorites':  tableTitle = '<?=$pia_lang['Device_Shortcut_Favorites']?>';   color = 'yellow';  break;
     case 'down':       tableTitle = '<?=$pia_lang['Device_Shortcut_DownAlerts']?>';  color = 'red';     break;
+    case 'archived':   tableTitle = '<?=$pia_lang['Device_Shortcut_Archived']?>';    color = 'gray';    break;
     default:           tableTitle = '<?=$pia_lang['Device_Shortcut_AllDevices']?>';  color = 'aqua';    break;
   }
 
@@ -713,6 +733,7 @@ function getICMPHostTotals () {
     $('#devicesConnected').html  (totalsDevices[2].toLocaleString());
     $('#devicesFavorites').html  (totalsDevices[3].toLocaleString());
     $('#devicesDown').html       (totalsDevices[1].toLocaleString());
+    $('#devicesArchived').html   (totalsDevices[4].toLocaleString());
 } );
 };
 

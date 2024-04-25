@@ -36,7 +36,8 @@ function prepare_graph_arrays_history($data_source) {
 		$Pia_Graph_Device_All = array();
 		$Pia_Graph_Device_Online = array();
 		$Pia_Graph_Device_Down = array();
-		$results = $db->query('SELECT Scan_Date, Down_Devices, All_Devices, Online_Devices FROM Online_History WHERE Data_Source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 144');
+		$Pia_Graph_Device_Arch = array();
+		$results = $db->query('SELECT Scan_Date, Down_Devices, All_Devices, Online_Devices, Archived_Devices FROM Online_History WHERE Data_Source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 144');
 		while ($row = $results->fetchArray()) {
 			$time_raw = explode(' ', $row['Scan_Date']);
 			$time = explode(':', $time_raw[1]);
@@ -44,8 +45,9 @@ function prepare_graph_arrays_history($data_source) {
 			array_push($Pia_Graph_Device_Down, $row['Down_Devices']);
 			array_push($Pia_Graph_Device_All, $row['All_Devices']);
 			array_push($Pia_Graph_Device_Online, $row['Online_Devices']);
+			array_push($Pia_Graph_Device_Arch, $row['Archived_Devices']);
 		}
-		return array($Pia_Graph_Device_Time, $Pia_Graph_Device_Down, $Pia_Graph_Device_All, $Pia_Graph_Device_Online);
+		return array($Pia_Graph_Device_Time, $Pia_Graph_Device_Down, $Pia_Graph_Device_All, $Pia_Graph_Device_Online, $Pia_Graph_Device_Arch);
 	}
 
 }
@@ -160,7 +162,7 @@ function prepare_speedtestresults_graph() {
 	$Speedtest_Graph_ping = array();
 	$Speedtest_Graph_Down = array();
 	$Speedtest_Graph_Up = array();
-	$results = $db->query('SELECT speed_date, speed_ping, speed_down, speed_up FROM Tools_Speedtest_History ORDER BY speed_date DESC LIMIT 10');
+	$results = $db->query('SELECT speed_date, speed_ping, speed_down, speed_up FROM Tools_Speedtest_History ORDER BY speed_date DESC LIMIT 20');
 	while ($row = $results->fetchArray()) {
 		$time_raw = explode(' ', $row['speed_date']);
 		$time = explode(':', $time_raw[1]);

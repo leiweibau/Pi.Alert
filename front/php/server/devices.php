@@ -88,7 +88,7 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'SaveFilterID':SaveFilterID();
 		break;
-	default:logServerConsole('Action: ' . $action);
+     default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
@@ -566,7 +566,7 @@ function getDeviceTypes() {
                  "Laptop", "PC", "Printer", "Server", "Singleboard Computer (SBC)",
                  "Game Console", "SmartTV", "Virtual Assistance",
                  "House Appliance", "Phone", "Radio",
-                 "AP", "NAS", "Router")
+                 "AP", "NAS", "Router", "Hypervisor", "USB WIFI Adapter", "USB LAN Adapter")
 
           UNION SELECT 1 as dev_Order, "Smartphone"
           UNION SELECT 1 as dev_Order, "Tablet"
@@ -574,8 +574,9 @@ function getDeviceTypes() {
           UNION SELECT 2 as dev_Order, "Laptop"
           UNION SELECT 2 as dev_Order, "PC"
           UNION SELECT 2 as dev_Order, "Printer"
-          UNION SELECT 2 as dev_Order, "Server"
           UNION SELECT 2 as dev_Order, "Singleboard Computer (SBC)"
+          UNION SELECT 2 as dev_Order, "USB LAN Adapter"
+          UNION SELECT 2 as dev_Order, "USB WIFI Adapter"
 
           UNION SELECT 3 as dev_Order, "Game Console"
           UNION SELECT 3 as dev_Order, "SmartTV"
@@ -588,8 +589,8 @@ function getDeviceTypes() {
           UNION SELECT 5 as dev_Order, "AP"
           UNION SELECT 5 as dev_Order, "NAS"
           UNION SELECT 5 as dev_Order, "Router"
-          UNION SELECT 5 as dev_Order, "USB LAN Adapter"
-          UNION SELECT 5 as dev_Order, "USB WIFI Adapter"
+          UNION SELECT 5 as dev_Order, "Server"
+          UNION SELECT 5 as dev_Order, "Hypervisor"
 
           UNION SELECT 10 as dev_Order, "Other"
 

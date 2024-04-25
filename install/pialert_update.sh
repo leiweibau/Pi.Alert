@@ -292,6 +292,14 @@ SPEEDTEST_TASK_CRON   = '0 7,22 * * *'
 EOF
 fi
 
+# 2024-04-20
+if ! grep -Fq "AUTO_DB_BACKUP_KEEP" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+AUTO_DB_BACKUP_KEEP    = 5
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------
