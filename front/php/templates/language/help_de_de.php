@@ -126,6 +126,8 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die automatische Erstellung von Datenbank- und Konfigurationssicherungen</td></tr>
 									    <tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
 									        <td class="help_table_gen_b">Intervall, im Crontab Syntax, in dem die automatischen Backups erstellt werden sollen. Der kürzeste Intervall beträgt 3 Minuten. Alle größeren Intervalle müssen ein ganzzahliges Vielfaches von 3 Minuten sein (15, 30, 36 etc).</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_KEEP</td>
+									        <td class="help_table_gen_b">Hier kann angegeben werden, wieviele automatische Backups aufgehoben werden sollen, einschließlich des aktuellen Backups. Dies umfasst sowohl die Konfigurationssicherungen, als auch die Datenbanksicherung. Dieser Wert hat keine Relevanz bei der manuellen Bereinigung, bei der die letzten 3 Sicherungen aufgehoben werden.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -234,7 +236,7 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Shoutrrr</td></tr>
 									    <tr><td class="help_table_gen_a">SHOUTRRR_BINARY</td>
-									        <td class="help_table_gen_b">Hier muss konfiguriert werden, welches Binary von shoutrrr zum einsatz gebracht werden muss. Dies richtet sich danach, auf welcher Hardware Pi.Alert installiert wurde.</td></tr>
+									        <td class="help_table_gen_b">Hier muss konfiguriert werden, welches Binary von shoutrrr zum Einsatz gebracht werden soll. Dies richtet sich danach, auf welcher Hardware Pi.Alert installiert wurde.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Telegram via Shoutrrr</td></tr>
@@ -243,7 +245,7 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									    <tr><td class="help_table_gen_a">REPORT_TELEGRAM_WEBMON</td>
 									        <td class="help_table_gen_b">Aktiviert/Deaktiviert die Benachrichtigungen über Änderungen der überwachten Webservices via Telegram</td></tr>
 									    <tr><td class="help_table_gen_a">TELEGRAM_BOT_TOKEN_URL</td>
-									        <td class="help_table_gen_b">    </td></tr>
+									        <td class="help_table_gen_b">Hier wird die URL eingetragen, welche der Setup-Assistent von shoutrrr erstellt.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">DynDNS and IP</td></tr>

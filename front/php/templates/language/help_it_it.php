@@ -123,6 +123,8 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
 										    <td class="help_table_gen_b">Attiva o disattiva la creazione automatica di backup del database e della configurazione.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
 										    <td class="help_table_gen_b">Intervallo, nella sintassi di crontab, in cui i backup automatici dovrebbero essere creati. L&apos;intervallo più breve è di 3 minuti. Tutti gli intervalli più lunghi devono essere multipli interi di 3 minuti (15, 30, 36, ecc).</td></tr>
+                                    	<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_KEEP</td>
+											<td class="help_table_gen_b">Qui si specifica quanti backup automatici devono essere conservati, inclusi quello attuale. Questo include sia i backup di configurazione che quelli del database. Questo valore non è rilevante durante la pulizia manuale, dove vengono conservati gli ultimi 3 backup.</td></tr>
                                     </table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">Altri moduli</td></tr>
@@ -240,7 +242,8 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
 									    <tr><td class="help_table_gen_a">REPORT_TELEGRAM_WEBMON</td>
 									        <td class="help_table_gen_b">Attiva/Disattiva le notifiche sulle modifiche nei servizi web monitorati tramite Telegram</td></tr>
 									    <tr><td class="help_table_gen_a">TELEGRAM_BOT_TOKEN_URL</td>
-									        <td class="help_table_gen_b">URL del token del bot Telegram</td></tr>
+									        <td class="help_table_gen_b">Qui viene inserita l&apos;URL creata dalla procedura guidata di configurazione di shoutrrr.</td></tr>
+
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">DynDNS e IP</td></tr>
