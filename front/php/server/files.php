@@ -141,7 +141,7 @@ function GetLogfiles() {
 		if ($file == "") {
 			array_push($logs, $logmessage[$i]);
 		} else {
-			if ($logfile[$i] == "pialert.webservices.log") {
+			if ($logfiles[$i] == "pialert.webservices.log") {
 				$file = str_replace("Start Services Monitoring\n\n", "Start Services Monitoring\n\n<pre style=\"border: solid 1px #666; background-color: transparent;\">", $file);
 				$file = str_replace("\nServices Monitoring Changes:", "\n</pre>Services Monitoring Changes:", $file);
 			}
