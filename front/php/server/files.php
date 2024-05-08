@@ -870,7 +870,6 @@ function deleteAllNotifications() {
 function getReportTotals() {
 	$files = array_diff(scandir('../../reports'), array('..', '.', 'download_report.php'));
 	$report_counter = count($files);
-	if ($report_counter == 0) {unset($report_counter);}
 
 	$totals = array($report_counter);
 	echo (json_encode($totals));
