@@ -141,7 +141,7 @@ function GetLogfiles() {
 		if ($file == "") {
 			array_push($logs, $logmessage[$i]);
 		} else {
-			if ($logfile[$i] == "pialert.webservices.log") {
+			if ($logfiles[$i] == "pialert.webservices.log") {
 				$file = str_replace("Start Services Monitoring\n\n", "Start Services Monitoring\n\n<pre style=\"border: solid 1px #666; background-color: transparent;\">", $file);
 				$file = str_replace("\nServices Monitoring Changes:", "\n</pre>Services Monitoring Changes:", $file);
 			}
@@ -870,11 +870,8 @@ function deleteAllNotifications() {
 function getReportTotals() {
 	$files = array_diff(scandir('../../reports'), array('..', '.', 'download_report.php'));
 	$report_counter = count($files);
-	if ($report_counter == 0) {unset($report_counter);}
-
 	$totals = array($report_counter);
 	echo (json_encode($totals));
-
 }
 
 //  Set Language
