@@ -87,6 +87,11 @@ insert_back_button();
       <script>
           function toggle_systeminfobox() {
             $("#sidebar_systeminfobox").toggleClass("collapse");
+
+            if ( $('.custom_filter').css('display') == 'none')
+              $('.custom_filter').css('display','block');
+            else
+              $('.custom_filter').css('display','none');
           }
       </script>
       <!-- Navbar Right Menu -->

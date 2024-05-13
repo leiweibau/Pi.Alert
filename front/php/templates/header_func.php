@@ -256,7 +256,7 @@ function show_groupless_filters() {
 	foreach ($filter_table as $row) {
     	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
     	if ($row['reserve_c'] == "" || !isset($row['reserve_c'])) {
-        	echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+        	echo '<li class="custom_filter"><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
     	}
     }
 }
@@ -268,7 +268,7 @@ function show_group_filters() {
 	for ($i = 0; $i < sizeof($filter_groups); $i++) {
 		$temp_filter_group = $filter_groups[$i];
 		if ($i == $active_group && isset($active_group)) {$group_state['menu'] = 'menu-open'; $group_state['list'] = 'block';} else {{$group_state['menu'] = ''; $group_state['list'] = 'none';}}
-		echo '<li class="treeview '.$group_state['menu'].'" style="height: auto;">
+		echo '<li class="treeview '.$group_state['menu'].' custom_filter" style="height: auto;">
 				<a href="#" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
 	    			<i class="fa-solid fa-filter"></i>
 	    			<span style="font-style: italic;">&nbsp;'.$temp_filter_group.'</span>
