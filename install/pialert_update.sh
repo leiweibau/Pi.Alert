@@ -376,7 +376,7 @@ test_pialert() {
 # ------------------------------------------------------------------------------
 check_pialert_home() {
   if [ ! -e "$PIALERT_HOME" ] ; then
-    process_error "Pi.Alert directory dosn't exists: $PIALERT_HOME"
+    process_error "Pi.Alert directory doesn't exists: $PIALERT_HOME"
   fi
 }
 
