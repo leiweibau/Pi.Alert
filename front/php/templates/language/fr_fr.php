@@ -216,6 +216,7 @@ $pia_lang['DevDetail_MainInfo_Comments'] = 'Commentaire';
 $pia_lang['DevDetail_MainInfo_Network'] = 'Nœud de réseau';
 $pia_lang['DevDetail_MainInfo_Network_Port'] = 'Connecté au port';
 $pia_lang['DevDetail_MainInfo_Network_ConnectType'] = 'Connection Type';
+$pia_lang['DevDetail_MainInfo_Network_LinkSpeed'] = 'Link Speed';
 $pia_lang['DevDetail_SessionInfo_Title'] = 'Infos sur la session';
 $pia_lang['DevDetail_SessionInfo_Status'] = 'Statut';
 $pia_lang['DevDetail_SessionInfo_FirstSession'] = 'Première session';

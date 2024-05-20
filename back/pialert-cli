@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.19'
+SCRIPTVERSION='v1.20'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -543,6 +543,14 @@ EOM
       sqlite3 $PIA_DB_FILE "ALTER TABLE 'ICMP_Mon' ADD COLUMN 'icmp_Archived' BOOLEAN NOT NULL DEFAULT 0;"
     else
       echo "        Column 'icmp_Archived' already exists in the 'ICMP_Mon' table."
+    fi
+    # Devices.dev_LinkSpeed
+    echo -e "...Insert new column 'dev_LinkSpeed' to table 'Devices' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Devices');" | awk -F\| '{print $2}' | grep -wci "dev_LinkSpeed")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Devices' ADD COLUMN 'dev_LinkSpeed' STRING(30);"
+    else
+      echo "        Column 'dev_LinkSpeed' already exists in the 'Devices' table."
     fi
 
     echo -e "\nUpdate finished!\n"

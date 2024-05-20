@@ -365,6 +365,31 @@ if ($_REQUEST['mac'] == 'Internet') {
                           </div>
                         </div>
                       </div>
+
+                      <!-- Link Speed -->
+                      <div class="form-group">
+                        <label class="col-sm-6 control-label"><?=$pia_lang['DevDetail_MainInfo_Network_LinkSpeed'];?></label>
+                        <div class="col-sm-6">
+                          <div class="input-group">
+                            <input class="form-control" id="txtLinkSpeed" type="text" value="--">
+                            <div class="input-group-btn">
+                              <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <span class="fa fa-caret-down"></span></button>
+                              <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right">
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','10 Mbps')">    10 Mbps</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','100 Mbps')">  100 Mbps</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','1.0 Gbps')">  1.0 Gbps</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','2.5 Gbps')">  2.5 Gbps</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','10 Gbps')">    10 Gbps</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','20 Gbps')">    20 Gbps</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','25 Gbps')">    25 Gbps</a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','40 Gbps')">    40 Gbps</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
 
                   </div>
@@ -1250,6 +1275,7 @@ function getDeviceData (readAllData=false) {
       $('#txtNetworkNodeMac').val  ('--');
       $('#txtNetworkPort').val     ('--');
       $('#txtConnectionType').val  ('--');
+      $('#txtLinkSpeed').val       ('--');
 
       $('#txtFirstConnection').val ('--');
       $('#txtLastConnection').val  ('--');
@@ -1342,6 +1368,7 @@ function getDeviceData (readAllData=false) {
         $('#txtNetworkNodeMac').val                  (deviceData['dev_Network_Node_MAC']);
         $('#txtNetworkPort').val                     (deviceData['dev_Network_Node_port']);
         $('#txtConnectionType').val                  (deviceData['dev_ConnectionType']);
+        $('#txtLinkSpeed').val                       (deviceData['dev_LinkSpeed']);
 
         $('#txtFirstConnection').val                 (deviceData['dev_FirstConnection']);
         $('#txtLastConnection').val                  (deviceData['dev_LastConnection']);
@@ -1463,6 +1490,7 @@ function setDeviceData (refreshCallback='') {
     + '&networknode='     + $('#txtNetworkNodeMac').val()
     + '&networknodeport=' + $('#txtNetworkPort').val()
     + '&connectiontype='  + $('#txtConnectionType').val()
+    + '&linkspeed='       + $('#txtLinkSpeed').val()
     + '&staticIP='        + ($('#chkStaticIP')[0].checked * 1)
     + '&scancycle='       + $('#txtScanCycle').val().split(' ')[0]
     + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)

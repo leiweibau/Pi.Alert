@@ -278,6 +278,7 @@ function setDeviceData() {
                  dev_Infrastructure       = "' . quotes($_REQUEST['networknode']) . '",
                  dev_Infrastructure_port  = "' . quotes($_REQUEST['networknodeport']) . '",
                  dev_ConnectionType       = "' . quotes($_REQUEST['connectiontype']) . '",
+                 dev_LinkSpeed            = "' . quotes($_REQUEST['linkspeed']) . '",
                  dev_StaticIP             = "' . quotes($_REQUEST['staticIP']) . '",
                  dev_ScanCycle            = "' . quotes($_REQUEST['scancycle']) . '",
                  dev_AlertEvents          = "' . quotes($_REQUEST['alertevents']) . '",
