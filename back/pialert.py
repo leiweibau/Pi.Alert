@@ -689,7 +689,7 @@ def scan_network():
 
     # ScanCycle data        
     cycle_interval  = scanCycle_data['cic_EveryXmin']
-    arpscan_retries = scanCycle_data['cic_arpscanCycles']
+    #arpscan_retries = scanCycle_data['cic_arpscanCycles']
     # arp-scan command
     print('\nScanning...')
     print('    arp-scan Method...')

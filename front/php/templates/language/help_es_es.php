@@ -127,6 +127,8 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										    <td class="help_table_gen_b">Activa o desactiva la creación automática de copias de seguridad de base de datos y configuración.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
 										    <td class="help_table_gen_b">Intervalo, en sintaxis de crontab, en el que se deben crear las copias de seguridad automáticas. El intervalo más corto es de 3 minutos. Todos los intervalos mayores deben ser múltiplos enteros de 3 minutos (15, 30, 36, etc)</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_KEEP</td>
+											<td class="help_table_gen_b">Aquí se especifica cuántas copias de seguridad automáticas deben conservarse, incluida la copia de seguridad actual. Esto incluye tanto las copias de seguridad de configuración como las de la base de datos. Este valor no es relevante durante la limpieza manual, donde se conservan las últimas 3 copias de seguridad.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -240,7 +242,7 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										<tr><td class="help_table_gen_a">REPORT_TELEGRAM_WEBMON</td>
 										    <td class="help_table_gen_b">Habilita/deshabilita las notificaciones sobre cambios en los servicios web monitoreados a través de Telegram.</td></tr>
 										<tr><td class="help_table_gen_a">TELEGRAM_BOT_TOKEN_URL</td>
-										    <td class="help_table_gen_b">    </td></tr>
+										    <td class="help_table_gen_b">Aquí se ingresa la URL creada por el asistente de configuración de shoutrrr.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">DynDNS and IP</td></tr>

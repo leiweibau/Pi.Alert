@@ -51,6 +51,7 @@
     .main-footer {
         margin-left: 0px;
     }
+    .custom_filter {display: none;}
 }
 
 @media (max-width: 991px) {
