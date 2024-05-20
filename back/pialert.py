@@ -305,7 +305,7 @@ def create_autobackup(start_time, crontab_string):
             # Cleanup
             bak_files = glob.glob(os.path.join(PIALERT_DB_PATH, "pialertdb_20*.zip"))
             bak_files.sort(key=os.path.getmtime, reverse=True)
-            for file in bak_files[5:]:
+            for file in bak_files[AUTO_DB_BACKUP_KEEP:]:
                 os.remove(file)
             print(f"    Cleanup DB Backups")
 
