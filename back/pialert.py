@@ -1797,7 +1797,16 @@ def rogue_dhcp_detection():
     for _ in range(dhcp_probes):
         stream = os.popen('sudo nmap --script broadcast-dhcp-discover 2>/dev/null | grep "Server Identifier" | awk \'{ print $4 }\'')
         output = stream.read()
-        dhcp_server_list.append(output.replace("\n", ""))
+        # dhcp_server_list.append(output.replace("\n", ""))
+
+        multiple_dhcp_ips = output.split("\n")
+
+        if multiple_dhcp_ips:
+            dhcp_server_list.append(multiple_dhcp_ips[0])
+
+        for multiple_dhcp in multiple_dhcp_ips[1:]:
+            if len(multiple_dhcp) >= 7:
+                dhcp_server_list.append(multiple_dhcp)
 
     for i in range(len(dhcp_server_list)):
         # Insert list in database
