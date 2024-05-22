@@ -1805,6 +1805,7 @@ def rogue_dhcp_detection():
             dhcp_server_list.append(multiple_dhcp_ips[0])
 
         for multiple_dhcp in multiple_dhcp_ips[1:]:
+            # Condition to prevent empty entries in the database
             if len(multiple_dhcp) >= 7:
                 dhcp_server_list.append(multiple_dhcp)
 
@@ -1814,8 +1815,10 @@ def rogue_dhcp_detection():
                          (scan_num, dhcp_server) 
                          VALUES (?, ?);"""
 
-        table_data = (i, dhcp_server_list[i])
-        sql.execute(sqlite_insert, table_data)
+        # Redundant condition to prevent empty entries in the database
+        if len(dhcp_server_list[i]) >= 7:
+            table_data = (i, dhcp_server_list[i])
+            sql.execute(sqlite_insert, table_data)
     
     sql_connection.commit()
 
