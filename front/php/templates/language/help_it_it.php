@@ -374,7 +374,13 @@ $help_lang['Cat_Detail_302_head_a'] = 'Cosa significa ';
 $help_lang['Cat_Detail_302_head_b'] = ' e perché non posso selezionarlo?';
 $help_lang['Cat_Detail_302_text'] = 'Alcuni dispositivi moderni generano indirizzi MAC casuali per motivi di privacy, che non possono essere associati a un produttore specifico e che cambiano ogni volta che il dispositivo si
 									connette alla rete. Pi.Alert riconosce automaticamente se si tratta di un indirizzo MAC casuale e attiva automaticamente questo campo. Per disattivare questa funzionalità, è necessario verificare
-									le impostazioni del dispositivo per vedere come disattivare la generazione di indirizzi MAC casuali.';
+									le impostazioni del dispositivo per vedere come disattivare la generazione di indirizzi MAC casuali. Gli indirizzi MAC con il seguente schema sono contrassegnati come "casuali":
+									<ul style="list-style-type: none">
+									    <li>x2:xx:xx:xx:xx:xx:xx</li>
+									    <li>x6:xx:xx:xx:xx:xx:xx</li>
+									    <li>xA:xx:xx:xx:xx:xx:xx</li>
+									    <li>xE:xx:xx:xx:xx:xx:xx</li>
+									</ul>';
 $help_lang['Cat_Detail_303_head'] = 'Cos&apos;è Nmap e a cosa serve?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap è uno scanner di rete con diverse funzionalità.<br>
                                     Quando appare un nuovo dispositivo nella tua lista, hai la possibilità di ottenere informazioni più dettagliate sul dispositivo tramite la scansione Nmap.

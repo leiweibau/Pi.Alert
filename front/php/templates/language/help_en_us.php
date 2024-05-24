@@ -374,10 +374,16 @@ $help_lang['Cat_Detail_301_text'] = 'The time interval between the scans is defi
 									Depending on the network configuration, this time may vary. To edit the cronjob, you can use the following command in the terminal/console <span class="text-maroon help_faq_code">crontab -e</span>
 									and change the interval.';
 $help_lang['Cat_Detail_302_head_a'] = 'What means ';
-$help_lang['Cat_Detail_302_head_b'] = 'and why can\'t I select that?';
+$help_lang['Cat_Detail_302_head_b'] = 'and why can&apos;t I select that?';
 $help_lang['Cat_Detail_302_text'] = 'Some modern devices generate random MAC addresses for privacy reasons, which can no longer be associated with any manufacturer and which change again with each new connection.
 									Pi.Alert detects if it is such a random MAC address and activates this "field" automatically. To disable this behavior you have to look in your device how to disable
-									MAC address randomization.';
+									MAC address randomization. MAC addresses with the following scheme are marked as "random":
+									<ul style="list-style-type: none">
+									    <li>x2:xx:xx:xx:xx:xx:xx</li>
+									    <li>x6:xx:xx:xx:xx:xx:xx</li>
+									    <li>xA:xx:xx:xx:xx:xx:xx</li>
+									    <li>xE:xx:xx:xx:xx:xx:xx</li>
+									</ul>';
 $help_lang['Cat_Detail_303_head'] = 'What is Nmap and what is it for?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap is a network scanner with various capabilities.<br>
                                     When a new device appears in your list, you have the option to obtain more detailed information about the device through the Nmap scan.

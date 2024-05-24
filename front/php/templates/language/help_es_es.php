@@ -372,7 +372,13 @@ $help_lang['Cat_Detail_302_head_a'] = '¿Qué significa? ';
 $help_lang['Cat_Detail_302_head_b'] = '¿y por qué no puedo seleccionarlo?';
 $help_lang['Cat_Detail_302_text'] = 'Algunos dispositivos modernos generan direcciones MAC aleatorias por razones de privacidad, que ya no pueden asociarse a ningún fabricante y que vuelven a cambiar con cada nueva conexión.
 									Pi.Alert detecta si se trata de una dirección MAC aleatoria y activa este "campo" automáticamente. Para deshabilitar este comportamiento, debe buscar en su dispositivo cómo deshabilitar la
-									aleatorización de direcciones MAC.';
+									aleatorización de direcciones MAC. Las direcciones MAC con el siguiente esquema se marcan como "aleatorias":
+									<ul style="list-style-type: none">
+									    <li>x2:xx:xx:xx:xx:xx:xx</li>
+									    <li>x6:xx:xx:xx:xx:xx:xx</li>
+									    <li>xA:xx:xx:xx:xx:xx:xx</li>
+									    <li>xE:xx:xx:xx:xx:xx:xx</li>
+									</ul>';
 $help_lang['Cat_Detail_303_head'] = '¿Qué es Nmap y para qué sirve?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap es un escáner de red con diversas capacidades.<br>
                                     Cuando aparece un nuevo dispositivo en tu lista, tienes la opción de obtener información más detallada sobre el dispositivo a través del escaneo de Nmap.

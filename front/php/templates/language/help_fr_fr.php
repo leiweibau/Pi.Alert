@@ -368,7 +368,13 @@ $help_lang['Cat_Detail_302_head_a'] = 'What means ';
 $help_lang['Cat_Detail_302_head_b'] = 'and why can&apos;t I select that?';
 $help_lang['Cat_Detail_302_text'] = 'Some modern devices generate random MAC addresses for privacy reasons, which can no longer be associated with any manufacturer and which change again with each new connection.
 									Pi.Alert detects if it is such a random MAC address and activates this "field" automatically. To disable this behavior you have to look in your device how to disable
-									MAC address randomization.';
+									MAC address randomization. Les adresses MAC avec le schéma suivant sont marquées comme "aléatoires":
+									<ul style="list-style-type: none">
+									    <li>x2:xx:xx:xx:xx:xx:xx</li>
+									    <li>x6:xx:xx:xx:xx:xx:xx</li>
+									    <li>xA:xx:xx:xx:xx:xx:xx</li>
+									    <li>xE:xx:xx:xx:xx:xx:xx</li>
+									</ul>';
 $help_lang['Cat_Detail_303_head'] = 'What is Nmap and what is it for?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap est un scanner réseau avec diverses capacités.<br>
                                     Lorsqu&apos;un nouveau périphérique apparaît dans votre liste, vous avez la possibilité d&apos;obtenir des informations plus détaillées sur le périphérique grâce au scan Nmap.

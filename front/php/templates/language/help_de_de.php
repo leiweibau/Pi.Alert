@@ -376,7 +376,13 @@ $help_lang['Cat_Detail_302_head_a'] = 'Was bedeutet ';
 $help_lang['Cat_Detail_302_head_b'] = ' und warum kann ich das nicht auswählen?';
 $help_lang['Cat_Detail_302_text'] = 'Einige moderne Geräte generieren aus Datenschutzgründen zufällige MAC-Adressen, die keinem Hersteller mehr zugeordnet werden können und welche sich mit jeder neuen Verbindung wieder ändern.
 									Pi.Alert erkennt, ob es sich um eine solche zufällige MAC-Adresse handelt und aktiviert diese "Feld" automatisch. Um das Verhalten abzustellen, muss du in deinem Endgerät schauen, wie du die
-									MAC-Adressen-Generierung deaktivierst.';
+									MAC-Adressen-Generierung deaktivierst. MAC-Adressen mit folgendem Schema werden als "zufällig" markiert:
+									<ul style="list-style-type: none">
+										<li>x2:xx:xx:xx:xx:xx:xx</li>
+										<li>x6:xx:xx:xx:xx:xx:xx</li>
+										<li>xA:xx:xx:xx:xx:xx:xx</li>
+										<li>xE:xx:xx:xx:xx:xx:xx</li>
+									</ul>';
 $help_lang['Cat_Detail_303_head'] = 'Was ist Nmap und wozu dient es?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap ist ein Netzwerkscanner mit vielfältigen Möglichkeiten.<br>
 									Wenn ein neues Gerät in deiner Liste auftaucht, hast du die Möglichkeit über den Nmap-Scan genauere Informationen über das Gerät zu erhalten. 
