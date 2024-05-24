@@ -118,7 +118,7 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										<tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
 										    <td class="help_table_gen_b">Este campo contiene la contraseña cifrada para la interfaz web. La contraseña no se puede ingresar aquí en texto plano, sino que debe establecerse con <span class="text-maroon help_faq_code">pialert-cli</span>.</td></tr>
 										<tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
-										    <td class="help_table_gen_b">Dirección IP del servidor DNS en la red</td></tr>
+										    <td class="help_table_gen_b">Dirección IP del servidor DNS en la red. Esta entrada es necesaria para intentar resolver un nombre de host en la red.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
 										    <td class="help_table_gen_b">Activa o desactiva la búsqueda automática de actualizaciones de Pi.Alert.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
@@ -142,7 +142,7 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									    <tr><td class="help_table_gen_a">SCAN_ROGUE_DHCP</td>
 										    <td class="help_table_gen_b">Activa la búsqueda de servidores DHCP externos, también conocidos como "rogue". Esta función se utiliza para detectar si hay un servidor DHCP externo en la red que podría tomar el control de la gestión de IP.</td></tr>
 										<tr><td class="help_table_gen_a">DHCP_SERVER_ADDRESS</td>
-										    <td class="help_table_gen_b">Aquí se almacena la dirección IP del servidor DHCP conocido.</td></tr>
+										    <td class="help_table_gen_b">Aquí se almacena la dirección IP del servidor DHCP conocido. Solo se puede registrar UN servidor DHCP.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Mail-Account Settings</td></tr>
@@ -212,23 +212,23 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										    <td class="help_table_gen_b">Sonido de notificación.</td></tr>
 									</table>
 									<table class="help_table_gen">
-			    						<tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
-										<tr><td class="help_table_gen_a">REPORT_NTFY</td>
-										    <td class="help_table_gen_b">Permite habilitar/deshabilitar notificaciones sobre cambios en la red a través de NTFY.</td></tr>
-										<tr><td class="help_table_gen_a">REPORT_NTFY_WEBMON</td>
-										    <td class="help_table_gen_b">Permite habilitar/deshabilitar notificaciones sobre cambios en los servicios web monitoreados a través de NTFY.</td></tr>
-										<tr><td class="help_table_gen_a">NTFY_HOST</td>
-										    <td class="help_table_gen_b">El nombre de host o la dirección IP del servidor NTFY.</td></tr>
-										<tr><td class="help_table_gen_a">NTFY_TOPIC</td>
-										    <td class="help_table_gen_b">El tema o asunto de las notificaciones enviadas a través de NTFY.</td></tr>
-										<tr><td class="help_table_gen_a">NTFY_USER</td>
-										    <td class="help_table_gen_b">El nombre de usuario utilizado para autenticarse en el servidor NTFY.</td></tr>
-										<tr><td class="help_table_gen_a">NTFY_PASSWORD</td>
-										    <td class="help_table_gen_b">La contraseña utilizada para autenticarse en el servidor NTFY.</td></tr>
-										<tr><td class="help_table_gen_a">NTFY_PRIORITY</td>
-										    <td class="help_table_gen_b">La prioridad de las notificaciones enviadas a través de NTFY.</td></tr>
+									    <tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
+									    <tr><td class="help_table_gen_a">REPORT_NTFY</td>
+									        <td class="help_table_gen_b">Activa/Desactiva las notificaciones sobre cambios en la red a través de NTFY</td></tr>
+									    <tr><td class="help_table_gen_a">REPORT_NTFY_WEBMON</td>
+									        <td class="help_table_gen_b">Activa/Desactiva las notificaciones sobre cambios en los servicios web monitorizados a través de NTFY</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_HOST</td>
+									        <td class="help_table_gen_b">El nombre de host o la dirección IP del servidor NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_TOPIC</td>
+									        <td class="help_table_gen_b">El asunto de las notificaciones enviadas a través de NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_USER</td>
+									        <td class="help_table_gen_b">El nombre de usuario utilizado para la autenticación con el servidor NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_PASSWORD</td>
+									        <td class="help_table_gen_b">La contraseña utilizada para la autenticación con el servidor NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_PRIORITY</td>
+									        <td class="help_table_gen_b">Prioridad de las notificaciones enviadas a través de NTFY</td></tr>
 									    <tr><td class="help_table_gen_a">NTFY_CLICKABLE</td>
-									        <td class="help_table_gen_b"></td></tr>
+									        <td class="help_table_gen_b">Activa o desactiva la acción de clic para la notificación.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Shoutrrr</td></tr>
@@ -247,17 +247,17 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">DynDNS and IP</td></tr>
 									    <tr><td class="help_table_gen_a">QUERY_MYIP_SERVER</td>
-									        <td class="help_table_gen_b">    </td></tr>
+									        <td class="help_table_gen_b">URL del servidor que determina y devuelve la IP pública actual.</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_ACTIVE</td>
-											<td class="help_table_gen_b">Habilita/deshabilita el servicio DDNS configurado en Pi.Alert. DDNS, también conocido como DynDNS, te permite actualizar un nombre de dominio con una dirección IP que cambia regularmente. Este servicio es ofrecido por varios proveedores de servicios.</td></tr>
+									        <td class="help_table_gen_b">Activa/Desactiva el servicio DDNS configurado en Pi.Alert. DDNS, también conocido como DynDNS, permite actualizar un nombre de dominio con una dirección IP que cambia regularmente. Este servicio es ofrecido por varios proveedores.</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_DOMAIN</td>
-									        <td class="help_table_gen_b">    </td></tr>
+									        <td class="help_table_gen_b"></td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_USER</td>
-									        <td class="help_table_gen_b">    </td></tr>
+									        <td class="help_table_gen_b">Nombre de usuario</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_PASSWORD</td>
-									        <td class="help_table_gen_b">    </td></tr>
+									        <td class="help_table_gen_b">Contraseña</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_UPDATE_URL</td>
-									        <td class="help_table_gen_b">    </td></tr>
+									        <td class="help_table_gen_b">URL para actualizar la IP actual con el servicio DDNS</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Automatic Speedtest</td></tr>

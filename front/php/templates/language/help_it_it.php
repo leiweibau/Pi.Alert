@@ -114,7 +114,7 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
                                         <tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
                                             <td class="help_table_gen_b">Questo campo contiene la password "hashata" per l&apos;interfaccia web. La password non può essere inserita in chiaro qui ma deve essere impostata tramite <span class="text-maroon help_faq_code">pialert-cli</span>.</td></tr>
 										<tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
-										    <td class="help_table_gen_b">Indirizzo IP del server DNS nella rete</td></tr>
+										    <td class="help_table_gen_b">Indirizzo IP del server DNS nella rete. Questa voce è necessaria per tentare di risolvere un nome host nella rete.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
 										    <td class="help_table_gen_b">Attiva o disattiva la ricerca automatica degli aggiornamenti di Pi.Alert.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
@@ -138,7 +138,7 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
                                         <tr><td class="help_table_gen_a">SCAN_ROGUE_DHCP</td>
                                             <td class="help_table_gen_b">Attiva la ricerca di server DHCP "rogue" (sconosciuti). Questa funzione serve a rilevare la presenza di un server DHCP sconosciuto nella rete, che potrebbe assumere il controllo della gestione degli indirizzi IP.</td></tr>
                                         <tr><td class="help_table_gen_a">DHCP_SERVER_ADDRESS</td>
-                                            <td class="help_table_gen_b">Qui viene inserito l&apos;indirizzo IP del server DHCP noto.</td></tr>
+                                            <td class="help_table_gen_b">Qui viene inserito l&apos;indirizzo IP del server DHCP noto. Può essere registrato solo UN server DHCP.</td></tr>
                                     </table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">Impostazioni dell&apos;account e-mail</td></tr>
@@ -211,25 +211,25 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
 										<tr><td class="help_table_gen_a">PUSHOVER_SOUND</td>
 										    <td class="help_table_gen_b">Suono di notifica.</td></tr>
                                     </table>
-                                    <table class="help_table_gen">
-                                        <tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
-                                        <tr><td class="help_table_gen_a">REPORT_NTFY</td>
-                                            <td class="help_table_gen_b">Attiva o disattiva le notifiche sulle modifiche di rete tramite NTFY.</td></tr>
-                                        <tr><td class="help_table_gen_a">REPORT_NTFY_WEBMON</td>
-                                            <td class="help_table_gen_b">Attiva o disattiva le notifiche sulle modifiche dei servizi web monitorati tramite NTFY.</td></tr>
-                                        <tr><td class="help_table_gen_a">NTFY_HOST</td>
-                                            <td class="help_table_gen_b">L&apos;hostname o l&apos;indirizzo IP del server NTFY.</td></tr>
-                                        <tr><td class="help_table_gen_a">NTFY_TOPIC</td>
-                                            <td class="help_table_gen_b">Il soggetto delle notifiche inviate tramite NTFY.</td></tr>
-                                        <tr><td class="help_table_gen_a">NTFY_USER</td>
-                                            <td class="help_table_gen_b">Il nome utente utilizzato per l&apos;autenticazione presso il server NTFY.</td></tr>
-                                        <tr><td class="help_table_gen_a">NTFY_PASSWORD</td>
-                                            <td class="help_table_gen_b">La password utilizzata per l&apos;autenticazione presso il server NTFY.</td></tr>
-                                        <tr><td class="help_table_gen_a">NTFY_PRIORITY</td>
-                                            <td class="help_table_gen_b">La priorità delle notifiche inviate tramite NTFY.</td></tr>
+									<table class="help_table_gen">
+									    <tr><td class="help_table_gen_section" colspan="2">NTFY</td></tr>
+									    <tr><td class="help_table_gen_a">REPORT_NTFY</td>
+									        <td class="help_table_gen_b">Abilita/Disabilita le notifiche sui cambiamenti nella rete tramite NTFY</td></tr>
+									    <tr><td class="help_table_gen_a">REPORT_NTFY_WEBMON</td>
+									        <td class="help_table_gen_b">Abilita/Disabilita le notifiche sui cambiamenti dei servizi web monitorati tramite NTFY</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_HOST</td>
+									        <td class="help_table_gen_b">Il nome host o l&apos;indirizzo IP del server NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_TOPIC</td>
+									        <td class="help_table_gen_b">L&apos;oggetto delle notifiche inviate tramite NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_USER</td>
+									        <td class="help_table_gen_b">Il nome utente utilizzato per l&apos;autenticazione con il server NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_PASSWORD</td>
+									        <td class="help_table_gen_b">La password utilizzata per l&apos;autenticazione con il server NTFY.</td></tr>
+									    <tr><td class="help_table_gen_a">NTFY_PRIORITY</td>
+									        <td class="help_table_gen_b">Priorità delle notifiche inviate tramite NTFY</td></tr>
 									    <tr><td class="help_table_gen_a">NTFY_CLICKABLE</td>
-									        <td class="help_table_gen_b"></td></tr>
-                                    </table>
+									        <td class="help_table_gen_b">Abilita o disabilita l&apos;azione di clic per la notifica.</td></tr>
+									</table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">Shoutrrr</td></tr>
                                         <tr><td class="help_table_gen_a">SHOUTRRR_BINARY</td>
@@ -246,19 +246,19 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
 
 									</table>
 									<table class="help_table_gen">
-									    <tr><td class="help_table_gen_section" colspan="2">DynDNS e IP</td></tr>
+									    <tr><td class="help_table_gen_section" colspan="2">DynDNS and IP</td></tr>
 									    <tr><td class="help_table_gen_a">QUERY_MYIP_SERVER</td>
-									        <td class="help_table_gen_b">URL del server che recupera e restituisce l&apos;indirizzo IP pubblico corrente</td></tr>
+									        <td class="help_table_gen_b">URL del server che determina e restituisce l&apos;attuale IP pubblico.</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_ACTIVE</td>
-									        <td class="help_table_gen_b">Attiva/Disattiva il servizio DDNS configurato in Pi.Alert. Il DDNS, noto anche come DynDNS, consente di aggiornare un nome di dominio con un indirizzo IP che cambia dinamicamente. Diversi fornitori di servizi offrono questo servizio.</td></tr>
+									        <td class="help_table_gen_b">Abilita/Disabilita il servizio DDNS configurato in Pi.Alert. DDNS, noto anche come DynDNS, consente di aggiornare un nome di dominio con un indirizzo IP che cambia regolarmente. Questo servizio è fornito da vari fornitori.</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_DOMAIN</td>
-									        <td class="help_table_gen_b">Dominio DDNS</td></tr>
+									        <td class="help_table_gen_b"></td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_USER</td>
 									        <td class="help_table_gen_b">Nome utente</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_PASSWORD</td>
 									        <td class="help_table_gen_b">Password</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_UPDATE_URL</td>
-									        <td class="help_table_gen_b">URL di aggiornamento DDNS</td></tr>
+									        <td class="help_table_gen_b">URL per aggiornare l&apos;IP attuale con il servizio DDNS</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Automatic Speedtest</td></tr>

@@ -117,7 +117,7 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									    <tr><td class="help_table_gen_a">PIALERT_WEB_PASSWORD</td>
 									        <td class="help_table_gen_b">Dieses Feld beinhaltet das "gehashte" Passwort für die Weboberfläche. Das Passwort kann nicht im Klartext hier eingetragen, sondern muss mit <span class="text-maroon help_faq_code">pialert-cli</span> gesetzt werden</td></tr>
 									    <tr><td class="help_table_gen_a">NETWORK_DNS_SERVER</td>
-									        <td class="help_table_gen_b">IP des DNS-Servers im Netzwerk</td></tr>
+									        <td class="help_table_gen_b">IP des DNS-Servers im Netzwerk. Dieser Eintrag wird benötigt um zu versuchen einen Hostnamen im Netzwerk zu ermitteln.</td></tr>
 									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
 									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die automatische Suche nach Pi.Alert Updates.</td></tr>
 									    <tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
@@ -141,7 +141,7 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									    <tr><td class="help_table_gen_a">SCAN_ROGUE_DHCP</td>
 									        <td class="help_table_gen_b">Aktiviert die Suche nach fremden, auch "rogue" genannt, DHCP Servern. Diese Funktion dient dazu, zu erkennen, ob sich ein fremder DHCP Server im Netzwerk befindet, welcher die Kontrolle über die IP Verwaltung übernehmen könnte.</td></tr>
 									    <tr><td class="help_table_gen_a">DHCP_SERVER_ADDRESS</td>
-									        <td class="help_table_gen_b">Hier wird die IP des bekannten DHCP Servers hinterlegt.</td></tr>
+									        <td class="help_table_gen_b">Hier wird die IP des bekannten DHCP Servers hinterlegt. Es kann nur EIN DHCP Server eingetragen werden.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Mail-Account Settings</td></tr>
@@ -260,7 +260,7 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									    <tr><td class="help_table_gen_a">DDNS_PASSWORD</td>
 									        <td class="help_table_gen_b">Passwort</td></tr>
 									    <tr><td class="help_table_gen_a">DDNS_UPDATE_URL</td>
-									        <td class="help_table_gen_b">    </td></tr>
+									        <td class="help_table_gen_b">URL zur Aktualisierung der aktuellen IP beim DDNS Service</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Automatic Speedtest</td></tr>
