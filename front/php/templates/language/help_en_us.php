@@ -379,10 +379,10 @@ $help_lang['Cat_Detail_302_text'] = 'Some modern devices generate random MAC add
 									Pi.Alert detects if it is such a random MAC address and activates this "field" automatically. To disable this behavior you have to look in your device how to disable
 									MAC address randomization. MAC addresses with the following scheme are marked as "random":
 									<ul style="list-style-type: none">
-									    <li>x2:xx:xx:xx:xx:xx:xx</li>
-									    <li>x6:xx:xx:xx:xx:xx:xx</li>
-									    <li>xA:xx:xx:xx:xx:xx:xx</li>
-									    <li>xE:xx:xx:xx:xx:xx:xx</li>
+									    <li>x2:xx:xx:xx:xx:xx</li>
+									    <li>x6:xx:xx:xx:xx:xx</li>
+									    <li>xA:xx:xx:xx:xx:xx</li>
+									    <li>xE:xx:xx:xx:xx:xx</li>
 									</ul>';
 $help_lang['Cat_Detail_303_head'] = 'What is Nmap and what is it for?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap is a network scanner with various capabilities.<br>

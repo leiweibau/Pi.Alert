@@ -183,9 +183,7 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									        <td class="help_table_gen_b">URL der Pi.Alert Installation, um einen klickbaren Link in der eMail erzeugen zu können.</td></tr>
 									</table>
 									<table class="help_table_gen">
-									    <tr>
-									        <td class="help_table_gen_section" colspan="2">Pushsafer</td>
-									    </tr>
+									    <tr><td class="help_table_gen_section" colspan="2">Pushsafer</td></tr>
 									    <tr><td class="help_table_gen_a">REPORT_PUSHSAFER</td>
 									        <td class="help_table_gen_b">Aktiviert/Deaktiviert die Benachrichtigungen über Änderungen im Netzwerk via Pushsafer</td></tr>
 									    <tr><td class="help_table_gen_a">REPORT_PUSHSAFER_WEBMON</td>
@@ -378,10 +376,10 @@ $help_lang['Cat_Detail_302_text'] = 'Einige moderne Geräte generieren aus Daten
 									Pi.Alert erkennt, ob es sich um eine solche zufällige MAC-Adresse handelt und aktiviert diese "Feld" automatisch. Um das Verhalten abzustellen, muss du in deinem Endgerät schauen, wie du die
 									MAC-Adressen-Generierung deaktivierst. MAC-Adressen mit folgendem Schema werden als "zufällig" markiert:
 									<ul style="list-style-type: none">
-										<li>x2:xx:xx:xx:xx:xx:xx</li>
-										<li>x6:xx:xx:xx:xx:xx:xx</li>
-										<li>xA:xx:xx:xx:xx:xx:xx</li>
-										<li>xE:xx:xx:xx:xx:xx:xx</li>
+										<li>x2:xx:xx:xx:xx:xx</li>
+										<li>x6:xx:xx:xx:xx:xx</li>
+										<li>xA:xx:xx:xx:xx:xx</li>
+										<li>xE:xx:xx:xx:xx:xx</li>
 									</ul>';
 $help_lang['Cat_Detail_303_head'] = 'Was ist Nmap und wozu dient es?';
 $help_lang['Cat_Detail_303_text'] = 'Nmap ist ein Netzwerkscanner mit vielfältigen Möglichkeiten.<br>
