@@ -305,7 +305,7 @@ def create_autobackup(start_time, crontab_string):
             # Cleanup
             bak_files = glob.glob(os.path.join(PIALERT_DB_PATH, "pialertdb_20*.zip"))
             bak_files.sort(key=os.path.getmtime, reverse=True)
-            for file in bak_files[5:]:
+            for file in bak_files[AUTO_DB_BACKUP_KEEP:]:
                 os.remove(file)
             print(f"    Cleanup DB Backups")
 
@@ -1797,7 +1797,17 @@ def rogue_dhcp_detection():
     for _ in range(dhcp_probes):
         stream = os.popen('sudo nmap --script broadcast-dhcp-discover 2>/dev/null | grep "Server Identifier" | awk \'{ print $4 }\'')
         output = stream.read()
-        dhcp_server_list.append(output.replace("\n", ""))
+        # dhcp_server_list.append(output.replace("\n", ""))
+
+        multiple_dhcp_ips = output.split("\n")
+
+        if multiple_dhcp_ips:
+            dhcp_server_list.append(multiple_dhcp_ips[0])
+
+        for multiple_dhcp in multiple_dhcp_ips[1:]:
+            # Condition to prevent empty entries in the database
+            if len(multiple_dhcp) >= 7:
+                dhcp_server_list.append(multiple_dhcp)
 
     for i in range(len(dhcp_server_list)):
         # Insert list in database
@@ -1805,8 +1815,10 @@ def rogue_dhcp_detection():
                          (scan_num, dhcp_server) 
                          VALUES (?, ?);"""
 
-        table_data = (i, dhcp_server_list[i])
-        sql.execute(sqlite_insert, table_data)
+        # Redundant condition to prevent empty entries in the database
+        if len(dhcp_server_list[i]) >= 7:
+            table_data = (i, dhcp_server_list[i])
+            sql.execute(sqlite_insert, table_data)
     
     sql_connection.commit()
 

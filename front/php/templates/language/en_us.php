@@ -216,6 +216,7 @@ $pia_lang['DevDetail_MainInfo_Comments'] = 'Comments';
 $pia_lang['DevDetail_MainInfo_Network'] = 'Uplink Target';
 $pia_lang['DevDetail_MainInfo_Network_Port'] = 'Target Port Number';
 $pia_lang['DevDetail_MainInfo_Network_ConnectType'] = 'Connection Type';
+$pia_lang['DevDetail_MainInfo_Network_LinkSpeed'] = 'Link Speed';
 $pia_lang['DevDetail_SessionInfo_Title'] = 'Session Info';
 $pia_lang['DevDetail_SessionInfo_Status'] = 'Status';
 $pia_lang['DevDetail_SessionInfo_FirstSession'] = 'First Session';

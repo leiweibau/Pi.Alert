@@ -286,9 +286,12 @@ if ($_REQUEST['mod'] == 'bulkedit') {
                     <button type="button" id="bulk_connectiontype_selector" name="bulk_connectiontype_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
                       <span class="fa fa-caret-down"></span></button>
                     <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right">
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'Ethernet\')">    Ethernet</a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'WiFi\')">    WiFi</a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'Bluetooth\')">    Bluetooth</a></li>
+                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'Ethernet\')">        Ethernet</a></li>
+                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'Fibre\')">           Fibre</a></li>
+                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'WiFi\')">            WiFi</a></li>
+                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'Bluetooth\')">       Bluetooth</a></li>
+                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'Virtual Machine\')"> Virtual Machine</a></li>
+                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_connectiontype\',\'Container\')">       Container</a></li>
                     </ul>
                   </div>
                 </div>

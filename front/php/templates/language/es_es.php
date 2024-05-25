@@ -217,6 +217,7 @@ $pia_lang['DevDetail_MainInfo_Comments'] = 'Comentario';
 $pia_lang['DevDetail_MainInfo_Network'] = 'Hardware de Red (ID)';
 $pia_lang['DevDetail_MainInfo_Network_Port'] = 'Puerto de Red HW';
 $pia_lang['DevDetail_MainInfo_Network_ConnectType'] = 'Connection Type';
+$pia_lang['DevDetail_MainInfo_Network_LinkSpeed'] = 'Link Speed';
 $pia_lang['DevDetail_SessionInfo_Title'] = 'Información de sesión';
 $pia_lang['DevDetail_SessionInfo_Status'] = 'Estado';
 $pia_lang['DevDetail_SessionInfo_FirstSession'] = '1ra. sesión';
