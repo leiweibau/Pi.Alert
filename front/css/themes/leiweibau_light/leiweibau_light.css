@@ -331,7 +331,7 @@ pre {
   padding: 2px 4px;
   font-size: 90%;
   color: #4A4B50;
-  background-color: #353c42;
+  background-color: rgba(255, 255, 255, 0.4);
   border-radius: 4px;
 }
 
