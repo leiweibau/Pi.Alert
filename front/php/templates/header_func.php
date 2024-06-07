@@ -171,6 +171,14 @@ function convert_state($state, $revert) {
 		if ($state != 1) {return $pia_lang['Gen_off'];} else {return $pia_lang['Gen_on'];}
 	}
 }
+function convert_state_action($state, $revert) {
+	global $pia_lang;
+	if ($revert == 1) {
+		if ($state == 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
+	} elseif ($revert == 0) {
+		if ($state != 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
+	}
+}
 // Top Navbar - Back button for details pages
 function insert_back_button() {
 	$pagename = basename($_SERVER['PHP_SELF']);

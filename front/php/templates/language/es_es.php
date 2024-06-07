@@ -26,6 +26,8 @@ $pia_lang['Gen_Save'] = 'Salvar';
 $pia_lang['Gen_Close'] = 'Cerrar';
 $pia_lang['Gen_on'] = 'On';
 $pia_lang['Gen_off'] = 'Off';
+$pia_lang['Gen_activate'] = 'enable';
+$pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
 // Login Page - Update by @TeroRERO 03ago2022
 //////////////////////////////////////////////////////////////////

@@ -239,21 +239,21 @@ if ($_SESSION['Scan_WebServices'] == True) {
 <!-- Toggle Main Scan ----------------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($_SESSION['Scan_MainScan'], 1);?>
+                                	<?php $state = convert_state_action($_SESSION['Scan_MainScan'], 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableMainScanMon" onclick="askEnableMainScan()"><?=$pia_lang['Maintenance_Tool_mainscan'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Web Service Monitoring ---------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($_SESSION['Scan_WebServices'], 1);?>
+                                	<?php $state = convert_state_action($_SESSION['Scan_WebServices'], 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableWebServiceMon" onclick="askEnableWebServiceMon()"><?=$pia_lang['Maintenance_Tool_webservicemon'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle ICMP Monitoring ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($_SESSION['ICMPScan'], 1);?>
+                                	<?php $state = convert_state_action($_SESSION['ICMPScan'], 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableICMPMon" onclick="askEnableICMPMon()"><?=$pia_lang['Maintenance_Tool_icmpmon'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
@@ -380,14 +380,14 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
 <!-- Toggle DarkMode ------------------------------------------------------ -->
                             <div class="settings_button_wrapper" id="Darkmode_button_container">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($ENABLED_DARKMODE, 1);?>
+                                	<?php $state = convert_state_action($ENABLED_DARKMODE, 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableDarkmode" onclick="askEnableDarkmode()"><?=$pia_lang['Maintenance_Tool_darkmode'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle History Graph ------------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($ENABLED_HISTOY_GRAPH, 1);?>
+                                	<?php $state = convert_state_action($ENABLED_HISTOY_GRAPH, 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableOnlineHistoryGraph" onclick="askEnableOnlineHistoryGraph()"><?=$pia_lang['Maintenance_Tool_onlinehistorygraph'] . '<br>' . $state;?></button>
                                 </div>
                             </div>

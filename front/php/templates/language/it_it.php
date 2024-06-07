@@ -26,6 +26,8 @@ $pia_lang['Gen_Save'] = 'Salva';
 $pia_lang['Gen_Close'] = 'Chiudi';
 $pia_lang['Gen_on'] = 'Acceso';
 $pia_lang['Gen_off'] = 'Spento';
+$pia_lang['Gen_activate'] = 'enable';
+$pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
 // Login Page
 //////////////////////////////////////////////////////////////////
