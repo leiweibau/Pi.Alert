@@ -171,6 +171,14 @@ function convert_state($state, $revert) {
 		if ($state != 1) {return $pia_lang['Gen_off'];} else {return $pia_lang['Gen_on'];}
 	}
 }
+function convert_state_action($state, $revert) {
+	global $pia_lang;
+	if ($revert == 1) {
+		if ($state == 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
+	} elseif ($revert == 0) {
+		if ($state != 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
+	}
+}
 // Top Navbar - Back button for details pages
 function insert_back_button() {
 	$pagename = basename($_SERVER['PHP_SELF']);
@@ -382,7 +390,7 @@ function print_logviewer_modal_head($id, $title) {
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span></button>
-                    <h4 class="modal-title">Viewer: ' . $title . '</h4>
+                    <h4 class="modal-title">' . $title . '</h4>
                 </div>
                 <div class="modal-body main_logviwer_text_layout">
                     <div class="main_logviwer_log" style="max-height: 70vh;" id="modal_'.$id.'_content">';

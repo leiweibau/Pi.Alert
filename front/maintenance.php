@@ -203,22 +203,25 @@ if ($_SESSION['Scan_WebServices'] == True) {
 <?php
 // Log Viewer - Modals
 // Scan
-print_logviewer_modal_head('scan', 'pialert.1.log (File)');
+print_logviewer_modal_head('scan', 'pialert.1.log');
 print_logviewer_modal_foot();
 // // Internet IP
-print_logviewer_modal_head('iplog', 'pialert.IP.log (File)');
+print_logviewer_modal_head('iplog', 'pialert.IP.log');
 print_logviewer_modal_foot();
 // // Vendor Update
-print_logviewer_modal_head('vendor', 'pialert.vendors.log (File)');
+print_logviewer_modal_head('vendor', 'pialert.vendors.log');
 print_logviewer_modal_foot();
 // // Cleanup
-print_logviewer_modal_head('cleanup', 'pialert.cleanup.log (File)');
+print_logviewer_modal_head('cleanup', 'pialert.cleanup.log');
 print_logviewer_modal_foot();
 // // WebServices
 if ($_SESSION['Scan_WebServices'] == True) {
- 	print_logviewer_modal_head('webservices', 'pialert.webservices.log (File)');
+ 	print_logviewer_modal_head('webservices', 'pialert.webservices.log');
  	print_logviewer_modal_foot();
 }
+// // Inactive Hosts
+print_logviewer_modal_head('inactivehosts', 'Inactive Hosts');
+print_logviewer_modal_foot();
 ?>
 
 <!-- Tabs ----------------------------------------------------------------- -->
@@ -239,21 +242,21 @@ if ($_SESSION['Scan_WebServices'] == True) {
 <!-- Toggle Main Scan ----------------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($_SESSION['Scan_MainScan'], 1);?>
+                                	<?php $state = convert_state_action($_SESSION['Scan_MainScan'], 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableMainScanMon" onclick="askEnableMainScan()"><?=$pia_lang['Maintenance_Tool_mainscan'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Web Service Monitoring ---------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($_SESSION['Scan_WebServices'], 1);?>
+                                	<?php $state = convert_state_action($_SESSION['Scan_WebServices'], 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableWebServiceMon" onclick="askEnableWebServiceMon()"><?=$pia_lang['Maintenance_Tool_webservicemon'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle ICMP Monitoring ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($_SESSION['ICMPScan'], 1);?>
+                                	<?php $state = convert_state_action($_SESSION['ICMPScan'], 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableICMPMon" onclick="askEnableICMPMon()"><?=$pia_lang['Maintenance_Tool_icmpmon'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
@@ -380,14 +383,14 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
 <!-- Toggle DarkMode ------------------------------------------------------ -->
                             <div class="settings_button_wrapper" id="Darkmode_button_container">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($ENABLED_DARKMODE, 1);?>
+                                	<?php $state = convert_state_action($ENABLED_DARKMODE, 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableDarkmode" onclick="askEnableDarkmode()"><?=$pia_lang['Maintenance_Tool_darkmode'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle History Graph ------------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                	<?php $state = convert_state($ENABLED_HISTOY_GRAPH, 1);?>
+                                	<?php $state = convert_state_action($ENABLED_HISTOY_GRAPH, 1);?>
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableOnlineHistoryGraph" onclick="askEnableOnlineHistoryGraph()"><?=$pia_lang['Maintenance_Tool_onlinehistorygraph'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
@@ -597,7 +600,7 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                     <div class="db_tools_table_cell_a">
                         <button type="button" class="btn btn-default dbtools-button" id="btnDeleteInactiveHosts" onclick="askDeleteInactiveHosts()"><?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts'];?></button>
                     </div>
-                    <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts_text'];?></div>
+                    <div class="db_tools_table_cell_b"><?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts_text'];?> <a href="#" data-toggle="modal" data-target="#modal-logviewer-inactivehosts"><i class="bi bi-info-circle text-aqua" style=""></i></a></div>
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_tools_table_cell_a">
@@ -1168,6 +1171,14 @@ function GetModalLogContent() {
   } );
 }
 
+function GetModalInactiveHosts() {
+  $.get('php/server/devices.php?action=ListInactiveHosts', function(data) {
+    var logcollection = JSON.parse(data);
+
+    $('#modal_inactivehosts_content').html(logcollection[0].toLocaleString());
+  } );
+}
+
 function UpdateStatusBox() {
 	GetModalLogContent();
 	GetARPStatus();
@@ -1179,6 +1190,7 @@ setInterval(UpdateStatusBox, 15000);
 GetModalLogContent();
 GetARPStatus();
 GetAutoBackupStatus();
+GetModalInactiveHosts();
 startCountdown();
 </script>
 

@@ -165,9 +165,9 @@ def check_pialert_countdown():
             sql_connection.commit()
         else:
             print(f"Timer Start: {time.ctime(FILETIME)}")
-            # Check 1min before cowntdown ends
+            # Check 1min before countdown ends
             # Delete stop file 1 min before countdown ends
-            print(f"Timer Ende : {time.ctime(STOPTIME+60)}")
+            print(f"Timer End  : {time.ctime(STOPTIME+60)}")
             print("----------------------------------------")
             print("Timer still running")
 

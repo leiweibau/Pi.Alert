@@ -58,6 +58,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'DeleteInactiveHosts':DeleteInactiveHosts();
 		break;
+	case 'ListInactiveHosts':ListInactiveHosts();
+		break;
 	case 'wakeonlan':wakeonlan();
 		break;
 	case 'BulkDeletion':BulkDeletion();
@@ -743,6 +745,21 @@ function DeleteInactiveHosts() {
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0014', '', '');
 	}
+}
+
+//  List Inactive Hosts
+function ListInactiveHosts() {
+	global $pia_lang;
+	global $db;
+
+	$i=1;
+	$sql = 'SELECT * FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day")';
+	$result = $db->query($sql);
+	while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
+		$inactive_hosts[0] .= $i .'.&nbsp;&nbsp;&nbsp;'.$res['dev_Name'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_MAC'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_LastConnection'] ."<br>";
+		$i++;
+	}
+	echo (json_encode($inactive_hosts));
 }
 
 //  Delete All Notification in WebGUI

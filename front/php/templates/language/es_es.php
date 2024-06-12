@@ -26,6 +26,8 @@ $pia_lang['Gen_Save'] = 'Salvar';
 $pia_lang['Gen_Close'] = 'Cerrar';
 $pia_lang['Gen_on'] = 'On';
 $pia_lang['Gen_off'] = 'Off';
+$pia_lang['Gen_activate'] = 'enable';
+$pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
 // Login Page - Update by @TeroRERO 03ago2022
 //////////////////////////////////////////////////////////////////
@@ -233,8 +235,8 @@ $pia_lang['DevDetail_EveandAl_Skip'] = 'Omitir notificaciones repetidas durante'
 $pia_lang['DevDetail_EveandAl_NewDevice'] = 'Nuevo dispositivo';
 $pia_lang['DevDetail_EveandAl_Archived'] = 'Archivada';
 $pia_lang['DevDetail_EveandAl_RandomMAC'] = 'MAC al azar';
-$pia_lang['DevDetail_EveandAl_ScanCycle_a'] = 'Escanear Dispositivo (1 min)';
-$pia_lang['DevDetail_EveandAl_ScanCycle_z'] = 'No Escanear Dispositivo (0 min)';
+$pia_lang['DevDetail_EveandAl_ScanCycle_a'] = 'Escanear Dispositivo (1)';
+$pia_lang['DevDetail_EveandAl_ScanCycle_z'] = 'No Escanear Dispositivo (0)';
 $pia_lang['DevDetail_button_Delete'] = 'Eliminar dispositivo';
 $pia_lang['DevDetail_button_Delete_Warning'] = '¿Estás seguro de que quieres borrar este dispositivo?<br>(tal vez prefieras archivarlo)';
 $pia_lang['DevDetail_button_DeleteEvents'] = 'Eliminar eventos';

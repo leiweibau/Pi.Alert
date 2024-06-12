@@ -409,9 +409,9 @@ if ($_REQUEST['mac'] == 'Internet') {
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="dropdownButtonScanCycle">
                                 <span class="fa fa-caret-down"></span></button>
                               <ul id="dropdownScanCycle" class="dropdown-menu dropdown-menu-right">
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtScanCycle','1 min')"><?=$pia_lang['DevDetail_EveandAl_ScanCycle_a'];?></a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtScanCycle','1')"><?=$pia_lang['DevDetail_EveandAl_ScanCycle_a'];?></a></li>
                                 <!-- <li><a href="javascript:void(0)" onclick="setTextValue('txtScanCycle','15 min');"> Scan 12 min every 15 min</a></li> -->
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtScanCycle','0 min');"><?=$pia_lang['DevDetail_EveandAl_ScanCycle_z'];?></a></li>
+                                <li><a href="javascript:void(0)" onclick="setTextValue('txtScanCycle','0');"><?=$pia_lang['DevDetail_EveandAl_ScanCycle_z'];?></a></li>
                               </ul>
                             </div>
                           </div>
@@ -1376,7 +1376,7 @@ function getDeviceData (readAllData=false) {
         $('#txtStatus').val                          (deviceData['dev_Status'].replace('-', ''));
         if (deviceData['dev_StaticIP'] == 1)         {$('#chkStaticIP').iCheck('check');}    else {$('#chkStaticIP').iCheck('uncheck');}
 
-        $('#txtScanCycle').val                       (deviceData['dev_ScanCycle'] +' min');
+        $('#txtScanCycle').val                       (deviceData['dev_ScanCycle']);
         if (deviceData['dev_AlertEvents'] == 1)      {$('#chkAlertEvents').iCheck('check');} else {$('#chkAlertEvents').iCheck('uncheck');}
         if (deviceData['dev_AlertDeviceDown'] == 1)  {$('#chkAlertDown').iCheck('check');}   else {$('#chkAlertDown').iCheck('uncheck');}
         $('#txtSkipRepeated').val                    (findSkipRepeated (deviceData['dev_SkipRepeated']));
@@ -1492,7 +1492,7 @@ function setDeviceData (refreshCallback='') {
     + '&connectiontype='  + $('#txtConnectionType').val()
     + '&linkspeed='       + $('#txtLinkSpeed').val()
     + '&staticIP='        + ($('#chkStaticIP')[0].checked * 1)
-    + '&scancycle='       + $('#txtScanCycle').val().split(' ')[0]
+    + '&scancycle='       + $('#txtScanCycle').val()
     + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
     + '&skiprepeated='    + $('#txtSkipRepeated').val().split(' ')[0]

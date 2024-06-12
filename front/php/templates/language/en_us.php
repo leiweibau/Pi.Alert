@@ -26,6 +26,8 @@ $pia_lang['Gen_Save'] = 'Save';
 $pia_lang['Gen_Close'] = 'Close';
 $pia_lang['Gen_on'] = 'On';
 $pia_lang['Gen_off'] = 'Off';
+$pia_lang['Gen_activate'] = 'enable';
+$pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
 // Login Page
 //////////////////////////////////////////////////////////////////
@@ -232,8 +234,8 @@ $pia_lang['DevDetail_EveandAl_Skip'] = 'Skip repeated notifications during';
 $pia_lang['DevDetail_EveandAl_NewDevice'] = 'New Device';
 $pia_lang['DevDetail_EveandAl_Archived'] = 'Archived';
 $pia_lang['DevDetail_EveandAl_RandomMAC'] = 'Random MAC';
-$pia_lang['DevDetail_EveandAl_ScanCycle_a'] = 'Scan Device (1 min)';
-$pia_lang['DevDetail_EveandAl_ScanCycle_z'] = 'Don&#39;t Scan Device (0 min)';
+$pia_lang['DevDetail_EveandAl_ScanCycle_a'] = 'Scan Device (1)';
+$pia_lang['DevDetail_EveandAl_ScanCycle_z'] = 'Don&#39;t Scan Device (0)';
 $pia_lang['DevDetail_button_Delete'] = 'Delete Device';
 $pia_lang['DevDetail_button_Delete_Warning'] = 'Are you sure you want to delete this device?<br>(maybe you prefer to archive it)';
 $pia_lang['DevDetail_button_DeleteEvents'] = 'Delete Events';

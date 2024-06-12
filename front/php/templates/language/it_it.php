@@ -26,6 +26,8 @@ $pia_lang['Gen_Save'] = 'Salva';
 $pia_lang['Gen_Close'] = 'Chiudi';
 $pia_lang['Gen_on'] = 'Acceso';
 $pia_lang['Gen_off'] = 'Spento';
+$pia_lang['Gen_activate'] = 'enable';
+$pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
 // Login Page
 //////////////////////////////////////////////////////////////////
@@ -232,8 +234,8 @@ $pia_lang['DevDetail_EveandAl_Skip'] = 'Sospendi notifiche ripetute per';
 $pia_lang['DevDetail_EveandAl_NewDevice'] = 'Nuovo dispositivo';
 $pia_lang['DevDetail_EveandAl_Archived'] = 'Archiviato';
 $pia_lang['DevDetail_EveandAl_RandomMAC'] = 'MAC casuale';
-$pia_lang['DevDetail_EveandAl_ScanCycle_a'] = 'Scansione dispositivo (1 min)';
-$pia_lang['DevDetail_EveandAl_ScanCycle_z'] = 'Non scansionare dispositivo (0 min)';
+$pia_lang['DevDetail_EveandAl_ScanCycle_a'] = 'Scansione dispositivo (1)';
+$pia_lang['DevDetail_EveandAl_ScanCycle_z'] = 'Non scansionare dispositivo (0)';
 $pia_lang['DevDetail_button_Delete'] = 'Elimina dispositivo';
 $pia_lang['DevDetail_button_Delete_Warning'] = 'Sei sicuro di voler eliminare questo dispositivo?';
 $pia_lang['DevDetail_button_Reset'] = 'Annulla';
