@@ -354,6 +354,15 @@ h4 {
   background-color: #913225 !important;
 }
 
+.bg-grad-green-yellow {
+  background: rgb(177,114,12);
+  background: radial-gradient(circle, rgba(177,114,12,1) 60%, rgba(0,160,0,1) 90%); 
+}
+.bg-grad-gray-yellow {
+  background: rgb(177,114,12);
+  background: radial-gradient(circle, rgba(177,114,12,1) 60%, rgba(170,170,170,1) 90%); 
+}
+
 code,
 pre {
   padding: 2px 4px;

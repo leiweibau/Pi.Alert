@@ -474,7 +474,8 @@ function getDevicesList() {
 	$condition = getDeviceCondition($_REQUEST['status']);
 	$sql = 'SELECT rowid, *, CASE
             WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
-            WHEN dev_NewDevice=1 THEN "New"
+            WHEN dev_NewDevice=1 AND dev_PresentLastScan=1 THEN "NewON"
+            WHEN dev_NewDevice=1 AND dev_PresentLastScan=0 THEN "NewOFF"
             WHEN dev_PresentLastScan=1 THEN "On-line"
             ELSE "Off-line"
           END AS dev_Status
@@ -753,7 +754,7 @@ function ListInactiveHosts() {
 	global $db;
 
 	$i=1;
-	$sql = 'SELECT * FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day")';
+	$sql = 'SELECT * FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day") ORDER BY dev_LastConnection DESC';
 	$result = $db->query($sql);
 	while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 		$inactive_hosts[0] .= $i .'.&nbsp;&nbsp;&nbsp;'.$res['dev_Name'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_MAC'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_LastConnection'] ."<br>";

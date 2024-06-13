@@ -834,14 +834,15 @@ function initializeDatatable () {
       {targets: [12],
         'createdCell': function (td, cellData, rowData, row, col) {
           switch (rowData[12]) {
-            case 'Down':      color='red';              break;
-            case 'New':       color='yellow';           break;
-            case 'On-line':   color='green';            break;
-            case 'Off-line':  color='gray text-white';  break;
-            case 'Archived':  color='gray text-white';  break;
-            default:          color='aqua';             break;
+            case 'Down':      color='red';                 statusname='Down';       break;
+            case 'NewON':     color='grad-green-yellow';   statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';        break;
+            case 'NewOFF':    color='grad-gray-yellow';    statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';        break;
+            case 'On-line':   color='green';               statusname='Online';     break;
+            case 'Off-line':  color='gray text-white';     statusname='Offline';    break;
+            case 'Archived':  color='gray text-white';     statusname='Archived';   break;
+            default:          color='aqua';                statusname=''; 					break;
           };
-          $(td).html ('<a href="deviceDetails.php?mac='+ rowData[11] +'" class="badge bg-'+ color +'">'+ rowData[12].replace('-', '') +'</a>');
+          $(td).html ('<a href="deviceDetails.php?mac='+ rowData[11] +'" class="badge bg-'+ color +'">'+ statusname +'</a>');
       } },
       // WakeonLAN
       {targets: -1, // last column
