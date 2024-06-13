@@ -104,8 +104,8 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 :bulb: <ins>Additional components and information</ins>
 
  - [Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md) (will be updated if necessary)
- - If you want to use my fork as LXC container, feel free to check out the awesome Helper scripts from [tteck/Proxmox](https://github.com/tteck/Proxmox)
- - Another active developed fork of Pi.Alert based on Docker can be found here: [jokob-sk/Pi.Alert](https://github.com/jokob-sk/Pi.Alert)
+ - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [tteck/Proxmox](https://github.com/tteck/Proxmox)
+ - An initial fork but now independent version of Pi.Alert named NetAlertX based on Docker can be found here: [jokob-sk/NetAlertX](https://github.com/jokob-sk/NetAlertX)
  - The original, but unmaintained, Pi.Alert can be found here [pucherot/Pi.Alert](https://github.com/pucherot/Pi.Alert/)
 
 # Update
