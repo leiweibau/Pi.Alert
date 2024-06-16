@@ -158,6 +158,7 @@ if (get_config_parmeter('ARPSCAN_ACTIVE') == 1) {$_SESSION['Scan_MainScan'] = Tr
 if (get_config_parmeter('AUTO_UPDATE_CHECK') == 1) {$_SESSION['Auto_Update_Check'] = True;} else { $_SESSION['Auto_Update_Check'] = False;}
 if (get_config_parmeter('AUTO_DB_BACKUP') == 1) {$_SESSION['AUTO_DB_BACKUP'] = True;} else { $_SESSION['AUTO_DB_BACKUP'] = False;}
 if (get_config_parmeter('SPEEDTEST_TASK_ACTIVE') == 1) {$_SESSION['SPEEDTEST_TASK_ACTIVE'] = True;} else { $_SESSION['SPEEDTEST_TASK_ACTIVE'] = False;}
+if (get_config_parmeter('SATELLITES_ACTIVE') == 1) {$_SESSION['SATELLITES_ACTIVE'] = True;} else { $_SESSION['SATELLITES_ACTIVE'] = False;}
 $_SESSION['AUTO_UPDATE_CHECK_CRON'] = get_config_parmeter('AUTO_UPDATE_CHECK_CRON');
 $_SESSION['AUTO_DB_BACKUP_CRON'] = get_config_parmeter('AUTO_DB_BACKUP_CRON');
 $_SESSION['SPEEDTEST_TASK_CRON'] = get_config_parmeter('SPEEDTEST_TASK_CRON');
@@ -217,7 +218,11 @@ function get_devices_filter_list() {
 function show_filter_editor() {
 	global $pia_lang;
 	$filter_table = $_SESSION['Filter_Table'];
+	$i=0;
+	$listsize = sizeof($filter_table);
 	foreach ($filter_table as $row) {
+		$i++;
+		$spacer = '<div class="row"><div class="col-xs-12"><hr></div></div>';
 		echo '<div class="row">';
     	echo '<div class="col-md-2 col-md-offset-1">
     			<div class="form-group" style="text-align: left;">
@@ -232,10 +237,11 @@ function show_filter_editor() {
     	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filtergroup'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_group" type="text" value="' . $row['reserve_c'] . '"></div></div>';
     	echo '<div class="col-md-1">
     			<div class="form-group" style="text-align: left;">
-    				<button type="button" class="btn btn-warning btn-block" style="margin-top: 27px;" id="btnSaveFilter_' . $row['id'] . '" onclick="SaveFilterID_' . $row['id'] . '(\'' . $row['filtername'] . '\',\'' . $row['id'] . '\')" ><i class="fa-regular fa-floppy-disk"></i></button>
+    				<button type="button" class="btn btn-link" id="btnSaveFilter_' . $row['id'] . '" onclick="SaveFilterID_' . $row['id'] . '(\'' . $row['filtername'] . '\',\'' . $row['id'] . '\')" ><i class="bi bi-floppy text-yellow" style="position: relative; font-size: 20px; top: 23px;"></i></button>
     			</div>
     		  </div>';
     	echo '</div>';
+    	if ($i<$listsize) {echo $spacer;}
     }
 }
 // Sidebar Menu - Show filter editor from array
@@ -405,6 +411,34 @@ function print_logviewer_modal_foot() {
         </div>
     </div>';
 }
+// Maintenance Page - Satellite List
+function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit) {
+	echo '      <div class="db_info_table_row">
+                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                        Name: <br>
+                        <input class="form-control col-xs-12" type="text" value="'.$sat_name.'" readonly>
+                    </div>
+                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                        Token: <br>
+                        <input class="form-control col-xs-12" type="text" value="'.$sat_token.'" readonly>
+                    </div>
+                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                        Password: <br>
+                        <input class="form-control col-xs-12" type="text" value="'.$sat_password.'" readonly>
+                    </div>
+                    <div class="col-xs-6 col-md-2" style="padding: 5px;">
+                        Last Update: <br>
+                        <input class="form-control col-xs-12" type="text" value="'.$sat_last_transmit.'" readonly>
+                    </div>
+                    <div class="col-xs-6 col-md-1 text-right" style="padding: 5px;">
+                        Action: <br>
+                        <button type="button" class="btn btn-link"><i class="bi bi-trash text-danger" style="position: relative; font-size: 20px; top: -5px;"></i></button>
+                    </div>
+                </div>';
+
+}
+
+
 // Devicelist, ICMP Monitor - Enable Arp Histroy Graph
 if (file_exists('../config/setting_noonlinehistorygraph')) {$ENABLED_HISTOY_GRAPH = False;} else { $ENABLED_HISTOY_GRAPH = True;}
 // Theme - If Theme is used, hide Darkmode Button

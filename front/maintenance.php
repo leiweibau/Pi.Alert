@@ -81,29 +81,22 @@ if (sizeof($LATEST_FILES) == 0) {
 // Set Tab --------------------------------------------------------------------
 if ($_REQUEST['tab'] == '1') {
 	$pia_tab_setting = 'active';
-	$pia_tab_tool = '';
-	$pia_tab_backup = '';
-	$pia_tab_gui = '';
+	$pia_tab_tool = $pia_tab_backup = $pia_tab_satellites = $pia_tab_gui = '';
 } elseif ($_REQUEST['tab'] == '2') {
-	$pia_tab_setting = '';
 	$pia_tab_tool = 'active';
-	$pia_tab_backup = '';
-	$pia_tab_gui = '';
+	$pia_tab_setting = $pia_tab_backup = $pia_tab_satellites = $pia_tab_gui = '';
 } elseif ($_REQUEST['tab'] == '3') {
-	$pia_tab_setting = '';
-	$pia_tab_tool = '';
+	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_gui = '';
 	$pia_tab_backup = 'active';
-	$pia_tab_gui = '';
 } elseif ($_REQUEST['tab'] == '4') {
-	$pia_tab_setting = '';
-	$pia_tab_tool = '';
-	$pia_tab_backup = '';
+	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_backup = '';
 	$pia_tab_gui = 'active';
+} elseif ($_REQUEST['tab'] == '5') {
+    $pia_tab_setting = $pia_tab_tool = $pia_tab_backup = $pia_tab_gui = '';
+    $pia_tab_satellites = 'active';
 } else {
 	$pia_tab_setting = 'active';
-	$pia_tab_tool = '';
-	$pia_tab_backup = '';
-	$pia_tab_gui = '';}
+	$pia_tab_tool = $pia_tab_backup = $pia_tab_gui = $pia_tab_satellites = '';}
 ?>
 
     <div class="row">
@@ -231,6 +224,14 @@ print_logviewer_modal_foot();
         <li class="<?=$pia_tab_gui?>"><a href="#tab_GUI" data-toggle="tab" onclick="update_tabURL(window.location.href,'4')"><?=$pia_lang['Maintenance_Tools_Tab_GUI']?></a></li>
         <li class="<?=$pia_tab_tool?>"><a href="#tab_DBTools" data-toggle="tab" onclick="update_tabURL(window.location.href,'2')"><?=$pia_lang['Maintenance_Tools_Tab_Tools']?></a></li>
         <li class="<?=$pia_tab_backup?>"><a href="#tab_BackupRestore" data-toggle="tab" onclick="update_tabURL(window.location.href,'3')"><?=$pia_lang['Maintenance_Tools_Tab_BackupRestore']?></a></li>
+
+<?php
+if ($_SESSION['SATELLITES_ACTIVE'] == True) {
+    echo '<li class="'.$pia_tab_satellites.'"><a href="#tab_satellites" data-toggle="tab" onclick="update_tabURL(window.location.href,\'5\')">Satellites</a></li>';
+}
+
+?>
+
     </ul>
     <div class="tab-content">
         <div class="tab-pane <?=$pia_tab_setting;?>" id="tab_Settings">
@@ -652,19 +653,52 @@ if (!$block_restore_button_db) {
  <?php
 echo '<div class="row">';
 if (!$block_restore_button_db) {
-	echo '<div class="col-sx-6 col-md-4" style="text-align: center;">
+	echo '<div class="col-md-4" style="text-align: center;">
 			<a class="btn btn-default" href="./download/database.php" role="button" style="margin-top: 20px; margin-bottom: 20px;">' . $pia_lang['Maintenance_Tool_latestdb_download'] . '</a>
 			</div>';}
 if (file_exists('../db/pialertcsv.zip')) {
-	echo '<div class="col-sx-6 col-md-4" style="text-align: center;">
+	echo '<div class="col-md-4" style="text-align: center;">
 			<a class="btn btn-default" href="./download/databasecsv.php" role="button" style="margin-top: 20px; margin-bottom: 20px;">' . $pia_lang['Maintenance_Tool_CSVExport_download'] . '</a>
 			</div>';}
-echo '<div class="col-sx-6 col-md-4" style="text-align: center;">
+echo '<div class="col-md-4" style="text-align: center;">
 			<a class="btn btn-default" href="./download/config.php" role="button" style="margin-top: 20px; margin-bottom: 20px;">' . $pia_lang['Maintenance_Tool_latestconf_download'] . '</a>
 			</div>';
 echo '</div>';
 ?>
         </div>
+
+<?php
+
+if ($_SESSION['SATELLITES_ACTIVE'] == True) {
+    echo '<div class="tab-pane '.$pia_tab_satellites.'" id="tab_satellites">
+            <div class="db_info_table">
+                <div class="db_info_table_row">
+                    <h4 class="bottom-border-aqua">Create Satellite</h4>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="form-group">
+                        <div class="col-xs-10 col-md-3" style="padding: 5px;">
+                            Name: <br>
+                            <input class="form-control" type="text" class="col-xs-12" value="'.$sat_name.'">
+                        </div>
+                        <div class="col-xs-2 col-md-1 text-right">
+                            <button type="button" class="btn btn-link" id="btnCreateNewSatellit" onclick=""><i class="bi bi-floppy text-danger" style="position: relative; font-size: 20px; top: 23px;"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="db_info_table_row">
+                    <h4 class="bottom-border-aqua">Manage Satellites</h4>
+                </div>';
+
+    show_all_satellites_list(0,"Ophelia","qwertzuiop","password1","2024-05-22 16:40");
+    show_all_satellites_list(1,"Juliet","asdfghjklk","password2","2024-06-12 16:40");
+
+    echo '  </div>
+          </div>';
+}
+?>
+
+
     </div>
 </div>
 
@@ -1076,6 +1110,7 @@ function update_tabURL(url, tab) {
     url = url.replace('?tab=2','');
     url = url.replace('?tab=3','');
     url = url.replace('?tab=4','');
+    url = url.replace('?tab=5','');
     url = url.replace('#','');
     window.history.pushState(stateObj,
              "Tab"+tab, url + "?tab=" + tab);

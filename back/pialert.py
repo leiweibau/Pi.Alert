@@ -167,7 +167,7 @@ def check_pialert_countdown():
             print(f"Timer Start: {time.ctime(FILETIME)}")
             # Check 1min before countdown ends
             # Delete stop file 1 min before countdown ends
-            print(f"Timer End  : {time.ctime(STOPTIME+60)}")
+            print(f"Timer End : {time.ctime(STOPTIME+60)}")
             print("----------------------------------------")
             print("Timer still running")
 
@@ -719,6 +719,11 @@ def scan_network():
     openDB()
     print_log ('UniFi copy starts...')
     read_unifi_clients()
+    # Satellites
+    print('    Satellite Import...')
+    openDB()
+    print_log ('Satellite Import starts...')
+    get_satellite_scans()
     # Load current scan data 1/2
     print('\nProcessing scan results...')
     # Load current scan data 2/2
@@ -1050,6 +1055,26 @@ def read_DHCP_leases():
                             DHCP_IP, DHCP_Name, DHCP_MAC2)
                         VALUES (?, ?, ?, ?, ?)
                      """, data)
+
+#-------------------------------------------------------------------------------
+def get_satellite_scans():
+    if not SATELLITES_ACTIVE:
+        print('        ...Skipped')
+        return
+
+    print_log('Mode detection')
+    
+    if SATELLITE_PROXY_MODE:
+        print('        ...Proxy Mode')
+        get_satellite_proxy_scans()
+
+    # decrypt data
+    # process data
+
+#-------------------------------------------------------------------------------
+def get_satellite_proxy_scans():
+    print('        ...Get data from proxy')
+    # get data from url to local storage
 
 #-------------------------------------------------------------------------------
 def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
