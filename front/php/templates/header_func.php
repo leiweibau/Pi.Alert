@@ -194,6 +194,23 @@ function set_userimage($skinname) {
 		$_SESSION['UserLogo'] = 'pialertLogoBlack';
 	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
 }
+
+function get_all_satellites_list() {
+    $database = '../db/pialert.db';
+    $db = new SQLite3($database);
+    $sql_select = 'SELECT * FROM Satellites ORDER BY sat_name ASC';
+    $result = $db->query($sql_select);
+    if ($result) {
+        if ($result->numColumns() > 0) {
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                //array_push($_SESSION['Filter_Table'], $row);
+                show_all_satellites_list($row['sat_id'],$row['sat_name'],$row['sat_token'],$row['sat_password'],$row['sat_lastupdate']);
+            }
+        }
+    }
+    $db->close();
+}
+
 // Sidebar Menu - Get DeviceList Filters and create session array to reduce sqlite3 queries
 function get_devices_filter_list() {
 	$database = '../db/pialert.db';
@@ -415,15 +432,16 @@ function print_logviewer_modal_foot() {
 function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit) {
 	echo '      <div class="db_info_table_row">
                     <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                    	<input class="form-control col-xs-12" type="hidden" value="'.$sat_rowid.'" readonly>
                         Name: <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_name.'" readonly>
                     </div>
                     <div class="col-xs-12 col-md-3" style="padding: 5px;">
-                        Token: <br>
+                        Token (32): <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_token.'" readonly>
                     </div>
                     <div class="col-xs-12 col-md-3" style="padding: 5px;">
-                        Password: <br>
+                        Password (64): <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_password.'" readonly>
                     </div>
                     <div class="col-xs-6 col-md-2" style="padding: 5px;">

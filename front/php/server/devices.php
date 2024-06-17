@@ -90,21 +90,59 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'SaveFilterID':SaveFilterID();
 		break;
+	case 'CreateNewSatellite':CreateNewSatellite();
+		break;
      default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function generateRandomString($length) {
+	$keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	$pieces = [];
+	$max = strlen($keyspace)-1;
+	for ($i = 0; $i < $length; ++$i) {
+	   $pieces []= $keyspace[random_int(0, $max)];
+	}
+	return implode('', $pieces);
+}
+
+function CreateNewSatellite() {
+	global $db;
+	global $pia_lang;
+
+	$currentDateTime = date('Y-m-d H:i');
+
+	$satellite_name = htmlspecialchars($_REQUEST['new_satellite_name']);
+	$satellite_token = generateRandomString(48);
+	$satellite_password = generateRandomString(96);
+
+	$sql_insert_data = 'INSERT INTO Satellites ("sat_name", "sat_token", "sat_password", "sat_lastupdate") 
+                          VALUES ("' . $satellite_name . '", "' . $satellite_token . '", "' . $satellite_password . '", "'.$currentDateTime.'")';
+	$result = $db->query($sql_insert_data);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BackDevices_SatCreate'];
+		// Logging
+		//pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid);
+	} else {
+		echo $pia_lang['BackDevices_SatCreateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		//pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid);
+	}
+	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
 
 function SaveFilterID() {
 	global $db;
 	global $pia_lang;
 
-	$filterid = filter_var($_REQUEST['filterid'], FILTER_SANITIZE_STRING);
-	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
-	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
-	$filterindex = filter_var($_REQUEST['filterindex'], FILTER_SANITIZE_STRING);
-	$filtercolumn = filter_var($_REQUEST['filtercolumn'], FILTER_SANITIZE_STRING);
-	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
+	$filterid = htmlspecialchars($_REQUEST['filterid']);
+	$filtername = htmlspecialchars($_REQUEST['filtername']);
+	$filterstring = htmlspecialchars($_REQUEST['filterstring']);
+	$filterindex = htmlspecialchars($_REQUEST['filterindex']);
+	$filtercolumn = htmlspecialchars($_REQUEST['filtercolumn']);
+	$filtergroup = htmlspecialchars($_REQUEST['filtergroup']);
 
 	// sql
 	$sql = 'UPDATE Devices_table_filter SET

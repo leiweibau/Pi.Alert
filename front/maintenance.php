@@ -679,10 +679,10 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                     <div class="form-group">
                         <div class="col-xs-10 col-md-3" style="padding: 5px;">
                             Name: <br>
-                            <input class="form-control" type="text" class="col-xs-12" value="'.$sat_name.'">
+                            <input class="form-control col-xs-12" type="text" id="txtNewSatelliteName" placeholder="Satellite Name">
                         </div>
                         <div class="col-xs-2 col-md-1 text-right">
-                            <button type="button" class="btn btn-link" id="btnCreateNewSatellit" onclick=""><i class="bi bi-floppy text-danger" style="position: relative; font-size: 20px; top: 23px;"></i></button>
+                            <button type="button" class="btn btn-link" id="btnCreateNewSatellite" onclick="askCreateNewSatellite()"><i class="bi bi-floppy text-green" style="position: relative; font-size: 20px; top: 23px;"></i></button>
                         </div>
                     </div>
                 </div>
@@ -690,8 +690,7 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                     <h4 class="bottom-border-aqua">Manage Satellites</h4>
                 </div>';
 
-    show_all_satellites_list(0,"Ophelia","qwertzuiop","password1","2024-05-22 16:40");
-    show_all_satellites_list(1,"Juliet","asdfghjklk","password2","2024-06-12 16:40");
+    get_all_satellites_list();
 
     echo '  </div>
           </div>';
@@ -1077,7 +1076,6 @@ function setDeviceListCol() {
     showMessage (msg);
   });
 }
-
 // Delete Inactive Hosts
 function askDeleteInactiveHosts() {
   showModalWarning('<?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts'];?>', '<?=$pia_lang['Maintenance_Tool_del_Inactive_Hosts_text'];?>',
@@ -1086,7 +1084,6 @@ function askDeleteInactiveHosts() {
 function DeleteInactiveHosts() {
 	$.get('php/server/devices.php?action=DeleteInactiveHosts', function(msg) {showMessage (msg);});
 }
-
 // Update Check
 function check_github_for_updates() {
     $("#updatecheck").empty();
@@ -1101,7 +1098,6 @@ function check_github_for_updates() {
         }
     })
 }
-
 // Update URL when using the tabs
 function update_tabURL(url, tab) {
     let stateObj = { id: "100" };
@@ -1115,7 +1111,6 @@ function update_tabURL(url, tab) {
     window.history.pushState(stateObj,
              "Tab"+tab, url + "?tab=" + tab);
 }
-
 function initializeiCheck () {
    // Blue
    $('input[type="checkbox"].blue').iCheck({
@@ -1161,7 +1156,6 @@ function startCountdown() {
         displayCountdown(countdownMinutes, countdownSeconds);
     }, 1000);
 }
-
 function displayCountdown(minutes, seconds) {
     var countdownElement = document.getElementById('nextscancountdown');
     countdownElement.textContent = '(next Scan in: ' + formatTime(minutes) + ':' + formatTime(seconds) + ')';
@@ -1170,11 +1164,9 @@ function displayCountdown(minutes, seconds) {
         GetAutoBackupStatus();
     }
 }
-
 function formatTime(time) {
     return time < 10 ? '0' + time : time;
 }
-
 function GetARPStatus() {
   $.get('php/server/files.php?action=GetARPStatus', function(data) {
     var arpproccount = JSON.parse(data);
@@ -1182,7 +1174,6 @@ function GetARPStatus() {
     $('#arpproccounter').html(arpproccount[0].toLocaleString());
   } );
 }
-
 function GetAutoBackupStatus() {
   $.get('php/server/files.php?action=GetAutoBackupStatus', function(data) {
     var backupproccount = JSON.parse(data);
@@ -1193,7 +1184,6 @@ function GetAutoBackupStatus() {
     $('#autobackupdbsize').html(backupproccount[3].toLocaleString());
   } );
 }
-
 function GetModalLogContent() {
   $.get('php/server/files.php?action=GetLogfiles', function(data) {
     var logcollection = JSON.parse(data);
@@ -1205,7 +1195,6 @@ function GetModalLogContent() {
     $('#modal_webservices_content').html(logcollection[4].toLocaleString());
   } );
 }
-
 function GetModalInactiveHosts() {
   $.get('php/server/devices.php?action=ListInactiveHosts', function(data) {
     var logcollection = JSON.parse(data);
@@ -1213,12 +1202,25 @@ function GetModalInactiveHosts() {
     $('#modal_inactivehosts_content').html(logcollection[0].toLocaleString());
   } );
 }
-
 function UpdateStatusBox() {
 	GetModalLogContent();
 	GetARPStatus();
     GetAutoBackupStatus();
 	startCountdown();
+}
+function CreateNewSatellite() {
+
+}
+function askCreateNewSatellite() {
+  showModalWarning('<?=$pia_lang['Maintenance_SatCreate_noti'];?>', '<?=$pia_lang['Maintenance_SatCreate_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'CreateNewSatellite');
+}
+function CreateNewSatellite() {
+    $.get('php/server/devices.php?action=CreateNewSatellite&'
+    + '&new_satellite_name=' + $('#txtNewSatelliteName').val()
+    , function(msg) {
+    showMessage (msg);
+  });
 }
 
 setInterval(UpdateStatusBox, 15000);

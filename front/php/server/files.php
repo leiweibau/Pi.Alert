@@ -221,8 +221,9 @@ AUTO_DB_BACKUP_KEEP    = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
 
 # Other Modules
 # ----------------------
-SCAN_WEBSERVICES = " . convert_bool($configArray['SCAN_WEBSERVICES']) . "
-ICMPSCAN_ACTIVE  = " . convert_bool($configArray['ICMPSCAN_ACTIVE']) . "
+SCAN_WEBSERVICES  = " . convert_bool($configArray['SCAN_WEBSERVICES']) . "
+ICMPSCAN_ACTIVE   = " . convert_bool($configArray['ICMPSCAN_ACTIVE']) . "
+SATELLITES_ACTIVE = " . convert_bool($configArray['SATELLITES_ACTIVE']) . "
 
 # Special Protocol Scanning
 # ----------------------
@@ -352,6 +353,11 @@ UNIFI_API    = '" . $configArray['UNIFI_API'] . "'
 UNIFI_USER   = '" . $configArray['UNIFI_USER'] . "'
 UNIFI_PASS   = '" . $configArray['UNIFI_PASS'] . "'
 # Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
+
+# Satellite Configuration
+# -----------------------
+SATELLITE_PROXY_MODE = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
+SATELLITE_PROXY_URL  = '" . $configArray['SATELLITE_PROXY_URL'] . "'
 
 # Maintenance Tasks Cron
 # ----------------------
@@ -489,11 +495,6 @@ function RestoreDBfromArchive() {
 	//$oldfile = '../../../db/pialert.db.prerestore';
 	global $pia_lang;
 
-	// copy files as a fast Backup
-	// if (!copy($file, $oldfile)) {
-	// 	echo $pia_lang['BackDevices_Restore_CopError'];
-	// } else {
-	// extract latest archive and overwrite the actual pialert.db
 	$Pia_Archive_Path = '../../../db/';
 	exec('/bin/ls -Art ' . $Pia_Archive_Path . '*.zip | /bin/tail -n 1 | /usr/bin/xargs -n1 /bin/unzip -o -d ../../../db/', $output);
 	// check if the pialert.db exists

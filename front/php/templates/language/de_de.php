@@ -7,6 +7,12 @@ $pia_lang['Maintenance_autobackup_off'] = 'Deaktiviert';
 $pia_lang['BackFiles_autobackup_pause'] = 'Pausiert';
 $pia_lang['BackFiles_autobackup_pending'] = 'In Warteschleife';
 
+#$pia_lang[''] = '';
+$pia_lang['Maintenance_SatCreate_noti'] = 'Erzeuge eine Pi.Alert-Satellite Konfiguration';
+$pia_lang['Maintenance_SatCreate_noti_text'] = 'Hiermit wird eine Konfiguration für einen Pi.Alert Satelliten erzeugt, welche in die entsprechende Konfigurationsdatei übernommen werden muss. Hierbei wird eine zufällige Zeichenkette als "Token" und eine weitere Zeichenkette als "Passwort" erzeugt.';
+$pia_lang['BackDevices_SatCreate'] = 'Die Konfigurtion für den Satelliten wurde erzeugt.';
+$pia_lang['BackDevices_SatCreateError'] = 'Fehler bei der Erstellung der Konfiguration für den Satelliten.';
+
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
@@ -121,7 +127,7 @@ $pia_lang['Device_del_table_filterstring_help'] = 'Suchbegriff';
 $pia_lang['Device_del_table_filtergroup'] = 'Filter-Gruppe';
 $pia_lang['Device_del_table_filtergroup_help'] = 'Kann mehrere Filter gruppieren';
 $pia_lang['Device_del_table_filterindex'] = 'Index';
-$pia_lang['Device_del_table_filtercol'] = 'deaktivierte Spalten';
+$pia_lang['Device_del_table_filtercol'] = 'deakt. Spalten';
 // Presence Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Presence_Title'] = 'Anwesenheit pro Gerät';
