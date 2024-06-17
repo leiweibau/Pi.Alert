@@ -492,7 +492,7 @@ function BackupDBtoCSV() {
 function RestoreDBfromArchive() {
 	// prepare fast Backup
 	$file = '../../../db/pialert.db';
-	//$oldfile = '../../../db/pialert.db.prerestore';
+	
 	global $pia_lang;
 
 	$Pia_Archive_Path = '../../../db/';

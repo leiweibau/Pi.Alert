@@ -437,11 +437,11 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                         <input class="form-control col-xs-12" type="text" value="'.$sat_name.'" readonly>
                     </div>
                     <div class="col-xs-12 col-md-3" style="padding: 5px;">
-                        Token (32): <br>
+                        Token (48): <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_token.'" readonly>
                     </div>
                     <div class="col-xs-12 col-md-3" style="padding: 5px;">
-                        Password (64): <br>
+                        Password (96): <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_password.'" readonly>
                     </div>
                     <div class="col-xs-6 col-md-2" style="padding: 5px;">
