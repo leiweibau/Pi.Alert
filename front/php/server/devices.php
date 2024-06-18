@@ -92,9 +92,29 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'CreateNewSatellite':CreateNewSatellite();
 		break;
+	case 'SaveSatellite':SaveSatellite();
+		break;
+	case 'DeleteSatellite':DeleteSatellite();
+		break;
      default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function SaveSatellite() {
+	global $db;
+	global $pia_lang;
+
+	echo $_REQUEST['satellite_name'] .' gesichert (' . $_REQUEST['changed_satellite_name'] . ')';
+	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
+}
+
+function DeleteSatellite() {
+	global $db;
+	global $pia_lang;
+
+	echo $_REQUEST['satellite_name'] .' gelöscht';
+	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
 
 function generateRandomString($length) {

@@ -676,14 +676,15 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                     <h4 class="bottom-border-aqua">Create Satellite</h4>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="form-group">
-                        <div class="col-xs-10 col-md-3" style="padding: 5px;">
-                            Name: <br>
-                            <input class="form-control col-xs-12" type="text" id="txtNewSatelliteName" placeholder="Satellite Name">
-                        </div>
-                        <div class="col-xs-2 col-md-1 text-right">
-                            <button type="button" class="btn btn-link" id="btnCreateNewSatellite" onclick="askCreateNewSatellite()"><i class="bi bi-floppy text-green" style="position: relative; font-size: 20px; top: 23px;"></i></button>
-                        </div>
+                    <div class="col-xs-10 col-md-3" style="padding: 5px;">
+                        Name: <br>
+                        <input class="form-control col-xs-12" type="text" id="txtNewSatelliteName" placeholder="Satellite Name">
+                    </div>
+                    <div class="col-xs-2 col-md-1 text-right">
+                        <button type="button" class="btn btn-link" id="btnCreateNewSatellite" onclick="askCreateNewSatellite()"><i class="bi bi-floppy text-green" style="position: relative; font-size: 20px; top: 23px;"></i></button>
+                    </div>
+                    <div class="col-xs-12 col-md-6 text-center">
+                        <a href="./download/proxymodeconfig.php" target="blank" type="button" class="btn btn-warning" id="btnProxyModeConfig" style="position: relative; top: 27px; margin-bottom:30px;">Export Proxy Mode Config</a>
                     </div>
                 </div>
                 <div class="db_info_table_row">
@@ -1208,9 +1209,6 @@ function UpdateStatusBox() {
     GetAutoBackupStatus();
 	startCountdown();
 }
-function CreateNewSatellite() {
-
-}
 function askCreateNewSatellite() {
   showModalWarning('<?=$pia_lang['Maintenance_SatCreate_noti'];?>', '<?=$pia_lang['Maintenance_SatCreate_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'CreateNewSatellite');
@@ -1218,6 +1216,22 @@ function askCreateNewSatellite() {
 function CreateNewSatellite() {
     $.get('php/server/devices.php?action=CreateNewSatellite&'
     + '&new_satellite_name=' + $('#txtNewSatelliteName').val()
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+function SaveSatellite(func_sat_name, func_sat_id) {
+    $.get('php/server/devices.php?action=SaveSatellite&'
+    + '&changed_satellite_name=' + $('#txtChangedSatelliteName_' + func_sat_id).val()
+    + '&satellite_name=' + func_sat_name
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+function DeleteSatellite(func_sat_name, func_sat_id) {
+    $.get('php/server/devices.php?action=DeleteSatellite&'
+    + '&changed_satellite_name=' + $('#txtChangedSatelliteName_' + func_sat_id).val()
+    + '&satellite_name=' + func_sat_name
     , function(msg) {
     showMessage (msg);
   });
