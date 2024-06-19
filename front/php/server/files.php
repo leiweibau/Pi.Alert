@@ -87,7 +87,7 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 
 function GetAutoBackupStatus() {
 	global $pia_lang;
-	if (file_exists("../../../back/.backup")) {$result = array($pia_lang['BackFiles_autobackup_pending']);} else {$result = array($pia_lang['BackFiles_autobackup_pause']);}
+	if (file_exists("../../../back/.backup")) {$result = array($pia_lang['BE_Files_autobkp_pending']);} else {$result = array($pia_lang['BE_Files_autobkp_pause']);}
 	//Count db backups
 	$backupdir = "../../../db";
 	$backupfiles = glob($backupdir . "/pialertdb_20*.zip");
@@ -108,7 +108,7 @@ function GetAutoBackupStatus() {
 
 function GetARPStatus() {
 	global $pia_lang;
-	if (file_exists("../../../back/.scanning")) {$result = array('');} else {$result = array($pia_lang['Maintenance_arpscancout_norun']);}
+	if (file_exists("../../../back/.scanning")) {$result = array('');} else {$result = array($pia_lang['MT_arpscancout_norun']);}
 	echo json_encode($result);
 }
 
@@ -132,7 +132,7 @@ function GetLogfiles() {
 	global $pia_lang;
 
 	$logfiles = ["pialert.1.log", "pialert.IP.log", "pialert.vendors.log", "pialert.cleanup.log", "pialert.webservices.log"];
-	$logmessage = [$pia_lang['Maintenance_Tools_Logviewer_Scan_empty'], $pia_lang['Maintenance_Tools_Logviewer_IPLog_empty'], '', $pia_lang['Maintenance_Tools_Logviewer_Cleanup_empty'], $pia_lang['Maintenance_Tools_Logviewer_WebServices_empty']];
+	$logmessage = [$pia_lang['MT_Tools_Logviewer_Scan_empty'], $pia_lang['MT_Tools_Logviewer_IPLog_empty'], '', $pia_lang['MT_Tools_Logviewer_Cleanup_empty'], $pia_lang['MT_Tools_Logviewer_WebServices_empty']];
 
 	$i = 0;
 	$logs = array();

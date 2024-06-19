@@ -23,12 +23,12 @@ function arpscanstatus() {
 	global $pia_lang;
 	if (!file_exists('../config/setting_stoppialert')) {
 		unset($_SESSION['arpscan_timerstart']);
-		$_SESSION['arpscan_result'] = '<span id="arpproccounter"></span> ' . $pia_lang['Maintenance_arp_status_on'] . ' <div id="nextscancountdown" style="display: inline-block;"></div>';
+		$_SESSION['arpscan_result'] = '<span id="arpproccounter"></span> ' . $pia_lang['MT_arp_status_on'] . ' <div id="nextscancountdown" style="display: inline-block;"></div>';
 		$_SESSION['arpscan_sidebarstate'] = 'Active';
 		$_SESSION['arpscan_sidebarstate_light'] = 'green-light fa-gradient-green';
 	} else {
 		$_SESSION['arpscan_timerstart'] = date("H:i:s", filectime('../config/setting_stoppialert'));
-		$_SESSION['arpscan_result'] = '<span style="color:red;">Pi.Alert ' . $pia_lang['Maintenance_arp_status_off'] . '</span> <div id="nextscancountdown" style="display: none;"></div>';
+		$_SESSION['arpscan_result'] = '<span style="color:red;">Pi.Alert ' . $pia_lang['MT_arp_status_off'] . '</span> <div id="nextscancountdown" style="display: none;"></div>';
 		$_SESSION['arpscan_sidebarstate'] = 'Disabled&nbsp;&nbsp;&nbsp;(' . $_SESSION['arpscan_timerstart'] . ')';
 		$_SESSION['arpscan_sidebarstate_light'] = 'red fa-gradient-red';
 	}
@@ -116,7 +116,7 @@ function toggle_webservices_menu($section) {
 		echo '">
                 <a href="services.php">
                 	<i class="fa fa-globe"></i>
-                	<span>' . $pia_lang['Navigation_Services'] . '</span>
+                	<span>' . $pia_lang['NAV_Services'] . '</span>
 		          	<span class="pull-right-container">
 		              <small class="label pull-right bg-yellow" id="header_services_count_warning"></small>
 		              <small class="label pull-right bg-red" id="header_services_count_down"></small>
@@ -135,7 +135,7 @@ function toggle_icmpscan_menu($section) {
 		echo '">
                 <a href="icmpmonitor.php">
                     <i class="fa fa-magnifying-glass"></i>
-                    <span>' . $pia_lang['Navigation_ICMPScan'] . '</span>
+                    <span>' . $pia_lang['NAV_ICMPScan'] . '</span>
 					<span class="pull-right-container">
 						<small class="label pull-right bg-red" id="header_icmp_count_down"></small>
 						<small class="label pull-right bg-green" id="header_icmp_count_on"></small>
@@ -430,27 +430,28 @@ function print_logviewer_modal_foot() {
 }
 // Maintenance Page - Satellite List
 function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit) {
+	global $pia_lang;
 	echo '      <div class="db_info_table_row">
-                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
-                    	<input class="form-control col-xs-12" type="hidden" value="'.$sat_rowid.'" readonly>
-                        Name: <br>
-                        <input class="form-control col-xs-12" type="text" value="'.$sat_name.'" readonly>
+                    <div class="col-xs-12 col-md-2" style="padding: 5px;">
+                        '.$pia_lang['MT_SET_SatCreate_FORM_Name'].': <br>
+                        <input class="form-control col-xs-12" type="text" id="txtChangedSatelliteName_'.$sat_rowid.'"value="'.$sat_name.'">
                     </div>
                     <div class="col-xs-12 col-md-3" style="padding: 5px;">
-                        Token (48): <br>
+                        '.$pia_lang['MT_SET_SatEdit_FORM_Token'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_token.'" readonly>
                     </div>
                     <div class="col-xs-12 col-md-3" style="padding: 5px;">
-                        Password (96): <br>
+                        '.$pia_lang['MT_SET_SatEdit_FORM_Pass'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_password.'" readonly>
                     </div>
                     <div class="col-xs-6 col-md-2" style="padding: 5px;">
-                        Last Update: <br>
+                        '.$pia_lang['MT_SET_SatEdit_FORM_LastUpd'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_last_transmit.'" readonly>
                     </div>
-                    <div class="col-xs-6 col-md-1 text-right" style="padding: 5px;">
-                        Action: <br>
-                        <button type="button" class="btn btn-link"><i class="bi bi-trash text-danger" style="position: relative; font-size: 20px; top: -5px;"></i></button>
+                    <div class="col-xs-6 col-md-2 text-center" style="padding: 5px;">
+                        '.$pia_lang['MT_SET_SatEdit_FORM_Action'].': <br>
+                        <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-floppy text-yellow" style="position: relative; font-size: 20px; top: -5px;"></i></button>
+                        <button type="button" class="btn btn-link" id="btnDeleteSatellite" onclick="DeleteSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-trash text-red" style="position: relative; font-size: 20px; top: -5px;"></i></button>
                     </div>
                 </div>';
 

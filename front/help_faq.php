@@ -155,7 +155,7 @@ $trip_div_close = '
 
 <!-- Devices -->
 
-      <h4><?=$pia_lang['Navigation_Devices'];?></h4>
+      <h4><?=$pia_lang['NAV_Devices'];?></h4>
         <div class="panel-group" id="accordion_dev">
         <?=$help_faq_toptemp;?>
               <a data-toggle="collapse" data-parent="#accordion_dev" href="#collapse200">
@@ -171,7 +171,7 @@ $trip_div_close = '
 
 <!-- Devices Details -->
 
-      <h4><?=$pia_lang['Navigation_Devices'];?> - <?=$help_lang['Cat_Detail'];?></h4>
+      <h4><?=$pia_lang['NAV_Devices'];?> - <?=$help_lang['Cat_Detail'];?></h4>
         <div class="panel-group" id="accordion_det">
         <?=$help_faq_toptemp;?>
               <a data-toggle="collapse" data-parent="#accordion_det" href="#collapse300">
@@ -218,7 +218,7 @@ $trip_div_close = '
 
 <!-- Network -->
 
-      <h4><?=$pia_lang['Navigation_Network'];?></h4>
+      <h4><?=$pia_lang['NAV_Network'];?></h4>
         <div class="panel-group" id="accordion_net">
         <?=$help_faq_toptemp;?>
               <a data-toggle="collapse" data-parent="#accordion_net" href="#collapse600">
@@ -254,7 +254,7 @@ $trip_div_close = '
 
 <!-- Web Services -->
 
-      <h4><?=$pia_lang['Navigation_Services'];?></h4>
+      <h4><?=$pia_lang['NAV_Services'];?></h4>
         <div class="panel-group" id="accordion_pre">
         <?=$help_faq_toptemp;?>
               <a data-toggle="collapse" data-parent="#accordion_pre" href="#collapse703">
@@ -311,7 +311,7 @@ foreach ($code_array as $key => $jsons) {
 
 <!-- Web Services Details -->
 
-      <h4><?=$pia_lang['Navigation_Services'];?> - <?=$help_lang['Cat_Detail'];?></h4>
+      <h4><?=$pia_lang['NAV_Services'];?> - <?=$help_lang['Cat_Detail'];?></h4>
         <div class="panel-group" id="accordion_pre">
         <?=$help_faq_toptemp;?>
               <a data-toggle="collapse" data-parent="#accordion_pre" href="#collapse750">
@@ -327,7 +327,7 @@ foreach ($code_array as $key => $jsons) {
 
 <!-- Presence -->
 
-      <h4><?=$pia_lang['Navigation_Presence'];?></h4>
+      <h4><?=$pia_lang['NAV_Presence'];?></h4>
         <div class="panel-group" id="accordion_pre">
         <?=$help_faq_toptemp;?>
               <a data-toggle="collapse" data-parent="#accordion_pre" href="#collapse400">

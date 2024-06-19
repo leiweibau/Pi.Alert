@@ -105,7 +105,28 @@ function SaveSatellite() {
 	global $db;
 	global $pia_lang;
 
-	echo $_REQUEST['satellite_name'] .' gesichert (' . $_REQUEST['changed_satellite_name'] . ')';
+	$currentDateTime = date('Y-m-d H:i');
+
+	$satellite_name = htmlspecialchars($_REQUEST['satellite_name']);
+	$new_satellite_name = htmlspecialchars($_REQUEST['changed_satellite_name']);
+	$satellite_id = htmlspecialchars($_REQUEST['sat_id']);
+
+	// sql
+	$sql_insert_data = 'UPDATE Satellites SET
+                 sat_name                 = "' . quotes($new_satellite_name) . '",
+                 sat_lastupdate           = "' . quotes($currentDateTime) . '"
+          WHERE sat_id="' . $satellite_id . '" AND sat_name="' . $satellite_name . '"';
+	$result = $db->query($sql_insert_data);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BE_Dev_SatUpdate'] . '<br>' . $satellite_name . ' &#8594; ' . $new_satellite_name;
+		// Logging
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+	} else {
+		echo $pia_lang['BE_Dev_SatUpdateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+	}
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
 
@@ -113,7 +134,22 @@ function DeleteSatellite() {
 	global $db;
 	global $pia_lang;
 
-	echo $_REQUEST['satellite_name'] .' gelöscht';
+	$satellite_name = htmlspecialchars($_REQUEST['satellite_name']);
+	$satellite_id = htmlspecialchars($_REQUEST['sat_id']);
+
+	$sql = 'DELETE FROM Satellites WHERE sat_id="' . $satellite_id . '" AND sat_name="' . $satellite_name . '"';
+	$result = $db->query($sql);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BE_Dev_SatDelete'];
+		// Logging
+		pialert_logging('a_003', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
+	} else {
+		echo $pia_lang['BE_Dev_SatDeleteError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_003', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
+	}
+
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
 
@@ -142,13 +178,13 @@ function CreateNewSatellite() {
 	$result = $db->query($sql_insert_data);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_SatCreate'];
+		echo $pia_lang['BE_Dev_SatCreate'];
 		// Logging
-		//pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid);
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', 'Name: '.$satellite_name);
 	} else {
-		echo $pia_lang['BackDevices_SatCreateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_SatCreateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
-		//pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid);
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0000', '', 'Name: '.$satellite_name);
 	}
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }

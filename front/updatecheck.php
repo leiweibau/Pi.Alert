@@ -32,7 +32,7 @@ require 'php/server/journal.php';
     <section class="content">
         <div class="box">
             <div class="box-body" id="updatecheck">
-                <button type="button" id="rewwejwejpjo" class="btn btn-primary" onclick="check_github_for_updates()"><?=$pia_lang['Maintenance_Tools_Updatecheck'];?></button>
+                <button type="button" id="rewwejwejpjo" class="btn btn-primary" onclick="check_github_for_updates()"><?=$pia_lang['MT_Tools_Updatecheck'];?></button>
           	</div>
         </div>
 

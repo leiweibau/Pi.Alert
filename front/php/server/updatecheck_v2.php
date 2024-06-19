@@ -140,7 +140,7 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 // github version is not equal to local version (only a local dev version could be newer than github version)
 	echo '<div class="box">
     		<div class="box-body">
-				<h4 class="text-aqua" style="text-align: center;">' . $pia_lang['Maintenance_Github_package_a'] . ' ' . $local_time . ' ' . $pia_lang['Maintenance_Github_package_b'] . '</h4>
+				<h4 class="text-aqua" style="text-align: center;">' . $pia_lang['MT_Github_package_a'] . ' ' . $local_time . ' ' . $pia_lang['MT_Github_package_b'] . '</h4>
 				<p class="updatechk_font_a">
 				' . $pia_lang['Updatecheck_cur'] . ': 	<span class="text-green">	' . $pialert_cur_version . '</span><br>
 				' . $pia_lang['Updatecheck_new'] . ': 	<span class="text-red">		' . $pialert_new_version . '</span>
@@ -151,7 +151,7 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 // github not reachable or no json response
 	echo '<div class="box">
     		<div class="box-body">
-				<h4 class="text-aqua" style="text-align: center;"><span class="text-red">' . $pia_lang['Gen_error'] . '</span> ' . $local_time . ' ' . $pia_lang['Maintenance_Github_package_b'] . '</h4>
+				<h4 class="text-aqua" style="text-align: center;"><span class="text-red">' . $pia_lang['Gen_error'] . '</span> ' . $local_time . ' ' . $pia_lang['MT_Github_package_b'] . '</h4>
 				<p class="updatechk_font_a">
 				' . $pia_lang['Updatecheck_cur'] . ': 	<span class="text-green">	' . $pialert_cur_version . '</span><br>
 				' . $pia_lang['Updatecheck_new'] . ': 	<span class="text-red">		' . $pia_lang['Gen_error'] . '</span>
