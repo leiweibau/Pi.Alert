@@ -32,24 +32,53 @@ function json_response($api_message) {
 	$response = array("message" => "$api_message");
 	echo json_encode($response);
 }
+function purge_old_results() {
+	$directory = '../satellites';
+	$files = scandir($directory);
+	$currentTime = time();
+	$ageLimit = 10 * 60; // 10 minutes in seconds
 
-// Check whether the token or the Payload is set, otherwise HTTP 404
-if ($_REQUEST['token'] == "" || !isset($_FILES['encrypted_data'])) {
-	header('HTTP/1.0 404 Not Found', true, 404);
-	echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+	foreach ($files as $file) {
+	    $filePath = $directory . '/' . $file;
+
+	    if ($file === 'readme' || $file === 'readme.txt') {
+	        continue;
+	    }
+
+	    if (is_file($filePath)) {
+	        $fileModificationTime = filemtime($filePath);
+	        if ($currentTime - $fileModificationTime > $ageLimit) {
+	            unlink($filePath);
+	        }
+	    }
+	}
+}
+
+$http_response = '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head>
 <title>404 Not Found</title>
 </head><body>
 <h1>Not Found</h1>
 <p>The requested URL was not found on this server.</p>
 </body></html>';
+
+// Check whether mode or token is set, otherwise HTTP 404
+if ($_REQUEST['mode'] == "" || $_REQUEST['token'] == "") {
+	header('HTTP/1.0 404 Not Found', true, 404);
+	echo $http_response;
+	die();
+}
+// Check if payload is set when usingg direct or mropy mode, otherwise HTTP 404
+if (($_REQUEST['mode'] == "direct" || $_REQUEST['mode'] == "proxy") && !isset($_FILES['encrypted_data'])) {
+	header('HTTP/1.0 404 Not Found', true, 404);
+	echo $http_response;
 	die();
 }
 
 $incomming_token = $_REQUEST['token'];
 
 // Procedure for direct API call (Pi.Alert)
-if ($_REQUEST['mode'] != "proxy") {
+if ($_REQUEST['mode'] == "direct") {
 	// Query from the database
 	$satellite_list = get_all_satellites();
 	$satellite_tokens = array();
@@ -105,7 +134,7 @@ if ($_REQUEST['mode'] != "proxy") {
 		json_response("Invalid Satellite ID");		
 	}
 
-} else {
+} elseif ($_REQUEST['mode'] == "proxy") {
     // Procedure for Proxy Mode API call
     // Check if the config file is available, else Error via JSON
     if (!file_exists('config.php')) {
@@ -136,5 +165,23 @@ if ($_REQUEST['mode'] != "proxy") {
 		// If the token is invalid
 		json_response("Invalid Satellite ID");	
 	}
-} 
+} elseif ($_REQUEST['mode'] == "get") {
+	purge_old_results();
+
+	$directory = '../satellites';
+	$sat_enc_result = $directory . '/encrypted_'. $incomming_token;
+
+	if (file_exists($sat_enc_result)) {
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/octet-stream');
+		header('Content-Disposition: attachment; filename="encrypted_' . $incomming_token . '"');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		header('Content-Length: ' . filesize($sat_enc_result));
+		readfile($sat_enc_result);
+	} else {
+		header('HTTP/1.0 404 Not Found', true, 404);
+	}
+}
 ?>

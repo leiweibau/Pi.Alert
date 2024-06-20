@@ -1063,17 +1063,46 @@ def get_satellite_scans():
         return
 
     print_log('Mode detection')
-    
+
+    # get all Sat Tokens from DB
+    # get all Sat Passwords from DB
+    get_satellites = "SELECT sat_password, sat_token FROM Satellites"
+    sql.execute(get_satellites)
+
+    rows = sql.fetchall()
+    satellite_list = {}
+    for row in rows:
+        sat_password, sat_token = row
+        satellite_list[sat_token] = sat_password
+
     if SATELLITE_PROXY_MODE:
         print('        ...Proxy Mode')
-        get_satellite_proxy_scans()
+        get_satellite_proxy_scans(satellite_list)
 
     # decrypt data
     # process data
 
 #-------------------------------------------------------------------------------
-def get_satellite_proxy_scans():
+def get_satellite_proxy_scans(satellite_list):
     print('        ...Get data from proxy')
+    # print("Data received:", satellite_list)
+    SAVE_DIR = PIALERT_PATH + "/front/satellites/"
+    
+    for token, password in satellite_list.items():
+        url = f"{SATELLITE_PROXY_URL}?mode=get&token={token}"
+        try:
+            response = requests.get(url, verify=False)  # Accept insecure SSL connections
+            if response.status_code == 200:
+                file_name = f"encrypted_{token}"
+                save_path = os.path.join(SAVE_DIR, file_name)
+                with open(save_path, 'wb') as file:
+                    file.write(response.content)
+
+                # update satellite db Last Update
+
+        except requests.RequestException as e:
+            print(f"        Download failed for token {token}")
+
     # get data from url to local storage
 
 #-------------------------------------------------------------------------------
