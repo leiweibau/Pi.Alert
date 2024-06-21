@@ -1062,7 +1062,7 @@ def get_satellite_scans():
         print('        ...Skipped')
         return
 
-    print_log('Mode detection')
+    print_log('        ...Mode detection')
 
     # get all Sat Tokens from DB
     # get all Sat Passwords from DB
@@ -1078,21 +1078,25 @@ def get_satellite_scans():
     if SATELLITE_PROXY_MODE:
         print('        ...Proxy Mode')
         get_satellite_proxy_scans(satellite_list)
-
-    # decrypt data
+        decrypt_satellite_proxy_scans(satellite_list)
     # process data
+
+        cleanup_satellite_scans(satellite_list)
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
-    print('        ...Get data from proxy')
-    # print("Data received:", satellite_list)
+    # print('        ...Get data from proxy')
+
     SAVE_DIR = PIALERT_PATH + "/front/satellites/"
     
+    received_results = 0
+
     for token, password in satellite_list.items():
         url = f"{SATELLITE_PROXY_URL}?mode=get&token={token}"
         try:
             response = requests.get(url, verify=False)  # Accept insecure SSL connections
             if response.status_code == 200:
+                received_results += 1
                 file_name = f"encrypted_{token}"
                 save_path = os.path.join(SAVE_DIR, file_name)
                 with open(save_path, 'wb') as file:
@@ -1101,9 +1105,43 @@ def get_satellite_proxy_scans(satellite_list):
                 # update satellite db Last Update
 
         except requests.RequestException as e:
-            print(f"        Download failed for token {token}")
+            # print(f"        Download failed for token {token}")
+            continue
 
+    print(f"        ...Get data from proxy ({received_results})")
     # get data from url to local storage
+
+#-------------------------------------------------------------------------------
+def decrypt_satellite_proxy_scans(satellite_list):
+    print_log('        ...decrypt data from proxy')
+    WORKING_DIR = PIALERT_PATH + "/front/satellites/"
+
+    for token, password in satellite_list.items():
+        
+        if os.path.exists(WORKING_DIR+"encrypted_"+token):
+            openssl_command = [
+                "openssl", "enc", "-d", "-aes-256-cbc", "-in", WORKING_DIR+"encrypted_"+token,
+                "-pbkdf2", "-pass", "pass:{}".format(password)
+            ]
+
+            with subprocess.Popen(openssl_command, stdout=subprocess.PIPE) as proc:
+                decrypted_data = proc.stdout.read()
+
+            decrypted_dict = json.loads(decrypted_data.decode('utf-8'))
+
+            with open(WORKING_DIR+token+'.json', 'w') as outfile:
+                json.dump(decrypted_dict, outfile, indent=4)
+
+            os.remove(WORKING_DIR+"encrypted_"+token) 
+
+#-------------------------------------------------------------------------------
+def cleanup_satellite_scans(satellite_list):
+    print_log('        ...cleanup satellite scans')
+    WORKING_DIR = PIALERT_PATH + "/front/satellites/"
+
+    for token, password in satellite_list.items():
+        if os.path.exists(WORKING_DIR+"encrypted_"+token):
+            os.remove(WORKING_DIR+token+".json") 
 
 #-------------------------------------------------------------------------------
 def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
