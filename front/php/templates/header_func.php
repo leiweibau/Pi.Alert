@@ -113,8 +113,7 @@ function toggle_webservices_menu($section) {
 	if (($_SESSION['Scan_WebServices'] == True) && ($section == "Main")) {
 		echo '<li class="';
 		if (in_array(basename($_SERVER['SCRIPT_NAME']), array('services.php', 'serviceDetails.php'))) {echo 'active';}
-		echo '">
-                <a href="services.php">
+		echo '"><a href="services.php">
                 	<i class="fa fa-globe"></i>
                 	<span>' . $pia_lang['NAV_Services'] . '</span>
 		          	<span class="pull-right-container">
@@ -122,8 +121,7 @@ function toggle_webservices_menu($section) {
 		              <small class="label pull-right bg-red" id="header_services_count_down"></small>
 		              <small class="label pull-right bg-green" id="header_services_count_on"></small>
 		            </span>
-                </a>
-              </li>';
+                </a></li>';
 	}
 }
 // Sidebar Menu - ICPMScan Menu Items
@@ -132,16 +130,50 @@ function toggle_icmpscan_menu($section) {
 	if (($_SESSION['ICMPScan'] == True) && ($section == "Main")) {
 		echo '<li class="';
 		if (in_array(basename($_SERVER['SCRIPT_NAME']), array('icmpmonitor.php', 'icmpmonitorDetails.php'))) {echo 'active';}
-		echo '">
-                <a href="icmpmonitor.php">
+		echo '"><a href="icmpmonitor.php">
                     <i class="fa fa-magnifying-glass"></i>
                     <span>' . $pia_lang['NAV_ICMPScan'] . '</span>
 					<span class="pull-right-container">
 						<small class="label pull-right bg-red" id="header_icmp_count_down"></small>
 						<small class="label pull-right bg-green" id="header_icmp_count_on"></small>
 					</span>
-                </a>
-              </li>';
+                </a></li>';
+	}
+}
+// Sidebar Menu - Satellites Menu Items
+function toggle_satellites_submenu() {
+	if (($_SESSION['Scan_Satellite'] == True)) {
+		global $satellite_badges_list;
+    	$database = '../db/pialert.db';
+	    $db = new SQLite3($database);
+	    $sql_select = 'SELECT * FROM Satellites ORDER BY sat_name ASC';
+	    $result = $db->query($sql_select);
+	    if ($result) {
+	        if ($result->numColumns() > 0) {
+	            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+	                array_push($satellite_badges_list, $row['sat_token']);
+	                echo '<li class="custom_filter">
+	                	<a href="devices.php?scansource='.$row['sat_token'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
+	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
+	                		<span>'.$row['sat_name'].'</span>
+	                		<span class="pull-right-container">
+				              <small class="label pull-right bg-yellow" id="header_'.$row['sat_token'].'_count_new"></small>
+				              <small class="label pull-right bg-red" id="header_'.$row['sat_token'].'_count_down"></small>
+				              <small class="label pull-right bg-green" id="header_'.$row['sat_token'].'_count_on"></small>
+		            		</span>
+		            </a></li>';
+	            }
+	        }
+	    }
+	    $db->close();
+	}
+}
+function create_satellite_badges() {
+	if ($_SESSION['Scan_Satellite'] == True) {
+		global $satellite_badges_list;
+		for ($x=0;$x<sizeof($satellite_badges_list);$x++) {
+			echo "      getDevicesTotalsBadge('" . $satellite_badges_list[$x] . "');\n";
+		}
 	}
 }
 // Parse Config file
@@ -153,6 +185,7 @@ function get_config_parmeter($config_param) {
 }
 // Set Session Vars
 if (get_config_parmeter('ICMPSCAN_ACTIVE') == 1) {$_SESSION['ICMPScan'] = True;} else { $_SESSION['ICMPScan'] = False;}
+if (get_config_parmeter('SATELLITES_ACTIVE') == 1) {$_SESSION['Scan_Satellite'] = True; $satellite_badges_list = array();} else { $_SESSION['Scan_Satellite'] = False;}
 if (get_config_parmeter('SCAN_WEBSERVICES') == 1) {$_SESSION['Scan_WebServices'] = True;} else { $_SESSION['Scan_WebServices'] = False;}
 if (get_config_parmeter('ARPSCAN_ACTIVE') == 1) {$_SESSION['Scan_MainScan'] = True;} else { $_SESSION['Scan_MainScan'] = False;}
 if (get_config_parmeter('AUTO_UPDATE_CHECK') == 1) {$_SESSION['Auto_Update_Check'] = True;} else { $_SESSION['Auto_Update_Check'] = False;}
@@ -194,7 +227,6 @@ function set_userimage($skinname) {
 		$_SESSION['UserLogo'] = 'pialertLogoBlack';
 	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
 }
-
 function get_all_satellites_list() {
     $database = '../db/pialert.db';
     $db = new SQLite3($database);
@@ -203,14 +235,12 @@ function get_all_satellites_list() {
     if ($result) {
         if ($result->numColumns() > 0) {
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                //array_push($_SESSION['Filter_Table'], $row);
                 show_all_satellites_list($row['sat_id'],$row['sat_name'],$row['sat_token'],$row['sat_password'],$row['sat_lastupdate']);
             }
         }
     }
     $db->close();
 }
-
 // Sidebar Menu - Get DeviceList Filters and create session array to reduce sqlite3 queries
 function get_devices_filter_list() {
 	$database = '../db/pialert.db';
@@ -502,4 +532,7 @@ if (file_exists('../config/setting_favicon')) {
 } else {
 	$FRONTEND_FAVICON = 'img/favicons/flat_blue_white.png';
 }
+// set ScanSource Defaults (Satellite Scans)
+if ($_REQUEST['scansource']) {$SCANSOURCE=$_REQUEST['scansource'];} else {$SCANSOURCE='local';}
+
 ?>

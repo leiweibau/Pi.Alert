@@ -137,6 +137,9 @@ function DeleteSatellite() {
 	$satellite_name = htmlspecialchars($_REQUEST['satellite_name']);
 	$satellite_id = htmlspecialchars($_REQUEST['sat_id']);
 
+	$sql = 'DELETE FROM Devices WHERE dev_ScanSource IN (SELECT sat_token FROM Satellites WHERE sat_id="' . $satellite_id . '");';
+	$result = $db->query($sql);
+
 	$sql = 'DELETE FROM Satellites WHERE sat_id="' . $satellite_id . '" AND sat_name="' . $satellite_name . '"';
 	$result = $db->query($sql);
 
@@ -168,8 +171,7 @@ function CreateNewSatellite() {
 	global $pia_lang;
 
 	$currentDateTime = date('Y-m-d H:i');
-
-	$satellite_name = htmlspecialchars($_REQUEST['new_satellite_name']);
+	if ($_REQUEST['new_satellite_name'] = "") {$satellite_name = "Satellite";} else {$satellite_name = htmlspecialchars($_REQUEST['new_satellite_name']);}
 	$satellite_token = generateRandomString(48);
 	$satellite_password = generateRandomString(96);
 
@@ -550,12 +552,12 @@ function getDevicesTotals() {
 	// combined query
 	$result = $db->query(
 		'SELECT
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('all') . ') as devices,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('connected') . ') as connected,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('favorites') . ') as favorites,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('new') . ') as new,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('down') . ') as down,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived') . ') as archived
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('all',$_REQUEST['scansource']) . ') as devices,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('connected',$_REQUEST['scansource']) . ') as connected,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('favorites',$_REQUEST['scansource']) . ') as favorites,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('new',$_REQUEST['scansource']) . ') as new,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('down',$_REQUEST['scansource']) . ') as down,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived',$_REQUEST['scansource']) . ') as archived
    ');
 	$row = $result->fetchArray(SQLITE3_NUM);
 	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5]));
@@ -565,7 +567,7 @@ function getDevicesTotals() {
 function getDevicesList() {
 	global $db;
 
-	$condition = getDeviceCondition($_REQUEST['status']);
+	$condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
 	$sql = 'SELECT rowid, *, CASE
             WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
             WHEN dev_NewDevice=1 AND dev_PresentLastScan=1 THEN "NewON"
@@ -592,6 +594,7 @@ function getDevicesList() {
 			$row['dev_MAC'], // MAC (hidden)
 			$row['dev_Status'],
 			formatIPlong($row['dev_LastIP']), // IP orderable
+			$row['dev_ScanSource'],
 			$row['rowid'], // Rowid (hidden)
 		);
 	}
@@ -607,7 +610,7 @@ function getDevicesList() {
 function getDevicesListCalendar() {
 	global $db;
 
-	$condition = getDeviceCondition($_REQUEST['status']);
+	$condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
 	$result = $db->query('SELECT * FROM Devices ' . $condition);
 
 	// arrays of rows
@@ -798,21 +801,21 @@ function getNetworkNodes() {
 }
 
 //  Status Where conditions
-function getDeviceCondition($deviceStatus) {
+function getDeviceCondition($deviceStatus, $scansource) {
 	switch ($deviceStatus) {
-	case 'all':return 'WHERE dev_Archived=0';
+	case 'all':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0';
 		break;
-	case 'connected':return 'WHERE dev_Archived=0 AND dev_PresentLastScan=1';
+	case 'connected':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_PresentLastScan=1';
 		break;
-	case 'favorites':return 'WHERE dev_Archived=0 AND dev_Favorite=1';
+	case 'favorites':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_Favorite=1';
 		break;
-	case 'new':return 'WHERE dev_Archived=0 AND dev_NewDevice=1';
+	case 'new':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_NewDevice=1';
 		break;
-	case 'down':return 'WHERE dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
+	case 'down':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
 		break;
-	case 'archived':return 'WHERE dev_Archived=1';
+	case 'archived':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=1';
 		break;
-	default:return 'WHERE 1=0';
+	default:return 'WHERE dev_ScanSource="'.$scansource.'" AND 1=0';
 		break;
 	}
 }

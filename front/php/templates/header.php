@@ -174,13 +174,14 @@ format_temperature($celsius, $temperaturelimit);
         <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['NAV_Section_A'];?></li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('devices.php', 'deviceDetails.php'))) {echo 'active';}?>">
           <a href="devices.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['NAV_Devices'];?></span>
-            <small class="label pull-right bg-yellow" id="header_dev_count_new"></small>
-            <small class="label pull-right bg-red" id="header_dev_count_down"></small>
-            <small class="label pull-right bg-green" id="header_dev_count_on"></small>
+            <small class="label pull-right bg-yellow" id="header_local_count_new"></small>
+            <small class="label pull-right bg-red" id="header_local_count_down"></small>
+            <small class="label pull-right bg-green" id="header_local_count_on"></small>
           </a>
         </li>
 <?php
 get_devices_filter_list();
+toggle_satellites_submenu();
 ?>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('network.php', 'networkSettings.php'))) {echo 'active';}?>">
           <a href="network.php"><i class="fa fa-server"></i> <span><?=$pia_lang['NAV_Network'];?></span></a>

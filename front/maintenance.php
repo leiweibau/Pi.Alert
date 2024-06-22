@@ -666,9 +666,7 @@ echo '<div class="col-md-4" style="text-align: center;">
 echo '</div>';
 ?>
         </div>
-
 <?php
-
 if ($_SESSION['SATELLITES_ACTIVE'] == True) {
     echo '<div class="tab-pane '.$pia_tab_satellites.'" id="tab_satellites">
             <div class="db_info_table">
@@ -690,15 +688,11 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                 <div class="db_info_table_row">
                     <h4 class="bottom-border-aqua">'.$pia_lang['MT_SET_SatEdit_head'].'</h4>
                 </div>';
-
     get_all_satellites_list();
-
     echo '  </div>
           </div>';
 }
 ?>
-
-
     </div>
 </div>
 

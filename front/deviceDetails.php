@@ -1477,11 +1477,11 @@ function setDeviceData (refreshCallback='') {
 
   // update data to server
   $.get('php/server/devices.php?action=setDeviceData&mac='+ mac
-    + '&name='            + $('#txtName').val()
-    + '&owner='           + $('#txtOwner').val()
+    + '&name='            + encodeURIComponent($('#txtName').val())
+    + '&owner='           + encodeURIComponent($('#txtOwner').val())
     + '&type='            + $('#txtDeviceType').val()
     + '&vendor='          + $('#txtVendor').val()
-    + '&model='           + $('#txtModel').val()
+    + '&model='           + encodeURIComponent($('#txtModel').val())
     + '&serialnumber='    + $('#txtSerialnumber').val()
     + '&favorite='        + ($('#chkFavorite')[0].checked * 1)
     + '&group='           + $('#txtGroup').val()
