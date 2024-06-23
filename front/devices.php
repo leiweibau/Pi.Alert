@@ -64,7 +64,7 @@ $Graph_Device_Arch = $graph_arrays[4];
 if ($_REQUEST['mod'] == 'bulkedit') {
 
 	echo '
-					<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
+					<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
           <a href="./devices.php" class="btn btn-success pull-right bulk_editor_quit" role="button">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
         </section>';
 
@@ -462,7 +462,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 <!-- Content header--------------------------------------------------------- -->
       <h1 id="pageTitle">
            <?php
-           echo $pia_lang['Device_Title'];
+           echo $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE];
            if ($_REQUEST['predefined_filter']) {
            	echo ' ('.$_REQUEST['predefined_filter'].')';
            }

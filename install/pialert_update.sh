@@ -300,6 +300,19 @@ AUTO_DB_BACKUP_KEEP    = 5
 EOF
 fi
 
+# 2024-06-23
+if ! grep -Fq "SATELLITES_ACTIVE" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+SATELLITES_ACTIVE = False
+
+# Satellite Configuration
+# -----------------------
+SATELLITE_PROXY_MODE = False
+SATELLITE_PROXY_URL = ''
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

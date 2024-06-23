@@ -143,6 +143,8 @@ function toggle_icmpscan_menu($section) {
 // Sidebar Menu - Satellites Menu Items
 function toggle_satellites_submenu() {
 	if (($_SESSION['Scan_Satellite'] == True)) {
+		// prepare SubHeadline on devices page
+		$_SESSION['local'] = "local";
 		global $satellite_badges_list;
     	$database = '../db/pialert.db';
 	    $db = new SQLite3($database);
@@ -152,6 +154,9 @@ function toggle_satellites_submenu() {
 	        if ($result->numColumns() > 0) {
 	            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 	                array_push($satellite_badges_list, $row['sat_token']);
+	                // prepare SubHeadline on devices page
+	                $_SESSION[$row['sat_token']] = $row['sat_name'];
+	                // Create NavBar items
 	                echo '<li class="custom_filter">
 	                	<a href="devices.php?scansource='.$row['sat_token'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
 	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
