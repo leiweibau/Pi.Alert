@@ -802,20 +802,21 @@ function getNetworkNodes() {
 
 //  Status Where conditions
 function getDeviceCondition($deviceStatus, $scansource) {
+	if ($scansource == "all") {$scansource_query = "";} else {$scansource_query = 'dev_ScanSource="'.$scansource.'" AND ';}
 	switch ($deviceStatus) {
-	case 'all':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0';
+	case 'all':return 'WHERE '.$scansource_query.'dev_Archived=0';
 		break;
-	case 'connected':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_PresentLastScan=1';
+	case 'connected':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_PresentLastScan=1';
 		break;
-	case 'favorites':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_Favorite=1';
+	case 'favorites':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_Favorite=1';
 		break;
-	case 'new':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_NewDevice=1';
+	case 'new':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_NewDevice=1';
 		break;
-	case 'down':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
+	case 'down':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
 		break;
-	case 'archived':return 'WHERE dev_ScanSource="'.$scansource.'" AND dev_Archived=1';
+	case 'archived':return 'WHERE '.$scansource_query.'dev_Archived=1';
 		break;
-	default:return 'WHERE dev_ScanSource="'.$scansource.'" AND 1=0';
+	default:return 'WHERE '.$scansource_query.'AND 1=0';
 		break;
 	}
 }

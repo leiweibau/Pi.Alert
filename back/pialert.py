@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json
 
 #===============================================================================
@@ -123,15 +123,15 @@ def get_username():
 # ------------------------------------------------------------------------------
 def set_db_file_permissions():
     print(f"\nPrepare Scan...")
-    print(f"    Force file permissions on Pi.Alert db...")
+    print_log(f"    Force file permissions on Pi.Alert db...")
     # Set permissions
     os.system("sudo chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
     os.system("sudo chmod 775 " + PIALERT_DB_FILE)
     # Get permissions
     fileinfo = Path(PIALERT_DB_FILE)
     file_stat = fileinfo.stat()
-    print(f"        DB permission mask: {oct(file_stat.st_mode)[-3:]}")
-    print(f"        DB Owner and Group: {fileinfo.owner()}:{fileinfo.group()}")
+    print_log(f"        DB permission mask: {oct(file_stat.st_mode)[-3:]}")
+    print_log(f"        DB Owner and Group: {fileinfo.owner()}:{fileinfo.group()}")
 
 # ------------------------------------------------------------------------------
 def set_reports_file_permissions():
@@ -562,22 +562,39 @@ def cleanup_database():
     except NameError: # variable not defined, use a default
         strdaystokeepEV = str(90) # 90 days
     print('    Online_History, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Events, up to the lastest '+strdaystokeepEV+' days...')
-    sql.execute ("DELETE FROM Events WHERE eve_DateTime <= date('now', '-"+strdaystokeepEV+" day')")
+    sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-"+strdaystokeepEV+" day')")
+    print('        ...Fixing missing or VOIDED events')
+    RepairedEventTime = startTime - timedelta(days=int(strdaystokeepEV))
+    sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
+    sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
+    repair_devices = sql.fetchall()
+    for device in repair_devices:
+        dev_mac, dev_lastip = device
+        
+        sql.execute("SELECT 1 FROM Events WHERE eve_MAC = ? AND eve_EventType='Connected'", (dev_mac,))
+        event_exists = sql.fetchone()
+        
+        if not event_exists:
+            sql.execute(
+                "INSERT INTO Events (eve_MAC, eve_EventType, eve_IP, eve_DateTime, eve_PendingAlertEmail) VALUES (?, ?, ?, ?, ?)",
+                (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
+            )
+
     print('    Services_Events, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
     print('    ICMP_Mon_Events, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Trim Journal to the lastest 1000 entries')
-    sql.execute ("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
+    sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
     print('    Speedtest_History, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Nmap Scan Results, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Shrink Database...')
-    sql.execute ("VACUUM;")
-    sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+    sql.execute("VACUUM;")
+    sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                     VALUES (?, 'c_010', 'cronjob', 'LogStr_0101', '', 'Cleanup') """, (startTime,))
     closeDB()
     return 0
@@ -719,10 +736,8 @@ def scan_network():
     openDB()
     print_log ('UniFi copy starts...')
     read_unifi_clients()
-    # Satellites
+    # Import Satellites Scans
     print('    Satellite Import...')
-    openDB()
-    print_log ('Satellite Import starts...')
     get_satellite_scans()
     # Load current scan data 1/2
     print('\nProcessing scan results...')
@@ -1076,12 +1091,44 @@ def get_satellite_scans():
         satellite_list[sat_token] = sat_password
 
     if SATELLITE_PROXY_MODE:
-        print('        ...Proxy Mode')
+        print_log('        ...Proxy Mode')
         get_satellite_proxy_scans(satellite_list)
         decrypt_satellite_proxy_scans(satellite_list)
-    # process data
 
-        cleanup_satellite_scans(satellite_list)
+    process_satellites(satellite_list)
+    #cleanup_satellite_scans(satellite_list)
+
+#-------------------------------------------------------------------------------
+def process_satellites(satellite_list):
+    print("    Processing satellite scans")
+
+    sql.execute ("DELETE FROM Satellites_Network")
+
+    WORKING_DIR = PIALERT_PATH + "/front/satellites/"
+    for token, password in satellite_list.items():
+        satellite_scanresult = WORKING_DIR+token+".json"
+        if os.path.exists(satellite_scanresult):
+            with open(satellite_scanresult, 'r') as file:
+                data = json.load(file)
+                
+                print('Debug')
+
+                # Durch die Scan-Ergebnisse iterieren und in die Datenbank einfügen
+                for result in data['scan_results']:
+                    if result['cur_ScanMethod'] != 'Internet Check':
+                        sat_MAC = result['cur_MAC']
+                        sat_IP = result['cur_IP']
+                        sat_hostname = result['cur_hostname']
+                        sat_Vendor = result['cur_Vendor']
+                        sat_ScanMethod = result['cur_ScanMethod']
+                        sat_ScanSource = result['cur_SatelliteID']                
+
+                        sql.execute("""SELECT 1 FROM Satellites_Network WHERE Sat_MAC = ?""", (sat_MAC,))
+                        if sql.fetchone() is None:
+                            sql.execute("""INSERT INTO Satellites_Network (
+                                              Sat_MAC, Sat_IP, Sat_Name, Sat_Vendor, Sat_ScanMethod, Sat_Token)
+                                              VALUES (?, ?, ?, ?, ?, ?)""",
+                                              (sat_MAC, sat_IP, sat_hostname, sat_Vendor, sat_ScanMethod, sat_ScanSource))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
@@ -1141,6 +1188,9 @@ def cleanup_satellite_scans(satellite_list):
 
     for token, password in satellite_list.items():
         if os.path.exists(WORKING_DIR+"encrypted_"+token):
+            os.remove(WORKING_DIR+"encrypted_"+token)
+
+        if os.path.exists(WORKING_DIR+token+".json"):
             os.remove(WORKING_DIR+token+".json") 
 
 #-------------------------------------------------------------------------------
@@ -1193,6 +1243,15 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                     FROM Unifi_Network
                     WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
                                       WHERE cur_MAC = UF_MAC )""",
+                    (cycle) )
+
+    # Insert Satellite devices
+    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
+                        cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
+                    SELECT ?, Sat_MAC, Sat_IP, Sat_Vendor, Sat_ScanMethod, Sat_Token
+                    FROM Satellites_Network
+                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
+                                      WHERE cur_MAC = Sat_MAC )""",
                     (cycle) )
 
     # Check Internet connectivity
@@ -1378,7 +1437,8 @@ def create_new_devices():
                     WHERE cur_ScanCycle = ? 
                       AND NOT EXISTS (SELECT 1 FROM Devices
                                       WHERE dev_MAC = cur_MAC) """,
-                    (startTime, startTime, cycle) ) 
+                    (startTime, startTime, cycle) )
+
 
     # Pi-hole - Insert events for new devices
     print_log ('New devices - 3 Pi-hole Events')
@@ -1500,14 +1560,24 @@ def insert_events():
 def update_devices_data_from_scan():
     # Update Last Connection
     print_log ('Update devices - 1 Last Connection')
-    sql.execute ("""UPDATE Devices SET dev_LastConnection = ?,
-                        dev_PresentLastScan = 1
-                    WHERE dev_ScanCycle = ?
-                      AND dev_PresentLastScan = 0
-                      AND EXISTS (SELECT 1 FROM CurrentScan 
-                                  WHERE dev_MAC = cur_MAC
-                                    AND dev_ScanCycle = cur_ScanCycle) """,
-                    (startTime, cycle))
+    # sql.execute("""UPDATE Devices SET dev_LastConnection = ?, dev_PresentLastScan = 1
+    #                 WHERE dev_ScanCycle = ?
+    #                   AND dev_PresentLastScan = 0
+    #                   AND EXISTS (SELECT 1 FROM CurrentScan 
+    #                               WHERE dev_MAC = cur_MAC
+    #                                 AND dev_ScanCycle = cur_ScanCycle) """,
+    #                 (startTime, cycle))
+
+    sql.execute("""UPDATE Devices SET dev_LastConnection = ?, dev_PresentLastScan = 1, dev_ScanSource = (
+                        SELECT cur_ScanSource FROM CurrentScan
+                            WHERE Devices.dev_MAC = CurrentScan.cur_MAC
+                            AND Devices.dev_ScanCycle = CurrentScan.cur_ScanCycle)
+                   WHERE dev_ScanCycle = ?
+                     AND dev_PresentLastScan = 0
+                     AND EXISTS (
+                        SELECT 1 FROM CurrentScan
+                            WHERE Devices.dev_MAC = CurrentScan.cur_MAC
+                            AND Devices.dev_ScanCycle = CurrentScan.cur_ScanCycle)""",(startTime, cycle))
 
     # Clean no active devices
     print_log ('Update devices - 2 Clean no active devices')
@@ -1556,7 +1626,7 @@ def update_devices_data_from_scan():
                       AND EXISTS (SELECT 1 FROM DHCP_Leases
                                   WHERE DHCP_MAC = dev_MAC)""")
 
-    # Fritzbox Leases - Update (unknown) Name
+    # Fritzbox - Update (unknown) Name
     sql.execute ("""UPDATE Devices
                     SET dev_Name = (SELECT FB_Name FROM Fritzbox_Network
                                     WHERE FB_MAC = dev_MAC)
@@ -1568,7 +1638,7 @@ def update_devices_data_from_scan():
                                     AND FB_NAME IS NOT NULL
                                     AND FB_NAME <> '') """)
 
-    # Mikrotik Leases - Update (unknown) Name
+    # Mikrotik - Update (unknown) Name
     sql.execute ("""UPDATE Devices
                     SET dev_Name = (SELECT MT_Name FROM Mikrotik_Network
                                     WHERE MT_MAC = dev_MAC)
@@ -1580,7 +1650,7 @@ def update_devices_data_from_scan():
                                     AND MT_NAME IS NOT NULL
                                     AND MT_NAME <> '') """)
 
-    # Unifi Leases - Update (unknown) Name
+    # Unifi - Update (unknown) Name
     sql.execute ("""UPDATE Devices
                     SET dev_Name = (SELECT UF_Name FROM Unifi_Network
                                     WHERE UF_MAC = dev_MAC)
@@ -1591,6 +1661,18 @@ def update_devices_data_from_scan():
                                   WHERE UF_MAC = dev_MAC
                                     AND UF_Name IS NOT NULL
                                     AND UF_Name <> '') """)
+
+    # Satellite - Update (unknown) Name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = (SELECT Sat_Name FROM Satellites_Network
+                                    WHERE Sat_MAC = dev_MAC)
+                    WHERE (dev_Name = "(unknown)"
+                           OR dev_Name = ""
+                           OR dev_Name IS NULL)
+                      AND EXISTS (SELECT 1 FROM Satellites_Network
+                                  WHERE Sat_MAC = dev_MAC
+                                    AND Sat_NAME IS NOT NULL
+                                    AND Sat_NAME <> '') """)
 
     # DHCP Leases - Vendor
     print_log ('Update devices - 5 Vendor')

@@ -36,7 +36,7 @@ function purge_old_results() {
 	$directory = '../satellites';
 	$files = scandir($directory);
 	$currentTime = time();
-	$ageLimit = 10 * 60; // 10 minutes in seconds
+	$ageLimit = 7 * 60; // 7 minutes in seconds
 
 	foreach ($files as $file) {
 	    $filePath = $directory . '/' . $file;
