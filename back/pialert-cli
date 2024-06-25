@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.22'
+SCRIPTVERSION='v1.23'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -561,6 +561,7 @@ EOM
     else
       echo "        Column 'cur_ScanSource' already exists in the 'CurrentScan' table."
     fi
+    # Satellites
     echo -e "...Insert new table 'Satellites' to DB"
     sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Satellites' ('sat_id' INTEGER NOT NULL, 'sat_name' STRING(150) NOT NULL UNIQUE, 'sat_token' STRING(250) NOT NULL UNIQUE, 'sat_password' STRING(250) NOT NULL UNIQUE, 'sat_lastupdate' DATETIME NOT NULL, PRIMARY KEY(\"sat_id\" AUTOINCREMENT));"
     # Devices.dev_ScanSource
@@ -571,6 +572,9 @@ EOM
     else
       echo "        Column 'dev_ScanSource' already exists in the 'Devices' table."
     fi
+    # Satellites_Network
+    echo -e "...Insert new table 'Satellites_Network' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Satellites_Network' ( 'Sat_MAC'   STRING(50) NOT NULL COLLATE NOCASE, 'Sat_IP'    STRING(50) COLLATE NOCASE, 'Sat_Name'  STRING(50), 'Sat_Vendor'    STRING(250), 'Sat_ScanMethod'    STRING(50), 'Sat_Token' STRING(250));"
 
     echo -e "\nUpdate finished!\n"
 
