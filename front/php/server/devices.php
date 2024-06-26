@@ -148,11 +148,11 @@ function DeleteSatellite() {
 	if ($result == TRUE) {
 		echo $pia_lang['BE_Dev_SatDelete'];
 		// Logging
-		pialert_logging('a_003', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
 	} else {
 		echo $pia_lang['BE_Dev_SatDeleteError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
-		pialert_logging('a_003', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
 	}
 
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
