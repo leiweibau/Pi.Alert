@@ -27,6 +27,8 @@ the HTTP status code, SSL certificate, and service response time. Receive notifi
 certificate changes, the HTTP status code changes, or if the service becomes unreachable. Other features 
 include the detection of unwanted/foreign DHCP servers and device monitoring using the ping command.
 
+There is also a companion script, [Pi.Alert-Satellite](https://github.com/leiweibau/Pi.Alert-Satellite), 
+which performs its own scans and the results can be sent to an existing Pi.Alert instance.
 
 ![Main screen][main]
 [Compare this fork with the main project](docs/VERSIONCOMPARE.md)
