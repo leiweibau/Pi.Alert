@@ -535,3 +535,6 @@ body.modal-open {
   background: rgb(243,156,18);
   background: radial-gradient(circle, rgba(243,156,18,1) 60%, rgba(190,190,190,1) 90%); 
 }
+.hide_element {
+    display:none;
+}
