@@ -173,7 +173,7 @@ function CreateNewSatellite() {
 	global $pia_lang;
 
 	$currentDateTime = date('Y-m-d H:i');
-	if ($_REQUEST['new_satellite_name'] = "") {$satellite_name = "Satellite";} else {$satellite_name = htmlspecialchars($_REQUEST['new_satellite_name']);}
+	if ($_REQUEST['new_satellite_name'] == "") {$satellite_name = "Satellite";} else {$satellite_name = htmlspecialchars($_REQUEST['new_satellite_name']);}
 	$satellite_token = generateRandomString(48);
 	$satellite_password = generateRandomString(96);
 

@@ -125,8 +125,8 @@ def set_db_file_permissions():
     print(f"\nPrepare Scan...")
     print_log(f"    Force file permissions on Pi.Alert db...")
     # Set permissions
-    os.system("sudo chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
-    os.system("sudo chmod 775 " + PIALERT_DB_FILE)
+    os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
+    os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
     # Get permissions
     fileinfo = Path(PIALERT_DB_FILE)
     file_stat = fileinfo.stat()
@@ -1143,6 +1143,7 @@ def get_satellite_proxy_scans(satellite_list):
     for token, password in satellite_list.items():
         url = f"{SATELLITE_PROXY_URL}?mode=get&token={token}"
         try:
+            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
             response = requests.get(url, verify=False)  # Accept insecure SSL connections
             if response.status_code == 200:
                 received_results += 1
@@ -1152,10 +1153,11 @@ def get_satellite_proxy_scans(satellite_list):
                     file.write(response.content)
 
                 # update satellite db Last Update
-
+        except requests.exceptions.SSLError:
+            pass
         except requests.RequestException as e:
             # print(f"        Download failed for token {token}")
-            continue
+            pass
 
     print(f"        ...Get data from proxy ({received_results})")
     # get data from url to local storage
@@ -2858,7 +2860,7 @@ def email_reporting():
         mail_html_new_devices += html_line_template.format (
             REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'], eventAlert['eve_AdditionalInfo'])
+            eventAlert['dev_Name'], eventAlert['eve_AdditionalInfo'], sat_name)
 
     format_report_section (mail_section_new_devices, 'SECTION_NEW_DEVICES',
         'TABLE_NEW_DEVICES', mail_text_new_devices, mail_html_new_devices)
@@ -2898,7 +2900,7 @@ def email_reporting():
         mail_html_devices_down += html_line_template.format (
             REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'])
+            eventAlert['dev_Name'], sat_name)
 
     format_report_section (mail_section_devices_down, 'SECTION_DEVICES_DOWN',
         'TABLE_DEVICES_DOWN', mail_text_devices_down, mail_html_devices_down)
@@ -2941,7 +2943,7 @@ def email_reporting():
         mail_html_events += html_line_template.format (
             REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['eve_EventType'], eventAlert['dev_Name'],
+            eventAlert['eve_EventType'], eventAlert['dev_Name'], sat_name,
             eventAlert['eve_AdditionalInfo'])
 
     format_report_section (mail_section_events, 'SECTION_EVENTS',
