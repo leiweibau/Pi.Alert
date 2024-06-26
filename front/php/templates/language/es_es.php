@@ -1,12 +1,6 @@
 <?php
 unset($pia_lang);
 
-$pia_lang['MT_Stats_autobkp'] = 'Auto-Backup';
-$pia_lang['MT_Stats_autobkp_on'] = 'Activado';
-$pia_lang['MT_Stats_autobkp_off'] = 'Desactivado';
-$pia_lang['BE_Files_autobkp_pause'] = 'En pausa';
-$pia_lang['BE_Files_autobkp_pending'] = 'Pendiente';
-
 // About - Update by @TeroRERO 07ago2022
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Guadián de Red <br>(Código Abierto)';
@@ -491,6 +485,23 @@ $pia_lang['FavIcon_mode_glass'] = 'glass';
 $pia_lang['FavIcon_mode_flat'] = 'flat';
 $pia_lang['FavIcon_local'] = 'local';
 $pia_lang['FavIcon_remote'] = 'remote';
+$pia_lang['MT_Stats_autobkp'] = 'Copia de seguridad automática';
+$pia_lang['MT_Stats_autobkp_on'] = 'Habilitado';
+$pia_lang['MT_Stats_autobkp_off'] = 'Deshabilitado';
+$pia_lang['MT_Tool_satellites'] = 'Satélites';
+$pia_lang['MT_Tool_satellites_noti'] = 'Satélites';
+$pia_lang['MT_Tool_satellites_noti_text'] = 'Habilita o deshabilita el soporte para satélites. Los satélites son hosts que ejecutan un script complementario y proporcionan los resultados del escaneo de esta instalación de Pi.Alert. Si ya hay satélites configurados, permanecen en la base de datos pero no se muestran ni se actualizan. Los satélites continúan transmitiendo sus datos, pero estos datos ya no se procesan.';
+$pia_lang['MT_SET_SatCreate_noti'] = 'Crear una configuración de satélite de Pi.Alert';
+$pia_lang['MT_SET_SatCreate_noti_text'] = 'Esto crea una configuración para un satélite de Pi.Alert, que debe incluirse en el archivo de configuración correspondiente. Se genera una cadena aleatoria como "Token" y otra cadena como "Contraseña".';
+$pia_lang['MT_SET_SatCreate_head'] = 'Crear nuevo satélite';
+$pia_lang['MT_SET_SatCreate_FORM_Name'] = 'Nombre';
+$pia_lang['MT_SET_SatCreate_FORM_Name_PH'] = 'Nombre del satélite';
+$pia_lang['MT_SET_SatExport_BTM'] = 'Exportar configuración del modo proxy';
+$pia_lang['MT_SET_SatEdit_FORM_Token'] = 'Token (48)';
+$pia_lang['MT_SET_SatEdit_FORM_Pass'] = 'Contraseña (96)';
+$pia_lang['MT_SET_SatEdit_FORM_LastUpd'] = 'Última actualización';
+$pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Acciones';
+$pia_lang['MT_SET_SatEdit_head'] = 'Gestionar satélites';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BackDevices_Arpscan_disabled'] = 'Arp-Scan Desactivado';
@@ -563,6 +574,16 @@ $pia_lang['BackDevices_table_filter_error_d'] = 'No se completaron todos los cam
 $pia_lang['BackDevices_table_filter_error_e'] = 'Error al crear la tabla de filtros';
 $pia_lang['BackDevices_Upd_Filter'] = 'Filtro actualizado correctamente.';
 $pia_lang['BackDevices_Upd_FilterError'] = 'Error al actualizar el filtro.';
+$pia_lang['BE_Dev_SatCreate'] = 'La configuración del satélite ha sido creada.';
+$pia_lang['BE_Dev_SatCreateError'] = 'Error al crear la configuración del satélite.';
+$pia_lang['BE_Dev_SatUpdate'] = 'El satélite ha sido renombrado';
+$pia_lang['BE_Dev_SatUpdateError'] = 'Error al renombrar el satélite.';
+$pia_lang['BE_Dev_SatDelete'] = 'El satélite ha sido eliminado';
+$pia_lang['BE_Dev_SatDeleteError'] = 'Error al eliminar el satélite.';
+$pia_lang['BE_Dev_satellites_disabled'] = 'Los satélites están deshabilitados';
+$pia_lang['BE_Dev_satellites_enabled'] = 'Los satélites están habilitados';
+$pia_lang['BE_Files_autobkp_pause'] = 'Pausado';
+$pia_lang['BE_Files_autobkp_pending'] = 'Pendiente';
 // Network Page - Update by @TeroRERO 01ago2022
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Descripción general de la red';
@@ -677,6 +698,7 @@ $pia_journ_lang['a_025'] = 'Herramientas';
 $pia_journ_lang['a_030'] = 'Monitoreo del Servicio Web';
 $pia_journ_lang['a_031'] = 'ICMP Monitoring';
 $pia_journ_lang['a_032'] = 'Main Scan';
+$pia_journ_lang['a_033'] = 'Satellites';
 $pia_journ_lang['a_040'] = 'Descripción de la Red';
 $pia_journ_lang['a_050'] = 'Informes';
 $pia_journ_lang['a_060'] = 'Verificación de Actualizaciones';
@@ -687,6 +709,7 @@ $pia_journ_lang['b_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
+$pia_journ_lang['b_033'] = $pia_journ_lang['a_033'];
 //cronjob
 $pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
@@ -766,6 +789,10 @@ $pia_journ_lang['LogStr_0251'] = 'Ejecutado Wake-on-lan';
 $pia_journ_lang['LogStr_0255'] = 'Ejecutado Speedtest en línea';
 $pia_journ_lang['LogStr_0301'] = $pia_lang['BackDevices_webservicemon_enabled'];
 $pia_journ_lang['LogStr_0302'] = $pia_lang['BackDevices_webservicemon_disabled'];
+$pia_journ_lang['LogStr_0303'] = $pia_lang['BackICMP_mon_enabled'];
+$pia_journ_lang['LogStr_0304'] = $pia_lang['BackICMP_mon_disabled'];
+$pia_journ_lang['LogStr_0305'] = $pia_lang['BE_Dev_satellites_enabled'];
+$pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
 $pia_journ_lang['LogStr_0500'] = 'Notificación(es) de prueba enviada(s)';
 $pia_journ_lang['LogStr_0503'] = 'Informe eliminado';
 $pia_journ_lang['LogStr_0504'] = 'Eliminar todos los informes';

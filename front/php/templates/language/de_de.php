@@ -1,44 +1,6 @@
 <?php
 unset($pia_lang);
 
-$pia_lang['MT_Stats_autobkp'] = 'Auto-Backup';
-$pia_lang['MT_Stats_autobkp_on'] = 'Aktiviert';
-$pia_lang['MT_Stats_autobkp_off'] = 'Deaktiviert';
-
-$pia_lang['MT_Tool_satellites'] = 'Satelliten';
-$pia_lang['MT_Tool_satellites_noti'] = 'Satelliten';
-$pia_lang['MT_Tool_satellites_noti_text'] = 'Aktiviert oder deaktiviert die Unterstützung für Satelliten. Satelliten sind Host, die ein Companion Script ausführen und die Scan-Ergebnisse dieser Pi.Alert Installation zur Verfügung stellen. Sind Bereits Satelliten konfiguriert, bleiben diese zwar in der Datenbank erhalten, werden aber weder angezeigt, noch aktualisiert. Die Satelliten selbst übertragen weiterhin ihre Daten, diesen werden jedoch nicht mehr verwarbeitet';
-
-$pia_journ_lang['LogStr_0305'] = $pia_lang['BE_Dev_satellites_enabled'];
-$pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
-
-#$pia_lang[''] = '';
-$pia_lang['MT_SET_SatCreate_noti'] = 'Erzeuge eine Pi.Alert-Satellite Konfiguration';
-$pia_lang['MT_SET_SatCreate_noti_text'] = 'Hiermit wird eine Konfiguration für einen Pi.Alert Satelliten erzeugt, welche in die entsprechende Konfigurationsdatei übernommen werden muss. Hierbei wird eine zufällige Zeichenkette als "Token" und eine weitere Zeichenkette als "Passwort" erzeugt.';
-$pia_lang['MT_SET_SatCreate_head'] = 'Neuen Satelliten erstellen';
-$pia_lang['MT_SET_SatCreate_FORM_Name'] = 'Name';
-$pia_lang['MT_SET_SatCreate_FORM_Name_PH'] = 'Name des Satelliten';
-$pia_lang['MT_SET_SatExport_BTM'] = 'Exportiere Proxy Mode Konfig.';
-$pia_lang['MT_SET_SatEdit_FORM_Token'] = 'Token (48)';
-$pia_lang['MT_SET_SatEdit_FORM_Pass'] = 'Passwort (96)';
-$pia_lang['MT_SET_SatEdit_FORM_LastUpd'] = 'Letzte Änderung';
-$pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Aktionen';
-$pia_lang['MT_SET_SatEdit_head'] = 'Satelliten verwalten';
-
-$pia_lang['BE_Dev_SatCreate'] = 'Die Konfigurtion für den Satelliten wurde erzeugt.';
-$pia_lang['BE_Dev_SatCreateError'] = 'Fehler bei der Erstellung der Konfiguration für den Satelliten.';
-$pia_lang['BE_Dev_SatUpdate'] = 'Der Satellit wurde umbenannt';
-$pia_lang['BE_Dev_SatUpdateError'] = 'Fehler bei der Umbenennung des Satelliten.';
-$pia_lang['BE_Dev_SatDelete'] = 'Der Satellit wurde gelöscht';
-$pia_lang['BE_Dev_SatDeleteError'] = 'Fehler beim Löschen des Satelliten.';
-$pia_lang['BE_Dev_satellites_disabled'] = 'Satelliten sind deaktiviert';
-$pia_lang['BE_Dev_satellites_enabled'] = 'Satelliten sind aktiviert';
-$pia_lang['BE_Files_autobkp_pause'] = 'Pausiert';
-$pia_lang['BE_Files_autobkp_pending'] = 'In Warteschleife';
-
-$pia_journ_lang['LogStr_0305'] = $pia_lang['BE_Dev_satellites_enabled'];
-$pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
-
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
@@ -520,6 +482,23 @@ $pia_lang['FavIcon_mode_glass'] = 'glanz';
 $pia_lang['FavIcon_mode_flat'] = 'matt';
 $pia_lang['FavIcon_local'] = 'lokal';
 $pia_lang['FavIcon_remote'] = 'GitHub';
+$pia_lang['MT_Stats_autobkp'] = 'Auto-Backup';
+$pia_lang['MT_Stats_autobkp_on'] = 'Aktiviert';
+$pia_lang['MT_Stats_autobkp_off'] = 'Deaktiviert';
+$pia_lang['MT_Tool_satellites'] = 'Satelliten';
+$pia_lang['MT_Tool_satellites_noti'] = 'Satelliten';
+$pia_lang['MT_Tool_satellites_noti_text'] = 'Aktiviert oder deaktiviert die Unterstützung für Satelliten. Satelliten sind Host, die ein Companion Script ausführen und die Scan-Ergebnisse dieser Pi.Alert Installation zur Verfügung stellen. Sind Bereits Satelliten konfiguriert, bleiben diese zwar in der Datenbank erhalten, werden aber weder angezeigt, noch aktualisiert. Die Satelliten selbst übertragen weiterhin ihre Daten, diesen werden jedoch nicht mehr verwarbeitet';
+$pia_lang['MT_SET_SatCreate_noti'] = 'Erzeuge eine Pi.Alert-Satellite Konfiguration';
+$pia_lang['MT_SET_SatCreate_noti_text'] = 'Hiermit wird eine Konfiguration für einen Pi.Alert Satelliten erzeugt, welche in die entsprechende Konfigurationsdatei übernommen werden muss. Hierbei wird eine zufällige Zeichenkette als "Token" und eine weitere Zeichenkette als "Passwort" erzeugt.';
+$pia_lang['MT_SET_SatCreate_head'] = 'Neuen Satelliten erstellen';
+$pia_lang['MT_SET_SatCreate_FORM_Name'] = 'Name';
+$pia_lang['MT_SET_SatCreate_FORM_Name_PH'] = 'Name des Satelliten';
+$pia_lang['MT_SET_SatExport_BTM'] = 'Exportiere Proxy Mode Konfig.';
+$pia_lang['MT_SET_SatEdit_FORM_Token'] = 'Token (48)';
+$pia_lang['MT_SET_SatEdit_FORM_Pass'] = 'Passwort (96)';
+$pia_lang['MT_SET_SatEdit_FORM_LastUpd'] = 'Letzte Änderung';
+$pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Aktionen';
+$pia_lang['MT_SET_SatEdit_head'] = 'Satelliten verwalten';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BackDevices_Arpscan_disabled'] = 'Automatischer Arp-Scan deaktiviert.';
@@ -594,6 +573,16 @@ $pia_lang['BackDevices_DBTools_DelNmapScans'] = 'Die Nmap-Scans wurden gelöscht
 $pia_lang['BackDevices_DBTools_DelNmapScansError'] = 'Fehler beim Löschen der Nmap-Scans.';
 $pia_lang['BackDevDetail_Tools_WOL_okay'] = 'Das Kommando wurde ausgeführt';
 $pia_lang['BackDevDetail_Tools_WOL_error'] = 'Das Kommando wurde nicht ausgeführt';
+$pia_lang['BE_Dev_SatCreate'] = 'Die Konfigurtion für den Satelliten wurde erzeugt.';
+$pia_lang['BE_Dev_SatCreateError'] = 'Fehler bei der Erstellung der Konfiguration für den Satelliten.';
+$pia_lang['BE_Dev_SatUpdate'] = 'Der Satellit wurde umbenannt';
+$pia_lang['BE_Dev_SatUpdateError'] = 'Fehler bei der Umbenennung des Satelliten.';
+$pia_lang['BE_Dev_SatDelete'] = 'Der Satellit wurde gelöscht';
+$pia_lang['BE_Dev_SatDeleteError'] = 'Fehler beim Löschen des Satelliten.';
+$pia_lang['BE_Dev_satellites_disabled'] = 'Satelliten sind deaktiviert';
+$pia_lang['BE_Dev_satellites_enabled'] = 'Satelliten sind aktiviert';
+$pia_lang['BE_Files_autobkp_pause'] = 'Pausiert';
+$pia_lang['BE_Files_autobkp_pending'] = 'In Warteschleife';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netzwerkübersicht';
@@ -807,6 +796,8 @@ $pia_journ_lang['LogStr_0301'] = $pia_lang['BackDevices_webservicemon_enabled'];
 $pia_journ_lang['LogStr_0302'] = $pia_lang['BackDevices_webservicemon_disabled'];
 $pia_journ_lang['LogStr_0303'] = $pia_lang['BackICMP_mon_enabled'];
 $pia_journ_lang['LogStr_0304'] = $pia_lang['BackICMP_mon_disabled'];
+$pia_journ_lang['LogStr_0305'] = $pia_lang['BE_Dev_satellites_enabled'];
+$pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
 $pia_journ_lang['LogStr_0500'] = 'Testbenachrichtigung(en) gesendet';
 $pia_journ_lang['LogStr_0503'] = 'Report gelöscht';
 $pia_journ_lang['LogStr_0504'] = 'Alle Reports gelöscht';

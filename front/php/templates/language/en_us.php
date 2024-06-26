@@ -1,12 +1,6 @@
 <?php
 unset($pia_lang);
 
-$pia_lang['MT_Stats_autobkp'] = 'Auto-Backup';
-$pia_lang['MT_Stats_autobkp_on'] = 'Enabled';
-$pia_lang['MT_Stats_autobkp_off'] = 'Disabled';
-$pia_lang['BE_Files_autobkp_pause'] = 'Paused';
-$pia_lang['BE_Files_autobkp_pending'] = 'Pending';
-
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
@@ -490,6 +484,23 @@ $pia_lang['FavIcon_mode_glass'] = 'glass';
 $pia_lang['FavIcon_mode_flat'] = 'flat';
 $pia_lang['FavIcon_local'] = 'local';
 $pia_lang['FavIcon_remote'] = 'remote';
+$pia_lang['MT_Stats_autobkp'] = 'Auto-Backup';
+$pia_lang['MT_Stats_autobkp_on'] = 'Enabled';
+$pia_lang['MT_Stats_autobkp_off'] = 'Disabled';
+$pia_lang['MT_Tool_satellites'] = 'Satellites';
+$pia_lang['MT_Tool_satellites_noti'] = 'Satellites';
+$pia_lang['MT_Tool_satellites_noti_text'] = 'Enables or disables support for satellites. Satellites are hosts that run a companion script and provide the scan results of this Pi.Alert installation. If satellites are already configured, they remain in the database but are neither displayed nor updated. The satellites themselves continue to transmit their data, but this data is no longer processed.';
+$pia_lang['MT_SET_SatCreate_noti'] = 'Create a Pi.Alert Satellite Configuration';
+$pia_lang['MT_SET_SatCreate_noti_text'] = 'This creates a configuration for a Pi.Alert satellite, which must be included in the corresponding configuration file. A random string is generated as a "Token" and another string as a "Password".';
+$pia_lang['MT_SET_SatCreate_head'] = 'Create New Satellite';
+$pia_lang['MT_SET_SatCreate_FORM_Name'] = 'Name';
+$pia_lang['MT_SET_SatCreate_FORM_Name_PH'] = 'Name of the satellite';
+$pia_lang['MT_SET_SatExport_BTM'] = 'Export Proxy Mode Config';
+$pia_lang['MT_SET_SatEdit_FORM_Token'] = 'Token (48)';
+$pia_lang['MT_SET_SatEdit_FORM_Pass'] = 'Password (96)';
+$pia_lang['MT_SET_SatEdit_FORM_LastUpd'] = 'Last Update';
+$pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Actions';
+$pia_lang['MT_SET_SatEdit_head'] = 'Manage Satellites';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BackDevices_Arpscan_disabled'] = 'Arp-Scan Disabled';
@@ -562,6 +573,16 @@ $pia_lang['BackDevices_table_filter_error_d'] = 'Not all required fields were fi
 $pia_lang['BackDevices_table_filter_error_e'] = 'Error creating the filter table';
 $pia_lang['BackDevices_Upd_Filter'] = 'Filter successfully updated.';
 $pia_lang['BackDevices_Upd_FilterError'] = 'Error updating the filter.';
+$pia_lang['BE_Dev_SatCreate'] = 'The configuration for the satellite has been created.';
+$pia_lang['BE_Dev_SatCreateError'] = 'Error creating the configuration for the satellite.';
+$pia_lang['BE_Dev_SatUpdate'] = 'The satellite has been renamed';
+$pia_lang['BE_Dev_SatUpdateError'] = 'Error renaming the satellite.';
+$pia_lang['BE_Dev_SatDelete'] = 'The satellite has been deleted';
+$pia_lang['BE_Dev_SatDeleteError'] = 'Error deleting the satellite.';
+$pia_lang['BE_Dev_satellites_disabled'] = 'Satellites are disabled';
+$pia_lang['BE_Dev_satellites_enabled'] = 'Satellites are enabled';
+$pia_lang['BE_Files_autobkp_pause'] = 'Paused';
+$pia_lang['BE_Files_autobkp_pending'] = 'Pending';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';
@@ -676,6 +697,7 @@ $pia_journ_lang['a_025'] = 'Tools';
 $pia_journ_lang['a_030'] = 'Web Service Monitoring';
 $pia_journ_lang['a_031'] = 'ICMP Monitoring';
 $pia_journ_lang['a_032'] = 'Main Scan';
+$pia_journ_lang['a_033'] = 'Satellites';
 $pia_journ_lang['a_040'] = 'Network Overview';
 $pia_journ_lang['a_050'] = 'Reports';
 $pia_journ_lang['a_060'] = 'Update Check';
@@ -686,6 +708,7 @@ $pia_journ_lang['b_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
+$pia_journ_lang['b_033'] = $pia_journ_lang['a_033'];
 // cronjob
 $pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
@@ -765,6 +788,10 @@ $pia_journ_lang['LogStr_0251'] = 'Wake-on-lan executed';
 $pia_journ_lang['LogStr_0255'] = 'Online Speedtest executed';
 $pia_journ_lang['LogStr_0301'] = $pia_lang['BackDevices_webservicemon_enabled'];
 $pia_journ_lang['LogStr_0302'] = $pia_lang['BackDevices_webservicemon_disabled'];
+$pia_journ_lang['LogStr_0303'] = $pia_lang['BackICMP_mon_enabled'];
+$pia_journ_lang['LogStr_0304'] = $pia_lang['BackICMP_mon_disabled'];
+$pia_journ_lang['LogStr_0305'] = $pia_lang['BE_Dev_satellites_enabled'];
+$pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
 $pia_journ_lang['LogStr_0500'] = 'Test notification(s) sent';
 $pia_journ_lang['LogStr_0503'] = 'Report deleted';
 $pia_journ_lang['LogStr_0504'] = 'Delete all reports';
