@@ -122,7 +122,7 @@ def get_username():
 
 # ------------------------------------------------------------------------------
 def set_db_file_permissions():
-    print(f"\nPrepare Scan...")
+    print_log(f"\nPrepare Scan...")
     print_log(f"    Force file permissions on Pi.Alert db...")
     # Set permissions
     os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
@@ -1079,9 +1079,6 @@ def get_satellite_scans():
         return
 
     print_log('        ...Mode detection')
-
-    # get all Sat Tokens from DB
-    # get all Sat Passwords from DB
     get_satellites = "SELECT sat_password, sat_token FROM Satellites"
     sql.execute(get_satellites)
 
@@ -1110,7 +1107,6 @@ def process_satellites(satellite_list):
             with open(satellite_scanresult, 'r') as file:
                 data = json.load(file)
 
-                # Durch die Scan-Ergebnisse iterieren und in die Datenbank einfügen
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check':
                         sat_MAC = result['cur_MAC']
@@ -1127,10 +1123,9 @@ def process_satellites(satellite_list):
                                               VALUES (?, ?, ?, ?, ?, ?)""",
                                               (sat_MAC, sat_IP, sat_hostname, sat_Vendor, sat_ScanMethod, sat_ScanSource))
 
-                            satUpdateTime = datetime.datetime.now()
-                            satUpdateTime = satUpdateTime.replace(microsecond=0)
-
-                            sql.execute("""UPDATE Satellites SET sat_lastupdate = ? WHERE sat_token = ?""", (satUpdateTime, sat_ScanSource))
+                satUpdateTime = datetime.datetime.now()
+                satUpdateTime = satUpdateTime.replace(microsecond=0)
+                sql.execute("""UPDATE Satellites SET sat_lastupdate = ? WHERE sat_token = ?""", (satUpdateTime, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
