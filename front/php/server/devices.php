@@ -80,6 +80,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'EnableMainScan':EnableMainScan();
 		break;
+	case 'EnableSatelliteScan':EnableSatelliteScan();
+		break;
 	case 'DeleteDeviceFilter':DeleteDeviceFilter();
 		break;
 	case 'SetDeviceFilter':SetDeviceFilter();
@@ -946,7 +948,26 @@ function BulkDeletion() {
 
 }
 
-//  Toggle Web Service Monitoring
+//  Toggle Satellites
+function EnableSatelliteScan() {
+	global $pia_lang;
+
+	if ($_SESSION['Scan_Satellite'] == True) {
+		exec('../../../back/pialert-cli disable_satellites', $output);
+		echo $pia_lang['BE_Dev_satellites_disabled'];
+		// Logging
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0306', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>");
+	} else {
+		exec('../../../back/pialert-cli enable_satellites', $output);
+		echo $pia_lang['BE_Dev_satellites_enabled'];
+		// Logging
+		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0305', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>");
+	}
+}
+
+//  Toggle Arp Scan
 function EnableMainScan() {
 	global $pia_lang;
 

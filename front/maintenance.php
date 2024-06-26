@@ -261,6 +261,13 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableICMPMon" onclick="askEnableICMPMon()"><?=$pia_lang['MT_Tool_icmpmon'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
+<!-- Toggle Satellites ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['Scan_Satellite'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableSatellites" onclick="askEnableSatelliteScan()"><?=$pia_lang['MT_Tool_satellites'] . '<br>' . $state;?></button>
+                                </div>
+                            </div>
                         </div>
                     </td>
 				</tr>
@@ -951,6 +958,15 @@ function askEnableMainScan() {
 }
 function EnableMainScan() {
 	$.get('php/server/devices.php?action=EnableMainScan', function(msg) {showMessage (msg);});
+}
+
+// Switch Satellites
+function askEnableSatelliteScan() {
+  showModalWarning('<?=$pia_lang['MT_Tool_satellites_noti'];?>', '<?=$pia_lang['MT_Tool_satellites_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableSatelliteScan');
+}
+function EnableSatelliteScan() {
+    $.get('php/server/devices.php?action=EnableSatelliteScan', function(msg) {showMessage (msg);});
 }
 
 // Toggle Graph

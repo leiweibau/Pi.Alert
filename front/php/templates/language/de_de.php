@@ -4,8 +4,13 @@ unset($pia_lang);
 $pia_lang['MT_Stats_autobkp'] = 'Auto-Backup';
 $pia_lang['MT_Stats_autobkp_on'] = 'Aktiviert';
 $pia_lang['MT_Stats_autobkp_off'] = 'Deaktiviert';
-$pia_lang['BE_Files_autobkp_pause'] = 'Pausiert';
-$pia_lang['BE_Files_autobkp_pending'] = 'In Warteschleife';
+
+$pia_lang['MT_Tool_satellites'] = 'Satelliten';
+$pia_lang['MT_Tool_satellites_noti'] = 'Satelliten';
+$pia_lang['MT_Tool_satellites_noti_text'] = 'Aktiviert oder deaktiviert die Unterstützung für Satelliten. Satelliten sind Host, die ein Companion Script ausführen und die Scan-Ergebnisse dieser Pi.Alert Installation zur Verfügung stellen. Sind Bereits Satelliten konfiguriert, bleiben diese zwar in der Datenbank erhalten, werden aber weder angezeigt, noch aktualisiert. Die Satelliten selbst übertragen weiterhin ihre Daten, diesen werden jedoch nicht mehr verwarbeitet';
+
+$pia_journ_lang['LogStr_0305'] = $pia_lang['BE_Dev_satellites_enabled'];
+$pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
 
 #$pia_lang[''] = '';
 $pia_lang['MT_SET_SatCreate_noti'] = 'Erzeuge eine Pi.Alert-Satellite Konfiguration';
@@ -26,6 +31,13 @@ $pia_lang['BE_Dev_SatUpdate'] = 'Der Satellit wurde umbenannt';
 $pia_lang['BE_Dev_SatUpdateError'] = 'Fehler bei der Umbenennung des Satelliten.';
 $pia_lang['BE_Dev_SatDelete'] = 'Der Satellit wurde gelöscht';
 $pia_lang['BE_Dev_SatDeleteError'] = 'Fehler beim Löschen des Satelliten.';
+$pia_lang['BE_Dev_satellites_disabled'] = 'Satelliten sind deaktiviert';
+$pia_lang['BE_Dev_satellites_enabled'] = 'Satelliten sind aktiviert';
+$pia_lang['BE_Files_autobkp_pause'] = 'Pausiert';
+$pia_lang['BE_Files_autobkp_pending'] = 'In Warteschleife';
+
+$pia_journ_lang['LogStr_0305'] = $pia_lang['BE_Dev_satellites_enabled'];
+$pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
 
 // About
 //////////////////////////////////////////////////////////////////
@@ -712,6 +724,7 @@ $pia_journ_lang['b_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
+$pia_journ_lang['b_033'] = $pia_journ_lang['a_033'];
 // cronjob
 $pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
