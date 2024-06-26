@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.23'
+SCRIPTVERSION='v1.24'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -42,6 +42,10 @@ This is the list of supported commands
     Allows the start of new scans again. If the SCAN_WEBSERVICES parameter
     does not exist yet, it will be created and set to FALSE.
 
+ ${bold}disable_satellites${normal}
+    Allows the start of new scans again. If the SATELLITES_ACTIVE parameter
+    does not exist yet, it will be created and set to FALSE.
+
  ${bold}enable_scan${normal}
     Allows the start of new scans again.
 
@@ -57,6 +61,10 @@ This is the list of supported commands
  ${bold}enable_service_mon${normal}"
     Enable Web Service Monitoring. If the SCAN_WEBSERVICES parameter does not
     exist yet, it will be created and set to TRUE.
+
+ ${bold}enable_satellites${normal}"
+    Enable Satellites. If the SATELLITES_ACTIVE parameter does not exist yet,
+    it will be created and set to TRUE.
 
  ${bold}reporting_test${normal}
     Test reporting for all activated services.
@@ -230,10 +238,10 @@ EOM
     if [ $CHECK_PROT -eq 0 ]
     then
         ## Create SCAN_WEBSERVICES and enable it
-        sed -i "/^VENDORS_DB.*/a SCAN_WEBSERVICES = True" $PIA_CONF_FILE
+        sed -i "/^VENDORS_DB.*/a SCAN_WEBSERVICES  = True" $PIA_CONF_FILE
     else
         ## Switch SCAN_WEBSERVICES to enable
-        sed -i "/SCAN_WEBSERVICES/c\SCAN_WEBSERVICES = True" $PIA_CONF_FILE
+        sed -i "/SCAN_WEBSERVICES/c\SCAN_WEBSERVICES  = True" $PIA_CONF_FILE
     fi
     if [ "$CURRENT_USER" != "www-data" ]; then
         sqlite3 $PIA_DB_FILE "INSERT INTO 'pialert_journal' ('Journal_DateTime', 'LogClass', 'Trigger', 'LogString', 'Hash', 'Additional_Info') VALUES('$(date '+%Y-%m-%d %H:%M:%S')', 'b_030', 'pialert-cli', 'LogStr_0301', '', '');"
@@ -247,15 +255,49 @@ EOM
     if [ $CHECK_PROT -eq 0 ]
     then
         ## Create SCAN_WEBSERVICES and disable it
-        sed -i "/^VENDORS_DB.*/a SCAN_WEBSERVICES = False" $PIA_CONF_FILE
+        sed -i "/^VENDORS_DB.*/a SCAN_WEBSERVICES  = False" $PIA_CONF_FILE
     else
         ## Switch SCAN_WEBSERVICES to disable
-        sed -i "/SCAN_WEBSERVICES/c\SCAN_WEBSERVICES = False" $PIA_CONF_FILE
+        sed -i "/SCAN_WEBSERVICES/c\SCAN_WEBSERVICES  = False" $PIA_CONF_FILE
     fi
     if [ "$CURRENT_USER" != "www-data" ]; then
         sqlite3 $PIA_DB_FILE "INSERT INTO 'pialert_journal' ('Journal_DateTime', 'LogClass', 'Trigger', 'LogString', 'Hash', 'Additional_Info') VALUES('$(date '+%Y-%m-%d %H:%M:%S')', 'b_030', 'pialert-cli', 'LogStr_0302', '', '');"
     fi
     echo "Web Service Monitoring is now disabled"
+    ;;
+
+  enable_satellites)
+    ## Check if SCAN_WEBSERVICES exists
+    CHECK_PROT=$(grep "SATELLITES_ACTIVE" $PIA_CONF_FILE | wc -l)
+    if [ $CHECK_PROT -eq 0 ]
+    then
+        ## Create SCAN_WEBSERVICES and enable it
+        sed -i "/^VENDORS_DB.*/a SATELLITES_ACTIVE = True" $PIA_CONF_FILE
+    else
+        ## Switch SCAN_WEBSERVICES to enable
+        sed -i "/SATELLITES_ACTIVE/c\SATELLITES_ACTIVE = True" $PIA_CONF_FILE
+    fi
+    if [ "$CURRENT_USER" != "www-data" ]; then
+        sqlite3 $PIA_DB_FILE "INSERT INTO 'pialert_journal' ('Journal_DateTime', 'LogClass', 'Trigger', 'LogString', 'Hash', 'Additional_Info') VALUES('$(date '+%Y-%m-%d %H:%M:%S')', 'b_033', 'pialert-cli', 'LogStr_0305', '', '');"
+    fi
+    echo "Satellites are now enabled"
+    ;;
+
+  disable_satellites)
+    ## Check if SCAN_WEBSERVICES exists
+    CHECK_PROT=$(grep "SATELLITES_ACTIVE" $PIA_CONF_FILE | wc -l)
+    if [ $CHECK_PROT -eq 0 ]
+    then
+        ## Create SCAN_WEBSERVICES and disable it
+        sed -i "/^VENDORS_DB.*/a SATELLITES_ACTIVE = False" $PIA_CONF_FILE
+    else
+        ## Switch SCAN_WEBSERVICES to disable
+        sed -i "/SATELLITES_ACTIVE/c\SATELLITES_ACTIVE = False" $PIA_CONF_FILE
+    fi
+    if [ "$CURRENT_USER" != "www-data" ]; then
+        sqlite3 $PIA_DB_FILE "INSERT INTO 'pialert_journal' ('Journal_DateTime', 'LogClass', 'Trigger', 'LogString', 'Hash', 'Additional_Info') VALUES('$(date '+%Y-%m-%d %H:%M:%S')', 'b_033', 'pialert-cli', 'LogStr_0306', '', '');"
+    fi
+    echo "Satellites are now disabled"
     ;;
 
   enable_icmp_mon)
@@ -264,10 +306,10 @@ EOM
     if [ $CHECK_PROT -eq 0 ]
     then
         ## Create ICMPSCAN_ACTIVE and enable it
-        sed -i "/^VENDORS_DB.*/a ICMPSCAN_ACTIVE = True" $PIA_CONF_FILE
+        sed -i "/^VENDORS_DB.*/a ICMPSCAN_ACTIVE   = True" $PIA_CONF_FILE
     else
         ## Switch ICMPSCAN_ACTIVE to enable
-        sed -i "/ICMPSCAN_ACTIVE/c\ICMPSCAN_ACTIVE = True" $PIA_CONF_FILE
+        sed -i "/ICMPSCAN_ACTIVE/c\ICMPSCAN_ACTIVE   = True" $PIA_CONF_FILE
     fi
     if [ "$CURRENT_USER" != "www-data" ]; then
         sqlite3 $PIA_DB_FILE "INSERT INTO 'pialert_journal' ('Journal_DateTime', 'LogClass', 'Trigger', 'LogString', 'Hash', 'Additional_Info') VALUES('$(date '+%Y-%m-%d %H:%M:%S')', 'b_031', 'pialert-cli', 'LogStr_0303', '', '');"
@@ -281,10 +323,10 @@ EOM
     if [ $CHECK_PROT -eq 0 ]
     then
         ## Create ICMPSCAN_ACTIVE and disable it
-        sed -i "/^VENDORS_DB.*/a ICMPSCAN_ACTIVE = False" $PIA_CONF_FILE
+        sed -i "/^VENDORS_DB.*/a ICMPSCAN_ACTIVE   = False" $PIA_CONF_FILE
     else
         ## Switch ICMPSCAN_ACTIVE to disable
-        sed -i "/ICMPSCAN_ACTIVE/c\ICMPSCAN_ACTIVE = False" $PIA_CONF_FILE
+        sed -i "/ICMPSCAN_ACTIVE/c\ICMPSCAN_ACTIVE   = False" $PIA_CONF_FILE
     fi
     if [ "$CURRENT_USER" != "www-data" ]; then
         sqlite3 $PIA_DB_FILE "INSERT INTO 'pialert_journal' ('Journal_DateTime', 'LogClass', 'Trigger', 'LogString', 'Hash', 'Additional_Info') VALUES('$(date '+%Y-%m-%d %H:%M:%S')', 'b_031', 'pialert-cli', 'LogStr_0304', '', '');"
@@ -699,7 +741,7 @@ EOM
     ;;
 
   arg_list)
-    echo disable_scan disable_mainscan disable_icmp_mon disable_service_mon enable_scan enable_mainscan enable_icmp_mon enable_service_mon reporting_test set_apikey set_autopassword set_login set_password set_permissions set_sudoers unset_login unset_sudoers update_db show_usercron
+    echo disable_scan disable_mainscan disable_icmp_mon disable_service_mon disable_satellites enable_scan enable_mainscan enable_icmp_mon enable_service_mon enable_satellites reporting_test set_apikey set_autopassword set_login set_password set_permissions set_sudoers unset_login unset_sudoers update_db show_usercron
     ;;
 
   *)
