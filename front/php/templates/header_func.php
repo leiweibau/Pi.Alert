@@ -244,7 +244,6 @@ function get_all_satellites_list() {
             }
         }
     }
-	$hinweise= "Hier kann der Installationsbefehl soweit vorbereitet werden, dass die wichtigsten Parameter schon bei der Installation eingetragen werden. Die verschiedenen Scans bleiben alle deaktiviert und müssen explizit in der Konfigurationsdatei aktiviert werden.";
     echo '<div id="modal_satellite_config" class="modal fade" tabindex="-1" role="dialog">
 			  <div class="modal-dialog" role="document">
 			    <div class="modal-content">
@@ -253,7 +252,7 @@ function get_all_satellites_list() {
 			        <h4 class="modal-title">Installationsbefehl mit Vorkonfiguration</h4>
 			      </div>
 			      <div class="modal-body">
-			      	<p>'.$hinweise.'</p>
+			      	<p>'.$pia_lang['MT_SET_SatEdit_Modal_info'].'</p>
 			        <div class="form-group col-xs-12">
 			            <div class="col-xs-3"><label>Proxy Mode:</label></div>
 			            <div class="col-xs-9 text-left"><input type="checkbox" id="proxyMode" onchange="generateCommand()"></div>

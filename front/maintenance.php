@@ -227,7 +227,7 @@ print_logviewer_modal_foot();
 
 <?php
 if ($_SESSION['SATELLITES_ACTIVE'] == True) {
-    echo '<li class="'.$pia_tab_satellites.'"><a href="#tab_satellites" data-toggle="tab" onclick="update_tabURL(window.location.href,\'5\')">Satellites</a></li>';
+    echo '<li class="'.$pia_tab_satellites.'"><a href="#tab_satellites" data-toggle="tab" onclick="update_tabURL(window.location.href,\'5\')">'.$pia_lang['MT_Tool_satellites'].'</a></li>';
 }
 
 ?>

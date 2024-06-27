@@ -10,8 +10,10 @@
   * [Screenshots](docs/SCREENSHOTS.md)
   * [Device Management](docs/DEVICE_MANAGEMENT.md)
   * [Bulk Editor](docs/BULKEDITOR.md)
+  * [pialert-cli](docs/PIALERTCLI.md)
   * [Network Relationship](docs/NETWORK_RELATIONSHIP.md)
   * [Web service monitoring](docs/WEBSERVICES.md)
+  * [Satellite Config](docs/SATELLITES.md)
   * [Uninstall Pi.Alert](docs/UNINSTALL.md)
 * [Closing words](#closing-words)
 

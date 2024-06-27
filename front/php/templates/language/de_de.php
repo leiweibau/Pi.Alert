@@ -1,6 +1,5 @@
 <?php
 unset($pia_lang);
-
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
@@ -499,6 +498,7 @@ $pia_lang['MT_SET_SatEdit_FORM_Pass'] = 'Passwort (96)';
 $pia_lang['MT_SET_SatEdit_FORM_LastUpd'] = 'Letzte Änderung';
 $pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Aktionen';
 $pia_lang['MT_SET_SatEdit_head'] = 'Satelliten verwalten';
+$pia_lang['MT_SET_SatEdit_Modal_info'] = 'Hier kann der Installationsbefehl soweit vorbereitet werden, dass die wichtigsten Parameter schon bei der Installation eingetragen werden. Die verschiedenen Scans bleiben alle deaktiviert und müssen explizit in der Konfigurationsdatei aktiviert werden.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BackDevices_Arpscan_disabled'] = 'Automatischer Arp-Scan deaktiviert.';
