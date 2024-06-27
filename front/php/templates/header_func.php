@@ -244,6 +244,58 @@ function get_all_satellites_list() {
             }
         }
     }
+	$hinweise= "Hier kann der Installationsbefehl soweit vorbereitet werden, dass die wichtigsten Parameter schon bei der Installation eingetragen werden. Die verschiedenen Scans bleiben alle deaktiviert und müssen explizit in der Konfigurationsdatei aktiviert werden.";
+    echo '<div id="modal_satellite_config" class="modal fade" tabindex="-1" role="dialog">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title">Installationsbefehl mit Vorkonfiguration</h4>
+			      </div>
+			      <div class="modal-body">
+			      	<p>'.$hinweise.'</p>
+			        <div class="form-group col-xs-12">
+			            <div class="col-xs-3"><label>Proxy Mode:</label></div>
+			            <div class="col-xs-9 text-left"><input type="checkbox" id="proxyMode" onchange="generateCommand()"></div>
+			        </div>
+			        <div class="form-group col-xs-12">
+			            <label class="col-xs-3" for="urlInput">URL:</label>
+				        <input class="col-xs-9" type="text" class="form-control" id="urlInput" placeholder="Enter URL" oninput="generateCommand()">
+				    </div>
+			        <pre id="satellite_setup_command" style="white-space: pre-wrap;"></pre>
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>';
+
+    echo '<script>
+			function InstallSatellite(satToken, satPassword) {
+			    // Store the satellite name and row ID for later use
+			    window.SatelliteConfigToken = satToken;
+			    window.SatelliteConfigPassword = satPassword;
+
+			    // Generate the command immediately when opening the modal
+			    generateCommand();
+
+			    // Open the modal
+			    $(\'#modal_satellite_config\').modal(\'show\');
+			  }
+
+			  function generateCommand() {
+			    var commandTemplate = \'bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert-Satellite/raw/main/install/pialert_satellite_install.sh)" -- ##NAME## ##PASSWORD## ##PROXY_MODE## ##URL##\';
+			    var command = commandTemplate.replace(\'##NAME##\', window.SatelliteConfigToken).replace(\'##PASSWORD##\', window.SatelliteConfigPassword);
+			    var proxyMode = document.getElementById(\'proxyMode\').checked ? \'True\' : \'False\';
+			    command = command.replace(\'##PROXY_MODE##\', proxyMode);
+			    var url = document.getElementById(\'urlInput\').value;
+			    var quotedUrl = \'"\' + url + \'"\';
+			    command = command.replace(\'##URL##\', quotedUrl);
+			    document.getElementById(\'satellite_setup_command\').textContent = command;
+			  }
+			</script>';
+
     $db->close();
 }
 // Sidebar Menu - Get DeviceList Filters and create session array to reduce sqlite3 queries
@@ -485,11 +537,11 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                     </div>
                     <div class="col-xs-6 col-md-2 text-center" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Action'].': <br>
+                        <button type="button" class="btn btn-link" id="btnInstallSatellite" onclick="InstallSatellite(\'' . $sat_token . '\',\'' . $sat_password . '\')" ><i class="bi bi-info-circle text-aqua" style="position: relative; font-size: 20px; top: -5px;"></i></button>
                         <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-floppy text-yellow" style="position: relative; font-size: 20px; top: -5px;"></i></button>
                         <button type="button" class="btn btn-link" id="btnDeleteSatellite" onclick="DeleteSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-trash text-red" style="position: relative; font-size: 20px; top: -5px;"></i></button>
                     </div>
                 </div>';
-
 }
 
 
