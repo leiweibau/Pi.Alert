@@ -498,6 +498,7 @@ $pia_lang['MT_SET_SatEdit_FORM_Pass'] = 'Mot de passe (96)';
 $pia_lang['MT_SET_SatEdit_FORM_LastUpd'] = 'Dernière mise à jour';
 $pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Actions';
 $pia_lang['MT_SET_SatEdit_head'] = 'Gérer les satellites';
+$pia_lang['MT_SET_SatEdit_Modal_head'] = 'Commande d&apos;installation avec préconfiguration';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Ici, la commande d&apos;installation peut être préparée de sorte que les paramètres les plus importants soient déjà entrés lors de l&apos;installation. Les différents scans restent tous désactivés et doivent être activés explicitement dans le fichier de configuration.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////

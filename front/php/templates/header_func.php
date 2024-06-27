@@ -233,6 +233,8 @@ function set_userimage($skinname) {
 	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
 }
 function get_all_satellites_list() {
+	global $pia_lang;
+
     $database = '../db/pialert.db';
     $db = new SQLite3($database);
     $sql_select = 'SELECT * FROM Satellites ORDER BY sat_name ASC';
@@ -249,7 +251,7 @@ function get_all_satellites_list() {
 			    <div class="modal-content">
 			      <div class="modal-header">
 			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			        <h4 class="modal-title">Installationsbefehl mit Vorkonfiguration</h4>
+			        <h4 class="modal-title">'.$pia_lang['MT_SET_SatEdit_Modal_head'].'</h4>
 			      </div>
 			      <div class="modal-body">
 			      	<p>'.$pia_lang['MT_SET_SatEdit_Modal_info'].'</p>
