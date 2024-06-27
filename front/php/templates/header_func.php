@@ -260,8 +260,8 @@ function get_all_satellites_list() {
 			            <div class="col-xs-9 text-left"><input type="checkbox" id="proxyMode" onchange="generateCommand()"></div>
 			        </div>
 			        <div class="form-group col-xs-12">
-			            <label class="col-xs-3" for="urlInput">URL:</label>
-				        <input class="col-xs-9" type="text" class="form-control" id="urlInput" placeholder="Enter URL" oninput="generateCommand()">
+			            <div class="col-xs-3"><label for="urlInput">URL:</label></div>
+				        <div class="col-xs-9"><input type="text" class="form-control" id="urlInput" placeholder="Enter URL" oninput="generateCommand()"></div>
 				    </div>
 			        <pre id="satellite_setup_command" style="white-space: pre-wrap;"></pre>
 			      </div>
