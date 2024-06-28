@@ -263,10 +263,10 @@ function get_all_satellites_list() {
 			            <div class="col-xs-3"><label for="urlInput">URL:</label></div>
 				        <div class="col-xs-9"><input type="text" class="form-control" id="urlInput" placeholder="Enter URL" oninput="generateCommand()"></div>
 				    </div>
-			        <pre id="satellite_setup_command" style="white-space: pre-wrap;"></pre>
+			        <pre id="satellite_setup_command" style="white-space: pre-wrap; border:none;padding: 5px;"></pre>
 			      </div>
 			      <div class="modal-footer">
-			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			        <button type="button" class="btn btn-default" data-dismiss="modal">'.$pia_lang['Gen_Close'].'</button>
 			      </div>
 			    </div>
 			  </div>

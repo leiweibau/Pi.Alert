@@ -658,7 +658,7 @@ input[type="password"]::-webkit-caps-lock-indicator {
 .help_table_gen {border: solid 1px #d2d6de;}
 .help_table_gen_a {border: solid 1px #d2d6de;}
 .help_table_gen_b {border: solid 1px #d2d6de;}
-.help_table_gen_section {border: solid 1px #666; background-color: #1a2226;}
+.help_table_gen_section {border: solid 1px #666; background-color: rgba(255, 255, 255, 0.4);}
 .wrapper, .main-sidebar, .left-side, .main-footer, .skin-blue .wrapper, .skin-blue .main-sidebar, .skin-blue .left-side, .content-wrapper, .skin-blue .main-header li.user-header {
   background-color: transparent;
 }

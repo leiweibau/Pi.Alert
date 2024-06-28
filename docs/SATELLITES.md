@@ -20,7 +20,7 @@ To do this, the "PROXY_MODE" option must be set to "True" for the satellite. How
 can be called by both the satellite and Pi.Alert. 
 
 #### Preparation (web server)
-To install the API on a web server, follow [these](/docs/PROXY_MODE.md) instructions
+To install the API on a web server, follow [these](docs/PROXY_MODE.md) instructions
 
 #### Configuration (satellite)
 In the configuration file of the satellite ("config/satellite.conf"), the variable "PROXY_MODE" must be set to "True". The URL of the proxy is entered
