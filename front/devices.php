@@ -78,48 +78,37 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 		if ($_REQUEST['en_bulk_owner'] == 'on') {
 			$set_bulk_owner = htmlspecialchars($_REQUEST['bulk_owner'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Owner="' . $set_bulk_owner . '"');
-		}
+			array_push($sql_queue, 'dev_Owner="' . $set_bulk_owner . '"');}
 		if ($_REQUEST['en_bulk_type'] == 'on') {
 			$set_bulk_type = htmlspecialchars($_REQUEST['bulk_type'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_DeviceType="' . $set_bulk_type . '"');
-		}
+			array_push($sql_queue, 'dev_DeviceType="' . $set_bulk_type . '"');}
 		if ($_REQUEST['en_bulk_group'] == 'on') {
 			$set_bulk_group = htmlspecialchars($_REQUEST['bulk_group'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Group="' . $set_bulk_group . '"');
-		}
+			array_push($sql_queue, 'dev_Group="' . $set_bulk_group . '"');}
 		if ($_REQUEST['en_bulk_location'] == 'on') {
 			$set_bulk_location = htmlspecialchars($_REQUEST['bulk_location'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Location="' . $set_bulk_location . '"');
-		}
+			array_push($sql_queue, 'dev_Location="' . $set_bulk_location . '"');}
 		if ($_REQUEST['en_bulk_comments'] == 'on') {
 			$set_bulk_comments = htmlspecialchars($_REQUEST['bulk_comments'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Comments="' . $set_bulk_comments . '"');
-		}
+			array_push($sql_queue, 'dev_Comments="' . $set_bulk_comments . '"');}
 		if ($_REQUEST['en_bulk_connectiontype'] == 'on') {
 			$set_bulk_connectiontype = htmlspecialchars($_REQUEST['bulk_connectiontype'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_ConnectionType="' . $set_bulk_connectiontype . '"');
-		}
+			array_push($sql_queue, 'dev_ConnectionType="' . $set_bulk_connectiontype . '"');}
 		if ($_REQUEST['en_bulk_linkspeed'] == 'on') {
 			$set_bulk_linkspeed = htmlspecialchars($_REQUEST['bulk_linkspeed'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_LinkSpeed="' . $set_bulk_linkspeed . '"');
-		}
+			array_push($sql_queue, 'dev_LinkSpeed="' . $set_bulk_linkspeed . '"');}
 		if ($_REQUEST['en_bulk_AlertAllEvents'] == 'on') {
 			if ($_REQUEST['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
-			array_push($sql_queue, 'dev_AlertEvents="' . $set_bulk_AlertAllEvents . '"');
-		}
+			array_push($sql_queue, 'dev_AlertEvents="' . $set_bulk_AlertAllEvents . '"');}
 		if ($_REQUEST['en_bulk_AlertDown'] == 'on') {
 			if ($_REQUEST['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
-			array_push($sql_queue, 'dev_AlertDeviceDown="' . $set_bulk_AlertDown . '"');
-		}
+			array_push($sql_queue, 'dev_AlertDeviceDown="' . $set_bulk_AlertDown . '"');}
 		if ($_REQUEST['en_bulk_NewDevice'] == 'on') {
 			if ($_REQUEST['bulk_NewDevice'] == 'on') {$set_bulk_NewDevice = 1;} else { $set_bulk_NewDevice = 0;}
-			array_push($sql_queue, 'dev_NewDevice="' . $set_bulk_NewDevice . '"');
-		}
+			array_push($sql_queue, 'dev_NewDevice="' . $set_bulk_NewDevice . '"');}
 		if ($_REQUEST['en_bulk_Archived'] == 'on') {
 			if ($_REQUEST['bulk_Archived'] == 'on') {$set_bulk_Archived = 1;} else { $set_bulk_Archived = 0;}
-			array_push($sql_queue, 'dev_Archived="' . $set_bulk_Archived . '"');
-		}
+			array_push($sql_queue, 'dev_Archived="' . $set_bulk_Archived . '"');}
 
 		print_box_top_element($pia_lang['Device_bulkEditor_savebox_title']);
 		// Count changed fields
@@ -158,7 +147,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			if (isset($set_bulk_NewDevice)) {echo $pia_lang['DevDetail_EveandAl_NewDevice'] . ': ' . $set_bulk_NewDevice . '<br>';}
 			if (isset($set_bulk_Archived)) {echo $pia_lang['DevDetail_EveandAl_Archived'] . ': ' . $set_bulk_Archived . '<br>';}
 			// Update Segment stop
-
 			// Logging
 			pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $modified_hosts);
 		}
@@ -422,11 +410,9 @@ if ($_REQUEST['mod'] == 'bulkedit') {
               $("#bulk_Archived").prop("disabled", !bulk_Archived);
               bulk_Archived = !bulk_Archived;
             });
-
             function setTextValue (textElement, textValue) {
               $("#"+textElement).val (textValue);
             }
-
 						function askBulkDeletion() {
 						  // Ask
 						  showModalWarning(\'' . $pia_lang['Device_bulkDel_info_head'] . '\', \'' . $pia_lang['Device_bulkDel_info_text'] . '\',
@@ -445,9 +431,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 						}
         </script>';
 	print_box_bottom_element();
-
 	echo '</form>';
-
 	echo '</section>
     <!-- /.content -->
   </div>
@@ -458,7 +442,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 } else {
 // ################### Start Device List #######################################
 	?>
-
 <!-- Content header--------------------------------------------------------- -->
       <h1 id="pageTitle">
            <?php
@@ -469,10 +452,8 @@ if ($_REQUEST['mod'] == 'bulkedit') {
            ?>
       </h1>
     </section>
-
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
-
 <!-- top small boxes ------------------------------------------------------- -->
       <div class="row">
         <div class="col-lg-2 col-sm-4 col-xs-6">
@@ -483,7 +464,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           </div>
           </a>
         </div>
-
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getDevicesList('connected');">
           <div class="small-box bg-green">
@@ -492,7 +472,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           </div>
           </a>
         </div>
-
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getDevicesList('favorites');">
           <div class="small-box bg-yellow">
@@ -501,7 +480,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           </div>
           </a>
         </div>
-
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getDevicesList('new');">
           <div class="small-box bg-yellow">
@@ -510,7 +488,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           </div>
           </a>
         </div>
-
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getDevicesList('down');">
           <div class="small-box bg-red">
@@ -519,7 +496,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           </div>
           </a>
         </div>
-
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getDevicesList('archived');">
           <div class="small-box bg-gray top_small_box_gray_text">
@@ -528,11 +504,8 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           </div>
           </a>
         </div>
-
       </div>
-
 <!-- Activity Chart ------------------------------------------------------- -->
-
 <?php
 If ($ENABLED_HISTOY_GRAPH !== False) {
 		?>
@@ -564,7 +537,6 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 <?php
 }
 ?>
-
 <!-- datatable ------------------------------------------------------------- -->
       <div class="row">
         <div class="col-xs-12">
@@ -572,16 +544,16 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 
             <!-- box-header -->
             <div class="box-header">
-              <h3 id="tableDevicesTitle" class="box-title text-gray">Devices</h3>
-              <a href="./devices.php?mod=bulkedit&scansource=<?=$SCANSOURCE?>" class="btn btn-xs btn-default" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil" style="font-size:1.5rem"></i></a>
+              <h3 id="tableDevicesTitle" class="box-title text-gray"><?=$pia_lang['NAV_Devices']?></h3>
               <?php
               # Create or remove custom filters
               if (!$_REQUEST['predefined_filter']) {
               	# no active filter
-              	echo '<a href="#" class="btn btn-xs btn-default" role="button" data-toggle="modal" data-target="#modal-set-predefined-filter" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter" style="font-size:1.5rem"></i></a>';
+              	echo '<a href="./devices.php?mod=bulkedit&scansource='.$SCANSOURCE.'" class="btn btn-xs btn-link" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil text-yellow" style="font-size:1.5rem"></i></a>';
+              	echo '<a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-predefined-filter" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter text-green" style="font-size:1.5rem"></i></a>';
               } else {
               	# active filter
-              	echo '<a href="#" class="btn btn-xs btn-default" role="button" onclick="askDeleteDeviceFilter()" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter-circle-xmark" style="font-size:1.5rem"></i></a>';
+              	echo '<a href="#" class="btn btn-xs btn-link" role="button" onclick="askDeleteDeviceFilter()" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter-circle-xmark text-red" style="font-size:1.5rem"></i></a>';
               	echo '
               	<style>
 									.dataTables_wrapper .dataTables_filter {
@@ -591,7 +563,6 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 									}
               	</style>';
               }
-
 							echo '<div class="modal fade" id="modal-set-predefined-filter">
 							        <div class="modal-dialog modal-dialog-centered">
 							            <div class="modal-content">
