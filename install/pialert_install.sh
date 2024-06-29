@@ -6,6 +6,7 @@
 #  pialert_install.sh - Installation script
 # ------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
+#  leiweibau 2024                                          GNU GPLv3
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -602,6 +603,8 @@ publish_pialert() {
   sudo chmod -R 775 "$PIALERT_HOME/config"                                                                      2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                                                          2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                                                               2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"                                                       2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/front/satellites"                                                            2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"                                                        2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/back/speedtest/"                                                             2>&1 >> "$LOG"
   chmod +x "$PIALERT_HOME/back/shoutrrr/arm64/shoutrrr"                                                         2>&1 >> "$LOG"

@@ -87,7 +87,7 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 
 function GetAutoBackupStatus() {
 	global $pia_lang;
-	if (file_exists("../../../back/.backup")) {$result = array($pia_lang['BackFiles_autobackup_pending']);} else {$result = array($pia_lang['BackFiles_autobackup_pause']);}
+	if (file_exists("../../../back/.backup")) {$result = array($pia_lang['BE_Files_autobkp_pending']);} else {$result = array($pia_lang['BE_Files_autobkp_pause']);}
 	//Count db backups
 	$backupdir = "../../../db";
 	$backupfiles = glob($backupdir . "/pialertdb_20*.zip");
@@ -108,7 +108,7 @@ function GetAutoBackupStatus() {
 
 function GetARPStatus() {
 	global $pia_lang;
-	if (file_exists("../../../back/.scanning")) {$result = array('');} else {$result = array($pia_lang['Maintenance_arpscancout_norun']);}
+	if (file_exists("../../../back/.scanning")) {$result = array('');} else {$result = array($pia_lang['MT_arpscancout_norun']);}
 	echo json_encode($result);
 }
 
@@ -132,7 +132,7 @@ function GetLogfiles() {
 	global $pia_lang;
 
 	$logfiles = ["pialert.1.log", "pialert.IP.log", "pialert.vendors.log", "pialert.cleanup.log", "pialert.webservices.log"];
-	$logmessage = [$pia_lang['Maintenance_Tools_Logviewer_Scan_empty'], $pia_lang['Maintenance_Tools_Logviewer_IPLog_empty'], '', $pia_lang['Maintenance_Tools_Logviewer_Cleanup_empty'], $pia_lang['Maintenance_Tools_Logviewer_WebServices_empty']];
+	$logmessage = [$pia_lang['MT_Tools_Logviewer_Scan_empty'], $pia_lang['MT_Tools_Logviewer_IPLog_empty'], '', $pia_lang['MT_Tools_Logviewer_Cleanup_empty'], $pia_lang['MT_Tools_Logviewer_WebServices_empty']];
 
 	$i = 0;
 	$logs = array();
@@ -221,8 +221,9 @@ AUTO_DB_BACKUP_KEEP    = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
 
 # Other Modules
 # ----------------------
-SCAN_WEBSERVICES = " . convert_bool($configArray['SCAN_WEBSERVICES']) . "
-ICMPSCAN_ACTIVE  = " . convert_bool($configArray['ICMPSCAN_ACTIVE']) . "
+SCAN_WEBSERVICES  = " . convert_bool($configArray['SCAN_WEBSERVICES']) . "
+ICMPSCAN_ACTIVE   = " . convert_bool($configArray['ICMPSCAN_ACTIVE']) . "
+SATELLITES_ACTIVE = " . convert_bool($configArray['SATELLITES_ACTIVE']) . "
 
 # Special Protocol Scanning
 # ----------------------
@@ -352,6 +353,11 @@ UNIFI_API    = '" . $configArray['UNIFI_API'] . "'
 UNIFI_USER   = '" . $configArray['UNIFI_USER'] . "'
 UNIFI_PASS   = '" . $configArray['UNIFI_PASS'] . "'
 # Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
+
+# Satellite Configuration
+# -----------------------
+SATELLITE_PROXY_MODE = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
+SATELLITE_PROXY_URL  = '" . $configArray['SATELLITE_PROXY_URL'] . "'
 
 # Maintenance Tasks Cron
 # ----------------------
@@ -486,14 +492,9 @@ function BackupDBtoCSV() {
 function RestoreDBfromArchive() {
 	// prepare fast Backup
 	$file = '../../../db/pialert.db';
-	//$oldfile = '../../../db/pialert.db.prerestore';
+	
 	global $pia_lang;
 
-	// copy files as a fast Backup
-	// if (!copy($file, $oldfile)) {
-	// 	echo $pia_lang['BackDevices_Restore_CopError'];
-	// } else {
-	// extract latest archive and overwrite the actual pialert.db
 	$Pia_Archive_Path = '../../../db/';
 	exec('/bin/ls -Art ' . $Pia_Archive_Path . '*.zip | /bin/tail -n 1 | /usr/bin/xargs -n1 /bin/unzip -o -d ../../../db/', $output);
 	// check if the pialert.db exists

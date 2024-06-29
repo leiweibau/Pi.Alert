@@ -25,7 +25,7 @@ from urllib.parse import urlparse
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json
 
 #===============================================================================
@@ -122,16 +122,16 @@ def get_username():
 
 # ------------------------------------------------------------------------------
 def set_db_file_permissions():
-    print(f"\nPrepare Scan...")
-    print(f"    Force file permissions on Pi.Alert db...")
+    print_log(f"\nPrepare Scan...")
+    print_log(f"    Force file permissions on Pi.Alert db...")
     # Set permissions
-    os.system("sudo chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
-    os.system("sudo chmod 775 " + PIALERT_DB_FILE)
+    os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
+    os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
     # Get permissions
     fileinfo = Path(PIALERT_DB_FILE)
     file_stat = fileinfo.stat()
-    print(f"        DB permission mask: {oct(file_stat.st_mode)[-3:]}")
-    print(f"        DB Owner and Group: {fileinfo.owner()}:{fileinfo.group()}")
+    print_log(f"        DB permission mask: {oct(file_stat.st_mode)[-3:]}")
+    print_log(f"        DB Owner and Group: {fileinfo.owner()}:{fileinfo.group()}")
 
 # ------------------------------------------------------------------------------
 def set_reports_file_permissions():
@@ -167,7 +167,7 @@ def check_pialert_countdown():
             print(f"Timer Start: {time.ctime(FILETIME)}")
             # Check 1min before countdown ends
             # Delete stop file 1 min before countdown ends
-            print(f"Timer End  : {time.ctime(STOPTIME+60)}")
+            print(f"Timer End : {time.ctime(STOPTIME+60)}")
             print("----------------------------------------")
             print("Timer still running")
 
@@ -562,22 +562,39 @@ def cleanup_database():
     except NameError: # variable not defined, use a default
         strdaystokeepEV = str(90) # 90 days
     print('    Online_History, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Events, up to the lastest '+strdaystokeepEV+' days...')
-    sql.execute ("DELETE FROM Events WHERE eve_DateTime <= date('now', '-"+strdaystokeepEV+" day')")
+    sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-"+strdaystokeepEV+" day')")
+    print('        ...Fixing missing or VOIDED events')
+    RepairedEventTime = startTime - timedelta(days=int(strdaystokeepEV))
+    sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
+    sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
+    repair_devices = sql.fetchall()
+    for device in repair_devices:
+        dev_mac, dev_lastip = device
+        
+        sql.execute("SELECT 1 FROM Events WHERE eve_MAC = ? AND eve_EventType='Connected'", (dev_mac,))
+        event_exists = sql.fetchone()
+        
+        if not event_exists:
+            sql.execute(
+                "INSERT INTO Events (eve_MAC, eve_EventType, eve_IP, eve_DateTime, eve_PendingAlertEmail) VALUES (?, ?, ?, ?, ?)",
+                (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
+            )
+
     print('    Services_Events, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
     print('    ICMP_Mon_Events, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Trim Journal to the lastest 1000 entries')
-    sql.execute ("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
+    sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
     print('    Speedtest_History, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Nmap Scan Results, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute ("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepOH+" day')")
     print('    Shrink Database...')
-    sql.execute ("VACUUM;")
-    sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+    sql.execute("VACUUM;")
+    sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                     VALUES (?, 'c_010', 'cronjob', 'LogStr_0101', '', 'Cleanup') """, (startTime,))
     closeDB()
     return 0
@@ -719,6 +736,9 @@ def scan_network():
     openDB()
     print_log ('UniFi copy starts...')
     read_unifi_clients()
+    # Import Satellites Scans
+    print('    Satellite Import...')
+    get_satellite_scans()
     # Load current scan data 1/2
     print('\nProcessing scan results...')
     # Load current scan data 2/2
@@ -1052,6 +1072,127 @@ def read_DHCP_leases():
                      """, data)
 
 #-------------------------------------------------------------------------------
+def get_satellite_scans():
+    sql.execute ("DELETE FROM Satellites_Network")
+    if not SATELLITES_ACTIVE:
+        print('        ...Skipped')
+        return
+
+    print_log('        ...Mode detection')
+    get_satellites = "SELECT sat_password, sat_token FROM Satellites"
+    sql.execute(get_satellites)
+
+    rows = sql.fetchall()
+    satellite_list = {}
+    for row in rows:
+        sat_password, sat_token = row
+        satellite_list[sat_token] = sat_password
+
+    if SATELLITE_PROXY_MODE:
+        print_log('        ...Proxy Mode')
+        get_satellite_proxy_scans(satellite_list)
+        decrypt_satellite_proxy_scans(satellite_list)
+
+    process_satellites(satellite_list)
+    cleanup_satellite_scans(satellite_list)
+
+#-------------------------------------------------------------------------------
+def process_satellites(satellite_list):
+    print("        ...Processing satellite scans")
+
+    WORKING_DIR = PIALERT_PATH + "/front/satellites/"
+    for token, password in satellite_list.items():
+        satellite_scanresult = WORKING_DIR+token+".json"
+        if os.path.exists(satellite_scanresult):
+            with open(satellite_scanresult, 'r') as file:
+                data = json.load(file)
+
+                for result in data['scan_results']:
+                    if result['cur_ScanMethod'] != 'Internet Check':
+                        sat_MAC = result['cur_MAC']
+                        sat_IP = result['cur_IP']
+                        sat_hostname = result['cur_hostname']
+                        sat_Vendor = result['cur_Vendor']
+                        sat_ScanMethod = result['cur_ScanMethod']
+                        sat_ScanSource = result['cur_SatelliteID']                
+
+                        sql.execute("""SELECT 1 FROM Satellites_Network WHERE Sat_MAC = ?""", (sat_MAC,))
+                        if sql.fetchone() is None:
+                            sql.execute("""INSERT INTO Satellites_Network (
+                                              Sat_MAC, Sat_IP, Sat_Name, Sat_Vendor, Sat_ScanMethod, Sat_Token)
+                                              VALUES (?, ?, ?, ?, ?, ?)""",
+                                              (sat_MAC, sat_IP, sat_hostname, sat_Vendor, sat_ScanMethod, sat_ScanSource))
+
+                satUpdateTime = datetime.datetime.now()
+                satUpdateTime = satUpdateTime.replace(microsecond=0)
+                sql.execute("""UPDATE Satellites SET sat_lastupdate = ? WHERE sat_token = ?""", (satUpdateTime, token))
+
+#-------------------------------------------------------------------------------
+def get_satellite_proxy_scans(satellite_list):
+    # print('        ...Get data from proxy')
+
+    SAVE_DIR = PIALERT_PATH + "/front/satellites/"
+    
+    received_results = 0
+
+    for token, password in satellite_list.items():
+        url = f"{SATELLITE_PROXY_URL}?mode=get&token={token}"
+        try:
+            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+            response = requests.get(url, verify=False)  # Accept insecure SSL connections
+            if response.status_code == 200:
+                received_results += 1
+                file_name = f"encrypted_{token}"
+                save_path = os.path.join(SAVE_DIR, file_name)
+                with open(save_path, 'wb') as file:
+                    file.write(response.content)
+
+                # update satellite db Last Update
+        except requests.exceptions.SSLError:
+            pass
+        except requests.RequestException as e:
+            # print(f"        Download failed for token {token}")
+            pass
+
+    print(f"        ...Get data from proxy ({received_results})")
+    # get data from url to local storage
+
+#-------------------------------------------------------------------------------
+def decrypt_satellite_proxy_scans(satellite_list):
+    print_log('        ...decrypt data from proxy')
+    WORKING_DIR = PIALERT_PATH + "/front/satellites/"
+
+    for token, password in satellite_list.items():
+        
+        if os.path.exists(WORKING_DIR+"encrypted_"+token):
+            openssl_command = [
+                "openssl", "enc", "-d", "-aes-256-cbc", "-in", WORKING_DIR+"encrypted_"+token,
+                "-pbkdf2", "-pass", "pass:{}".format(password)
+            ]
+
+            with subprocess.Popen(openssl_command, stdout=subprocess.PIPE) as proc:
+                decrypted_data = proc.stdout.read()
+
+            decrypted_dict = json.loads(decrypted_data.decode('utf-8'))
+
+            with open(WORKING_DIR+token+'.json', 'w') as outfile:
+                json.dump(decrypted_dict, outfile, indent=4)
+
+            os.remove(WORKING_DIR+"encrypted_"+token) 
+
+#-------------------------------------------------------------------------------
+def cleanup_satellite_scans(satellite_list):
+    print_log('        ...cleanup satellite scans')
+    WORKING_DIR = PIALERT_PATH + "/front/satellites/"
+
+    for token, password in satellite_list.items():
+        if os.path.exists(WORKING_DIR+"encrypted_"+token):
+            os.remove(WORKING_DIR+"encrypted_"+token)
+
+        if os.path.exists(WORKING_DIR+token+".json"):
+            os.remove(WORKING_DIR+token+".json") 
+
+#-------------------------------------------------------------------------------
 def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     # Delete previous scan data
     sql.execute ("DELETE FROM CurrentScan WHERE cur_ScanCycle = ?",
@@ -1101,6 +1242,15 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                     FROM Unifi_Network
                     WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
                                       WHERE cur_MAC = UF_MAC )""",
+                    (cycle) )
+
+    # Insert Satellite devices
+    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
+                        cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
+                    SELECT ?, Sat_MAC, Sat_IP, Sat_Vendor, Sat_ScanMethod, Sat_Token
+                    FROM Satellites_Network
+                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
+                                      WHERE cur_MAC = Sat_MAC )""",
                     (cycle) )
 
     # Check Internet connectivity
@@ -1286,7 +1436,8 @@ def create_new_devices():
                     WHERE cur_ScanCycle = ? 
                       AND NOT EXISTS (SELECT 1 FROM Devices
                                       WHERE dev_MAC = cur_MAC) """,
-                    (startTime, startTime, cycle) ) 
+                    (startTime, startTime, cycle) )
+
 
     # Pi-hole - Insert events for new devices
     print_log ('New devices - 3 Pi-hole Events')
@@ -1402,14 +1553,27 @@ def insert_events():
                       AND dev_ScanCycle = ?
                       AND dev_LastIP <> cur_IP """,
                     (startTime, cycle) )
+
+    # Inter-Satellite movement
+    print_log ('Events 5 - Inter-Satellite movement')
+    sql.execute("""INSERT INTO Events (eve_MAC, eve_IP, eve_DateTime,
+                                       eve_EventType, eve_AdditionalInfo,
+                                       eve_PendingAlertEmail)
+                   SELECT cur_MAC, cur_IP, ?, 'Inter-Satellite movement', 'previous Satellite: ' || COALESCE(sat_name, 'local'), dev_AlertEvents
+                   FROM Devices
+                   JOIN CurrentScan ON dev_MAC = cur_MAC AND dev_ScanCycle = cur_ScanCycle
+                   LEFT JOIN Satellites ON (dev_ScanSource = sat_token AND dev_ScanSource != 'local')
+                   WHERE dev_ScanSource != cur_ScanSource
+                     AND dev_ScanCycle = ?""",
+                (startTime, cycle))
+
     print_log ('Events end')
 
 #-------------------------------------------------------------------------------
 def update_devices_data_from_scan():
     # Update Last Connection
     print_log ('Update devices - 1 Last Connection')
-    sql.execute ("""UPDATE Devices SET dev_LastConnection = ?,
-                        dev_PresentLastScan = 1
+    sql.execute("""UPDATE Devices SET dev_LastConnection = ?, dev_PresentLastScan = 1
                     WHERE dev_ScanCycle = ?
                       AND dev_PresentLastScan = 0
                       AND EXISTS (SELECT 1 FROM CurrentScan 
@@ -1464,7 +1628,7 @@ def update_devices_data_from_scan():
                       AND EXISTS (SELECT 1 FROM DHCP_Leases
                                   WHERE DHCP_MAC = dev_MAC)""")
 
-    # Fritzbox Leases - Update (unknown) Name
+    # Fritzbox - Update (unknown) Name
     sql.execute ("""UPDATE Devices
                     SET dev_Name = (SELECT FB_Name FROM Fritzbox_Network
                                     WHERE FB_MAC = dev_MAC)
@@ -1476,7 +1640,7 @@ def update_devices_data_from_scan():
                                     AND FB_NAME IS NOT NULL
                                     AND FB_NAME <> '') """)
 
-    # Mikrotik Leases - Update (unknown) Name
+    # Mikrotik - Update (unknown) Name
     sql.execute ("""UPDATE Devices
                     SET dev_Name = (SELECT MT_Name FROM Mikrotik_Network
                                     WHERE MT_MAC = dev_MAC)
@@ -1488,7 +1652,7 @@ def update_devices_data_from_scan():
                                     AND MT_NAME IS NOT NULL
                                     AND MT_NAME <> '') """)
 
-    # Unifi Leases - Update (unknown) Name
+    # Unifi - Update (unknown) Name
     sql.execute ("""UPDATE Devices
                     SET dev_Name = (SELECT UF_Name FROM Unifi_Network
                                     WHERE UF_MAC = dev_MAC)
@@ -1499,6 +1663,18 @@ def update_devices_data_from_scan():
                                   WHERE UF_MAC = dev_MAC
                                     AND UF_Name IS NOT NULL
                                     AND UF_Name <> '') """)
+
+    # Satellite - Update (unknown) Name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = (SELECT Sat_Name FROM Satellites_Network
+                                    WHERE Sat_MAC = dev_MAC)
+                    WHERE (dev_Name = "(unknown)"
+                           OR dev_Name = ""
+                           OR dev_Name IS NULL)
+                      AND EXISTS (SELECT 1 FROM Satellites_Network
+                                  WHERE Sat_MAC = dev_MAC
+                                    AND Sat_NAME IS NOT NULL
+                                    AND Sat_NAME <> '') """)
 
     # DHCP Leases - Vendor
     print_log ('Update devices - 5 Vendor')
@@ -1516,12 +1692,16 @@ def update_devices_data_from_scan():
     sql.executemany ("UPDATE Devices SET dev_Vendor = ? WHERE dev_MAC = ? ",
         recordsToUpdate )
 
-    # New Apple devices -> Cycle 15
-    print_log ('Update devices - 6 Cycle for Apple devices')
-    sql.execute ("""UPDATE Devices SET dev_ScanCycle = 1
-                    WHERE dev_FirstConnection = ?
-                      AND UPPER(dev_Vendor) LIKE '%APPLE%' """,
-                (startTime,) )
+    # Update inter-satellite movements
+    print_log ('Update devices - 6 inter-satellite movements')
+    sql.execute("""UPDATE Devices 
+                   SET dev_ScanSource = (SELECT cur_ScanSource 
+                                         FROM CurrentScan 
+                                         WHERE cur_MAC = dev_MAC)
+                   WHERE EXISTS (SELECT 1 
+                                 FROM CurrentScan 
+                                 WHERE cur_MAC = dev_MAC)""")
+
 
     print_log ('Update devices end')
 
@@ -2570,10 +2750,20 @@ def icmphost_monitoring_notification():
 def email_reporting():
     global mail_text
     global mail_html
-    
+
     # Reporting section
     print('\nReporting...')
     openDB()
+
+    sql.execute("""SELECT sat_name, sat_token FROM Satellites""")
+    rows = sql.fetchall()
+
+    # Dictionary erstellen
+    satellite_dict = {}
+    for row in rows:
+        sat_name = row[0]
+        sat_token = row[1]
+        satellite_dict[sat_token] = sat_name
 
     # Disable reporting on events for devices where reporting is disabled based on the MAC address
     sql.execute ("""UPDATE Events SET eve_PendingAlertEmail = 0
@@ -2608,9 +2798,9 @@ def email_reporting():
     mail_html_Internet = ''
     text_line_template = '{} \t{}\t{}\t{}\n'
     html_line_template = '<tr>\n'+ \
-        '  <td> <a href="{}{}"> {} </a> </td>\n  <td> {} </td>\n'+ \
-        '  <td style="font-size: 24px; color:#D02020"> {} </td>\n'+ \
-        '  <td> {} </td>\n</tr>\n'
+        '  <td> <a href="{}{}"> {} </a> </td><td> {} </td>'+ \
+        '  <td style="font-size: 24px; color:#D02020"> {} </td>'+ \
+        '  <td> {} </td></tr>\n'
 
     sql.execute ("""SELECT * FROM Events
                     WHERE eve_PendingAlertEmail = 1 AND eve_MAC = 'Internet'
@@ -2633,10 +2823,10 @@ def email_reporting():
     mail_section_new_devices = False
     mail_text_new_devices = ''
     mail_html_new_devices = ''
-    text_line_template = '{}\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t{}\n\n'
+    text_line_template = '{}\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
     html_line_template    = '<tr>\n'+ \
-        '  <td> <a href="{}{}"> {} </a> </td>\n  <td> {} </td>\n'+\
-        '  <td> {} </td>\n  <td> {} </td>\n  <td> {} </td>\n</tr>\n'
+        '  <td> <a href="{}{}"> {} </a></td><td> {} </td>'+\
+        '  <td> {} </td><td> {} </td><td> {} </td><td> {} </td></tr>\n'
     
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
@@ -2644,14 +2834,28 @@ def email_reporting():
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :
+        # Get currentvSatellite Name
+        dev_scan_source = eventAlert["dev_ScanSource"]
+        if dev_scan_source != 'local':
+            if dev_scan_source in satellite_dict:
+                sat_name = satellite_dict[dev_scan_source]
+            else:
+                sat_name = dev_scan_source
+        else:
+            sat_name = 'local'
+
         mail_section_new_devices = True
         mail_text_new_devices += text_line_template.format (
-            'Name: ', eventAlert['dev_Name'], 'MAC: ', eventAlert['eve_MAC'], 'IP: ', eventAlert['eve_IP'],
-            'Time: ', eventAlert['eve_DateTime'], 'More Info: ', eventAlert['eve_AdditionalInfo'])
+            'Name: ', eventAlert['dev_Name'],
+            'MAC: ', eventAlert['eve_MAC'],
+            'IP: ', eventAlert['eve_IP'],
+            'Time: ', eventAlert['eve_DateTime'],
+            'Source: ', sat_name,
+            'More Info: ', eventAlert['eve_AdditionalInfo'])
         mail_html_new_devices += html_line_template.format (
             REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'], eventAlert['eve_AdditionalInfo'])
+            eventAlert['dev_Name'], eventAlert['eve_AdditionalInfo'], sat_name)
 
     format_report_section (mail_section_new_devices, 'SECTION_NEW_DEVICES',
         'TABLE_NEW_DEVICES', mail_text_new_devices, mail_html_new_devices)
@@ -2660,10 +2864,10 @@ def email_reporting():
     mail_section_devices_down = False
     mail_text_devices_down = ''
     mail_html_devices_down = ''
-    text_line_template = '{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
+    text_line_template = '{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
     html_line_template     = '<tr>\n'+ \
-        '  <td> <a href="{}{}"> {} </a>  </td>\n  <td> {} </td>\n'+ \
-        '  <td> {} </td>\n  <td> {} </td>\n</tr>\n'
+        '  <td> <a href="{}{}"> {} </a>  </td><td> {} </td>'+ \
+        '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'
 
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
@@ -2671,14 +2875,27 @@ def email_reporting():
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :
+        # Get currentvSatellite Name
+        dev_scan_source = eventAlert["dev_ScanSource"]
+        if dev_scan_source != 'local':
+            if dev_scan_source in satellite_dict:
+                sat_name = satellite_dict[dev_scan_source]
+            else:
+                sat_name = dev_scan_source
+        else:
+            sat_name = 'local'
+
         mail_section_devices_down = True
         mail_text_devices_down += text_line_template.format (
-            'Name: ', eventAlert['dev_Name'], 'MAC: ', eventAlert['eve_MAC'],
-            'Time: ', eventAlert['eve_DateTime'],'IP: ', eventAlert['eve_IP'])
+            'Name: ', eventAlert['dev_Name'],
+            'MAC: ', eventAlert['eve_MAC'],
+            'Time: ', eventAlert['eve_DateTime'],
+            'Source: ', sat_name,
+            'IP: ', eventAlert['eve_IP'])
         mail_html_devices_down += html_line_template.format (
             REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'])
+            eventAlert['dev_Name'], sat_name)
 
     format_report_section (mail_section_devices_down, 'SECTION_DEVICES_DOWN',
         'TABLE_DEVICES_DOWN', mail_text_devices_down, mail_html_devices_down)
@@ -2687,28 +2904,41 @@ def email_reporting():
     mail_section_events = False
     mail_text_events   = ''
     mail_html_events   = ''
-    text_line_template = '{}\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t{}\n\n'
-    html_line_template = '<tr>\n  <td>'+ \
-            ' <a href="{}{}"> {} </a> </td>\n  <td> {} </td>\n'+ \
-            '  <td> {} </td>\n  <td> {} </td>\n  <td> {} </td>\n'+ \
-            '  <td> {} </td>\n</tr>\n'
+    text_line_template = '{}\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
+    html_line_template = '<tr>\n '+ \
+            '  <td><a href="{}{}"> {} </a></td><td> {} </td>'+ \
+            '  <td> {} </td><td> {} </td><td> {} </td>'+ \
+            '  <td> {} </td><td> {} </td></tr>\n'
 
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
-                      AND eve_EventType IN ('Connected','Disconnected',
-                          'IP Changed')
+                      AND eve_EventType IN ('Connected', 'Disconnected', 'IP Changed', 'Inter-Satellite movement')
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :
+        # Get currentvSatellite Name
+        dev_scan_source = eventAlert["dev_ScanSource"]
+        if dev_scan_source != 'local':
+            if dev_scan_source in satellite_dict:
+                sat_name = satellite_dict[dev_scan_source]
+            else:
+                sat_name = dev_scan_source
+        else:
+            sat_name = 'local'
+
         mail_section_events = True
         mail_text_events += text_line_template.format (
-            'Name: ', eventAlert['dev_Name'], 'MAC: ', eventAlert['eve_MAC'], 
-            'IP: ', eventAlert['eve_IP'],'Time: ', eventAlert['eve_DateTime'],
-            'Event: ', eventAlert['eve_EventType'],'More Info: ', eventAlert['eve_AdditionalInfo'])
+            'Name: ', eventAlert['dev_Name'], 
+            'MAC: ', eventAlert['eve_MAC'], 
+            'IP: ', eventAlert['eve_IP'],
+            'Time: ', eventAlert['eve_DateTime'],
+            'Event: ', eventAlert['eve_EventType'],
+            'Source: ', sat_name,
+            'More Info: ', eventAlert['eve_AdditionalInfo'])
         mail_html_events += html_line_template.format (
             REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['eve_EventType'], eventAlert['dev_Name'],
+            eventAlert['eve_EventType'], eventAlert['dev_Name'], sat_name,
             eventAlert['eve_AdditionalInfo'])
 
     format_report_section (mail_section_events, 'SECTION_EVENTS',

@@ -132,19 +132,12 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         
           <div id="navDevice" class="nav-tabs-custom">
             <ul class="nav nav-tabs">
-              <li> <a id="tabDetails"  href="#panDetails"  data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Details'];?>  </a></li>
-<?php
-if ($_REQUEST['mac'] == 'Internet') {$DevDetail_Tap_temp = "Tools";} else { $DevDetail_Tap_temp = $pia_lang['DevDetail_Tab_Nmap'];}
-?>
-              <li> <a id="tabNmap"     href="#panNmap"     data-toggle="tab"> <?=$DevDetail_Tap_temp;?>     </a></li>
-              <li> <a id="tabSessions" href="#panSessions" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Sessions'];?> </a></li>
-              <li> <a id="tabPresence" href="#panPresence" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Presence'];?> </a></li>
-              <li> <a id="tabEvents"   href="#panEvents"   data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Events'];?>   </a></li>
-<?php
-if ($_REQUEST['mac'] == 'Internet') {
-	echo '<li> <a id="tabSpeedtest"   href="#panSpeedtest"   data-toggle="tab">' . $pia_lang['ookla_devdetails_tab_title'] . '  </a></li>';
-}
-?>
+              <li id="DetailsNavTab_detail">   <a id="tabDetails"    href="#panDetails"   data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Details'];?>  </a></li>
+              <li id="DetailsNavTab_tools">    <a id="tabNmap"       href="#panNmap"      data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Nmap'];;?>     </a></li>
+              <li id="DetailsNavTab_session">  <a id="tabSessions"   href="#panSessions"  data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Sessions'];?> </a></li>
+              <li id="DetailsNavTab_presence"> <a id="tabPresence"   href="#panPresence"  data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Presence'];?> </a></li>
+              <li id="DetailsNavTab_events">   <a id="tabEvents"     href="#panEvents"    data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Events'];?>   </a></li>
+              <li id="DetailsNavTab_internet"> <a id="tabSpeedtest"  href="#panSpeedtest" data-toggle="tab"> <?=$pia_lang['ookla_devdetails_tab_title'];?></a></li>
               <div class="btn-group pull-right">
                 <button type="button" class="btn btn-default" id="btnPrevious" onclick="previousRecord()"><i class="fa fa-chevron-left"></i></button>
                 <div class="btn pa-btn-records" id="txtRecord"> 0 / 0 </div>
@@ -279,6 +272,13 @@ if ($_REQUEST['mac'] == 'Internet') {
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Comments'];?></label>
                         <div class="col-sm-9"><textarea class="form-control" rows="3" id="txtComments"></textarea></div>
                       </div>
+
+                      <!-- ScanSource -->
+                      <div class="form-group hide_element">
+                        <label class="col-sm-3 control-label">ScanSource</label>
+                        <div class="col-sm-9"><textarea class="form-control" rows="3" id="txtScanSource" readonly></textarea></div>
+                      </div>
+
                     </div>
                   </div>
 
@@ -792,6 +792,9 @@ if ($ENABLED_DARKMODE === True) {
 
 // -----------------------------------------------------------------------------
 function main () {
+  // set page defaults
+  $('#DetailsNavTab_internet').addClass    ('hidden');
+
   // Initialize MAC
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has ('mac') == true) {
@@ -1373,6 +1376,7 @@ function getDeviceData (readAllData=false) {
         $('#txtFirstConnection').val                 (deviceData['dev_FirstConnection']);
         $('#txtLastConnection').val                  (deviceData['dev_LastConnection']);
         $('#txtLastIP').val                          (deviceData['dev_LastIP']);
+        $('#txtScanSource').val                      (deviceData['dev_ScanSource']);
         $('#txtStatus').val                          (deviceData['dev_Status'].replace('-', ''));
         if (deviceData['dev_StaticIP'] == 1)         {$('#chkStaticIP').iCheck('check');}    else {$('#chkStaticIP').iCheck('uncheck');}
 
@@ -1383,12 +1387,24 @@ function getDeviceData (readAllData=false) {
         if (deviceData['dev_NewDevice'] == 1)        {$('#chkNewDevice').iCheck('check');}   else {$('#chkNewDevice').iCheck('uncheck');}
         if (deviceData['dev_Archived'] == 1)         {$('#chkArchived').iCheck('check');}    else {$('#chkArchived').iCheck('uncheck');}
 
-        if (deviceData['dev_RandomMAC'] == 1)        {$('#iconRandomMACactive').removeClass   ('hidden');
-                                                      $('#iconRandomMACinactive').addClass    ('hidden'); }
-        else                                         {$('#iconRandomMACactive').addClass      ('hidden');
-                                                      $('#iconRandomMACinactive').removeClass ('hidden'); };
+        if (deviceData['dev_RandomMAC'] == 1)        {$('#iconRandomMACactive').removeClass    ('hidden');
+                                                      $('#iconRandomMACinactive').addClass     ('hidden'); }
+        else                                         {$('#iconRandomMACactive').addClass       ('hidden');
+                                                      $('#iconRandomMACinactive').removeClass  ('hidden'); };
+        if (deviceData['dev_ScanSource'] !== 'local') {$('#DetailsNavTab_tools').addClass       ('hidden'); }
+        if (deviceData['dev_MAC'] === 'Internet')     {$('#DetailsNavTab_internet').removeClass ('hidden'); }
+        else                                         {$('#DetailsNavTab_internet').addClass    ('hidden'); };
+
         deactivateSaveRestoreData ();
         initToolsSection();
+
+        if (deviceData['dev_ScanSource'] !== 'local') {
+            var navbarBackButton = $('#navbar-back-button');
+            var originalHref = navbarBackButton.attr('href');
+            var newHref = originalHref + '?scansource=' + deviceData['dev_ScanSource'];
+            navbarBackButton.attr('href', newHref);
+        }
+
       }
 
       // Check if device is part of the devicesList
@@ -1477,11 +1493,11 @@ function setDeviceData (refreshCallback='') {
 
   // update data to server
   $.get('php/server/devices.php?action=setDeviceData&mac='+ mac
-    + '&name='            + $('#txtName').val()
-    + '&owner='           + $('#txtOwner').val()
+    + '&name='            + encodeURIComponent($('#txtName').val())
+    + '&owner='           + encodeURIComponent($('#txtOwner').val())
     + '&type='            + $('#txtDeviceType').val()
     + '&vendor='          + $('#txtVendor').val()
-    + '&model='           + $('#txtModel').val()
+    + '&model='           + encodeURIComponent($('#txtModel').val())
     + '&serialnumber='    + $('#txtSerialnumber').val()
     + '&favorite='        + ($('#chkFavorite')[0].checked * 1)
     + '&group='           + $('#txtGroup').val()
@@ -1698,7 +1714,6 @@ function showmanualnmapscan(targetip) {
     }
   })
 }
-
 function initToolsSection () {
 setTimeout(function(){
    document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
@@ -1708,5 +1723,4 @@ setTimeout(function(){
    showmanualnmapscan(document.getElementById('txtLastIP').value);
 }, 1000);
 }
-
 </script>

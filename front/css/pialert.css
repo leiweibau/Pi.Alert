@@ -526,3 +526,15 @@ body.modal-open {
     }
 }
 .updatechk_font_a {font-size: 16px; font-weight: bold;}
+
+.bg-grad-green-yellow {
+  background: rgb(243,156,18);
+  background: radial-gradient(circle, rgba(243,156,18,1) 60%, rgba(0,166,90,1) 90%); 
+}
+.bg-grad-gray-yellow {
+  background: rgb(243,156,18);
+  background: radial-gradient(circle, rgba(243,156,18,1) 60%, rgba(190,190,190,1) 90%); 
+}
+.hide_element {
+    display:none;
+}

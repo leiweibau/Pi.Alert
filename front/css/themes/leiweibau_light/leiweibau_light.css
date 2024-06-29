@@ -326,6 +326,15 @@ h4 {
   background-color: #dd4b39 !important;
 }
 
+.bg-grad-green-yellow {
+  background: rgb(243,156,18);
+  background: radial-gradient(circle, rgba(243,156,18,1) 60%, rgba(0,166,90,1) 90%); 
+}
+.bg-grad-gray-yellow {
+  background: rgb(243,156,18);
+  background: radial-gradient(circle, rgba(243,156,18,1) 60%, rgba(170,170,170,1) 90%); 
+}
+
 code,
 pre {
   padding: 2px 4px;
@@ -649,7 +658,7 @@ input[type="password"]::-webkit-caps-lock-indicator {
 .help_table_gen {border: solid 1px #d2d6de;}
 .help_table_gen_a {border: solid 1px #d2d6de;}
 .help_table_gen_b {border: solid 1px #d2d6de;}
-.help_table_gen_section {border: solid 1px #666; background-color: #1a2226;}
+.help_table_gen_section {border: solid 1px #666; background-color: rgba(255, 255, 255, 0.4);}
 .wrapper, .main-sidebar, .left-side, .main-footer, .skin-blue .wrapper, .skin-blue .main-sidebar, .skin-blue .left-side, .content-wrapper, .skin-blue .main-header li.user-header {
   background-color: transparent;
 }

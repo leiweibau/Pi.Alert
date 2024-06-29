@@ -6,7 +6,7 @@
 #  pialert_update.sh - Update script
 # ------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2023                                          GNU GPLv3
+#  leiweibau 2024                                          GNU GPLv3
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -300,6 +300,19 @@ AUTO_DB_BACKUP_KEEP    = 5
 EOF
 fi
 
+# 2024-06-23
+if ! grep -Fq "SATELLITES_ACTIVE" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+SATELLITES_ACTIVE = False
+
+# Satellite Configuration
+# -----------------------
+SATELLITE_PROXY_MODE = False
+SATELLITE_PROXY_URL = ''
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------
@@ -333,6 +346,8 @@ update_permissions() {
   sudo chgrp -R www-data "$PIALERT_HOME/config"                     2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                   2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"              2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"           2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/front/satellites"                2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/back/speedtest/"                 2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"            2>&1 >> "$LOG"
   print_msg "- Create Logfile Symlinks..."

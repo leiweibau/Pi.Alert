@@ -171,43 +171,44 @@ format_temperature($celsius, $temperaturelimit);
       </div>
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu" data-widget="tree">
-        <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['Navigation_Section_A'];?></li>
+        <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['NAV_Section_A'];?></li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('devices.php', 'deviceDetails.php'))) {echo 'active';}?>">
-          <a href="devices.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['Navigation_Devices'];?></span>
-            <small class="label pull-right bg-yellow" id="header_dev_count_new"></small>
-            <small class="label pull-right bg-red" id="header_dev_count_down"></small>
-            <small class="label pull-right bg-green" id="header_dev_count_on"></small>
+          <a href="devices.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['NAV_Devices'];?></span>
+            <small class="label pull-right bg-yellow" id="header_local_count_new"></small>
+            <small class="label pull-right bg-red" id="header_local_count_down"></small>
+            <small class="label pull-right bg-green" id="header_local_count_on"></small>
           </a>
         </li>
 <?php
 get_devices_filter_list();
+toggle_satellites_submenu();
 ?>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('network.php', 'networkSettings.php'))) {echo 'active';}?>">
-          <a href="network.php"><i class="fa fa-server"></i> <span><?=$pia_lang['Navigation_Network'];?></span></a>
+          <a href="network.php"><i class="fa fa-server"></i> <span><?=$pia_lang['NAV_Network'];?></span></a>
         </li>
 <?php 
 toggle_webservices_menu('Main');
 toggle_icmpscan_menu('Main');
 ?>
-        <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['Navigation_Section_B'];?></li>
+        <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['NAV_Section_B'];?></li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('devicesEvents.php'))) {echo 'active';}?>">
-          <a href="devicesEvents.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['Navigation_Events_Dev'];?></span></a>
+          <a href="devicesEvents.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['NAV_Events_Dev'];?></span></a>
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('presence.php'))) {echo 'active';}?>">
-          <a href="presence.php"><i class="fa fa-calendar"></i> <span><?=$pia_lang['Navigation_Presence'];?></span></a>
+          <a href="presence.php"><i class="fa fa-calendar"></i> <span><?=$pia_lang['NAV_Presence'];?></span></a>
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('journal.php'))) {echo 'active';}?>">
-          <a href="journal.php"><i class="fa fa-list"></i> <span><?=$pia_lang['Navigation_Journal'];?></span></a>
+          <a href="journal.php"><i class="fa fa-list"></i> <span><?=$pia_lang['NAV_Journal'];?></span></a>
         </li>
-        <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['Navigation_Section_C'];?></li>
+        <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['NAV_Section_C'];?></li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('maintenance.php'))) {echo 'active';}?>">
-          <a href="maintenance.php"><i class="fa fa-cog"></i> <span><?=$pia_lang['Navigation_Maintenance'];?></span></a>
+          <a href="maintenance.php"><i class="fa fa-cog"></i> <span><?=$pia_lang['NAV_Maintenance'];?></span></a>
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('help_faq.php'))) {echo 'active';}?>">
-          <a href="help_faq.php"><i class="fa fa-question"></i> <span><?=$pia_lang['Navigation_HelpFAQ'];?></span></a>
+          <a href="help_faq.php"><i class="fa fa-question"></i> <span><?=$pia_lang['NAV_HelpFAQ'];?></span></a>
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('updatecheck.php'))) {echo 'active';}?>">
-          <a href="updatecheck.php"><i class="fa fa-rotate-right"></i> <span> <?=$pia_lang['Navigation_UpdateCheck'];?></span>
+          <a href="updatecheck.php"><i class="fa fa-rotate-right"></i> <span> <?=$pia_lang['NAV_UpdateCheck'];?></span>
 <?php
 if ($_SESSION['Auto_Update_Check']) { echo '<small class="label pull-right bg-red" id="header_updatecheck_notification"></small>';}
 ?>

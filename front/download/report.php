@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if ($_SESSION["login"] != 1) {
+	header('Location: ../index.php');
+	exit;
+}
+
 require '../lib/fpdf/fpdf.php';
 $regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
 $filename = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['report']) . '.txt';
