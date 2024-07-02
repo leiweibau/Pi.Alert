@@ -13,8 +13,10 @@
 session_start();
 
 if ($_SESSION["login"] != 1) {
+	if ($_REQUEST['action'] != "getDevicesTotals") {
 	header('Location: ../../index.php');
 	exit;
+	}
 }
 
 require 'db.php';
@@ -551,15 +553,16 @@ function TestNotificationSystem() {
 function getDevicesTotals() {
 	global $db;
 
+	if (!$_REQUEST['scansource']) {$scansource = 'local';} else {$scansource = $_REQUEST['scansource'];}
 	// combined query
 	$result = $db->query(
 		'SELECT
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('all',$_REQUEST['scansource']) . ') as devices,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('connected',$_REQUEST['scansource']) . ') as connected,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('favorites',$_REQUEST['scansource']) . ') as favorites,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('new',$_REQUEST['scansource']) . ') as new,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('down',$_REQUEST['scansource']) . ') as down,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived',$_REQUEST['scansource']) . ') as archived
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('all',$scansource) . ') as devices,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('connected',$scansource) . ') as connected,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('favorites',$scansource) . ') as favorites,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('new',$scansource) . ') as new,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('down',$scansource) . ') as down,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived',$scansource) . ') as archived
    ');
 	$row = $result->fetchArray(SQLITE3_NUM);
 	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5]));
