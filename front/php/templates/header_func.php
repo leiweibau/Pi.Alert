@@ -241,8 +241,11 @@ function get_all_satellites_list() {
     $result = $db->query($sql_select);
     if ($result) {
         if ($result->numColumns() > 0) {
+        	$i = 0;
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                show_all_satellites_list($row['sat_id'],$row['sat_name'],$row['sat_token'],$row['sat_password'],$row['sat_lastupdate']);
+            	if ($i!=0) {echo '<hr>';}
+                show_all_satellites_list($row['sat_id'],$row['sat_name'],$row['sat_token'],$row['sat_password'],$row['sat_lastupdate'],$row['sat_remote_version'],$row['sat_conf_scan_arp'],$row['sat_conf_scan_fritzbox'],$row['sat_conf_scan_mikrotik'],$row['sat_conf_scan_unifi']);
+                $i++;
             }
         }
     }
@@ -517,7 +520,7 @@ function print_logviewer_modal_foot() {
     </div>';
 }
 // Maintenance Page - Satellite List
-function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit) {
+function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit, $sat_version, $scan_arp, $scan_fritzbox, $scan_mikrotik, $scan_unifi) {
 	global $pia_lang;
 	echo '      <div class="db_info_table_row">
                     <div class="col-xs-12 col-md-2" style="padding: 5px;">
@@ -542,6 +545,13 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                         <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-floppy text-yellow" style="position: relative; font-size: 20px; top: -5px;"></i></button>
                         <button type="button" class="btn btn-link" id="btnDeleteSatellite" onclick="DeleteSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-trash text-red" style="position: relative; font-size: 20px; top: -5px;"></i></button>
                     </div>
+                </div>';
+	echo '      <div class="db_info_table_row">
+                    <div class="col-xs-12 col-md-2 text-muted">Version: '.$sat_version.'</div>
+                    <div class="col-xs-12 col-md-2 text-muted">arp Scan: '.convert_state($scan_arp,0).'</div>
+                    <div class="col-xs-12 col-md-2 text-muted">Fritzbox: '.convert_state($scan_fritzbox,0).'</div>
+                    <div class="col-xs-12 col-md-2 text-muted">Mikrotik: '.convert_state($scan_mikrotik,0).'</div>
+                    <div class="col-xs-12 col-md-2 text-muted">UniFi: '.convert_state($scan_unifi,0).'</div>
                 </div>';
 }
 
