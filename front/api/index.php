@@ -11,7 +11,10 @@ if ($config_file_lines_bypass != False) {
 } else {echo "No API-Key is set\n";exit;}
 
 // Exit if API-Key is unequal
-if ($_POST['api-key'] != $pia_apikey) {echo "Wrong API-Key\n";exit;}
+if ($_REQUEST['api-key'] != $pia_apikey) {
+	echo "Wrong API-Key\n";
+	exit;
+}
 
 // When API is correct
 // include db.php
@@ -201,7 +204,4 @@ function getAllOffline_ICMP() {
 	echo $json;
 	echo "\n";
 }
-
-// Close DB
-CloseDB();
 ?>
