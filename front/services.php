@@ -40,66 +40,34 @@ function getDeviceMacs() {
 		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'serviceMAC\',\'' . $row['dev_MAC'] . '\')">' . $row['dev_Name'] . '</a></li>';
 	}
 }
-
 // -----------------------------------------------------------------------------
-// Get the latest 15 StatusCodes from a specific URL in order latest -> older
-function get_latest_latency_from_url($service_URL) {
+// Get the latest 18 StatusCodes from a specific URL in order latest -> older
+function get_latest_data_from_url($service_URL) {
 	global $db;
 	unset($code_array, $i, $moneve_res);
-	$moneve_res = $db->query('SELECT * FROM Services_Events ORDER BY moneve_DateTime DESC');
+	$moneve_res = $db->query('SELECT * FROM Services_Events WHERE moneve_URL = "' . $service_URL . '" ORDER BY moneve_DateTime DESC LIMIT 18');
 	$i = 0;
-	$code_array = array();
+	$DateTime_array = array();
+	$StatusCode_array = array();
+	$Latency_array = array();
 	while ($row = $moneve_res->fetchArray()) {
-		if ($row['moneve_URL'] == $service_URL) {
-			$code_array[17 - $i] = $row['moneve_Latency'];
-			$i++;
-		}
+		$DateTime_array[17 - $i] = $row['moneve_DateTime'];
+		$StatusCode_array[17 - $i] = $row['moneve_StatusCode'];
+		$Latency_array[17 - $i] = $row['moneve_Latency'];
+		$i++;
 		if ($i == 18) {break;}
 	}
-	return $code_array;
-}
-
-// -----------------------------------------------------------------------------
-// Get the latest 15 StatusCodes from a specific URL in order latest -> older
-function get_latest_statuscodes_from_url($service_URL) {
-	global $db;
-	unset($code_array, $i, $moneve_res);
-	$moneve_res = $db->query('SELECT * FROM Services_Events ORDER BY moneve_DateTime DESC');
-	$i = 0;
-	$code_array = array();
-	while ($row = $moneve_res->fetchArray()) {
-		if ($row['moneve_URL'] == $service_URL) {
-			$code_array[17 - $i] = $row['moneve_StatusCode'];
-			$i++;
-		}
-		if ($i == 18) {break;}
-	}
-	return $code_array;
-}
-
-// -----------------------------------------------------------------------------
-// Get the latest 15 StatusCodes from a specific URL in order latest -> older
-function get_latest_scans_from_url($service_URL) {
-	global $db;
-	unset($code_array, $i, $moneve_res);
-	$moneve_res = $db->query('SELECT * FROM Services_Events ORDER BY moneve_DateTime DESC');
-	$i = 0;
-	$code_array = array();
-	while ($row = $moneve_res->fetchArray()) {
-		if ($row['moneve_URL'] == $service_URL) {
-			$code_array[17 - $i] = $row['moneve_DateTime'];
-			$i++;
-		}
-		if ($i == 18) {break;}
-	}
-	return $code_array;
+	$data['latency'] = $Latency_array;
+	$data['statuscode'] = $StatusCode_array;
+	$data['datetime'] = $DateTime_array;
+	return $data;
 }
 
 // -----------------------------------------------------------------------------
 // Get Name from Devices
 function get_device_name($service_MAC) {
 	global $db;
-	$dev_res = $db->query('SELECT * FROM Devices');
+	$dev_res = $db->query('SELECT dev_MAC,dev_Name FROM Devices');
 	while ($row = $dev_res->fetchArray()) {
 		if ($row['dev_MAC'] == $service_MAC) {
 			return $row['dev_Name'];
@@ -111,7 +79,7 @@ function get_device_name($service_MAC) {
 // Print a list of all monitored URLs
 function list_all_services() {
 	global $db;
-	$mon_res = $db->query('SELECT * FROM Services');
+	$mon_res = $db->query('SELECT mon_URL,mon_MAC,mon_TargetIP FROM Services');
 	while ($row = $mon_res->fetchArray()) {
 		echo $row['mon_URL'] . ' - ' . $row['mon_MAC'] . ' - ' . $row['mon_TargetIP'] . '<br>';
 	}
@@ -121,7 +89,7 @@ function list_all_services() {
 // get Count of all standalone services
 function get_count_standalone_services() {
 	global $db;
-	$mon_res = $db->query('SELECT * FROM Services');
+	$mon_res = $db->query('SELECT mon_MAC FROM Services');
 	$func_count = 0;
 	while ($row = $mon_res->fetchArray()) {
 		if ($row['mon_MAC'] == "") {$func_count++;}
@@ -194,9 +162,10 @@ function list_standalone_services() {
 			echo '          <div class="progress-segment">';
 
 			// Get Tooltip values
-			$func_scans = get_latest_scans_from_url($row['mon_URL']);
-			$func_httpcodes = get_latest_statuscodes_from_url($row['mon_URL']);
-			$func_latency = get_latest_latency_from_url($row['mon_URL']);
+			$data = get_latest_data_from_url($row['mon_URL']);
+			$func_latency = $data['latency'];
+			$func_httpcodes = $data['statuscode'];
+			$func_scans = $data['datetime'];
 
 			for ($x = 0; $x < 18; $x++) {
 				unset($codecolor);
@@ -228,7 +197,7 @@ function list_standalone_services() {
 // Get a array of unique devices with monitored URLs
 function get_devices_from_services() {
 	global $db;
-	$mon_res = $db->query('SELECT * FROM Services');
+	$mon_res = $db->query('SELECT mon_MAC FROM Services');
 	$func_unique_devices = array();
 	while ($row = $mon_res->fetchArray()) {
 		array_push($func_unique_devices, $row['mon_MAC']);
@@ -275,9 +244,10 @@ function get_service_from_unique_device($func_unique_device) {
 			echo '                <div class="progress-segment">';
 
 			// Get Tooltip values
-			$func_scans = get_latest_scans_from_url($row['mon_URL']);
-			$func_httpcodes = get_latest_statuscodes_from_url($row['mon_URL']);
-			$func_latency = get_latest_latency_from_url($row['mon_URL']);
+			$data = get_latest_data_from_url($row['mon_URL']);
+			$func_latency = $data['latency'];
+			$func_httpcodes = $data['statuscode'];
+			$func_scans = $data['datetime'];
 
 			for ($x = 0; $x < 18; $x++) {
 				unset($codecolor);
