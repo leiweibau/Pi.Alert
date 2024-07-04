@@ -81,7 +81,7 @@ performed via the frontend, pialert-cli, and cronjob.
 New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
 iOS devices, icons can be directly linked from the repository, as iOS devices may not load homescreen icons from insecure sources (without SSL or self-signed SSL).
 
-There are [various ways](docs/API-USAGE.md) to submit a request to the backend with the help of a API. I will use curl/bash and curl/php as examples in the following. 
+It is possible to send various requests to the backend with the help of an [API](docs/API-USAGE.md). I will use curl/bash and curl/php as examples in the following. 
 
 # Installation
 <!--- --------------------------------------------------------------------- --->
