@@ -2,10 +2,28 @@
 <!--- --------------------------------------------------------------------- --->
 This is my first attempt at building an API, so if I've done basic things wrong, I'm happy to see improvements.
 
-Depending on the system configuration, it may be necessary to specify the path "/pialert" (e.g. `http://192.168.0.10` or `http://192.168.0.10/pialert/`) in the URL in addition to the IP or host name. Whether "http" or "https" is used also depends on the configuration you are using.
+Depending on the system configuration, it may be necessary to specify the path "/pialert" (e.g. `http://192.168.0.10` or `http://192.168.0.10/pialert/`) in the URL in 
+addition to the IP or host name. Whether "http" or "https" is used also depends on the configuration you are using.
 
-For the API, I limited myself to basic things. There are only 4 queries possible at the moment (system-status, mac-status, all-online, 
-all-offline). For a query we need the API key, which can be created via the frontend (maintenance page) or 
+* [API Values](#api-values)
+* [Home Assistant Integration](#home-assistant-integration)
+* [Homepage (gethomepage.dev)](#homepage)
+
+<hr>
+
+* [Example of a query with PHP (system-status)](#example-of-a-query-with-php-system-status)
+* [Example of a query with PHP (mac-status)](#example-of-a-query-with-php-mac-status)
+* [Query with PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)](#example-of-a-query-with-php-all-online-or-all-offline)
+* [Example of a query with the commandline tool curl (system-status)](#example-of-a-query-with-the-commandline-tool-curl-system-status)
+* [Example of a query with the commandline tool curl (mac-status)](#example-of-a-query-with-the-commandline-tool-curl-mac-status)
+* [Example of a query with the commandline tool curl (all-online or all-offline)](#example-of-a-query-with-the-commandline-tool-curl-all-online-or-all-offline)
+* [Use API-Call for Home Assistant](#use-api-call-for-home-assistant)
+* [Use API-Call for Homepage](#use-api-call-for-homepage)
+
+## API Values
+
+For the API, I limited myself to basic things. There are only 6 queries possible at the moment (system-status, mac-status, all-online, 
+all-offline, all-online-icmp, all-offline-icmp). For a query we need the API key, which can be created via the frontend (maintenance page) or 
 via the pialer-cli in the "/back" directory.
 The API key must be transmitted with "post", at least that's how it's written on my part at the moment.
 
@@ -103,6 +121,14 @@ The following fields are returned with the API call "all-offline-icmp" for each 
 The API can also be used to make information available in Home Assistant.
 
 [Use API-Call for Home Assistant](https://github.com/leiweibau/Pi.Alert/blob/main/docs/API-USAGE.md#use-api-call-for-home-assistant)
+
+
+## Homepage
+
+The API can also be used to make information available in Homepage. Homepage is a dashboard on which you can easily display a wide range of status data for your Homelab services and devices.
+
+[Use API-Call for Homepage](https://github.com/leiweibau/Pi.Alert/blob/main/docs/API-USAGE.md#use-api-call-for-homepage)
+
 
 <hr>
 
@@ -348,11 +374,97 @@ sensor:
     unique_id: pialert.status.scanning
     value_template: '{{ value_json.Scanning }}'
 ```
-Restart Home Assistant after the change. Then open the developer tools in Home Assistant and switch to the States tab. Here you should now find the PiAlert sensors. Now you can create a new card on the dashboard and add the individual sensors as you wish. For illustration here is a picture of my Pi.Alert Card (It is configured in german for me, but it should be enough for understanding)
+Restart Home Assistant after the change. Then open the developer tools in Home Assistant and switch to the States tab. Here you should now find the PiAlert sensors. 
+Now you can create a new card on the dashboard and add the individual sensors as you wish. For illustration here is a picture of my Pi.Alert Card (It is configured 
+in german for me, but it should be enough for understanding)
 
 ![pialert_card.png][pialert_card] 
 
+### Use API-Call for Homepage
+
+It is possible to display the widget in 2 different views (list and rows). For the icon, you can either use your own, or use the various FavIcons, which I have 
+listed [here](https://github.com/leiweibau/Pi.Alert/blob/main/docs/ICONS.md).
+
+#### Rows
+
+```
+    - Pi.Alert:
+        href: https://<IP or Hostname>:<Port>/pialert/
+        descriptionn: Network Scanner
+        icon: https://<IP or Hostname>:<Port>/pialert/img/favicons/flat_red_white.png
+        widget:
+          type: customapi
+          url: https://<IP or Hostname>:<Port>/pialert/api/?get=system-status&api-key=<Your API-Key>
+          refreshInterval: 10000
+          display: rows
+          mappings:
+            - field: All_Devices
+              label: All
+              type: number
+            - field: Offline_Devices
+              label: Offline
+              type: number 
+            - field: Online_Devices
+              label: Online
+              type: number 
+            - field: New_Devices
+              label: New
+              type: number
+            - field: All_Devices_ICMP
+              label: All ICMP
+              type: number 
+            - field: Offline_Devices_ICMP
+              label: Offline ICMP
+              type: number 
+            - field: Online_Devices_ICMP
+              label: Online ICMP
+              type: number
+
+```
+
+![homepage_card_rows.png][homepage_card_rows]
+
+#### List
+
+```
+    - Pi.Alert:
+        href: https://<IP or Hostname>:<Port>/pialert/
+        descriptionn: Network Scanner
+        icon: https://<IP or Hostname>:<Port>/pialert/img/favicons/flat_red_white.png
+        widget:
+          type: customapi
+          url: https://<IP or Hostname>:<Port>/pialert/api/?get=system-status&api-key=<Your API-Key>
+          refreshInterval: 10000
+          display: list
+          mappings:
+            - field: All_Devices
+              label: All
+              type: number
+            - field: Offline_Devices
+              label: Offline
+              type: number 
+            - field: Online_Devices
+              label: Online
+              type: number 
+            - field: New_Devices
+              label: New
+              type: number
+            - field: All_Devices_ICMP
+              label: All ICMP
+              type: number 
+            - field: Offline_Devices_ICMP
+              label: Offline ICMP
+              type: number 
+            - field: Online_Devices_ICMP
+              label: Online ICMP
+              type: number
+
+```
+
+![homepage_card_list.png][homepage_card_list] 
 
 [Back](https://github.com/leiweibau/Pi.Alert#api)
 
-[pialert_card]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/pialert_card.png       "pialert_card.png"
+[pialert_card]:          https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/pialert_card.png         "pialert_card.png"
+[homepage_card_rows]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/homepage_card_rows.png   "homepage_card_rows.png"
+[homepage_card_list]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/homepage_card_list.png   "homepage_card_list.png"
