@@ -1107,6 +1107,24 @@ def process_satellites(satellite_list):
             with open(satellite_scanresult, 'r') as file:
                 data = json.load(file)
 
+                try:
+                    satellite_meta_data = data['satellite_meta_data'][0]
+                    satellite_version = satellite_meta_data.get('satellite_version', "-")
+                except (KeyError, IndexError, TypeError):
+                    satellite_version = "-"
+
+                try:
+                    satellite_scan_config = data['satellite_scan_config'][0]
+                    scan_arp = 1 if satellite_scan_config.get('scan_arp', False) else 0
+                    scan_fritzbox = 1 if satellite_scan_config.get('scan_fritzbox', False) else 0
+                    scan_mikrotik = 1 if satellite_scan_config.get('scan_mikrotik', False) else 0
+                    scan_unifi = 1 if satellite_scan_config.get('scan_unifi', False) else 0
+                except (KeyError, IndexError, TypeError):
+                    scan_arp = 0
+                    scan_fritzbox = 0
+                    scan_mikrotik = 0
+                    scan_unifi = 0
+
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check':
                         sat_MAC = result['cur_MAC']
@@ -1125,7 +1143,15 @@ def process_satellites(satellite_list):
 
                 satUpdateTime = datetime.datetime.now()
                 satUpdateTime = satUpdateTime.replace(microsecond=0)
-                sql.execute("""UPDATE Satellites SET sat_lastupdate = ? WHERE sat_token = ?""", (satUpdateTime, token))
+                sql.execute("""UPDATE Satellites 
+                                SET 
+                                    sat_lastupdate = ?, 
+                                    sat_remote_version = ?,
+                                    sat_conf_scan_arp = ?,
+                                    sat_conf_scan_fritzbox = ?,
+                                    sat_conf_scan_mikrotik = ?,
+                                    sat_conf_scan_unifi = ?
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
