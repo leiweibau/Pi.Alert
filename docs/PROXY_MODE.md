@@ -11,6 +11,8 @@ In this case, the satellite sends the data to the proxy and Pi.Alert retrieves t
 
 ## Installation:
 
+You can find the API files in the "api" folder of the Pi.Alert Satellite Archive.
+
 This step only needs to be performed once and can be used for multiple satellites.
 Create a new folder for the Pi.Alert API Proxy on your web server within the web root (it can also be a subfolder). For the purposes of this guide, 
 I will use the folder "pialert_proxy". Place the "api" folder and its contents into this directory. Additionally, create the "satellites" folder.
@@ -46,3 +48,5 @@ corresponding error page. All other states are "answered" in the form of a JSON 
 used to download the files and has the additional function of deleting all scan results on the proxy that are older than 10 minutes. The reason for this 
 is that if the satellite or the Internet connection from the satellite fails, the last available scan is not constantly loaded, making it appear as if 
 everything is OK. By deleting the old scans, the satellite and all connected devices are displayed as offline.
+
+[Back](https://github.com/leiweibau/Pi.Alert)
