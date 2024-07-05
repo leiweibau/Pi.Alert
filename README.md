@@ -47,6 +47,7 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
   - **Web service monitoring**. An HTTP request is sent and the web server's response is processed. If self signed certificates are used, no validation of the certificate is performed.
   - **ICMP monitoring**. A "ping" is sent to a manually specified IP/hostname/domain name and the response is evaluated
   - **DHCP Server Scan**. Nmap is used to send DHCP requests into the network to detect unknown (rogue) DHCP servers.
+  - **Satellite Scan** A companion script for Pi.Alert, which executes the Pi.Alert scan on an external host and sends the data as encrypted JSON to an existing Pi.Alert
 
 ### Backend (back)
 
@@ -71,17 +72,19 @@ It manages device inventory and characteristics, facilitating individual managem
 favorites, events, presence, and internet IP address changes, is visually represented. For enhanced device management, manual Nmap scans and Wake-on-LAN 
 (if supported) are available, alongside speed tests for the "Internet" device in the details view.
 
-Additionally, it provides insights into network relationships through a simple display. Users can perform various maintenance tasks and customize settings, 
+Additionally, it provides insights into network relationships through a simple display. You can perform various maintenance tasks and customize settings, 
 including language selection (English, German, Spanish, French, Italian), AdminLTE-Skins/Theme/Favicons selection, API-key configuration, login management, 
 database maintenance tools, and config file editing.
 
-For support, a comprehensive Help/FAQ section is accessible. Notifications with download options keep users informed, while a journal tracks operations 
+For support, a comprehensive Help/FAQ section is accessible. Notifications with download options keep you informed, while a journal tracks operations 
 performed via the frontend, pialert-cli, and cronjob. 
 
 New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
 iOS devices, icons can be directly linked from the repository, as iOS devices may not load homescreen icons from insecure sources (without SSL or self-signed SSL).
 
-It is possible to send various requests to the backend with the help of an [API](docs/API-USAGE.md). The API can also be used to create an integration in Home Assistant or [gethomepage.dev](https://github.com/gethomepage/homepage).
+There are [various ways](docs/API-USAGE.md) to submit a request to the backend with the help of a API. The API can also be used to create an integration in 
+Home Assistant or [Homepage](https://github.com/gethomepage/homepage).
+
 
 # Installation
 <!--- --------------------------------------------------------------------- --->
@@ -116,9 +119,6 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 <!--- --------------------------------------------------------------------- --->
 You can always check for a new release using the "Update Check" button in the sidebar. This check will show you if the GeoLite2 DB is 
 installed or up to date and which new features, fixes or changes are available in the new Pi.Alert release, if you are not already using the latest version.
-
-There are no updates as Github release package, because the update function is done by the "wget" command anyway. Instead, after a certain number of commits, 
-a new archive is created, which is used as the source for the update.
 
 This update script is only recommended for an already existing installation of this fork. If you are using another fork, 
 I recommend uninstalling it first. If you backup the database, it may be possible to continue using it with my fork after a patch ([pialert-cli](docs/PIALERTCLI.md)).
