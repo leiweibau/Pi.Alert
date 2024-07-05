@@ -270,52 +270,61 @@ For actual versions of Home Assistant
 ```yaml
 command_line:
   - sensor:
-      name: "PiAlert - Last Scan"
+      name: "PiAlert Status"
       command: curl -k -X POST -F 'api-key=[APIKEY]' -F 'get=system-status' http://[URL]/pialert/api/
       scan_interval: 200
-      unique_id: pialert.status.lastscan
+      json_attributes:
+        - Last_Scan
+        - All_Devices
+        - Online_Devices
+        - Offline_Devices
+        - New_Devices
+        - Scanning
+        - Offline_Devices_ICMP
+        - Online_Devices_ICMP
       value_template: "{{ value_json.Last_Scan }}"
+      unique_id: pialert.status
+
+template:
   - sensor:
-      name: "PiAlert - All Devices"
-      command: curl -k -X POST -F 'api-key=[APIKEY]' -F 'get=system-status' http://[URL]/pialert/api/
-      scan_interval: 200
-      unique_id: pialert.status.alldevices
-      unit_of_measurement: ""
-      value_template: "{{ value_json.All_Devices }}"
-  - sensor:
-      name: "PiAlert - Online Devices"
-      command: curl -k -X POST -F 'api-key=[APIKEY]' -F 'get=system-status' http://[URL]/pialert/api/
-      scan_interval: 200
-      unique_id: pialert.status.onlinedevices
-      unit_of_measurement: ""
-      value_template: "{{ value_json.Online_Devices }}"
-  - sensor:
-      name: "PiAlert - Offline Devices"
-      command: curl -k -X POST -F 'api-key=[APIKEY]' -F 'get=system-status' http://[URL]/pialert/api/
-      scan_interval: 200
-      unique_id: pialert.status.offlinedevices
-      unit_of_measurement: ""
-      value_template: "{{ value_json.Offline_Devices }}"
-  - sensor:
-      name: "PiAlert - Archived Devices"
-      command: curl -k -X POST -F 'api-key=[APIKEY]' -F 'get=system-status' http://[URL]/pialert/api/
-      scan_interval: 200
-      unique_id: pialert.status.archiveddevices
-      unit_of_measurement: ""
-      value_template: "{{ value_json.Archived_Devices }}"
-  - sensor:
-      name: "PiAlert - New Devices"
-      command: curl -k -X POST -F 'api-key=[APIKEY]' -F 'get=system-status' http://[URL]/pialert/api/
-      scan_interval: 200
-      unique_id: pialert.status.newdevices
-      unit_of_measurement: ""
-      value_template: "{{ value_json.New_Devices }}"
-  - sensor:
-      name: "PiAlert - Scanning"
-      command: curl -k -X POST -F 'api-key=[APIKEY]' -F 'get=system-status' http://[URL]/pialert/api/
-      scan_interval: 120
-      unique_id: pialert.status.scanning
-      value_template: "{{ value_json.Scanning }}"
+      - name: "PiAlert - Last Scan"
+        state: "{{ state_attr('sensor.pialert_status', 'Last_Scan') }}"
+        unique_id: pialert.status.lastscan
+
+      - name: "PiAlert - All Devices"
+        state: "{{ state_attr('sensor.pialert_status', 'All_Devices') }}"
+        unique_id: pialert.status.alldevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Online Devices"
+        state: "{{ state_attr('sensor.pialert_status', 'Online_Devices') }}"
+        unique_id: pialert.status.onlinedevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Offline Devices"
+        state: "{{ state_attr('sensor.pialert_status', 'Offline_Devices') }}"
+        unique_id: pialert.status.offlinedevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - New Devices"
+        state: "{{ state_attr('sensor.pialert_status', 'New_Devices') }}"
+        unique_id: pialert.status.newdevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Scanning"
+        state: "{{ state_attr('sensor.pialert_status', 'Scanning') }}"
+        unique_id: pialert.status.scanning
+
+      - name: "PiAlert - Offline Devices ICMP"
+        state: "{{ state_attr('sensor.pialert_status', 'Offline_Devices_ICMP') }}"
+        unique_id: pialert.status.offlinedevicesicmp
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Online Devices ICMP"
+        state: "{{ state_attr('sensor.pialert_status', 'Online_Devices_ICMP') }}"
+        unique_id: pialert.status.onlinedevicesicmp
+        unit_of_measurement: ""
+
 ```
 For older versions of Home Assistant
 ```yaml
