@@ -171,5 +171,5 @@ An archive of older versions can be found at [https://leiweibau.net/archive/pial
   leiweibau@gmail.com
 
 <!--- --------------------------------------------------------------------- --->
-[main]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main.png          "Main screen"
+[main]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main_da_li.png          "Main screen"
 
