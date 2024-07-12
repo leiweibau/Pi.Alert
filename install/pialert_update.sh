@@ -226,15 +226,6 @@ update_config() {
 
   print_msg "- Updating config file..."
 
-# 2023-10-09
-if ! grep -Fq "UNIFI_API" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-UNIFI_API    = 'v5'
-# Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS
-EOF
-fi
-
 # 2023-10-19
 if ! grep -Fq "# Automatic Speedtest" "$PIALERT_HOME/config/pialert.conf" ; then
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
@@ -310,6 +301,15 @@ SATELLITES_ACTIVE = False
 # -----------------------
 SATELLITE_PROXY_MODE = False
 SATELLITE_PROXY_URL = ''
+EOF
+fi
+
+# 2024-07-12
+if ! grep -Fq "REPORT_NEW_CONTINUOUS" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+REPORT_NEW_CONTINUOUS  = False
+REPORT_NEW_CONTINUOUS_CRON = '0 * * * *'
 EOF
 fi
 
