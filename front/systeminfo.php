@@ -147,45 +147,128 @@ echo '<div class="box box-solid">
       </div>';
 
 // General ----------------------------------------------------------
-echo '<div class="box box-solid">
-            <div class="box-header">
-              <h3 class="box-title sysinfo_headline"><i class="bi bi-info-circle"></i> General</h3>
+if (($_SESSION['Scan_Satellite'] == True)) {
+		$_SESSION['local'] = "local";
+		global $satellite_badges_list;
+    	$database = '../db/pialert.db';
+	    $db = new SQLite3($database);
+	    $sql_select = 'SELECT * FROM Satellites ORDER BY sat_name ASC';
+	    $result = $db->query($sql_select);
+	    if ($result) {
+	        if ($result->numColumns() > 0) {
+	        	$tab_id = 0;
+	            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+	            	$tab_id++;
+	                $tabs .=  '<li class=""><a href="#tab_'.$tab_id.'" data-toggle="tab" aria-expanded="false">'.$row['sat_name'].'</a></li>';
+
+	                $hostdata = json_decode($row['sat_host_data'], true);
+	                $tab_content .= '<div class="tab-pane" id="tab_'.$tab_id.'">
+										<div class="box box-solid">
+								            <div class="box-body">
+												<div class="row">
+												  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
+												  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['uptime'] . '</div>
+												</div>
+												<div class="row">
+												  <div class="col-sm-3 sysinfo_gerneral_a">Hostname</div>
+												  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['hostname'] . '</div>
+												</div>
+								            </div>
+								        </div></div>';
+	            }
+	        }
+	    }
+	    $db->close();
+}
+echo '<div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="pull-left header text-aqua" id="sys_info_gen_head"><i class="bi bi-info-circle"></i> General</li>
+              <li class="active"><a href="#tab_0" data-toggle="tab" aria-expanded="true">Pi.Alert</a></li>
+              '.$tabs.'
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab_0">
+				<div class="box box-solid">
+		            <div class="box-body">
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['uptime'] . '</div>
+						</div>
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['os_version'] . '</div>
+						</div>
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">Kernel Architecture:</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $kernel_arch . '</div>
+						</div>
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">CPU Name:</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['cpu_model'] . '</div>
+						</div>
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">CPU Cores:</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['cpu'] . ' @ ' . $stat['cpu_frequ'] . ' MHz</div>
+						</div>
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">Memory:</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['mem_total'] . ' MB / ' . $stat['mem_used'] . '% is used</div>
+						</div>
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">Running Processes:</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['process_count'] . '</div>
+						</div>
+						<div class="row">
+						  <div class="col-sm-3 sysinfo_gerneral_a">Logged in Users:</div>
+						  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['user_count'] . '</div>
+						</div>
+		            </div>
+				</div>
+              </div>
+              '.$tab_content.'
             </div>
-            <div class="box-body">
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['uptime'] . '</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['os_version'] . '</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Kernel Architecture:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $kernel_arch . '</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">CPU Name:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['cpu_model'] . '</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">CPU Cores:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['cpu'] . ' @ ' . $stat['cpu_frequ'] . ' MHz</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Memory:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['mem_total'] . ' MB / ' . $stat['mem_used'] . '% is used</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Running Processes:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['process_count'] . '</div>
-				</div>
-				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Logged in Users:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['user_count'] . '</div>
-				</div>
-            </div>
-      </div>';
+          </div>';
+
+
+// echo '<div class="box box-solid">
+//             <div class="box-header">
+//               <h3 class="box-title sysinfo_headline"><i class="bi bi-info-circle"></i> General</h3>
+//             </div>
+//             <div class="box-body">
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['uptime'] . '</div>
+// 				</div>
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['os_version'] . '</div>
+// 				</div>
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">Kernel Architecture:</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $kernel_arch . '</div>
+// 				</div>
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">CPU Name:</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['cpu_model'] . '</div>
+// 				</div>
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">CPU Cores:</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['cpu'] . ' @ ' . $stat['cpu_frequ'] . ' MHz</div>
+// 				</div>
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">Memory:</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['mem_total'] . ' MB / ' . $stat['mem_used'] . '% is used</div>
+// 				</div>
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">Running Processes:</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['process_count'] . '</div>
+// 				</div>
+// 				<div class="row">
+// 				  <div class="col-sm-3 sysinfo_gerneral_a">Logged in Users:</div>
+// 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['user_count'] . '</div>
+// 				</div>
+//             </div>
+//       </div>';
 
 echo '<script>
 	var ratio = window.devicePixelRatio || 1;

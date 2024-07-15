@@ -538,3 +538,7 @@ body.modal-open {
 .hide_element {
     display:none;
 }
+#sys_info_gen_head {
+  background-color: white !important;
+  line-height: 41px;
+}
