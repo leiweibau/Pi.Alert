@@ -125,6 +125,10 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 										    <td class="help_table_gen_b">Intervalle, en syntaxe crontab, auquel les sauvegardes automatiques doivent être créées. L&apos;intervalle le plus court est de 3 minutes. Tous les intervalles plus grands doivent être des multiples entiers de 3 minutes (15, 30, 36, etc).</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_KEEP</td>
 											<td class="help_table_gen_b">Cela spécifie combien de sauvegardes automatiques doivent être conservées, y compris la sauvegarde actuelle. Cela inclut à la fois les sauvegardes de configuration et de base de données. Cette valeur n&apos;est pas pertinente lors du nettoyage manuel, où les 3 dernières sauvegardes sont conservées.</td></tr>
+									    <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
+									        <td class="help_table_gen_b">Active ou désactive la notification récurrente pour les appareils marqués comme "Nouveau".</td></tr>
+										<tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS_CRON</td>
+									        <td class="help_table_gen_b">Intervalle, en syntaxe crontab, auquel les sauvegardes automatiques doivent être créées. L&apos;intervalle le plus court est de 3 minutes. Tous les intervalles plus grands doivent être des multiples entiers de 3 minutes (15, 30, 36, etc).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>

@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.25'
+SCRIPTVERSION='v1.26'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -606,6 +606,14 @@ EOM
       sqlite3 $PIA_DB_FILE "ALTER TABLE 'Satellites' ADD COLUMN 'sat_conf_scan_unifi' BOOLEAN NOT NULL DEFAULT 0;"
     else
       echo "        Column 'sat_conf_scan_unifi' already exists in the 'Satellites' table."
+    fi
+    # Satellites.sat_host_data
+    echo -e "...Insert new column 'sat_host_data' to table 'Satellites' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Satellites');" | awk -F\| '{print $2}' | grep -wci "sat_host_data")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Satellites' ADD COLUMN 'sat_host_data' TEXT;"
+    else
+      echo "        Column 'sat_host_data' already exists in the 'Satellites' table."
     fi
 
     echo -e "\nUpdate finished!\n"
