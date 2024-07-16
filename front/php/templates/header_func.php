@@ -200,6 +200,7 @@ if (get_config_parmeter('SATELLITES_ACTIVE') == 1) {$_SESSION['SATELLITES_ACTIVE
 $_SESSION['AUTO_UPDATE_CHECK_CRON'] = get_config_parmeter('AUTO_UPDATE_CHECK_CRON');
 $_SESSION['AUTO_DB_BACKUP_CRON'] = get_config_parmeter('AUTO_DB_BACKUP_CRON');
 $_SESSION['SPEEDTEST_TASK_CRON'] = get_config_parmeter('SPEEDTEST_TASK_CRON');
+$_SESSION['REPORT_NEW_CONTINUOUS_CRON'] = get_config_parmeter('REPORT_NEW_CONTINUOUS_CRON');
 
 // State for Toggle Buttons
 function convert_state($state, $revert) {
