@@ -206,6 +206,10 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 											  <div class="col-sm-3 sysinfo_gerneral_a">Running Processes:</div>
 											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['proc_count'] . '</div>
 											</div>
+											<div class="row">
+											  <div class="col-sm-3 sysinfo_gerneral_a">Satellite Host:</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">Name: ' . $hostdata['hostname'] . ' / IP: ' . $hostdata['satellite_ip'] . ' / MAC: <a href="./deviceDetails.php?mac=' . $hostdata['satellite_mac'] . '">' . $hostdata['satellite_mac'] . '</a></div>
+											</div>
 							            </div>';
 	            }
 	        }
