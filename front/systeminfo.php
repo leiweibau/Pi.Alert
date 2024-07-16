@@ -159,7 +159,11 @@ echo '<script>
 
 // General ----------------------------------------------------------
 if (($_SESSION['Scan_Satellite'] == True)) {
-		$_SESSION['local'] = "local";
+		//$_SESSION['local'] = "local";
+
+		$uptime_search  = array('w ', 'd ', 'h ', 'm ');
+        $uptime_replace = array(' weeks, ', ' days, ', ' hours, ', ' minutes ');
+
 		global $satellite_badges_list;
     	$database = '../db/pialert.db';
 	    $db = new SQLite3($database);
@@ -176,7 +180,7 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 	                $tab_content .= '<div class="tab-pane" id="tab_'.$tab_id.'">
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['uptime'] . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . '</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
@@ -193,6 +197,10 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">CPU Cores:</div>
 											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['cpu_cores'] . ' @ ' . $hostdata['cpu_freq'] . '</div>
+											</div>
+											<div class="row">
+											  <div class="col-sm-3 sysinfo_gerneral_a">Memory:</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . round($hostdata['ram_total']/1048576, 2) . ' MB / ' . $hostdata['ram_used_percent'] . '% is used</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Running Processes:</div>
