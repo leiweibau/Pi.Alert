@@ -740,3 +740,10 @@ input[type="password"]::-webkit-caps-lock-indicator {
   margin: 0 1px;
   background-color: rgba(0, 0, 0, 0.5);
 }
+
+#sys_info_gen_head {
+  background-color: transparent !important;
+  color: #00c0ef !important;
+  line-height: 41px;
+  font-size: 18px;
+}
