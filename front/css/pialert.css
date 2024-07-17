@@ -538,3 +538,14 @@ body.modal-open {
 .hide_element {
     display:none;
 }
+#sys_info_gen_head {
+  background-color: white !important;
+  line-height: 41px;
+  font-size: 18px;
+}
+.satlist_action_btn_content {
+    position: relative; font-size: 20px; top: -5px;
+}
+#btnInstallSatellite, #btnSaveSatellite, #btnDeleteSatellite {
+    padding: 6px 10px;
+}

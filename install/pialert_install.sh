@@ -695,6 +695,7 @@ check_pialert_home() {
 install_dependencies() {
   print_msg "- Installing dependencies..."
   if [ $(id -u) -eq 0 ]; then
+      #apt-get update                                             2>&1 >> "$LOG"
       apt-get install sudo -y                                    2>&1 >> "$LOG"
   fi
 

@@ -801,3 +801,7 @@ input[type="password"]::-webkit-caps-lock-indicator {
 #btnFilterSave{color:#fff}
 
 .btn-default:hover, .btn-default:active {color:#000 !important;}
+#sys_info_gen_head {
+  background-color: #272c30 !important;
+  line-height: 41px;
+}

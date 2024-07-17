@@ -718,7 +718,18 @@ input[type="password"]::-webkit-caps-lock-indicator {
   background-color: rgba(255, 255, 255, 0.3);
   color: #4A4B50 !important;
 }
-
 .skin-blue .sidebar-menu .treeview-menu > li.active > a, .skin-blue .sidebar-menu .treeview-menu > li > a:hover {
   color: #000;
+}
+#sys_info_gen_head {
+  background-color: transparent !important;
+  color: #1B70B7 !important;
+  line-height: 41px;
+  font-size: 18px;
+}
+.satlist_action_btn_content {
+    position: relative; font-size: 20px; top: -5px;
+}
+#btnInstallSatellite, #btnSaveSatellite, #btnDeleteSatellite {
+    padding: 6px 10px;
 }

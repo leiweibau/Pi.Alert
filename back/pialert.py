@@ -227,6 +227,16 @@ def check_internet_IP():
     else :
         print('\nSkipping Dynamic DNS update...')
 
+
+    # Run continuous New Device Notification
+    print(f"\nContinuous New Device Notification...")
+    if REPORT_NEW_CONTINUOUS :
+        print(f"    Crontab: {REPORT_NEW_CONTINUOUS_CRON}")
+        continuously_new_email_reporting(startTime, REPORT_NEW_CONTINUOUS_CRON)
+    else:
+        print(f"    Skipping... Not activated!")
+
+
     # Run automated Speedtest
     print(f"\nAuto Speedtest...")
     if SPEEDTEST_TASK_ACTIVE :
@@ -282,7 +292,7 @@ def create_autobackup(start_time, crontab_string):
 
         while os.path.exists(STATUS_FILE_SCAN):
             if time.time() - start_time.timestamp() >= 300:  # Check whether 5 minutes have passed
-                #print("The status file has not been deleted after 5 minutes. The script is terminated.")
+                print_log("The status file has not been deleted after 5 minutes. The script is terminated.")
                 if os.path.exists(STATUS_FILE_BACKUP):
                     os.remove(STATUS_FILE_BACKUP)
                 return
@@ -1110,8 +1120,10 @@ def process_satellites(satellite_list):
                 try:
                     satellite_meta_data = data['satellite_meta_data'][0]
                     satellite_version = satellite_meta_data.get('satellite_version', "-")
+                    satellite_meta_data_json = json.dumps(satellite_meta_data)
                 except (KeyError, IndexError, TypeError):
                     satellite_version = "-"
+                    satellite_meta_data_json = {}
 
                 try:
                     satellite_scan_config = data['satellite_scan_config'][0]
@@ -1150,8 +1162,9 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_arp = ?,
                                     sat_conf_scan_fritzbox = ?,
                                     sat_conf_scan_mikrotik = ?,
-                                    sat_conf_scan_unifi = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, token))
+                                    sat_conf_scan_unifi = ?,
+                                    sat_host_data = ?
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
@@ -2773,6 +2786,107 @@ def icmphost_monitoring_notification():
 #===============================================================================
 # REPORTING
 #===============================================================================
+def continuously_new_email_reporting(start_time, crontab_string):
+    global mail_text
+    global mail_html
+
+    # convert cron string
+    crontab_parts = crontab_string.split()
+    minute = parse_cron_part(crontab_parts[0], start_time.minute, 0, 60) # last value is the exit value, meaning the 1. invalid value
+    hour = parse_cron_part(crontab_parts[1], start_time.hour, 0, 60)
+    day_of_month = parse_cron_part(crontab_parts[2], start_time.day, 1, 32)
+    month = parse_cron_part(crontab_parts[3], start_time.month, 1, 13)
+    day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
+
+    # Compare cron
+    if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
+       (start_time.month in month) and (start_time.weekday() in day_of_week):
+
+        # Reporting section
+        openDB()
+
+        sql.execute("""SELECT sat_name, sat_token FROM Satellites""")
+        rows = sql.fetchall()
+
+        # create Dictionary
+        satellite_dict = {}
+        for row in rows:
+            sat_name = row[0]
+            sat_token = row[1]
+            satellite_dict[sat_token] = sat_name
+
+        # Open text Templates
+        with open(f'{PIALERT_BACK_PATH}/report_template.txt', 'r') as template_file:
+            mail_text = template_file.read()
+        with open(f'{PIALERT_BACK_PATH}/report_template.html', 'r') as template_file:
+            mail_html = template_file.read()
+
+        # Report Header & footer
+        timeFormated = startTime.strftime ('%Y-%m-%d %H:%M')
+        mail_text = mail_text.replace ('<REPORT_DATE>', timeFormated)
+        mail_html = mail_html.replace ('<REPORT_DATE>', timeFormated)
+
+        mail_text = mail_text.replace ('<SERVER_NAME>', socket.gethostname() )
+        mail_html = mail_html.replace ('<SERVER_NAME>', socket.gethostname() )
+
+        format_report_section (False, 'SECTION_INTERNET',
+            'TABLE_INTERNET', '', '')
+        format_report_section (False, 'SECTION_DEVICES_DOWN',
+            'TABLE_DEVICES_DOWN', '', '')
+        format_report_section (False, 'SECTION_EVENTS',
+            'TABLE_EVENTS', '', '')
+
+        # Compose New Devices Section
+        mail_section_new_devices = False
+        mail_text_new_devices = ''
+        mail_html_new_devices = ''
+        text_line_template = '{}\t{}\n\t{}\t\t{}\n\t{}\t{}\n\t{}\t\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
+        html_line_template    = '<tr>\n'+ \
+            '  <td> <a href="{}{}"> {} </a></td><td> {} </td>'+\
+            '  <td> {} </td><td> {} </td><td> {} </td><td> {} </td></tr>\n'
+        
+        sql.execute ("""SELECT * FROM Devices
+                        WHERE dev_NewDevice = 1
+                        ORDER BY dev_Name""")
+
+        for eventAlert in sql :
+            # Get currentvSatellite Name
+            dev_scan_source = eventAlert["dev_ScanSource"]
+            if dev_scan_source != 'local':
+                if dev_scan_source in satellite_dict:
+                    sat_name = satellite_dict[dev_scan_source]
+                else:
+                    sat_name = dev_scan_source
+            else:
+                sat_name = 'local'
+
+            mail_section_new_devices = True
+            mail_text_new_devices += text_line_template.format (
+                'Name: ', eventAlert['dev_Name'],
+                'MAC: ', eventAlert['dev_MAC'],
+                'LastIP: ', eventAlert['dev_LastIP'],
+                'Time: ', eventAlert['dev_FirstConnection'],
+                'Source: ', sat_name,
+                'Comments: ', eventAlert['dev_Comments'])
+            mail_html_new_devices += html_line_template.format (
+                REPORT_DEVICE_URL, eventAlert['dev_MAC'], eventAlert['dev_MAC'],
+                eventAlert['dev_FirstConnection'], eventAlert['dev_LastIP'],
+                eventAlert['dev_Name'], eventAlert['dev_Comments'], sat_name)
+
+        format_report_section (mail_section_new_devices, 'SECTION_NEW_DEVICES',
+            'TABLE_NEW_DEVICES', mail_text_new_devices, mail_html_new_devices)
+
+        # Send Mail
+        if mail_section_new_devices == True :
+            # Send Mail
+            sending_notifications ('pialert', mail_html, mail_text)
+
+        closeDB()
+    else:
+        print("    Notification NOT executed.")
+    return 0
+
+#-------------------------------------------------------------------------------
 def email_reporting():
     global mail_text
     global mail_html
@@ -2784,7 +2898,7 @@ def email_reporting():
     sql.execute("""SELECT sat_name, sat_token FROM Satellites""")
     rows = sql.fetchall()
 
-    # Dictionary erstellen
+    # create Dictionary
     satellite_dict = {}
     for row in rows:
         sat_name = row[0]
@@ -2916,7 +3030,7 @@ def email_reporting():
             'Name: ', eventAlert['dev_Name'],
             'MAC: ', eventAlert['eve_MAC'],
             'Time: ', eventAlert['eve_DateTime'],
-            'Source: ', sat_name,
+            'Source: ', sat_name,               
             'IP: ', eventAlert['eve_IP'])
         mail_html_devices_down += html_line_template.format (
             REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],

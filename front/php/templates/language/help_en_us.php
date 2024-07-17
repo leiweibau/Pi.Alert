@@ -123,13 +123,17 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
 										    <td class="help_table_gen_b">Enables or disables automatic search for Pi.Alert updates.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
-										    <td class="help_table_gen_b">Interval, in crontab syntax, at which to search for new updates from Pi.Alert. The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes (15, 30, 36, etc).</td></tr>
+										    <td class="help_table_gen_b">Interval, in crontab syntax, at which to search for new updates from Pi.Alert. The shortest interval is 3 minutes. All larger intervals must be an integer multiples of 3 minutes (15, 30, 36, etc).</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
 										    <td class="help_table_gen_b">Enables or disables automatic creation of database and configuration backups.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
-										    <td class="help_table_gen_b">Interval, in crontab syntax, at which the automatic backups should be created. The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes (15, 30, 36, etc).</td></tr>
+										    <td class="help_table_gen_b">Interval, in crontab syntax, at which the automatic backups should be created. The shortest interval is 3 minutes. All larger intervals must be aninteger multiples of 3 minutes (15, 30, 36, etc).</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_KEEP</td>
 											<td class="help_table_gen_b">This specifies how many automatic backups should be retained, including the current backup. This includes both configuration backups and database backup. This value is not relevant during manual cleanup, where the last 3 backups are retained.</td></tr>
+									    <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
+									        <td class="help_table_gen_b">Enables or disables the recurring notification for devices marked as "New".</td></tr>
+										<tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS_CRON</td>
+									        <td class="help_table_gen_b">Interval, in Crontab syntax, at which notifications should be sent repeatedly. The shortest interval is 3 minutes. All larger intervals must be an integer multiple of 3 minutes (15, 30, 36, etc.).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>

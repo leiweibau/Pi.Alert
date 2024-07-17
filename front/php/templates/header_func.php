@@ -200,6 +200,7 @@ if (get_config_parmeter('SATELLITES_ACTIVE') == 1) {$_SESSION['SATELLITES_ACTIVE
 $_SESSION['AUTO_UPDATE_CHECK_CRON'] = get_config_parmeter('AUTO_UPDATE_CHECK_CRON');
 $_SESSION['AUTO_DB_BACKUP_CRON'] = get_config_parmeter('AUTO_DB_BACKUP_CRON');
 $_SESSION['SPEEDTEST_TASK_CRON'] = get_config_parmeter('SPEEDTEST_TASK_CRON');
+$_SESSION['REPORT_NEW_CONTINUOUS_CRON'] = get_config_parmeter('REPORT_NEW_CONTINUOUS_CRON');
 
 // State for Toggle Buttons
 function convert_state($state, $revert) {
@@ -541,9 +542,9 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                     </div>
                     <div class="col-xs-6 col-md-2 text-center" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Action'].': <br>
-                        <button type="button" class="btn btn-link" id="btnInstallSatellite" onclick="InstallSatellite(\'' . $sat_token . '\',\'' . $sat_password . '\')" ><i class="bi bi-info-circle text-aqua" style="position: relative; font-size: 20px; top: -5px;"></i></button>
-                        <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-floppy text-yellow" style="position: relative; font-size: 20px; top: -5px;"></i></button>
-                        <button type="button" class="btn btn-link" id="btnDeleteSatellite" onclick="DeleteSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-trash text-red" style="position: relative; font-size: 20px; top: -5px;"></i></button>
+                        <button type="button" class="btn btn-link" id="btnInstallSatellite" onclick="InstallSatellite(\'' . $sat_token . '\',\'' . $sat_password . '\')" ><i class="bi bi-info-circle text-aqua satlist_action_btn_content"></i></button>
+                        <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>
+                        <button type="button" class="btn btn-link" id="btnDeleteSatellite" onclick="DeleteSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-trash text-red satlist_action_btn_content"></i></button>
                     </div>
                 </div>';
 	echo '      <div class="db_info_table_row">

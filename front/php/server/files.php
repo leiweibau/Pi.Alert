@@ -202,162 +202,164 @@ function SaveConfigFile() {
 
 	$config_template = "# General Settings
 # ----------------------
-PIALERT_PATH           = '" . $configArray['PIALERT_PATH'] . "'
-DB_PATH                = " . str_replace("PIALERT_PATH + /", "PIALERT_PATH + '/", $configArray['DB_PATH']) . "'
-LOG_PATH               = " . str_replace("PIALERT_PATH + /", "PIALERT_PATH + '/", $configArray['LOG_PATH']) . "'
-PRINT_LOG              = " . convert_bool($configArray['PRINT_LOG']) . "
-VENDORS_DB             = '" . $configArray['VENDORS_DB'] . "'
-PIALERT_APIKEY         = '" . $configArray['PIALERT_APIKEY'] . "'
-PIALERT_WEB_PROTECTION = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']) . "
-PIALERT_WEB_PASSWORD   = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
-NETWORK_DNS_SERVER     = '" . $configArray['NETWORK_DNS_SERVER'] . "'
-AUTO_UPDATE_CHECK      = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
-AUTO_UPDATE_CHECK_CRON = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
+PIALERT_PATH               = '" . $configArray['PIALERT_PATH'] . "'
+DB_PATH                    = " . str_replace("PIALERT_PATH + /", "PIALERT_PATH + '/", $configArray['DB_PATH']) . "'
+LOG_PATH                   = " . str_replace("PIALERT_PATH + /", "PIALERT_PATH + '/", $configArray['LOG_PATH']) . "'
+PRINT_LOG                  = " . convert_bool($configArray['PRINT_LOG']) . "
+VENDORS_DB                 = '" . $configArray['VENDORS_DB'] . "'
+PIALERT_APIKEY             = '" . $configArray['PIALERT_APIKEY'] . "'
+PIALERT_WEB_PROTECTION     = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']) . "
+PIALERT_WEB_PASSWORD       = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
+NETWORK_DNS_SERVER         = '" . $configArray['NETWORK_DNS_SERVER'] . "'
+AUTO_UPDATE_CHECK          = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
+AUTO_UPDATE_CHECK_CRON     = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
 # The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
-AUTO_DB_BACKUP         = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
-AUTO_DB_BACKUP_CRON    = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
+AUTO_DB_BACKUP             = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
+AUTO_DB_BACKUP_CRON        = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
 # The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
-AUTO_DB_BACKUP_KEEP    = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
+AUTO_DB_BACKUP_KEEP        = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
+REPORT_NEW_CONTINUOUS      = " . convert_bool($configArray['REPORT_NEW_CONTINUOUS']) . "
+REPORT_NEW_CONTINUOUS_CRON = '" . $configArray['REPORT_NEW_CONTINUOUS_CRON'] . "'
 
 # Other Modules
 # ----------------------
-SCAN_WEBSERVICES  = " . convert_bool($configArray['SCAN_WEBSERVICES']) . "
-ICMPSCAN_ACTIVE   = " . convert_bool($configArray['ICMPSCAN_ACTIVE']) . "
-SATELLITES_ACTIVE = " . convert_bool($configArray['SATELLITES_ACTIVE']) . "
+SCAN_WEBSERVICES           = " . convert_bool($configArray['SCAN_WEBSERVICES']) . "
+ICMPSCAN_ACTIVE            = " . convert_bool($configArray['ICMPSCAN_ACTIVE']) . "
+SATELLITES_ACTIVE          = " . convert_bool($configArray['SATELLITES_ACTIVE']) . "
 
 # Special Protocol Scanning
 # ----------------------
-SCAN_ROGUE_DHCP        = " . convert_bool($configArray['SCAN_ROGUE_DHCP']) . "
-DHCP_SERVER_ADDRESS    = '" . $configArray['DHCP_SERVER_ADDRESS'] . "'
+SCAN_ROGUE_DHCP            = " . convert_bool($configArray['SCAN_ROGUE_DHCP']) . "
+DHCP_SERVER_ADDRESS        = '" . $configArray['DHCP_SERVER_ADDRESS'] . "'
 
 # Mail-Account Settings
 # ----------------------
-SMTP_SERVER       = '" . $configArray['SMTP_SERVER'] . "'
-SMTP_PORT         = " . $configArray['SMTP_PORT'] . "
-SMTP_USER         = '" . $configArray['SMTP_USER'] . "'
-SMTP_PASS         = '" . $configArray['SMTP_PASS'] . "'
-SMTP_SKIP_TLS	  = " . convert_bool($configArray['SMTP_SKIP_TLS']) . "
-SMTP_SKIP_LOGIN	  = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) . "
+SMTP_SERVER                = '" . $configArray['SMTP_SERVER'] . "'
+SMTP_PORT                  = " . $configArray['SMTP_PORT'] . "
+SMTP_USER                  = '" . $configArray['SMTP_USER'] . "'
+SMTP_PASS                  = '" . $configArray['SMTP_PASS'] . "'
+SMTP_SKIP_TLS	           = " . convert_bool($configArray['SMTP_SKIP_TLS']) . "
+SMTP_SKIP_LOGIN	           = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) . "
 
 # WebGUI Reporting
 # ----------------------
-REPORT_WEBGUI        = " . convert_bool($configArray['REPORT_WEBGUI']) . "
-REPORT_WEBGUI_WEBMON = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON']) . "
+REPORT_WEBGUI              = " . convert_bool($configArray['REPORT_WEBGUI']) . "
+REPORT_WEBGUI_WEBMON       = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON']) . "
 
 # Mail Reporting
 # ----------------------
-REPORT_MAIL          = " . convert_bool($configArray['REPORT_MAIL']) . "
-REPORT_MAIL_WEBMON   = " . convert_bool($configArray['REPORT_MAIL_WEBMON']) . "
-REPORT_FROM          = '" . $configArray['REPORT_FROM'] . "'
-REPORT_TO            = '" . $configArray['REPORT_TO'] . "'
-REPORT_DEVICE_URL    = '" . $configArray['REPORT_DEVICE_URL'] . "'
-REPORT_DASHBOARD_URL = '" . $configArray['REPORT_DASHBOARD_URL'] . "'
+REPORT_MAIL                = " . convert_bool($configArray['REPORT_MAIL']) . "
+REPORT_MAIL_WEBMON         = " . convert_bool($configArray['REPORT_MAIL_WEBMON']) . "
+REPORT_FROM                = '" . $configArray['REPORT_FROM'] . "'
+REPORT_TO                  = '" . $configArray['REPORT_TO'] . "'
+REPORT_DEVICE_URL          = '" . $configArray['REPORT_DEVICE_URL'] . "'
+REPORT_DASHBOARD_URL       = '" . $configArray['REPORT_DASHBOARD_URL'] . "'
 
 # Pushsafer
 # ----------------------
-REPORT_PUSHSAFER         = " . convert_bool($configArray['REPORT_PUSHSAFER']) . "
-REPORT_PUSHSAFER_WEBMON  = " . convert_bool($configArray['REPORT_PUSHSAFER_WEBMON']) . "
-PUSHSAFER_TOKEN          = '" . $configArray['PUSHSAFER_TOKEN'] . "'
-PUSHSAFER_DEVICE         = '" . $configArray['PUSHSAFER_DEVICE'] . "'
-PUSHSAFER_PRIO           = " . $configArray['PUSHSAFER_PRIO'] . "
-PUSHSAFER_SOUND          = " . $configArray['PUSHSAFER_SOUND'] . "
+REPORT_PUSHSAFER           = " . convert_bool($configArray['REPORT_PUSHSAFER']) . "
+REPORT_PUSHSAFER_WEBMON    = " . convert_bool($configArray['REPORT_PUSHSAFER_WEBMON']) . "
+PUSHSAFER_TOKEN            = '" . $configArray['PUSHSAFER_TOKEN'] . "'
+PUSHSAFER_DEVICE           = '" . $configArray['PUSHSAFER_DEVICE'] . "'
+PUSHSAFER_PRIO             = " . $configArray['PUSHSAFER_PRIO'] . "
+PUSHSAFER_SOUND            = " . $configArray['PUSHSAFER_SOUND'] . "
 
 # Pushover
 # ----------------------
-REPORT_PUSHOVER         = " . convert_bool($configArray['REPORT_PUSHOVER']) . "
-REPORT_PUSHOVER_WEBMON  = " . convert_bool($configArray['REPORT_PUSHOVER_WEBMON']) . "
-PUSHOVER_TOKEN          = '" . $configArray['PUSHOVER_TOKEN'] . "'
-PUSHOVER_USER           = '" . $configArray['PUSHOVER_USER'] . "'
-PUSHOVER_PRIO           = " . $configArray['PUSHOVER_PRIO'] . "
-PUSHOVER_SOUND          = '" . $configArray['PUSHOVER_SOUND'] . "'
+REPORT_PUSHOVER            = " . convert_bool($configArray['REPORT_PUSHOVER']) . "
+REPORT_PUSHOVER_WEBMON     = " . convert_bool($configArray['REPORT_PUSHOVER_WEBMON']) . "
+PUSHOVER_TOKEN             = '" . $configArray['PUSHOVER_TOKEN'] . "'
+PUSHOVER_USER              = '" . $configArray['PUSHOVER_USER'] . "'
+PUSHOVER_PRIO              = " . $configArray['PUSHOVER_PRIO'] . "
+PUSHOVER_SOUND             = '" . $configArray['PUSHOVER_SOUND'] . "'
 
 # NTFY
 #---------------------------
-REPORT_NTFY         = " . convert_bool($configArray['REPORT_NTFY']) . "
-REPORT_NTFY_WEBMON  = " . convert_bool($configArray['REPORT_NTFY_WEBMON']) . "
-NTFY_HOST           = '" . $configArray['NTFY_HOST'] . "'
-NTFY_TOPIC          = '" . $configArray['NTFY_TOPIC'] . "'
-NTFY_USER           = '" . $configArray['NTFY_USER'] . "'
-NTFY_PASSWORD	    = '" . $configArray['NTFY_PASSWORD'] . "'
-NTFY_PRIORITY 	    = '" . $configArray['NTFY_PRIORITY'] . "'
-NTFY_CLICKABLE 	    = " . convert_bool($configArray['NTFY_CLICKABLE']) . "
+REPORT_NTFY                = " . convert_bool($configArray['REPORT_NTFY']) . "
+REPORT_NTFY_WEBMON         = " . convert_bool($configArray['REPORT_NTFY_WEBMON']) . "
+NTFY_HOST                  = '" . $configArray['NTFY_HOST'] . "'
+NTFY_TOPIC                 = '" . $configArray['NTFY_TOPIC'] . "'
+NTFY_USER                  = '" . $configArray['NTFY_USER'] . "'
+NTFY_PASSWORD	           = '" . $configArray['NTFY_PASSWORD'] . "'
+NTFY_PRIORITY 	           = '" . $configArray['NTFY_PRIORITY'] . "'
+NTFY_CLICKABLE 	           = " . convert_bool($configArray['NTFY_CLICKABLE']) . "
 
 # Shoutrrr
 # ----------------------
-SHOUTRRR_BINARY    = '" . $configArray['SHOUTRRR_BINARY'] . "'
-# SHOUTRRR_BINARY    = 'armhf'
-# SHOUTRRR_BINARY    = 'arm64'
-# SHOUTRRR_BINARY    = 'x86'
+SHOUTRRR_BINARY            = '" . $configArray['SHOUTRRR_BINARY'] . "'
+# SHOUTRRR_BINARY            = 'armhf'
+# SHOUTRRR_BINARY            = 'arm64'
+# SHOUTRRR_BINARY            = 'x86'
 
 # Telegram via Shoutrrr
 # ----------------------
-REPORT_TELEGRAM         = " . convert_bool($configArray['REPORT_TELEGRAM']) . "
-REPORT_TELEGRAM_WEBMON  = " . convert_bool($configArray['REPORT_TELEGRAM_WEBMON']) . "
-TELEGRAM_BOT_TOKEN_URL  = '" . $configArray['TELEGRAM_BOT_TOKEN_URL'] . "'
+REPORT_TELEGRAM            = " . convert_bool($configArray['REPORT_TELEGRAM']) . "
+REPORT_TELEGRAM_WEBMON     = " . convert_bool($configArray['REPORT_TELEGRAM_WEBMON']) . "
+TELEGRAM_BOT_TOKEN_URL     = '" . $configArray['TELEGRAM_BOT_TOKEN_URL'] . "'
 
 # DynDNS and IP
 # ----------------------
-QUERY_MYIP_SERVER = '" . $configArray['QUERY_MYIP_SERVER'] . "'
-DDNS_ACTIVE       = " . convert_bool($configArray['DDNS_ACTIVE']) . "
-DDNS_DOMAIN       = '" . $configArray['DDNS_DOMAIN'] . "'
-DDNS_USER         = '" . $configArray['DDNS_USER'] . "'
-DDNS_PASSWORD     = '" . $configArray['DDNS_PASSWORD'] . "'
-DDNS_UPDATE_URL   = '" . $configArray['DDNS_UPDATE_URL'] . "'
+QUERY_MYIP_SERVER          = '" . $configArray['QUERY_MYIP_SERVER'] . "'
+DDNS_ACTIVE                = " . convert_bool($configArray['DDNS_ACTIVE']) . "
+DDNS_DOMAIN                = '" . $configArray['DDNS_DOMAIN'] . "'
+DDNS_USER                  = '" . $configArray['DDNS_USER'] . "'
+DDNS_PASSWORD              = '" . $configArray['DDNS_PASSWORD'] . "'
+DDNS_UPDATE_URL            = '" . $configArray['DDNS_UPDATE_URL'] . "'
 
 # Automatic Speedtest
 # ----------------------
-SPEEDTEST_TASK_ACTIVE = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIVE']) . "
-SPEEDTEST_TASK_CRON   = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
+SPEEDTEST_TASK_ACTIVE      = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIVE']) . "
+SPEEDTEST_TASK_CRON        = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
 # The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
 
 # Arp-scan Options & Samples
 # ----------------------
-ARPSCAN_ACTIVE  = " . convert_bool($configArray['ARPSCAN_ACTIVE']) . "
-MAC_IGNORE_LIST = " . $configArray['MAC_IGNORE_LIST'] . "
-SCAN_SUBNETS    = " . $configArray['SCAN_SUBNETS'] . "
-# SCAN_SUBNETS    = '--localnet'
-# SCAN_SUBNETS    = '--localnet --interface=eth0'
-# SCAN_SUBNETS    = ['192.168.1.0/24 --interface=eth0','192.168.2.0/24 --interface=eth1']
+ARPSCAN_ACTIVE             = " . convert_bool($configArray['ARPSCAN_ACTIVE']) . "
+MAC_IGNORE_LIST            = " . $configArray['MAC_IGNORE_LIST'] . "
+SCAN_SUBNETS               = " . $configArray['SCAN_SUBNETS'] . "
+# SCAN_SUBNETS               = '--localnet'
+# SCAN_SUBNETS               = '--localnet --interface=eth0'
+# SCAN_SUBNETS               = ['192.168.1.0/24 --interface=eth0','192.168.2.0/24 --interface=eth1']
 
 # ICMP Monitoring Options
 # ----------------------
-ICMP_ONLINE_TEST   = " . $configArray['ICMP_ONLINE_TEST'] . "
-ICMP_GET_AVG_RTT   = " . $configArray['ICMP_GET_AVG_RTT'] . "
+ICMP_ONLINE_TEST           = " . $configArray['ICMP_ONLINE_TEST'] . "
+ICMP_GET_AVG_RTT           = " . $configArray['ICMP_GET_AVG_RTT'] . "
 
 # Pi-hole Configuration
 # ----------------------
-PIHOLE_ACTIVE     = " . convert_bool($configArray['PIHOLE_ACTIVE']) . "
-PIHOLE_DB         = '" . $configArray['PIHOLE_DB'] . "'
-DHCP_ACTIVE       = " . convert_bool($configArray['DHCP_ACTIVE']) . "
-DHCP_LEASES       = '" . $configArray['DHCP_LEASES'] . "'
+PIHOLE_ACTIVE              = " . convert_bool($configArray['PIHOLE_ACTIVE']) . "
+PIHOLE_DB                  = '" . $configArray['PIHOLE_DB'] . "'
+DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
+DHCP_LEASES                = '" . $configArray['DHCP_LEASES'] . "'
 
 # Fritzbox Configuration
 # ----------------------
-FRITZBOX_ACTIVE   = " . convert_bool($configArray['FRITZBOX_ACTIVE']) . "
-FRITZBOX_IP       = '" . $configArray['FRITZBOX_IP'] . "'
-FRITZBOX_USER     = '" . $configArray['FRITZBOX_USER'] . "'
-FRITZBOX_PASS     = '" . $configArray['FRITZBOX_PASS'] . "'
+FRITZBOX_ACTIVE            = " . convert_bool($configArray['FRITZBOX_ACTIVE']) . "
+FRITZBOX_IP                = '" . $configArray['FRITZBOX_IP'] . "'
+FRITZBOX_USER              = '" . $configArray['FRITZBOX_USER'] . "'
+FRITZBOX_PASS              = '" . $configArray['FRITZBOX_PASS'] . "'
 
 # Mikrotik Configuration
 # ----------------------
-MIKROTIK_ACTIVE = " . convert_bool($configArray['MIKROTIK_ACTIVE']) . "
-MIKROTIK_IP     = '" . $configArray['MIKROTIK_IP'] . "'
-MIKROTIK_USER   = '" . $configArray['MIKROTIK_USER'] . "'
-MIKROTIK_PASS   = '" . $configArray['MIKROTIK_PASS'] . "'
+MIKROTIK_ACTIVE            = " . convert_bool($configArray['MIKROTIK_ACTIVE']) . "
+MIKROTIK_IP                = '" . $configArray['MIKROTIK_IP'] . "'
+MIKROTIK_USER              = '" . $configArray['MIKROTIK_USER'] . "'
+MIKROTIK_PASS              = '" . $configArray['MIKROTIK_PASS'] . "'
 
 # UniFi Configuration
 # -------------------
-UNIFI_ACTIVE = " . convert_bool($configArray['UNIFI_ACTIVE']) . "
-UNIFI_IP     = '" . $configArray['UNIFI_IP'] . "'
-UNIFI_API    = '" . $configArray['UNIFI_API'] . "'
-UNIFI_USER   = '" . $configArray['UNIFI_USER'] . "'
-UNIFI_PASS   = '" . $configArray['UNIFI_PASS'] . "'
+UNIFI_ACTIVE               = " . convert_bool($configArray['UNIFI_ACTIVE']) . "
+UNIFI_IP                   = '" . $configArray['UNIFI_IP'] . "'
+UNIFI_API                  = '" . $configArray['UNIFI_API'] . "'
+UNIFI_USER                 = '" . $configArray['UNIFI_USER'] . "'
+UNIFI_PASS                 = '" . $configArray['UNIFI_PASS'] . "'
 # Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
 
 # Satellite Configuration
 # -----------------------
-SATELLITE_PROXY_MODE = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
-SATELLITE_PROXY_URL  = '" . $configArray['SATELLITE_PROXY_URL'] . "'
+SATELLITE_PROXY_MODE       = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
+SATELLITE_PROXY_URL        = '" . $configArray['SATELLITE_PROXY_URL'] . "'
 
 # Maintenance Tasks Cron
 # ----------------------
