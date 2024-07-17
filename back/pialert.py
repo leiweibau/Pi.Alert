@@ -1120,8 +1120,10 @@ def process_satellites(satellite_list):
                 try:
                     satellite_meta_data = data['satellite_meta_data'][0]
                     satellite_version = satellite_meta_data.get('satellite_version', "-")
+                    satellite_meta_data_json = json.dumps(satellite_meta_data)
                 except (KeyError, IndexError, TypeError):
                     satellite_version = "-"
+                    satellite_meta_data_json = {}
 
                 try:
                     satellite_scan_config = data['satellite_scan_config'][0]
@@ -1160,8 +1162,9 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_arp = ?,
                                     sat_conf_scan_fritzbox = ?,
                                     sat_conf_scan_mikrotik = ?,
-                                    sat_conf_scan_unifi = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, token))
+                                    sat_conf_scan_unifi = ?,
+                                    sat_host_data = ?
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
