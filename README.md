@@ -56,7 +56,7 @@ The backend is started at regular intervals via cronjobs of the user who install
 The system scans the network to detect connected devices using various scanning methods as described above. 
 It also verifies the accessibility of web services and notifies about any changes in SSL certificates. 
 The gathered information is stored in the database. Detected changes are reported via email and/or other services 
-such as [Pushsafer](https://www.pushsafer.com/), [Pushover](https://pushover.net/), ntfy and Telegram through [shoutrrr](docs/SHOUTRRR.md), as well as to the Frontend. Automated 
+such as [Pushsafer](https://www.pushsafer.com/), [Pushover](https://pushover.net/), ntfy and Telegram through [shoutrrr](docs/NOTIFICATION_SHOUTRRR.md), as well as to the Frontend. Automated 
 tasks for cleaning up and optionally backing up the database are also performed. Additionally, optional speed tests of the Internet 
 connection can be conducted. Users can utilize the [pialert-cli](docs/PIALERTCLI.md) tool to configure login, password, and other 
 settings conveniently.
