@@ -1,5 +1,5 @@
 /*!
- * FullCalendar v3.10.1
+ * FullCalendar v3.10.5
  * Docs & License: https://fullcalendar.io/
  * (c) 2019 Adam Shaw
  */
@@ -339,7 +339,7 @@ function getIsLeftRtlScrollbars() {
     return _isLeftRtlScrollbars;
 }
 function computeIsLeftRtlScrollbars() {
-    var el = $('<div><div/></div>')
+    var el = $('<div><div></div></div>')
         .css({
         position: 'absolute',
         top: -1000,
@@ -805,7 +805,7 @@ function htmlEscape(s) {
         .replace(/>/g, '&gt;')
         .replace(/'/g, '&#039;')
         .replace(/"/g, '&quot;')
-        .replace(/\n/g, '<br />');
+        .replace(/\n/g, '<br>');
 }
 exports.htmlEscape = htmlEscape;
 function stripHtmlEntities(text) {
@@ -1976,7 +1976,7 @@ function isHitPropsWithin(subHit, superHit) {
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.version = '3.10.1';
+exports.version = '3.10.5';
 // When introducing internal API incompatibilities (where fullcalendar plugins would break),
 // the minor version of the calendar should be upped (ex: 2.7.2 -> 2.8.0)
 // and the below integer should be incremented.
@@ -7105,7 +7105,7 @@ var FillRenderer = /** @class */ (function () {
         return '<' + this.fillSegTag +
             (classes.length ? ' class="' + classes.join(' ') + '"' : '') +
             (css ? ' style="' + css + '"' : '') +
-            ' />';
+            '></' + this.fillSegTag + '>';
     };
     // Should return wrapping DOM structure
     FillRenderer.prototype.attachSegEls = function (type, segs) {
@@ -7463,7 +7463,7 @@ var DayGrid = /** @class */ (function (_super) {
         var weekCalcFirstDoW;
         if (!isDayNumberVisible && !this.cellWeekNumbersVisible) {
             // no numbers in day cell (week number must be along the side)
-            return '<td/>'; //  will create an empty space above events :(
+            return '<td></td>'; //  will create an empty space above events :(
         }
         classes = this.getDayClasses(date);
         classes.unshift('fc-day-top');
@@ -7673,7 +7673,7 @@ var DayGrid = /** @class */ (function (_super) {
                 if (segsBelow.length) {
                     td = cellMatrix[levelLimit - 1][col];
                     moreLink = _this.renderMoreLink(row, col, segsBelow);
-                    moreWrap = $('<div/>').append(moreLink);
+                    moreWrap = $('<div>').append(moreLink);
                     td.append(moreWrap);
                     moreNodes.push(moreWrap[0]);
                 }
@@ -7704,11 +7704,11 @@ var DayGrid = /** @class */ (function (_super) {
                     segMoreNodes = [];
                     // make a replacement <td> for each column the segment occupies. will be one for each colspan
                     for (j = 0; j < colSegsBelow.length; j++) {
-                        moreTd = $('<td class="fc-more-cell"/>').attr('rowspan', rowspan);
+                        moreTd = $('<td class="fc-more-cell">').attr('rowspan', rowspan);
                         segsBelow = colSegsBelow[j];
                         moreLink = this.renderMoreLink(row, seg.leftCol + j, [seg].concat(segsBelow) // count seg as hidden too
                         );
-                        moreWrap = $('<div/>').append(moreLink);
+                        moreWrap = $('<div>').append(moreLink);
                         moreTd.append(moreWrap);
                         segMoreNodes.push(moreTd[0]);
                         moreNodes.push(moreTd[0]);
@@ -7740,7 +7740,7 @@ var DayGrid = /** @class */ (function (_super) {
     DayGrid.prototype.renderMoreLink = function (row, col, hiddenSegs) {
         var _this = this;
         var view = this.view;
-        return $('<a class="fc-more"/>')
+        return $('<a class="fc-more">')
             .text(this.getMoreLinkText(hiddenSegs.length))
             .on('click', function (ev) {
             var clickOption = _this.opt('eventLimitClick');
@@ -7832,7 +7832,7 @@ var DayGrid = /** @class */ (function (_super) {
             '<span class="fc-title">' +
             util_1.htmlEscape(title) +
             '</span>' +
-            '<div class="fc-clear"/>' +
+            '<div class="fc-clear"></div>' +
             '</div>' +
             '<div class="fc-body ' + theme.getClass('popoverContent') + '">' +
             '<div class="fc-event-container"></div>' +
@@ -7970,7 +7970,7 @@ var BasicView = /** @class */ (function (_super) {
         this.el.addClass('fc-basic-view').html(this.renderSkeletonHtml());
         this.scroller.render();
         dayGridContainerEl = this.scroller.el.addClass('fc-day-grid-container');
-        dayGridEl = $('<div class="fc-day-grid" />').appendTo(dayGridContainerEl);
+        dayGridEl = $('<div class="fc-day-grid">').appendTo(dayGridContainerEl);
         this.el.find('.fc-body > tr > td').append(dayGridContainerEl);
         this.dayGrid.headContainerEl = this.el.find('.fc-head-container');
         this.dayGrid.setElement(dayGridEl);
@@ -9674,7 +9674,7 @@ var Popover = /** @class */ (function () {
     Popover.prototype.render = function () {
         var _this = this;
         var options = this.options;
-        this.el = $('<div class="fc-popover"/>')
+        this.el = $('<div class="fc-popover">')
             .addClass(options.className || '')
             .css({
             // position initially to the top left to avoid creating scrollbars
@@ -10853,7 +10853,7 @@ var Calendar = /** @class */ (function () {
             el.toggleClass('fc-ltr', !opts.isRTL);
             el.toggleClass('fc-rtl', opts.isRTL);
         });
-        this.contentEl = $("<div class='fc-view-container'/>").prependTo(el);
+        this.contentEl = $("<div class='fc-view-container'>").prependTo(el);
         this.initToolbars();
         this.renderHeader();
         this.renderFooter();
@@ -10922,7 +10922,7 @@ var Calendar = /** @class */ (function () {
                     (this.viewsByType[viewType] = this.instantiateView(viewType));
             this.bindViewHandlers(newView);
             newView.startBatchRender(); // so that setElement+setDate rendering are joined
-            newView.setElement($("<div class='fc-view fc-" + viewType + "-view' />").appendTo(this.contentEl));
+            newView.setElement($("<div class='fc-view fc-" + viewType + "-view'>").appendTo(this.contentEl));
             this.toolbarsManager.proxyCall('activateButton', viewType);
         }
         if (this.view) {
@@ -12487,7 +12487,7 @@ var AgendaView = /** @class */ (function (_super) {
         this.el.addClass('fc-agenda-view').html(this.renderSkeletonHtml());
         this.scroller.render();
         timeGridWrapEl = this.scroller.el.addClass('fc-time-grid-container');
-        timeGridEl = $('<div class="fc-time-grid" />').appendTo(timeGridWrapEl);
+        timeGridEl = $('<div class="fc-time-grid">').appendTo(timeGridWrapEl);
         this.el.find('.fc-body > tr > td').append(timeGridWrapEl);
         this.timeGrid.headContainerEl = this.el.find('.fc-head-container');
         this.timeGrid.setElement(timeGridEl);
@@ -12521,8 +12521,8 @@ var AgendaView = /** @class */ (function (_super) {
             '<tr>' +
             '<td class="' + theme.getClass('widgetContent') + '">' +
             (this.dayGrid ?
-                '<div class="fc-day-grid"/>' +
-                    '<hr class="fc-divider ' + theme.getClass('widgetHeader') + '"/>' :
+                '<div class="fc-day-grid"></div>' +
+                    '<hr class="fc-divider ' + theme.getClass('widgetHeader') + '"></hr>' :
                 '') +
             '</td>' +
             '</tr>' +
@@ -12888,7 +12888,7 @@ var TimeGrid = /** @class */ (function (_super) {
         var theme = this.view.calendar.theme;
         this.el.html('<div class="fc-bg"></div>' +
             '<div class="fc-slats"></div>' +
-            '<hr class="fc-divider ' + theme.getClass('widgetHeader') + '" style="display:none" />');
+            '<hr class="fc-divider ' + theme.getClass('widgetHeader') + '" style="display:none"></hr>');
         this.bottomRuleEl = this.el.find('hr');
     };
     TimeGrid.prototype.renderSlats = function () {
@@ -12934,7 +12934,7 @@ var TimeGrid = /** @class */ (function (_super) {
                     (isLabeled ? '' : ' class="fc-minor"') +
                     '>' +
                     (!isRTL ? axisHtml : '') +
-                    '<td class="' + theme.getClass('widgetContent') + '"/>' +
+                    '<td class="' + theme.getClass('widgetContent') + '"></td>' +
                     (isRTL ? axisHtml : '') +
                     '</tr>';
             slotTime.add(this.slotDuration);
@@ -13368,15 +13368,15 @@ var TimeGridEventRenderer = /** @class */ (function (_super) {
                     '</div>' :
                 '') +
             '</div>' +
-            '<div class="fc-bg"/>' +
+            '<div class="fc-bg"></div>' +
             /* TODO: write CSS for this
             (isResizableFromStart ?
-              '<div class="fc-resizer fc-start-resizer" />' :
+              '<div class="fc-resizer fc-start-resizer"></div>' :
               ''
               ) +
             */
             (isResizableFromEnd ?
-                '<div class="fc-resizer fc-end-resizer" />' :
+                '<div class="fc-resizer fc-end-resizer"></div>' :
                 '') +
             '</a>';
     };
@@ -13717,7 +13717,7 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
         var colCnt = this.dayGrid.colCnt;
         var segLevels = this.buildSegLevels(rowSegs); // group into sub-arrays of levels
         var levelCnt = Math.max(1, segLevels.length); // ensure at least one level
-        var tbody = $('<tbody/>');
+        var tbody = $('<tbody>');
         var segMatrix = []; // lookup for which segments are rendered into which level+col cells
         var cellMatrix = []; // lookup for all <td> elements of the level+col matrix
         var loneCellMatrix = []; // lookup for <td> elements that only take up a single column
@@ -13737,7 +13737,7 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
                     td.attr('rowspan', parseInt(td.attr('rowspan') || 1, 10) + 1);
                 }
                 else {
-                    td = $('<td/>');
+                    td = $('<td>');
                     tr.append(td);
                 }
                 cellMatrix[i][col] = td;
@@ -13748,7 +13748,7 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
         for (i = 0; i < levelCnt; i++) { // iterate through all levels
             levelSegs = segLevels[i];
             col = 0;
-            tr = $('<tr/>');
+            tr = $('<tr>');
             segMatrix.push([]);
             cellMatrix.push([]);
             loneCellMatrix.push([]);
@@ -13759,7 +13759,7 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
                     seg = levelSegs[j];
                     emptyCellsUntil(seg.leftCol);
                     // create a container that occupies or more columns. append the event element.
-                    td = $('<td class="fc-event-container"/>').append(seg.el);
+                    td = $('<td class="fc-event-container">').append(seg.el);
                     if (seg.leftCol !== seg.rightCol) {
                         td.attr('colspan', seg.rightCol - seg.leftCol + 1);
                     }
@@ -13878,10 +13878,10 @@ var DayGridEventRenderer = /** @class */ (function (_super) {
             ) +
             '</div>' +
             (isResizableFromStart ?
-                '<div class="fc-resizer fc-start-resizer" />' :
+                '<div class="fc-resizer fc-start-resizer"></div>' :
                 '') +
             (isResizableFromEnd ?
-                '<div class="fc-resizer fc-end-resizer" />' :
+                '<div class="fc-resizer fc-end-resizer"></div>' :
                 '') +
             '</a>';
     };
@@ -13929,7 +13929,7 @@ var DayGridHelperRenderer = /** @class */ (function (_super) {
         // inject each new event skeleton into each associated row
         this.component.rowEls.each(function (row, rowNode) {
             var rowEl = $(rowNode); // the .fc-row
-            var skeletonEl = $('<div class="fc-helper-skeleton"><table/></div>'); // will be absolutely positioned
+            var skeletonEl = $('<div class="fc-helper-skeleton"><table></table></div>'); // will be absolutely positioned
             var skeletonTopEl;
             var skeletonTop;
             // If there is an original segment, match the top position. Otherwise, put it at the row's top level
@@ -13999,19 +13999,19 @@ var DayGridFillRenderer = /** @class */ (function (_super) {
             className = type.toLowerCase();
         }
         skeletonEl = $('<div class="fc-' + className + '-skeleton">' +
-            '<table><tr/></table>' +
+            '<table><tr></tr></table>' +
             '</div>');
         trEl = skeletonEl.find('tr');
         if (startCol > 0) {
             trEl.append(
             // will create (startCol + 1) td's
-            new Array(startCol + 1).join('<td/>'));
+            new Array(startCol + 1).join('<td></td>'));
         }
         trEl.append(seg.el.attr('colspan', endCol - startCol));
         if (endCol < colCnt) {
             trEl.append(
             // will create (colCnt - endCol) td's
-            new Array(colCnt - endCol + 1).join('<td/>'));
+            new Array(colCnt - endCol + 1).join('<td></td>'));
         }
         this.component.bookendCells(trEl);
         return skeletonEl;
@@ -14197,7 +14197,7 @@ var ListView = /** @class */ (function (_super) {
         var dayIndex;
         var daySegs;
         var i;
-        var tableEl = $('<table class="fc-list-table ' + this.calendar.theme.getClass('tableList') + '"><tbody/></table>');
+        var tableEl = $('<table class="fc-list-table ' + this.calendar.theme.getClass('tableList') + '"><tbody></tbody></table>');
         var tbodyEl = tableEl.find('tbody');
         for (dayIndex = 0; dayIndex < segsByDay.length; dayIndex++) {
             daySegs = segsByDay[dayIndex];
@@ -14456,7 +14456,7 @@ var Toolbar = /** @class */ (function () {
         var el = this.el;
         if (sections) {
             if (!el) {
-                el = this.el = $("<div class='fc-toolbar " + this.toolbarOptions.extraClasses + "'/>");
+                el = this.el = $("<div class='fc-toolbar " + this.toolbarOptions.extraClasses + "'>");
             }
             else {
                 el.empty();
@@ -14464,7 +14464,7 @@ var Toolbar = /** @class */ (function () {
             el.append(this.renderSection('left'))
                 .append(this.renderSection('right'))
                 .append(this.renderSection('center'))
-                .append('<div class="fc-clear"/>');
+                .append('<div class="fc-clear"></div>');
         }
         else {
             this.removeElement();
@@ -14482,7 +14482,7 @@ var Toolbar = /** @class */ (function () {
         var theme = calendar.theme;
         var optionsManager = calendar.optionsManager;
         var viewSpecManager = calendar.viewSpecManager;
-        var sectionEl = $('<div class="fc-' + position + '"/>');
+        var sectionEl = $('<div class="fc-' + position + '">');
         var buttonStr = this.toolbarOptions.layout[position];
         var calendarCustomButtons = optionsManager.get('customButtons') || {};
         var calendarButtonTextOverrides = optionsManager.overrides.buttonText || {};
@@ -14600,7 +14600,7 @@ var Toolbar = /** @class */ (function () {
                         .last().addClass(theme.getClass('cornerRight')).end();
                 }
                 if (groupChildren.length > 1) {
-                    groupEl = $('<div/>');
+                    groupEl = $('<div>');
                     if (isOnlyButtons) {
                         groupEl.addClass(theme.getClass('buttonGroup'));
                     }

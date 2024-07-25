@@ -1,7 +1,7 @@
 /*!
- * FullCalendar Scheduler v1.9.4
+ * FullCalendar Scheduler v3.10.4
  * Docs & License: https://fullcalendar.io/scheduler/
- * (c) 2018 Adam Shaw
+ * (c) 2019 Adam Shaw
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -630,8 +630,8 @@ var TimelineView = /** @class */ (function (_super) {
         this.timeBodyScroller.el.appendTo(this.timeBodyEl);
         this.isTimeBodyScrolled = false; // because if the grid has been rerendered, it will get a zero scroll
         this.timeBodyScroller.on('scroll', fullcalendar_1.proxy(this, 'handleTimeBodyScrolled'));
-        this.slatContainerEl = $('<div class="fc-slats"/>').appendTo(this.timeBodyScroller.canvas.bgEl);
-        this.segContainerEl = $('<div class="fc-event-container"/>').appendTo(this.timeBodyScroller.canvas.contentEl);
+        this.slatContainerEl = $('<div class="fc-slats">').appendTo(this.timeBodyScroller.canvas.bgEl);
+        this.segContainerEl = $('<div class="fc-event-container">').appendTo(this.timeBodyScroller.canvas.contentEl);
         this.bgSegContainerEl = this.timeBodyScroller.canvas.bgEl;
         this.timeBodyBoundCache = new fullcalendar_1.CoordCache({
             els: this.timeBodyScroller.canvas.el,
@@ -785,7 +785,7 @@ var TimelineView = /** @class */ (function (_super) {
         html += '<colgroup>';
         for (var _a = 0, slotDates_2 = slotDates; _a < slotDates_2.length; _a++) {
             date = slotDates_2[_a];
-            html += '<col/>';
+            html += '<col>';
         }
         html += '</colgroup>';
         html += '<tbody>';
@@ -820,7 +820,7 @@ var TimelineView = /** @class */ (function (_super) {
         slatHtml += '<colgroup>';
         for (var _c = 0, slotCells_1 = slotCells; _c < slotCells_1.length; _c++) {
             cell = slotCells_1[_c];
-            slatHtml += '<col/>';
+            slatHtml += '<col>';
         }
         slatHtml += '</colgroup>';
         slatHtml += '<tbody><tr>';
@@ -862,7 +862,7 @@ var TimelineView = /** @class */ (function (_super) {
         }
         return '<td class="' + classes.join(' ') + '"' +
             ' data-date="' + date.format() + '"' +
-            '><div /></td>';
+            '><div></div></td>';
     };
     // Business Hours
     // ------------------------------------------------------------------------------------------------------------------
@@ -1480,7 +1480,7 @@ var TimelineEventRenderer = /** @class */ (function (_super) {
             (eventDef.title ? fullcalendar_1.htmlEscape(eventDef.title) : '&nbsp;') +
             '</span>' +
             '</div>' +
-            '<div class="fc-bg" />' +
+            '<div class="fc-bg"></div>' +
             (isResizableFromStart ?
                 '<div class="fc-resizer fc-start-resizer"></div>' :
                 '') +
@@ -1730,7 +1730,7 @@ var RowParent = /** @class */ (function (_super) {
                 // build the TR and record it
                 // assign before calling the render methods, because they might rely
                 var tbody = this.view.tbodyHash[type];
-                var tr = $('<tr/>');
+                var tr = $('<tr>');
                 this.trHash[type] = tr;
                 trNodes.push(tr[0]);
                 // call the subclass' render method for this row type (if available)
@@ -2393,7 +2393,7 @@ var ClippedScroller = /** @class */ (function (_super) {
     }
     ClippedScroller.prototype.renderEl = function () {
         var scrollEl = _super.prototype.renderEl.call(this);
-        return $('<div class="fc-scroller-clip" />').append(scrollEl); // return value
+        return $('<div class="fc-scroller-clip">').append(scrollEl); // return value
     };
     ClippedScroller.prototype.updateSize = function () {
         var scrollEl = this.scrollEl;
@@ -2934,7 +2934,7 @@ var TimelineFillRenderer = /** @class */ (function (_super) {
             }
             // making a new container each time is OKAY
             // all types of segs (background or business hours or whatever) are rendered in one pass
-            var containerEl = $('<div class="fc-' + className + '-container" />')
+            var containerEl = $('<div class="fc-' + className + '-container">')
                 .appendTo(this.component.bgSegContainerEl);
             for (var _i = 0, segs_1 = segs; _i < segs_1.length; _i++) {
                 var seg = segs_1[_i];
@@ -2988,7 +2988,7 @@ var TimelineHelperRenderer = /** @class */ (function (_super) {
                 seg.el.css('top', 0);
             }
         }
-        var helperContainerEl = $('<div class="fc-event-container fc-helper-container"/>')
+        var helperContainerEl = $('<div class="fc-event-container fc-helper-container">')
             .appendTo(this.component.innerEl);
         helperNodes.push(helperContainerEl[0]);
         for (var _a = 0, segs_2 = segs; _a < segs_2.length; _a++) {
@@ -3122,7 +3122,7 @@ var ResourceTimelineView = /** @class */ (function (_super) {
         // TODO: look into better solution
         this.segContainerEl.remove();
         this.segContainerEl = null;
-        var timeBodyContainerEl = $("<div class=\"fc-rows\"> <table class=\"" + theme.getClass('tableGrid') + "\"> <tbody/> </table> </div>").appendTo(this.timeBodyScroller.canvas.contentEl);
+        var timeBodyContainerEl = $("<div class=\"fc-rows\"> <table class=\"" + theme.getClass('tableGrid') + "\"> <tbody></tbody> </table> </div>").appendTo(this.timeBodyScroller.canvas.contentEl);
         this.timeBodyTbodyEl = timeBodyContainerEl.find('tbody');
         this.tbodyHash = {
             spreadsheet: this.spreadsheet.tbodyEl,
@@ -3748,7 +3748,7 @@ var VRowGroup = /** @class */ (function (_super) {
         if (this.rowspan) { // takes up at least one row?
             // ensure the TD element
             if (!this.groupTd) {
-                this.groupTd = $('<td class="' + theme.getClass('widgetContent') + '"/>')
+                this.groupTd = $('<td class="' + theme.getClass('widgetContent') + '">')
                     .append(this.renderGroupContentEl());
             }
             this.groupTd.attr('rowspan', this.rowspan);
@@ -3826,7 +3826,7 @@ var RowGroup = /** @class */ (function (_super) {
     Renders the content wrapper element that will be inserted into this row's TD cell
     */
     RowGroup.prototype.renderGroupContentEl = function () {
-        var contentEl = $('<div class="fc-cell-content" />')
+        var contentEl = $('<div class="fc-cell-content">')
             .append(this.renderGroupTextEl());
         var filter = this.groupSpec.render;
         if (typeof filter === 'function') {
@@ -3844,7 +3844,7 @@ var RowGroup = /** @class */ (function (_super) {
         if (typeof filter === 'function') {
             text = filter(text) || text;
         }
-        return $('<span class="fc-cell-text" />').text(text);
+        return $('<span class="fc-cell-text">').text(text);
     };
     return RowGroup;
 }(RowParent_1.default));
@@ -3869,7 +3869,7 @@ var EventRow = /** @class */ (function (_super) {
     }
     EventRow.prototype.renderEventSkeleton = function (tr) {
         var theme = this.view.calendar.theme;
-        tr.html("<td class=\"" + theme.getClass('widgetContent') + "\"> <div> <div class=\"fc-event-container\" /> </div> </td>");
+        tr.html("<td class=\"" + theme.getClass('widgetContent') + "\"> <div> <div class=\"fc-event-container\"></div> </div> </td>");
         this.segContainerEl = tr.find('.fc-event-container');
         this.innerEl = (this.bgSegContainerEl = tr.find('td > div'));
     };
@@ -3918,7 +3918,7 @@ __webpack_require__(65);
 __webpack_require__(66);
 __webpack_require__(67);
 __webpack_require__(68);
-var schedulerVersion = '1.9.4';
+var schedulerVersion = '3.10.4';
 exportHooks.schedulerVersion = schedulerVersion;
 /*
 When the required internal version is upped,
@@ -4593,7 +4593,7 @@ var Spreadsheet = /** @class */ (function () {
         this.bodyScroller = new ClippedScroller_1.default({ overflowY: 'clipped-scroll' });
         this.bodyScroller.canvas = new ScrollerCanvas_1.default();
         this.bodyScroller.render();
-        this.bodyScroller.canvas.contentEl.html("<div class=\"fc-rows\"> <table class=\"" + theme.getClass('tableGrid') + "\">" + this.colGroupHtml + "<tbody/> </table> </div>"); // colGroupHtml hack
+        this.bodyScroller.canvas.contentEl.html("<div class=\"fc-rows\"> <table class=\"" + theme.getClass('tableGrid') + "\">" + this.colGroupHtml + "<tbody></tbody> </table> </div>"); // colGroupHtml hack
         this.tbodyEl = this.bodyScroller.canvas.contentEl.find('tbody');
         this.el.append(this.bodyScroller.el);
         this.scrollJoiner = new ScrollJoiner_1.default('horizontal', [this.headScroller, this.bodyScroller]);
@@ -4614,10 +4614,10 @@ var Spreadsheet = /** @class */ (function () {
         for (var _i = 0, colSpecs_1 = colSpecs; _i < colSpecs_1.length; _i++) {
             var o = colSpecs_1[_i];
             if (o.isMain) {
-                colGroupHtml += '<col class="fc-main-col"/>';
+                colGroupHtml += '<col class="fc-main-col">';
             }
             else {
-                colGroupHtml += '<col/>';
+                colGroupHtml += '<col>';
             }
         }
         colGroupHtml += '</colgroup>';
@@ -4930,11 +4930,11 @@ var ResourceRow = /** @class */ (function (_super) {
             if (typeof colSpec.render === 'function') { // a filter function for the element
                 contentEl = colSpec.render(resource, contentEl, input) || contentEl;
             }
-            var td = $('<td class="' + theme.getClass('widgetContent') + '"/>')
+            var td = $('<td class="' + theme.getClass('widgetContent') + '">')
                 .append(contentEl);
             // the first cell of the row needs to have an inner div for setTrInnerHeight
             if (colSpec.isMain) {
-                td.wrapInner('<div/>');
+                td.wrapInner('<div>');
             }
             tr.append(td);
         }
@@ -4948,7 +4948,7 @@ var ResourceRow = /** @class */ (function (_super) {
         var html = '';
         var depth = this.depth;
         for (var i = 0; i < depth; i++) {
-            html += '<span class="fc-icon"/>';
+            html += '<span class="fc-icon"></span>';
         }
         html +=
             '<span class="fc-expander-space">' +
@@ -4990,9 +4990,9 @@ var HRowGroup = /** @class */ (function (_super) {
         contentEl.prepend('<span class="fc-expander">' +
             '<span class="fc-icon"></span>' +
             '</span>');
-        return $('<td class="fc-divider" />')
+        return $('<td class="fc-divider"></td>')
             .attr('colspan', this.view.colSpecs.length) // span across all columns
-            .append($('<div/>').append(contentEl) // needed by setTrInnerHeight
+            .append($('<div>').append(contentEl) // needed by setTrInnerHeight
         )
             .appendTo(tr);
     };
@@ -5002,7 +5002,7 @@ var HRowGroup = /** @class */ (function (_super) {
     HRowGroup.prototype.renderEventSkeleton = function (tr) {
         // insert a single cell, with a single empty <div> (needed by setTrInnerHeight).
         // there will be no content
-        return tr.append("<td class=\"fc-divider\"> <div/> </td>");
+        return tr.append("<td class=\"fc-divider\"> <div></div> </td>");
     };
     return HRowGroup;
 }(RowGroup_1.default));
@@ -5795,7 +5795,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var $ = __webpack_require__(2);
 var moment = __webpack_require__(15);
 var exportHooks = __webpack_require__(0);
-var RELEASE_DATE = '2018-03-27'; // for Scheduler
+var RELEASE_DATE = '2021-10-25'; // for Scheduler
 var UPGRADE_WINDOW = { years: 1, weeks: 1 }; // 1 week leeway, for tz shift reasons too
 var LICENSE_INFO_URL = 'http://fullcalendar.io/scheduler/license/';
 var PRESET_LICENSE_KEYS = [
@@ -5836,7 +5836,7 @@ function isImmuneUrl(url) {
 }
 exports.isImmuneUrl = isImmuneUrl;
 function renderingWarningInContainer(messageHtml, containerEl) {
-    return containerEl.append($('<div class="fc-license-message" />').html(messageHtml));
+    return containerEl.append($('<div class="fc-license-message">').html(messageHtml));
 }
 exports.renderingWarningInContainer = renderingWarningInContainer;
 // returns boolean of whether a license message is already rendered
