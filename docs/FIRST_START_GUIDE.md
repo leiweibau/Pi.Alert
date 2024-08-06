@@ -8,16 +8,16 @@ device on which you have installed Pi.Alert, followed by `/pialert` (e.g. http:/
 The Pi.Alert page will now open. Depending on whether you have selected to mark devices as "new" during installation or not, you will 
 now have corresponding information in the sidebar.
 
-Image: Guide_001.png
+![Guide_001][Guide_001] 
 
-The "1" is the button for the device list. The colored badges show you the following: 
+The "**1**" (🟥) is the button for the device list. The colored badges show you the following: 
 - in green the currently active (online) devices
 - the yellow ones are "new" devices that can be both online and offline
 - red are devices in which the notification for "Down" has been activated, i.e. certain devices that are offline
 
-You can filter the device list accordingly using the tiles in area "2"
+You can filter the device list accordingly using the tiles in area "**2**" (🟦)
 
-The "3" represents the device list, which is filled by the various scans and imports. For devices with the name "(unknown)", an attempt is 
+The "**3**" (🟩) represents the device list, which is filled by the various scans and imports. For devices with the name "(unknown)", an attempt is 
 made to determine the host name with each scan. However, the options here are limited. To speed up the scan a bit, it is advisable to enter 
 a reasonable host name.
 The "Status" can represent various fields: 
@@ -27,6 +27,8 @@ The "Status" can represent various fields:
  - "green, yellow" = new and online
  - "green, gray" = new and offline
 
-[Back](https://github.com/leiweibau/Pi.Alert#api)
+[Next - Discreet buttons and menus](https://github.com/leiweibau/docs/guide/001.md)
+
+[Back to Readme](https://github.com/leiweibau/Pi.Alert)
 
 [Guide_001]:             https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/guide_001.png         "Guide_001"
