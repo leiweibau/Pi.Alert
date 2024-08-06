@@ -20,12 +20,12 @@ You can filter the device list accordingly using the tiles in area "**2**" (🟦
 The "**3**" (🟩) represents the device list, which is filled by the various scans and imports. For devices with the name "(unknown)", an attempt is 
 made to determine the host name with each scan. However, the options here are limited. To speed up the scan a bit, it is advisable to enter 
 a reasonable host name.
-The "Status" can represent various fields: 
+Various badges can appear in the "Status" column: 
  - "red" = offline, "Down" notification activated
  - "gray" = offline
  - "green" = online
- - "green, yellow" = new and online
- - "green, gray" = new and offline
+ - "yellow, green" = new and online
+ - "yellow, gray" = new and offline
 
 [Next - Discreet buttons and menus](https://github.com/leiweibau/docs/guide/001.md)
 
