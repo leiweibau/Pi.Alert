@@ -27,7 +27,7 @@ Various badges can appear in the "Status" column:
  - "yellow, green" = new and online
  - "yellow, gray" = new and offline
 
-[Next - Discreet buttons and menus](https://github.com/leiweibau/docs/guide/001.md)
+[Next - Discreet buttons and menus](./guide/001.md)
 
 [Back to Readme](https://github.com/leiweibau/Pi.Alert)
 
