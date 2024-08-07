@@ -1,6 +1,6 @@
 /*!
- * iCheck v1.0.1, http://git.io/arlzeA
- * =================================
+ * iCheck v1.0.3, http://git.io/arlzeA
+ * ===================================
  * Powerful jQuery and Zepto plugin for checkboxes and radio buttons customization
  *
  * (c) 2013 Damir Sultanov, http://fronteed.com
@@ -28,7 +28,7 @@
     _callback = 'trigger',
     _label = 'label',
     _cursor = 'cursor',
-    _mobile = /ipad|iphone|ipod|android|blackberry|windows phone|opera mini|silk/i.test(navigator.userAgent);
+    _mobile = /ip(hone|od|ad)|android|blackberry|windows phone|opera mini|silk/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   // Plugin init
   $.fn[_iCheck] = function(options, fire) {
@@ -65,7 +65,8 @@
         } else {
           operate(self, true, options);
         }
-          // Fire method's callback
+
+        // Fire method's callback
         if ($.isFunction(fire)) {
           fire();
         }
@@ -79,8 +80,7 @@
           checkedClass: _checked,
           disabledClass: _disabled,
           indeterminateClass: _indeterminate,
-          labelHover: true,
-          aria: false
+          labelHover: true
         }, options),
 
         selector = settings.handle,
@@ -97,11 +97,13 @@
       if (selector == _checkbox || selector == _radio) {
         handle = 'input[type="' + selector + '"]';
       }
-        // Clickable area limit
+
+      // Clickable area limit
       if (area < -50) {
         area = -50;
       }
-        // Walk around the selector
+
+      // Walk around the selector
       walker(this);
 
       return stack.each(function() {
@@ -149,14 +151,14 @@
           aria = !!settings.aria,
 
           // Set ARIA placeholder
-          ariaID = _iCheck + '-' + Math.random().toString(36).replace('0.', ''),
+          ariaID = _iCheck + '-' + Math.random().toString(36).substr(2,6),
 
           // Parent & helper
           parent = '<div class="' + className + '" ' + (aria ? 'role="' + node[_type] + '" ' : ''),
           helper;
 
         // Set ARIA "labelledby"
-        if (label.length && aria) {
+        if (aria) {
           label.each(function() {
             parent += 'aria-labelledby="';
 
@@ -170,7 +172,8 @@
             parent += '"';
           });
         }
-          // Wrap input
+
+        // Wrap input
         parent = self.wrap(parent + '/>')[_callback]('ifCreated').parent().append(settings.insert);
 
         // Layer addition
@@ -211,7 +214,8 @@
                   item[_add](labelHoverClass);
                 }
               }
-                if (_mobile) {
+
+              if (_mobile) {
                 event.stopPropagation();
               } else {
                 return false;
@@ -219,7 +223,8 @@
             }
           });
         }
-          // Input events
+
+        // Input events
         self.on(_click + '.i focus.i blur.i keyup.i keydown.i keypress.i', function(event) {
           var type = event[_type],
             key = event.keyCode;
@@ -237,7 +242,8 @@
                 on(self, _checked);
               }
             }
-              return false;
+
+            return false;
 
           // Keyup
           } else if (type == 'keyup' && node[_type] == _radio) {
@@ -276,14 +282,16 @@
               } else {
                 parent[_remove](toggle + ' ' + activeClass);
               }
-                // Label hover
+
+              // Label hover
               if (label.length && labelHover && toggle == hoverClass) {
 
                 // mouseout|touchend
                 label[/ut|nd/.test(type) ? _remove : _add](labelHoverClass);
               }
             }
-              if (_mobile) {
+
+            if (_mobile) {
               event.stopPropagation();
             } else {
               return false;
@@ -318,20 +326,22 @@
     } else if (method == _update) {
 
       // Handle states
-      for (var state in active) {
-        if (active[state]) {
-          on(input, state, true);
+      for (var each in active) {
+        if (active[each]) {
+          on(input, each, true);
         } else {
-          off(input, state, true);
+          off(input, each, true);
         }
       }
+
     } else if (!direct || method == 'toggle') {
 
       // Helper or label was clicked
       if (!direct) {
         input[_callback]('ifClicked');
       }
-        // Toggle checked state
+
+      // Toggle checked state
       if (active) {
         if (node[_type] !== _radio) {
           off(input, state);
@@ -341,7 +351,8 @@
       }
     }
   }
-    // Add checked, disabled or indeterminate state
+
+  // Add checked, disabled or indeterminate state
   function on(input, state, keep) {
     var node = input[0],
       parent = input.parent(),
@@ -368,7 +379,8 @@
           }
         });
       }
-        // Indeterminate state
+
+      // Indeterminate state
       if (indeterminate) {
 
         // Add indeterminate state
@@ -378,35 +390,43 @@
         if (node[_checked]) {
           off(input, _checked, 'force');
         }
-          // Checked or disabled state
+
+      // Checked or disabled state
       } else {
 
         // Add checked or disabled state
         if (!keep) {
           node[state] = true;
         }
-          // Remove indeterminate state
+
+        // Remove indeterminate state
         if (checked && node[_indeterminate]) {
           off(input, _indeterminate, false);
         }
       }
-        // Trigger callbacks
+
+      // Trigger callbacks
       callbacks(input, checked, state, keep);
     }
-      // Add proper cursor
+
+    // Add proper cursor
     if (node[_disabled] && !!option(input, _cursor, true)) {
       parent.find('.' + _iCheckHelper).css(_cursor, 'default');
     }
-      // Add state class
+
+    // Add state class
     parent[_add](specific || option(input, state) || '');
 
     // Set ARIA attribute
-    disabled ? parent.attr('aria-disabled', 'true') : parent.attr('aria-checked', indeterminate ? 'mixed' : 'true');
+    if (!!parent.attr('role') && !indeterminate) {
+      parent.attr('aria-' + (disabled ? _disabled : _checked), 'true');
+    }
 
     // Remove regular state class
     parent[_remove](regular || option(input, callback) || '');
   }
-    // Remove checked, disabled or indeterminate state
+
+  // Remove checked, disabled or indeterminate state
   function off(input, state, keep) {
     var node = input[0],
       parent = input.parent(),
@@ -424,23 +444,29 @@
       if (indeterminate || !keep || keep == 'force') {
         node[state] = false;
       }
-        // Trigger callbacks
+
+      // Trigger callbacks
       callbacks(input, checked, callback, keep);
     }
-      // Add proper cursor
+
+    // Add proper cursor
     if (!node[_disabled] && !!option(input, _cursor, true)) {
       parent.find('.' + _iCheckHelper).css(_cursor, 'pointer');
     }
-      // Remove state class
+
+    // Remove state class
     parent[_remove](specific || option(input, state) || '');
 
     // Set ARIA attribute
-    disabled ? parent.attr('aria-disabled', 'false') : parent.attr('aria-checked', 'false');
+    if (!!parent.attr('role') && !indeterminate) {
+      parent.attr('aria-' + (disabled ? _disabled : _checked), 'false');
+    }
 
     // Add regular state class
     parent[_add](regular || option(input, callback) || '');
   }
-    // Remove all traces
+
+  // Remove all traces
   function tidy(input, callback) {
     if (input.data(_iCheck)) {
 
@@ -451,28 +477,33 @@
       if (callback) {
         input[_callback](callback);
       }
-        // Unbind events
+
+      // Unbind events
       input.off('.i').unwrap();
       $(_label + '[for="' + input[0].id + '"]').add(input.closest(_label)).off('.i');
     }
   }
-    // Get some option
+
+  // Get some option
   function option(input, state, regular) {
     if (input.data(_iCheck)) {
       return input.data(_iCheck).o[state + (regular ? '' : 'Class')];
     }
   }
-    // Capitalize some string
+
+  // Capitalize some string
   function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-    // Executable handlers
+
+  // Executable handlers
   function callbacks(input, checked, callback, keep) {
     if (!keep) {
       if (checked) {
         input[_callback]('ifToggled');
       }
-        input[_callback]('ifChanged')[_callback]('if' + capitalize(callback));
+
+      input[_callback]('change')[_callback]('ifChanged')[_callback]('if' + capitalize(callback));
     }
   }
 })(window.jQuery || window.Zepto);

@@ -7,6 +7,7 @@
 * [Installation](#installation)
 * [Update](#update)
 * Additional information
+  * [Guide for the first start](docs/FIRST_START_GUIDE.md)
   * [Screenshots](docs/SCREENSHOTS.md)
   * [Device Management](docs/DEVICE_MANAGEMENT.md)
   * [Bulk Editor](docs/BULKEDITOR.md)
@@ -106,6 +107,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 
 
 - [Installation Guide (step by step)](docs/INSTALL.md)
+- [Guide for the first start](docs/FIRST_START_GUIDE.md)
 
 :bulb: <ins>Additional components and information</ins>
 

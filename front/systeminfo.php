@@ -177,10 +177,11 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 	                $tabs .=  '<li class=""><a href="#tab_'.$tab_id.'" data-toggle="tab" aria-expanded="false">'.$row['sat_name'].'</a></li>';
 
 	                $hostdata = json_decode($row['sat_host_data'], true);
+	                $scan_time = explode(" ", $row['sat_lastupdate']);
 	                $tab_content .= '<div class="tab-pane" id="tab_'.$tab_id.'">
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . ' ('.substr($scan_time[1], 0, -3). ')</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
