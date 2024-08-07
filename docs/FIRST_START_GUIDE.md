@@ -27,6 +27,10 @@ Various badges can appear in the "Status" column:
  - "yellow, green" = new and online
  - "yellow, gray" = new and offline
 
+***Especially after the first start, many devices appear in the list where there is a need to enter additional information into the database over a 
+longer period of time. In this case, it is advisable to activate the "Pause" timer in the settings after 5-10 minutes for any or a predefined time 
+in order to make these changes undisturbed without the database being repeatedly blocked for changes by the scans.***
+
 [Next - Discreet buttons and menus](./guide/001.md)
 
 [Back to Readme](https://github.com/leiweibau/Pi.Alert)
