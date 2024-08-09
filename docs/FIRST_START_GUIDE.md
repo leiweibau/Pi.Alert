@@ -17,9 +17,9 @@ The "**1**" (🟥) is the button for the device list. The colored badges show yo
 
 You can filter the device list accordingly using the tiles in area "**2**" (🟦)
 
-The "**3**" (🟩) represents the device list, which is filled by the various scans and imports. For devices with the name "(unknown)", an attempt is 
-made to determine the host name with each scan. However, the options here are limited. To speed up the scan a bit, it is advisable to enter 
-a reasonable host name.
+The "**3**" (🟩) represents the device list, which is filled by the various scans and imports. For devices with the name "(unknown)", an 
+attempt is made to determine the host name with each scan. However, the options here are limited. To speed up the scan a bit, it is 
+advisable to enter a reasonable host name.
 Various badges can appear in the "Status" column: 
  - "red" = offline, "Down" notification activated
  - "gray" = offline
@@ -27,9 +27,18 @@ Various badges can appear in the "Status" column:
  - "yellow, green" = new and online
  - "yellow, gray" = new and offline
 
-‼️ ***Especially after the first start, many devices appear in the list where there is a need to enter additional information into the database over a 
-longer period of time. In this case, it is advisable to activate the "Pause" timer in the settings after 5-10 minutes for a predefined time in order to 
-make these changes undisturbed without the database being repeatedly blocked for changes by the scans.***
+‼️ ***Especially after the first start, many devices appear in the list where there is a need to enter additional information into the 
+database over a longer period of time. In this case, it is advisable to activate the "Pause" timer in the settings after 5-10 minutes 
+for a predefined time in order to make these changes undisturbed without the database being repeatedly blocked for changes by the scans.***
+
+The basis of this device list is the MAC address that each device has. The device can define this Mac address randomly or use its own 
+permanently programmed address. In the first case, there are fixed rules according to which Pi.Alert can recognize these addresses and 
+then displays the "Random Mac" indicator. Pi.Alert cannot recognize devices that are located behind other routers or possibly also behind 
+repeaters. However, if this is desired, the network must be reconfigured so that Pi.Alert has access to every network area. Pi.Alert 
+must also be configured separately in this case. Another option for monitoring the accessibility of a device in a non-scannable area 
+would be ICMP monitoring. However, this cannot be used to detect new devices, only whether a device is online or offline. With the 
+satellite function, I offer a possibility to place a satellite in such a separate network, which independently executes scans there and 
+sends the results to a previously configured Pi.Alert instance. These satellites can also be used to detect new devices in separate networks.
 
 [Next - Discreet buttons and menus](./guide/001.md)
 
