@@ -34,7 +34,7 @@ for a predefined time in order to make these changes undisturbed without the dat
 The basis of this device list is the MAC address that each device has. The device can define this Mac address randomly or use its own 
 permanently programmed address. In the first case, there are fixed rules according to which Pi.Alert can recognize these addresses and 
 then displays the "Random Mac" indicator. Pi.Alert cannot recognize devices that are located behind other routers or possibly also behind 
-repeaters. However, if this is desired, the network must be reconfigured so that Pi.Alert has access to every network area. Pi.Alert 
+repeaters. However, if this is desired, the network must be reconfigured so that Pi.Alert has direct access to every network area. Pi.Alert 
 must also be configured separately in this case. Another option for monitoring the accessibility of a device in a non-scannable area 
 would be ICMP monitoring. However, this cannot be used to detect new devices, only whether a device is online or offline. With the 
 satellite function, I offer a possibility to place a satellite in such a separate network, which independently executes scans there and 
