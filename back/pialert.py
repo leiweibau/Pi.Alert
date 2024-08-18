@@ -912,25 +912,26 @@ def copy_pihole_network():
         print('        ...Skipped')
         return
 
-    # Open Pi-hole DB
-    sql.execute ("ATTACH DATABASE '"+ PIHOLE_DB +"' AS PH")
+    if PIHOLE_VERSION in (None, 5):
+        # Open Pi-hole DB
+        sql.execute ("ATTACH DATABASE '"+ PIHOLE_DB +"' AS PH")
 
-    # Copy Pi-hole Network table
-    sql.execute ("""INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery,
-                        PH_Name, PH_IP)
-                    SELECT hwaddr, macVendor, lastQuery,
-                        (SELECT name FROM PH.network_addresses
-                         WHERE network_id = id ORDER BY lastseen DESC, ip),
-                        (SELECT ip FROM PH.network_addresses
-                         WHERE network_id = id ORDER BY lastseen DESC, ip)
-                    FROM PH.network
-                    WHERE hwaddr NOT LIKE 'ip-%'
-                      AND hwaddr <> '00:00:00:00:00:00' """)
-    sql.execute ("""UPDATE PiHole_Network SET PH_Name = '(unknown)'
-                    WHERE PH_Name IS NULL OR PH_Name = '' """)
+        # Copy Pi-hole Network table
+        sql.execute ("""INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery,
+                            PH_Name, PH_IP)
+                        SELECT hwaddr, macVendor, lastQuery,
+                            (SELECT name FROM PH.network_addresses
+                             WHERE network_id = id ORDER BY lastseen DESC, ip),
+                            (SELECT ip FROM PH.network_addresses
+                             WHERE network_id = id ORDER BY lastseen DESC, ip)
+                        FROM PH.network
+                        WHERE hwaddr NOT LIKE 'ip-%'
+                          AND hwaddr <> '00:00:00:00:00:00' """)
+        sql.execute ("""UPDATE PiHole_Network SET PH_Name = '(unknown)'
+                        WHERE PH_Name IS NULL OR PH_Name = '' """)
 
-    # Close Pi-hole DB
-    sql.execute ("DETACH PH")
+        # Close Pi-hole DB
+        sql.execute ("DETACH PH")
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():

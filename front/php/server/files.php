@@ -329,6 +329,7 @@ ICMP_GET_AVG_RTT           = " . $configArray['ICMP_GET_AVG_RTT'] . "
 # Pi-hole Configuration
 # ----------------------
 PIHOLE_ACTIVE              = " . convert_bool($configArray['PIHOLE_ACTIVE']) . "
+PIHOLE_VERSION             = " . $configArray['PIHOLE_VERSION'] . "
 PIHOLE_DB                  = '" . $configArray['PIHOLE_DB'] . "'
 DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
 DHCP_LEASES                = '" . $configArray['DHCP_LEASES'] . "'
