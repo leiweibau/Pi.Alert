@@ -933,6 +933,12 @@ def copy_pihole_network():
         # Close Pi-hole DB
         sql.execute ("DETACH PH")
 
+    elif PIHOLE_VERSION == 6:
+        print('        ...Not supported yet')
+
+    else:
+        print('        ...Unsupported Version')
+
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
     # create table if not exists
