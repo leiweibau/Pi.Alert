@@ -936,6 +936,39 @@ def copy_pihole_network():
     elif PIHOLE_VERSION == 6:
         print('        ...Not supported yet')
 
+    # Notwendige Variablen in der Config:
+    # PIHOLE6_PASSWORD
+    # PIHOLE6_URL
+    # 
+
+    # curl -k -X POST "https://localhost:443/api/auth"  -H "accept: application/json" -H "content-tye: application/json"  -d '{"password":"########"}'
+    # {"session":{"valid":true,"totp":false,"sid":null,"validity":-1,"message":"password incorrect"},"took":4.8160552978515625e-05}
+    # Funktioniert entgegen der Fehlermeldung scheinbar doch
+
+    # curl -k -X GET "https://localhost:443/api/network/devices"  -H "accept: application/json"
+    # {
+    #     "devices":[
+    #         {"id":4,"hwaddr":"00:00:00:00:00:00","interface":"lo","firstSeen":1724047320,"lastQuery":1724048432,"numQueries":16,"macVendor":"virtual interface","ips":[
+    #             {"ip":"127.0.0.1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520},
+    #             {"ip":"::1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520}]
+    #         },
+    #         {"id":1,"hwaddr":"52:54:00:12:35:04","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
+    #             {"ip":"10.0.2.4","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+    #         },
+    #         {"id":2,"hwaddr":"52:54:00:12:35:03","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
+    #             {"ip":"10.0.2.3","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+    #         },
+    #         {"id":3,"hwaddr":"52:54:00:12:35:02","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
+    #             {"ip":"10.0.2.2","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+    #         },
+    #         {"id":5,"hwaddr":"08:00:27:18:87:94","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"PCS Systemtechnik GmbH","ips":[
+    #             {"ip":"10.0.2.15","name":null,"lastSeen":1724048520,"nameUpdated":1724048520},
+    #             {"ip":"fe80::a00:27ff:fe18:8794","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+    #         }]
+    #     ,"took":0.00062489509582519531
+    # }
+
+
     else:
         print('        ...Unsupported Version')
 
