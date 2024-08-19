@@ -939,13 +939,37 @@ def copy_pihole_network():
     # Notwendige Variablen in der Config:
     # PIHOLE6_PASSWORD
     # PIHOLE6_URL
-    # 
 
-    # curl -k -X POST "https://localhost:443/api/auth"  -H "accept: application/json" -H "content-tye: application/json"  -d '{"password":"########"}'
-    # {"session":{"valid":true,"totp":false,"sid":null,"validity":-1,"message":"password incorrect"},"took":4.8160552978515625e-05}
-    # Funktioniert entgegen der Fehlermeldung scheinbar doch
+        PIHOLE6_URL = 'https://localhost:443'
+        PIHOLE6_PASSWORD = '#######'
 
-    # curl -k -X GET "https://localhost:443/api/network/devices"  -H "accept: application/json"
+        if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
+            print('        ...Skipped')
+            return
+
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json"
+        }
+        data = {
+            "password": PIHOLE6_PASSWORD
+        }
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        response = requests.post(PIHOLE6_URL+'/api/auth', headers=headers, json=data, verify=False)
+        # print(response.json())
+        response_json = response.json()
+
+        if response.status_code == 200 and response_json['session']['valid'] == True :
+            headers = {
+                "X-FTL-SID": response_json['session']['sid'],
+                "X-FTL-CSRF": response_json['session']['csrf']
+            }
+            response = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
+            print(response.json())
+        else:
+            print("Auth required")
+            return
+
     # {
     #     "devices":[
     #         {"id":4,"hwaddr":"00:00:00:00:00:00","interface":"lo","firstSeen":1724047320,"lastQuery":1724048432,"numQueries":16,"macVendor":"virtual interface","ips":[
