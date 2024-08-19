@@ -69,6 +69,7 @@ def main():
     # DB
     sql_connection = None
     sql            = None
+    sqlite3.register_adapter(datetime.datetime, adapt_datetime)
 
     # Timestamp
     startTime = datetime.datetime.now()
@@ -117,6 +118,10 @@ def main():
 #===============================================================================
 # Set Env (Userpermissions DB-file)
 #===============================================================================
+def adapt_datetime(dt):
+    return dt.isoformat()
+
+# ------------------------------------------------------------------------------
 def get_username():
     return pwd.getpwuid(os.getuid())[0]
 
@@ -867,7 +872,7 @@ def execute_arpscan():
     re_ip = r'(?P<ip>((2[0-5]|1[0-9]|[0-9])?[0-9]\.){3}((2[0-5]|1[0-9]|[0-9])?[0-9]))'
     re_mac = r'(?P<mac>([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2}))'
     re_hw = r'(?P<hw>.*)'
-    re_pattern = re.compile (re_ip + '\s+' + re_mac + '\s' + re_hw)
+    re_pattern = re.compile(r'' + re_ip + r'\s+' + re_mac + r'\s' + re_hw)
 
     # Create Userdict of devices
     devices_list = [device.groupdict()
