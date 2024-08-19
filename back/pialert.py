@@ -965,7 +965,36 @@ def copy_pihole_network():
                 "X-FTL-CSRF": response_json['session']['csrf']
             }
             response = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
-            print(response.json())
+            #print(response.json())
+
+            current_time = int(time.time())
+
+            result = {}
+
+            # 5 Minutes
+            scan_interval = 5 * 60
+
+            for device in data['devices']:
+                hwaddr = device['hwaddr']
+                for ip_info in device['ips']:
+                    ip = ip_info['ip']
+                    last_seen = ip_info['lastSeen']
+                    name = ip_info['name']
+                    
+                    # Check whether the IP is a valid IPv4 address and whether it has been seen in the last 5 minutes
+                    if '.' in ip and current_time - last_seen <= scan_interval:
+                        # Convert last_seen to a readable date
+                        last_seen_datetime = time.strftime('%Y-%m-%d %H:%M', time.localtime(last_seen))
+                        
+                        result[hwaddr] = {
+                            "ip": ip,
+                            "name": name,
+                            "last_seen": last_seen_datetime
+                        }
+
+            print(result)
+
+
         else:
             print("Auth required")
             return
