@@ -946,9 +946,10 @@ def copy_pihole_network():
         PIHOLE6_PASSWORD = '########'
 
         if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
-            print('        ...Skipped')
+            print('        ...Skipped (Config Error)')
             return
 
+        # Auth
         headers = {
             "accept": "application/json",
             "content-type": "application/json"
@@ -958,17 +959,15 @@ def copy_pihole_network():
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         response = requests.post(PIHOLE6_URL+'/api/auth', headers=headers, json=data, verify=False)
-        # print(response.json())
         response_json = response.json()
 
+        # Collect data
         if response.status_code == 200 and response_json['session']['valid'] == True :
             headers = {
                 "X-FTL-SID": response_json['session']['sid'],
                 "X-FTL-CSRF": response_json['session']['csrf']
             }
-            response = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
-            #print(response.json())
-
+            response = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=200&max_addresses=2', headers=headers, json=data, verify=False)
             result = {}
 
             for device in data['devices']:
