@@ -941,12 +941,9 @@ def copy_pihole_network():
     elif PIHOLE_VERSION == 6:
         print('        ...Not supported yet')
 
-    # Notwendige Variablen in der Config:
-    # PIHOLE6_PASSWORD
-    # PIHOLE6_URL
-
+        #Debug
         PIHOLE6_URL = 'https://localhost:443'
-        PIHOLE6_PASSWORD = '#######'
+        PIHOLE6_PASSWORD = '########'
 
         if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
             print('        ...Skipped')
@@ -972,60 +969,56 @@ def copy_pihole_network():
             response = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
             #print(response.json())
 
-            current_time = int(time.time())
-
             result = {}
-
-            # 5 Minutes
-            scan_interval = 5 * 60
 
             for device in data['devices']:
                 hwaddr = device['hwaddr']
+                lastQuery = device['lastQuery']
+                macVendor = device['macVendor']
+
+                if hwaddr == "00:00:00:00:00:00":
+                    continue
+
                 for ip_info in device['ips']:
                     ip = ip_info['ip']
-                    last_seen = ip_info['lastSeen']
                     name = ip_info['name']
                     
-                    # Check whether the IP is a valid IPv4 address and whether it has been seen in the last 5 minutes
-                    if '.' in ip and current_time - last_seen <= scan_interval:
-                        # Convert last_seen to a readable date
-                        last_seen_datetime = time.strftime('%Y-%m-%d %H:%M', time.localtime(last_seen))
-                        
+                    # Check whether the IP could be a IPv4 address
+                    if '.' in ip:
                         result[hwaddr] = {
                             "ip": ip,
                             "name": name,
-                            "last_seen": last_seen_datetime
+                            "macVendor": macVendor,
+                            "lastQuery": lastQuery
                         }
 
             print(result)
-
 
         else:
             print("Auth required")
             return
 
-    # {
-    #     "devices":[
-    #         {"id":4,"hwaddr":"00:00:00:00:00:00","interface":"lo","firstSeen":1724047320,"lastQuery":1724048432,"numQueries":16,"macVendor":"virtual interface","ips":[
-    #             {"ip":"127.0.0.1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520},
-    #             {"ip":"::1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520}]
-    #         },
-    #         {"id":1,"hwaddr":"52:54:00:12:35:04","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
-    #             {"ip":"10.0.2.4","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-    #         },
-    #         {"id":2,"hwaddr":"52:54:00:12:35:03","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
-    #             {"ip":"10.0.2.3","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-    #         },
-    #         {"id":3,"hwaddr":"52:54:00:12:35:02","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
-    #             {"ip":"10.0.2.2","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-    #         },
-    #         {"id":5,"hwaddr":"08:00:27:18:87:94","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"PCS Systemtechnik GmbH","ips":[
-    #             {"ip":"10.0.2.15","name":null,"lastSeen":1724048520,"nameUpdated":1724048520},
-    #             {"ip":"fe80::a00:27ff:fe18:8794","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-    #         }]
-    #     ,"took":0.00062489509582519531
-    # }
-
+# {
+#     "devices":[
+#         {"id":4,"hwaddr":"00:00:00:00:00:00","interface":"lo","firstSeen":1724047320,"lastQuery":1724048432,"numQueries":16,"macVendor":"virtual interface","ips":[
+#             {"ip":"127.0.0.1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520},
+#             {"ip":"::1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520}]
+#         },
+#         {"id":1,"hwaddr":"52:54:00:12:35:04","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
+#             {"ip":"10.0.2.4","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+#         },
+#         {"id":2,"hwaddr":"52:54:00:12:35:03","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
+#             {"ip":"10.0.2.3","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+#         },
+#         {"id":3,"hwaddr":"52:54:00:12:35:02","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
+#             {"ip":"10.0.2.2","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+#         },
+#         {"id":5,"hwaddr":"08:00:27:18:87:94","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"PCS Systemtechnik GmbH","ips":[
+#             {"ip":"10.0.2.15","name":null,"lastSeen":1724048520,"nameUpdated":1724048520},
+#             {"ip":"fe80::a00:27ff:fe18:8794","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
+#         }]
+#     ,"took":0.00062489509582519531
+# }
 
     else:
         print('        ...Unsupported Version')
