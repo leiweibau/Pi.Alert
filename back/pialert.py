@@ -939,17 +939,14 @@ def copy_pihole_network():
         sql.execute ("DETACH PH")
 
     elif PIHOLE_VERSION == 6:
-        print('        ...Not supported yet')
-
         #Debug
-        PIHOLE6_URL = 'https://localhost:443'
-        PIHOLE6_PASSWORD = '########'
+        PIHOLE6_URL = ''
+        PIHOLE6_PASSWORD = '#######'
 
         if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
             print('        ...Skipped (Config Error)')
             return
 
-        # Auth
         headers = {
             "accept": "application/json",
             "content-type": "application/json"
@@ -959,18 +956,20 @@ def copy_pihole_network():
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         response = requests.post(PIHOLE6_URL+'/api/auth', headers=headers, json=data, verify=False)
+        # print(response.json())
         response_json = response.json()
 
-        # Collect data
         if response.status_code == 200 and response_json['session']['valid'] == True :
             headers = {
                 "X-FTL-SID": response_json['session']['sid'],
                 "X-FTL-CSRF": response_json['session']['csrf']
             }
-            response = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=200&max_addresses=2', headers=headers, json=data, verify=False)
-            result = {}
+            raw_deviceslist = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
 
-            for device in data['devices']:
+            result = {}
+            deviceslist = raw_deviceslist.json()
+
+            for device in deviceslist['devices']:
                 hwaddr = device['hwaddr']
                 lastQuery = device['lastQuery']
                 macVendor = device['macVendor']
@@ -980,7 +979,7 @@ def copy_pihole_network():
 
                 for ip_info in device['ips']:
                     ip = ip_info['ip']
-                    name = ip_info['name']
+                    name = ip_info['name'] if ip_info['name'] not in [None, ""] else "(unknown)"
                     
                     # Check whether the IP could be a IPv4 address
                     if '.' in ip:
@@ -1409,7 +1408,7 @@ def remove_entries_from_table():
         MAC_IGNORE_LIST
 
         if len(MAC_IGNORE_LIST) > 0:
-            print(f'        Delete {len(MAC_IGNORE_LIST)} ignored devices/MAC ranges from scan on appearance')
+            print(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
             # incomplete and complete MAC addresses
             mac_addresses = ' OR '.join([f'cur_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
             query = f'DELETE FROM CurrentScan WHERE {mac_addresses}'
@@ -1430,9 +1429,38 @@ def remove_entries_from_table():
             query = f'DELETE FROM Unifi_Network WHERE {mac_addresses}'
             sql.execute(query)
         else:
-            print(f'        Ignore list is empty')
+            print(f'        MAC-Ignore list is empty')
     except NameError:
-        print("        No ignore list defined")
+        print("        No MAC-Ignore list defined")
+
+    try:
+        IP_IGNORE_LIST
+
+        if len(IP_IGNORE_LIST) > 0:
+            print(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
+            # incomplete and complete IP addresses
+            ip_addresses = ' OR '.join([f'cur_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM CurrentScan WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'PH_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM PiHole_Network WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'DHCP_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM DHCP_Leases WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'FB_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM Fritzbox_Network WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'MT_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM Mikrotik_Network WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'UF_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM Unifi_Network WHERE {ip_addresses}'
+            sql.execute(query)
+        else:
+            print(f'        IP-Ignore list is empty')
+    except NameError:
+        print("        No IP-Ignore list defined")
 
 #-------------------------------------------------------------------------------
 def print_scan_stats():

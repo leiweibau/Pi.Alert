@@ -272,6 +272,10 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 									        <td class="help_table_gen_b">
 									            <span class="text-maroon help_faq_code">[&apos;MAC-Address 1&apos;, &apos;MAC-Address 2&apos;]</span><br>
 									            Cette (ces) adresse(s) MAC (à mémoriser avec des petites lettres) sera(ont) filtrée(s) à partir des résultats du scan. Il est également possible de spécifier uniquement le début d&apos;une adresse MAC. Toutes les adresses avec le même préfixe seront également filtrées.</td></tr>
+									    <tr><td class="help_table_gen_a">IP_IGNORE_LIST</td>
+									        <td class="help_table_gen_b">
+									            <span class="text-maroon help_faq_code">[&apos;IP-Address 1&apos;, &apos;IP-Address 2&apos;]</span><br>
+									            Cette (ces) adresse(s) IP sera(ont) filtrée(s) à partir des résultats du scan. Il est également possible de spécifier uniquement le début d&apos;une adresse IP. Toutes les adresses avec le même préfixe seront également filtrées.</td></tr>
 									    <tr><td class="help_table_gen_a">SCAN_SUBNETS</td>
 									        <td class="help_table_gen_b">
 									        	&lsquo;<span class="text-maroon help_faq_code">--localnet</span>&rsquo;<br>

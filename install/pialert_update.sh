@@ -320,6 +320,7 @@ if ! grep -Fq "PIHOLE_VERSION" "$PIALERT_HOME/config/pialert.conf" ; then
 PIHOLE_VERSION    = 5
 PIHOLE6_URL       = ''
 PIHOLE6_PASSWORD  = ''
+IP_IGNORE_LIST  = []
 EOF
 fi
 
