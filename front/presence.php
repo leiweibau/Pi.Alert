@@ -39,7 +39,7 @@ $Pia_Graph_Device_Arch = $graph_arrays[4];
 <!-- Content header--------------------------------------------------------- -->
     <section class="content-header">
       <h1 id="pageTitle">
-         <?=$pia_lang['Presence_Title'];?>
+         <?=$pia_lang['Presence_Title']. ' / ' . $_SESSION[$SCANSOURCE];?> 
       </h1>
     </section>
 
@@ -368,7 +368,7 @@ function getDevicesTotals () {
   stopTimerRefreshData();
 
   // get totals and put in boxes
-  $.get('php/server/devices.php?action=getDevicesTotals&scansource=all', function(data) {
+  $.get('php/server/devices.php?action=getDevicesTotals&scansource=<?=$SCANSOURCE?>', function(data) {
     var totalsDevices = JSON.parse(data);
 
     $('#devicesAll').html        (totalsDevices[0].toLocaleString());
@@ -405,7 +405,7 @@ function getDevicesPresence (status) {
   $('#tableDevicesTitle').html (tableTitle);
 
   // Define new datasource URL and reload
-  $('#calendar').fullCalendar ('option', 'resources', 'php/server/devices.php?action=getDevicesListCalendar&scansource=all&status='+ deviceStatus);
+  $('#calendar').fullCalendar ('option', 'resources', 'php/server/devices.php?action=getDevicesListCalendar&scansource=<?=$SCANSOURCE?>&status='+ deviceStatus);
   $('#calendar').fullCalendar ('refetchResources');
 
   $('#calendar').fullCalendar('removeEventSources');
