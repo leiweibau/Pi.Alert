@@ -122,18 +122,12 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										    <td class="help_table_gen_b">IP address of the DNS server in the network. This entry is required to attempt to resolve a hostname in the network.</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK</td>
 										    <td class="help_table_gen_b">Enables or disables automatic search for Pi.Alert updates.</td></tr>
-										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
-										    <td class="help_table_gen_b">Interval, in crontab syntax, at which to search for new updates from Pi.Alert. The shortest interval is 3 minutes. All larger intervals must be an integer multiples of 3 minutes (15, 30, 36, etc).</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP</td>
 										    <td class="help_table_gen_b">Enables or disables automatic creation of database and configuration backups.</td></tr>
-										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
-										    <td class="help_table_gen_b">Interval, in crontab syntax, at which the automatic backups should be created. The shortest interval is 3 minutes. All larger intervals must be aninteger multiples of 3 minutes (15, 30, 36, etc).</td></tr>
 										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_KEEP</td>
 											<td class="help_table_gen_b">This specifies how many automatic backups should be retained, including the current backup. This includes both configuration backups and database backup. This value is not relevant during manual cleanup, where the last 3 backups are retained.</td></tr>
 									    <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
 									        <td class="help_table_gen_b">Enables or disables the recurring notification for devices marked as "New".</td></tr>
-										<tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS_CRON</td>
-									        <td class="help_table_gen_b">Interval, in Crontab syntax, at which notifications should be sent repeatedly. The shortest interval is 3 minutes. All larger intervals must be an integer multiple of 3 minutes (15, 30, 36, etc.).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
@@ -148,6 +142,17 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									        <td class="help_table_gen_b">Activates the search for foreign, also called "rogue", DHCP servers. This function is used to detect whether there is a foreign DHCP server in the network that could take control of IP management.</td></tr>
 									    <tr><td class="help_table_gen_a">DHCP_SERVER_ADDRESS</td>
 									        <td class="help_table_gen_b">The IP of the known DHCP server is stored here. Only ONE DHCP server can be entered.</td></tr>
+									</table>
+									<table class="help_table_gen">
+									    <tr><td class="help_table_gen_section" colspan="2">Custom Cronjobs</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_UPDATE_CHECK_CRON</td>
+										    <td class="help_table_gen_b">Interval, in crontab syntax, at which to search for new updates from Pi.Alert. The shortest interval is 3 minutes. All larger intervals must be an integer multiples of 3 minutes (15, 30, 36, etc).</td></tr>
+										<tr><td class="help_table_gen_a">AUTO_DB_BACKUP_CRON</td>
+										    <td class="help_table_gen_b">Interval, in crontab syntax, at which the automatic backups should be created. The shortest interval is 3 minutes. All larger intervals must be aninteger multiples of 3 minutes (15, 30, 36, etc).</td></tr>
+										<tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS_CRON</td>
+									        <td class="help_table_gen_b">Interval, in Crontab syntax, at which notifications should be sent repeatedly. The shortest interval is 3 minutes. All larger intervals must be an integer multiple of 3 minutes (15, 30, 36, etc.).</td></tr>
+									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_CRON</td>
+									        <td class="help_table_gen_b">Full hour, or comma-separated hours, at which the speed test is to be started. The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes (15, 30, 36, etc).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Mail-Account Settings</td></tr>
@@ -272,8 +277,6 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									    <tr><td class="help_table_gen_section" colspan="2">Automatic Speedtest</td></tr>
 									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_ACTIVE</td>
 									        <td class="help_table_gen_b">Activate/deactivate the automatic speed test. This requires the installation of the Ookla speed test in the "Tools" tab of the "Internet" device. Follow the instructions during installation.</td></tr>
-									    <tr><td class="help_table_gen_a">SPEEDTEST_TASK_CRON</td>
-									        <td class="help_table_gen_b">Full hour, or comma-separated hours, at which the speed test is to be started. The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes (15, 30, 36, etc).</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Arp-scan Options & Samples</td></tr>
@@ -306,8 +309,14 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 									    <tr><td class="help_table_gen_section" colspan="2">Pi-hole Configuration</td></tr>
 									    <tr><td class="help_table_gen_a">PIHOLE_ACTIVE</td>
 									        <td class="help_table_gen_b">This variable is set during installation.</td></tr>
+									    <tr><td class="help_table_gen_a">PIHOLE_VERSION</td>
+    										<td class="help_table_gen_b">The version information is necessary because access to the Pi-hole data has fundamentally changed from version 5 to 6.</td></tr>
 									    <tr><td class="help_table_gen_a">PIHOLE_DB</td>
 									        <td class="help_table_gen_b">This variable is set during installation and should not be changed.</td></tr>
+									    <tr><td class="help_table_gen_a">PIHOLE6_URL</td>
+    										<td class="help_table_gen_b">If you want to access the Pi-hole data of version 6, enter the URL to the web interface here.</td></tr>
+										<tr><td class="help_table_gen_a">PIHOLE6_PASSWORD</td>
+							    			<td class="help_table_gen_b">Enter the password for the Pi-hole web interface here.</td></tr>
 									    <tr><td class="help_table_gen_a">DHCP_ACTIVE</td>
 									        <td class="help_table_gen_b">This variable is set during installation.</td></tr>
 									    <tr><td class="help_table_gen_a">DHCP_LEASES</td>
