@@ -940,8 +940,8 @@ def copy_pihole_network():
 
     elif PIHOLE_VERSION == 6:
         #Debug
-        PIHOLE6_URL = ''
-        PIHOLE6_PASSWORD = '#######'
+        #PIHOLE6_URL = 'https://localhost:443'
+        #PIHOLE6_PASSWORD = '######'
 
         if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
             print('        ...Skipped (Config Error)')
@@ -990,33 +990,16 @@ def copy_pihole_network():
                             "lastQuery": lastQuery
                         }
 
-            print(result)
+            # print(result)
+            for hwaddr, details in result.items():
+                cursor.execute("""
+                    INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery, PH_Name, PH_IP)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
 
         else:
             print("Auth required")
             return
-
-# {
-#     "devices":[
-#         {"id":4,"hwaddr":"00:00:00:00:00:00","interface":"lo","firstSeen":1724047320,"lastQuery":1724048432,"numQueries":16,"macVendor":"virtual interface","ips":[
-#             {"ip":"127.0.0.1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520},
-#             {"ip":"::1","name":"localhost.lan","lastSeen":1724048520,"nameUpdated":1724048520}]
-#         },
-#         {"id":1,"hwaddr":"52:54:00:12:35:04","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
-#             {"ip":"10.0.2.4","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-#         },
-#         {"id":2,"hwaddr":"52:54:00:12:35:03","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
-#             {"ip":"10.0.2.3","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-#         },
-#         {"id":3,"hwaddr":"52:54:00:12:35:02","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"","ips":[
-#             {"ip":"10.0.2.2","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-#         },
-#         {"id":5,"hwaddr":"08:00:27:18:87:94","interface":"enp0s3","firstSeen":1724047320,"lastQuery":0,"numQueries":0,"macVendor":"PCS Systemtechnik GmbH","ips":[
-#             {"ip":"10.0.2.15","name":null,"lastSeen":1724048520,"nameUpdated":1724048520},
-#             {"ip":"fe80::a00:27ff:fe18:8794","name":null,"lastSeen":1724048520,"nameUpdated":1724048520}]
-#         }]
-#     ,"took":0.00062489509582519531
-# }
 
     else:
         print('        ...Unsupported Version')
