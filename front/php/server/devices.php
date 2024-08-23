@@ -316,6 +316,11 @@ function getDeviceData() {
 	$row = $result->fetchArray(SQLITE3_ASSOC);
 	$deviceData = $row;
 	$mac = $deviceData['dev_MAC'];
+	$deviceData['dev_Name'] = strval($deviceData['dev_Name']);
+	$deviceData['dev_Owner'] = strval($deviceData['dev_Owner']);
+	$deviceData['dev_Model'] = strval($deviceData['dev_Model']);
+	$deviceData['dev_Vendor'] = strval($deviceData['dev_Vendor']);
+	$deviceData['dev_Serialnumber'] = strval($deviceData['dev_Serialnumber']);
 	$deviceData['dev_Network_Node_MAC'] = $row['dev_Infrastructure'];
 	$deviceData['dev_Network_Node_port'] = $row['dev_Infrastructure_port'];
 	$deviceData['dev_FirstConnection'] = formatDate($row['dev_FirstConnection']); // Date formated

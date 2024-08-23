@@ -197,7 +197,9 @@ toggle_icmpscan_menu('Main');
           <a href="devicesEvents.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['NAV_Events'];?></span></a>
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('presence.php'))) {echo 'active';}?>">
-          <a href="presence.php"><i class="fa fa-calendar"></i> <span><?=$pia_lang['NAV_Presence'];?></span></a>
+          <a href="presence.php"><i class="fa fa-calendar"></i> <span><?=$pia_lang['NAV_Presence'];?></span>
+            <small class="label pull-right bg-gray" id="header_local_presence"></small>
+          </a>
         </li>
 <?php
 echo $sat_sub_menu[1];
