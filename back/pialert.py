@@ -119,7 +119,7 @@ def main():
 # Set Env (Userpermissions DB-file)
 #===============================================================================
 def adapt_datetime(dt):
-    return dt.isoformat()
+    return dt.isoformat().replace('T', ' ')
 
 # ------------------------------------------------------------------------------
 def get_username():
