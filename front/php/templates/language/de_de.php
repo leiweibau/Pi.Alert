@@ -205,6 +205,7 @@ $pia_lang['DevDetail_MainInfo_Vendor'] = 'Hersteller';
 $pia_lang['DevDetail_MainInfo_Model'] = 'Modell';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serien&nbsp;Nr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favorit';
+$pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Auf "'.$pia_lang['NAV_Presence'].'" anzeigen';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Gruppe';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Standort';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Notiz';

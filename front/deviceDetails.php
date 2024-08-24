@@ -469,6 +469,12 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                         <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox blue hidden" id="chkArchived" type="checkbox"></div>
                       </div>
 
+                      <!-- Show on Presence page -->
+                      <div class="form-group">
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_MainInfo_ShowPresence'];?></label>
+                        <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox blue hidden" id="chkShowPresence" type="checkbox"></div>
+                      </div>
+
                       <!-- Randomized MAC -->
                       <div class="form-group" >
                         <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_EveandAl_RandomMAC'];?>:</label>
@@ -1272,6 +1278,7 @@ function getDeviceData (readAllData=false) {
       $('#txtSerialnumber').val    ('--');
 
       $('#chkFavorite').iCheck     ('uncheck');
+      $('#chkShowPresence').iCheck ('uncheck');
       $('#txtGroup').val           ('--');
       $('#txtLocation').val        ('--');
       $('#txtComments').val        ('--');
@@ -1365,6 +1372,7 @@ function getDeviceData (readAllData=false) {
         $('#txtSerialnumber').val                    (deviceData['dev_Serialnumber']);
 
         if (deviceData['dev_Favorite'] == 1)         {$('#chkFavorite').iCheck('check');}    else {$('#chkFavorite').iCheck('uncheck');}
+        if (deviceData['dev_PresencePage'] == 1)     {$('#chkShowPresence').iCheck('check');}    else {$('#chkShowPresence').iCheck('uncheck');}
         $('#txtGroup').val                           (deviceData['dev_Group']);
         $('#txtLocation').val                        (deviceData['dev_Location']);
         $('#txtComments').val                        (deviceData['dev_Comments']);
@@ -1502,6 +1510,7 @@ function setDeviceData (refreshCallback='') {
     + '&model='           + encodeURIComponent($('#txtModel').val())
     + '&serialnumber='    + $('#txtSerialnumber').val()
     + '&favorite='        + ($('#chkFavorite')[0].checked * 1)
+    + '&showpresence='    + ($('#chkShowPresence')[0].checked * 1)
     + '&group='           + $('#txtGroup').val()
     + '&location='        + $('#txtLocation').val()
     + '&comments='        + $('#txtComments').val()
@@ -1519,7 +1528,7 @@ function setDeviceData (refreshCallback='') {
     , function(msg) {
 
     // deactivate button
-    deactivateSaveRestoreData ();
+    deactivateSaveRestoreData();
     showMessage (msg);
 
     // Callback fuction

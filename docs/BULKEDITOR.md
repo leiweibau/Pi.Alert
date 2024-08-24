@@ -10,6 +10,10 @@ A new page will now open showing all detected hosts in alphabetical order with a
 
 The background color of the checkbox informs whether it is an archived or new device (gray or yellow). The color of the frame indicates the online or offline (green or gray) status. Whether notifications are made on all event, on down or on both is indicated by the font color (blue, red, gradient).
 
+![Show on Presence Page][show_PresencePage]
+
+In the case shown here, the hostname is underlined in red. This means that this host is not displayed on the presence page. All hosts are displayed by default.
+
 To be able to edit a value, the input field must be activated via the respective checkbox (red circle) at the beginning of the line. If the checkbox is deactivated again, the input field is cleared.
 
 ![Bulkeditor enable field][Enable_field]
@@ -21,3 +25,4 @@ With the Save button, the changes are saved in the database without further ques
 [open_bulkeditor]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_open.png           "Open bulkeditor"
 [bulkeditor_list]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_list.png           "Bulkeditor list"
 [Enable_field]:       https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_enable_field.png   "Bulkeditor enable field"
+[show_PresencePage]:  https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_001.png            "Show on Presence Page"

@@ -109,6 +109,9 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		if ($_REQUEST['en_bulk_Archived'] == 'on') {
 			if ($_REQUEST['bulk_Archived'] == 'on') {$set_bulk_Archived = 1;} else { $set_bulk_Archived = 0;}
 			array_push($sql_queue, 'dev_Archived="' . $set_bulk_Archived . '"');}
+		if ($_REQUEST['en_bulk_PresencePage'] == 'on') {
+			if ($_REQUEST['bulk_PresencePage'] == 'on') {$set_bulk_PresencePage = 1;} else { $set_bulk_PresencePage = 0;}
+			array_push($sql_queue, 'dev_PresencePage="' . $set_bulk_PresencePage . '"');}
 
 		print_box_top_element($pia_lang['Device_bulkEditor_savebox_title']);
 		// Count changed fields
@@ -146,6 +149,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			if (isset($set_bulk_AlertDown)) {echo $pia_lang['DevDetail_EveandAl_AlertDown'] . ': ' . $set_bulk_AlertDown . '<br>';}
 			if (isset($set_bulk_NewDevice)) {echo $pia_lang['DevDetail_EveandAl_NewDevice'] . ': ' . $set_bulk_NewDevice . '<br>';}
 			if (isset($set_bulk_Archived)) {echo $pia_lang['DevDetail_EveandAl_Archived'] . ': ' . $set_bulk_Archived . '<br>';}
+			if (isset($set_bulk_PresencePage)) {echo $pia_lang['DevDetail_MainInfo_ShowPresence'] . ': ' . $set_bulk_PresencePage . '<br>';}
 			// Update Segment stop
 			// Logging
 			pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $modified_hosts);
@@ -158,17 +162,18 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           <input type="hidden" id="savedata" name="savedata" value="yes">';
 
 	print_box_top_element($pia_lang['Device_bulkEditor_hostbox_title']);
-	$sql = 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown FROM Devices WHERE dev_ScanSource="'.$SCANSOURCE.'" ORDER BY dev_Name COLLATE NOCASE ASC';
+	$sql = 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown, dev_PresencePage FROM Devices WHERE dev_ScanSource="'.$SCANSOURCE.'" ORDER BY dev_Name COLLATE NOCASE ASC';
 	$results = $db->query($sql);
 	while ($row = $results->fetchArray()) {
 		if ($row[2] == 1) {$status_border = 'bulked_online_border';} else { $status_border = 'bulked_offline_border';}
 		if ($row[3] == 1) {$status_box = 'background-color: #aaa;';} elseif ($row[4] == 1) {$status_box = 'background-color: #b1720c;';} else { $status_box = 'background-color: transparent;';}
 		if ($row[5] == 1 && $row[6] == 1) {$status_text_color = 'bulked_checkbox_label_alldown';} elseif ($row[5] == 1) {$status_text_color = 'bulked_checkbox_label_all';} elseif ($row[6] == 1) {$status_text_color = 'bulked_checkbox_label_down';} else { $status_text_color = '';}
+		if ($row[7] == 0) {$underline = 'presence-underlined';} else { $underline = '';}
 		echo '<div class="bulked_dev_box ' . $status_border . '">
              <div class="bulked_dev_chk_cont" style="' . $status_box . '">
              		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . $row[1] . '" name="' . $row[1] . '" type="checkbox">
              </div>
-             <label class="control-label ' . $status_text_color . '" for="' . $row[1] . '">' . $row[0] . '</label>
+             <label class="control-label ' . $status_text_color . ' ' . $underline . '" for="' . $row[1] . '">' . $row[0] . '</label>
           </div>';
 	}
 	// Check/Uncheck All Button
@@ -332,7 +337,12 @@ if ($_REQUEST['mod'] == 'bulkedit') {
                 <label for="bulk_Archived" style="width: 200px;">' . $pia_lang['DevDetail_EveandAl_Archived'] . ':</label>
                 <input class="icheckbox_flat-blue" id="bulk_Archived" name="bulk_Archived" type="checkbox" disabled></td>
           </tr>
-
+          <tr>
+            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_PresencePage" name="en_bulk_PresencePage" type="checkbox"></td>
+            <td>
+                <label for="bulk_PresencePage" style="width: 200px;">' . $pia_lang['DevDetail_MainInfo_ShowPresence'] . ':</label>
+                <input class="icheckbox_flat-blue" id="bulk_PresencePage" name="bulk_PresencePage" type="checkbox" disabled></td>
+          </tr>
         </table>
         <button type="button" class="btn btn-danger" id="btnBulkDeletion" onclick="askBulkDeletion()" style="min-width: 180px;">' . $pia_lang['Device_bulkDel_button'] . '</button>
         <input class="btn btn-warning pull-right" type="submit" value="' . $pia_lang['Gen_Save'] . '" style="margin-bottom: 10px; min-width: 180px;">';
@@ -409,6 +419,12 @@ if ($_REQUEST['mod'] == 'bulkedit') {
               $("#bulk_Archived").prop("checked", false);
               $("#bulk_Archived").prop("disabled", !bulk_Archived);
               bulk_Archived = !bulk_Archived;
+            });
+            var bulk_PresencePage = true;
+            $("#en_bulk_PresencePage").on("click", function() {
+              $("#bulk_PresencePage").prop("checked", false);
+              $("#bulk_PresencePage").prop("disabled", !bulk_PresencePage);
+              bulk_PresencePage = !bulk_PresencePage;
             });
             function setTextValue (textElement, textValue) {
               $("#"+textElement).val (textValue);

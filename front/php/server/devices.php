@@ -379,6 +379,7 @@ function setDeviceData() {
                  dev_Model                = "' . quotes($_REQUEST['model']) . '",
                  dev_Serialnumber         = "' . quotes($_REQUEST['serialnumber']) . '",
                  dev_Favorite             = "' . quotes($_REQUEST['favorite']) . '",
+                 dev_PresencePage         = "' . quotes($_REQUEST['showpresence']) . '",
                  dev_Group                = "' . quotes($_REQUEST['group']) . '",
                  dev_Location             = "' . quotes($_REQUEST['location']) . '",
                  dev_Comments             = "' . quotes($_REQUEST['comments']) . '",
@@ -621,7 +622,7 @@ function getDevicesListCalendar() {
 	global $db;
 
 	$condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
-	$result = $db->query('SELECT * FROM Devices ' . $condition);
+	$result = $db->query('SELECT * FROM Devices ' . $condition . ' AND dev_PresencePage=1');
 
 	// arrays of rows
 	$tableData = array();
