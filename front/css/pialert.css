@@ -549,3 +549,10 @@ body.modal-open {
 #btnInstallSatellite, #btnSaveSatellite, #btnDeleteSatellite {
     padding: 6px 10px;
 }
+.presence-underlined {
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #dd7768;
+}
+

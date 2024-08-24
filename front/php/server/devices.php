@@ -316,6 +316,11 @@ function getDeviceData() {
 	$row = $result->fetchArray(SQLITE3_ASSOC);
 	$deviceData = $row;
 	$mac = $deviceData['dev_MAC'];
+	$deviceData['dev_Name'] = strval($deviceData['dev_Name']);
+	$deviceData['dev_Owner'] = strval($deviceData['dev_Owner']);
+	$deviceData['dev_Model'] = strval($deviceData['dev_Model']);
+	$deviceData['dev_Vendor'] = strval($deviceData['dev_Vendor']);
+	$deviceData['dev_Serialnumber'] = strval($deviceData['dev_Serialnumber']);
 	$deviceData['dev_Network_Node_MAC'] = $row['dev_Infrastructure'];
 	$deviceData['dev_Network_Node_port'] = $row['dev_Infrastructure_port'];
 	$deviceData['dev_FirstConnection'] = formatDate($row['dev_FirstConnection']); // Date formated
@@ -374,6 +379,7 @@ function setDeviceData() {
                  dev_Model                = "' . quotes($_REQUEST['model']) . '",
                  dev_Serialnumber         = "' . quotes($_REQUEST['serialnumber']) . '",
                  dev_Favorite             = "' . quotes($_REQUEST['favorite']) . '",
+                 dev_PresencePage         = "' . quotes($_REQUEST['showpresence']) . '",
                  dev_Group                = "' . quotes($_REQUEST['group']) . '",
                  dev_Location             = "' . quotes($_REQUEST['location']) . '",
                  dev_Comments             = "' . quotes($_REQUEST['comments']) . '",
@@ -616,7 +622,7 @@ function getDevicesListCalendar() {
 	global $db;
 
 	$condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
-	$result = $db->query('SELECT * FROM Devices ' . $condition);
+	$result = $db->query('SELECT * FROM Devices ' . $condition . ' AND dev_PresencePage=1');
 
 	// arrays of rows
 	$tableData = array();

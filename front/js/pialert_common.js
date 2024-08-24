@@ -249,4 +249,6 @@ if (window.matchMedia("(max-width: 767px)").matches) {
    $("#sidebar_systeminfobox").addClass("collapse");
 }
 
-
+function setDefaultPageTitle() {
+  document.title += " (0)";
+}

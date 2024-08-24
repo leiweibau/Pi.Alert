@@ -157,7 +157,7 @@ function toggle_satellites_submenu() {
 	                // prepare SubHeadline on devices page
 	                $_SESSION[$row['sat_token']] = $row['sat_name'];
 	                // Create NavBar items
-	                echo '<li class="custom_filter">
+	                $dev_submenu .= '<li class="custom_filter">
 	                	<a href="devices.php?scansource='.$row['sat_token'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
 	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
 	                		<span>'.$row['sat_name'].'</span>
@@ -167,7 +167,17 @@ function toggle_satellites_submenu() {
 				              <small class="label pull-right bg-green" id="header_'.$row['sat_token'].'_count_on"></small>
 		            		</span>
 		            </a></li>';
+
+		            $pres_submenu .= '<li class="custom_filter">
+	                	<a href="presence.php?scansource='.$row['sat_token'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
+	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
+	                		<span>'.$row['sat_name'].'</span>
+	                		<span class="pull-right-container">
+				              <small class="label pull-right bg-gray" id="header_'.$row['sat_token'].'_presence"></small>
+		            		</span></a>
+	                	</li>';
 	            }
+	        return array($dev_submenu, $pres_submenu);
 	        }
 	    }
 	    $db->close();

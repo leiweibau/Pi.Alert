@@ -164,6 +164,8 @@ format_MemUsage(getMemUsage());
 echo '<br/>';
 list($celsius, $temperaturelimit) = getTemperature();
 format_temperature($celsius, $temperaturelimit);
+// Sattelite Submenus
+$sat_sub_menu = toggle_satellites_submenu();
 ?>
             </div>
           </a>
@@ -181,7 +183,7 @@ format_temperature($celsius, $temperaturelimit);
         </li>
 <?php
 get_devices_filter_list();
-toggle_satellites_submenu();
+echo $sat_sub_menu[0];
 ?>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('network.php', 'networkSettings.php'))) {echo 'active';}?>">
           <a href="network.php"><i class="fa fa-server"></i> <span><?=$pia_lang['NAV_Network'];?></span></a>
@@ -192,11 +194,16 @@ toggle_icmpscan_menu('Main');
 ?>
         <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['NAV_Section_B'];?></li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('devicesEvents.php'))) {echo 'active';}?>">
-          <a href="devicesEvents.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['NAV_Events_Dev'];?></span></a>
+          <a href="devicesEvents.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['NAV_Events'];?></span></a>
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('presence.php'))) {echo 'active';}?>">
-          <a href="presence.php"><i class="fa fa-calendar"></i> <span><?=$pia_lang['NAV_Presence'];?></span></a>
+          <a href="presence.php"><i class="fa fa-calendar"></i> <span><?=$pia_lang['NAV_Presence'];?></span>
+            <small class="label pull-right bg-gray" id="header_local_presence"></small>
+          </a>
         </li>
+<?php
+echo $sat_sub_menu[1];
+?>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('journal.php'))) {echo 'active';}?>">
           <a href="journal.php"><i class="fa fa-list"></i> <span><?=$pia_lang['NAV_Journal'];?></span></a>
         </li>

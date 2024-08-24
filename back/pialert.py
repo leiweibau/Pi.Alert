@@ -69,6 +69,7 @@ def main():
     # DB
     sql_connection = None
     sql            = None
+    sqlite3.register_adapter(datetime.datetime, adapt_datetime)
 
     # Timestamp
     startTime = datetime.datetime.now()
@@ -117,6 +118,10 @@ def main():
 #===============================================================================
 # Set Env (Userpermissions DB-file)
 #===============================================================================
+def adapt_datetime(dt):
+    return dt.isoformat().replace('T', ' ')
+
+# ------------------------------------------------------------------------------
 def get_username():
     return pwd.getpwuid(os.getuid())[0]
 
@@ -867,7 +872,7 @@ def execute_arpscan():
     re_ip = r'(?P<ip>((2[0-5]|1[0-9]|[0-9])?[0-9]\.){3}((2[0-5]|1[0-9]|[0-9])?[0-9]))'
     re_mac = r'(?P<mac>([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2}))'
     re_hw = r'(?P<hw>.*)'
-    re_pattern = re.compile (re_ip + '\s+' + re_mac + '\s' + re_hw)
+    re_pattern = re.compile(r'' + re_ip + r'\s+' + re_mac + r'\s' + re_hw)
 
     # Create Userdict of devices
     devices_list = [device.groupdict()
@@ -912,25 +917,92 @@ def copy_pihole_network():
         print('        ...Skipped')
         return
 
-    # Open Pi-hole DB
-    sql.execute ("ATTACH DATABASE '"+ PIHOLE_DB +"' AS PH")
+    if PIHOLE_VERSION in (None, 5):
+        # Open Pi-hole DB
+        sql.execute ("ATTACH DATABASE '"+ PIHOLE_DB +"' AS PH")
 
-    # Copy Pi-hole Network table
-    sql.execute ("""INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery,
-                        PH_Name, PH_IP)
-                    SELECT hwaddr, macVendor, lastQuery,
-                        (SELECT name FROM PH.network_addresses
-                         WHERE network_id = id ORDER BY lastseen DESC, ip),
-                        (SELECT ip FROM PH.network_addresses
-                         WHERE network_id = id ORDER BY lastseen DESC, ip)
-                    FROM PH.network
-                    WHERE hwaddr NOT LIKE 'ip-%'
-                      AND hwaddr <> '00:00:00:00:00:00' """)
-    sql.execute ("""UPDATE PiHole_Network SET PH_Name = '(unknown)'
-                    WHERE PH_Name IS NULL OR PH_Name = '' """)
+        # Copy Pi-hole Network table
+        sql.execute ("""INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery,
+                            PH_Name, PH_IP)
+                        SELECT hwaddr, macVendor, lastQuery,
+                            (SELECT name FROM PH.network_addresses
+                             WHERE network_id = id ORDER BY lastseen DESC, ip),
+                            (SELECT ip FROM PH.network_addresses
+                             WHERE network_id = id ORDER BY lastseen DESC, ip)
+                        FROM PH.network
+                        WHERE hwaddr NOT LIKE 'ip-%'
+                          AND hwaddr <> '00:00:00:00:00:00' """)
+        sql.execute ("""UPDATE PiHole_Network SET PH_Name = '(unknown)'
+                        WHERE PH_Name IS NULL OR PH_Name = '' """)
 
-    # Close Pi-hole DB
-    sql.execute ("DETACH PH")
+        # Close Pi-hole DB
+        sql.execute ("DETACH PH")
+
+    elif PIHOLE_VERSION == 6:
+        #Debug
+        #PIHOLE6_URL = 'https://localhost:443'
+        #PIHOLE6_PASSWORD = '######'
+
+        if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
+            print('        ...Skipped (Config Error)')
+            return
+
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json"
+        }
+        data = {
+            "password": PIHOLE6_PASSWORD
+        }
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        response = requests.post(PIHOLE6_URL+'/api/auth', headers=headers, json=data, verify=False)
+        # print(response.json())
+        response_json = response.json()
+
+        if response.status_code == 200 and response_json['session']['valid'] == True :
+            headers = {
+                "X-FTL-SID": response_json['session']['sid'],
+                "X-FTL-CSRF": response_json['session']['csrf']
+            }
+            raw_deviceslist = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
+
+            result = {}
+            deviceslist = raw_deviceslist.json()
+
+            for device in deviceslist['devices']:
+                hwaddr = device['hwaddr']
+                lastQuery = device['lastQuery']
+                macVendor = device['macVendor']
+
+                if hwaddr == "00:00:00:00:00:00":
+                    continue
+
+                for ip_info in device['ips']:
+                    ip = ip_info['ip']
+                    name = ip_info['name'] if ip_info['name'] not in [None, ""] else "(unknown)"
+                    
+                    # Check whether the IP could be a IPv4 address
+                    if '.' in ip:
+                        result[hwaddr] = {
+                            "ip": ip,
+                            "name": name,
+                            "macVendor": macVendor,
+                            "lastQuery": lastQuery
+                        }
+
+            # print(result)
+            for hwaddr, details in result.items():
+                cursor.execute("""
+                    INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery, PH_Name, PH_IP)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
+
+        else:
+            print("Auth required")
+            return
+
+    else:
+        print('        ...Unsupported Version')
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
@@ -1319,7 +1391,7 @@ def remove_entries_from_table():
         MAC_IGNORE_LIST
 
         if len(MAC_IGNORE_LIST) > 0:
-            print(f'        Delete {len(MAC_IGNORE_LIST)} ignored devices/MAC ranges from scan on appearance')
+            print(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
             # incomplete and complete MAC addresses
             mac_addresses = ' OR '.join([f'cur_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
             query = f'DELETE FROM CurrentScan WHERE {mac_addresses}'
@@ -1340,9 +1412,38 @@ def remove_entries_from_table():
             query = f'DELETE FROM Unifi_Network WHERE {mac_addresses}'
             sql.execute(query)
         else:
-            print(f'        Ignore list is empty')
+            print(f'        MAC-Ignore list is empty')
     except NameError:
-        print("        No ignore list defined")
+        print("        No MAC-Ignore list defined")
+
+    try:
+        IP_IGNORE_LIST
+
+        if len(IP_IGNORE_LIST) > 0:
+            print(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
+            # incomplete and complete IP addresses
+            ip_addresses = ' OR '.join([f'cur_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM CurrentScan WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'PH_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM PiHole_Network WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'DHCP_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM DHCP_Leases WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'FB_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM Fritzbox_Network WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'MT_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM Mikrotik_Network WHERE {ip_addresses}'
+            sql.execute(query)
+            ip_addresses = ' OR '.join([f'UF_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
+            query = f'DELETE FROM Unifi_Network WHERE {ip_addresses}'
+            sql.execute(query)
+        else:
+            print(f'        IP-Ignore list is empty')
+    except NameError:
+        print("        No IP-Ignore list defined")
 
 #-------------------------------------------------------------------------------
 def print_scan_stats():

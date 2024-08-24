@@ -313,6 +313,17 @@ REPORT_NEW_CONTINUOUS_CRON = '0 * * * *'
 EOF
 fi
 
+# 2024-08-20
+if ! grep -Fq "PIHOLE_VERSION" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+PIHOLE_VERSION    = 5
+PIHOLE6_URL       = ''
+PIHOLE6_PASSWORD  = ''
+IP_IGNORE_LIST  = []
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

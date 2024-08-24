@@ -184,6 +184,12 @@ function SaveConfigFile() {
 	} else {
 		$configArray['MAC_IGNORE_LIST'] = "[]";
 	}
+	if ($configArray['IP_IGNORE_LIST'] != "" && $configArray['IP_IGNORE_LIST'] != "[]") {
+		$configArray['IP_IGNORE_LIST'] = str_replace($ignorlist_search, $ignorlist_replace, $configArray['IP_IGNORE_LIST']);
+	} else {
+		$configArray['IP_IGNORE_LIST'] = "[]";
+	}
+
 	if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
 		$configArray['SCAN_SUBNETS'] = str_replace($ignorlist_search, $ignorlist_replace, $configArray['SCAN_SUBNETS']);
 	}
@@ -212,14 +218,9 @@ PIALERT_WEB_PROTECTION     = " . convert_bool($configArray['PIALERT_WEB_PROTECTI
 PIALERT_WEB_PASSWORD       = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
 NETWORK_DNS_SERVER         = '" . $configArray['NETWORK_DNS_SERVER'] . "'
 AUTO_UPDATE_CHECK          = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
-AUTO_UPDATE_CHECK_CRON     = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
-# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
 AUTO_DB_BACKUP             = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
-AUTO_DB_BACKUP_CRON        = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
-# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
 AUTO_DB_BACKUP_KEEP        = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
 REPORT_NEW_CONTINUOUS      = " . convert_bool($configArray['REPORT_NEW_CONTINUOUS']) . "
-REPORT_NEW_CONTINUOUS_CRON = '" . $configArray['REPORT_NEW_CONTINUOUS_CRON'] . "'
 
 # Other Modules
 # ----------------------
@@ -231,6 +232,14 @@ SATELLITES_ACTIVE          = " . convert_bool($configArray['SATELLITES_ACTIVE'])
 # ----------------------
 SCAN_ROGUE_DHCP            = " . convert_bool($configArray['SCAN_ROGUE_DHCP']) . "
 DHCP_SERVER_ADDRESS        = '" . $configArray['DHCP_SERVER_ADDRESS'] . "'
+
+# Custom Cronjobs
+# ----------------------
+# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
+AUTO_UPDATE_CHECK_CRON     = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
+AUTO_DB_BACKUP_CRON        = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
+REPORT_NEW_CONTINUOUS_CRON = '" . $configArray['REPORT_NEW_CONTINUOUS_CRON'] . "'
+SPEEDTEST_TASK_CRON        = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
 
 # Mail-Account Settings
 # ----------------------
@@ -309,13 +318,12 @@ DDNS_UPDATE_URL            = '" . $configArray['DDNS_UPDATE_URL'] . "'
 # Automatic Speedtest
 # ----------------------
 SPEEDTEST_TASK_ACTIVE      = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIVE']) . "
-SPEEDTEST_TASK_CRON        = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
-# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
 
 # Arp-scan Options & Samples
 # ----------------------
 ARPSCAN_ACTIVE             = " . convert_bool($configArray['ARPSCAN_ACTIVE']) . "
 MAC_IGNORE_LIST            = " . $configArray['MAC_IGNORE_LIST'] . "
+IP_IGNORE_LIST             = " . $configArray['IP_IGNORE_LIST'] . "
 SCAN_SUBNETS               = " . $configArray['SCAN_SUBNETS'] . "
 # SCAN_SUBNETS               = '--localnet'
 # SCAN_SUBNETS               = '--localnet --interface=eth0'
@@ -329,7 +337,10 @@ ICMP_GET_AVG_RTT           = " . $configArray['ICMP_GET_AVG_RTT'] . "
 # Pi-hole Configuration
 # ----------------------
 PIHOLE_ACTIVE              = " . convert_bool($configArray['PIHOLE_ACTIVE']) . "
+PIHOLE_VERSION             = " . $configArray['PIHOLE_VERSION'] . "
 PIHOLE_DB                  = '" . $configArray['PIHOLE_DB'] . "'
+PIHOLE6_URL                = '" . $configArray['PIHOLE6_URL'] . "'
+PIHOLE6_PASSWORD           = '" . $configArray['PIHOLE6_PASSWORD'] . "'
 DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
 DHCP_LEASES                = '" . $configArray['DHCP_LEASES'] . "'
 

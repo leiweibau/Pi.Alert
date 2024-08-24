@@ -35,6 +35,8 @@ echo $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE']
   <script src="js/pialert_common.js"></script>
 
   <script>
+    setDefaultPageTitle();
+    
     function getDevicesTotalsBadge(scansource) {
       // get totals and put in boxes
       $.get('php/server/devices.php?action=getDevicesTotals&scansource='+scansource, function(data) {
@@ -44,6 +46,7 @@ echo $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE']
         if (totalsDevicesbadge[1] > 0) {$('#header_' + scansource + '_count_on').html(totalsDevicesbadge[1].toLocaleString());} else {$('#header_' + scansource + '_count_on').html(unsetbadge.toLocaleString());}
         if (totalsDevicesbadge[3] > 0) {$('#header_' + scansource + '_count_new').html(totalsDevicesbadge[3].toLocaleString());} else {$('#header_' + scansource + '_count_new').html(unsetbadge.toLocaleString());}
         if (totalsDevicesbadge[4] > 0) {$('#header_' + scansource + '_count_down').html(totalsDevicesbadge[4].toLocaleString());} else {$('#header_' + scansource + '_count_down').html(unsetbadge.toLocaleString());}
+        if (totalsDevicesbadge[0] > 0) {$('#header_' + scansource + '_presence').html(totalsDevicesbadge[0].toLocaleString());} else {$('#header_' + scansource + '_presence').html(unsetbadge.toLocaleString());}
       } );
     }
     function getICMPTotalsBadge() {
@@ -84,6 +87,7 @@ echo $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE']
           $('#Menu_Report_Counter_Badge').html(unsetbadge.toLocaleString());
           $('#Menu_Report_Envelope_Icon' ).removeClass("text-red");
         }
+        document.title = document.title.replace(/\(\d*\)/, `(${totalsReportbadge[0].toLocaleString()})`);
       });
     }
 
@@ -182,6 +186,7 @@ echo $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE']
       // Start auto-reload
       reloadPage();
     }
+
   </script>
 
 </body>
