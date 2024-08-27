@@ -240,6 +240,7 @@ function SetDeviceFilter() {
 	if ($_REQUEST['ftype'] == 0) {array_push($colfilterarray, "3");}
 	if ($_REQUEST['fip'] == 0) {array_push($colfilterarray, "9");}
 	if ($_REQUEST['fmac'] == 0) {array_push($colfilterarray, "11");}
+	if ($_REQUEST['fvendor'] == 0) {array_push($colfilterarray, "12");}
 	if ($_REQUEST['fconnectiont'] == 0) {array_push($colfilterarray, "1");}
 
 	$newcolfilter = implode(",", $colfilterarray);
@@ -603,6 +604,7 @@ function getDevicesList() {
 			$row['dev_LastIP'],
 			(in_array($row['dev_MAC'][1], array("2", "6", "A", "E", "a", "e")) ? 1 : 0),
 			$row['dev_MAC'], // MAC (hidden)
+			$row['dev_Vendor'],
 			$row['dev_Status'],
 			formatIPlong($row['dev_LastIP']), // IP orderable
 			$row['dev_ScanSource'],

@@ -639,6 +639,10 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_MACaddress'] .'</label>
 							                            </div>
 							                            <div class="table_settings_col_box" style="width:180px;">
+							                              <input class="checkbox blue" id="chkFilterVendor" type="checkbox">
+							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['DevDetail_MainInfo_Vendor'] .'</label>
+							                            </div>
+							                            <div class="table_settings_col_box" style="width:180px;">
 							                              <input class="checkbox blue" id="chkFilterConnectionType" type="checkbox">
 							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_ConnectionType'] .'</label>
 							                            </div>
@@ -682,9 +686,10 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 									if ($table_config['LastIP'] == 0) {$devlistcol_hide .= '9, ';}
 									if ($table_config['MACType'] == 0) {$devlistcol_hide .= '10, ';}
 									if ($table_config['MACAddress'] == 0) {$devlistcol_hide .= '11, ';}
-									if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide .= '16, ';}
+									if ($table_config['MACVendor'] == 0) {$devlistcol_hide .= '12, ';}
+									if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide .= '17, ';}
 ?>
-                  <th><?=$pia_lang['Device_TableHead_Name'];?></th>
+                  <th><?=$pia_lang['Device_TableHead_Name'];?></th> 
                   <th><?=$pia_lang['Device_TableHead_ConnectionType'];?></th>
                   <th><?=$pia_lang['Device_TableHead_Owner'];?></th>
                   <th><?=$pia_lang['Device_TableHead_Type'];?></th>
@@ -696,6 +701,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
                   <th style="white-space: nowrap;"><?=$pia_lang['Device_TableHead_LastIP'];?></th>
                   <th><?=$pia_lang['Device_TableHead_MAC'];?></th>
                   <th style="white-space: nowrap;"><?=$pia_lang['Device_TableHead_MACaddress'];?></th>
+                  <th><?=$pia_lang['DevDetail_MainInfo_Vendor'];?></th>
                   <th><?=$pia_lang['Device_TableHead_Status'];?></th>
                   <th><?=$pia_lang['Device_TableHead_LastIPOrder'];?></th>
                   <th>ScanSource</th>
@@ -789,12 +795,12 @@ function initializeDatatable () {
     // 'order'       : [[3,'desc'], [0,'asc']],
 
     'columnDefs'   : [
-      {visible:   false,         targets: [<?=$devlistcol_hide;?>13, 14, 15] },
-      {className: 'text-center', targets: [4, 9, 10, 11, 12, 16] },
+      {visible:   false,         targets: [<?=$devlistcol_hide;?>14, 15, 16] },
+      {className: 'text-center', targets: [4, 9, 10, 11, 13, 17] },
       {width:     '100px',       targets: [7, 8] },
       {width:     '30px',        targets: [10] },
-      {width:     '0px',         targets: [12] },
-      {width:     '20px',         targets: [16] },
+      {width:     '0px',         targets: [13] },
+      {width:     '20px',         targets: [17] },
       {orderData: [13],          targets: [9] },
       { "targets": [<?=$_REQUEST['filter_fields'];?>], "searchable": false },
 
@@ -836,9 +842,9 @@ function initializeDatatable () {
             $(td).html (rowData[11]);
       } },
       // Status color
-      {targets: [12],
+      {targets: [13],
         'createdCell': function (td, cellData, rowData, row, col) {
-          switch (rowData[12]) {
+          switch (rowData[13]) {
             case 'Down':      color='red';                 statusname='Down';       break;
             case 'NewON':     color='grad-green-yellow';   statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';        break;
             case 'NewOFF':    color='grad-gray-yellow';    statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';        break;
@@ -888,11 +894,11 @@ function initializeDatatable () {
 
   $('#tableDevices').on( 'order.dt', function () {
     setParameter (parTableOrder, JSON.stringify (table.order()) );
-    setCookie ('devicesList',JSON.stringify (table.column(15, { 'search': 'applied' }).data().toArray()) );
+    setCookie ('devicesList',JSON.stringify (table.column(16, { 'search': 'applied' }).data().toArray()) );
   } );
 
   $('#tableDevices').on( 'search.dt', function () {
-    setCookie ('devicesList', JSON.stringify (table.column(15, { 'search': 'applied' }).data().toArray()) );
+    setCookie ('devicesList', JSON.stringify (table.column(16, { 'search': 'applied' }).data().toArray()) );
   } );
 
 };
@@ -987,6 +993,7 @@ function SetDeviceFilter() {
     + '&ftype='         + ($('#chkFilterType')[0].checked * 1)
     + '&fip='           + ($('#chkFilterIP')[0].checked * 1)
     + '&fmac='          + ($('#chkFilterMac')[0].checked * 1)
+    + '&fvendor='       + ($('#chkFilterVendor')[0].checked * 1)
     + '&fconnectiont='  + ($('#chkFilterConnectionType')[0].checked * 1)
     , function(msg) {
     showMessage (msg);
