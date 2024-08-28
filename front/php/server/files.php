@@ -221,6 +221,9 @@ AUTO_UPDATE_CHECK          = " . convert_bool($configArray['AUTO_UPDATE_CHECK'])
 AUTO_DB_BACKUP             = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
 AUTO_DB_BACKUP_KEEP        = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
 REPORT_NEW_CONTINUOUS      = " . convert_bool($configArray['REPORT_NEW_CONTINUOUS']) . "
+NEW_DEVICE_PRESET_EVENTS   = " . convert_bool($configArray['NEW_DEVICE_PRESET_EVENTS']) . "
+NEW_DEVICE_PRESET_DOWN     = " . convert_bool($configArray['NEW_DEVICE_PRESET_DOWN']) . "
+
 
 # Other Modules
 # ----------------------
