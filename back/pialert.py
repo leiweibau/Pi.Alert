@@ -3105,9 +3105,9 @@ def email_reporting():
             'Source: ', sat_name,
             'More Info: ', eventAlert['eve_AdditionalInfo'])
         mail_html_new_devices += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['dev_Name'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'], eventAlert['eve_AdditionalInfo'], sat_name)
+            eventAlert['eve_MAC'], eventAlert['eve_AdditionalInfo'], sat_name)
 
     format_report_section (mail_section_new_devices, 'SECTION_NEW_DEVICES',
         'TABLE_NEW_DEVICES', mail_text_new_devices, mail_html_new_devices)
@@ -3145,9 +3145,9 @@ def email_reporting():
             'Source: ', sat_name,               
             'IP: ', eventAlert['eve_IP'])
         mail_html_devices_down += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['dev_Name'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'], sat_name)
+            eventAlert['eve_MAC'], sat_name)
 
     format_report_section (mail_section_devices_down, 'SECTION_DEVICES_DOWN',
         'TABLE_DEVICES_DOWN', mail_text_devices_down, mail_html_devices_down)
@@ -3188,9 +3188,9 @@ def email_reporting():
             'Source: ', sat_name,
             'More Info: ', eventAlert['eve_AdditionalInfo'])
         mail_html_events += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['dev_Name'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['eve_EventType'], eventAlert['dev_Name'], sat_name,
+            eventAlert['eve_EventType'], eventAlert['eve_MAC'], sat_name,
             eventAlert['eve_AdditionalInfo'])
 
     format_report_section (mail_section_events, 'SECTION_EVENTS',
