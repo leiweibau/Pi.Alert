@@ -487,7 +487,7 @@ function read_DevListCol() {
 		$get = file_get_contents($file, true);
 		$output_array = json_decode($get, true);
 	} else {
-		$output_array = array('ConnectionType' => 0, 'Favorites' => 1, 'Group' => 1, 'Owner' => 1, 'Type' => 1, 'FirstSession' => 1, 'LastSession' => 1, 'LastIP' => 1, 'MACType' => 1, 'MACAddress' => 0, 'Location' => 0, 'WakeOnLAN' => 0);
+		$output_array = array('ConnectionType' => 0, 'Favorites' => 1, 'Group' => 1, 'Owner' => 1, 'Type' => 1, 'FirstSession' => 1, 'LastSession' => 1, 'LastIP' => 1, 'MACType' => 1, 'MACAddress' => 0, 'MACVendor' => 1, 'Location' => 0, 'WakeOnLAN' => 0);
 	}
 	return $output_array;
 }
@@ -503,6 +503,7 @@ function set_column_checkboxes($table_config) {
 	if ($table_config['LastIP'] == 1) {$col_checkbox['LastIP'] = "checked";}
 	if ($table_config['MACType'] == 1) {$col_checkbox['MACType'] = "checked";}
 	if ($table_config['MACAddress'] == 1) {$col_checkbox['MACAddress'] = "checked";}
+	if ($table_config['MACVendor'] == 1) {$col_checkbox['MACVendor'] = "checked";}
 	if ($table_config['Location'] == 1) {$col_checkbox['Location'] = "checked";}
 	if ($table_config['WakeOnLAN'] == 1) {$col_checkbox['WakeOnLAN'] = "checked";}
 	return $col_checkbox;
