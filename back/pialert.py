@@ -729,7 +729,7 @@ def scan_network():
     arpscan_devices = execute_arpscan()
     print_log ('arp-scan ends')
     # Pi-hole
-    print('    Pi-hole Method...')
+    print(f"    Pi-hole {PIHOLE_VERSION} Method...")
     openDB()
     print_log ('Pi-hole copy starts...')
     copy_pihole_network()
@@ -2992,6 +2992,17 @@ def email_reporting():
     global mail_text
     global mail_html
 
+    # Get Notification Preset Configuration from config file
+    try:
+        preset_events = NEW_DEVICE_PRESET_EVENTS
+    except NameError:
+        preset_events = True
+
+    try:
+        preset_down = NEW_DEVICE_PRESET_DOWN
+    except NameError:
+        preset_down = False
+
     # Reporting section
     print('\nReporting...')
     openDB()
@@ -3194,12 +3205,17 @@ def email_reporting():
         print('    No changes to report...')
 
     # Clean Pending Alert Events
-    sql.execute ("""UPDATE Devices SET dev_LastNotification = ?
-                    WHERE dev_MAC IN (SELECT eve_MAC FROM Events
+    sql.execute("""UPDATE Devices SET dev_LastNotification = ?
+                   WHERE dev_MAC IN (SELECT eve_MAC FROM Events
                                       WHERE eve_PendingAlertEmail = 1)
-                 """, (datetime.datetime.now(),) )
-    sql.execute ("""UPDATE Events SET eve_PendingAlertEmail = 0
-                    WHERE eve_PendingAlertEmail = 1""")
+                """, (datetime.datetime.now(),))
+    sql.execute("""UPDATE Events SET eve_PendingAlertEmail = 0
+                   WHERE eve_PendingAlertEmail = 1""")
+
+    # Set Notification Presets
+    sql.execute("""UPDATE Devices SET dev_AlertEvents = ?, dev_AlertDeviceDown = ?
+                   WHERE dev_NewDevice = 1
+                """,(preset_events, preset_down,))
 
     print('    Notifications:', sql.rowcount)
 

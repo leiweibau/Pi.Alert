@@ -127,6 +127,10 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 											<td class="help_table_gen_b">Aquí se especifica cuántas copias de seguridad automáticas deben conservarse, incluida la copia de seguridad actual. Esto incluye tanto las copias de seguridad de configuración como las de la base de datos. Este valor no es relevante durante la limpieza manual, donde se conservan las últimas 3 copias de seguridad.</td></tr>
 									    <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
 									        <td class="help_table_gen_b">Activa o desactiva la notificación recurrente para dispositivos marcados como "Nuevo".</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_EVENTS</td>
+										    <td class="help_table_gen_b">Habilita o deshabilita la notificación para todos los eventos en nuevos dispositivos.</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_DOWN</td>
+										    <td class="help_table_gen_b">Habilita o deshabilita la notificación para eventos de "Baja" en nuevos dispositivos.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>

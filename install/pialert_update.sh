@@ -324,6 +324,15 @@ IP_IGNORE_LIST  = []
 EOF
 fi
 
+# 2024-08-28
+if ! grep -Fq "NEW_DEVICE_PRESET_EVENTS" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+NEW_DEVICE_PRESET_EVENTS   = True
+NEW_DEVICE_PRESET_DOWN     = False
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

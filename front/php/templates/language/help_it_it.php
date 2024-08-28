@@ -123,6 +123,10 @@ $help_lang['Cat_General_107_text'] = 'Il file <span class="text-maroon help_faq_
 											<td class="help_table_gen_b">Qui si specifica quanti backup automatici devono essere conservati, inclusi quello attuale. Questo include sia i backup di configurazione che quelli del database. Questo valore non è rilevante durante la pulizia manuale, dove vengono conservati gli ultimi 3 backup.</td></tr>
                                         <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
 									        <td class="help_table_gen_b">Abilita o disabilita la notifica ricorrente per i dispositivi contrassegnati come "Nuovo".</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_EVENTS</td>
+										    <td class="help_table_gen_b">Abilita o disabilita la notifica per tutti gli eventi sui nuovi dispositivi.</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_DOWN</td>
+										    <td class="help_table_gen_b">Abilita o disabilita la notifica per gli eventi "Down" sui nuovi dispositivi.</td></tr>
 									</table>
                                     <table class="help_table_gen">
                                         <tr><td class="help_table_gen_section" colspan="2">Altri moduli</td></tr>

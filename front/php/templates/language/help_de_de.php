@@ -126,6 +126,10 @@ $help_lang['Cat_General_107_text'] = 'Die Datei <span class="text-maroon help_fa
 									        <td class="help_table_gen_b">Hier kann angegeben werden, wieviele automatische Backups aufgehoben werden sollen, einschließlich des aktuellen Backups. Dies umfasst sowohl die Konfigurationssicherungen, als auch die Datenbanksicherung. Dieser Wert hat keine Relevanz bei der manuellen Bereinigung, bei der die letzten 3 Sicherungen aufgehoben werden.</td></tr>
 									    <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
 									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die wiederholende Benachrichtigung für Geräte, die als "Neu" markiert sind.</td></tr>
+									    <tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_EVENTS</td>
+									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die Benachrichtigung für alle Events bei neuen Geräten</td></tr>
+									    <tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_DOWN</td>
+									        <td class="help_table_gen_b">Aktiviert oder deaktiviert die Benachrichtigung für "Down" Events bei neuen Geräten</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
