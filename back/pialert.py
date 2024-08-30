@@ -947,6 +947,9 @@ def copy_pihole_network():
             print('        ...Skipped (Config Error)')
             return
 
+        if not PIHOLE6_URL.endswith('/'):
+            PIHOLE6_URL += '/'
+
         headers = {
             "accept": "application/json",
             "content-type": "application/json"
@@ -955,7 +958,7 @@ def copy_pihole_network():
             "password": PIHOLE6_PASSWORD
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        response = requests.post(PIHOLE6_URL+'/api/auth', headers=headers, json=data, verify=False)
+        response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False)
         # print(response.json())
         response_json = response.json()
 
@@ -964,7 +967,7 @@ def copy_pihole_network():
                 "X-FTL-SID": response_json['session']['sid'],
                 "X-FTL-CSRF": response_json['session']['csrf']
             }
-            raw_deviceslist = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
+            raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
 
             result = {}
             deviceslist = raw_deviceslist.json()
