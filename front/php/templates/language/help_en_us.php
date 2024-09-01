@@ -128,6 +128,10 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 											<td class="help_table_gen_b">This specifies how many automatic backups should be retained, including the current backup. This includes both configuration backups and database backup. This value is not relevant during manual cleanup, where the last 3 backups are retained.</td></tr>
 									    <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
 									        <td class="help_table_gen_b">Enables or disables the recurring notification for devices marked as "New".</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_EVENTS</td>
+										    <td class="help_table_gen_b">Enables or disables the notification for all events on new devices.</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_DOWN</td>
+										    <td class="help_table_gen_b">Enables or disables the notification for "Down" events on new devices.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>

@@ -560,6 +560,10 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_MAC'];?>-Address</label>
                             </div>
                             <div class="table_settings_col_box">
+                              <input class="checkbox blue" id="chkMACVendor" type="checkbox" <?=$col_checkbox['MACVendor'];?>>
+                              <label class="control-label" style="margin-left: 5px">Vendor</label>
+                            </div>
+                            <div class="table_settings_col_box">
                               <input class="checkbox blue" id="chkWakeOnLAN" type="checkbox" <?=$col_checkbox['WakeOnLAN'];?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_WakeOnLAN'];?> (WakeOnLAN)</label>
                             </div>
@@ -1091,6 +1095,7 @@ function setDeviceListCol() {
     + '&lastip='         + ($('#chklastIP')[0].checked * 1)
     + '&mactype='        + ($('#chkMACtype')[0].checked * 1)
     + '&macaddress='     + ($('#chkMACaddress')[0].checked * 1)
+    + '&macvendor='      + ($('#chkMACVendor')[0].checked * 1)
     + '&location='       + ($('#chkLocation')[0].checked * 1)
     + '&wakeonlan='      + ($('#chkWakeOnLAN')[0].checked * 1)
     , function(msg) {

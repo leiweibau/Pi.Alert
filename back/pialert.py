@@ -729,7 +729,7 @@ def scan_network():
     arpscan_devices = execute_arpscan()
     print_log ('arp-scan ends')
     # Pi-hole
-    print('    Pi-hole Method...')
+    print(f"    Pi-hole {PIHOLE_VERSION} Method...")
     openDB()
     print_log ('Pi-hole copy starts...')
     copy_pihole_network()
@@ -947,6 +947,9 @@ def copy_pihole_network():
             print('        ...Skipped (Config Error)')
             return
 
+        if not PIHOLE6_URL.endswith('/'):
+            PIHOLE6_URL += '/'
+
         headers = {
             "accept": "application/json",
             "content-type": "application/json"
@@ -955,7 +958,7 @@ def copy_pihole_network():
             "password": PIHOLE6_PASSWORD
         }
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        response = requests.post(PIHOLE6_URL+'/api/auth', headers=headers, json=data, verify=False)
+        response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False)
         # print(response.json())
         response_json = response.json()
 
@@ -964,7 +967,7 @@ def copy_pihole_network():
                 "X-FTL-SID": response_json['session']['sid'],
                 "X-FTL-CSRF": response_json['session']['csrf']
             }
-            raw_deviceslist = requests.get(PIHOLE6_URL+'/api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
+            raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
 
             result = {}
             deviceslist = raw_deviceslist.json()
@@ -2992,6 +2995,17 @@ def email_reporting():
     global mail_text
     global mail_html
 
+    # Get Notification Preset Configuration from config file
+    try:
+        preset_events = NEW_DEVICE_PRESET_EVENTS
+    except NameError:
+        preset_events = True
+
+    try:
+        preset_down = NEW_DEVICE_PRESET_DOWN
+    except NameError:
+        preset_down = False
+
     # Reporting section
     print('\nReporting...')
     openDB()
@@ -3094,9 +3108,9 @@ def email_reporting():
             'Source: ', sat_name,
             'More Info: ', eventAlert['eve_AdditionalInfo'])
         mail_html_new_devices += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['dev_Name'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'], eventAlert['eve_AdditionalInfo'], sat_name)
+            eventAlert['eve_MAC'], eventAlert['eve_AdditionalInfo'], sat_name)
 
     format_report_section (mail_section_new_devices, 'SECTION_NEW_DEVICES',
         'TABLE_NEW_DEVICES', mail_text_new_devices, mail_html_new_devices)
@@ -3134,9 +3148,9 @@ def email_reporting():
             'Source: ', sat_name,               
             'IP: ', eventAlert['eve_IP'])
         mail_html_devices_down += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['dev_Name'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['dev_Name'], sat_name)
+            eventAlert['eve_MAC'], sat_name)
 
     format_report_section (mail_section_devices_down, 'SECTION_DEVICES_DOWN',
         'TABLE_DEVICES_DOWN', mail_text_devices_down, mail_html_devices_down)
@@ -3177,9 +3191,9 @@ def email_reporting():
             'Source: ', sat_name,
             'More Info: ', eventAlert['eve_AdditionalInfo'])
         mail_html_events += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], eventAlert['dev_Name'],
             eventAlert['eve_DateTime'], eventAlert['eve_IP'],
-            eventAlert['eve_EventType'], eventAlert['dev_Name'], sat_name,
+            eventAlert['eve_EventType'], eventAlert['eve_MAC'], sat_name,
             eventAlert['eve_AdditionalInfo'])
 
     format_report_section (mail_section_events, 'SECTION_EVENTS',
@@ -3194,12 +3208,17 @@ def email_reporting():
         print('    No changes to report...')
 
     # Clean Pending Alert Events
-    sql.execute ("""UPDATE Devices SET dev_LastNotification = ?
-                    WHERE dev_MAC IN (SELECT eve_MAC FROM Events
+    sql.execute("""UPDATE Devices SET dev_LastNotification = ?
+                   WHERE dev_MAC IN (SELECT eve_MAC FROM Events
                                       WHERE eve_PendingAlertEmail = 1)
-                 """, (datetime.datetime.now(),) )
-    sql.execute ("""UPDATE Events SET eve_PendingAlertEmail = 0
-                    WHERE eve_PendingAlertEmail = 1""")
+                """, (datetime.datetime.now(),))
+    sql.execute("""UPDATE Events SET eve_PendingAlertEmail = 0
+                   WHERE eve_PendingAlertEmail = 1""")
+
+    # Set Notification Presets
+    sql.execute("""UPDATE Devices SET dev_AlertEvents = ?, dev_AlertDeviceDown = ?
+                   WHERE dev_NewDevice = 1
+                """,(preset_events, preset_down,))
 
     print('    Notifications:', sql.rowcount)
 

@@ -219,6 +219,9 @@ EOM
     echo "Configured Pi.Alert scans are disabled"
     if [ "$CURRENT_USER" != "www-data" ]; then
         sqlite3 $PIA_DB_FILE "INSERT INTO 'pialert_journal' ('Journal_DateTime', 'LogClass', 'Trigger', 'LogString', 'Hash', 'Additional_Info') VALUES('$(date '+%Y-%m-%d %H:%M:%S')', 'b_002', 'pialert-cli', 'LogStr_0511', '', '${STOPTIMER} min');"
+        if [ $? -ne 0 ]; then
+            echo "Failed to write to the journal, but continuing."
+        fi
     fi
 
     ;;

@@ -123,6 +123,10 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 											<td class="help_table_gen_b">Cela spécifie combien de sauvegardes automatiques doivent être conservées, y compris la sauvegarde actuelle. Cela inclut à la fois les sauvegardes de configuration et de base de données. Cette valeur n&apos;est pas pertinente lors du nettoyage manuel, où les 3 dernières sauvegardes sont conservées.</td></tr>
 									    <tr><td class="help_table_gen_a">REPORT_NEW_CONTINUOUS</td>
 									        <td class="help_table_gen_b">Active ou désactive la notification récurrente pour les appareils marqués comme "Nouveau".</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_EVENTS</td>
+										    <td class="help_table_gen_b">Active ou désactive la notification pour tous les événements sur les nouveaux appareils.</td></tr>
+										<tr><td class="help_table_gen_a">NEW_DEVICE_PRESET_DOWN</td>
+										    <td class="help_table_gen_b">Active ou désactive la notification pour les événements "Down" sur les nouveaux appareils.</td></tr>
 									</table>
 									<table class="help_table_gen">
 									    <tr><td class="help_table_gen_section" colspan="2">Other Modules</td></tr>
