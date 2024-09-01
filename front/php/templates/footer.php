@@ -46,7 +46,12 @@ echo $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE']
         if (totalsDevicesbadge[1] > 0) {$('#header_' + scansource + '_count_on').html(totalsDevicesbadge[1].toLocaleString());} else {$('#header_' + scansource + '_count_on').html(unsetbadge.toLocaleString());}
         if (totalsDevicesbadge[3] > 0) {$('#header_' + scansource + '_count_new').html(totalsDevicesbadge[3].toLocaleString());} else {$('#header_' + scansource + '_count_new').html(unsetbadge.toLocaleString());}
         if (totalsDevicesbadge[4] > 0) {$('#header_' + scansource + '_count_down').html(totalsDevicesbadge[4].toLocaleString());} else {$('#header_' + scansource + '_count_down').html(unsetbadge.toLocaleString());}
-        if (totalsDevicesbadge[0] > 0) {$('#header_' + scansource + '_presence').html(totalsDevicesbadge[0].toLocaleString());} else {$('#header_' + scansource + '_presence').html(unsetbadge.toLocaleString());}
+        if (totalsDevicesbadge[0] > 0) {
+          var notpresent = totalsDevicesbadge[0] - totalsDevicesbadge[6];
+          $('#header_' + scansource + '_presence').html(totalsDevicesbadge[0].toLocaleString() + '/' + notpresent.toLocaleString());
+        } else {
+          $('#header_' + scansource + '_presence').html(unsetbadge.toLocaleString());
+        }
       } );
     }
     function getICMPTotalsBadge() {

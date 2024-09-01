@@ -569,10 +569,11 @@ function getDevicesTotals() {
         (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('favorites',$scansource) . ') as favorites,
         (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('new',$scansource) . ') as new,
         (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('down',$scansource) . ') as down,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived',$scansource) . ') as archived
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived',$scansource) . ') as archived,
+        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('presence',$scansource) . ') as presence
    ');
 	$row = $result->fetchArray(SQLITE3_NUM);
-	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5]));
+	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6]));
 }
 
 //  Query the List of devices in a determined Status
@@ -828,6 +829,8 @@ function getDeviceCondition($deviceStatus, $scansource) {
 	case 'down':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
 		break;
 	case 'archived':return 'WHERE '.$scansource_query.'dev_Archived=1';
+		break;
+	case 'presence':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_PresencePage=1';
 		break;
 	default:return 'WHERE '.$scansource_query.'AND 1=0';
 		break;

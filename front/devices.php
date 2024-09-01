@@ -864,7 +864,7 @@ function initializeDatatable () {
          	 var includeValues = ["Mini PC", "Server", "Laptop", "NAS", "PC"];
 
          	 if (includeValues.indexOf(row[3]) !== -1 && row[11] !== "Internet") {
-              return '<a href="#" onclick="askwakeonlan(\'' + row[11] + '\', \'' + row[9] + '\')"><i class="fa-solid fa-power-off text-red"></i></a>';
+              return '<a href="#" onclick="askwakeonlan(\'' + row[11] + '\',\'' + row[9] + '\', \'' + row[0] + '\')"><i class="fa-solid fa-power-off text-red"></i></a>';
            } else {
            	return '';
            }
@@ -951,10 +951,10 @@ function getDevicesList (status) {
 };
 
 // WakeonLAN
-function askwakeonlan(fmac,fip) {
+function askwakeonlan(fmac,fip,fname) {
   window.global_fmac = fmac;
   window.global_fip = fip;
-  showModalWarning('<?=$pia_lang['DevDetail_Tools_WOL_noti'];?>', '<?=$pia_lang['DevDetail_Tools_WOL_noti_text'];?>',
+  showModalWarning('<?=$pia_lang['DevDetail_Tools_WOL_noti'];?> (<span class="text-red">' + fname + '</span>)', '<?=$pia_lang['DevDetail_Tools_WOL_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'wakeonlan');
 }
 function wakeonlan() {
