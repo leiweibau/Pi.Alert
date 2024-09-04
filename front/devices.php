@@ -801,7 +801,7 @@ function initializeDatatable () {
       {width:     '30px',        targets: [10] },
       {width:     '0px',         targets: [13] },
       {width:     '20px',         targets: [17] },
-      {orderData: [13],          targets: [9] },
+      {orderData: [14],          targets: [9] },
       { "targets": [<?=$_REQUEST['filter_fields'];?>], "searchable": false },
 
       // Device Name
