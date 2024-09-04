@@ -939,17 +939,22 @@ def copy_pihole_network():
         sql.execute ("DETACH PH")
 
     elif PIHOLE_VERSION == 6:
+        global PIHOLE6_URL
+        global PIHOLE6_PASSWORD
         #Debug
-        #PIHOLE6_URL = 'https://localhost:443'
+        #PIHOLE6_URL = 'http://10.1.3.186:8080/admin/'
         #PIHOLE6_PASSWORD = '######'
+        #print(f'Debug: PIHOLE6_URL={PIHOLE6_URL}, PIHOLE6_PASSWORD={PIHOLE6_PASSWORD}')
 
-        if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
+        if not PIHOLE6_PASSWORD or not PIHOLE6_URL :
             print('        ...Skipped (Config Error)')
             return
 
         if not PIHOLE6_URL.endswith('/'):
             PIHOLE6_URL += '/'
 
+
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         headers = {
             "accept": "application/json",
             "content-type": "application/json"
@@ -957,9 +962,16 @@ def copy_pihole_network():
         data = {
             "password": PIHOLE6_PASSWORD
         }
-        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False)
-        # print(response.json())
+        try:
+            response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False)
+        except requests.exceptions.ConnectionError as e:
+            print(f"        Connection error occurred")
+            return
+            # Handle the error, for example, by retrying, logging, or exiting the program
+        except Exception as e:
+            print(f"        An unexpected error occurred")
+            return
+        #print(response.json())
         response_json = response.json()
 
         if response.status_code == 200 and response_json['session']['valid'] == True :
@@ -995,10 +1007,13 @@ def copy_pihole_network():
 
             # print(result)
             for hwaddr, details in result.items():
-                cursor.execute("""
+                sql.execute("""
                     INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery, PH_Name, PH_IP)
                     VALUES (?, ?, ?, ?, ?)
                 """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
+
+            result = {}
+            deviceslist = raw_deviceslist.json()
 
         else:
             print("Auth required")
