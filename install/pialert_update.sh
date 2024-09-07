@@ -165,7 +165,7 @@ clean_files() {
 # ------------------------------------------------------------------------------
 check_packages() {
   sudo apt-get update 2>&1 >>"$LOG"
-  packages=("apt-utils" "sqlite3" "dnsutils" "net-tools" "wakeonlan" "nbtscan" "avahi-utils" "php-curl" "php-xml" "python3-requests" "python3-cryptography" "libwww-perl" "mmdb-bin" "libtext-csv-perl" "aria2" "arp-scan")
+  packages=("apt-utils" "sqlite3" "dnsutils" "net-tools" "wakeonlan" "nbtscan" "avahi-utils" "php-curl" "php-xml" "python3-requests" "python3-cryptography" "libwww-perl" "mmdb-bin" "libtext-csv-perl" "aria2")
   print_msg "- Checking packages..."
   missing_packages=()
   for package in "${packages[@]}"; do
@@ -177,6 +177,7 @@ check_packages() {
     print_msg "- Installing missing packages: ${missing_packages[*]}"
     sudo apt-get install -y "${missing_packages[@]}" 2>&1 >>"$LOG"
   fi
+  sudo apt reinstall arp-scan
 }
 
 # ------------------------------------------------------------------------------
