@@ -186,10 +186,10 @@ check_packages() {
 check_package_integrity() {
   print_msg "- Checking package integrity..."
   if [ ! -f /usr/sbin/get-oui ]; then
-      if ! sudo apt reinstall -y arp-scan 2>&1 >>"$LOG"; then
-          print_msg "- Reinstall of arp-scan failed, trying 'apt --fix-broken install' option."
-          sudo apt --fix-broken install                     2>&1 >>"$LOG"
-          sudo apt install -y arp-scan                      2>&1 >>"$LOG"
+      if ! sudo apt-get reinstall -y arp-scan 2>&1 >>"$LOG"; then
+          print_msg "- Reinstall of arp-scan failed, trying 'apt-get install --fix-broken' option."
+          sudo apt-get install --fix-broken                     2>&1 >>"$LOG"
+          sudo apt-get install -y arp-scan                      2>&1 >>"$LOG"
       else
           print_msg "- 'arp-scan' reinstalled."
       fi
