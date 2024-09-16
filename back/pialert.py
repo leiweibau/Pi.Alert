@@ -132,6 +132,11 @@ def set_db_file_permissions():
     # Set permissions
     os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
     os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
+
+    # Set permissions Experimental
+    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
+    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
+
     # Get permissions
     fileinfo = Path(PIALERT_DB_FILE)
     file_stat = fileinfo.stat()
@@ -694,7 +699,7 @@ def query_MAC_vendor(pMAC):
     # not Found
     except subprocess.CalledProcessError :
         return -1
-            
+
 #===============================================================================
 # SCAN NETWORK
 #===============================================================================
@@ -719,7 +724,7 @@ def scan_network():
         print('    Exiting...\n')
         return 1
 
-    # ScanCycle data        
+    # ScanCycle data
     cycle_interval  = scanCycle_data['cic_EveryXmin']
     #arpscan_retries = scanCycle_data['cic_arpscanCycles']
     # arp-scan command
@@ -860,8 +865,8 @@ def execute_arpscan():
 
     # multiple interfaces
     if type(SCAN_SUBNETS) is list:
-        print("    arp-scan: Multiple interfaces")        
-        for interface in SCAN_SUBNETS :            
+        print("    arp-scan: Multiple interfaces")
+        for interface in SCAN_SUBNETS :
             arpscan_output += execute_arpscan_on_interface (interface)
     # one interface only
     else:
@@ -879,11 +884,11 @@ def execute_arpscan():
         for device in re.finditer (re_pattern, arpscan_output)]
 
     # Delete duplicate MAC
-    unique_mac = [] 
-    unique_devices = [] 
+    unique_mac = []
+    unique_devices = []
 
     for device in devices_list :
-        if device['mac'] not in unique_mac: 
+        if device['mac'] not in unique_mac:
             unique_mac.append(device['mac'])
             unique_devices.append(device)
 
@@ -942,7 +947,7 @@ def copy_pihole_network():
         global PIHOLE6_URL
         global PIHOLE6_PASSWORD
         #Debug
-        #PIHOLE6_URL = 'http://10.1.3.186:8080/admin/'
+        #PIHOLE6_URL = 'https://10.1.3.186/'
         #PIHOLE6_PASSWORD = '######'
         #print(f'Debug: PIHOLE6_URL={PIHOLE6_URL}, PIHOLE6_PASSWORD={PIHOLE6_PASSWORD}')
 
@@ -953,7 +958,6 @@ def copy_pihole_network():
         if not PIHOLE6_URL.endswith('/'):
             PIHOLE6_URL += '/'
 
-
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         headers = {
             "accept": "application/json",
@@ -963,15 +967,17 @@ def copy_pihole_network():
             "password": PIHOLE6_PASSWORD
         }
         try:
-            response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False)
+            response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False, timeout=15)
+        except requests.exceptions.Timeout:
+            print(f"        Request timed out after 15 seconds")
+            return
         except requests.exceptions.ConnectionError as e:
             print(f"        Connection error occurred")
             return
-            # Handle the error, for example, by retrying, logging, or exiting the program
         except Exception as e:
             print(f"        An unexpected error occurred")
             return
-        #print(response.json())
+
         response_json = response.json()
 
         if response.status_code == 200 and response_json['session']['valid'] == True :
@@ -989,6 +995,7 @@ def copy_pihole_network():
                 lastQuery = device['lastQuery']
                 macVendor = device['macVendor']
 
+                # skip lo interface
                 if hwaddr == "00:00:00:00:00:00":
                     continue
 
