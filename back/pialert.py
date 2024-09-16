@@ -381,7 +381,7 @@ def NewVersion_FrontendNotification(newVersion,update_notes):
         if not os.path.exists(file_path):
             print("    Create Frontend Notification.")
         else:
-            print("    Update Frontend Notification.")    
+            print("    Update Frontend Notification.")
         with open(file_path, 'w') as file:
             file.write(update_notes)
     else:
