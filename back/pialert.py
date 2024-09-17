@@ -946,10 +946,6 @@ def copy_pihole_network():
     elif PIHOLE_VERSION == 6:
         global PIHOLE6_URL
         global PIHOLE6_PASSWORD
-        #Debug
-        #PIHOLE6_URL = 'https://10.1.3.186/'
-        #PIHOLE6_PASSWORD = '######'
-        #print(f'Debug: PIHOLE6_URL={PIHOLE6_URL}, PIHOLE6_PASSWORD={PIHOLE6_PASSWORD}')
 
         if not PIHOLE6_PASSWORD or not PIHOLE6_URL :
             print('        ...Skipped (Config Error)')
@@ -990,6 +986,7 @@ def copy_pihole_network():
             result = {}
             deviceslist = raw_deviceslist.json()
 
+            # If pi-hole is outside the local Pi.Alert network and cannot be found with arp. 
             pihole_host_ip = get_ip_from_hostname(PIHOLE6_URL)
 
             for device in deviceslist['devices']:
@@ -1007,8 +1004,9 @@ def copy_pihole_network():
 
                     # Check whether the IP could be a IPv4 address
                     if '.' in ip:
+                        # Change the “lastQuery” variable to mark the Pi-hole host as “active”
                         if pihole_host_ip == ip:
-                            lastQuery = str(int(datetime.now().timestamp()))
+                            lastQuery = str(int(datetime.datetime.now().timestamp()))
 
                         result[hwaddr] = {
                             "ip": ip,
