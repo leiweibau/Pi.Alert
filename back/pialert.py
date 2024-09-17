@@ -990,6 +990,8 @@ def copy_pihole_network():
             result = {}
             deviceslist = raw_deviceslist.json()
 
+            pihole_host_ip = get_ip_from_hostname(PIHOLE6_URL)
+
             for device in deviceslist['devices']:
                 hwaddr = device['hwaddr']
                 lastQuery = device['lastQuery']
@@ -1002,9 +1004,12 @@ def copy_pihole_network():
                 for ip_info in device['ips']:
                     ip = ip_info['ip']
                     name = ip_info['name'] if ip_info['name'] not in [None, ""] else "(unknown)"
-                    
+
                     # Check whether the IP could be a IPv4 address
                     if '.' in ip:
+                        if pihole_host_ip == ip:
+                            lastQuery = str(int(datetime.now().timestamp()))
+
                         result[hwaddr] = {
                             "ip": ip,
                             "name": name,
@@ -1028,6 +1033,17 @@ def copy_pihole_network():
 
     else:
         print('        ...Unsupported Version')
+
+#-------------------------------------------------------------------------------
+def get_ip_from_hostname(url):
+    try:
+        hostname_port = url.replace("http://", "").replace("https://", "").split('/')[0]
+        hostname = hostname_port.split(':')[0]
+        ip_address = socket.gethostbyname(hostname)
+        return ip_address
+    except socket.gaierror as e:
+        ip_address = ""
+        return ip_address
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
