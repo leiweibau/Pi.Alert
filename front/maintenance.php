@@ -90,14 +90,14 @@ if ($_REQUEST['tab'] == '1') {
 	$pia_tab_tool = 'active';
 	$pia_tab_setting = $pia_tab_backup = $pia_tab_satellites = $pia_tab_gui = '';
 } elseif ($_REQUEST['tab'] == '3') {
+    $pia_tab_backup = 'active';
 	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_gui = '';
-	$pia_tab_backup = 'active';
 } elseif ($_REQUEST['tab'] == '4') {
+    $pia_tab_gui = 'active';
 	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_backup = '';
-	$pia_tab_gui = 'active';
 } elseif ($_REQUEST['tab'] == '5') {
-    $pia_tab_setting = $pia_tab_tool = $pia_tab_backup = $pia_tab_gui = '';
     $pia_tab_satellites = 'active';
+    $pia_tab_setting = $pia_tab_tool = $pia_tab_backup = $pia_tab_gui = '';
 } else {
 	$pia_tab_setting = 'active';
 	$pia_tab_tool = $pia_tab_backup = $pia_tab_gui = $pia_tab_satellites = '';}

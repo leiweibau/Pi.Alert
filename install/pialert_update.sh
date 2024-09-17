@@ -44,6 +44,7 @@ main() {
   clean_files
 
   check_packages
+  check_package_integrity
   download_pialert
   update_config
   update_db
@@ -176,6 +177,24 @@ check_packages() {
   if [ ${#missing_packages[@]} -gt 0 ]; then
     print_msg "- Installing missing packages: ${missing_packages[*]}"
     sudo apt-get install -y "${missing_packages[@]}" 2>&1 >>"$LOG"
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# Check package integrity
+# ------------------------------------------------------------------------------
+check_package_integrity() {
+  print_msg "- Checking package integrity..."
+  if [ ! -f /usr/sbin/get-oui ]; then
+      if ! sudo apt-get reinstall -y arp-scan 2>&1 >>"$LOG"; then
+          print_msg "- Reinstall of arp-scan failed, trying 'apt-get install --fix-broken' option."
+          sudo apt-get install --fix-broken                     2>&1 >>"$LOG"
+          sudo apt-get install -y arp-scan                      2>&1 >>"$LOG"
+      else
+          print_msg "- 'arp-scan' reinstalled."
+      fi
+  else
+      print_msg "- 'arp-scan' seems to be installed correctly"
   fi
 }
 

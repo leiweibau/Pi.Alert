@@ -132,6 +132,11 @@ def set_db_file_permissions():
     # Set permissions
     os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
     os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
+
+    # Set permissions Experimental
+    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
+    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
+
     # Get permissions
     fileinfo = Path(PIALERT_DB_FILE)
     file_stat = fileinfo.stat()
@@ -376,7 +381,7 @@ def NewVersion_FrontendNotification(newVersion,update_notes):
         if not os.path.exists(file_path):
             print("    Create Frontend Notification.")
         else:
-            print("    Update Frontend Notification.")    
+            print("    Update Frontend Notification.")
         with open(file_path, 'w') as file:
             file.write(update_notes)
     else:
@@ -694,7 +699,7 @@ def query_MAC_vendor(pMAC):
     # not Found
     except subprocess.CalledProcessError :
         return -1
-            
+
 #===============================================================================
 # SCAN NETWORK
 #===============================================================================
@@ -719,7 +724,7 @@ def scan_network():
         print('    Exiting...\n')
         return 1
 
-    # ScanCycle data        
+    # ScanCycle data
     cycle_interval  = scanCycle_data['cic_EveryXmin']
     #arpscan_retries = scanCycle_data['cic_arpscanCycles']
     # arp-scan command
@@ -860,8 +865,8 @@ def execute_arpscan():
 
     # multiple interfaces
     if type(SCAN_SUBNETS) is list:
-        print("    arp-scan: Multiple interfaces")        
-        for interface in SCAN_SUBNETS :            
+        print("    arp-scan: Multiple interfaces")
+        for interface in SCAN_SUBNETS :
             arpscan_output += execute_arpscan_on_interface (interface)
     # one interface only
     else:
@@ -879,11 +884,11 @@ def execute_arpscan():
         for device in re.finditer (re_pattern, arpscan_output)]
 
     # Delete duplicate MAC
-    unique_mac = [] 
-    unique_devices = [] 
+    unique_mac = []
+    unique_devices = []
 
     for device in devices_list :
-        if device['mac'] not in unique_mac: 
+        if device['mac'] not in unique_mac:
             unique_mac.append(device['mac'])
             unique_devices.append(device)
 
@@ -939,17 +944,17 @@ def copy_pihole_network():
         sql.execute ("DETACH PH")
 
     elif PIHOLE_VERSION == 6:
-        #Debug
-        #PIHOLE6_URL = 'https://localhost:443'
-        #PIHOLE6_PASSWORD = '######'
+        global PIHOLE6_URL
+        global PIHOLE6_PASSWORD
 
-        if not PIHOLE6_PASSWORD or not PIHOLE6_URL:
+        if not PIHOLE6_PASSWORD or not PIHOLE6_URL :
             print('        ...Skipped (Config Error)')
             return
 
         if not PIHOLE6_URL.endswith('/'):
             PIHOLE6_URL += '/'
 
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         headers = {
             "accept": "application/json",
             "content-type": "application/json"
@@ -957,9 +962,18 @@ def copy_pihole_network():
         data = {
             "password": PIHOLE6_PASSWORD
         }
-        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False)
-        # print(response.json())
+        try:
+            response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False, timeout=15)
+        except requests.exceptions.Timeout:
+            print(f"        Request timed out after 15 seconds")
+            return
+        except requests.exceptions.ConnectionError as e:
+            print(f"        Connection error occurred")
+            return
+        except Exception as e:
+            print(f"        An unexpected error occurred")
+            return
+
         response_json = response.json()
 
         if response.status_code == 200 and response_json['session']['valid'] == True :
@@ -972,20 +986,28 @@ def copy_pihole_network():
             result = {}
             deviceslist = raw_deviceslist.json()
 
+            # If pi-hole is outside the local Pi.Alert network and cannot be found with arp. 
+            pihole_host_ip = get_ip_from_hostname(PIHOLE6_URL)
+
             for device in deviceslist['devices']:
                 hwaddr = device['hwaddr']
                 lastQuery = device['lastQuery']
                 macVendor = device['macVendor']
 
+                # skip lo interface
                 if hwaddr == "00:00:00:00:00:00":
                     continue
 
                 for ip_info in device['ips']:
                     ip = ip_info['ip']
                     name = ip_info['name'] if ip_info['name'] not in [None, ""] else "(unknown)"
-                    
+
                     # Check whether the IP could be a IPv4 address
                     if '.' in ip:
+                        # Change the “lastQuery” variable to mark the Pi-hole host as “active”
+                        if pihole_host_ip == ip:
+                            lastQuery = str(int(datetime.datetime.now().timestamp()))
+
                         result[hwaddr] = {
                             "ip": ip,
                             "name": name,
@@ -995,10 +1017,13 @@ def copy_pihole_network():
 
             # print(result)
             for hwaddr, details in result.items():
-                cursor.execute("""
+                sql.execute("""
                     INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery, PH_Name, PH_IP)
                     VALUES (?, ?, ?, ?, ?)
                 """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
+
+            result = {}
+            deviceslist = raw_deviceslist.json()
 
         else:
             print("Auth required")
@@ -1006,6 +1031,17 @@ def copy_pihole_network():
 
     else:
         print('        ...Unsupported Version')
+
+#-------------------------------------------------------------------------------
+def get_ip_from_hostname(url):
+    try:
+        hostname_port = url.replace("http://", "").replace("https://", "").split('/')[0]
+        hostname = hostname_port.split(':')[0]
+        ip_address = socket.gethostbyname(hostname)
+        return ip_address
+    except socket.gaierror as e:
+        ip_address = ""
+        return ip_address
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():

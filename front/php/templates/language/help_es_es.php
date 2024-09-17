@@ -313,7 +313,7 @@ $help_lang['Cat_General_107_text'] = 'The file <span class="text-maroon help_faq
 										<tr><td class="help_table_gen_a">PIHOLE_DB</td>
 										    <td class="help_table_gen_b">Esta variable se configura durante la instalación y no debe modificarse.</td></tr>
 										<tr><td class="help_table_gen_a">PIHOLE6_URL</td>
-										    <td class="help_table_gen_b">Si desea acceder a los datos de Pi-hole de la versión 6, ingrese la URL de la interfaz web aquí.</td></tr>
+										    <td class="help_table_gen_b">Si desea acceder a los datos de Pi-hole de la versión 6, ingrese la URL de la interfaz web (sin el sufijo "/admin") aquí.</td></tr>
 										<tr><td class="help_table_gen_a">PIHOLE6_PASSWORD</td>
 										    <td class="help_table_gen_b">Ingrese la contraseña para la interfaz web de Pi-hole aquí.</td></tr>
 										<tr><td class="help_table_gen_a">DHCP_ACTIVE</td>
