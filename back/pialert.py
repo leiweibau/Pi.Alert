@@ -929,6 +929,7 @@ def copy_pihole_network():
     if PIHOLE_VERSION in (None, 5):
         copy_pihole_network_five()
     elif PIHOLE_VERSION == 6:
+        pihole_six_api_auth()
         copy_pihole_network_six()
     else:
         print('        ...Unsupported Version')
@@ -956,7 +957,7 @@ def copy_pihole_network_five():
     sql.execute ("DETACH PH")
 
 #-------------------------------------------------------------------------------
-def copy_pihole_network_six():
+def pihole_six_api_auth():
     global PIHOLE6_URL
     global PIHOLE6_PASSWORD
     global PIHOLE6_SES_VALID
@@ -996,10 +997,21 @@ def copy_pihole_network_six():
         PIHOLE6_SES_VALID = response_json['session']['valid']
         PIHOLE6_SES_SID = response_json['session']['sid']
         PIHOLE6_SES_CSRF = response_json['session']['csrf']
+    else:
+        print("Auth required")
+        return
 
+#-------------------------------------------------------------------------------
+def copy_pihole_network_six():
+    global PIHOLE6_URL
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    if PIHOLE6_SES_VALID == True:
         headers = {
-            "X-FTL-SID": response_json['session']['sid'],
-            "X-FTL-CSRF": response_json['session']['csrf']
+            "X-FTL-SID": PIHOLE6_SES_SID,
+            "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
         raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
 
@@ -1044,9 +1056,7 @@ def copy_pihole_network_six():
 
         result = {}
         deviceslist = raw_deviceslist.json()
-
     else:
-        print("Auth required")
         return
 
 #-------------------------------------------------------------------------------
@@ -1197,6 +1207,8 @@ def read_DHCP_leases():
     if PIHOLE_VERSION in (None, 5):
         read_DHCP_leases_five()
     elif PIHOLE_VERSION == 6:
+        if not PIHOLE6_SES_VALID == True:
+            pihole_six_api_auth()
         read_DHCP_leases_six()
     else:
         print('        ...Unsupported Version')
@@ -1221,6 +1233,16 @@ def read_DHCP_leases_five():
 #-------------------------------------------------------------------------------
 def read_DHCP_leases_six():
     print('        ...Empty')
+    global PIHOLE6_URL
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    if PIHOLE6_SES_VALID == True:
+        print("Funktion")
+    else:
+        return
+
 
 #-------------------------------------------------------------------------------
 def get_satellite_scans():
