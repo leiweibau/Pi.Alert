@@ -1004,6 +1004,7 @@ def pihole_six_api_auth():
 #-------------------------------------------------------------------------------
 def copy_pihole_network_six():
     global PIHOLE6_URL
+    global PIHOLE6_PASSWORD
     global PIHOLE6_SES_VALID
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
@@ -1012,6 +1013,9 @@ def copy_pihole_network_six():
         headers = {
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
+        }
+        data = {
+            "password": PIHOLE6_PASSWORD
         }
         # Teste den max_devices Parameter um alle Clients zu bekommen. Ist "0" = Alle?
         # Ggf. den Parameter auf 100 oder 1000 setzen?
@@ -1235,6 +1239,7 @@ def read_DHCP_leases_five():
 #-------------------------------------------------------------------------------
 def read_DHCP_leases_six():
     global PIHOLE6_URL
+    global PIHOLE6_PASSWORD
     global PIHOLE6_SES_VALID
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
@@ -1246,6 +1251,9 @@ def read_DHCP_leases_six():
         headers = {
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
+        }
+        data = {
+            "password": PIHOLE6_PASSWORD
         }
         raw_deviceslist = requests.get(PIHOLE6_URL+'api/dhcp/leases', headers=headers, json=data, verify=False)
 
