@@ -12,6 +12,7 @@
   * [Device Management](docs/DEVICE_MANAGEMENT.md)
   * [Bulk Editor](docs/BULKEDITOR.md)
   * [pialert-cli](docs/PIALERTCLI.md)
+  * [pialert.conf](docs/PIALERT_CONF.md)
   * [Network Relationship](docs/NETWORK_RELATIONSHIP.md)
   * [Web service monitoring](docs/WEBSERVICES.md)
   * [Satellite Config](docs/SATELLITES.md)
