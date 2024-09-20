@@ -1013,7 +1013,9 @@ def copy_pihole_network_six():
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
+        # Teste den max_devices Parameter um alle Clients zu bekommen. Ist "0" = Alle?
+        # Ggf. den Parameter auf 100 oder 1000 setzen?
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=0&max_addresses=2', headers=headers, json=data, verify=False)
 
         result = {}
         deviceslist = raw_deviceslist.json()
@@ -1232,17 +1234,36 @@ def read_DHCP_leases_five():
 
 #-------------------------------------------------------------------------------
 def read_DHCP_leases_six():
-    print('        ...Empty')
     global PIHOLE6_URL
     global PIHOLE6_SES_VALID
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
 
     if PIHOLE6_SES_VALID == True:
-        print("Funktion")
+        
+        sql.execute ("DELETE FROM DHCP_Leases")
+        
+        headers = {
+            "X-FTL-SID": PIHOLE6_SES_SID,
+            "X-FTL-CSRF": PIHOLE6_SES_CSRF
+        }
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/dhcp/leases', headers=headers, json=data, verify=False)
+
+        result = {}
+        deviceslist = raw_deviceslist.json()
+
+        for device in deviceslist['leases']:
+            # skip lo interface if present
+            if device['hwaddr'] == "00:00:00:00:00:00":
+                continue
+
+            sql.execute("""INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC,
+                                DHCP_IP, DHCP_Name, DHCP_MAC2)
+                                    VALUES (?, ?, ?, ?, ?)
+                                 """, (device['expires'], device['hwaddr'], device['ip'], device['name'], device['clientid']))
+
     else:
         return
-
 
 #-------------------------------------------------------------------------------
 def get_satellite_scans():
