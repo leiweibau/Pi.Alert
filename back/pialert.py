@@ -708,6 +708,8 @@ def query_MAC_vendor(pMAC):
 # SCAN NETWORK
 #===============================================================================
 def scan_network():
+    global PIHOLE6_SES_VALID
+
     # Create scan status file
     with open(STATUS_FILE_SCAN, "w") as f:
         f.write("")
@@ -745,6 +747,8 @@ def scan_network():
     # DHCP Leases
     print(f"    Pi-hole {PIHOLE_VERSION} DHCP Leases Method...")
     read_DHCP_leases()
+    if PIHOLE6_SES_VALID==True:
+        pihole_six_api_deauth()
     # Fritzbox
     print('    Fritzbox Method...')
     openDB()
@@ -974,7 +978,8 @@ def pihole_six_api_auth():
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     headers = {
         "accept": "application/json",
-        "content-type": "application/json"
+        "content-type": "application/json",
+        "User-Agent": "Pi.Alert/"+ VERSION_DATE
     }
     data = {
         "password": PIHOLE6_PASSWORD
@@ -1002,6 +1007,34 @@ def pihole_six_api_auth():
         return
 
 #-------------------------------------------------------------------------------
+def pihole_six_api_deauth():
+    global PIHOLE6_URL
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    if not PIHOLE6_URL.endswith('/'):
+        PIHOLE6_URL += '/'
+
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    headers = {
+        "X-FTL-SID": PIHOLE6_SES_SID
+    }
+    try:
+        response = requests.delete(PIHOLE6_URL+'api/auth', headers=headers, verify=False, timeout=15)
+    except requests.exceptions.Timeout:
+        print(f"        Request timed out after 15 seconds")
+        return
+    except requests.exceptions.ConnectionError as e:
+        print(f"        Connection error occurred")
+        return
+    except Exception as e:
+        print(f"        An unexpected error occurred")
+        return
+
+    #print("        Pi-hole Logout")
+
+#-------------------------------------------------------------------------------
 def copy_pihole_network_six():
     global PIHOLE6_URL
     global PIHOLE6_PASSWORD
@@ -1014,12 +1047,9 @@ def copy_pihole_network_six():
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        data = {
-            "password": PIHOLE6_PASSWORD
-        }
         #max_devices=-1 seems to be "all". no more detailed information found in the API documentation
         #max_addresses=2 IPs per host
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=-1&max_addresses=2', headers=headers, json=data, verify=False)
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=-1&max_addresses=2', headers=headers, verify=False)
 
         result = {}
         deviceslist = raw_deviceslist.json()
@@ -1253,10 +1283,7 @@ def read_DHCP_leases_six():
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        data = {
-            "password": PIHOLE6_PASSWORD
-        }
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/dhcp/leases', headers=headers, json=data, verify=False)
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/dhcp/leases', headers=headers, verify=False)
 
         result = {}
         deviceslist = raw_deviceslist.json()
