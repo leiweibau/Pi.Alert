@@ -993,12 +993,12 @@ def pihole_six_api_auth():
 
     response_json = response.json()
 
-    if response.status_code == 200 and response_json['session']['valid'] == True :
+    if response_json['session']['valid'] == True :
         PIHOLE6_SES_VALID = response_json['session']['valid']
         PIHOLE6_SES_SID = response_json['session']['sid']
         PIHOLE6_SES_CSRF = response_json['session']['csrf']
     else:
-        print("Auth required")
+        print(f"        Auth required")
         return
 
 #-------------------------------------------------------------------------------
@@ -1063,6 +1063,7 @@ def copy_pihole_network_six():
         result = {}
         deviceslist = raw_deviceslist.json()
     else:
+        print(f"        ...Skipped")
         return
 
 #-------------------------------------------------------------------------------
@@ -1271,6 +1272,7 @@ def read_DHCP_leases_six():
                                  """, (device['expires'], device['hwaddr'], device['ip'], device['name'], device['clientid']))
 
     else:
+        print(f"        ...Skipped")
         return
 
 #-------------------------------------------------------------------------------
