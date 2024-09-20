@@ -1017,14 +1017,14 @@ def copy_pihole_network_six():
         data = {
             "password": PIHOLE6_PASSWORD
         }
-        # Teste den max_devices Parameter um alle Clients zu bekommen. Ist "0" = Alle?
-        # Ggf. den Parameter auf 100 oder 1000 setzen?
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=0&max_addresses=2', headers=headers, json=data, verify=False)
+        #max_devices=-1 seems to be "all". no more detailed information found in the API documentation
+        #max_addresses=2 IPs per host
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=-1&max_addresses=2', headers=headers, json=data, verify=False)
 
         result = {}
         deviceslist = raw_deviceslist.json()
 
-        # If pi-hole is outside the local Pi.Alert network and cannot be found with arp. 
+        # If pi-hole is outside the local Pi.Alert network and cannot be found with arp.
         pihole_host_ip = get_ip_from_hostname(PIHOLE6_URL)
 
         for device in deviceslist['devices']:
@@ -1111,7 +1111,7 @@ def read_fritzbox_active_hosts():
                 vendor = MacLookup().lookup(host['mac'])
             except:
                 vendor = "Prefix is not registered"
-            
+
             sql.execute ("INSERT INTO Fritzbox_Network (FB_MAC, FB_IP, FB_Name, FB_Vendor) "+
                          "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
 
@@ -1245,9 +1245,9 @@ def read_DHCP_leases_six():
     global PIHOLE6_SES_CSRF
 
     if PIHOLE6_SES_VALID == True:
-        
+
         sql.execute ("DELETE FROM DHCP_Leases")
-        
+
         headers = {
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
