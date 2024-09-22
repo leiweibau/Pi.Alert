@@ -1037,7 +1037,6 @@ def pihole_six_api_deauth():
 #-------------------------------------------------------------------------------
 def copy_pihole_network_six():
     global PIHOLE6_URL
-    global PIHOLE6_PASSWORD
     global PIHOLE6_SES_VALID
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
@@ -1055,7 +1054,7 @@ def copy_pihole_network_six():
         deviceslist = raw_deviceslist.json()
 
         # If pi-hole is outside the local Pi.Alert network and cannot be found with arp.
-        pihole_host_ip = get_ip_from_hostname(PIHOLE6_URL)
+        interfaces = get_pihole_interface_data()
 
         for device in deviceslist['devices']:
             hwaddr = device['hwaddr']
@@ -1073,8 +1072,12 @@ def copy_pihole_network_six():
                 # Check whether the IP could be a IPv4 address
                 if '.' in ip:
                     # Change the “lastQuery” variable to mark the Pi-hole host as “active”
-                    if pihole_host_ip == ip:
-                        lastQuery = str(int(datetime.datetime.now().timestamp()))
+
+                    for mac, ips in result.items():
+                        if ip in ips:
+                            lastQuery = str(int(datetime.datetime.now().timestamp()))
+                    # if pihole_host_ip == ip:
+                    #     lastQuery = str(int(datetime.datetime.now().timestamp()))
 
                     result[hwaddr] = {
                         "ip": ip,
@@ -1097,15 +1100,34 @@ def copy_pihole_network_six():
         return
 
 #-------------------------------------------------------------------------------
-def get_ip_from_hostname(url):
-    try:
-        hostname_port = url.replace("http://", "").replace("https://", "").split('/')[0]
-        hostname = hostname_port.split(':')[0]
-        ip_address = socket.gethostbyname(hostname)
-        return ip_address
-    except socket.gaierror as e:
-        ip_address = ""
-        return ip_address
+def get_pihole_interface_data():
+    global PIHOLE6_URL
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    result = {}
+    
+    if PIHOLE6_SES_VALID == True:
+        headers = {
+            "X-FTL-SID": PIHOLE6_SES_SID,
+            "X-FTL-CSRF": PIHOLE6_SES_CSRF
+        }
+        raw_interfacelist = requests.get(PIHOLE6_URL+'api/network/interfaces', headers=headers, verify=False)
+        data = raw_interfacelist.json()
+
+        for interface in data['interfaces']:
+            mac_address = interface.get('address')
+            
+            if mac_address == "00:00:00:00:00:00":
+                continue
+            
+            ips = [addr['address'] for addr in interface['addresses'] if addr['family'] == 'inet']
+            if mac_address and ips:
+                result[mac_address] = ips
+
+    return result
+
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
@@ -1288,6 +1310,13 @@ def read_DHCP_leases_six():
         result = {}
         deviceslist = raw_deviceslist.json()
 
+        # Get Pi-hole local MAC-Adresses an IPs
+        interfaces = get_pihole_interface_data()
+        # Generate a theoretical lease period of +30min
+        current_time = datetime.datetime.now()
+        future_time = current_time + datetime.timedelta(minutes=30)
+        dnsmasq_timestamp = int(future_time.timestamp()) 
+
         for device in deviceslist['leases']:
             # skip lo interface if present
             if device['hwaddr'] == "00:00:00:00:00:00":
@@ -1297,6 +1326,30 @@ def read_DHCP_leases_six():
                                 DHCP_IP, DHCP_Name, DHCP_MAC2)
                                     VALUES (?, ?, ?, ?, ?)
                                  """, (device['expires'], device['hwaddr'], device['ip'], device['name'], device['clientid']))
+
+        sql_connection.commit()
+
+        # Add the Pi-hole interface data to the DHCP leases to have the possibility to import Pi-hole 
+        # itself as well, even if it is not in the local Pi.Alert network.
+        for mac, ip in interfaces.items():
+            sql.execute("SELECT COUNT(*) FROM DHCP_Leases WHERE DHCP_MAC = ?", (mac,))
+            mac_exists = sql.fetchone()[0]
+            
+            if mac_exists == 0:
+                device = {
+                    'expires': dnsmasq_timestamp,
+                    'hwaddr': mac,
+                    'ip': ip,
+                    'name': 'Pi-hole',
+                    'clientid': *
+                }
+
+                sql.execute("""
+                    INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (device['expires'], device['hwaddr'], device['ip'], device['name'], device['clientid']))
+
+        sql_connection.commit()
 
     else:
         print(f"        ...Skipped")
