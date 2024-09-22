@@ -1341,7 +1341,7 @@ def read_DHCP_leases_six():
                     'hwaddr': mac,
                     'ip': ip,
                     'name': 'Pi-hole',
-                    'clientid': *
+                    'clientid': "*"
                 }
 
                 sql.execute("""
