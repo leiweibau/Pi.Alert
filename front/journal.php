@@ -178,6 +178,13 @@ function initializeDatatable () {
             }
         }
       },
+      {targets: [4],
+        "createdCell": function (td, cellData, rowData, row, col) {
+            if (cellData == "cronjob") {
+                $(td).html('<span style="color:red;">' + cellData+ '</span>');
+            }
+        }
+      },
       {targets: [1,2,5],
           visible: false
       },
