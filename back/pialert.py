@@ -1431,10 +1431,7 @@ def process_satellites(satellite_list):
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
-    # print('        ...Get data from proxy')
-
     SAVE_DIR = PIALERT_PATH + "/front/satellites/"
-    
     received_results = 0
 
     for token, password in satellite_list.items():
@@ -1449,15 +1446,13 @@ def get_satellite_proxy_scans(satellite_list):
                 with open(save_path, 'wb') as file:
                     file.write(response.content)
 
-                # update satellite db Last Update
         except requests.exceptions.SSLError:
             pass
         except requests.RequestException as e:
-            # print(f"        Download failed for token {token}")
+            print_log(f"        Download failed for token {token}")
             pass
 
     print(f"        ...Get data from proxy ({received_results})")
-    # get data from url to local storage
 
 #-------------------------------------------------------------------------------
 def decrypt_satellite_proxy_scans(satellite_list):
