@@ -1072,13 +1072,10 @@ def copy_pihole_network_six():
                 # Check whether the IP could be a IPv4 address
                 if '.' in ip:
                     # Change the “lastQuery” variable to mark the Pi-hole host as “active”
-
-                    for mac, ips in result.items():
-                        if ip in ips:
+                    for mac, localips in interfaces.items():
+                        if ip in localips:
                             lastQuery = str(int(datetime.datetime.now().timestamp()))
-                    # if pihole_host_ip == ip:
-                    #     lastQuery = str(int(datetime.datetime.now().timestamp()))
-
+                    # Create dict of all entries
                     result[hwaddr] = {
                         "ip": ip,
                         "name": name,
@@ -1093,7 +1090,6 @@ def copy_pihole_network_six():
                 VALUES (?, ?, ?, ?, ?)
             """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
 
-        result = {}
         deviceslist = raw_deviceslist.json()
     else:
         print(f"        ...Skipped")
@@ -1331,23 +1327,16 @@ def read_DHCP_leases_six():
 
         # Add the Pi-hole interface data to the DHCP leases to have the possibility to import Pi-hole 
         # itself as well, even if it is not in the local Pi.Alert network.
-        for mac, ip in interfaces.items():
+        for mac, localips in interfaces.items():
             sql.execute("SELECT COUNT(*) FROM DHCP_Leases WHERE DHCP_MAC = ?", (mac,))
             mac_exists = sql.fetchone()[0]
             
             if mac_exists == 0:
-                device = {
-                    'expires': dnsmasq_timestamp,
-                    'hwaddr': mac,
-                    'ip': ip,
-                    'name': 'Pi-hole',
-                    'clientid': "*"
-                }
-
-                sql.execute("""
-                    INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (device['expires'], device['hwaddr'], device['ip'], device['name'], device['clientid']))
+                for ip in localips:
+                    sql.execute("""
+                        INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (dnsmasq_timestamp, mac, ip, "Pi-hole", "*"))
 
         sql_connection.commit()
 
@@ -2069,6 +2058,10 @@ def update_devices_names():
         # progress bar
         print('.', end='')
         sys.stdout.flush()
+
+        if device['dev_MAC'] == "Internet":
+            newName = "Internet"
+            recordsToUpdate.append ([newName, device['dev_MAC']])
             
     # Print log
     print('')
