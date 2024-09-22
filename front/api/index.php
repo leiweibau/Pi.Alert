@@ -65,6 +65,8 @@ function getSystemStatus() {
 	$en_us = array("On", "Off");
 	$de_de = array("An", "Aus");
 	$es_es = array("En", "Off");
+	$fr_fr = array("Allumé", "Éteint");
+	$it_it = array("Acceso", "Spento");
 
 	# Check Scanning Status
 	if (file_exists("../../db/setting_stoparpscan")) {$temp_api_online_devices['Scanning'] = $$pia_lang_selected[1];} else { $temp_api_online_devices['Scanning'] = $$pia_lang_selected[0];}
@@ -79,29 +81,35 @@ function getSystemStatus() {
 		$temp_api_online_devices['Online_Devices'] = $row['Online_Devices'];
 		$temp_api_online_devices['Archived_Devices'] = $row['Archived_Devices'];
 	}
-	unset($results, $sql);
-	$sql = 'SELECT * FROM Devices WHERE dev_NewDevice="1"';
-	$results = $db->query($sql);
+	unset($results);
+	$result = $db->query('SELECT COUNT(*) as count FROM Devices WHERE dev_AlertDeviceDown = 1 AND dev_Archived = 0 AND dev_PresentLastScan = 0');
+	$row = $result->fetchArray(SQLITE3_ASSOC);
+	if ($row) {
+		$temp_api_online_devices['Down_Devices'] = $row['count'];
+		$temp_api_online_devices['Offline_Devices'] = $temp_api_online_devices['Offline_Devices'] - $temp_api_online_devices['Down_Devices'];
+	}
+	unset($results);
+	$results = $db->query('SELECT * FROM Devices WHERE dev_NewDevice="1"');
 	$i = 0;
 	while ($row = $results->fetchArray()) {
 		$i++;
 	}
 	$temp_api_online_devices['New_Devices'] = $i;
-	unset($results, $sql);
+	unset($results);
 	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 1');
 	while ($row = $results->fetchArray()) {
 		$temp_api_online_devices['All_Devices_ICMP'] = $row['All_Devices'];
 		$temp_api_online_devices['Offline_Devices_ICMP'] = $row['Down_Devices'];
 		$temp_api_online_devices['Online_Devices_ICMP'] = $row['Online_Devices'];
 	}
-	unset($results, $sql);
+	unset($results);
 	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 1');
 	while ($row = $results->fetchArray()) {
 		$temp_api_online_devices['All_Devices_ICMP'] = $row['All_Devices'];
 		$temp_api_online_devices['Offline_Devices_ICMP'] = $row['Down_Devices'];
 		$temp_api_online_devices['Online_Devices_ICMP'] = $row['Online_Devices'];
 	}
-	unset($results, $sql);
+	unset($results);
 	$result = $db->query('SELECT COUNT(*) as count FROM Services');
 	$row = $result->fetchArray(SQLITE3_ASSOC);
 	if ($row) {
