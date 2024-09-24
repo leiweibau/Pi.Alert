@@ -45,7 +45,7 @@ function print_box_bottom_element() {
 
 // Get Online Graph Arrays
 $graph_arrays = array();
-$graph_arrays = prepare_graph_arrays_history("icmpscan");
+$graph_arrays = prepare_icmpscan_graph_history();
 $Graph_Device_Time = $graph_arrays[0];
 $Graph_Device_Down = $graph_arrays[1];
 $Graph_Device_All = $graph_arrays[2];

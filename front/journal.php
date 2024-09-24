@@ -96,9 +96,6 @@ function get_pialert_journal() {
 		if ($row['LogClass'] == "a_000") {$full_additional_info = $pia_journ_lang[$row['LogString']] . '<br>' . $pia_journ_lang['File_hash'] . ': <span class="text-danger">' . $row['Hash'] . '</span>';} else { $full_additional_info = $pia_journ_lang[$row['LogString']];}
 		$full_additional_info = $full_additional_info . '<br>' . $row['Additional_Info'];
 
-		// DEBUG
-		// $logcode = str_replace('LogStr', $row['LogClass'], $row['LogString']);
-		// $logclass = $row['LogClass'];
 		$logcode = "";
 		$logclass = "";
 
@@ -126,6 +123,13 @@ function get_pialert_journal() {
   var parPeriod           = 'Front_Journal_Period';
   var parEventsRows       = 'Front_Journal_Rows';
   var period              = '1 month';
+
+  // Custom colors
+  const date_time_colors = ["#3468ff", "#ff644d"];
+  const journal_trigger_name = ["cronjob", "pialert-cli"];
+  const journal_trigger_name_colors = ["red", "red"];
+  const journal_method_name = ["<?=$pia_journ_lang['a_060']?>"];
+  const journal_method_name_colors = ["green"];
 
   main();
 
@@ -162,27 +166,19 @@ function initializeDatatable () {
 
       {targets: [0],
         "createdCell": function (td, cellData, rowData, row, col) {
-            var createdAtValue = new Date(cellData);
-            var today = new Date();
-            var currentTime = new Date();
-            var oneHourAgo = new Date(currentTime.getTime() - (60 * 60 * 1000)); // Subtract 1 hour in milliseconds
-
-            today.setHours(0, 0, 0, 0);
-
-            if (createdAtValue.getTime() >= today.getTime() && oneHourAgo > createdAtValue) {
-                $(td).html('<b style="color:#3468ff;">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
-            } else if (createdAtValue >= oneHourAgo) {
-                $(td).html('<b style="color:#ff644d;">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
-            } else {
-                $(td).html('<b>' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
-            }
+            custom_journal_color_datetime(cellData, td);
+        }
+      },
+      {targets: [3],
+        "createdCell": function (td, cellData, rowData, row, col) {
+            color_scheme = custom_journal_color_method(cellData);
+            $(td).html('<span style="' + color_scheme + '">' + cellData + '</span>');
         }
       },
       {targets: [4],
         "createdCell": function (td, cellData, rowData, row, col) {
-            if (cellData == "cronjob") {
-                $(td).html('<span style="color:red;">' + cellData+ '</span>');
-            }
+            color_scheme = custom_journal_color_trigger(cellData);
+            $(td).html('<span style="' + color_scheme + '">' + cellData + '</span>');
         }
       },
       {targets: [1,2,5],
@@ -205,5 +201,38 @@ function initializeDatatable () {
     },
   });
 };
+
+function custom_journal_color_trigger(trigger) {
+    for (let i = 0; i < journal_trigger_name.length; i++) {
+        if (journal_trigger_name[i] === trigger) {
+            return 'color:' + journal_trigger_name_colors[i] + ';';
+        }
+    }
+    return " ";
+}
+
+function custom_journal_color_datetime(cellData, td) {
+    var createdAtValue = new Date(cellData);
+    var currentTime = new Date();
+    var oneHourAgo = new Date(currentTime.getTime() - (60 * 60 * 1000));
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (createdAtValue.getTime() >= today.getTime() && oneHourAgo > createdAtValue) {
+        $(td).html('<b style="color:' + date_time_colors[0] + ';">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
+    } else if (createdAtValue >= oneHourAgo) {
+        $(td).html('<b style="color:' + date_time_colors[1] + ';">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
+    } else {
+        $(td).html('<b style="">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
+    }
+}
+
+function custom_journal_color_method(method) {
+    for (let i = 0; i < journal_method_name.length; i++) {
+        if (journal_method_name[i] === method) {
+            return 'color:' + journal_method_name_colors[i] + ';';
+        }
+    }
+    return " ";
+}
 
 </script>

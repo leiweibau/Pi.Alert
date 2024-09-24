@@ -25,7 +25,7 @@ OpenDB();
 
 // Get Online Graph Arrays
 $graph_arrays = array();
-$graph_arrays = prepare_graph_arrays_history("mainscan");
+$graph_arrays = prepare_graph_arrays_history($SCANSOURCE);
 $Pia_Graph_Device_Time = $graph_arrays[0];
 $Pia_Graph_Device_Down = $graph_arrays[1];
 $Pia_Graph_Device_All = $graph_arrays[2];
