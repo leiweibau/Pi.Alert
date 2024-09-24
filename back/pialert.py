@@ -927,7 +927,7 @@ def copy_pihole_network():
 
     # check if Pi-hole is active
     if not PIHOLE_ACTIVE :
-        print('        ...Skipped')
+        print("        ...Skipped")
         return
 
     if PIHOLE_VERSION in (None, 5):
@@ -1332,11 +1332,10 @@ def read_DHCP_leases_six():
             mac_exists = sql.fetchone()[0]
             
             if mac_exists == 0:
-                for ip in localips:
-                    sql.execute("""
-                        INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
-                        VALUES (?, ?, ?, ?, ?)
-                    """, (dnsmasq_timestamp, mac, ip, "Pi-hole", "*"))
+                sql.execute("""
+                    INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (dnsmasq_timestamp, mac, localips[0], "Pi-hole", "*"))
 
         sql_connection.commit()
 
@@ -1723,18 +1722,38 @@ def print_scan_stats():
 #------------------------------------------------------------------------------
 def calc_activity_history_main_scan():
     # Add to History
-    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 1")
+    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 1 AND dev_ScanSource = 'local'")
     Querry_Online_Devices = sql.fetchall()
     History_Online_Devices  = len(Querry_Online_Devices)
-    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 0")
+    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 0 AND dev_ScanSource = 'local'")
     Querry_Offline_Devices = sql.fetchall()
     History_Offline_Devices  = len(Querry_Offline_Devices)
-    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 1")
+    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 1 AND dev_ScanSource = 'local'")
     Querry_Archived_Devices = sql.fetchall()
     History_Archived_Devices  = len(Querry_Archived_Devices)
     History_ALL_Devices = History_Online_Devices + History_Offline_Devices + History_Archived_Devices
     sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Archived_Devices, Data_Source) "+
-                 "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'main_scan') )
+                 "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'main_scan_local') )
+
+    sql.execute("SELECT sat_token FROM Satellites")
+    tokens = sql.fetchall()
+    for token in tokens:
+        sat_token = token[0]
+        query = f"SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 1 AND dev_ScanSource = '{sat_token}'"
+        sql.execute(query)
+        Querry_Online_Devices = sql.fetchall()
+        History_Online_Devices  = len(Querry_Online_Devices)
+        query = f"SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 0 AND dev_ScanSource = '{sat_token}'"
+        sql.execute(query)
+        Querry_Offline_Devices = sql.fetchall()
+        History_Offline_Devices  = len(Querry_Offline_Devices)
+        query = f"SELECT * FROM Devices WHERE dev_Archived = 1 AND dev_ScanSource = '{sat_token}'"
+        sql.execute(query)
+        Querry_Archived_Devices = sql.fetchall()
+        History_Archived_Devices  = len(Querry_Archived_Devices)
+        History_ALL_Devices = History_Online_Devices + History_Offline_Devices + History_Archived_Devices
+        sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Archived_Devices, Data_Source) "+
+                     "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'main_scan_' + sat_token) )
 
 #-------------------------------------------------------------------------------
 def create_new_devices():
