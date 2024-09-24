@@ -316,6 +316,8 @@ $help_lang['Cat_General_107_text'] = 'Le fichier <span class="text-maroon help_f
 									        <td class="help_table_gen_b">Cette variable est définie lors de l&apos;installation.</td></tr>
 									    <tr><td class="help_table_gen_a">DHCP_LEASES</td>
 									        <td class="help_table_gen_b">Cette variable est définie lors de l&apos;installation et ne doit pas être modifiée.</td></tr>
+									    <tr><td class="help_table_gen_a">DHCP_INCL_SELF_TO_LEASES</td>
+    										<td class="help_table_gen_b">Ajoute les adresses MAC de Pi-hole lui-même aux baux DHCP pour importer Pi-hole lui-même dans la base de données s&apos;il n&apos;est pas sur le réseau local de Pi.Alert</td></tr>
 									</table>
 									<table class="help_table_gen">
 			    						<tr><td class="help_table_gen_section" colspan="2">Fritzbox Configuration</td></tr>
