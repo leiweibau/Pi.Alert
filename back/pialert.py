@@ -1325,19 +1325,20 @@ def read_DHCP_leases_six():
 
         sql_connection.commit()
 
-        # Add the Pi-hole interface data to the DHCP leases to have the possibility to import Pi-hole 
-        # itself as well, even if it is not in the local Pi.Alert network.
-        for mac, localips in interfaces.items():
-            sql.execute("SELECT COUNT(*) FROM DHCP_Leases WHERE DHCP_MAC = ?", (mac,))
-            mac_exists = sql.fetchone()[0]
-            
-            if mac_exists == 0:
-                sql.execute("""
-                    INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (dnsmasq_timestamp, mac, localips[0], "Pi-hole", "*"))
+        if DHCP_INCL_SELF_TO_LEASES:
+            # Add the Pi-hole interface data to the DHCP leases to have the possibility to import Pi-hole 
+            # itself as well, even if it is not in the local Pi.Alert network.
+            for mac, localips in interfaces.items():
+                sql.execute("SELECT COUNT(*) FROM DHCP_Leases WHERE DHCP_MAC = ?", (mac,))
+                mac_exists = sql.fetchone()[0]
+                
+                if mac_exists == 0:
+                    sql.execute("""
+                        INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (dnsmasq_timestamp, mac, localips[0], "Pi-hole", "*"))
 
-        sql_connection.commit()
+            sql_connection.commit()
 
     else:
         print(f"        ...Skipped")
