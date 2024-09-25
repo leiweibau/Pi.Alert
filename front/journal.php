@@ -21,7 +21,6 @@ require 'php/server/journal.php';
 $db_file = '../db/pialert.db';
 $db = new SQLite3($db_file);
 $db->exec('PRAGMA journal_mode = wal;');
-
 ?>
 
 <!-- Page ------------------------------------------------------------------ -->
@@ -128,8 +127,8 @@ function get_pialert_journal() {
   const date_time_colors = ["#3468ff", "#ff644d"];
   const journal_trigger_name = ["cronjob", "pialert-cli"];
   const journal_trigger_name_colors = ["red", "red"];
-  const journal_method_name = ["<?=$pia_journ_lang['a_060']?>"];
-  const journal_method_name_colors = ["green"];
+  const journal_method_name = ["<?=$pia_journ_lang['a_060']?>","<?=$pia_journ_lang['a_001']?>"];
+  const journal_method_name_colors = ["green","red"];
 
   main();
 
