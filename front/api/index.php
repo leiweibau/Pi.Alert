@@ -55,13 +55,11 @@ if (isset($_REQUEST['get']) && !empty($_REQUEST['get'])) {
 
 //example curl -k -X POST -F 'api-key=key' -F 'get=system-status' https://url/pialert/api/
 function getSystemStatus() {
-
 	# Detect Language
 	foreach (glob("../../config/setting_language*") as $filename) {
 		$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
 	}
 	if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
-
 	$en_us = array("On", "Off");
 	$de_de = array("An", "Aus");
 	$es_es = array("En", "Off");
@@ -72,29 +70,28 @@ function getSystemStatus() {
 	if (file_exists("../../db/setting_stoparpscan")) {$temp_api_online_devices['Scanning'] = $$pia_lang_selected[1];} else { $temp_api_online_devices['Scanning'] = $$pia_lang_selected[0];}
 
 	global $db;
-	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="main_scan" ORDER BY Scan_Date DESC LIMIT 1');
+	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="main_scan_local" ORDER BY Scan_Date DESC LIMIT 1');
 	while ($row = $results->fetchArray()) {
 		$time_raw = explode(' ', $row['Scan_Date']);
 		$temp_api_online_devices['Last_Scan'] = $time_raw[1];
-		$temp_api_online_devices['All_Devices'] = $row['All_Devices'];
-		$temp_api_online_devices['Offline_Devices'] = $row['Down_Devices'];
-		$temp_api_online_devices['Online_Devices'] = $row['Online_Devices'];
-		$temp_api_online_devices['Archived_Devices'] = $row['Archived_Devices'];
 	}
 	unset($results);
-	$result = $db->query('SELECT COUNT(*) as count FROM Devices WHERE dev_AlertDeviceDown = 1 AND dev_Archived = 0 AND dev_PresentLastScan = 0');
-	$row = $result->fetchArray(SQLITE3_ASSOC);
-	if ($row) {
-		$temp_api_online_devices['Down_Devices'] = $row['count'];
-		$temp_api_online_devices['Offline_Devices'] = $temp_api_online_devices['Offline_Devices'] - $temp_api_online_devices['Down_Devices'];
-	}
-	unset($results);
-	$results = $db->query('SELECT * FROM Devices WHERE dev_NewDevice="1"');
-	$i = 0;
-	while ($row = $results->fetchArray()) {
-		$i++;
-	}
-	$temp_api_online_devices['New_Devices'] = $i;
+	$result = $db->query(
+		'SELECT
+        (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0) as All_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_PresentLastScan=1) as Online_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_NewDevice=1) as New_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0) as Down_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0) as Offline_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_Archived=1) as Archived_Devices
+   ');
+	$row = $result->fetchArray(SQLITE3_NUM);
+	$temp_api_online_devices['All_Devices'] = $row[0];
+	$temp_api_online_devices['Online_Devices'] = $row[1];
+	$temp_api_online_devices['New_Devices'] = $row[2];
+	$temp_api_online_devices['Down_Devices'] = $row[3];
+	$temp_api_online_devices['Offline_Devices'] = $row[4];
+	$temp_api_online_devices['Archived_Devices'] = $row[5];
 	unset($results);
 	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 1');
 	while ($row = $results->fetchArray()) {
