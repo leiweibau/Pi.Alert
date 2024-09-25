@@ -37,6 +37,7 @@ The following fields are returned with the API call "system-status".
 "Online_Devices":<Integer>,
 "Archived_Devices":<Integer>,
 "New_Devices":<Integer>,
+"Down_Devices":<Integer>,
 "All_Devices_ICMP":<Integer>,
 "Offline_Devices_ICMP":<Integer>,
 "Online_Devices_ICMP":<Integer>,
@@ -279,6 +280,7 @@ command_line:
         - Online_Devices
         - Offline_Devices
         - New_Devices
+        - Down_Devices
         - Scanning
         - Offline_Devices_ICMP
         - Online_Devices_ICMP
@@ -309,6 +311,11 @@ template:
       - name: "PiAlert - New Devices"
         state: "{{ state_attr('sensor.pialert_status', 'New_Devices') }}"
         unique_id: pialert.status.newdevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Down Devices"
+        state: "{{ state_attr('sensor.pialert_status', 'Down_Devices') }}"
+        unique_id: pialert.status.downdevices
         unit_of_measurement: ""
 
       - name: "PiAlert - Scanning"
@@ -375,6 +382,14 @@ sensor:
     unique_id: pialert.status.newdevices
     unit_of_measurement: ""
     value_template: '{{ value_json.New_Devices }}'
+
+  - platform: command_line
+    name: "PiAlert - Down Devices"
+    command: curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=system-status' http://[URL]/api/
+    scan_interval: 200
+    unique_id: pialert.status.downdevices
+    unit_of_measurement: ""
+    value_template: '{{ value_json.Down_Devices }}'
 
   - platform: command_line
     name: "PiAlert - Scanning"
