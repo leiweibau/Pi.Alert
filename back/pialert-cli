@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.27'
+SCRIPTVERSION='v1.28'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -625,6 +625,14 @@ EOM
       sqlite3 $PIA_DB_FILE "ALTER TABLE 'Devices' ADD COLUMN 'dev_PresencePage' BOOLEAN NOT NULL DEFAULT 1;"
     else
       echo "        Column 'dev_PresencePage' already exists in the 'Devices' table."
+    fi
+    # Parameters.par_Long_Value
+    echo -e "...Insert new column 'par_Long_Value' to table 'Parameters' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Parameters');" | awk -F\| '{print $2}' | grep -wci "par_Long_Value")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Parameters' ADD COLUMN 'par_Long_Value' TEXT;"
+    else
+      echo "        Column 'par_Long_Value' already exists in the 'Parameters' table."
     fi
 
     echo -e "\nUpdate finished!\n"

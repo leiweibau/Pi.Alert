@@ -21,6 +21,7 @@ require 'php/server/journal.php';
 $db_file = '../db/pialert.db';
 $db = new SQLite3($db_file);
 $db->exec('PRAGMA journal_mode = wal;');
+
 ?>
 
 <!-- Page ------------------------------------------------------------------ -->
@@ -28,6 +29,7 @@ $db->exec('PRAGMA journal_mode = wal;');
 
 <!-- Content header--------------------------------------------------------- -->
     <section class="content-header">
+        <?php require 'php/templates/notification.php';?>
       <h1 id="pageTitle">
          <?=$pia_journ_lang['Title']?>
       </h1>
@@ -36,6 +38,58 @@ $db->exec('PRAGMA journal_mode = wal;');
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
 
+        <div class="modal fade" id="modal-set-journal-colors">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title">Farben</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <style>
+                            .filter-group-trigger {
+                                display: flex;
+                                align-items: center;
+                                margin-bottom: 10px;
+                            }
+                            .filter-group-trigger label, .filter-group-trigger input {
+                                margin-right: 10px;
+                            }
+                            .remove-btn {
+                                border: none;
+                                padding: 5px 10px;
+                                cursor: pointer;
+                            }
+                            .add-btn {
+                                border: none;
+                                padding: 5px 10px;
+                                cursor: pointer;
+                            }
+                        </style>
+
+                        <h4><?=$pia_journ_lang['Journal_TableHead_Class'];?></h4>
+                        <div id="methodContainer">
+
+                        </div>
+                        <button type="button" id="addMethod" class="btn btn-success" style="margin-top:5px; margin-right:10px;">+</button>
+                        <input type="submit" class="btn btn-danger" value="<?=$pia_lang['Gen_Save']?> (<?=$pia_journ_lang['Journal_TableHead_Class'];?>)" style="margin-top:5px; margin-right:10px;" onclick="SetMethodColors()">
+
+                        <h4><?=$pia_journ_lang['Journal_TableHead_Trigger'];?></h4>
+                        <div id="triggerContainer">
+
+                        </div>
+                        <button type="button" id="addTrigger" class="btn btn-success" style="margin-top:5px; margin-right:10px;">+</button>
+                        <input type="submit" class="btn btn-danger" value="<?=$pia_lang['Gen_Save']?> (<?=$pia_journ_lang['Journal_TableHead_Trigger'];?>)" style="margin-top:5px; margin-right:10px;" onclick="SetTriggerColors()">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="JournalReload()"><?=$pia_lang['Gen_Close']?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <!-- datatable ------------------------------------------------------------- -->
       <div class="row">
         <div class="col-xs-12">
@@ -43,6 +97,7 @@ $db->exec('PRAGMA journal_mode = wal;');
 
             <div class="box-header">
               <h3 id="tableJournalTitle" class="box-title text-aqua">Journal</h3>
+              <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-journal-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paint-roller text-green" style="font-size:1.5rem"></i></a>
               <a href="#" onclick="clearInput();"><span id="reset_joursearch" class="text-red pull-right"><i class="fa-solid fa-filter-circle-xmark"></i></span></a>
             </div>
 
@@ -110,30 +165,116 @@ function get_pialert_journal() {
 	}
 }
 ?>
-
+<script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
 <link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
 <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
+
 <!-- page script ----------------------------------------------------------- -->
 <script>
-  var devicesList         = [];
-  var pos                 = -1;
-  var parPeriod           = 'Front_Journal_Period';
-  var parEventsRows       = 'Front_Journal_Rows';
-  var period              = '1 month';
+    var devicesList         = [];
+    var pos                 = -1;
+    var parPeriod           = 'Front_Journal_Period';
+    var parEventsRows       = 'Front_Journal_Rows';
+    var period              = '1 month';
 
-  // Custom colors
-  const date_time_colors = ["#3468ff", "#ff644d"];
-  const journal_trigger_name = ["cronjob", "pialert-cli"];
-  const journal_trigger_name_colors = ["red", "red"];
-  const journal_method_name = ["<?=$pia_journ_lang['a_060']?>","<?=$pia_journ_lang['a_001']?>"];
-  const journal_method_name_colors = ["green","red"];
+    // Custom colors
+    let date_time_colors = ["#3468ff", "#ff644d"];
+    let journalTriggerFilter = [];
+    let journalTriggerFilterColor = [];
+    let journalMethodFilter = [];
+    let journalMethodFilterColor = [];
 
-  main();
+    let triggerIndex = 0;
+    let methodIndex = 0;
 
-function main () {
-  initializeDatatable();
+    $('#addTrigger').click(function () {
+        triggerIndex++;
+        $('#triggerContainer').append(
+            `<div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
+                <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}">
+                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Farbe ${triggerIndex}">
+                <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
+            </div>`
+        );
+    });
+
+    $('#addMethod').click(function () {
+        methodIndex++;
+        $('#methodContainer').append(
+            `<div id="method_${methodIndex}" style="margin-bottom: 5px">
+                <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}">
+                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Farbe ${methodIndex}">
+                <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
+            </div>`
+        );
+    });
+
+    window.removeField = function (selector) {
+        $(selector).remove();
+    };
+
+    initializeCustomColors();
+
+    for (var i = 0; i < journalMethodFilter.length; i++) {
+        addMethodRow(journalMethodFilter[i], journalMethodFilterColor[i]);
+    }
+
+function JournalReload() {
+    setTimeout(function() {
+        location.reload();
+    }, 1000)
+};
+
+function initializeCustomColors() {
+    $.get('php/server/parameters.php?action=getJournalParameter', function(data) {
+        var customColors = JSON.parse(data);
+        if (customColors && typeof customColors === 'object') {
+            journalTriggerFilter = customColors.journal_trigger_filter ? customColors.journal_trigger_filter.split(',').map(item => item.trim()) : [];
+            journalTriggerFilterColor = customColors.journal_trigger_filter_color ? customColors.journal_trigger_filter_color.split(',').map(item => item.trim()) : [];
+            journalMethodFilter = customColors.journal_method_filter ? customColors.journal_method_filter.split(',').map(item => item.trim()) : [];
+            journalMethodFilterColor = customColors.journal_method_filter_color ? customColors.journal_method_filter_color.split(',').map(item => item.trim()) : [];
+        }
+        addTriggerRows();
+        addMethodRows();
+
+        initializeDatatable();
+  });
+}
+
+function addTriggerRows() {
+    for (var i = 0; i < journalTriggerFilter.length; i++) {
+        addTriggerRow(journalTriggerFilter[i], journalTriggerFilterColor[i]);
+    }
+}
+function addTriggerRow(Name, Color) {
+    triggerIndex++;
+    var newFields = `
+        <div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
+                <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}" value="${Name}">
+                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Farbe ${triggerIndex}" value="${Color}">
+                <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
+        </div>
+    `;
+    $('#triggerContainer').append(newFields);
+}
+
+function addMethodRows() {
+    for (var i = 0; i < journalMethodFilter.length; i++) {
+        addMethodRow(journalMethodFilter[i], journalMethodFilterColor[i]);
+    }
+}
+function addMethodRow(Name, Color) {
+    methodIndex++;
+    var newFields = `
+        <div id="method_${methodIndex}" style="margin-bottom: 5px">
+                <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}" value="${Name}">
+                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Farbe ${methodIndex}" value="${Color}">
+                <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
+        </div>
+    `;
+    $('#methodContainer').append(newFields);
 }
 
 function initializeDatatable () {
@@ -202,9 +343,9 @@ function initializeDatatable () {
 };
 
 function custom_journal_color_trigger(trigger) {
-    for (let i = 0; i < journal_trigger_name.length; i++) {
-        if (journal_trigger_name[i] === trigger) {
-            return 'color:' + journal_trigger_name_colors[i] + ';';
+    for (let i = 0; i < journalTriggerFilter.length; i++) {
+        if (journalTriggerFilter[i] === trigger) {
+            return 'color:' + journalTriggerFilterColor[i] + ';';
         }
     }
     return " ";
@@ -226,12 +367,40 @@ function custom_journal_color_datetime(cellData, td) {
 }
 
 function custom_journal_color_method(method) {
-    for (let i = 0; i < journal_method_name.length; i++) {
-        if (journal_method_name[i] === method) {
-            return 'color:' + journal_method_name_colors[i] + ';';
+    for (let i = 0; i < journalMethodFilter.length; i++) {
+        if (journalMethodFilter[i] === method) {
+            return 'color:' + journalMethodFilterColor[i] + ';';
         }
     }
     return " ";
+}
+
+function SetTriggerColors() {
+    let triggerNames = $('input[name="triggerNames[]"]').map(function () { return $(this).val(); }).get();
+    let triggerColors = $('input[name="triggerColors[]"]').map(function () { return $(this).val(); }).get();
+
+    $.post('php/server/parameters.php', {
+        action: 'setJournalParameter',
+        column: 'trigger',
+        triggerNames: triggerNames,
+        triggerColors: triggerColors
+    }, function(msg) {
+    showMessage (msg);
+  });
+}
+
+function SetMethodColors() {
+    let methodNames = $('input[name="methodNames[]"]').map(function () { return $(this).val(); }).get();
+    let methodColors = $('input[name="methodColors[]"]').map(function () { return $(this).val(); }).get();
+
+    $.post('php/server/parameters.php', {
+        action: 'setJournalParameter',
+        column: 'method',
+        methodNames: methodNames,
+        methodColors: methodColors
+    }, function(msg) {
+    showMessage (msg);
+  });
 }
 
 </script>

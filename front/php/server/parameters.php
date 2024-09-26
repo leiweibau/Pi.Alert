@@ -8,6 +8,7 @@
 //  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
 //------------------------------------------------------------------------------
 
+
 require 'db.php';
 require 'util.php';
 
@@ -26,9 +27,84 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'set':setParameter();
 		break;
+	case 'getJournalParameter':getJournalParameter();
+		break;
+	case 'setJournalParameter':setJournalParameter();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function getJournalParameter() {
+    global $db;
+	$responseData = [];
+
+	$ids = [
+	    'journal_trigger_filter',
+	    'journal_trigger_filter_color',
+	    'journal_method_filter',
+	    'journal_method_filter_color'
+	];
+
+	foreach ($ids as $id) {
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = '$id'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $responseData[$id] = $row['par_Long_Value'];
+	    } else {
+	        $responseData[$id] = null; // Falls kein Wert gefunden wird
+	    }
+	}
+	echo json_encode($responseData);
+}
+
+function saveParameters($par_ID, $par_Long_Value) {
+	global $db;
+    
+    $result = $db->query("SELECT COUNT(*) as count FROM Parameters WHERE par_ID = '$par_ID'");
+    $row = $result->fetchArray(SQLITE3_ASSOC);
+    
+    if ($row['count'] > 0) {
+        $db->query("UPDATE Parameters SET par_Long_Value = '$par_Long_Value' WHERE par_ID = '$par_ID'");
+    } else {
+        $db->query("INSERT INTO Parameters (par_ID, par_Long_Value) VALUES ('$par_ID', '$par_Long_Value')");
+    }
+}
+
+function setJournalParameter() {
+	global $db;
+    
+    if ($_POST['column'] == "trigger") {
+    	$triggerNames = "";
+    	$triggerColors = "";
+    	if ($_POST['triggerNames'] != "") {
+    		$triggerNames = implode(",", $_POST['triggerNames']);
+    	}        
+        if ($_POST['triggerColors'] != "") {
+        	$triggerColors = implode(",", $_POST['triggerColors']);
+    	}
+
+        saveParameters('journal_trigger_filter', $triggerNames);
+        saveParameters('journal_trigger_filter_color', $triggerColors);
+        echo "Trigger saved";
+    }
+
+    if ($_POST['column'] == "method") {
+    	$methodNames = "";
+    	$methodColors = "";
+    	if ($_POST['methodNames'] != "") {
+    		$methodNames = implode(",", $_POST['methodNames']);
+    	}        
+        if ($_POST['methodColors'] != "") {
+        	$methodColors = implode(",", $_POST['methodColors']);
+    	}
+        
+        saveParameters('journal_method_filter', $methodNames);
+        saveParameters('journal_method_filter_color', $methodColors);
+        echo "Methode saved";
+    }
+
 }
 
 //  Get Parameter Value
