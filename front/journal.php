@@ -43,7 +43,7 @@ $db->exec('PRAGMA journal_mode = wal;');
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                        <h4 class="modal-title">Farben</h4>
+                        <h4 class="modal-title"><?=$pia_journ_lang['Journal_CustomColor_Head'];?></h4>
                     </div>
                     <div class="modal-body">
 
@@ -68,14 +68,17 @@ $db->exec('PRAGMA journal_mode = wal;');
                             }
                         </style>
 
-                        <h4><?=$pia_journ_lang['Journal_TableHead_Class'];?></h4>
+                        <link rel="stylesheet" href="lib/Coloris/dist/coloris.min.css"/>
+                        <script src="lib/Coloris/dist/coloris.min.js"></script>
+
+                        <h4><?=$pia_lang['Gen_column'];?>: <?=$pia_journ_lang['Journal_TableHead_Class'];?></h4>
                         <div id="methodContainer">
 
                         </div>
                         <button type="button" id="addMethod" class="btn btn-success" style="margin-top:5px; margin-right:10px;">+</button>
                         <input type="submit" class="btn btn-danger" value="<?=$pia_lang['Gen_Save']?> (<?=$pia_journ_lang['Journal_TableHead_Class'];?>)" style="margin-top:5px; margin-right:10px;" onclick="SetMethodColors()">
 
-                        <h4><?=$pia_journ_lang['Journal_TableHead_Trigger'];?></h4>
+                        <h4><?=$pia_lang['Gen_column'];?>: <?=$pia_journ_lang['Journal_TableHead_Trigger'];?></h4>
                         <div id="triggerContainer">
 
                         </div>
@@ -97,7 +100,7 @@ $db->exec('PRAGMA journal_mode = wal;');
 
             <div class="box-header">
               <h3 id="tableJournalTitle" class="box-title text-aqua">Journal</h3>
-              <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-journal-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paint-roller text-green" style="font-size:1.5rem"></i></a>
+              <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-journal-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paintbrush text-green" style="font-size:1.5rem"></i></a>
               <a href="#" onclick="clearInput();"><span id="reset_joursearch" class="text-red pull-right"><i class="fa-solid fa-filter-circle-xmark"></i></span></a>
             </div>
 
@@ -194,7 +197,7 @@ function get_pialert_journal() {
         $('#triggerContainer').append(
             `<div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
                 <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}">
-                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Farbe ${triggerIndex}">
+                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Color ${triggerIndex}" data-coloris>
                 <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
             </div>`
         );
@@ -205,7 +208,7 @@ function get_pialert_journal() {
         $('#methodContainer').append(
             `<div id="method_${methodIndex}" style="margin-bottom: 5px">
                 <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}">
-                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Farbe ${methodIndex}">
+                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Color ${methodIndex}" data-coloris>
                 <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
             </div>`
         );
@@ -216,10 +219,12 @@ function get_pialert_journal() {
     };
 
     initializeCustomColors();
-
-    for (var i = 0; i < journalMethodFilter.length; i++) {
-        addMethodRow(journalMethodFilter[i], journalMethodFilterColor[i]);
-    }
+    Coloris({
+        themeMode: 'dark',
+        alpha: false,
+        closeButton: true,
+        closeLabel: '<?=$pia_lang['Gen_Close']?>',
+    });
 
 function JournalReload() {
     setTimeout(function() {
@@ -238,7 +243,6 @@ function initializeCustomColors() {
         }
         addTriggerRows();
         addMethodRows();
-
         initializeDatatable();
   });
 }
@@ -253,7 +257,7 @@ function addTriggerRow(Name, Color) {
     var newFields = `
         <div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
                 <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}" value="${Name}">
-                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Farbe ${triggerIndex}" value="${Color}">
+                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Color ${triggerIndex}" value="${Color}" data-coloris>
                 <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
         </div>
     `;
@@ -270,7 +274,7 @@ function addMethodRow(Name, Color) {
     var newFields = `
         <div id="method_${methodIndex}" style="margin-bottom: 5px">
                 <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}" value="${Name}">
-                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Farbe ${methodIndex}" value="${Color}">
+                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Color ${methodIndex}" value="${Color}" data-coloris>
                 <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
         </div>
     `;
