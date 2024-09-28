@@ -23,6 +23,7 @@ $pia_lang['Gen_off'] = 'Off';
 $pia_lang['Gen_activate'] = 'enable';
 $pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
+$pia_lang['Gen_column'] = 'Column';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Enter your password';
@@ -692,6 +693,7 @@ $pia_journ_lang['Journal_TableHead_Class'] = 'Method';
 $pia_journ_lang['Journal_TableHead_Trigger'] = 'Trigger';
 $pia_journ_lang['Title'] = 'Application Journal';
 $pia_journ_lang['File_hash'] = 'pialert.conf - Hash';
+$pia_journ_lang['Journal_CustomColor_Head'] = 'Color Management';
 // Frontend
 $pia_journ_lang['a_000'] = 'Configuration File';
 $pia_journ_lang['a_001'] = 'GUI Access';
@@ -769,6 +771,7 @@ $pia_journ_lang['LogStr_0044'] = 'The table for the filters could not be created
 $pia_journ_lang['LogStr_0045'] = 'Predefined filter has been deleted';
 $pia_journ_lang['LogStr_0046'] = 'Predefined filter was updated';
 $pia_journ_lang['LogStr_0047'] = 'Predefined filter was not updated';
+$pia_journ_lang['LogStr_0048'] = 'Color adjustment changed: ';
 $pia_journ_lang['LogStr_0050'] = 'Enabled Pi.Alert password protection';
 $pia_journ_lang['LogStr_0051'] = 'Disabled Pi.Alert password protection';
 $pia_journ_lang['LogStr_0052'] = 'Changed device list column configuration';

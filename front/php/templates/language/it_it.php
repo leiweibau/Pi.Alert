@@ -22,6 +22,7 @@ $pia_lang['Gen_off'] = 'Spento';
 $pia_lang['Gen_activate'] = 'enable';
 $pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
+$pia_lang['Gen_column'] = 'Colonna';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Inserisci la password';
@@ -696,6 +697,7 @@ $pia_journ_lang['Journal_TableHead_Class'] = 'Classe';
 $pia_journ_lang['Journal_TableHead_Trigger'] = 'Trigger';
 $pia_journ_lang['Title'] = 'Registro Applicazioni';
 $pia_journ_lang['File_hash'] = 'Hash di pialert.conf';
+$pia_journ_lang['Journal_CustomColor_Head'] = 'Gestione dei colori';
 // Frontend
 $pia_journ_lang['a_000'] = 'File di configurazione';
 $pia_journ_lang['a_001'] = 'Accesso alla GUI';
@@ -773,6 +775,7 @@ $pia_journ_lang['LogStr_0044'] = 'Impossibile creare la tabella dei filtri';
 $pia_journ_lang['LogStr_0045'] = 'Il filtro predefinito è stato eliminato';
 $pia_journ_lang['LogStr_0046'] = 'Il filtro predefinito è stato aggiornato';
 $pia_journ_lang['LogStr_0047'] = 'Il filtro predefinito non è stato aggiornato';
+$pia_journ_lang['LogStr_0048'] = 'Regolazione del colore modificata: ';
 $pia_journ_lang['LogStr_0050'] = 'Attivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0051'] = 'Disattivata protezione password di Pi.Alert';
 $pia_journ_lang['LogStr_0052'] = 'Modificata configurazione delle colonne della lista dei dispositivi';
