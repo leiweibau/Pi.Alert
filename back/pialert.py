@@ -41,6 +41,10 @@ REPORTPATH_WEBGUI = PIALERT_PATH + "/front/reports/"
 STATUS_FILE_SCAN = PIALERT_BACK_PATH + "/.scanning"
 STATUS_FILE_BACKUP = PIALERT_BACK_PATH + "/.backup"
 
+PIHOLE6_SES_VALID = ""
+PIHOLE6_SES_SID = ""
+PIHOLE6_SES_CSRF = ""
+
 if (sys.version_info > (3,0)):
     exec(open(PIALERT_PATH + "/config/version.conf").read())
     exec(open(PIALERT_PATH + "/config/pialert.conf").read())
@@ -704,6 +708,8 @@ def query_MAC_vendor(pMAC):
 # SCAN NETWORK
 #===============================================================================
 def scan_network():
+    global PIHOLE6_SES_VALID
+
     # Create scan status file
     with open(STATUS_FILE_SCAN, "w") as f:
         f.write("")
@@ -734,13 +740,15 @@ def scan_network():
     arpscan_devices = execute_arpscan()
     print_log ('arp-scan ends')
     # Pi-hole
-    print(f"    Pi-hole {PIHOLE_VERSION} Method...")
+    print(f"    Pi-hole {PIHOLE_VERSION} Client List Method...")
     openDB()
     print_log ('Pi-hole copy starts...')
     copy_pihole_network()
     # DHCP Leases
-    print('    DHCP Leases Method...')
+    print(f"    Pi-hole {PIHOLE_VERSION} DHCP Leases Method...")
     read_DHCP_leases()
+    if PIHOLE6_SES_VALID==True:
+        pihole_six_api_deauth()
     # Fritzbox
     print('    Fritzbox Method...')
     openDB()
@@ -919,129 +927,203 @@ def copy_pihole_network():
 
     # check if Pi-hole is active
     if not PIHOLE_ACTIVE :
-        print('        ...Skipped')
+        print("        ...Skipped")
         return
 
     if PIHOLE_VERSION in (None, 5):
-        # Open Pi-hole DB
-        sql.execute ("ATTACH DATABASE '"+ PIHOLE_DB +"' AS PH")
-
-        # Copy Pi-hole Network table
-        sql.execute ("""INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery,
-                            PH_Name, PH_IP)
-                        SELECT hwaddr, macVendor, lastQuery,
-                            (SELECT name FROM PH.network_addresses
-                             WHERE network_id = id ORDER BY lastseen DESC, ip),
-                            (SELECT ip FROM PH.network_addresses
-                             WHERE network_id = id ORDER BY lastseen DESC, ip)
-                        FROM PH.network
-                        WHERE hwaddr NOT LIKE 'ip-%'
-                          AND hwaddr <> '00:00:00:00:00:00' """)
-        sql.execute ("""UPDATE PiHole_Network SET PH_Name = '(unknown)'
-                        WHERE PH_Name IS NULL OR PH_Name = '' """)
-
-        # Close Pi-hole DB
-        sql.execute ("DETACH PH")
-
+        copy_pihole_network_five()
     elif PIHOLE_VERSION == 6:
-        global PIHOLE6_URL
-        global PIHOLE6_PASSWORD
-
-        if not PIHOLE6_PASSWORD or not PIHOLE6_URL :
-            print('        ...Skipped (Config Error)')
-            return
-
-        if not PIHOLE6_URL.endswith('/'):
-            PIHOLE6_URL += '/'
-
-        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json"
-        }
-        data = {
-            "password": PIHOLE6_PASSWORD
-        }
-        try:
-            response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False, timeout=15)
-        except requests.exceptions.Timeout:
-            print(f"        Request timed out after 15 seconds")
-            return
-        except requests.exceptions.ConnectionError as e:
-            print(f"        Connection error occurred")
-            return
-        except Exception as e:
-            print(f"        An unexpected error occurred")
-            return
-
-        response_json = response.json()
-
-        if response.status_code == 200 and response_json['session']['valid'] == True :
-            headers = {
-                "X-FTL-SID": response_json['session']['sid'],
-                "X-FTL-CSRF": response_json['session']['csrf']
-            }
-            raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=10&max_addresses=2', headers=headers, json=data, verify=False)
-
-            result = {}
-            deviceslist = raw_deviceslist.json()
-
-            # If pi-hole is outside the local Pi.Alert network and cannot be found with arp. 
-            pihole_host_ip = get_ip_from_hostname(PIHOLE6_URL)
-
-            for device in deviceslist['devices']:
-                hwaddr = device['hwaddr']
-                lastQuery = device['lastQuery']
-                macVendor = device['macVendor']
-
-                # skip lo interface
-                if hwaddr == "00:00:00:00:00:00":
-                    continue
-
-                for ip_info in device['ips']:
-                    ip = ip_info['ip']
-                    name = ip_info['name'] if ip_info['name'] not in [None, ""] else "(unknown)"
-
-                    # Check whether the IP could be a IPv4 address
-                    if '.' in ip:
-                        # Change the “lastQuery” variable to mark the Pi-hole host as “active”
-                        if pihole_host_ip == ip:
-                            lastQuery = str(int(datetime.datetime.now().timestamp()))
-
-                        result[hwaddr] = {
-                            "ip": ip,
-                            "name": name,
-                            "macVendor": macVendor,
-                            "lastQuery": lastQuery
-                        }
-
-            # print(result)
-            for hwaddr, details in result.items():
-                sql.execute("""
-                    INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery, PH_Name, PH_IP)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
-
-            result = {}
-            deviceslist = raw_deviceslist.json()
-
-        else:
-            print("Auth required")
-            return
-
+        pihole_six_api_auth()
+        copy_pihole_network_six()
     else:
         print('        ...Unsupported Version')
 
 #-------------------------------------------------------------------------------
-def get_ip_from_hostname(url):
+def copy_pihole_network_five():
+    # Open Pi-hole DB
+    sql.execute ("ATTACH DATABASE '"+ PIHOLE_DB +"' AS PH")
+
+    # Copy Pi-hole Network table
+    sql.execute ("""INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery,
+                        PH_Name, PH_IP)
+                    SELECT hwaddr, macVendor, lastQuery,
+                        (SELECT name FROM PH.network_addresses
+                         WHERE network_id = id ORDER BY lastseen DESC, ip),
+                        (SELECT ip FROM PH.network_addresses
+                         WHERE network_id = id ORDER BY lastseen DESC, ip)
+                    FROM PH.network
+                    WHERE hwaddr NOT LIKE 'ip-%'
+                      AND hwaddr <> '00:00:00:00:00:00' """)
+    sql.execute ("""UPDATE PiHole_Network SET PH_Name = '(unknown)'
+                    WHERE PH_Name IS NULL OR PH_Name = '' """)
+
+    # Close Pi-hole DB
+    sql.execute ("DETACH PH")
+
+#-------------------------------------------------------------------------------
+def pihole_six_api_auth():
+    global PIHOLE6_URL
+    global PIHOLE6_PASSWORD
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    if not PIHOLE6_PASSWORD or not PIHOLE6_URL :
+        print('        ...Skipped (Config Error)')
+        return
+
+    if not PIHOLE6_URL.endswith('/'):
+        PIHOLE6_URL += '/'
+
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "User-Agent": "Pi.Alert/"+ VERSION_DATE
+    }
+    data = {
+        "password": PIHOLE6_PASSWORD
+    }
     try:
-        hostname_port = url.replace("http://", "").replace("https://", "").split('/')[0]
-        hostname = hostname_port.split(':')[0]
-        ip_address = socket.gethostbyname(hostname)
-        return ip_address
-    except socket.gaierror as e:
-        ip_address = ""
-        return ip_address
+        response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False, timeout=15)
+    except requests.exceptions.Timeout:
+        print(f"        Request timed out after 15 seconds")
+        return
+    except requests.exceptions.ConnectionError as e:
+        print(f"        Connection error occurred")
+        return
+    except Exception as e:
+        print(f"        An unexpected error occurred")
+        return
+
+    response_json = response.json()
+
+    if response_json['session']['valid'] == True :
+        PIHOLE6_SES_VALID = response_json['session']['valid']
+        PIHOLE6_SES_SID = response_json['session']['sid']
+        PIHOLE6_SES_CSRF = response_json['session']['csrf']
+    else:
+        print(f"        Auth required")
+        return
+
+#-------------------------------------------------------------------------------
+def pihole_six_api_deauth():
+    global PIHOLE6_URL
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    if not PIHOLE6_URL.endswith('/'):
+        PIHOLE6_URL += '/'
+
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    headers = {
+        "X-FTL-SID": PIHOLE6_SES_SID
+    }
+    try:
+        response = requests.delete(PIHOLE6_URL+'api/auth', headers=headers, verify=False, timeout=15)
+    except requests.exceptions.Timeout:
+        print(f"        Request timed out after 15 seconds")
+        return
+    except requests.exceptions.ConnectionError as e:
+        print(f"        Connection error occurred")
+        return
+    except Exception as e:
+        print(f"        An unexpected error occurred")
+        return
+
+    #print("        Pi-hole Logout")
+
+#-------------------------------------------------------------------------------
+def copy_pihole_network_six():
+    global PIHOLE6_URL
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    if PIHOLE6_SES_VALID == True:
+        headers = {
+            "X-FTL-SID": PIHOLE6_SES_SID,
+            "X-FTL-CSRF": PIHOLE6_SES_CSRF
+        }
+        #max_devices=-1 seems to be "all". no more detailed information found in the API documentation
+        #max_addresses=2 IPs per host
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=-1&max_addresses=2', headers=headers, verify=False)
+
+        result = {}
+        deviceslist = raw_deviceslist.json()
+
+        # If pi-hole is outside the local Pi.Alert network and cannot be found with arp.
+        interfaces = get_pihole_interface_data()
+
+        for device in deviceslist['devices']:
+            hwaddr = device['hwaddr']
+            lastQuery = device['lastQuery']
+            macVendor = device['macVendor']
+
+            # skip lo interface
+            if hwaddr == "00:00:00:00:00:00":
+                continue
+
+            for ip_info in device['ips']:
+                ip = ip_info['ip']
+                name = ip_info['name'] if ip_info['name'] not in [None, ""] else "(unknown)"
+
+                # Check whether the IP could be a IPv4 address
+                if '.' in ip:
+                    # Change the “lastQuery” variable to mark the Pi-hole host as “active”
+                    for mac, localips in interfaces.items():
+                        if ip in localips:
+                            lastQuery = str(int(datetime.datetime.now().timestamp()))
+                    # Create dict of all entries
+                    result[hwaddr] = {
+                        "ip": ip,
+                        "name": name,
+                        "macVendor": macVendor,
+                        "lastQuery": lastQuery
+                    }
+
+        # print(result)
+        for hwaddr, details in result.items():
+            sql.execute("""
+                INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery, PH_Name, PH_IP)
+                VALUES (?, ?, ?, ?, ?)
+            """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
+
+        deviceslist = raw_deviceslist.json()
+    else:
+        print(f"        ...Skipped")
+        return
+
+#-------------------------------------------------------------------------------
+def get_pihole_interface_data():
+    global PIHOLE6_URL
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    result = {}
+    
+    if PIHOLE6_SES_VALID == True:
+        headers = {
+            "X-FTL-SID": PIHOLE6_SES_SID,
+            "X-FTL-CSRF": PIHOLE6_SES_CSRF
+        }
+        raw_interfacelist = requests.get(PIHOLE6_URL+'api/network/interfaces', headers=headers, verify=False)
+        data = raw_interfacelist.json()
+
+        for interface in data['interfaces']:
+            mac_address = interface.get('address')
+            
+            if mac_address == "00:00:00:00:00:00":
+                continue
+            
+            ips = [addr['address'] for addr in interface['addresses'] if addr['family'] == 'inet']
+            if mac_address and ips:
+                result[mac_address] = ips
+
+    return result
+
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
@@ -1078,7 +1160,7 @@ def read_fritzbox_active_hosts():
                 vendor = MacLookup().lookup(host['mac'])
             except:
                 vendor = "Prefix is not registered"
-            
+
             sql.execute ("INSERT INTO Fritzbox_Network (FB_MAC, FB_IP, FB_Name, FB_Vendor) "+
                          "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
 
@@ -1176,7 +1258,18 @@ def read_DHCP_leases():
     if not DHCP_ACTIVE :
         print('        ...Skipped')
         return
-            
+
+    if PIHOLE_VERSION in (None, 5):
+        read_DHCP_leases_five()
+    elif PIHOLE_VERSION == 6:
+        if not PIHOLE6_SES_VALID == True:
+            pihole_six_api_auth()
+        read_DHCP_leases_six()
+    else:
+        print('        ...Unsupported Version')
+
+#-------------------------------------------------------------------------------
+def read_DHCP_leases_five():
     # Read DHCP Leases
     data = []
     with open(DHCP_LEASES, 'r') as f:
@@ -1191,6 +1284,65 @@ def read_DHCP_leases():
                             DHCP_IP, DHCP_Name, DHCP_MAC2)
                         VALUES (?, ?, ?, ?, ?)
                      """, data)
+
+#-------------------------------------------------------------------------------
+def read_DHCP_leases_six():
+    global PIHOLE6_URL
+    global PIHOLE6_PASSWORD
+    global PIHOLE6_SES_VALID
+    global PIHOLE6_SES_SID
+    global PIHOLE6_SES_CSRF
+
+    if PIHOLE6_SES_VALID == True:
+
+        sql.execute ("DELETE FROM DHCP_Leases")
+
+        headers = {
+            "X-FTL-SID": PIHOLE6_SES_SID,
+            "X-FTL-CSRF": PIHOLE6_SES_CSRF
+        }
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/dhcp/leases', headers=headers, verify=False)
+
+        result = {}
+        deviceslist = raw_deviceslist.json()
+
+        # Get Pi-hole local MAC-Adresses an IPs
+        interfaces = get_pihole_interface_data()
+        # Generate a theoretical lease period of +30min
+        current_time = datetime.datetime.now()
+        future_time = current_time + datetime.timedelta(minutes=30)
+        dnsmasq_timestamp = int(future_time.timestamp()) 
+
+        for device in deviceslist['leases']:
+            # skip lo interface if present
+            if device['hwaddr'] == "00:00:00:00:00:00":
+                continue
+
+            sql.execute("""INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC,
+                                DHCP_IP, DHCP_Name, DHCP_MAC2)
+                                    VALUES (?, ?, ?, ?, ?)
+                                 """, (device['expires'], device['hwaddr'], device['ip'], device['name'], device['clientid']))
+
+        sql_connection.commit()
+
+        if DHCP_INCL_SELF_TO_LEASES:
+            # Add the Pi-hole interface data to the DHCP leases to have the possibility to import Pi-hole 
+            # itself as well, even if it is not in the local Pi.Alert network.
+            for mac, localips in interfaces.items():
+                sql.execute("SELECT COUNT(*) FROM DHCP_Leases WHERE DHCP_MAC = ?", (mac,))
+                mac_exists = sql.fetchone()[0]
+                
+                if mac_exists == 0:
+                    sql.execute("""
+                        INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC, DHCP_IP, DHCP_Name, DHCP_MAC2)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (dnsmasq_timestamp, mac, localips[0], "Pi-hole", "*"))
+
+            sql_connection.commit()
+
+    else:
+        print(f"        ...Skipped")
+        return
 
 #-------------------------------------------------------------------------------
 def get_satellite_scans():
@@ -1279,10 +1431,7 @@ def process_satellites(satellite_list):
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
-    # print('        ...Get data from proxy')
-
     SAVE_DIR = PIALERT_PATH + "/front/satellites/"
-    
     received_results = 0
 
     for token, password in satellite_list.items():
@@ -1297,15 +1446,13 @@ def get_satellite_proxy_scans(satellite_list):
                 with open(save_path, 'wb') as file:
                     file.write(response.content)
 
-                # update satellite db Last Update
         except requests.exceptions.SSLError:
             pass
         except requests.RequestException as e:
-            # print(f"        Download failed for token {token}")
+            print_log(f"        Download failed for token {token}")
             pass
 
     print(f"        ...Get data from proxy ({received_results})")
-    # get data from url to local storage
 
 #-------------------------------------------------------------------------------
 def decrypt_satellite_proxy_scans(satellite_list):
@@ -1576,18 +1723,38 @@ def print_scan_stats():
 #------------------------------------------------------------------------------
 def calc_activity_history_main_scan():
     # Add to History
-    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 1")
+    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 1 AND dev_ScanSource = 'local'")
     Querry_Online_Devices = sql.fetchall()
     History_Online_Devices  = len(Querry_Online_Devices)
-    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 0")
+    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 0 AND dev_ScanSource = 'local'")
     Querry_Offline_Devices = sql.fetchall()
     History_Offline_Devices  = len(Querry_Offline_Devices)
-    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 1")
+    sql.execute("SELECT * FROM Devices WHERE dev_Archived = 1 AND dev_ScanSource = 'local'")
     Querry_Archived_Devices = sql.fetchall()
     History_Archived_Devices  = len(Querry_Archived_Devices)
     History_ALL_Devices = History_Online_Devices + History_Offline_Devices + History_Archived_Devices
     sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Archived_Devices, Data_Source) "+
-                 "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'main_scan') )
+                 "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'main_scan_local') )
+
+    sql.execute("SELECT sat_token FROM Satellites")
+    tokens = sql.fetchall()
+    for token in tokens:
+        sat_token = token[0]
+        query = f"SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 1 AND dev_ScanSource = '{sat_token}'"
+        sql.execute(query)
+        Querry_Online_Devices = sql.fetchall()
+        History_Online_Devices  = len(Querry_Online_Devices)
+        query = f"SELECT * FROM Devices WHERE dev_Archived = 0 AND dev_PresentLastScan = 0 AND dev_ScanSource = '{sat_token}'"
+        sql.execute(query)
+        Querry_Offline_Devices = sql.fetchall()
+        History_Offline_Devices  = len(Querry_Offline_Devices)
+        query = f"SELECT * FROM Devices WHERE dev_Archived = 1 AND dev_ScanSource = '{sat_token}'"
+        sql.execute(query)
+        Querry_Archived_Devices = sql.fetchall()
+        History_Archived_Devices  = len(Querry_Archived_Devices)
+        History_ALL_Devices = History_Online_Devices + History_Offline_Devices + History_Archived_Devices
+        sql.execute ("INSERT INTO Online_History (Scan_Date, Online_Devices, Down_Devices, All_Devices, Archived_Devices, Data_Source) "+
+                     "VALUES ( ?, ?, ?, ?, ?, ?)", (startTime, History_Online_Devices, History_Offline_Devices, History_ALL_Devices, History_Archived_Devices, 'main_scan_' + sat_token) )
 
 #-------------------------------------------------------------------------------
 def create_new_devices():
@@ -1906,6 +2073,10 @@ def update_devices_names():
         # progress bar
         print('.', end='')
         sys.stdout.flush()
+
+        if device['dev_MAC'] == "Internet":
+            newName = "Internet"
+            recordsToUpdate.append ([newName, device['dev_MAC']])
             
     # Print log
     print('')

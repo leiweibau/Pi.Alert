@@ -22,6 +22,7 @@ $pia_lang['Gen_off'] = 'Aus';
 $pia_lang['Gen_activate'] = 'aktivieren';
 $pia_lang['Gen_deactivate'] = 'deaktivieren';
 $pia_lang['Gen_error'] = 'Fehler';
+$pia_lang['Gen_column'] = 'Spalte';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Passwort eingeben';
@@ -696,6 +697,7 @@ $pia_journ_lang['Journal_TableHead_Class'] = 'Methode';
 $pia_journ_lang['Journal_TableHead_Trigger'] = 'Auslöser';
 $pia_journ_lang['Title'] = 'Anwendungsjournal';
 $pia_journ_lang['File_hash'] = 'pialert.conf - Hash';
+$pia_journ_lang['Journal_CustomColor_Head'] = 'Farb-Verwaltung';
 // Frontend
 $pia_journ_lang['a_000'] = 'Konfigurationsdatei';
 $pia_journ_lang['a_001'] = 'GUI Zugriff';
@@ -774,6 +776,7 @@ $pia_journ_lang['LogStr_0044'] = 'Die Tabelle für die Filter konnte nicht erste
 $pia_journ_lang['LogStr_0045'] = 'Vordefinierter Filter wurde gelöscht';
 $pia_journ_lang['LogStr_0046'] = 'Vordefinierter Filter wurde aktualisiert';
 $pia_journ_lang['LogStr_0047'] = 'Vordefinierter Filter wurde nicht aktualisiert';
+$pia_journ_lang['LogStr_0048'] = 'Farbanpassung geändert: ';
 $pia_journ_lang['LogStr_0050'] = 'Passwortschutz von Pi.Alert aktiviert';
 $pia_journ_lang['LogStr_0051'] = 'Passwortschutz von Pi.Alert deaktiviert';
 $pia_journ_lang['LogStr_0052'] = 'Spaltenkonfiguration der Geräte-Liste geändert';

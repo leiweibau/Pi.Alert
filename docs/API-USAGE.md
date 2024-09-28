@@ -11,14 +11,15 @@ addition to the IP or host name. Whether "http" or "https" is used also depends 
 
 <hr>
 
-* [Example of a query with PHP (system-status)](#example-of-a-query-with-php-system-status)
-* [Example of a query with PHP (mac-status)](#example-of-a-query-with-php-mac-status)
-* [Query with PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)](#example-of-a-query-with-php-all-online-or-all-offline)
-* [Example of a query with the commandline tool curl (system-status)](#example-of-a-query-with-the-commandline-tool-curl-system-status)
-* [Example of a query with the commandline tool curl (mac-status)](#example-of-a-query-with-the-commandline-tool-curl-mac-status)
-* [Example of a query with the commandline tool curl (all-online or all-offline)](#example-of-a-query-with-the-commandline-tool-curl-all-online-or-all-offline)
+* [Example - PHP (system-status)](#example---php-system-status)
+* [Example - PHP (mac-status)](#example---php-mac-status)
+* [Example - PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)](#example---php-all-online-all-offline-all-online-icmp-all-offline-icmp)
+* [Example - curl (system-status)](#example---curl-system-status)
+* [Example - curl (mac-status)](#example---curl-mac-status)
+* [Example - curl (all-online or all-offline, all-online-icmp, all-offline-icmp)](#example---curl-all-online-or-all-offline-all-online-icmp-all-offline-icmp)
 * [Use API-Call for Home Assistant](#use-api-call-for-home-assistant)
 * [Use API-Call for Homepage](#use-api-call-for-homepage)
+
 
 ## API Values
 
@@ -37,6 +38,7 @@ The following fields are returned with the API call "system-status".
 "Online_Devices":<Integer>,
 "Archived_Devices":<Integer>,
 "New_Devices":<Integer>,
+"Down_Devices":<Integer>,
 "All_Devices_ICMP":<Integer>,
 "Offline_Devices_ICMP":<Integer>,
 "Online_Devices_ICMP":<Integer>,
@@ -132,7 +134,7 @@ The API can also be used to make information available in Homepage. Homepage is 
 
 <hr>
 
-### Example of a query with PHP (system-status)
+### Example - PHP (system-status)
 
 Prepare post fields
 ```php
@@ -169,7 +171,7 @@ Demo output
 print_r(json_decode($response));
 ```
 
-### Example of a query with PHP (mac-status)
+### Example - PHP (mac-status)
 
 Prepare post fields
 ```php
@@ -207,7 +209,7 @@ Demo output
 print_r(json_decode($response));
 ```
 
-### Query with PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)
+### Example - PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)
 
 Prepare post fields
 ```php
@@ -245,17 +247,17 @@ print_r(json_decode($response));
 ```
 <hr>
 
-### Example of a query with the commandline tool curl (system-status)
+### Example - curl (system-status)
 ```bash
 curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=system-status' http://[URL]/api/
 ```
 
-### Example of a query with the commandline tool curl (mac-status)
+### Example - curl (mac-status)
 ```bash
 curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=mac-status' -F 'mac=00:11:22:aa:bb:cc' http://[URL]/api/
 ```
 
-### Example of a query with the commandline tool curl (all-online or all-offline)
+### Example - curl (all-online or all-offline, all-online-icmp, all-offline-icmp)
 
 ```bash
 curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=all-offline' http://[URL]/api/
@@ -279,6 +281,7 @@ command_line:
         - Online_Devices
         - Offline_Devices
         - New_Devices
+        - Down_Devices
         - Scanning
         - Offline_Devices_ICMP
         - Online_Devices_ICMP
@@ -309,6 +312,11 @@ template:
       - name: "PiAlert - New Devices"
         state: "{{ state_attr('sensor.pialert_status', 'New_Devices') }}"
         unique_id: pialert.status.newdevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Down Devices"
+        state: "{{ state_attr('sensor.pialert_status', 'Down_Devices') }}"
+        unique_id: pialert.status.downdevices
         unit_of_measurement: ""
 
       - name: "PiAlert - Scanning"
@@ -375,6 +383,14 @@ sensor:
     unique_id: pialert.status.newdevices
     unit_of_measurement: ""
     value_template: '{{ value_json.New_Devices }}'
+
+  - platform: command_line
+    name: "PiAlert - Down Devices"
+    command: curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=system-status' http://[URL]/api/
+    scan_interval: 200
+    unique_id: pialert.status.downdevices
+    unit_of_measurement: ""
+    value_template: '{{ value_json.Down_Devices }}'
 
   - platform: command_line
     name: "PiAlert - Scanning"

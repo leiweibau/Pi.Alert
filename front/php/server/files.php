@@ -145,6 +145,9 @@ function GetLogfiles() {
 				$file = str_replace("Start Services Monitoring\n\n", "Start Services Monitoring\n\n<pre style=\"border: solid 1px #666; background-color: transparent;\">", $file);
 				$file = str_replace("\nServices Monitoring Changes:", "\n</pre>Services Monitoring Changes:", $file);
 			}
+			if ($logfiles[$i] == "pialert.1.log") {
+				$file = str_replace("\n        ...Skipped", "<span style=\"color:red;\"> Skipped</span>", $file);
+			}
 			$templog = str_replace("\n", '<br>', str_replace("    ", '&nbsp;&nbsp;&nbsp;&nbsp;', str_replace("        ", '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $file)));
 			array_push($logs, $templog);
 		}

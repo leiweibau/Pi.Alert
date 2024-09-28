@@ -22,6 +22,7 @@ $pia_lang['Gen_off'] = 'Off';
 $pia_lang['Gen_activate'] = 'enable';
 $pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
+$pia_lang['Gen_column'] = 'Colonne';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Entrez votre mot de passe';
@@ -691,6 +692,7 @@ $pia_journ_lang['Journal_TableHead_Class'] = 'Méthode';
 $pia_journ_lang['Journal_TableHead_Trigger'] = 'Déclencheur';
 $pia_journ_lang['Title'] = 'Journal d&apos;application';
 $pia_journ_lang['File_hash'] = 'pialert.conf - Hachage';
+$pia_journ_lang['Journal_CustomColor_Head'] = 'Gestion des couleurs';
 // Frontend
 $pia_journ_lang['a_000'] = 'Fichier de configuration';
 $pia_journ_lang['a_001'] = 'Accès GUI';
@@ -767,7 +769,8 @@ $pia_journ_lang['LogStr_0043'] = 'Le filtre prédéfini était incomplet et n&ap
 $pia_journ_lang['LogStr_0044'] = 'La table des filtres n&apos;a pas pu être créée';
 $pia_journ_lang['LogStr_0045'] = 'Le filtre prédéfini a été supprimé';
 $pia_journ_lang['LogStr_0046'] = 'Le filtre prédéfini a été mis à jour';
-$pia_journ_lang['LogStr_0047'] = 'Le filtre prédéfini n\'a pas été mis à jour';
+$pia_journ_lang['LogStr_0047'] = 'Le filtre prédéfini n&apos;a pas été mis à jour';
+$pia_journ_lang['LogStr_0048'] = 'Ajustement de la couleur modifié: ';
 $pia_journ_lang['LogStr_0050'] = 'Protection par mot de passe de Pi.Alert activée';
 $pia_journ_lang['LogStr_0051'] = 'Protection par mot de passe de Pi.Alert désactivée';
 $pia_journ_lang['LogStr_0052'] = 'Modification de la configuration des colonnes de la liste des dispositifs';

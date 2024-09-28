@@ -181,7 +181,7 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 	                $tab_content .= '<div class="tab-pane" id="tab_'.$tab_id.'">
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . ' ('.substr($scan_time[1], 0, -3). ')</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . ' ('. $scan_time[0] . ' / '.substr($scan_time[1], 0, -3).')</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Coloris examples</title>
+    <link rel="stylesheet" type="text/css" href="coloris.min.css">
+    <style type="text/css">
+    @import url(https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap);
+
+    body {
+      height: 120vh;
+      margin: 30px;
+      color: #444;
+      background-color: #fff;
+      font-family: 'Lato', sans-serif;
+    }
+
+    h1 {
+      margin-bottom: 1.5em;
+    }
+
+    input {
+      width: 150px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      box-sizing: border-box;
+    }
+      
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .example {
+      flex-shrink: 0;
+      width: 300px;
+      margin-bottom: 30px;
+    }
+
+    .square .clr-field button,
+    .circle .clr-field button {
+      width: 22px;
+      height: 22px;
+      left: 5px;
+      right: auto;
+      border-radius: 5px;
+    }
+
+    .square .clr-field input,
+    .circle .clr-field input {
+      padding-left: 36px;
+    }
+
+    .circle .clr-field button {
+      border-radius: 50%;
+    }
+
+    .full .clr-field button {
+      width: 100%;
+      height: 100%;
+      border-radius: 5px;
+    }
+
+    </style>
+  </head>
+  <body>
+    <a href="https://github.com/mdbassit/Coloris">View <b>Coloris</b> on GitHub</a>
+    <h1>Coloris examples</h1>
+    <div class="examples">
+      <div class="example">
+        <p>Default color thumbnail</p>
+        <input type="text" value="green" data-coloris>
+      </div>
+      <div class="example square">
+        <p>Rounded square thumbnail</p>
+        <input type="text" class="coloris instance1" value="rgb(255, 0, 0)">
+      </div>
+      <div class="example circle">
+        <p>Circular thumbnail</p>
+        <input type="text" class="coloris instance2" value="#cc458faa">
+      </div>
+      <div class="example full">
+        <p>Full size thumbnail</p>
+        <input type="text" class="coloris instance3" value="#ffcc00">
+      </div>
+      <div class="example square" style="position: relative; top: 300px; padding-bottom: 30px;">
+        <p>The dialog will appear on top of this field for lack of space under it.</p>
+        <input type="text" class="coloris" value="#00a5cc">
+      </div>
+    </div>
+    <script type="text/javascript" src="coloris.min.js"></script>
+    <script type="text/javascript">
+
+    /** Default configuration **/
+
+    Coloris({
+      el: '.coloris',
+      swatches: [
+        '#264653',
+        '#2a9d8f',
+        '#e9c46a',
+        '#f4a261',
+        '#e76f51',
+        '#d62828',
+        '#023e8a',
+        '#0077b6',
+        '#0096c7',
+        '#00b4d8',
+        '#48cae4'
+      ]
+    });
+
+    /** Instances **/
+
+    Coloris.setInstance('.instance1', {
+      theme: 'pill',
+      themeMode: 'dark',
+      formatToggle: true,
+      closeButton: true,
+      clearButton: true,
+      swatches: [
+        '#067bc2',
+        '#84bcda',
+        '#80e377',
+        '#ecc30b',
+        '#f37748',
+        '#d56062'
+      ]
+    });
+
+    Coloris.setInstance('.instance2', { theme: 'polaroid' });
+
+    Coloris.setInstance('.instance3', {
+      theme: 'polaroid',
+      swatchesOnly: true
+    });
+
+    </script>
+  </body>
+</html>

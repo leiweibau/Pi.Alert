@@ -352,6 +352,14 @@ NEW_DEVICE_PRESET_DOWN     = False
 EOF
 fi
 
+# 2024-09-24
+if ! grep -Fq "DHCP_INCL_SELF_TO_LEASES" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+DHCP_INCL_SELF_TO_LEASES   = False
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------
