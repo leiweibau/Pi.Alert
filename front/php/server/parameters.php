@@ -11,6 +11,7 @@
 
 require 'db.php';
 require 'util.php';
+require 'journal.php';
 
 //  Action selector
 // Set maximum execution time to 15 seconds
@@ -88,6 +89,9 @@ function setJournalParameter() {
         saveParameters('journal_trigger_filter', $triggerNames);
         saveParameters('journal_trigger_filter_color', $triggerColors);
         echo "Trigger saved";
+
+        // Logging
+	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
     }
 
     if ($_POST['column'] == "method") {
@@ -103,6 +107,9 @@ function setJournalParameter() {
         saveParameters('journal_method_filter', $methodNames);
         saveParameters('journal_method_filter_color', $methodColors);
         echo "Methode saved";
+
+        // Logging
+	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'method');
     }
 
 }
