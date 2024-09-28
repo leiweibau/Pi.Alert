@@ -11,15 +11,16 @@ addition to the IP or host name. Whether "http" or "https" is used also depends 
 
 <hr>
 
-* [Example - PHP (system-status)](#example-of-a-query-with-php-system-status)
-* [Example - PHP (mac-status)](#example-of-a-query-with-php-mac-status)
-* [Example - PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)](#query-with-php-all-online-all-offline-all-online-icmp-all-offline-icmp)
-* [Example - curl (system-status)](#example-of-a-query-with-the-commandline-tool-curl-system-status)
-* [Example - curl (mac-status)](#example-of-a-query-with-the-commandline-tool-curl-mac-status)
-* [Example - curl (all-online or all-offline, all-online-icmp, all-offline-icmp)](#example-of-a-query-with-the-commandline-tool-curl-all-online-or-all-offline)
+* [Example - PHP (system-status)](#example---php-system-status)
+* [Example - PHP (mac-status)](#example---php-mac-status)
+* [Example - PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)](#example---php-all-online-all-offline-all-online-icmp-all-offline-icmp)
+* [Example - curl (system-status)](#example---curl-system-status)
+* [Example - curl (mac-status)](#example---curl-mac-status)
+* [Example - curl (all-online or all-offline, all-online-icmp, all-offline-icmp)](#example---curl-all-online-all-offline-all-online-icmp-all-offline-icmp)
 * [Use API-Call for Home Assistant](#use-api-call-for-home-assistant)
 * [Use API-Call for Homepage](#use-api-call-for-homepage)
 
+https://github.com/leiweibau/Pi.Alert/blob/next_update/docs/API-USAGE.md#
 
 https://github.com/leiweibau/Pi.Alert/blob/main/docs/API-USAGE.md#query-with-php-all-online-all-offline-all-online-icmp-all-offline-icmp
 
@@ -259,7 +260,7 @@ curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=system-status' http://[URL]/api
 curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=mac-status' -F 'mac=00:11:22:aa:bb:cc' http://[URL]/api/
 ```
 
-### Example - curl (all-online or all-offline)
+### Example - curl (all-online or all-offline, all-online-icmp, all-offline-icmp)
 
 ```bash
 curl -k -X POST -F 'api-key=yourApi-Key' -F 'get=all-offline' http://[URL]/api/
