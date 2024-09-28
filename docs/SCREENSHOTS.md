@@ -50,7 +50,7 @@
 
   | ![Screen Events and Pres. 01][Screen_Ev_and_Pres_01]   | ![Screen Events and Pres. 02][Screen_Ev_and_Pres_02] | ![Screen Journal 00][Screen_Journal_00] | 
   | ------------------------------------------------------ | ---------------------------------------------------- | --------------------------------------- |
-  | ![Screen Journal 01][Screen_Journal_02]                | ![Screen Journal 02][Screen_Journal_02]              |                                         | 
+  | ![Screen Journal 01][Screen_Journal_01]                | ![Screen Journal 02][Screen_Journal_02]              |                                         | 
 
 ### Frontend - Settings
 
