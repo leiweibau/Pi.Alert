@@ -48,8 +48,9 @@
 
 ### Frontend - Events, Presence and Journal
 
-  | ![Screen Events and Pres. 01][Screen_Ev_and_Pres_01]   | ![Screen Events and Pres. 02][Screen_Ev_and_Pres_02] | ![Screen Misc 07][Screen_Misc_07] | 
-  | ------------------------------------------------------ | ---------------------------------------------------- | --------------------------------- |
+  | ![Screen Events and Pres. 01][Screen_Ev_and_Pres_01]   | ![Screen Events and Pres. 02][Screen_Ev_and_Pres_02] | ![Screen Journal 00][Screen_Journal_00] | 
+  | ------------------------------------------------------ | ---------------------------------------------------- | --------------------------------------- |
+  | ![Screen Journal 01][Screen_Journal_02]                | ![Screen Journal 02][Screen_Journal_02]              |                                         | 
 
 ### Frontend - Settings
 
@@ -121,4 +122,7 @@
 [Screen_Misc_04]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_help.png            "Screen Misc 04"
 [Screen_Misc_05]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dropdownmenu.png    "Screen Misc 05"
 [Screen_Misc_06]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_loginwindow.png     "Screen Misc 06"
-[Screen_Misc_07]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_journal.png         "Screen Misc 07"
+
+[Screen_Journal_00]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_journal.png         "Screen Journal 00"
+[Screen_Journal_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_journal_01.png      "Screen Journal 01"
+[Screen_Journal_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_journal_02.png      "Screen Journal 02"
