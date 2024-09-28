@@ -16,13 +16,10 @@ addition to the IP or host name. Whether "http" or "https" is used also depends 
 * [Example - PHP (all-online, all-offline, all-online-icmp, all-offline-icmp)](#example---php-all-online-all-offline-all-online-icmp-all-offline-icmp)
 * [Example - curl (system-status)](#example---curl-system-status)
 * [Example - curl (mac-status)](#example---curl-mac-status)
-* [Example - curl (all-online or all-offline, all-online-icmp, all-offline-icmp)](#example---curl-all-online-all-offline-all-online-icmp-all-offline-icmp)
+* [Example - curl (all-online or all-offline, all-online-icmp, all-offline-icmp)](#example---curl-all-online-or-all-offline-all-online-icmp-all-offline-icmp)
 * [Use API-Call for Home Assistant](#use-api-call-for-home-assistant)
 * [Use API-Call for Homepage](#use-api-call-for-homepage)
 
-https://github.com/leiweibau/Pi.Alert/blob/next_update/docs/API-USAGE.md#
-
-https://github.com/leiweibau/Pi.Alert/blob/main/docs/API-USAGE.md#query-with-php-all-online-all-offline-all-online-icmp-all-offline-icmp
 
 ## API Values
 
