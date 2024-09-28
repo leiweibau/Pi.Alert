@@ -1118,9 +1118,10 @@ def get_pihole_interface_data():
             if mac_address == "00:00:00:00:00:00":
                 continue
             
-            ips = [addr['address'] for addr in interface['addresses'] if addr['family'] == 'inet']
-            if mac_address and ips:
-                result[mac_address] = ips
+            if 'addresses' in interface:
+                ips = [addr['address'] for addr in interface['addresses'] if addr['family'] == 'inet']
+                if mac_address and ips:
+                    result[mac_address] = ips
 
     return result
 
