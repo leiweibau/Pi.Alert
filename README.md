@@ -25,7 +25,7 @@
 
 WIFI / LAN intruder detector with web service monitoring.
 
-###Features
+### Features
 
 - Scan your WIFI/LAN-connected devices and receive alerts for unknown device connections. 
 - Get warnings if an "always connected" device disconnects. 
