@@ -23,13 +23,14 @@
 # Pi.Alert
 <!--- --------------------------------------------------------------------- --->
 
-WIFI / LAN intruder detector with web service monitoring.
+WIFI / LAN intruder detector with web service monitoring. The main functions are as follows:
 
-Scan your WIFI/LAN-connected devices and receive alerts for unknown device connections. Get warnings 
-if an "always connected" device disconnects. Additionally, assess web service availability by evaluating 
-the HTTP status code, SSL certificate, and service response time. Receive notifications if the SSL 
-certificate changes, the HTTP status code changes, or if the service becomes unreachable. Other features 
-include the detection of unwanted/foreign DHCP servers and device monitoring using the ping command.
+- Scan your WIFI/LAN-connected devices and receive alerts for unknown device connections. 
+- Get warnings if an "always connected" device disconnects. 
+- Assess web service availability by evaluating the HTTP status code, SSL certificate, and service response time. 
+- Receive notifications if the SSL certificate changes, the HTTP status code changes, or if the service becomes unreachable. 
+- Detect unwanted/foreign DHCP servers 
+- Device monitoring using the ping command
 
 There is also a companion script, [Pi.Alert-Satellite](https://github.com/leiweibau/Pi.Alert-Satellite), 
 which performs its own scans and the results can be sent to an existing Pi.Alert instance.
@@ -41,8 +42,8 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
 ### Scan Methods
 
   - **arp-scan**. The arp-scan system utility is used to search for devices on the network using arp frames.
-  - **Pi-hole**. If the Pi-hole DNS server is active, Pi.Alert examines its activity looking for active devices using DNS that have not been detected by other methods.
-  - **dnsmasq**. If the DHCP server dnsmasq is active, Pi.Alert examines the DHCP leases (addresses assigned) to find active devices that were not discovered by the other methods.
+  - **Pi-hole DNS**. If the Pi-hole (v5 or v6) DNS server is active, Pi.Alert examines its activity looking for active devices using DNS that have not been detected by other methods.
+  - **Pi-hole DHCP**. If the Pi-hole (v5 or v6) DHCP server is active, Pi.Alert examines the DHCP leases (addresses assigned) to find active devices that were not discovered by the other methods.
   - **Fritzbox**. If you use a Fritzbox (a router from the company "AVM"), it is possible to perform a query of the active hosts. This also includes hosts of the guest WLAN and Powerline devices from "AVM".
   - **Mikrotik**. If you use Mikrotik Router as DHCP server, it is possible to read DHCP leases.
   - **UniFi**. If you use UniFi controller, it is possible to read clients (Client Devices)
