@@ -23,15 +23,14 @@
 # Pi.Alert
 <!--- --------------------------------------------------------------------- --->
 
-WIFI / LAN intruder detector with web service monitoring.
-
-### Features
+WIFI / LAN intruder detector with web service monitoring. The main functions are as follows:
 
 - Scan your WIFI/LAN-connected devices and receive alerts for unknown device connections. 
 - Get warnings if an "always connected" device disconnects. 
 - Assess web service availability by evaluating the HTTP status code, SSL certificate, and service response time. 
 - Receive notifications if the SSL certificate changes, the HTTP status code changes, or if the service becomes unreachable. 
-- Other features include the detection of unwanted/foreign DHCP servers and device monitoring using the ping command.
+- Detect unwanted/foreign DHCP servers 
+- Device monitoring using the ping command
 
 There is also a companion script, [Pi.Alert-Satellite](https://github.com/leiweibau/Pi.Alert-Satellite), 
 which performs its own scans and the results can be sent to an existing Pi.Alert instance.
