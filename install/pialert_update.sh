@@ -77,6 +77,20 @@ update_warning() {
   print_msg ""
   printf "%s " "Press enter to continue"
   read ans
+
+  if [ "$USER" = "root" ]; then
+    scan_file="/root/pialert/back/.scanning"
+  else
+    scan_file="/home/$USER/pialert/back/.scanning"
+  fi
+
+  if [ -f "$scan_file" ]; then
+    print_msg "####################################################################"
+    print_msg "# A SCAN IS CURRENTLY RUNNING!!! Please wait until it is finished. #"
+    print_msg "####################################################################"
+    sleep 2
+    update_warning
+  fi
 }
 
 # ------------------------------------------------------------------------------
