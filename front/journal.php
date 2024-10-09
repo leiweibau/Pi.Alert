@@ -117,8 +117,6 @@ function clearInput() {
                 <thead>
                 <tr>
                   <th style="min-width: 120px;"><?=$pia_lang['Events_TableHead_Date'];?></th>
-                  <th>LogClass</th>
-                  <th style="min-width: 80px;">LogCode</th>
                   <th style="min-width: 90px;"><?=$pia_journ_lang['Journal_TableHead_Class'];?></th>
                   <th style="min-width: 100px;"><?=$pia_journ_lang['Journal_TableHead_Trigger'];?></th>
                   <th>Hash</th>
@@ -158,8 +156,6 @@ function get_pialert_journal() {
 
 		echo '<tr>
               <td>' . $row['Journal_DateTime'] . '</td>
-              <td>' . $logclass . '</td>
-              <td>' . $logcode . '</td>
               <td style="white-space: nowrap;">' . $pia_journ_lang[$row['LogClass']] . '</td>
               <td>' . $row['Trigger'] . '</td>
               <td>' . $row['Hash'] . '</td>
@@ -298,34 +294,31 @@ function initializeDatatable () {
         { "data": 1 },
         { "data": 2 },
         { "data": 3 },
-        { "data": 4 },
-        { "data": 5 },
-        { "data": 6 }
+        { "data": 4 }
       ],
 
     'columnDefs'  : [
-      {className: 'text-center', targets: [1,2] },
       { "width": "120px", "targets": [0] },
-      { "width": "90px", "targets": [2] },
+      { "width": "150px", "targets": [1] },
 
       {targets: [0],
         "createdCell": function (td, cellData, rowData, row, col) {
             custom_journal_color_datetime(cellData, td);
         }
       },
-      {targets: [3],
+      {targets: [1],
         "createdCell": function (td, cellData, rowData, row, col) {
             color_scheme = custom_journal_color_method(cellData);
             $(td).html('<span style="' + color_scheme + '">' + cellData + '</span>');
         }
       },
-      {targets: [4],
+      {targets: [2],
         "createdCell": function (td, cellData, rowData, row, col) {
             color_scheme = custom_journal_color_trigger(cellData);
             $(td).html('<span style="' + color_scheme + '">' + cellData + '</span>');
         }
       },
-      {targets: [1,2,5],
+      {targets: [3],
           visible: false
       },
     ],

@@ -5,10 +5,10 @@
 //
 //  speedtestcli.php - Front module. Server side. Manage Devices
 //------------------------------------------------------------------------------
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 session_start();
-
+require 'timezone.php';
 require 'db.php';
 require 'journal.php';
 $DBFILE = '../../../db/pialert.db';

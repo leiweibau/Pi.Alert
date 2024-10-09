@@ -5,7 +5,7 @@
 //
 //  speedtest_ookla.php - Front module. Server side. Manage Devices
 //------------------------------------------------------------------------------
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -15,7 +15,7 @@ if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
 	exit;
 }
-
+require 'timezone.php';
 require 'db.php';
 require 'journal.php';
 require 'language_switch.php';

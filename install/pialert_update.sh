@@ -374,6 +374,14 @@ DHCP_INCL_SELF_TO_LEASES   = False
 EOF
 fi
 
+# 2024-09-24
+if ! grep -Fq "SYSTEM_TIMEZONE" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+SYSTEM_TIMEZONE            = 'Europe/Berlin'
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

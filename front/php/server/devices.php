@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 //  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
 //  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -18,7 +18,7 @@ if ($_SESSION["login"] != 1) {
 	exit;
 	}
 }
-
+require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'journal.php';

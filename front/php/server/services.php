@@ -5,7 +5,7 @@
 //
 //  services.php - Front module. Server side. Manage Devices
 //------------------------------------------------------------------------------
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -16,6 +16,7 @@ if ($_SESSION["login"] != 1) {
 }
 
 // External files
+require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'journal.php';

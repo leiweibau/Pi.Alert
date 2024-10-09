@@ -14,7 +14,7 @@ if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
 	exit;
 }
-
+require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'journal.php';
@@ -226,7 +226,7 @@ AUTO_DB_BACKUP_KEEP        = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
 REPORT_NEW_CONTINUOUS      = " . convert_bool($configArray['REPORT_NEW_CONTINUOUS']) . "
 NEW_DEVICE_PRESET_EVENTS   = " . convert_bool($configArray['NEW_DEVICE_PRESET_EVENTS']) . "
 NEW_DEVICE_PRESET_DOWN     = " . convert_bool($configArray['NEW_DEVICE_PRESET_DOWN']) . "
-
+SYSTEM_TIMEZONE            = '" . $configArray['SYSTEM_TIMEZONE'] . "'
 
 # Other Modules
 # ----------------------

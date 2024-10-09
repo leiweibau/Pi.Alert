@@ -6,8 +6,8 @@
 //  db.php - Front module. Server side. DB common file
 //------------------------------------------------------------------------------
 //  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
+//  leiweibau 2024    https://github.com/leiweibau          GNU GPLv3
 //------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 // DB File Path

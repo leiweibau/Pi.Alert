@@ -8,7 +8,7 @@
 //  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
 //------------------------------------------------------------------------------
 
-
+require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'journal.php';
