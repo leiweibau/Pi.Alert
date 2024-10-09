@@ -79,7 +79,7 @@ if (sizeof($LATEST_FILES) == 0) {
 // Buffer active --------------------------------------------------------------
 	$file = '../db/pialert_journal_buffer';
 	if (file_exists($file)) {
-		$buffer_indicator = '(<span style="color:red;">*</span>)';
+		$buffer_indicator = '(<span style="color:red; cursor:pointer" data-toggle="tooltip" data-placement="top" title="'.$pia_lang['MT_Stats_ToolTip_Jrn'].'">*</span>)';
 	} else {$buffer_indicator = '';}
 
 // Set Tab --------------------------------------------------------------------
@@ -816,6 +816,9 @@ $(document).ready(function () {
         $(window).scrollTop(scrollPosition);
         $('#modal-config-editor').css('overflow-y', 'hidden');
     });
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
 });
 </script>
 
