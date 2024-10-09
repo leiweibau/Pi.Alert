@@ -227,7 +227,7 @@ echo '<div class="nav-tabs-custom">
               <div class="tab-pane active" id="tab_0">
 				<div class="row">
 				  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['uptime'] . '</div>
+				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['uptime'] . ' (TZ: <span class="text-danger help_faq_code">'. date_default_timezone_get() .'</span>)</div>
 				</div>
 				<div class="row">
 				  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
