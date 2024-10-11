@@ -26,7 +26,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta
-import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json
+import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -721,6 +721,8 @@ def scan_network():
     # correct db permission every scan (user must/should be sudoer)
     set_db_file_permissions()
 
+    get_local_sys_timezone()
+
     # Query ScanCycle properties
     print_log ('Query ScanCycle confinguration...')
     scanCycle_data = query_ScanCycle_Data (True)
@@ -834,6 +836,24 @@ def scan_network():
 
     sql_connection.commit()
     closeDB()
+
+    return 0
+
+#-------------------------------------------------------------------------------
+def get_local_sys_timezone():
+    openDB()
+
+    sat_os_timezone = str(tzlocal.get_localzone())
+    sql.execute('SELECT par_ID FROM Parameters WHERE par_ID = ?', ('Local_System_TZ',))
+    result = sql.fetchone()
+
+    if result:
+        sql.execute('UPDATE Parameters SET par_Value = ? WHERE par_ID = ?', (sat_os_timezone, 'Local_System_TZ'))
+    else:
+        sql.execute('INSERT INTO Parameters (par_ID, par_Value) VALUES (?, ?)', ('Local_System_TZ', sat_os_timezone))
+
+    sql_connection.commit()
+    closeDB()            
 
     return 0
 
