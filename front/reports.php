@@ -24,6 +24,26 @@ require 'php/templates/header.php';
 // Delete Reports
 delete_single_webgui_report();
 
+function ssl_code_tooltip($sslcode) {
+	if ($sslcode >= 8) {
+		$sslinfo[] = "Subject";
+		$sslcode = $sslcode-8;
+	}
+	if ($sslcode >= 4) {
+		$sslinfo[] = "Issuer";
+		$sslcode = $sslcode-4;
+	}
+	if ($sslcode >= 2) {
+		$sslinfo[] = "Valid from";
+		$sslcode = $sslcode-2;
+	}
+	if ($sslcode >= 1) {
+		$sslinfo[] = "Valid to";
+		$sslcode = $sslcode-1;
+	}
+	return 'Values changed: '.implode(', ', $sslinfo);
+}
+
 function get_notification_class($filename) {
 	$headtitle = explode("-", $filename);
 	$headeventtype = explode("_", $filename);
@@ -87,20 +107,14 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 				// edit Event line - add color depending on status
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
-				if ($tempmac[1] != "200") {
-					$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-red\">" . $tempmac[1] . "</span>\n";
-				} else {
-					$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-green\">" . $tempmac[1] . "</span>\n";
-				}
+				if ($tempmac[1] != "200") {$code_color = 'red';} else {$code_color = 'green';}
+				$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span>\n";
 			} elseif (stristr($line, "\tSSL Status:")) {
 				// edit Event line - add color depending on status
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
-				if ($tempmac[1] != "0") {
-					$webgui_report .= "\tSSL Status:\t\t<span class=\"text-red\">" . $tempmac[1] . "</span>\n";
-				} else {
-					$webgui_report .= "\tSSL Status:\t\t<span class=\"text-green\">" . $tempmac[1] . "</span>\n";
-				}
+				if ($tempmac[1] != "0") {$code_color = 'red';} else {$code_color = 'green';}
+				$webgui_report .= "\t<span style=\"cursor:pointer\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"". ssl_code_tooltip($tempmac[1]) ."\">SSL Status:\t\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span></span>\n";
 			}else {
 				// Default handling
 				$webgui_report .= $line;
@@ -258,6 +272,11 @@ require 'php/templates/footer.php';
 ?>
 
 <script>
+$(document).ready(function () {
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+ });
 function askdeleteAllNotifications () {
   showModalWarning('<?=$pia_lang['Reports_delete_all_noti'];?>', '<?=$pia_lang['Reports_delete_all_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotifications');
