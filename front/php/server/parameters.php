@@ -32,34 +32,14 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'setJournalParameter':setJournalParameter();
 		break;
+	case 'setReportParameter':setReportParameter();
+		break;
+	case 'getReportParameter':getReportParameter();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
-
-function getJournalParameter() {
-    global $db;
-	$responseData = [];
-
-	$ids = [
-	    'journal_trigger_filter',
-	    'journal_trigger_filter_color',
-	    'journal_method_filter',
-	    'journal_method_filter_color'
-	];
-
-	foreach ($ids as $id) {
-	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = '$id'");
-	    $row = $result->fetchArray(SQLITE3_ASSOC);
-	    if ($row) {
-	        $responseData[$id] = $row['par_Long_Value'];
-	    } else {
-	        $responseData[$id] = null; // Falls kein Wert gefunden wird
-	    }
-	}
-	echo json_encode($responseData);
-}
-
 function saveParameters($par_ID, $par_Long_Value) {
 	global $db;
     
@@ -71,47 +51,6 @@ function saveParameters($par_ID, $par_Long_Value) {
     } else {
         $db->query("INSERT INTO Parameters (par_ID, par_Long_Value) VALUES ('$par_ID', '$par_Long_Value')");
     }
-}
-
-function setJournalParameter() {
-	global $db;
-    
-    if ($_POST['column'] == "trigger") {
-    	$triggerNames = "";
-    	$triggerColors = "";
-    	if ($_POST['triggerNames'] != "") {
-    		$triggerNames = implode(",", $_POST['triggerNames']);
-    	}        
-        if ($_POST['triggerColors'] != "") {
-        	$triggerColors = implode(",", $_POST['triggerColors']);
-    	}
-
-        saveParameters('journal_trigger_filter', $triggerNames);
-        saveParameters('journal_trigger_filter_color', $triggerColors);
-        echo "Trigger saved";
-
-        // Logging
-	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
-    }
-
-    if ($_POST['column'] == "method") {
-    	$methodNames = "";
-    	$methodColors = "";
-    	if ($_POST['methodNames'] != "") {
-    		$methodNames = implode(",", $_POST['methodNames']);
-    	}        
-        if ($_POST['methodColors'] != "") {
-        	$methodColors = implode(",", $_POST['methodColors']);
-    	}
-        
-        saveParameters('journal_method_filter', $methodNames);
-        saveParameters('journal_method_filter_color', $methodColors);
-        echo "Methode saved";
-
-        // Logging
-	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'method');
-    }
-
 }
 
 //  Get Parameter Value
@@ -157,6 +96,98 @@ function setParameter() {
 	}
 
 	echo 'OK';
+}
+
+
+function setJournalParameter() {
+	global $db;
+    
+    if ($_POST['column'] == "trigger") {
+    	$triggerNames = "";
+    	$triggerColors = "";
+    	if ($_POST['triggerNames'] != "") {
+    		$triggerNames = implode(",", $_POST['triggerNames']);
+    	}        
+        if ($_POST['triggerColors'] != "") {
+        	$triggerColors = implode(",", $_POST['triggerColors']);
+    	}
+
+        saveParameters('journal_trigger_filter', $triggerNames);
+        saveParameters('journal_trigger_filter_color', $triggerColors);
+        echo "Trigger saved";
+
+        // Logging
+	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
+    }
+
+    if ($_POST['column'] == "method") {
+    	$methodNames = "";
+    	$methodColors = "";
+    	if ($_POST['methodNames'] != "") {
+    		$methodNames = implode(",", $_POST['methodNames']);
+    	}        
+        if ($_POST['methodColors'] != "") {
+        	$methodColors = implode(",", $_POST['methodColors']);
+    	}
+        
+        saveParameters('journal_method_filter', $methodNames);
+        saveParameters('journal_method_filter_color', $methodColors);
+        echo "Methode saved";
+
+        // Logging
+	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'method');
+    }
+
+}
+
+function getJournalParameter() {
+    global $db;
+	$responseData = [];
+
+	$ids = [
+	    'journal_trigger_filter',
+	    'journal_trigger_filter_color',
+	    'journal_method_filter',
+	    'journal_method_filter_color'
+	];
+
+	foreach ($ids as $id) {
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = '$id'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $responseData[$id] = $row['par_Long_Value'];
+	    } else {
+	        $responseData[$id] = null; // Falls kein Wert gefunden wird
+	    }
+	}
+	echo json_encode($responseData);
+}
+
+function setReportParameter() {
+	global $db;
+    
+	$HeadLineColors = "";
+	if ($_POST['HeadLineColors'] != "") {
+		$HeadLineColors = implode(",", $_POST['HeadLineColors']);
+	}        
+    saveParameters('report_headline_colors', $HeadLineColors);
+    echo "Headline Color saved";
+
+    // Logging
+    // pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
+}
+
+function getReportParameter() {
+    global $db;
+	$responseData = "";
+
+    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
+    $row = $result->fetchArray(SQLITE3_ASSOC);
+    if ($row) {
+        $responseData = $row['par_Long_Value'];
+    }
+
+	echo json_encode($responseData);
 }
 
 ?>

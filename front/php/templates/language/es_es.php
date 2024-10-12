@@ -506,6 +506,7 @@ $pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Acciones';
 $pia_lang['MT_SET_SatEdit_head'] = 'Gestionar satélites';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Comando de instalación con preconfiguración';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Aquí se puede preparar el comando de instalación de manera que los parámetros más importantes ya se ingresen durante la instalación. Los diferentes escaneos permanecen todos desactivados y deben activarse explícitamente en el archivo de configuración.';
+$pia_lang['MT_Stats_ToolTip_Jrn'] = 'Todavía hay entradas de diario en la caché';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BackDevices_Arpscan_disabled'] = 'Arp-Scan Desactivado';

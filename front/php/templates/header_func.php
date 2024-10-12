@@ -4,6 +4,20 @@ function useRegex($input) {
 	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
 	return preg_match($regex, $input);
 }
+
+function get_local_system_tz() {
+	$database = '../db/pialert.db';
+    $db = new SQLite3($database);	
+	$query = "SELECT par_Value FROM Parameters WHERE par_ID = 'Local_System_TZ'";
+	$result = $db->query($query);
+
+	$timezone = "unknown";
+	if ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+	    $timezone = $row['par_Value'];
+	}
+	return $timezone;
+}
+
 // Header - Delete Single WebGUI Reports
 function delete_single_webgui_report() {
 	global $db;

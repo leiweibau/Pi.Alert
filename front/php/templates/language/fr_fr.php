@@ -502,6 +502,7 @@ $pia_lang['MT_SET_SatEdit_FORM_Action'] = 'Actions';
 $pia_lang['MT_SET_SatEdit_head'] = 'Gérer les satellites';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Commande d&apos;installation avec préconfiguration';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Ici, la commande d&apos;installation peut être préparée de sorte que les paramètres les plus importants soient déjà entrés lors de l&apos;installation. Les différents scans restent tous désactivés et doivent être activés explicitement dans le fichier de configuration.';
+$pia_lang['MT_Stats_ToolTip_Jrn'] = 'Il y a encore des entrées de journal dans le cache';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BackDevices_Arpscan_disabled'] = 'arp-scan automatique désactivé.';
