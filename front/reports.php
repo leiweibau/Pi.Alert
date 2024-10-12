@@ -24,6 +24,20 @@ require 'php/templates/header.php';
 // Delete Reports
 delete_single_webgui_report();
 
+function get_Report_Headline_Colors() {
+	global $db;
+
+  $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
+  $row = $result->fetchArray(SQLITE3_ASSOC);
+  if ($row) {
+      $responseData = $row['par_Long_Value'];
+      $Headline_Colors = explode(',', $responseData);
+  } else {
+  	$Headline_Colors = array("","","","","");
+  }
+  return $Headline_Colors;
+}
+
 function ssl_code_tooltip($sslcode) {
 	if ($sslcode >= 8) {
 		$sslinfo[] = "Subject";
@@ -209,6 +223,8 @@ function process_rogueDHCP_notifications($class_name, $event_time, $filename, $d
             </div>';
 }
 
+$headline_colors = get_Report_Headline_Colors();
+
 $directory = './reports/';
 $scanned_directory = array_diff(scandir($directory), array('..', '.'));
 rsort($scanned_directory);
@@ -241,13 +257,71 @@ foreach ($scanned_directory as $file) {
 <!-- Content header--------------------------------------------------------- -->
     <section class="content-header">
     <?php require 'php/templates/notification.php';?>
-      <h1 id="pageTitle">
+      <h1 id="pageTitle" style="display: inline-block;">
          <?=$pia_lang['Reports_Title'];?>
-      </h1>
+      </h1> <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-report-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paintbrush text-green" style="font-size:1.5rem"></i></a>
     </section>
 
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
+        <div class="modal fade" id="modal-set-report-colors">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title"><?=$pia_journ_lang['Journal_CustomColor_Head'];?></h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <style>
+                            .filter-group-trigger {
+                                display: flex;
+                                align-items: center;
+                                margin-bottom: 10px;
+                            }
+                            .filter-group-trigger label, .filter-group-trigger input {
+                                margin-right: 10px;
+                            }
+                        </style>
+
+                        <link rel="stylesheet" href="lib/Coloris/dist/coloris.min.css"/>
+                        <script src="lib/Coloris/dist/coloris.min.js"></script>
+
+                        <h4>Report Type</h4>
+                        <div id="Container">
+														<div id="Internet" style="margin-bottom: 5px">
+								                <label style="width: 140px">Internet</label>
+								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[0]?>" data-coloris>
+								            </div>
+														<div id="Device" style="margin-bottom: 5px">
+								                <label style="width: 140px">Devices</label>
+								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[1]?>" data-coloris>
+								            </div>
+														<div id="WebServices" style="margin-bottom: 5px">
+								                <label style="width: 140px">WebServices</label>
+								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[2]?>" data-coloris>
+								            </div>
+														<div id="ICMP_Monitoring" style="margin-bottom: 5px">
+								                <label style="width: 140px">ICMP Monitoring</label>
+								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[3]?>" data-coloris>
+								            </div>
+														<div id="Test" style="margin-bottom: 5px">
+								                <label style="width: 140px">Test / System</label>
+								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[4]?>" data-coloris>
+								            </div>
+                        </div>
+
+                        <input type="submit" class="btn btn-danger" value="<?=$pia_lang['Gen_Save']?>" style="margin-top:5px; margin-right:10px;" onclick="SetReportColors()">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="ReportReload()"><?=$pia_lang['Gen_Close']?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
       <div class="box">
           <div class="box-body" id="RemoveAllNotifications" style="text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;">
               <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotifications()"><?=$pia_lang['Reports_delete_all'];?></button>
@@ -275,8 +349,25 @@ require 'php/templates/footer.php';
 $(document).ready(function () {
     $(function () {
       $('[data-toggle="tooltip"]').tooltip()
-    })
- });
+    });
+    Coloris({
+        themeMode: 'dark',
+        alpha: false,
+        closeButton: true,
+        closeLabel: '<?=$pia_lang['Gen_Close']?>',
+    });
+});
+function SetReportColors() {
+    let HeadLineColors = $('input[name="HeadLineColors[]"]').map(function () { return $(this).val(); }).get();
+
+    $.post('php/server/parameters.php', {
+        action: 'setReportParameter',
+        HeadLineColors: HeadLineColors
+    }, function(msg) {
+    showMessage (msg);
+  });
+}
+
 function askdeleteAllNotifications () {
   showModalWarning('<?=$pia_lang['Reports_delete_all_noti'];?>', '<?=$pia_lang['Reports_delete_all_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotifications');
@@ -287,4 +378,10 @@ function deleteAllNotifications()
     showMessage (msg);
   });
 }
+function ReportReload() {
+    setTimeout(function() {
+        location.reload();
+    }, 1000)
+};
+
 </script>

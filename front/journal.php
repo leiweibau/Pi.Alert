@@ -30,9 +30,9 @@ $db->exec('PRAGMA journal_mode = wal;');
 <!-- Content header--------------------------------------------------------- -->
     <section class="content-header">
         <?php require 'php/templates/notification.php';?>
-      <h1 id="pageTitle">
+      <h1 id="pageTitle" style="display: inline-block;">
          <?=$pia_journ_lang['Title']?>
-      </h1>
+      </h1> <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-journal-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paintbrush text-green" style="font-size:1.5rem"></i></a>
     </section>
 
 <!-- Main content ---------------------------------------------------------- -->
@@ -100,7 +100,6 @@ $db->exec('PRAGMA journal_mode = wal;');
 
             <div class="box-header">
               <h3 id="tableJournalTitle" class="box-title text-aqua">Journal</h3>
-              <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-journal-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paintbrush text-green" style="font-size:1.5rem"></i></a>
               <a href="#" onclick="clearInput();"><span id="reset_joursearch" class="text-red pull-right"><i class="fa-solid fa-filter-circle-xmark"></i></span></a>
             </div>
 
