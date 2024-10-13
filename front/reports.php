@@ -190,12 +190,12 @@ function process_icmp_notifications($class_name, $event_time, $filename, $direct
 	          </div>';
 }
 
-function process_test_notifications($class_name, $event_time, $filename, $directory) {
+function process_test_notifications($class_name, $event_time, $filename, $directory, $color) {
 	$webgui_report = file_get_contents($directory . $filename);
 	$webgui_report = str_replace("\n\n\n", "", $webgui_report);
 	return '<div class="box box-solid">
             <div class="box-header">
-              <h3 class="box-title" style="color: #00a65a"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . $event_time . ' - System Message</h3>
+              <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . $event_time . ' - System Message</h3>
                 <div class="pull-right">
                   <a href="./download/report.php?report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-fw fa-download"></i></a>
                   <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-danger"><i class="fa fa-fw fa-trash"></i></a>
@@ -235,15 +235,15 @@ foreach ($scanned_directory as $file) {
 	if (substr($file, -4) == '.txt') {
 		$notification_class = get_notification_class($file);
 		if ($notification_class[1] == "arp") {
-			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, '#D81B60', 'fa-laptop'));
+			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[1], 'fa-laptop'));
 		} elseif ($notification_class[1] == "internet") {
-			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, '#30bbbb', 'fa-globe'));
+			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[0], 'fa-globe'));
 		} elseif ($notification_class[1] == "webmon") {
-			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, '#00c0ef', 'fa-server'));
+			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[2], 'fa-server'));
 		} elseif ($notification_class[1] == "icmpmon") {
-			array_push($standard_notification, process_icmp_notifications($notification_class[0], $notification_class[2], $file, $directory, '#831CFF'));
+			array_push($standard_notification, process_icmp_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[3]));
 		} elseif ($notification_class[1] == "test") {
-			array_push($standard_notification, process_test_notifications($notification_class[0], $notification_class[2], $file, $directory));
+			array_push($standard_notification, process_test_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[4]));
 		} elseif ($notification_class[1] == "rogueDHCP") {
 			array_push($special_notification, process_rogueDHCP_notifications($notification_class[0], $notification_class[2], $file, $directory));
 		}
@@ -272,43 +272,31 @@ foreach ($scanned_directory as $file) {
                         <h4 class="modal-title"><?=$pia_journ_lang['Journal_CustomColor_Head'];?></h4>
                     </div>
                     <div class="modal-body">
-
-                        <style>
-                            .filter-group-trigger {
-                                display: flex;
-                                align-items: center;
-                                margin-bottom: 10px;
-                            }
-                            .filter-group-trigger label, .filter-group-trigger input {
-                                margin-right: 10px;
-                            }
-                        </style>
-
                         <link rel="stylesheet" href="lib/Coloris/dist/coloris.min.css"/>
                         <script src="lib/Coloris/dist/coloris.min.js"></script>
 
                         <h4>Report Type</h4>
                         <div id="Container">
-														<div id="Internet" style="margin-bottom: 5px">
-								                <label style="width: 140px">Internet</label>
-								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[0]?>" data-coloris>
-								            </div>
-														<div id="Device" style="margin-bottom: 5px">
-								                <label style="width: 140px">Devices</label>
-								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[1]?>" data-coloris>
-								            </div>
-														<div id="WebServices" style="margin-bottom: 5px">
-								                <label style="width: 140px">WebServices</label>
-								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[2]?>" data-coloris>
-								            </div>
-														<div id="ICMP_Monitoring" style="margin-bottom: 5px">
-								                <label style="width: 140px">ICMP Monitoring</label>
-								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[3]?>" data-coloris>
-								            </div>
-														<div id="Test" style="margin-bottom: 5px">
-								                <label style="width: 140px">Test / System</label>
-								                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[4]?>" data-coloris>
-								            </div>
+							<div id="Internet" style="margin-bottom: 5px">
+				                <label style="width: 140px">Internet</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[0]?>" data-coloris>
+				            </div>
+							<div id="Device" style="margin-bottom: 5px">
+				                <label style="width: 140px">Devices</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[1]?>" data-coloris>
+				            </div>
+							<div id="WebServices" style="margin-bottom: 5px">
+				                <label style="width: 140px">WebServices</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[2]?>" data-coloris>
+				            </div>
+							<div id="ICMP_Monitoring" style="margin-bottom: 5px">
+				                <label style="width: 140px">ICMP Monitoring</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[3]?>" data-coloris>
+				            </div>
+							<div id="Test" style="margin-bottom: 5px">
+				                <label style="width: 140px">Test / System</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[4]?>" data-coloris>
+				            </div>
                         </div>
 
                         <input type="submit" class="btn btn-danger" value="<?=$pia_lang['Gen_Save']?>" style="margin-top:5px; margin-right:10px;" onclick="SetReportColors()">
@@ -351,10 +339,13 @@ $(document).ready(function () {
       $('[data-toggle="tooltip"]').tooltip()
     });
     Coloris({
+    	theme: 'pill',
         themeMode: 'dark',
         alpha: false,
         closeButton: true,
-        closeLabel: '<?=$pia_lang['Gen_Close']?>',
+        closeLabel: '<?=$pia_lang['Gen_Okay']?>',
+        clearButton: true,
+        clearLabel: 'Clear',
     });
 });
 function SetReportColors() {

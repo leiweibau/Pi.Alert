@@ -48,14 +48,6 @@ $db->exec('PRAGMA journal_mode = wal;');
                     <div class="modal-body">
 
                         <style>
-                            .filter-group-trigger {
-                                display: flex;
-                                align-items: center;
-                                margin-bottom: 10px;
-                            }
-                            .filter-group-trigger label, .filter-group-trigger input {
-                                margin-right: 10px;
-                            }
                             .remove-btn {
                                 border: none;
                                 padding: 5px 10px;
@@ -68,8 +60,9 @@ $db->exec('PRAGMA journal_mode = wal;');
                             }
                         </style>
 
-                        <link rel="stylesheet" href="lib/Coloris/dist/coloris.min.css"/>
-                        <script src="lib/Coloris/dist/coloris.min.js"></script>
+                        <script>
+
+                        </script>
 
                         <h4><?=$pia_lang['Gen_column'];?>: <?=$pia_journ_lang['Journal_TableHead_Class'];?></h4>
                         <div id="methodContainer">
@@ -168,6 +161,8 @@ function get_pialert_journal() {
 <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
+<link rel="stylesheet" href="lib/Coloris/dist/coloris.min.css"/>
+<script src="lib/Coloris/dist/coloris.min.js"></script>
 
 <!-- page script ----------------------------------------------------------- -->
 <script>
@@ -187,39 +182,46 @@ function get_pialert_journal() {
     let triggerIndex = 0;
     let methodIndex = 0;
 
-    $('#addTrigger').click(function () {
-        triggerIndex++;
-        $('#triggerContainer').append(
-            `<div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
-                <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}">
-                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Color ${triggerIndex}" data-coloris>
-                <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
-            </div>`
-        );
+    $(document).ready(function () {
+        $('#addTrigger').click(function () {
+            triggerIndex++;
+            $('#triggerContainer').append(
+                `<div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
+                    <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}">
+                    <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Color ${triggerIndex}" data-coloris>
+                    <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
+                </div>`
+            );
+            Coloris.init();
+        });
+
+        $('#addMethod').click(function () {
+            methodIndex++;
+            $('#methodContainer').append(
+                `<div id="method_${methodIndex}" style="margin-bottom: 5px">
+                    <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}">
+                    <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Color ${methodIndex}" data-coloris>
+                    <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
+                </div>`
+            );
+            Coloris.init();
+        });
+
+        initializeCustomColors();
+        Coloris({
+            theme: 'pill',
+            themeMode: 'dark',
+            alpha: false,
+            closeButton: true,
+            closeLabel: '<?=$pia_lang['Gen_Okay']?>',
+            clearButton: true,
+            clearLabel: 'Clear',
+        });
     });
 
-    $('#addMethod').click(function () {
-        methodIndex++;
-        $('#methodContainer').append(
-            `<div id="method_${methodIndex}" style="margin-bottom: 5px">
-                <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}">
-                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Color ${methodIndex}" data-coloris>
-                <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
-            </div>`
-        );
-    });
-
-    window.removeField = function (selector) {
-        $(selector).remove();
-    };
-
-    initializeCustomColors();
-    Coloris({
-        themeMode: 'dark',
-        alpha: false,
-        closeButton: true,
-        closeLabel: '<?=$pia_lang['Gen_Close']?>',
-    });
+window.removeField = function (selector) {
+    $(selector).remove();
+};
 
 function JournalReload() {
     setTimeout(function() {
@@ -239,7 +241,7 @@ function initializeCustomColors() {
         addTriggerRows();
         addMethodRows();
         initializeDatatable();
-  });
+    });
 }
 
 function addTriggerRows() {

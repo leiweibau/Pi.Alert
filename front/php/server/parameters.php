@@ -94,15 +94,25 @@ function setParameter() {
 			return;
 		}
 	}
-
 	echo 'OK';
 }
-
 
 function setJournalParameter() {
 	global $db;
     
     if ($_POST['column'] == "trigger") {
+    	// Get old value
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_trigger_filter'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $old_data_a = $row['par_Long_Value'];
+	    } else {$old_data_a = "";}
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_trigger_filter_color'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $old_data_b = $row['par_Long_Value'];
+	    } else {$old_data_b = "";}
+
     	$triggerNames = "";
     	$triggerColors = "";
     	if ($_POST['triggerNames'] != "") {
@@ -114,13 +124,40 @@ function setJournalParameter() {
 
         saveParameters('journal_trigger_filter', $triggerNames);
         saveParameters('journal_trigger_filter_color', $triggerColors);
-        echo "Trigger saved";
 
-        // Logging
-	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
+        // Get new value
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_trigger_filter'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $new_data_a = $row['par_Long_Value'];
+	    } else {$new_data_a = "";}
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_trigger_filter_color'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $new_data_b = $row['par_Long_Value'];
+	    } else {$new_data_b = "";}
+
+	    // Compare old and new
+	    if ($old_data_a != $new_data_a || $old_data_b != $new_data_b) {
+	    	echo "Trigger Color(s) saved";
+	        // Logging
+		    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
+	    } else {echo "Trigger Color(s) were not saved, or did not changed";}
     }
 
     if ($_POST['column'] == "method") {
+    	// Get old value
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_method_filter'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $old_data_a = $row['par_Long_Value'];
+	    } else {$old_data_a = "";}
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_method_filter_color'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $old_data_b = $row['par_Long_Value'];
+	    } else {$old_data_b = "";}
+
     	$methodNames = "";
     	$methodColors = "";
     	if ($_POST['methodNames'] != "") {
@@ -132,12 +169,26 @@ function setJournalParameter() {
         
         saveParameters('journal_method_filter', $methodNames);
         saveParameters('journal_method_filter_color', $methodColors);
-        echo "Methode saved";
 
-        // Logging
-	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'method');
+        // Get new value
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_method_filter'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $new_data_a = $row['par_Long_Value'];
+	    } else {$new_data_a = "";}
+	    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'journal_method_filter_color'");
+	    $row = $result->fetchArray(SQLITE3_ASSOC);
+	    if ($row) {
+	        $new_data_b = $row['par_Long_Value'];
+	    } else {$new_data_b = "";}
+
+	    // Compare old and new
+	    if ($old_data_a != $new_data_a || $old_data_b != $new_data_b) {
+	    	echo "Trigger Color(s) saved";
+	        // Logging
+		    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'method');
+	    } else {echo "Trigger Color(s) were not saved, or did not changed";}
     }
-
 }
 
 function getJournalParameter() {
@@ -166,15 +217,40 @@ function getJournalParameter() {
 function setReportParameter() {
 	global $db;
     
-	$HeadLineColors = "";
-	if ($_POST['HeadLineColors'] != "") {
-		$HeadLineColors = implode(",", $_POST['HeadLineColors']);
-	}        
-    saveParameters('report_headline_colors', $HeadLineColors);
-    echo "Headline Color saved";
+    // Get old value
+    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
+    $row = $result->fetchArray(SQLITE3_ASSOC);
+    if ($row) {
+        $old_data = $row['par_Long_Value'];
+    } else {$old_data = "";}
 
-    // Logging
-    // pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
+	$HeadLineColors = "";
+	// Set Default Colors if unset
+	if ($_POST['HeadLineColors'] != "") {
+		$temp_array = $_POST['HeadLineColors'];
+		if ($temp_array[0] == "") {$temp_array[0] = "#30bbbb";} // Internet
+		if ($temp_array[1] == "") {$temp_array[1] = "#D81B60";} // Devices
+		if ($temp_array[2] == "") {$temp_array[2] = "#00c0ef";} // Services
+		if ($temp_array[3] == "") {$temp_array[3] = "#831CFF";} // ICMP
+		if ($temp_array[4] == "") {$temp_array[4] = "#00a65a";} // Test/System
+		$HeadLineColors = implode(",", $temp_array);
+	}
+
+    saveParameters('report_headline_colors', $HeadLineColors);
+
+    // Get new value
+    $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
+    $row = $result->fetchArray(SQLITE3_ASSOC);
+    if ($row) {
+        $new_data = $row['par_Long_Value'];
+    } else {$new_data = "";}
+
+    if ($old_data != $new_data) {
+    	echo "Headline Color saved";
+	    // Logging
+	    // pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
+    } else {echo "Headline Color was not saved, or did not changed";}
+
 }
 
 function getReportParameter() {
