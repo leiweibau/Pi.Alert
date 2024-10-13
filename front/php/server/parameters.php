@@ -248,7 +248,7 @@ function setReportParameter() {
     if ($old_data != $new_data) {
     	echo "Headline Color saved";
 	    // Logging
-	    // pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
+	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0049', '', '');
     } else {echo "Headline Color was not saved, or did not changed";}
 
 }
@@ -262,7 +262,6 @@ function getReportParameter() {
     if ($row) {
         $responseData = $row['par_Long_Value'];
     }
-
 	echo json_encode($responseData);
 }
 
