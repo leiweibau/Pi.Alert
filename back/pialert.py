@@ -3351,7 +3351,7 @@ def email_reporting():
     mail_section_devices_down = False
     mail_text_devices_down = ''
     mail_html_devices_down = ''
-    text_line_template = '{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
+    text_line_template = '{}\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t{}\n\t{}\t\t{}\n\n'
     html_line_template     = '<tr>\n'+ \
         '  <td> <a href="{}{}"> {} </a>  </td><td> {} </td>'+ \
         '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'
