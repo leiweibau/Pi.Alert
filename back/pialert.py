@@ -194,53 +194,56 @@ def check_internet_IP():
     # Header
     print('Check Internet IP')
     print('    Timestamp:', startTime )
-    print('\nRetrieving Internet IP...')
-    internet_IP = get_internet_IP()
 
-    # Check result = IP
-    if internet_IP == "" :
-        print('    Error retrieving Internet IP')
-        print('    Exiting...\n')
-        return 1
-    print('   ', internet_IP)
+    if not OFFLINE_MODE :
+        print('\nRetrieving Internet IP...')
+        internet_IP = get_internet_IP()
 
-    # Get previous stored IP
-    print('\nRetrieving previous IP...')
-    openDB()
-    previous_IP = get_previous_internet_IP()
-    print('   ', previous_IP)
-
-    # Check IP Change
-    if internet_IP != previous_IP :
-        print('    Saving new IP')
-        save_new_internet_IP (internet_IP)
-        print('        IP updated')
-    else :
-        print('    No changes to perform')
-    closeDB()
-
-    # Get Dynamic DNS IP
-    if DDNS_ACTIVE :
-        print('\nRetrieving Dynamic DNS IP...')
-        dns_IP = get_dynamic_DNS_IP()
-
-        # Check Dynamic DNS IP
-        if dns_IP == "" :
-            print('    Error retrieving Dynamic DNS IP')
+        # Check result = IP
+        if internet_IP == "" :
+            print('    Error retrieving Internet IP')
             print('    Exiting...\n')
             return 1
-        print('   ', dns_IP)
+        print('   ', internet_IP)
 
-        # Check DNS Change
-        if dns_IP != internet_IP :
-            print('    Updating Dynamic DNS IP...')
-            message = set_dynamic_DNS_IP()
-            print('       ', message)
+        # Get previous stored IP
+        print('\nRetrieving previous IP...')
+        openDB()
+        previous_IP = get_previous_internet_IP()
+        print('   ', previous_IP)
+
+        # Check IP Change
+        if internet_IP != previous_IP :
+            print('    Saving new IP')
+            save_new_internet_IP (internet_IP)
+            print('        IP updated')
         else :
             print('    No changes to perform')
-    else :
-        print('\nSkipping Dynamic DNS update...')
+        closeDB()
 
+        # Get Dynamic DNS IP
+        if DDNS_ACTIVE :
+            print('\nRetrieving Dynamic DNS IP...')
+            dns_IP = get_dynamic_DNS_IP()
+
+            # Check Dynamic DNS IP
+            if dns_IP == "" :
+                print('    Error retrieving Dynamic DNS IP')
+                print('    Exiting...\n')
+                return 1
+            print('   ', dns_IP)
+
+            # Check DNS Change
+            if dns_IP != internet_IP :
+                print('    Updating Dynamic DNS IP...')
+                message = set_dynamic_DNS_IP()
+                print('       ', message)
+            else :
+                print('    No changes to perform')
+        else :
+            print('\nSkipping Dynamic DNS update...')
+    else :
+        print('\nOffline Mode...')
 
     # Run continuous New Device Notification
     print(f"\nContinuous New Device Notification...")
@@ -250,28 +253,28 @@ def check_internet_IP():
     else:
         print(f"    Skipping... Not activated!")
 
+    if not OFFLINE_MODE :
+        # Run automated Speedtest
+        print(f"\nAuto Speedtest...")
+        if SPEEDTEST_TASK_ACTIVE :
+            # Check if Speedtest is installed
+            speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
+            if os.path.exists(speedtest_binary):
+                print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
+                run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
+            else:
+                print('    Skipping Speedtest... Not installed!')
+        else :
+            print('    Skipping Speedtest... Not activated!')
 
-    # Run automated Speedtest
-    print(f"\nAuto Speedtest...")
-    if SPEEDTEST_TASK_ACTIVE :
-        # Check if Speedtest is installed
-        speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
-        if os.path.exists(speedtest_binary):
-            print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
-            run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
+        # Run automated UpdateCheck
+        print(f"\nAuto Update-Check...")
+        if AUTO_UPDATE_CHECK :
+            print(f"    Crontab: {AUTO_UPDATE_CHECK_CRON}")
+            checkNewVersion(startTime, AUTO_UPDATE_CHECK_CRON)
         else:
-            print('    Skipping Speedtest... Not installed!')
-    else :
-        print('    Skipping Speedtest... Not activated!')
-
-    # Run automated UpdateCheck
-    print(f"\nAuto Update-Check...")
-    if AUTO_UPDATE_CHECK :
-        print(f"    Crontab: {AUTO_UPDATE_CHECK_CRON}")
-        checkNewVersion(startTime, AUTO_UPDATE_CHECK_CRON)
-    else:
-        NewVersion_FrontendNotification(False,"")
-        print(f"    Skipping Auto Update-Check... Not activated!")
+            NewVersion_FrontendNotification(False,"")
+            print(f"    Skipping Auto Update-Check... Not activated!")
 
     # Run automated Backup
     print(f"\nAuto Backup...")
@@ -630,56 +633,59 @@ def update_devices_MAC_vendors (pArg = ''):
     print('Update HW Vendors')
     print('    Timestamp:', startTime )
 
-    # Update vendors DB (oui)
-    print('\nUpdating vendors DB...')
-    update_args = ['sh', PIALERT_BACK_PATH + '/update_vendors.sh', pArg]
-    update_output = subprocess.check_output (update_args)
+    if not OFFLINE_MODE :
+        # Update vendors DB (oui)
+        print('\nUpdating vendors DB...')
+        update_args = ['sh', PIALERT_BACK_PATH + '/update_vendors.sh', pArg]
+        update_output = subprocess.check_output (update_args)
 
-    # Initialize variables
-    recordsToUpdate = []
-    ignored = 0
-    notFound = 0
+        # Initialize variables
+        recordsToUpdate = []
+        ignored = 0
+        notFound = 0
 
-    # All devices loop
-    print('\nSearching devices vendor', end='')
-    openDB()
-    # Only the devices for which no vendor has yet been entered are attempted to be updated.
-    for device in sql.execute ("SELECT * FROM Devices WHERE dev_Vendor = ''") :
-        # Search vendor in HW Vendors DB
-        vendor = query_MAC_vendor (device['dev_MAC'])
-        if vendor == -1 :
-            notFound += 1
-        elif vendor == -2 :
-            ignored += 1
-        else :
-            recordsToUpdate.append ([vendor, device['dev_MAC']])
-        # progress bar
-        print('.', end='')
-        sys.stdout.flush()
+        # All devices loop
+        print('\nSearching devices vendor', end='')
+        openDB()
+        # Only the devices for which no vendor has yet been entered are attempted to be updated.
+        for device in sql.execute ("SELECT * FROM Devices WHERE dev_Vendor = ''") :
+            # Search vendor in HW Vendors DB
+            vendor = query_MAC_vendor (device['dev_MAC'])
+            if vendor == -1 :
+                notFound += 1
+            elif vendor == -2 :
+                ignored += 1
+            else :
+                recordsToUpdate.append ([vendor, device['dev_MAC']])
+            # progress bar
+            print('.', end='')
+            sys.stdout.flush()
 
-    print('')
-    print("    Devices Ignored:  ", ignored)
-    print("    Vendors Not Found:", notFound)
-    print("    Vendors updated:  ", len(recordsToUpdate) )
+        print('')
+        print("    Devices Ignored:  ", ignored)
+        print("    Vendors Not Found:", notFound)
+        print("    Vendors updated:  ", len(recordsToUpdate) )
 
-    # mac-vendor-lookup update
-    try:
-        print('\nTry build in mac-vendor-lookup update')
-        mac = MacLookup()
-        mac.update_vendors()
-        print('    Update successful')
-    except:
-        print('\nFallback')
-        print('    Backup old mac-vendors.txt for mac-vendor-lookup')
-        p = subprocess.call(["cp $HOME/.cache/mac-vendors.txt $HOME/.cache/mac-vendors.bak"], shell=True)
-        print('    Create mac-vendors.txt for mac-vendor-lookup')
-        p = subprocess.call(["/usr/bin/sed -e 's/\t/:/g' -e 's/Ã¼/ü/g' -e 's/Ã¶/ö/g' -e 's/Ã¤/ä/g' -e 's/Ã³/ó/g' -e 's/Ã©/é/g' -e 's/â/–/g' -e 's/Â//g' -e '/^#/d' /usr/share/arp-scan/ieee-oui.txt > $HOME/.cache/mac-vendors.txt"], shell=True)
+        # mac-vendor-lookup update
+        try:
+            print('\nTry build in mac-vendor-lookup update')
+            mac = MacLookup()
+            mac.update_vendors()
+            print('    Update successful')
+        except:
+            print('\nFallback')
+            print('    Backup old mac-vendors.txt for mac-vendor-lookup')
+            p = subprocess.call(["cp $HOME/.cache/mac-vendors.txt $HOME/.cache/mac-vendors.bak"], shell=True)
+            print('    Create mac-vendors.txt for mac-vendor-lookup')
+            p = subprocess.call(["/usr/bin/sed -e 's/\t/:/g' -e 's/Ã¼/ü/g' -e 's/Ã¶/ö/g' -e 's/Ã¤/ä/g' -e 's/Ã³/ó/g' -e 's/Ã©/é/g' -e 's/â/–/g' -e 's/Â//g' -e '/^#/d' /usr/share/arp-scan/ieee-oui.txt > $HOME/.cache/mac-vendors.txt"], shell=True)
 
-    # update devices
-    sql.executemany ("UPDATE Devices SET dev_Vendor = ? WHERE dev_MAC = ? ",
-        recordsToUpdate )
+        # update devices
+        sql.executemany ("UPDATE Devices SET dev_Vendor = ? WHERE dev_MAC = ? ",
+            recordsToUpdate )
 
-    closeDB()
+        closeDB()
+    else :
+        print('\nOffline Mode...')
 
 #-------------------------------------------------------------------------------
 def query_MAC_vendor(pMAC):
@@ -1571,8 +1577,11 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                                       WHERE cur_MAC = Sat_MAC )""",
                     (cycle) )
 
-    # Check Internet connectivity
-    internet_IP = get_internet_IP()
+    if not OFFLINE_MODE :
+        # Check Internet connectivity
+        internet_IP = get_internet_IP()
+    else :
+        internet_IP = "Offline Mode"
         # TESTING - Force IP
         # internet_IP = ""
     if internet_IP != "" :

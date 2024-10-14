@@ -227,6 +227,7 @@ REPORT_NEW_CONTINUOUS      = " . convert_bool($configArray['REPORT_NEW_CONTINUOU
 NEW_DEVICE_PRESET_EVENTS   = " . convert_bool($configArray['NEW_DEVICE_PRESET_EVENTS']) . "
 NEW_DEVICE_PRESET_DOWN     = " . convert_bool($configArray['NEW_DEVICE_PRESET_DOWN']) . "
 SYSTEM_TIMEZONE            = '" . $configArray['SYSTEM_TIMEZONE'] . "'
+OFFLINE_MODE               = " . convert_bool($configArray['OFFLINE_MODE']) . "
 
 # Other Modules
 # ----------------------
