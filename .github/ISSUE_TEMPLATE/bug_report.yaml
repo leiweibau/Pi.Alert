@@ -6,9 +6,9 @@ body:
 - type: checkboxes
   attributes:
     label: Is there an existing issue for this?
-    description: Please check whether a problem already exists for the error you have encountered, or whether this problem is already mentioned in the Help/FAQ section of Pi.Alert.
+    description: Please check whether an issue (open and closed) already exists for the error you have encountered, or whether this problem is already mentioned in the documentation.
     options:
-    - label: I have searched the existing issues and the Help/FAQ section of Pi.Alert
+    - label: I have searched the existing issues (open and closed) and the documentation
       required: true
 - type: textarea
   attributes:
