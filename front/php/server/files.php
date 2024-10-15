@@ -390,7 +390,7 @@ DAYS_TO_KEEP_EVENTS        = " . $configArray['DAYS_TO_KEEP_EVENTS'] . "
 	fwrite($newconfig, $config_template);
 	fclose($newconfig);
 
-	echo $pia_lang['BackDevices_ConfEditor_CopOkay'];
+	echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
 
 	// Logging
 	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
@@ -418,7 +418,7 @@ function BackupDBtoArchive() {
 	if (filesize($db_file_org_full . '-wal') != "0") {
 		//DEBUG
 		//echo filesize($db_file_org_full.'-shm').'-'.filesize($db_file_org_full.'-wal').' - ';
-		echo $pia_lang['BackDevices_Backup_WALError'];exit;
+		echo $pia_lang['BE_Dev_Backup_WALError'];exit;
 	}
 
 	// copy database
@@ -440,20 +440,20 @@ function BackupDBtoArchive() {
 			// check if archive exists
 			if (file_exists($Pia_Archive_Path . $Pia_Archive_Name) && filesize($Pia_Archive_Path . $Pia_Archive_Name) > 0) {
 				// if archive exists
-				echo $pia_lang['BackDevices_Backup_okay'] . ' / Integrity Checked: (' . $Pia_Archive_Name . ')';
+				echo $pia_lang['BE_Dev_Backup_okay'] . ' / Integrity Checked: (' . $Pia_Archive_Name . ')';
 				unlink($db_file_new_full);
 				echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>");
 			} else {
 				// if archive not exists
-				echo $pia_lang['BackDevices_Backup_Failed'] . ' / Integrity Checked (pialert-latestbackup.db)';
+				echo $pia_lang['BE_Dev_Backup_Failed'] . ' / Integrity Checked (pialert-latestbackup.db)';
 			}
 		} else {
 			// Integrity Check is okay
-			echo $pia_lang['BackDevices_Backup_IntegrityError'];exit;
+			echo $pia_lang['BE_Dev_Backup_IntegrityError'];exit;
 		}
 	} else {
 		// File does not exists
-		echo $pia_lang['BackDevices_Backup_CopError'];exit;
+		echo $pia_lang['BE_Dev_Backup_CopError'];exit;
 	}
 	// Logging
 	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0011', '', '');
@@ -483,7 +483,7 @@ function BackupDBtoCSV() {
 	exec('sqlite3 -header -csv "' . $db_file_org_full . '" "select * from ICMP_Mon;" > ' . $csv_file_icmphosts, $output);
 
 	if (!file_exists($csv_file_devices) || !file_exists($csv_file_services) || !file_exists($csv_file_icmphosts)) {
-		echo $pia_lang['BackDevices_BackupCSV_FailedExport'];
+		echo $pia_lang['BE_Dev_BackupCSV_FailedExport'];
 		// delete csv files
 		unlink($csv_file_devices);
 		unlink($csv_file_services);
@@ -499,11 +499,11 @@ function BackupDBtoCSV() {
 	unlink($csv_file_icmphosts);
 
 	if (!file_exists($Pia_Archive_Path . $Pia_Archive_Name)) {
-		echo $pia_lang['BackDevices_BackupCSV_FailedZip'];
+		echo $pia_lang['BE_Dev_BackupCSV_FailedZip'];
 		exit;
 	}
 
-	echo $pia_lang['BackDevices_BackupCSV_okay'];
+	echo $pia_lang['BE_Dev_BackupCSV_okay'];
 	// Logging
 	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0036', '', '');
 }
@@ -519,11 +519,11 @@ function RestoreDBfromArchive() {
 	exec('/bin/ls -Art ' . $Pia_Archive_Path . '*.zip | /bin/tail -n 1 | /usr/bin/xargs -n1 /bin/unzip -o -d ../../../db/', $output);
 	// check if the pialert.db exists
 	if (file_exists($file)) {
-		echo $pia_lang['BackDevices_Restore_okay'];
+		echo $pia_lang['BE_Dev_Restore_okay'];
 		// unlink($oldfile);
 		echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>";
 	} else {
-		echo $pia_lang['BackDevices_Restore_Failed'];
+		echo $pia_lang['BE_Dev_Restore_Failed'];
 	}
 	// }
 }
@@ -536,7 +536,7 @@ function LoginEnable() {
 	exec('../../../back/pialert-cli set_login', $output);
 	// Logging
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0050', '', '');
-	echo $pia_lang['BackDevices_Login_enabled'];
+	echo $pia_lang['BE_Dev_Login_enabled'];
 	echo "<meta http-equiv='refresh' content='1; ./index.php?action=logout'>";
 }
 
@@ -550,7 +550,7 @@ function LoginDisable() {
 	session_destroy();
 	setcookie("PiAlert_SaveLogin", "", time() - 3600);
 	exec('../../../back/pialert-cli unset_login', $output);
-	echo $pia_lang['BackDevices_Login_disabled'];
+	echo $pia_lang['BE_Dev_Login_disabled'];
 	echo "<meta http-equiv='refresh' content='1; ./index.php?action=logout'>";
 }
 
@@ -571,7 +571,7 @@ function setDeviceListCol() {
 	if (($_REQUEST['macvendor'] == 0) || ($_REQUEST['macvendor'] == 1)) {$Set_MACVendor = $_REQUEST['macvendor'];} else {echo "Error. Wrong variable value!";exit;}
 	if (($_REQUEST['location'] == 0) || ($_REQUEST['location'] == 1)) {$Set_Location = $_REQUEST['location'];} else {echo "Error. Wrong variable value!";exit;}
 	if (($_REQUEST['wakeonlan'] == 0) || ($_REQUEST['wakeonlan'] == 1)) {$Set_WakeOnLAN = $_REQUEST['wakeonlan'];} else {echo "Error. Wrong variable value!";exit;}
-	echo $pia_lang['BackDevices_DevListCol_noti_text'];
+	echo $pia_lang['BE_Dev_DevListCol_noti_text'];
 	$config_array = array('ConnectionType' => $Set_ConnectionType, 'Favorites' => $Set_Favorites, 'Group' => $Set_Group, 'Owner' => $Set_Owner, 'Type' => $Set_Type, 'FirstSession' => $Set_First_Session, 'LastSession' => $Set_Last_Session, 'LastIP' => $Set_LastIP, 'MACType' => $Set_MACType, 'MACAddress' => $Set_MACAddress, 'MACVendor' => $Set_MACVendor, 'Location' => $Set_Location, 'WakeOnLAN' => $Set_WakeOnLAN);
 	$DevListCol_file = '../../../config/setting_devicelist';
 	$DevListCol_new = fopen($DevListCol_file, 'w');
@@ -622,7 +622,7 @@ function PurgeDBBackups() {
 	// Logging
 	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0013', '', '');
 
-	echo $pia_lang['BackDevices_DBTools_Purge'];
+	echo $pia_lang['BE_Dev_DBTools_Purge'];
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>";
 }
 
@@ -632,14 +632,14 @@ function EnableDarkmode() {
 	global $pia_lang;
 
 	if (file_exists($file)) {
-		echo $pia_lang['BackDevices_darkmode_disabled'];
+		echo $pia_lang['BE_Dev_darkmode_disabled'];
 		unlink($file);
 		// Logging
 		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0055', '', '');
 
 		echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 	} else {
-		echo $pia_lang['BackDevices_darkmode_enabled'];
+		echo $pia_lang['BE_Dev_darkmode_enabled'];
 		$darkmode = fopen($file, 'w');
 		// Logging
 		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0056', '', '');
@@ -653,13 +653,13 @@ function EnableOnlineHistoryGraph() {
 	global $pia_lang;
 
 	if (file_exists($file)) {
-		echo $pia_lang['BackDevices_onlinehistorygraph_enabled'];
+		echo $pia_lang['BE_Dev_onlinehistorygraph_enabled'];
 		unlink($file);
 		// Logging
 		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0058', '', '');
 		echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 	} else {
-		echo $pia_lang['BackDevices_onlinehistorygraph_disabled'];
+		echo $pia_lang['BE_Dev_onlinehistorygraph_disabled'];
 		$history = fopen($file, 'w');
 		fclose($history);
 		// Logging
@@ -676,7 +676,7 @@ function SetAPIKey() {
 	exec('../../../back/pialert-cli set_apikey', $output);
 	// Logging
 	pialert_logging('a_070', $_SERVER['REMOTE_ADDR'], 'LogStr_0700', '', '');
-	echo $pia_lang['BackDevices_setapikey'];
+	echo $pia_lang['BE_Dev_setapikey'];
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>";
 }
 
@@ -723,10 +723,10 @@ function setTheme() {
 			}
 			if ($skin_error == False) {
 				$testskin = fopen($skin_set_dir . 'setting_' . $skin_selector, 'w');
-				echo $pia_lang['BackDevices_Theme_set'] . ': ' . $_REQUEST['SkinSelection'];
+				echo $pia_lang['BE_Dev_Theme_set'] . ': ' . $_REQUEST['SkinSelection'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			} else {
-				echo $pia_lang['BackDevices_Theme_notset'];
+				echo $pia_lang['BE_Dev_Theme_notset'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			}
 		} elseif (in_array($skin_selector, $installed_themes)) {
@@ -748,13 +748,13 @@ function setTheme() {
 			}
 			if ($skin_error == False) {
 				$testskin = fopen($skin_set_dir . 'setting_theme_' . $skin_selector, 'w');
-				echo $pia_lang['BackDevices_Theme_set'] . ': ' . $_REQUEST['SkinSelection'];
+				echo $pia_lang['BE_Dev_Theme_set'] . ': ' . $_REQUEST['SkinSelection'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			} else {
-				echo $pia_lang['BackDevices_Theme_notset'];
+				echo $pia_lang['BE_Dev_Theme_notset'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			}
-		} else {echo $pia_lang['BackDevices_Theme_invalid'];}
+		} else {echo $pia_lang['BE_Dev_Theme_invalid'];}
 	}
 	// Logging
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0053', '', $skin_selector);
@@ -787,13 +787,13 @@ function setLanguage() {
 			}
 			if ($pia_lang_error == False) {
 				$testlang = fopen($pia_lang_set_dir . 'setting_language_' . $pia_lang_selector, 'w');
-				echo $pia_lang['BackDevices_Language_set'] . ': ' . $_REQUEST['LangSelection'];
+				echo $pia_lang['BE_Dev_Language_set'] . ': ' . $_REQUEST['LangSelection'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			} else {
-				echo $pia_lang['BackDevices_Language_notset'];
+				echo $pia_lang['BE_Dev_Language_notset'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			}
-		} else {echo $pia_lang['BackDevices_Language_invalid'];}
+		} else {echo $pia_lang['BE_Dev_Language_invalid'];}
 	}
 	// Logging
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0054', '', $pia_lang_selector);
@@ -807,7 +807,7 @@ function setArpTimer() {
 		#$pia_lang_set_dir = '../../../config/';
 		$file = '../../../config/setting_stoppialert';
 		if (file_exists($file)) {
-			echo $pia_lang['BackDevices_Arpscan_enabled'];
+			echo $pia_lang['BE_Dev_Arpscan_enabled'];
 			// Logging
 			pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0510', '', '');
 			exec('../../../back/pialert-cli enable_scan', $output);
@@ -822,7 +822,7 @@ function setArpTimer() {
 				pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0512', '', '');
 				exec('../../../back/pialert-cli disable_scan', $output);
 			}
-			echo $pia_lang['BackDevices_Arpscan_disabled'];
+			echo $pia_lang['BE_Dev_Arpscan_disabled'];
 			echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 		}
 	}
@@ -836,9 +836,9 @@ function RestoreConfigFile() {
 	$laststate = '../../../config/pialert-prev.bak';
 	// Restore fast Backup
 	if (!copy($laststate, $file)) {
-		echo $pia_lang['BackDevices_ConfEditor_RestoreError'];
+		echo $pia_lang['BE_Dev_ConfEditor_RestoreError'];
 	} else {
-		echo $pia_lang['BackDevices_ConfEditor_RestoreOkay'];
+		echo $pia_lang['BE_Dev_ConfEditor_RestoreOkay'];
 	}
 	copy($file, $laststate);
 	// Logging
@@ -855,9 +855,9 @@ function BackupConfigFile() {
 	$newfile = '../../../config/pialert-' . date("Ymd_His") . '.bak';
 	$laststate = '../../../config/pialert-prev.bak';
 	if (!copy($file, $newfile)) {
-		echo $pia_lang['BackDevices_ConfEditor_CopError'];
+		echo $pia_lang['BE_Dev_ConfEditor_CopError'];
 	} else {
-		echo $pia_lang['BackDevices_ConfEditor_CopOkay'];
+		echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
 	}
 	// copy files as a fast Backup
 	copy($file, $laststate);
@@ -882,7 +882,7 @@ function deleteAllNotifications() {
 			unlink($reports_path . $item);
 		}
 	}
-	echo $count_all_reports . ' ' . $pia_lang['BackDevices_Report_Delete'];
+	echo $count_all_reports . ' ' . $pia_lang['BE_Dev_Report_Delete'];
 	echo "<meta http-equiv='refresh' content='2; URL=./reports.php'>";
 	// Logging
 	pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0504', '', '');

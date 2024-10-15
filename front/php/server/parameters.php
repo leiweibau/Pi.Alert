@@ -5,13 +5,22 @@
 //
 //  parameters.php - Front module. Server side. Manage Parameters
 //------------------------------------------------------------------------------
-//  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
+//  Puche 2021              pi.alert.application@gmail.com     GNU GPLv3
+//  leiweibau  2023+        https://github.com/leiweibau       GNU GPLv3
 //------------------------------------------------------------------------------
 
+session_start();
+
+if ($_SESSION["login"] != 1) {
+	header('Location: ../../index.php');
+	exit;
+}
 require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'journal.php';
+require 'language_switch.php';
+require '../templates/language/' . $pia_lang_selected . '.php';
 
 //  Action selector
 // Set maximum execution time to 15 seconds
@@ -70,6 +79,7 @@ function getParameter() {
 //  Set Parameter Value
 function setParameter() {
 	global $db;
+	global $pia_lang;
 
 	// Update value
 	$sql = 'UPDATE Parameters SET par_Value="' . quotes($_REQUEST['value']) . '"
@@ -77,7 +87,7 @@ function setParameter() {
 	$result = $db->query($sql);
 
 	if (!$result == TRUE) {
-		echo "Error updating parameter\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Param_error_update'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		return;
 	}
 
@@ -90,7 +100,7 @@ function setParameter() {
 		$result = $db->query($sql);
 
 		if (!$result == TRUE) {
-			echo "Error creating parameter\n\n$sql \n\n" . $db->lastErrorMsg();
+			echo $pia_lang['BE_Param_error_create'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 			return;
 		}
 	}
@@ -99,6 +109,7 @@ function setParameter() {
 
 function setJournalParameter() {
 	global $db;
+	global $pia_lang;
     
     if ($_POST['column'] == "trigger") {
     	// Get old value
@@ -139,10 +150,10 @@ function setJournalParameter() {
 
 	    // Compare old and new
 	    if ($old_data_a != $new_data_a || $old_data_b != $new_data_b) {
-	    	echo "Trigger Color(s) saved";
+	    	echo $pia_journ_lang['Journal_TableHead_Trigger'] . " " . $pia_lang['BE_Param_Colors'];
 	        // Logging
 		    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'trigger');
-	    } else {echo "Trigger Color(s) were not saved, or did not changed";}
+	    } else {echo $pia_journ_lang['Journal_TableHead_Trigger'] . " " . $pia_lang['BE_Param_Colors_error'];}
     }
 
     if ($_POST['column'] == "method") {
@@ -184,10 +195,10 @@ function setJournalParameter() {
 
 	    // Compare old and new
 	    if ($old_data_a != $new_data_a || $old_data_b != $new_data_b) {
-	    	echo "Trigger Color(s) saved";
+	    	echo $pia_journ_lang['Journal_TableHead_Class'] . " " . $pia_lang['BE_Param_Colors'];
 	        // Logging
 		    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0048', '', 'method');
-	    } else {echo "Trigger Color(s) were not saved, or did not changed";}
+	    } else {echo $pia_journ_lang['Journal_TableHead_Class'] . " " . $pia_lang['BE_Param_Colors_error'];}
     }
 }
 
@@ -216,6 +227,7 @@ function getJournalParameter() {
 
 function setReportParameter() {
 	global $db;
+	global $pia_lang;
     
     // Get old value
     $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
@@ -246,10 +258,10 @@ function setReportParameter() {
     } else {$new_data = "";}
 
     if ($old_data != $new_data) {
-    	echo "Headline Color saved";
+    	echo "Report " . $pia_lang['BE_Param_Colors'];
 	    // Logging
 	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0049', '', '');
-    } else {echo "Headline Color was not saved, or did not changed";}
+    } else {echo "Report " . $pia_lang['BE_Param_Colors_error'];}
 
 }
 
