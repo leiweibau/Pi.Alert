@@ -685,7 +685,7 @@ def update_devices_MAC_vendors (pArg = ''):
 
         closeDB()
     else :
-        print('\nOffline Mode...')
+        print('\nOffline Mode...\n')
 
 #-------------------------------------------------------------------------------
 def query_MAC_vendor(pMAC):
