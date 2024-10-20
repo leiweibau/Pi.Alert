@@ -24,6 +24,40 @@ require 'php/templates/header.php';
 // Delete Reports
 delete_single_webgui_report();
 
+function get_Report_Headline_Colors() {
+	global $db;
+
+  $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
+  $row = $result->fetchArray(SQLITE3_ASSOC);
+  if ($row) {
+      $responseData = $row['par_Long_Value'];
+      $Headline_Colors = explode(',', $responseData);
+  } else {
+  	$Headline_Colors = array("#30bbbb","#d81b60","#00c0ef","#831cff","#00a65a");
+  }
+  return $Headline_Colors;
+}
+
+function ssl_code_tooltip($sslcode) {
+	if ($sslcode >= 8) {
+		$sslinfo[] = "Subject";
+		$sslcode = $sslcode-8;
+	}
+	if ($sslcode >= 4) {
+		$sslinfo[] = "Issuer";
+		$sslcode = $sslcode-4;
+	}
+	if ($sslcode >= 2) {
+		$sslinfo[] = "Valid from";
+		$sslcode = $sslcode-2;
+	}
+	if ($sslcode >= 1) {
+		$sslinfo[] = "Valid to";
+		$sslcode = $sslcode-1;
+	}
+	return 'Values changed: '.implode(', ', $sslinfo);
+}
+
 function get_notification_class($filename) {
 	$headtitle = explode("-", $filename);
 	$headeventtype = explode("_", $filename);
@@ -87,20 +121,14 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 				// edit Event line - add color depending on status
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
-				if ($tempmac[1] != "200") {
-					$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-red\">" . $tempmac[1] . "</span>\n";
-				} else {
-					$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-green\">" . $tempmac[1] . "</span>\n";
-				}
+				if ($tempmac[1] != "200") {$code_color = 'red';} else {$code_color = 'green';}
+				$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span>\n";
 			} elseif (stristr($line, "\tSSL Status:")) {
 				// edit Event line - add color depending on status
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
-				if ($tempmac[1] != "0") {
-					$webgui_report .= "\tSSL Status:\t\t<span class=\"text-red\">" . $tempmac[1] . "</span>\n";
-				} else {
-					$webgui_report .= "\tSSL Status:\t\t<span class=\"text-green\">" . $tempmac[1] . "</span>\n";
-				}
+				if ($tempmac[1] != "0") {$code_color = 'red';} else {$code_color = 'green';}
+				$webgui_report .= "\t<span style=\"cursor:pointer\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"". ssl_code_tooltip($tempmac[1]) ."\">SSL Status:\t\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span></span>\n";
 			}else {
 				// Default handling
 				$webgui_report .= $line;
@@ -162,12 +190,12 @@ function process_icmp_notifications($class_name, $event_time, $filename, $direct
 	          </div>';
 }
 
-function process_test_notifications($class_name, $event_time, $filename, $directory) {
+function process_test_notifications($class_name, $event_time, $filename, $directory, $color) {
 	$webgui_report = file_get_contents($directory . $filename);
 	$webgui_report = str_replace("\n\n\n", "", $webgui_report);
 	return '<div class="box box-solid">
             <div class="box-header">
-              <h3 class="box-title" style="color: #00a65a"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . $event_time . ' - System Message</h3>
+              <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . $event_time . ' - System Message</h3>
                 <div class="pull-right">
                   <a href="./download/report.php?report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-fw fa-download"></i></a>
                   <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-danger"><i class="fa fa-fw fa-trash"></i></a>
@@ -195,6 +223,8 @@ function process_rogueDHCP_notifications($class_name, $event_time, $filename, $d
             </div>';
 }
 
+$headline_colors = get_Report_Headline_Colors();
+
 $directory = './reports/';
 $scanned_directory = array_diff(scandir($directory), array('..', '.'));
 rsort($scanned_directory);
@@ -205,15 +235,15 @@ foreach ($scanned_directory as $file) {
 	if (substr($file, -4) == '.txt') {
 		$notification_class = get_notification_class($file);
 		if ($notification_class[1] == "arp") {
-			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, '#D81B60', 'fa-laptop'));
+			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[1], 'fa-laptop'));
 		} elseif ($notification_class[1] == "internet") {
-			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, '#30bbbb', 'fa-globe'));
+			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[0], 'fa-globe'));
 		} elseif ($notification_class[1] == "webmon") {
-			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, '#00c0ef', 'fa-server'));
+			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[2], 'fa-server'));
 		} elseif ($notification_class[1] == "icmpmon") {
-			array_push($standard_notification, process_icmp_notifications($notification_class[0], $notification_class[2], $file, $directory, '#831CFF'));
+			array_push($standard_notification, process_icmp_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[3]));
 		} elseif ($notification_class[1] == "test") {
-			array_push($standard_notification, process_test_notifications($notification_class[0], $notification_class[2], $file, $directory));
+			array_push($standard_notification, process_test_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[4]));
 		} elseif ($notification_class[1] == "rogueDHCP") {
 			array_push($special_notification, process_rogueDHCP_notifications($notification_class[0], $notification_class[2], $file, $directory));
 		}
@@ -227,13 +257,59 @@ foreach ($scanned_directory as $file) {
 <!-- Content header--------------------------------------------------------- -->
     <section class="content-header">
     <?php require 'php/templates/notification.php';?>
-      <h1 id="pageTitle">
+      <h1 id="pageTitle" style="display: inline-block;">
          <?=$pia_lang['Reports_Title'];?>
-      </h1>
+      </h1> <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-report-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paintbrush text-green" style="font-size:1.5rem"></i></a>
     </section>
 
 <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
+        <div class="modal fade" id="modal-set-report-colors">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title"><?=$pia_journ_lang['Journal_CustomColor_Head'];?></h4>
+                    </div>
+                    <div class="modal-body">
+                        <link rel="stylesheet" href="lib/Coloris/dist/coloris.min.css"/>
+                        <script src="lib/Coloris/dist/coloris.min.js"></script>
+
+                        <h4>Report Type</h4>
+                        <div id="Container">
+							<div id="Internet" style="margin-bottom: 5px">
+				                <label style="width: 140px">Internet</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[0]?>" data-coloris>
+				            </div>
+							<div id="Device" style="margin-bottom: 5px">
+				                <label style="width: 140px">Devices</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[1]?>" data-coloris>
+				            </div>
+							<div id="WebServices" style="margin-bottom: 5px">
+				                <label style="width: 140px">WebServices</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[2]?>" data-coloris>
+				            </div>
+							<div id="ICMP_Monitoring" style="margin-bottom: 5px">
+				                <label style="width: 140px">ICMP Monitoring</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[3]?>" data-coloris>
+				            </div>
+							<div id="Test" style="margin-bottom: 5px">
+				                <label style="width: 140px">Test / System</label>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[4]?>" data-coloris>
+				            </div>
+                        </div>
+
+                        <input type="submit" class="btn btn-danger" value="<?=$pia_lang['Gen_Save']?>" style="margin-top:5px; margin-right:10px;" onclick="SetReportColors()">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="ReportReload()"><?=$pia_lang['Gen_Close']?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
       <div class="box">
           <div class="box-body" id="RemoveAllNotifications" style="text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;">
               <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotifications()"><?=$pia_lang['Reports_delete_all'];?></button>
@@ -258,6 +334,31 @@ require 'php/templates/footer.php';
 ?>
 
 <script>
+$(document).ready(function () {
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    });
+    Coloris({
+    	theme: 'pill',
+        themeMode: 'dark',
+        alpha: false,
+        closeButton: true,
+        closeLabel: '<?=$pia_lang['Gen_Okay']?>',
+        clearButton: true,
+        clearLabel: 'Clear',
+    });
+});
+function SetReportColors() {
+    let HeadLineColors = $('input[name="HeadLineColors[]"]').map(function () { return $(this).val(); }).get();
+
+    $.post('php/server/parameters.php', {
+        action: 'setReportParameter',
+        HeadLineColors: HeadLineColors
+    }, function(msg) {
+    showMessage (msg);
+  });
+}
+
 function askdeleteAllNotifications () {
   showModalWarning('<?=$pia_lang['Reports_delete_all_noti'];?>', '<?=$pia_lang['Reports_delete_all_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotifications');
@@ -268,4 +369,10 @@ function deleteAllNotifications()
     showMessage (msg);
   });
 }
+function ReportReload() {
+    setTimeout(function() {
+        location.reload();
+    }, 1000)
+};
+
 </script>

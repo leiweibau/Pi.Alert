@@ -556,5 +556,9 @@ body.modal-open {
   text-decoration-color: #dd7768;
 }
 .journal_custom_colors_input {
-padding:6px 12px;padding-bottom: 6px;font-size:14px; width:150px;position: relative; top: 1px; margin-right: 5px;
+  padding:6px 12px;padding-bottom: 6px;font-size:14px; width:150px; top: 1px; margin-right: 5px;
+}
+
+.report_custom_colors_input {
+  padding:6px 12px;padding-bottom: 6px;font-size:14px; width:150px; top: 1px; margin-right: 5px;
 }

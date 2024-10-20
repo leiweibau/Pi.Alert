@@ -12,6 +12,7 @@
 error_reporting(0);
 $conf_file = '../config/version.conf';
 $conf_data = parse_ini_file($conf_file);
+require 'php/server/timezone.php';
 require 'header_func.php';
 require 'php/templates/language/' . $pia_lang_selected . '.php';
 ?>
@@ -176,9 +177,11 @@ $sat_sub_menu = toggle_satellites_submenu();
         <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['NAV_Section_A'];?></li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('devices.php', 'deviceDetails.php'))) {echo 'active';}?>">
           <a href="devices.php"><i class="fa fa-laptop"></i> <span><?=$pia_lang['NAV_Devices'];?></span>
-            <small class="label pull-right bg-yellow" id="header_local_count_new"></small>
-            <small class="label pull-right bg-red" id="header_local_count_down"></small>
-            <small class="label pull-right bg-green" id="header_local_count_on"></small>
+            <span class="pull-right-container" style="margin-right:-5px">
+              <small class="label pull-right bg-yellow" id="header_local_count_new"></small>
+              <small class="label pull-right bg-red" id="header_local_count_down"></small>
+              <small class="label pull-right bg-green" id="header_local_count_on"></small>
+            </span>
           </a>
         </li>
 <?php
@@ -198,7 +201,9 @@ toggle_icmpscan_menu('Main');
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('presence.php'))) {echo 'active';}?>">
           <a href="presence.php"><i class="fa fa-calendar"></i> <span><?=$pia_lang['NAV_Presence'];?></span>
-            <small class="label pull-right bg-gray" id="header_local_presence"></small>
+            <span class="pull-right-container" style="margin-right:-5px">
+              <small class="label pull-right bg-gray" id="header_local_presence"></small>
+            </span>
           </a>
         </li>
 <?php
@@ -210,9 +215,6 @@ echo $sat_sub_menu[1];
         <li class="header text-uppercase" style="font-size: 10; padding: 1px;"><?=$pia_lang['NAV_Section_C'];?></li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('maintenance.php'))) {echo 'active';}?>">
           <a href="maintenance.php"><i class="fa fa-cog"></i> <span><?=$pia_lang['NAV_Maintenance'];?></span></a>
-        </li>
-        <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('help_faq.php'))) {echo 'active';}?>">
-          <a href="help_faq.php"><i class="fa fa-question"></i> <span><?=$pia_lang['NAV_HelpFAQ'];?></span></a>
         </li>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('updatecheck.php'))) {echo 'active';}?>">
           <a href="updatecheck.php"><i class="fa fa-rotate-right"></i> <span> <?=$pia_lang['NAV_UpdateCheck'];?></span>

@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 //  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
 //  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -18,7 +18,7 @@ if ($_SESSION["login"] != 1) {
 	exit;
 	}
 }
-
+require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'journal.php';
@@ -217,11 +217,11 @@ function SaveFilterID() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_Upd_Filter'];
+		echo $pia_lang['BE_Dev_Upd_Filter'];
 		// Logging
 		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid);
 	} else {
-		echo $pia_lang['BackDevices_Upd_FilterError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_Upd_FilterError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid);
 	}
@@ -268,18 +268,18 @@ function SetDeviceFilter() {
 		                               VALUES ("' . $filtername . '", "' . $filterstring . '", "' . $newcolfilter . '", "' . $filtergroup . '")';
 
 				$result = $db->query($sql_insert_data);
-				echo $pia_lang['BackDevices_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_ok_c'];
+				echo $pia_lang['BE_Dev_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BE_Dev_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BE_Dev_table_filter_ok_c'];
 				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);
 			} catch (Exception $e) {
-				die($pia_lang['BackDevices_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BackDevices_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BackDevices_table_filter_error_c']);
+				die($pia_lang['BE_Dev_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BE_Dev_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BE_Dev_table_filter_error_c']);
 				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0041', '', '');
 			}
 		} else {
-			echo $pia_lang['BackDevices_table_filter_error_d'];
+			echo $pia_lang['BE_Dev_table_filter_error_d'];
 			pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0043', '', '');
 		}
 	} catch (Exception $e) {
-	    die($pia_lang['BackDevices_table_filter_error_e']);
+	    die($pia_lang['BE_Dev_table_filter_error_e']);
 	    pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0044', '', '');
 	}
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
@@ -294,7 +294,7 @@ function DeleteDeviceFilter() {
 	// execute sql
 	$result = $db->query($sql);
 
-	echo $pia_lang['BackDevices_table_delfilter_ok'] . $filterstring;
+	echo $pia_lang['BE_Dev_table_delfilter_ok'] . $filterstring;
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
 }
@@ -399,11 +399,11 @@ function setDeviceData() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_UpdDev'];
+		echo $pia_lang['BE_Dev_DBTools_UpdDev'];
 		// Logging
 		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $_REQUEST['mac']);
 	} else {
-		echo $pia_lang['BackDevices_DBTools_UpdDevError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_UpdDevError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $_REQUEST['mac']);
 	}
@@ -420,11 +420,11 @@ function deleteDevice() {
 	$result = $db->query($sql);
 	// check result
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelDev_a'];
+		echo $pia_lang['BE_Dev_DBTools_DelDev_a'];
 		// Logging
 		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $_REQUEST['mac']);
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelDevError_a'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelDevError_a'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $_REQUEST['mac']);
 	}
@@ -440,11 +440,11 @@ function deleteAllWithEmptyMACs() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelDev_b'];
+		echo $pia_lang['BE_Dev_DBTools_DelDev_b'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0016', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelDevError_b'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelDevError_b'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0017', '', '');
 	}
@@ -459,11 +459,11 @@ function deleteUnknownDevices() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelDev_b'];
+		echo $pia_lang['BE_Dev_DBTools_DelDev_b'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0018', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelDevError_b'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelDevError_b'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0019', '', '');
 	}
@@ -478,11 +478,11 @@ function deleteDeviceEvents() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelEvents'];
+		echo $pia_lang['BE_Dev_DBTools_DelEvents'];
 		// Logging
 		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0020', '', $_REQUEST['mac']);
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelEventsError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelEventsError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0021', '', $_REQUEST['mac']);
 	}
@@ -497,11 +497,11 @@ function deleteAllDevices() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelDev_b'];
+		echo $pia_lang['BE_Dev_DBTools_DelDev_b'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0022', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelDevError_b'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelDevError_b'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0023', '', '');
 	}
@@ -516,11 +516,11 @@ function deleteEvents() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelEvents'];
+		echo $pia_lang['BE_Dev_DBTools_DelEvents'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0024', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelEventsError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelEventsError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0025', '', '');
 	}
@@ -535,11 +535,11 @@ function deleteActHistory() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelActHistory'];
+		echo $pia_lang['BE_Dev_DBTools_DelActHistory'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0026', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelActHistoryError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelActHistoryError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0027', '', '');
 	}
@@ -552,7 +552,7 @@ function TestNotificationSystem() {
 	exec('../../../back/pialert-cli reporting_test', $output);
 	// Logging
 	pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0500', '', '');
-	echo $pia_lang['BackDevices_test_notification'];
+	echo $pia_lang['BE_Dev_test_notification'];
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>");
 }
 
@@ -852,11 +852,11 @@ function DeleteInactiveHosts() {
 	}
 	//check result
 	if ($result_dev == TRUE && $result_evt == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelInactHosts'];
+		echo $pia_lang['BE_Dev_DBTools_DelInactHosts'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0015', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelInactHostsError'] . '<br>' . "\n\n$sql_loop \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelInactHostsError'] . '<br>' . "\n\n$sql_loop \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0014', '', '');
 	}
@@ -890,7 +890,7 @@ function deleteAllNotifications() {
 			unlink($reports_path . $item);
 		}
 	}
-	echo $count_all_reports . ' ' . $pia_lang['BackDevices_Report_Delete'];
+	echo $count_all_reports . ' ' . $pia_lang['BE_Dev_Report_Delete'];
 	echo ("<meta http-equiv='refresh' content='2; URL=./reports.php'>");
 	// Logging
 	pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0504', '', '');
@@ -987,13 +987,13 @@ function EnableMainScan() {
 
 	if ($_SESSION['Scan_MainScan'] == True) {
 		exec('../../../back/pialert-cli disable_mainscan', $output);
-		echo $pia_lang['BackDevices_MainScan_disabled'];
+		echo $pia_lang['BE_Dev_MainScan_disabled'];
 		// Logging
 		pialert_logging('a_032', $_SERVER['REMOTE_ADDR'], 'LogStr_9992', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>");
 	} else {
 		exec('../../../back/pialert-cli enable_mainscan', $output);
-		echo $pia_lang['BackDevices_MainScan_enabled'];
+		echo $pia_lang['BE_Dev_MainScan_enabled'];
 		// Logging
 		pialert_logging('a_032', $_SERVER['REMOTE_ADDR'], 'LogStr_9991', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>");
@@ -1009,11 +1009,11 @@ function DeleteSpeedtestResults() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelSpeedtest'];
+		echo $pia_lang['BE_Dev_DBTools_DelSpeedtest'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0028', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelSpeedtestError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelSpeedtestError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0029', '', '');
 	}
@@ -1028,11 +1028,11 @@ function DeleteNmapScansResults() {
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
-		echo $pia_lang['BackDevices_DBTools_DelNmapScans'];
+		echo $pia_lang['BE_Dev_DBTools_DelNmapScans'];
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0037', '', '');
 	} else {
-		echo $pia_lang['BackDevices_DBTools_DelNmapScansError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelNmapScansError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0038', '', '');
 	}

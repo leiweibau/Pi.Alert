@@ -26,7 +26,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta
-import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json
+import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -194,53 +194,56 @@ def check_internet_IP():
     # Header
     print('Check Internet IP')
     print('    Timestamp:', startTime )
-    print('\nRetrieving Internet IP...')
-    internet_IP = get_internet_IP()
 
-    # Check result = IP
-    if internet_IP == "" :
-        print('    Error retrieving Internet IP')
-        print('    Exiting...\n')
-        return 1
-    print('   ', internet_IP)
+    if not OFFLINE_MODE :
+        print('\nRetrieving Internet IP...')
+        internet_IP = get_internet_IP()
 
-    # Get previous stored IP
-    print('\nRetrieving previous IP...')
-    openDB()
-    previous_IP = get_previous_internet_IP()
-    print('   ', previous_IP)
-
-    # Check IP Change
-    if internet_IP != previous_IP :
-        print('    Saving new IP')
-        save_new_internet_IP (internet_IP)
-        print('        IP updated')
-    else :
-        print('    No changes to perform')
-    closeDB()
-
-    # Get Dynamic DNS IP
-    if DDNS_ACTIVE :
-        print('\nRetrieving Dynamic DNS IP...')
-        dns_IP = get_dynamic_DNS_IP()
-
-        # Check Dynamic DNS IP
-        if dns_IP == "" :
-            print('    Error retrieving Dynamic DNS IP')
+        # Check result = IP
+        if internet_IP == "" :
+            print('    Error retrieving Internet IP')
             print('    Exiting...\n')
             return 1
-        print('   ', dns_IP)
+        print('   ', internet_IP)
 
-        # Check DNS Change
-        if dns_IP != internet_IP :
-            print('    Updating Dynamic DNS IP...')
-            message = set_dynamic_DNS_IP()
-            print('       ', message)
+        # Get previous stored IP
+        print('\nRetrieving previous IP...')
+        openDB()
+        previous_IP = get_previous_internet_IP()
+        print('   ', previous_IP)
+
+        # Check IP Change
+        if internet_IP != previous_IP :
+            print('    Saving new IP')
+            save_new_internet_IP (internet_IP)
+            print('        IP updated')
         else :
             print('    No changes to perform')
-    else :
-        print('\nSkipping Dynamic DNS update...')
+        closeDB()
 
+        # Get Dynamic DNS IP
+        if DDNS_ACTIVE :
+            print('\nRetrieving Dynamic DNS IP...')
+            dns_IP = get_dynamic_DNS_IP()
+
+            # Check Dynamic DNS IP
+            if dns_IP == "" :
+                print('    Error retrieving Dynamic DNS IP')
+                print('    Exiting...\n')
+                return 1
+            print('   ', dns_IP)
+
+            # Check DNS Change
+            if dns_IP != internet_IP :
+                print('    Updating Dynamic DNS IP...')
+                message = set_dynamic_DNS_IP()
+                print('       ', message)
+            else :
+                print('    No changes to perform')
+        else :
+            print('\nSkipping Dynamic DNS update...')
+    else :
+        print('\nOffline Mode...')
 
     # Run continuous New Device Notification
     print(f"\nContinuous New Device Notification...")
@@ -250,28 +253,28 @@ def check_internet_IP():
     else:
         print(f"    Skipping... Not activated!")
 
+    if not OFFLINE_MODE :
+        # Run automated Speedtest
+        print(f"\nAuto Speedtest...")
+        if SPEEDTEST_TASK_ACTIVE :
+            # Check if Speedtest is installed
+            speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
+            if os.path.exists(speedtest_binary):
+                print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
+                run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
+            else:
+                print('    Skipping Speedtest... Not installed!')
+        else :
+            print('    Skipping Speedtest... Not activated!')
 
-    # Run automated Speedtest
-    print(f"\nAuto Speedtest...")
-    if SPEEDTEST_TASK_ACTIVE :
-        # Check if Speedtest is installed
-        speedtest_binary = PIALERT_BACK_PATH + '/speedtest/speedtest'
-        if os.path.exists(speedtest_binary):
-            print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
-            run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
+        # Run automated UpdateCheck
+        print(f"\nAuto Update-Check...")
+        if AUTO_UPDATE_CHECK :
+            print(f"    Crontab: {AUTO_UPDATE_CHECK_CRON}")
+            checkNewVersion(startTime, AUTO_UPDATE_CHECK_CRON)
         else:
-            print('    Skipping Speedtest... Not installed!')
-    else :
-        print('    Skipping Speedtest... Not activated!')
-
-    # Run automated UpdateCheck
-    print(f"\nAuto Update-Check...")
-    if AUTO_UPDATE_CHECK :
-        print(f"    Crontab: {AUTO_UPDATE_CHECK_CRON}")
-        checkNewVersion(startTime, AUTO_UPDATE_CHECK_CRON)
-    else:
-        NewVersion_FrontendNotification(False,"")
-        print(f"    Skipping Auto Update-Check... Not activated!")
+            NewVersion_FrontendNotification(False,"")
+            print(f"    Skipping Auto Update-Check... Not activated!")
 
     # Run automated Backup
     print(f"\nAuto Backup...")
@@ -630,56 +633,59 @@ def update_devices_MAC_vendors (pArg = ''):
     print('Update HW Vendors')
     print('    Timestamp:', startTime )
 
-    # Update vendors DB (oui)
-    print('\nUpdating vendors DB...')
-    update_args = ['sh', PIALERT_BACK_PATH + '/update_vendors.sh', pArg]
-    update_output = subprocess.check_output (update_args)
+    if not OFFLINE_MODE :
+        # Update vendors DB (oui)
+        print('\nUpdating vendors DB...')
+        update_args = ['sh', PIALERT_BACK_PATH + '/update_vendors.sh', pArg]
+        update_output = subprocess.check_output (update_args)
 
-    # Initialize variables
-    recordsToUpdate = []
-    ignored = 0
-    notFound = 0
+        # Initialize variables
+        recordsToUpdate = []
+        ignored = 0
+        notFound = 0
 
-    # All devices loop
-    print('\nSearching devices vendor', end='')
-    openDB()
-    # Only the devices for which no vendor has yet been entered are attempted to be updated.
-    for device in sql.execute ("SELECT * FROM Devices WHERE dev_Vendor = ''") :
-        # Search vendor in HW Vendors DB
-        vendor = query_MAC_vendor (device['dev_MAC'])
-        if vendor == -1 :
-            notFound += 1
-        elif vendor == -2 :
-            ignored += 1
-        else :
-            recordsToUpdate.append ([vendor, device['dev_MAC']])
-        # progress bar
-        print('.', end='')
-        sys.stdout.flush()
+        # All devices loop
+        print('\nSearching devices vendor', end='')
+        openDB()
+        # Only the devices for which no vendor has yet been entered are attempted to be updated.
+        for device in sql.execute ("SELECT * FROM Devices WHERE dev_Vendor = ''") :
+            # Search vendor in HW Vendors DB
+            vendor = query_MAC_vendor (device['dev_MAC'])
+            if vendor == -1 :
+                notFound += 1
+            elif vendor == -2 :
+                ignored += 1
+            else :
+                recordsToUpdate.append ([vendor, device['dev_MAC']])
+            # progress bar
+            print('.', end='')
+            sys.stdout.flush()
 
-    print('')
-    print("    Devices Ignored:  ", ignored)
-    print("    Vendors Not Found:", notFound)
-    print("    Vendors updated:  ", len(recordsToUpdate) )
+        print('')
+        print("    Devices Ignored:  ", ignored)
+        print("    Vendors Not Found:", notFound)
+        print("    Vendors updated:  ", len(recordsToUpdate) )
 
-    # mac-vendor-lookup update
-    try:
-        print('\nTry build in mac-vendor-lookup update')
-        mac = MacLookup()
-        mac.update_vendors()
-        print('    Update successful')
-    except:
-        print('\nFallback')
-        print('    Backup old mac-vendors.txt for mac-vendor-lookup')
-        p = subprocess.call(["cp $HOME/.cache/mac-vendors.txt $HOME/.cache/mac-vendors.bak"], shell=True)
-        print('    Create mac-vendors.txt for mac-vendor-lookup')
-        p = subprocess.call(["/usr/bin/sed -e 's/\t/:/g' -e 's/Ã¼/ü/g' -e 's/Ã¶/ö/g' -e 's/Ã¤/ä/g' -e 's/Ã³/ó/g' -e 's/Ã©/é/g' -e 's/â/–/g' -e 's/Â//g' -e '/^#/d' /usr/share/arp-scan/ieee-oui.txt > $HOME/.cache/mac-vendors.txt"], shell=True)
+        # mac-vendor-lookup update
+        try:
+            print('\nTry build in mac-vendor-lookup update')
+            mac = MacLookup()
+            mac.update_vendors()
+            print('    Update successful')
+        except:
+            print('\nFallback')
+            print('    Backup old mac-vendors.txt for mac-vendor-lookup')
+            p = subprocess.call(["cp $HOME/.cache/mac-vendors.txt $HOME/.cache/mac-vendors.bak"], shell=True)
+            print('    Create mac-vendors.txt for mac-vendor-lookup')
+            p = subprocess.call(["/usr/bin/sed -e 's/\t/:/g' -e 's/Ã¼/ü/g' -e 's/Ã¶/ö/g' -e 's/Ã¤/ä/g' -e 's/Ã³/ó/g' -e 's/Ã©/é/g' -e 's/â/–/g' -e 's/Â//g' -e '/^#/d' /usr/share/arp-scan/ieee-oui.txt > $HOME/.cache/mac-vendors.txt"], shell=True)
 
-    # update devices
-    sql.executemany ("UPDATE Devices SET dev_Vendor = ? WHERE dev_MAC = ? ",
-        recordsToUpdate )
+        # update devices
+        sql.executemany ("UPDATE Devices SET dev_Vendor = ? WHERE dev_MAC = ? ",
+            recordsToUpdate )
 
-    closeDB()
+        closeDB()
+    else :
+        print('\nOffline Mode...\n')
 
 #-------------------------------------------------------------------------------
 def query_MAC_vendor(pMAC):
@@ -720,6 +726,8 @@ def scan_network():
 
     # correct db permission every scan (user must/should be sudoer)
     set_db_file_permissions()
+
+    get_local_sys_timezone()
 
     # Query ScanCycle properties
     print_log ('Query ScanCycle confinguration...')
@@ -772,6 +780,8 @@ def scan_network():
     # Load current scan data 2/2
     print_log ('Save scanned devices')
     save_scanned_devices (arpscan_devices, cycle_interval)
+    print_log ('Dump all results to Log')
+    dump_all_resulttables()
     # Process Ignore list
     print('    Processing ignore list...')
     remove_entries_from_table()
@@ -834,6 +844,24 @@ def scan_network():
 
     sql_connection.commit()
     closeDB()
+
+    return 0
+
+#-------------------------------------------------------------------------------
+def get_local_sys_timezone():
+    openDB()
+
+    sat_os_timezone = str(tzlocal.get_localzone())
+    sql.execute('SELECT par_ID FROM Parameters WHERE par_ID = ?', ('Local_System_TZ',))
+    result = sql.fetchone()
+
+    if result:
+        sql.execute('UPDATE Parameters SET par_Value = ? WHERE par_ID = ?', (sat_os_timezone, 'Local_System_TZ'))
+    else:
+        sql.execute('INSERT INTO Parameters (par_ID, par_Value) VALUES (?, ?)', ('Local_System_TZ', sat_os_timezone))
+
+    sql_connection.commit()
+    closeDB()            
 
     return 0
 
@@ -1551,8 +1579,11 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                                       WHERE cur_MAC = Sat_MAC )""",
                     (cycle) )
 
-    # Check Internet connectivity
-    internet_IP = get_internet_IP()
+    if not OFFLINE_MODE :
+        # Check Internet connectivity
+        internet_IP = get_internet_IP()
+    else :
+        internet_IP = "Offline Mode"
         # TESTING - Force IP
         # internet_IP = ""
     if internet_IP != "" :
@@ -1571,6 +1602,63 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     if sql.fetchone()[0] == 0 :
         sql.execute ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod) "+
                      "VALUES ( ?, ?, ?, Null, 'local_MAC') ", (cycle, local_mac, local_ip) )
+
+#-------------------------------------------------------------------------------
+def dump_all_resulttables():
+    if PRINT_LOG:
+        sql.execute('SELECT cur_MAC, cur_IP FROM CurrentScan')
+        rows = sql.fetchall()
+        print('----------> Dump: Table (CurrentScan)')
+        for row in rows:
+            print(f"MAC: {row[0]}, IP: {row[1]}")
+        print('----------> Dump: End')
+        sql.execute('SELECT DHCP_MAC, DHCP_IP, DHCP_Name FROM DHCP_Leases')
+        rows = sql.fetchall()
+        print('----------> Dump: Table (DHCP Leases)')
+        for row in rows:
+            print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+        print('----------> Dump: End')
+        sql.execute('SELECT PH_MAC, PH_IP, PH_Name FROM PiHole_Network')
+        print('----------> Dump: Table (PiHole Network)')
+        for row in rows:
+            print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+        print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Fritzbox_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT FB_MAC, FB_IP, FB_Name FROM Fritzbox_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (Fritzbox Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Mikrotik_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT MT_MAC, MT_IP, MT_Name FROM Mikrotik_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (Mikrotik Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Unifi_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT UF_MAC, UF_IP, UF_Name FROM Unifi_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (UniFi Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Satellites_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT Sat_MAC, Sat_IP, Sat_Name, Sat_Token FROM Satellites_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (Satellites Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}, Token: {row[3]}")
+            print('----------> Dump: End')
 
 #-------------------------------------------------------------------------------
 def remove_entries_from_table():
@@ -1839,7 +1927,7 @@ def create_new_devices():
                     FROM DHCP_Leases AS D1
                     WHERE NOT EXISTS (SELECT 1 FROM Devices
                                       WHERE dev_MAC = DHCP_MAC) """,
-                    (startTime, startTime) ) 
+                    (startTime, startTime) )
 
     print_log ('New Devices end')
 
@@ -2049,6 +2137,10 @@ def update_devices_data_from_scan():
                                  FROM CurrentScan 
                                  WHERE cur_MAC = dev_MAC)""")
 
+    # Remove * as device name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = '(unknown)'
+                    WHERE dev_Name = '*'""")
 
     print_log ('Update devices end')
 
@@ -3327,7 +3419,7 @@ def email_reporting():
     mail_section_devices_down = False
     mail_text_devices_down = ''
     mail_html_devices_down = ''
-    text_line_template = '{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\t{}\t{}\n\n'
+    text_line_template = '{}\t{}\n\t{}\t\t{}\n\t{}\t\t{}\n\t{}\t{}\n\t{}\t\t{}\n\n'
     html_line_template     = '<tr>\n'+ \
         '  <td> <a href="{}{}"> {} </a>  </td><td> {} </td>'+ \
         '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'

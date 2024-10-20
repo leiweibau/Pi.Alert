@@ -4,6 +4,20 @@ function useRegex($input) {
 	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
 	return preg_match($regex, $input);
 }
+
+function get_local_system_tz() {
+	$database = '../db/pialert.db';
+    $db = new SQLite3($database);	
+	$query = "SELECT par_Value FROM Parameters WHERE par_ID = 'Local_System_TZ'";
+	$result = $db->query($query);
+
+	$timezone = "unknown";
+	if ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+	    $timezone = $row['par_Value'];
+	}
+	return $timezone;
+}
+
 // Header - Delete Single WebGUI Reports
 function delete_single_webgui_report() {
 	global $db;
@@ -116,7 +130,7 @@ function toggle_webservices_menu($section) {
 		echo '"><a href="services.php">
                 	<i class="fa fa-globe"></i>
                 	<span>' . $pia_lang['NAV_Services'] . '</span>
-		          	<span class="pull-right-container">
+		          	<span class="pull-right-container" style="margin-right:-5px">
 		              <small class="label pull-right bg-yellow" id="header_services_count_warning"></small>
 		              <small class="label pull-right bg-red" id="header_services_count_down"></small>
 		              <small class="label pull-right bg-green" id="header_services_count_on"></small>
@@ -133,7 +147,7 @@ function toggle_icmpscan_menu($section) {
 		echo '"><a href="icmpmonitor.php">
                     <i class="fa fa-magnifying-glass"></i>
                     <span>' . $pia_lang['NAV_ICMPScan'] . '</span>
-					<span class="pull-right-container">
+					<span class="pull-right-container" style="margin-right:-5px">
 						<small class="label pull-right bg-red" id="header_icmp_count_down"></small>
 						<small class="label pull-right bg-green" id="header_icmp_count_on"></small>
 					</span>
@@ -161,7 +175,7 @@ function toggle_satellites_submenu() {
 	                	<a href="devices.php?scansource='.$row['sat_token'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
 	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
 	                		<span>'.$row['sat_name'].'</span>
-	                		<span class="pull-right-container">
+	                		<span class="pull-right-container" style="margin-right:-5px">
 				              <small class="label pull-right bg-yellow" id="header_'.$row['sat_token'].'_count_new"></small>
 				              <small class="label pull-right bg-red" id="header_'.$row['sat_token'].'_count_down"></small>
 				              <small class="label pull-right bg-green" id="header_'.$row['sat_token'].'_count_on"></small>
@@ -172,7 +186,7 @@ function toggle_satellites_submenu() {
 	                	<a href="presence.php?scansource='.$row['sat_token'].'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:25px;">
 	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
 	                		<span>'.$row['sat_name'].'</span>
-	                		<span class="pull-right-container">
+	                		<span class="pull-right-container" style="margin-right:-5px">
 				              <small class="label pull-right bg-gray" id="header_'.$row['sat_token'].'_presence"></small>
 		            		</span></a>
 	                	</li>';

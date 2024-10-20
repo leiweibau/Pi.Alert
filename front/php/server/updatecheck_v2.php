@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+require 'timezone.php';
 require 'db.php';
 require 'journal.php';
 

@@ -77,6 +77,20 @@ update_warning() {
   print_msg ""
   printf "%s " "Press enter to continue"
   read ans
+
+  if [ "$USER" = "root" ]; then
+    scan_file="/root/pialert/back/.scanning"
+  else
+    scan_file="/home/$USER/pialert/back/.scanning"
+  fi
+
+  if [ -f "$scan_file" ]; then
+    print_msg "####################################################################"
+    print_msg "# A SCAN IS CURRENTLY RUNNING!!! Please wait until it is finished. #"
+    print_msg "####################################################################"
+    sleep 2
+    update_warning
+  fi
 }
 
 # ------------------------------------------------------------------------------
@@ -166,7 +180,7 @@ clean_files() {
 # ------------------------------------------------------------------------------
 check_packages() {
   sudo apt-get update 2>&1 >>"$LOG"
-  packages=("apt-utils" "sqlite3" "dnsutils" "net-tools" "wakeonlan" "nbtscan" "avahi-utils" "php-curl" "php-xml" "python3-requests" "python3-cryptography" "libwww-perl" "mmdb-bin" "libtext-csv-perl" "aria2")
+  packages=("apt-utils" "sqlite3" "dnsutils" "net-tools" "wakeonlan" "nbtscan" "avahi-utils" "php-curl" "php-xml" "python3-requests" "python3-cryptography" "libwww-perl" "mmdb-bin" "libtext-csv-perl" "aria2" "python3-tz" "python3-tzlocal")
   print_msg "- Checking packages..."
   missing_packages=()
   for package in "${packages[@]}"; do
@@ -357,6 +371,15 @@ if ! grep -Fq "DHCP_INCL_SELF_TO_LEASES" "$PIALERT_HOME/config/pialert.conf" ; t
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
 
 DHCP_INCL_SELF_TO_LEASES   = False
+EOF
+fi
+
+# 2024-10-14
+if ! grep -Fq "SYSTEM_TIMEZONE" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+SYSTEM_TIMEZONE            = 'Europe/Berlin'
+OFFLINE_MODE               = False
 EOF
 fi
 

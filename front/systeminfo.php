@@ -211,6 +211,10 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 											  <div class="col-sm-3 sysinfo_gerneral_a">Satellite Host:</div>
 											  <div class="col-sm-9 sysinfo_gerneral_b">Name: ' . $hostdata['hostname'] . ' / IP: ' . $hostdata['satellite_ip'] . ' / MAC: <a href="./deviceDetails.php?mac=' . $hostdata['satellite_mac'] . '">' . $hostdata['satellite_mac'] . '</a></div>
 											</div>
+											<div class="row">
+											  <div class="col-sm-3 sysinfo_gerneral_a">Timezone (System):</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">"' . $hostdata['os_timezone'] . '"</div>
+											</div>
 							            </div>';
 	            }
 	        }
@@ -256,6 +260,10 @@ echo '<div class="nav-tabs-custom">
 				<div class="row">
 				  <div class="col-sm-3 sysinfo_gerneral_a">Logged in Users:</div>
 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['user_count'] . '</div>
+				</div>
+				<div class="row">
+				  <div class="col-sm-3 sysinfo_gerneral_a">Timezone (PHP / System):</div>
+				  <div class="col-sm-9 sysinfo_gerneral_b">"'. date_default_timezone_get() .'" / "'. get_local_system_tz() .'"</div>
 				</div>
               </div>
               '.$tab_content.'

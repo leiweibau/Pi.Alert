@@ -14,8 +14,7 @@ if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
 	exit;
 }
-
-// External files
+require 'timezone.php';
 require 'db.php';
 require 'util.php';
 
