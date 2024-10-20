@@ -780,6 +780,8 @@ def scan_network():
     # Load current scan data 2/2
     print_log ('Save scanned devices')
     save_scanned_devices (arpscan_devices, cycle_interval)
+    print_log ('Dump all results to Log')
+    dump_all_resulttables()
     # Process Ignore list
     print('    Processing ignore list...')
     remove_entries_from_table()
@@ -1600,6 +1602,63 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     if sql.fetchone()[0] == 0 :
         sql.execute ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod) "+
                      "VALUES ( ?, ?, ?, Null, 'local_MAC') ", (cycle, local_mac, local_ip) )
+
+#-------------------------------------------------------------------------------
+def dump_all_resulttables():
+    if PRINT_LOG:
+        sql.execute('SELECT cur_MAC, cur_IP FROM CurrentScan')
+        rows = sql.fetchall()
+        print('----------> Dump: Table (CurrentScan)')
+        for row in rows:
+            print(f"MAC: {row[0]}, IP: {row[1]}")
+        print('----------> Dump: End')
+        sql.execute('SELECT DHCP_MAC, DHCP_IP, DHCP_Name FROM DHCP_Leases')
+        rows = sql.fetchall()
+        print('----------> Dump: Table (DHCP Leases)')
+        for row in rows:
+            print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+        print('----------> Dump: End')
+        sql.execute('SELECT PH_MAC, PH_IP, PH_Name FROM PiHole_Network')
+        print('----------> Dump: Table (PiHole Network)')
+        for row in rows:
+            print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+        print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Fritzbox_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT FB_MAC, FB_IP, FB_Name FROM Fritzbox_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (Fritzbox Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Mikrotik_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT MT_MAC, MT_IP, MT_Name FROM Mikrotik_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (Mikrotik Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Unifi_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT UF_MAC, UF_IP, UF_Name FROM Unifi_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (UniFi Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Satellites_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT Sat_MAC, Sat_IP, Sat_Name, Sat_Token FROM Satellites_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (Satellites Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}, Token: {row[3]}")
+            print('----------> Dump: End')
 
 #-------------------------------------------------------------------------------
 def remove_entries_from_table():
