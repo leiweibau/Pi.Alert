@@ -33,7 +33,7 @@ function get_Report_Headline_Colors() {
       $responseData = $row['par_Long_Value'];
       $Headline_Colors = explode(',', $responseData);
   } else {
-  	$Headline_Colors = array("","","","","");
+  	$Headline_Colors = array("#30bbbb","#d81b60","#00c0ef","#831cff","#00a65a");
   }
   return $Headline_Colors;
 }
