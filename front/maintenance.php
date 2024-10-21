@@ -79,7 +79,7 @@ if (sizeof($LATEST_FILES) == 0) {
 // Buffer active --------------------------------------------------------------
 	$file = '../db/pialert_journal_buffer';
 	if (file_exists($file)) {
-        $buffer_indicator = '<span style="cursor:pointer" data-toggle="tooltip" data-placement="top" title="'.$pia_lang['MT_Stats_ToolTip_Jrn'].'">(<span style="color:red;">*</span>)</span>';
+        $buffer_indicator = '<span style="cursor:pointer; text-decoration: underline dotted red; text-underline-position:under;" data-toggle="tooltip" data-placement="top" title="'.$pia_lang['MT_Stats_ToolTip_Jrn'].'">(<span style="color:red;">*</span>)</span>';
 	} else {$buffer_indicator = '';}
 
 // Set Tab --------------------------------------------------------------------
@@ -322,7 +322,7 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                             </div>
                         </div>
                     </td>
-                    <td class="db_info_table_cell db_tools_table_cell_b"><?=$pia_lang['MT_Tool_arpscansw_text'];?></td>
+                    <td class="db_info_table_cell db_tools_table_cell_b text-danger"><?=$pia_lang['MT_Tool_arpscansw_text'];?></td>
                 </tr>
                 <tr class="table_settings_row">
 <?php
@@ -330,7 +330,7 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
 	echo '          <td class="db_info_table_cell db_tools_table_cell_a"><button type="button" class="btn btn-default dbtools-button" id="btnPiAlertLoginEnable" onclick="askPiAlertLoginEnable()">' . $pia_lang['MT_Tool_loginenable'] . '</button></td>
                     <td class="db_info_table_cell db_tools_table_cell_b">' . $pia_lang['MT_Tool_loginenable_text'] . '</td>';} else {
 	echo '      <td class="db_info_table_cell db_tools_table_cell_a"><button type="button" class="btn btn-danger dbtools-button" id="btnPiAlertLoginDisable" onclick="askPiAlertLoginDisable()">' . $pia_lang['MT_Tool_logindisable'] . '</button></td>
-                    <td class="db_info_table_cell db_tools_table_cell_b">' . $pia_lang['MT_Tool_logindisable_text'] . '</td>';}
+                    <td class="db_info_table_cell db_tools_table_cell_b text-danger">' . $pia_lang['MT_Tool_logindisable_text'] . '</td>';}
 ?>
                 </tr>
             </table>
