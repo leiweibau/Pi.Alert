@@ -80,9 +80,11 @@ update_warning() {
 
   # Check if the user pressed "F" to force the update
   if [ "$ans" = "F" ] || [ "$ans" = "f" ]; then
+    print_msg ""
     print_msg "####################################################################"
     print_msg "# Update forced. Skipping scan check...                            #"
     print_msg "####################################################################"
+    print_msg ""
     return
   fi
 
@@ -93,9 +95,11 @@ update_warning() {
   fi
 
   if [ -f "$scan_file" ]; then
+    print_msg ""
     print_msg "####################################################################"
     print_msg "# A SCAN IS CURRENTLY RUNNING!!! Please wait until it is finished. #"
     print_msg "####################################################################"
+    print_msg ""
     sleep 2
     update_warning
   fi
