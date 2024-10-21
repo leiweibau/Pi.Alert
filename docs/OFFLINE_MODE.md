@@ -1,6 +1,6 @@
 ## Offline Mode
 
-Things that does not work
+Things that don't work
 - Cron internet_IP
 	- Get WAN IP
 	- Auto Speedtest
