@@ -69,14 +69,25 @@ update_warning() {
   print_msg "# You are planning to update Pi.Alert. Please make sure that no scan takes #"
   print_msg "# place during the update to avoid possible database errors afterwards!!!  #"
   print_msg "#                                                                          #"
-  print_msg "# This can be done by pausing the Arp scan via the settings page. However, #"
-  print_msg "# scans that are already running will not be terminated. For more          #"
-  print_msg "# information, check the Help/FAQ section in Pi.Alert                      #"
+  print_msg "# This can be done by pausing Pi.Alert (at least 10min) via the settings   #"
+  print_msg "# page. If the script does not correctly recognize that a scan is no       #"
+  print_msg "# longer running, the update can be forced with “f”. Scans that are        #"
+  print_msg "# already running will be terminated, which could lead to database errors. #"
   print_msg "############################################################################"
   print_msg ""
   print_msg ""
-  printf "%s " "Press enter to continue"
-  read ans
+  printf "%s " "Press enter to continue or press 'F' to force the update"
+  read -n 1 ans
+
+  # Check if the user pressed "F" to force the update
+  if [ "$ans" = "F" ] || [ "$ans" = "f" ]; then
+    print_msg ""
+    print_msg "####################################################################"
+    print_msg "# Update forced. Skipping scan check...                            #"
+    print_msg "####################################################################"
+    print_msg ""
+    return
+  fi
 
   if [ "$USER" = "root" ]; then
     scan_file="/root/pialert/back/.scanning"
@@ -85,13 +96,16 @@ update_warning() {
   fi
 
   if [ -f "$scan_file" ]; then
+    print_msg ""
     print_msg "####################################################################"
     print_msg "# A SCAN IS CURRENTLY RUNNING!!! Please wait until it is finished. #"
     print_msg "####################################################################"
+    print_msg ""
     sleep 2
     update_warning
   fi
 }
+
 
 # ------------------------------------------------------------------------------
 # Stop Pi.Alert, if possible
