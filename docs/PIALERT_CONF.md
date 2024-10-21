@@ -22,15 +22,18 @@ I would like to give a short explanation to the individual points.
 | REPORT_NEW_CONTINUOUS    | Enables or disables the recurring notification for devices marked as "New".                                                                                                                                                                        |
 | NEW_DEVICE_PRESET_EVENTS | Enables or disables the notification for all events on new devices.                                                                                                                                                                                |
 | NEW_DEVICE_PRESET_DOWN   | Enables or disables the notification for "Down" events on new devices.                                                                                                                                                                             |
+| SYSTEM_TIMEZONE          | If a time zone has already been set in php.ini, this will of course be used. If no time zone is set, i.e. PHP uses "UTC", then the time zone stored in pialert.conf is applied. [PHP Timezones](https://www.php.net/manual/en/timezones.php)       |
+| OFFLINE_MODE             | After the installation and the initial test of all script components, the offline mode can be configured to prevent any communication with the Internet                                                                                            |
+
 
 
 #### Other Modules
 
-| Option               | Description |
-|------------------|----------------------------------------------------------------------------------------|
-| SCAN_WEBSERVICES | Here the function for monitoring web services can be switched on (True) or off (False) |
-| ICMPSCAN_ACTIVE  | ICMP Monitoring on/off                                                                 |
-
+| Option            | Description |
+|-------------------|----------------------------------------------------------------------------------------|
+| SCAN_WEBSERVICES  | Here the function for monitoring web services can be switched on (True) or off (False) |
+| ICMPSCAN_ACTIVE   | ICMP Monitoring on/off                                                                 |
+| SATELLITES_ACTIVE | Enable the Satellite management and import function. One or more companion scripts can perform remote scans and send them to the central Pi.Alert instance. |
 
 #### Special Protocol Scanning
 
@@ -215,6 +218,14 @@ I would like to give a short explanation to the individual points.
 | UNIFI_API    | Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default                                                            |
 | UNIFI_USER   | Username                                                                                                                  |
 | UNIFI_PASS   | Password                                                                                                                  |
+
+
+#### Satellite Configuration
+
+| Option               | Description |
+|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| SATELLITE_PROXY_MODE | Activates/deactivates the support of an external API to which the satellites send their data. If this function is deactivated, Pi.Alert only uses scan events that were sent directly to this instance. |
+| SATELLITE_PROXY_URL  | The URL of the Pi.Alert Satellite Poxy API                                                  |
 
 
 #### Maintenance Tasks
