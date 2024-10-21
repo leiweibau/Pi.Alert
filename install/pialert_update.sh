@@ -75,8 +75,16 @@ update_warning() {
   print_msg "############################################################################"
   print_msg ""
   print_msg ""
-  printf "%s " "Press enter to continue"
-  read ans
+  printf "%s " "Press enter to continue or press 'F' to force the update"
+  read -n 1 ans
+
+  # Check if the user pressed "F" to force the update
+  if [ "$ans" = "F" ] || [ "$ans" = "f" ]; then
+    print_msg "####################################################################"
+    print_msg "# Update forced. Skipping scan check...                            #"
+    print_msg "####################################################################"
+    return
+  fi
 
   if [ "$USER" = "root" ]; then
     scan_file="/root/pialert/back/.scanning"
@@ -92,6 +100,7 @@ update_warning() {
     update_warning
   fi
 }
+
 
 # ------------------------------------------------------------------------------
 # Stop Pi.Alert, if possible
