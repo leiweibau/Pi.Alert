@@ -818,6 +818,12 @@ def scan_network():
     # Calc Activity History
     print('    Calculate Activity History...')
     calc_activity_history_main_scan()
+
+    # Issue #370
+    # new column for example "dev_alarm_delay" (True/False) and config parameter (2) scan counter
+    # For devices that are in the “Current_Scan” table and for which “alarm_delay” is set to True, 
+    # “Pending_Alert” is reset if the time interval is less than the desired one.
+
     # Web Service Monitoring
     try:
         enable_services_monitoring = SCAN_WEBSERVICES
@@ -3424,6 +3430,9 @@ def email_reporting():
         '  <td> <a href="{}{}"> {} </a>  </td><td> {} </td>'+ \
         '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'
 
+    # Issue #370
+    # AND eve_DateTime < datetime('now', '-{DELAY} minutes')
+
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
                       AND eve_EventType = 'Device Down'
@@ -3514,6 +3523,19 @@ def email_reporting():
                 """, (datetime.datetime.now(),))
     sql.execute("""UPDATE Events SET eve_PendingAlertEmail = 0
                    WHERE eve_PendingAlertEmail = 1""")
+
+    # Issue #370
+    # Clean Pending Alert Events
+    # sql.execute("""UPDATE Devices SET dev_LastNotification = ?
+    #                WHERE dev_MAC IN (SELECT eve_MAC FROM Events
+    #                   WHERE eve_PendingAlertEmail = 1 AND eve_EventType =='Device Down' 
+    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
+    #         """, (datetime.datetime.now(),))
+    # sql.execute ("""UPDATE Events SET eve_PendingAlertEmail = 0
+    #                 WHERE eve_PendingAlertEmail = 1 
+    #                 AND eve_EventType =='Device Down' 
+    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
+    #         """)
 
     # Set Notification Presets
     sql.execute("""UPDATE Devices SET dev_AlertEvents = ?, dev_AlertDeviceDown = ?
