@@ -3431,7 +3431,7 @@ def email_reporting():
         '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'
 
     # Issue #370
-    # AND eve_DateTime < datetime('now', '-{DELAY} minutes')
+    # AND eve_DateTime < datetime('now', '-{DELAY} minutes') for devices where dev_alarm_delay is true
 
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
