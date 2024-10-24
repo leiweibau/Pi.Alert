@@ -18,20 +18,6 @@ function get_local_system_tz() {
 	return $timezone;
 }
 
-// Header - Delete Single WebGUI Reports
-function delete_single_webgui_report() {
-	global $db;
-	if (isset($_REQUEST['remove_report'])) {
-		$prep_remove_report = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['remove_report']) . '.txt';
-		if (useRegex($prep_remove_report) == TRUE) {
-			if (file_exists('./reports/' . $prep_remove_report)) {
-				unlink('./reports/' . $prep_remove_report);
-				// Logging
-				pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0503', '', $prep_remove_report);
-			}
-		}
-	}
-}
 // Maintenance Page - Pause Arp Scan Section
 function arpscanstatus() {
 	global $pia_lang;

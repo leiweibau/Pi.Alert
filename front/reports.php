@@ -21,8 +21,48 @@ OpenDB();
 require 'php/server/journal.php';
 require 'php/templates/header.php';
 
-// Delete Reports
-delete_single_webgui_report();
+
+function delete_single_webgui_report() {
+	global $db;
+	if (isset($_REQUEST['remove_report'])) {
+		$prep_remove_report = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['remove_report']) . '.txt';
+		if (useRegex($prep_remove_report) == TRUE) {
+			if (file_exists('./reports/' . $prep_remove_report)) {
+				unlink('./reports/' . $prep_remove_report);
+				// Logging
+				pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0503', '', $prep_remove_report);
+			}
+		}
+	}
+}
+
+function delete_single_archive_report() {
+	global $db;
+	if (isset($_REQUEST['remove_report'])) {
+		$prep_remove_report = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['remove_report']) . '.txt';
+		if (useRegex($prep_remove_report) == TRUE) {
+			if (file_exists('./reports/archived/' . $prep_remove_report)) {
+				unlink('./reports/archived/' . $prep_remove_report);
+				// Logging
+				pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0503', '', $prep_remove_report);
+			}
+		}
+	}
+}
+
+function archive_single_webgui_report() {
+	global $db;
+	if (isset($_REQUEST['archive_report'])) {
+		$prep_remove_report = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['archive_report']) . '.txt';
+		if (useRegex($prep_remove_report) == TRUE) {
+			if (file_exists('./reports/' . $prep_remove_report)) {
+				rename('./reports/' . $prep_remove_report, './reports/archived/' . $prep_remove_report);
+				// Logging
+				//pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0503', '', $prep_remove_report);
+			}
+		}
+	}
+}
 
 function get_Report_Headline_Colors() {
 	global $db;
@@ -141,13 +181,19 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 	return '<div class="box box-solid">
 	          <div class="box-header">
 	            <h3 class="box-title" style="color: ' . $color . '"><i class="fa ' . $notification_icon . '"></i>&nbsp;&nbsp;' . $event_time . ' - ' . $class_name . '</h3>
-	              <div class="pull-right">
-	                <a href="./download/report.php?report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-fw fa-download"></i></a>
-	                <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-danger"><i class="fa fa-fw fa-trash"></i></a>
-	              </div>
-	          </div>
-	          <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
-	          </div>';
+	        </div>
+	        <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
+            <div class="box-footer text-center">
+                '. report_footer_buttons($directory, $filename) .'
+            </div>
+	        </div>';
+}
+
+function report_footer_buttons($source, $filename) {
+	if ($source == './reports/archived/') {$disable = 'disabled'; $report_source = '&report_source=archive';}
+	return '<a href="./download/report.php?report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-success" target="_blank" role="button" style="width: 70px; margin: 0px 5px;"><i class="fa fa-fw fa-download"></i></a>
+          <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-danger" role="button" style="width: 70px; margin: 0px 60px;"><i class="fa fa-fw fa-trash"></i></a>
+		  <a href="./reports.php?archive_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-default '.$disable.'" role="button" style="width: 70px; margin: 0px 5px;"><i class="fa-regular fa-folder"></i></a>';
 }
 
 function process_icmp_notifications($class_name, $event_time, $filename, $directory, $color) {
@@ -181,13 +227,12 @@ function process_icmp_notifications($class_name, $event_time, $filename, $direct
 	return '<div class="box box-solid">
 	          <div class="box-header">
 	            <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-laptop"></i>&nbsp;&nbsp;' . $event_time . ' - ' . $class_name . '</h3>
-	              <div class="pull-right">
-	                <a href="./download/report.php?report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-fw fa-download"></i></a>
-	                <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-danger"><i class="fa fa-fw fa-trash"></i></a>
-	              </div>
 	          </div>
-	          <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
-	          </div>';
+	        <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
+            <div class="box-footer text-center">
+                '. report_footer_buttons($directory, $filename) .'
+            </div>
+	        </div>';
 }
 
 function process_test_notifications($class_name, $event_time, $filename, $directory, $color) {
@@ -196,12 +241,11 @@ function process_test_notifications($class_name, $event_time, $filename, $direct
 	return '<div class="box box-solid">
             <div class="box-header">
               <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . $event_time . ' - System Message</h3>
-                <div class="pull-right">
-                  <a href="./download/report.php?report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-fw fa-download"></i></a>
-                  <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-danger"><i class="fa fa-fw fa-trash"></i></a>
-                </div>
             </div>
             <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
+            <div class="box-footer text-center">
+                '. report_footer_buttons($directory, $filename) .'
+            </div>
             </div>';
 }
 
@@ -223,11 +267,35 @@ function process_rogueDHCP_notifications($class_name, $event_time, $filename, $d
             </div>';
 }
 
+function reports_archive_couter() {
+	$directory = './reports/archived/';
+	$scanned_directory = array_diff(scandir($directory), array('..', '.'));
+	return sizeof($scanned_directory);
+}
+
+// Archive Reports
+archive_single_webgui_report();
+// Delete Reports
+delete_single_webgui_report();
+// Delete Archived Reports
+delete_single_archive_report();
+
 $headline_colors = get_Report_Headline_Colors();
 
-$directory = './reports/';
-$scanned_directory = array_diff(scandir($directory), array('..', '.'));
-rsort($scanned_directory);
+if ($_REQUEST['report_source'] == "" || $_REQUEST['report_source'] != "archive") {
+	$directory = './reports/';
+	$ext_headline = '';
+	$button_link = './reports.php?report_source=archive';
+	$button_link_text = 'Show Reports Archiv ('. reports_archive_couter() . ')';
+} else {
+	$directory = './reports/archived/';
+	$ext_headline = ' - <span class="text-danger">Archive</span>';
+	$button_link = './reports.php';
+	$button_link_text = 'Show current Reports';
+}
+
+$scanned_directory = array_diff(scandir($directory), array('..', '.', 'archived'));
+rsort($scanned_directory);	
 
 $standard_notification = array();
 $special_notification = array();
@@ -258,7 +326,7 @@ foreach ($scanned_directory as $file) {
     <section class="content-header">
     <?php require 'php/templates/notification.php';?>
       <h1 id="pageTitle" style="display: inline-block;">
-         <?=$pia_lang['Reports_Title'];?>
+         <?=$pia_lang['Reports_Title'].$ext_headline;?>
       </h1> <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-report-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paintbrush text-green" style="font-size:1.5rem"></i></a>
     </section>
 
@@ -309,14 +377,23 @@ foreach ($scanned_directory as $file) {
             </div>
         </div>
 
-
+      <div class="box">
+          <div class="box-body" id="ShowArchivedReports" style="text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;">
+              <a href="<?=$button_link?>" class="btn btn-default"><?=$button_link_text?></a>
+        </div>
+      </div>
+<?php
+if ($_REQUEST['report_source'] != "archive") {
+?>
       <div class="box">
           <div class="box-body" id="RemoveAllNotifications" style="text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;">
               <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotifications()"><?=$pia_lang['Reports_delete_all'];?></button>
         </div>
       </div>
-
 <?php
+}
+
+
 for ($x = 0; $x < sizeof($special_notification); $x++) {
 	echo $special_notification[$x];
 }
@@ -324,6 +401,7 @@ for ($x = 0; $x < sizeof($standard_notification); $x++) {
 	echo $standard_notification[$x];
 }
 ?>
+
     <div style="width: 100%; height: 20px;"></div>
     </section>
   </div>

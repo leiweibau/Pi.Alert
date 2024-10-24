@@ -876,7 +876,7 @@ function deleteAllNotifications() {
 
 	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
 	$reports_path = '../../reports/';
-	$files = array_diff(scandir($reports_path, SCANDIR_SORT_DESCENDING), array('.', '..', 'download_report.php'));
+	$files = array_diff(scandir($reports_path, SCANDIR_SORT_DESCENDING), array('.', '..', 'archived'));
 	$count_all_reports = sizeof($files);
 	foreach ($files as &$item) {
 		if (preg_match($regex, $item) == True) {
@@ -891,7 +891,7 @@ function deleteAllNotifications() {
 
 // Get Report Counter
 function getReportTotals() {
-	$files = array_diff(scandir('../../reports'), array('..', '.', 'download_report.php'));
+	$files = array_diff(scandir('../../reports'), array('..', '.', 'archived'));
 	$report_counter = count($files);
 	$totals = array($report_counter);
 	echo (json_encode($totals));
