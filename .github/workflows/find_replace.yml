@@ -3,8 +3,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -14,7 +12,6 @@ jobs:
           find: "$pia_lang['Device_"
           replace: "$pia_lang['DEV_"
           regex: false
-          exclude: "find_replace.yml"
 
       - name: Configure Git
         run: |
@@ -28,6 +25,6 @@ jobs:
 
       - name: Push Changes to Branch
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}  # Verwende hier das PAT_TOKEN
         run: |
           git push origin next_update
