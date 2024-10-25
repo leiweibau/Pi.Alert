@@ -636,11 +636,13 @@ $pia_lang['NET_UnMan_Devices_Port'] = 'Am Port';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'Am Portnummer am ausgewählten Gerät';
 // Reports Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['Reports_Title'] = 'Benachrichtigungen';
-$pia_lang['Reports_delete_all'] = 'Alle Benachrichtigungen löschen';
-$pia_lang['Reports_delete_all_noti'] = 'Alle Benachrichtigungen löschen';
-$pia_lang['Reports_delete_all_noti_text'] = 'Es werden alle Benachrichtigungen gelöscht. Der Zähler wird damit zurückgesetzt.';
-$pia_lang['Reports_Rogue_hint'] = 'Eine erneute Meldung über einen unbekannten DHCP Server erfolgt erst nach dem Löschen dieser Meldung.';
+$pia_lang['REP_Title'] = 'Reports';
+$pia_lang['REP_show_archive'] = 'Archiv der Reports anzeigen';
+$pia_lang['REP_show_cur'] = 'Aktuelle Reports anzeigen';
+$pia_lang['REP_delete_all'] = 'Alle Benachrichtigungen löschen';
+$pia_lang['REP_delete_all_noti'] = 'Alle Benachrichtigungen löschen';
+$pia_lang['REP_delete_all_noti_text'] = 'Es werden alle Benachrichtigungen gelöscht. Der Zähler wird damit zurückgesetzt.';
+$pia_lang['REP_Rogue_hint'] = 'Eine erneute Meldung über einen unbekannten DHCP Server erfolgt erst nach dem Löschen dieser Meldung.';
 // UpdateCheck
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_Tools_Updatecheck'] = 'Prüfe auf Updates';

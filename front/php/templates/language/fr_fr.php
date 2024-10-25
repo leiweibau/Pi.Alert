@@ -631,11 +631,13 @@ $pia_lang['NET_UnMan_Devices_Port'] = 'Sur le port';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'Sur le numéro de port de l&apos;appareil sélectionné';
 // Reports Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['Reports_Title'] = 'Notifications';
-$pia_lang['Reports_delete_all'] = 'Supprimer toutes les notifications';
-$pia_lang['Reports_delete_all_noti'] = 'Supprimer toutes les notifications';
-$pia_lang['Reports_delete_all_noti_text'] = 'Toutes les notifications sont supprimées. Le compteur est ainsi remis à zéro.';
-$pia_lang['Reports_Rogue_hint'] = 'Un nouveau message concernant un serveur DHCP inconnu n&apos;est envoyé qu&apos;après la suppression de ce message.';
+$pia_lang['REP_Title'] = 'Notifications';
+$pia_lang['REP_show_archive'] = 'Afficher l&apos;archive des rapports';
+$pia_lang['REP_show_cur'] = 'Afficher les rapports actuels';
+$pia_lang['REP_delete_all'] = 'Supprimer toutes les notifications';
+$pia_lang['REP_delete_all_noti'] = 'Supprimer toutes les notifications';
+$pia_lang['REP_delete_all_noti_text'] = 'Toutes les notifications sont supprimées. Le compteur est ainsi remis à zéro.';
+$pia_lang['REP_Rogue_hint'] = 'Un nouveau message concernant un serveur DHCP inconnu n&apos;est envoyé qu&apos;après la suppression de ce message.';
 // UpdateCheck
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_Tools_Updatecheck'] = 'Vérifier les mises à jour';

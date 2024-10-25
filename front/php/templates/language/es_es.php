@@ -632,11 +632,13 @@ $pia_lang['NET_UnMan_Devices_Port'] = 'En el puerto';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'En el número de puerto del dispositivo seleccionado';
 // Reports Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['Reports_Title'] = 'Notificaciones';
-$pia_lang['Reports_delete_all'] = 'Borrar todas las notificaciones';
-$pia_lang['Reports_delete_all_noti'] = 'Borrar todas las notificaciones';
-$pia_lang['Reports_delete_all_noti_text'] = 'Se borran todas las notificaciones. El contador se pone a cero.';
-$pia_lang['Reports_Rogue_hint'] = 'Un nuevo mensaje sobre un servidor DHCP desconocido sólo se muestra después de haber borrado este mensaje.';
+$pia_lang['REP_Title'] = 'Notificaciones';
+$pia_lang['REP_show_archive'] = 'Mostrar archivo de informes';
+$pia_lang['REP_show_cur'] = 'Mostrar informes actuales';
+$pia_lang['REP_delete_all'] = 'Borrar todas las notificaciones';
+$pia_lang['REP_delete_all_noti'] = 'Borrar todas las notificaciones';
+$pia_lang['REP_delete_all_noti_text'] = 'Se borran todas las notificaciones. El contador se pone a cero.';
+$pia_lang['REP_Rogue_hint'] = 'Un nuevo mensaje sobre un servidor DHCP desconocido sólo se muestra después de haber borrado este mensaje.';
 // UpdateCheck
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_Tools_Updatecheck'] = 'Verificar actualizaciones';

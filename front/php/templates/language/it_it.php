@@ -636,11 +636,13 @@ $pia_lang['NET_UnMan_Devices_Port'] = 'Sulla porta';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'Sulla porta numero sull&apos;host selezionato';
 // Reports Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['Reports_Title'] = 'Notifiche';
-$pia_lang['Reports_delete_all'] = 'Elimina tutte le notifiche';
-$pia_lang['Reports_delete_all_noti'] = 'Elimina tutte le notifiche';
-$pia_lang['Reports_delete_all_noti_text'] = 'Tutte le notifiche verranno eliminate. Il conteggio sarà reimpostato.';
-$pia_lang['Reports_Rogue_hint'] = 'Una nuova segnalazione di un server DHCP sconosciuto verrà effettuata solo dopo l&apos;eliminazione di questa notifica.';
+$pia_lang['REP_Title'] = 'Notifiche';
+$pia_lang['REP_show_archive'] = 'Mostra archivio dei rapporti';
+$pia_lang['REP_show_cur'] = 'Mostra rapporti attuali';
+$pia_lang['REP_delete_all'] = 'Elimina tutte le notifiche';
+$pia_lang['REP_delete_all_noti'] = 'Elimina tutte le notifiche';
+$pia_lang['REP_delete_all_noti_text'] = 'Tutte le notifiche verranno eliminate. Il conteggio sarà reimpostato.';
+$pia_lang['REP_Rogue_hint'] = 'Una nuova segnalazione di un server DHCP sconosciuto verrà effettuata solo dopo l&apos;eliminazione di questa notifica.';
 // UpdateCheck
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_Tools_Updatecheck'] = 'Verifica aggiornamenti';

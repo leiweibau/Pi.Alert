@@ -21,7 +21,6 @@ OpenDB();
 require 'php/server/journal.php';
 require 'php/templates/header.php';
 
-
 function delete_single_webgui_report() {
 	global $db;
 	if (isset($_REQUEST['remove_report'])) {
@@ -191,9 +190,11 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 
 function report_footer_buttons($source, $filename) {
 	if ($source == './reports/archived/') {$disable = 'disabled'; $report_source = '&report_source=archive';}
-	return '<a href="./download/report.php?report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-success" target="_blank" role="button" style="width: 70px; margin: 0px 5px;"><i class="fa fa-fw fa-download"></i></a>
-          <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-danger" role="button" style="width: 70px; margin: 0px 60px;"><i class="fa fa-fw fa-trash"></i></a>
-		  <a href="./reports.php?archive_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-default '.$disable.'" role="button" style="width: 70px; margin: 0px 5px;"><i class="fa-regular fa-folder"></i></a>';
+	$bt_a_c = 'style="width: 70px; margin: 0px 5px;"';
+	$bt_b = 'style="width: 70px; margin: 0px 60px;"';
+	return '<a href="./download/report.php?report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-success" target="_blank" role="button" '.$bt_a_c.'><i class="fa fa-fw fa-download"></i></a>
+          <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-danger" role="button" '.$bt_b.'><i class="fa fa-fw fa-trash"></i></a>
+		  <a href="./reports.php?archive_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-default '.$disable.'" role="button" '.$bt_a_c.'><i class="fa-regular fa-folder"></i></a>';
 }
 
 function process_icmp_notifications($class_name, $event_time, $filename, $directory, $color) {
@@ -262,7 +263,7 @@ function process_rogueDHCP_notifications($class_name, $event_time, $filename, $d
                 </div>
             </div>
             <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre>
-            <p style="font-size: 16px; text-align: center;">' . $pia_lang['Reports_Rogue_hint'] . '</p>
+            <p style="font-size: 16px; text-align: center;">' . $pia_lang['REP_Rogue_hint'] . '</p>
             </div>
             </div>';
 }
@@ -286,12 +287,12 @@ if ($_REQUEST['report_source'] == "" || $_REQUEST['report_source'] != "archive")
 	$directory = './reports/';
 	$ext_headline = '';
 	$button_link = './reports.php?report_source=archive';
-	$button_link_text = 'Show Reports Archiv ('. reports_archive_couter() . ')';
+	$button_link_text = '<i class="fa-regular fa-folder"></i>&nbsp;&nbsp;'.$pia_lang['REP_show_archive'].' ('. reports_archive_couter() . ')';
 } else {
 	$directory = './reports/archived/';
-	$ext_headline = ' - <span class="text-danger">Archive</span>';
+	$ext_headline = ' - <span class="text-danger">'.$pia_lang['Device_Shortcut_Archived'].'</span>';
 	$button_link = './reports.php';
-	$button_link_text = 'Show current Reports';
+	$button_link_text = $pia_lang['REP_show_cur'];
 }
 
 $scanned_directory = array_diff(scandir($directory), array('..', '.', 'archived'));
@@ -326,7 +327,7 @@ foreach ($scanned_directory as $file) {
     <section class="content-header">
     <?php require 'php/templates/notification.php';?>
       <h1 id="pageTitle" style="display: inline-block;">
-         <?=$pia_lang['Reports_Title'].$ext_headline;?>
+         <?=$pia_lang['REP_Title'].$ext_headline;?>
       </h1> <a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-report-colors" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-paintbrush text-green" style="font-size:1.5rem"></i></a>
     </section>
 
@@ -387,7 +388,7 @@ if ($_REQUEST['report_source'] != "archive") {
 ?>
       <div class="box">
           <div class="box-body" id="RemoveAllNotifications" style="text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;">
-              <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotifications()"><?=$pia_lang['Reports_delete_all'];?></button>
+              <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotifications()"><?=$pia_lang['REP_delete_all'];?></button>
         </div>
       </div>
 <?php
@@ -438,7 +439,7 @@ function SetReportColors() {
 }
 
 function askdeleteAllNotifications () {
-  showModalWarning('<?=$pia_lang['Reports_delete_all_noti'];?>', '<?=$pia_lang['Reports_delete_all_noti_text'];?>',
+  showModalWarning('<?=$pia_lang['REP_delete_all_noti'];?>', '<?=$pia_lang['REP_delete_all_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotifications');
 }
 function deleteAllNotifications()
