@@ -1,0 +1,17 @@
+name: Find Replace Var
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v2
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "$pia_lang['Device_"
+          replace: "$pia_lang['DEV_"
+          regex: false
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
