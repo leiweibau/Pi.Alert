@@ -7,11 +7,26 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
       - name: Find and Replace
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "$pia_lang['Device_"
           replace: "$pia_lang['DEV_"
           regex: false
-      - name: Pull Remote Changes
-        run: git pull
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit Changes
+        run: |
+          git add .
+          git commit -m "Automated find and replace"
+
+      - name: Push Changes to Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin next_update
