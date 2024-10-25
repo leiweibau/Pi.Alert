@@ -302,11 +302,11 @@ function setServiceData() {
 	if ($result == TRUE) {
 		// Logging
 		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $_REQUEST['url']);
-		echo $pia_lang['BackWebServices_UpdServ'];
+		echo $pia_lang['BE_Webs_UpdServ'];
 	} else {
 		// Logging
 		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $_REQUEST['url']);
-		echo $pia_lang['BackWebServices_UpdServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Webs_UpdServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		//echo $_REQUEST['tags'];
 	}
 }
@@ -332,12 +332,12 @@ function deleteService() {
 	if ($result == TRUE) {
 		// Logging
 		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $url);
-		echo $pia_lang['BackWebServices_DelServ'];
+		echo $pia_lang['BE_Webs_DelServ'];
 		echo ("<meta http-equiv='refresh' content='2; URL=./services.php'>");
 	} else {
 		// Logging
 		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $url);
-		echo $pia_lang['BackWebServices_DelServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Webs_DelServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 	}
 }
 
@@ -372,12 +372,12 @@ function insertNewService() {
 	if ($result == TRUE) {
 		// Logging
 		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $url);
-		echo $pia_lang['BackWebServices_InsServ'];
+		echo $pia_lang['BE_Webs_InsServ'];
 		echo ("<meta http-equiv='refresh' content='2; URL=./services.php'>");
 	} else {
 		// Logging
 		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $url);
-		echo $pia_lang['BackWebServices_InsServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Webs_InsServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 	}
 
 }

@@ -109,7 +109,7 @@ function clearInput() {
                 <thead>
                 <tr>
                   <th style="min-width: 120px;"><?=$pia_lang['EVE_TableHead_Date'];?></th>
-                  <th style="min-width: 90px;"><?=$pia_journ_lang['Journal_TableHead_Class'];?></th>
+                  <th style="min-width: 120px;"><?=$pia_journ_lang['Journal_TableHead_Class'];?></th>
                   <th style="min-width: 100px;"><?=$pia_journ_lang['Journal_TableHead_Trigger'];?></th>
                   <th>Hash</th>
                   <th style="min-width: 500px;"><?=$pia_lang['EVE_TableHead_AdditionalInfo'];?></th>

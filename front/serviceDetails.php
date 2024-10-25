@@ -365,7 +365,7 @@ function get_service_statistic($service) {
             <ul class="nav nav-tabs" style="fon t-size:16px;">
               <li class=""> <a id="tabDetails"  href="#panDetails"  data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Details'];?>  </a></li>
               <li class=""> <a id="tabEvents"   href="#panEvents"   data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Events'];?>   </a></li>
-              <li class=""> <a id="tabGraph"   href="#panGraph"   data-toggle="tab"> <?=$pia_lang['WebServices_Tab_Graph'];?>   </a></li>
+              <li class=""> <a id="tabGraph"   href="#panGraph"   data-toggle="tab"> <?=$pia_lang['WEBS_Tab_Graph'];?>   </a></li>
             </ul>
             <div class="tab-content" style="min-height: 430px;">
 
@@ -380,23 +380,23 @@ function get_service_statistic($service) {
 
                       <!-- URL -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_URL'];?></label>
+                        <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_URL'];?></label>
                         <div class="col-sm-9"><input class="form-control" id="txtURL" type="text" readonly value="<?=$servicedetails['mon_URL']?>"></div>
                       </div>
 
                       <!-- Tags -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_Tags'];?></label>
+                        <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Tags'];?></label>
                         <div class="col-sm-9"><input class="form-control" id="txtTags" type="text" value="<?=$servicedetails['mon_Tags']?>"></div>
                       </div>
 
                       <!-- Mac address -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_MAC'];?></label>
+                        <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_MAC'];?></label>
                         <div class="col-sm-9">
                           <div class="input-group">
                             <div class="input-group-btn">
-                              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><?=$pia_lang['WebServices_label_MAC_Select'];?>
+                              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><?=$pia_lang['WEBS_label_MAC_Select'];?>
                                 <span class="fa fa-caret-down"></span></button>
                               <ul class="dropdown-menu">
 <?php
@@ -421,7 +421,7 @@ while ($row = $dev_res->fetchArray()) {
 
                       <!-- Notes -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_Notes'];?></label>
+                        <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Notes'];?></label>
                         <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=$servicedetails['mon_Notes']?>"></div>
                       </div>
 
@@ -435,7 +435,7 @@ while ($row = $dev_res->fetchArray()) {
 
                       <!-- Last HTTP Status -->
                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_StatusCode'];?></label>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_StatusCode'];?></label>
                         <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_LastStatus']?>"></div>
                       </div>
 
@@ -447,31 +447,31 @@ while ($row = $dev_res->fetchArray()) {
 
                       <!-- Last IP -->
                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_TargetIP'];?></label>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_TargetIP'];?></label>
                         <div class="col-sm-8"><input class="form-control" id="txtLastIP" type="text" readonly value="<?=$servicedetails['mon_TargetIP']?>"></div>
                       </div>
 
                       <!-- Last Scan -->
                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_ScanTime'];?></label>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_ScanTime'];?></label>
                         <div class="col-sm-8"><input class="form-control" id="txtLastScan" type="text" readonly value="<?=$servicedetails['mon_LastScan']?>"></div>
                       </div>
 
                       <!-- Last Latency -->
                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_Response_Time'];?></label>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_Response_Time'];?></label>
                         <div class="col-sm-8"><input class="form-control" id="txtLastLatency" type="text" readonly value="<?=$servicedetails['mon_LastLatency']?>"></div>
                       </div>
 
                       <!-- Alert events -->
                       <div class="form-group">
-                        <label class="col-xs-4 control-label"><?=$pia_lang['WebServices_label_AlertEvents'];?></label>
+                        <label class="col-xs-4 control-label"><?=$pia_lang['WEBS_label_AlertEvents'];?></label>
                         <div class="col-xs-4" style="padding-top:6px;"><input class="checkbox blue" id="chkAlertEvents" <?php if ($servicedetails['mon_AlertEvents'] == 1) {echo 'checked';}?> type="checkbox"></div>
                       </div>
 
                       <!-- Alert Down -->
                       <div class="form-group">
-                        <label class="col-xs-4 control-label"><?=$pia_lang['WebServices_label_AlertDown'];?></label>
+                        <label class="col-xs-4 control-label"><?=$pia_lang['WEBS_label_AlertDown'];?></label>
                         <div class="col-xs-4" style="padding-top:6px;"><input class="checkbox red" id="chkAlertDown" <?php if ($servicedetails['mon_AlertDown'] == 1) {echo 'checked';}?> type="checkbox"></div>
                       </div>
 
@@ -519,10 +519,10 @@ set_table_headline($http_filter);
                   <thead>
                     <tr>
                       <!-- <th>Service URL</th> -->
-                      <th><?=$pia_lang['WebServices_tablehead_TargetIP'];?></th>
-                      <th><?=$pia_lang['WebServices_tablehead_ScanTime'];?></th>
-                      <th><?=$pia_lang['WebServices_tablehead_Status_Code'];?></th>
-                      <th><?=$pia_lang['WebServices_tablehead_Response_Time'];?></th>
+                      <th><?=$pia_lang['WEBS_tablehead_TargetIP'];?></th>
+                      <th><?=$pia_lang['WEBS_tablehead_ScanTime'];?></th>
+                      <th><?=$pia_lang['WEBS_tablehead_Status_Code'];?></th>
+                      <th><?=$pia_lang['WEBS_tablehead_Response_Time'];?></th>
                       <th>SSL Status</th>
                     </tr>
                   </thead>
@@ -537,7 +537,7 @@ get_service_events_table($service_details_title, $http_filter);
 
 <!-- Graph ------------------------------------------------------------ -->
               <div class="tab-pane fade table-responsive" id="panGraph">
-                <h4 class="text-aqua" style="font-size: 18px;margin: 0;line-height: 1; margin-bottom: 20px;"><?=$pia_lang['WebServices_Chart_a'];?> <span class="maxlogage-interval">24</span> <?=$pia_lang['WebServices_Chart_b'];?></h4>
+                <h4 class="text-aqua" style="font-size: 18px;margin: 0;line-height: 1; margin-bottom: 20px;"><?=$pia_lang['WEBS_Chart_a'];?> <span class="maxlogage-interval">24</span> <?=$pia_lang['WEBS_Chart_b'];?></h4>
                 <div class="col-md-12">
                   <div class="chart" style="height: 150px;">
                     <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
@@ -559,12 +559,12 @@ get_service_events_table($service_details_title, $http_filter);
 
                 <div class="col-md-12">
                   <div class="row" style="margin-top: 10px;">
-                    <div class="col-sm-2" style="font-weight: 600;"><?=$pia_lang['WebServices_Stats_Code'];?>:</div>
+                    <div class="col-sm-2" style="font-weight: 600;"><?=$pia_lang['WEBS_Stats_Code'];?>:</div>
                     <div class="col-sm-2"><i class="fa fa-w fa-circle text-green"></i> HTTP-Code 2xx (<?=$http2xx;?>)</div>
                     <div class="col-sm-2"><i class="fa fa-w fa-circle text-yellow"></i> HTTP-Code 3xx (<?=$http3xx;?>)</div>
                     <div class="col-sm-2"><i class="fa fa-w fa-circle text-yellow"></i> HTTP-Code 4xx (<?=$http4xx;?>)</div>
                     <div class="col-sm-2"><i class="fa fa-w fa-circle text-orange-custom"></i> HTTP-Code 5xx (<?=$http5xx;?>)</div>
-                    <div class="col-sm-2"><i class="fa fa-w fa-circle text-red"></i> <?=$pia_lang['WebServices_Page_down'];?> (<?=$httpdown;?>)</div>
+                    <div class="col-sm-2"><i class="fa fa-w fa-circle text-red"></i> <?=$pia_lang['WEBS_Page_down'];?> (<?=$httpdown;?>)</div>
                   </div>
                 </div>
 
@@ -575,7 +575,7 @@ $statistic = get_service_statistic($service_details_title);
 ?>
                 <div class="col-md-12">
                   <div class="row" style="margin-top: 10px;">
-                    <div class="col-sm-12" style="font-weight: 600;"><?=$pia_lang['WebServices_Stats_Time'];?></div>
+                    <div class="col-sm-12" style="font-weight: 600;"><?=$pia_lang['WEBS_Stats_Time'];?></div>
                   </div>
                   <div class="row" style="margin-top: 10px;">
                     <div class="col-sm-2" style="font-weight: 600;">24h</div>
@@ -627,13 +627,13 @@ if ($output[0] != "######") {
 	$locations = parse_location_array($output);
 	echo '<div class="col-md-12">
           <div class="row" style="margin-top: 10px;">
-            <div class="col-sm-12" style="font-weight: 600;">' . $pia_lang['WebServices_Stats_Location'] . ': </div>
+            <div class="col-sm-12" style="font-weight: 600;">' . $pia_lang['WEBS_Stats_Location'] . ': </div>
           </div>
           <div class="row">
-            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WebServices_Stats_IP'] . ':</div> ' . $servicedetails['mon_TargetIP'] . '</div>
+            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IP'] . ':</div> ' . $servicedetails['mon_TargetIP'] . '</div>
           </div>
           <div class="row">
-            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WebServices_Stats_IPLocation'] . ':</div> ' . $locations[1] . ' (' . $locations[0] . ')</div>
+            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IPLocation'] . ':</div> ' . $locations[1] . ' (' . $locations[0] . ')</div>
           </div>
           <div class="row">
             <div class="col-sm-12" style="margin-top: 30px;">
@@ -906,7 +906,7 @@ function askDeleteService () {
   }
 
   // Ask delete device
-  showModalWarning ('<?=$pia_lang['WebServices_button_Delete_label'];?>', '<?=$pia_lang['WebServices_button_Delete_Warning'];?>',
+  showModalWarning ('<?=$pia_lang['WEBS_button_Delete_label'];?>', '<?=$pia_lang['WEBS_button_Delete_Warning'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteService');
 }
 
