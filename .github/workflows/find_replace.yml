@@ -13,5 +13,5 @@ jobs:
           find: "$pia_lang['Device_"
           replace: "$pia_lang['DEV_"
           regex: false
-      - name: Push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Pull Remote Changes
+        run: git pull
