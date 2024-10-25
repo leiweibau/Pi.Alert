@@ -101,7 +101,7 @@ function get_count_standalone_services() {
 // get String with the selected notifications
 function get_notifications($alertDown, $alertEvent) {
 	global $pia_lang;
-	if ($alertEvent == "1" && $alertDown == "1") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WebServices_Events_all'] . ", " . $pia_lang['WebServices_Events_down'];} elseif ($alertEvent == "0" && $alertDown == "1") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WebServices_Events_down'];} elseif ($alertEvent == "1" && $alertDown == "0") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WebServices_Events_all'];} else { $notification_type = '<i class="fa fa-fw fa-bell-slash-o"></i>';}
+	if ($alertEvent == "1" && $alertDown == "1") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WEBS_EVE_all'] . ", " . $pia_lang['WEBS_EVE_down'];} elseif ($alertEvent == "0" && $alertDown == "1") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WEBS_EVE_down'];} elseif ($alertEvent == "1" && $alertDown == "0") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WEBS_EVE_all'];} else { $notification_type = '<i class="fa fa-fw fa-bell-slash-o"></i>';}
 	return $notification_type;
 }
 

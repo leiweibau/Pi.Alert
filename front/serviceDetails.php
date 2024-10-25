@@ -86,17 +86,17 @@ function set_table_headline($service_filter) {
 	global $pia_lang;
 
 	if ($service_filter == 'all') {
-		echo '<h3 class="text-aqua service_httpcode_box">' . $pia_lang['WebServices_Events_Shortcut_All'] . '</h3>';
+		echo '<h3 class="text-aqua service_httpcode_box">' . $pia_lang['WEBS_EVE_Shortcut_All'] . '</h3>';
 	} elseif ($service_filter == 2) {
-		echo '<h3 class="text-green service_httpcode_box">' . $pia_lang['WebServices_Events_Shortcut_HTTP2xx'] . '</h3>';
+		echo '<h3 class="text-green service_httpcode_box">' . $pia_lang['WEBS_EVE_Shortcut_HTTP2xx'] . '</h3>';
 	} elseif ($service_filter == 3) {
-		echo '<h3 class="text-yellow service_httpcode_box">' . $pia_lang['WebServices_Events_Shortcut_HTTP3xx'] . '</h3>';
+		echo '<h3 class="text-yellow service_httpcode_box">' . $pia_lang['WEBS_EVE_Shortcut_HTTP3xx'] . '</h3>';
 	} elseif ($service_filter == 4) {
-		echo '<h3 class="text-yellow service_httpcode_box">' . $pia_lang['WebServices_Events_Shortcut_HTTP4xx'] . '</h3>';
+		echo '<h3 class="text-yellow service_httpcode_box">' . $pia_lang['WEBS_EVE_Shortcut_HTTP4xx'] . '</h3>';
 	} elseif ($service_filter == 5) {
-		echo '<h3 class="text-yellow service_httpcode_box">' . $pia_lang['WebServices_Events_Shortcut_HTTP5xx'] . '</h3>';
+		echo '<h3 class="text-yellow service_httpcode_box">' . $pia_lang['WEBS_EVE_Shortcut_HTTP5xx'] . '</h3>';
 	} elseif ($service_filter == "99999999") {
-		echo '<h3 class="text-red service_httpcode_box">' . $pia_lang['WebServices_Events_Shortcut_Down'] . '</h3>';
+		echo '<h3 class="text-red service_httpcode_box">' . $pia_lang['WEBS_EVE_Shortcut_Down'] . '</h3>';
 	}
 }
 
@@ -293,7 +293,7 @@ function get_service_statistic($service) {
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=all" onclick="javascript: getEventsTotalsforService('all');">
             <div class="small-box bg-aqua">
               <div class="inner"> <h3 id="eventsAll"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_All'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_All'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-bolt text-aqua-40"></i> </div>
             </div>
@@ -304,7 +304,7 @@ function get_service_statistic($service) {
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=2" onclick="javascript: getEventsTotalsforService('2');">
             <div class="small-box bg-green">
               <div class="inner"> <h3 id="events2xx"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_HTTP2xx'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP2xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-check2-square text-green-40"></i> </div>
             </div>
@@ -315,7 +315,7 @@ function get_service_statistic($service) {
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=3" onclick="javascript: getEventsTotalsforService('3');">
             <div  class="small-box bg-yellow">
               <div class="inner"> <h3 id="events3xx"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_HTTP3xx'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP3xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-sign-turn-right text-yellow-40"></i> </div>
             </div>
@@ -326,7 +326,7 @@ function get_service_statistic($service) {
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=4" onclick="javascript: getEventsTotalsforService('4');">
             <div  class="small-box bg-yellow">
               <div class="inner"> <h3 id="events4xx"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_HTTP4xx'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP4xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-exclamation-square text-yellow-40"></i> </div>
             </div>
@@ -337,7 +337,7 @@ function get_service_statistic($service) {
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=5" onclick="javascript: getEventsTotalsforService('5');">
             <div  class="small-box bg-yellow">
               <div class="inner"> <h3 id="events5xx"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_HTTP5xx'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP5xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-database-x text-yellow-40"></i> </div>
             </div>
@@ -348,7 +348,7 @@ function get_service_statistic($service) {
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=99999999" onclick="javascript: getEventsTotalsforService('99999999');">
             <div  class="small-box bg-red">
               <div class="inner"> <h3 id="eventsDown"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_Down'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_Down'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-exclamation-diamond-fill text-red-40"></i> </div>
             </div>
@@ -855,13 +855,13 @@ function initializeDatatable () {
     'language'    : {
       processing: '<table><td width="130px" align="middle">Loading...</td><td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw"></td></table>',
       emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Events_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Events_Searchbox'];?>: ",
+      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
+      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
       "paginate": {
-          "next":       "<?=$pia_lang['Events_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Events_Table_nav_prev'];?>"
+          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
+          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
       },
-      "info":           "<?=$pia_lang['Events_Table_info'];?>",
+      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     },
   });
 };

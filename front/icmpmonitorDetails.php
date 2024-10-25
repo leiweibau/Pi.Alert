@@ -78,7 +78,7 @@ function set_table_headline($icmpfilter) {
 	global $pia_lang;
 
 	if ($icmpfilter == 'all') {
-		echo '<h3 class="text-aqua" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['WebServices_Events_Shortcut_All'] . '</h3>';
+		echo '<h3 class="text-aqua" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['WEBS_EVE_Shortcut_All'] . '</h3>';
 	} elseif ($icmpfilter == 'Online') {
 		echo '<h3 class="text-green" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['ICMPMonitor_Shortcut_Online'] . '</h3>';
 	} elseif ($icmpfilter == 'Offline') {
@@ -258,7 +258,7 @@ function get_host_statistic($hostip) {
           <a href="./icmpmonitorDetails.php?hostip=<?=$hostip?>&icmpfilter=all">
             <div class="small-box bg-aqua">
               <div class="inner"> <h3 id="eventsAll"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_All'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_All'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-bolt text-aqua-40"></i> </div>
             </div>
@@ -792,13 +792,13 @@ function initializeDatatable () {
     'language'    : {
       processing: '<table><td width="130px" align="middle">Loading...</td><td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw"></td></table>',
       emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Events_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Events_Searchbox'];?>: ",
+      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
+      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
       "paginate": {
-          "next":       "<?=$pia_lang['Events_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Events_Table_nav_prev'];?>"
+          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
+          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
       },
-      "info":           "<?=$pia_lang['Events_Table_info'];?>",
+      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     },
   });
 };

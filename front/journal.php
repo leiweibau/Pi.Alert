@@ -4,7 +4,7 @@
 #
 #  journal.php - Front module. Journal page
 #-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                          GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
 <?php
@@ -108,11 +108,11 @@ function clearInput() {
               <table id="tableJournal" class="table table-bordered table-hover table-striped ">
                 <thead>
                 <tr>
-                  <th style="min-width: 120px;"><?=$pia_lang['Events_TableHead_Date'];?></th>
+                  <th style="min-width: 120px;"><?=$pia_lang['EVE_TableHead_Date'];?></th>
                   <th style="min-width: 90px;"><?=$pia_journ_lang['Journal_TableHead_Class'];?></th>
                   <th style="min-width: 100px;"><?=$pia_journ_lang['Journal_TableHead_Trigger'];?></th>
                   <th>Hash</th>
-                  <th style="min-width: 500px;"><?=$pia_lang['Events_TableHead_AdditionalInfo'];?></th>
+                  <th style="min-width: 500px;"><?=$pia_lang['EVE_TableHead_AdditionalInfo'];?></th>
                 </tr>
                 </thead>
                   <tbody>
@@ -329,13 +329,13 @@ function initializeDatatable () {
     'language'    : {
       processing: '<table><td width="130px" align="middle">Loading...</td><td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw"></td></table>',
       emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Events_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Events_Searchbox'];?>: ",
+      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
+      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
       "paginate": {
-          "next":       "<?=$pia_lang['Events_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Events_Table_nav_prev'];?>"
+          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
+          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
       },
-      "info":           "<?=$pia_lang['Events_Table_info'];?>",
+      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     },
   });
 };
