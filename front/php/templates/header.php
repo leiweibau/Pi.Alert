@@ -98,6 +98,7 @@ insert_back_button();
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
+          <li><a id="navbar-help-button" class="a navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" role="button" target="blank"><i class="fa-regular fa-circle-question"></i></a></li>
           <li><div class="a navbar-servertime"><?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span></div></li>
           <!-- Header right info -->
           <li class="dropdown user user-menu">

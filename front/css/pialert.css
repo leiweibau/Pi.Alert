@@ -422,6 +422,7 @@ body.modal-open {
 .navbar-servertime {
     display: inline-block; height: 50px; padding-top: 15px;
 }
+#navbar-help-button {font-size: 18px; position: relative; left: 0px; width: 42px; display: inline-block; padding-top: 15px; text-align: center;}
 /* ----------------- System Info -------------------------------------------- */
 .user-panel {padding-left: 0px;}
 .sysinfo_headline {color: #00c0ef;}
