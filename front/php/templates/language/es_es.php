@@ -725,11 +725,12 @@ $pia_journ_lang['b_030'] = $pia_journ_lang['a_030'];
 $pia_journ_lang['b_031'] = $pia_journ_lang['a_031'];
 $pia_journ_lang['b_032'] = $pia_journ_lang['a_032'];
 $pia_journ_lang['b_033'] = $pia_journ_lang['a_033'];
-//cronjob
+// cronjob
 $pia_journ_lang['c_000'] = $pia_journ_lang['a_000'];
 $pia_journ_lang['c_002'] = $pia_journ_lang['a_002'];
 $pia_journ_lang['c_010'] = $pia_journ_lang['a_010'];
 $pia_journ_lang['c_060'] = $pia_journ_lang['a_060'];
+$pia_journ_lang['c_050'] = $pia_journ_lang['a_050'];
 // LogStrings
 $pia_journ_lang['LogStr_0001'] = 'Entrada agregada';
 $pia_journ_lang['LogStr_0002'] = 'Entrada editada';
@@ -815,6 +816,10 @@ $pia_journ_lang['LogStr_0306'] = $pia_lang['BE_Dev_satellites_disabled'];
 $pia_journ_lang['LogStr_0500'] = 'Notificación(es) de prueba enviada(s)';
 $pia_journ_lang['LogStr_0503'] = 'Informe eliminado';
 $pia_journ_lang['LogStr_0504'] = 'Eliminar todos los informes';
+$pia_journ_lang['LogStr_0505'] = 'Informe eliminado del archivo';
+$pia_journ_lang['LogStr_0506'] = 'Todos los informes eliminados del archivo';
+$pia_journ_lang['LogStr_0507'] = 'Informe archivado';
+$pia_journ_lang['LogStr_0508'] = 'Informe archivado automáticamente';
 $pia_journ_lang['LogStr_0510'] = 'Pi.Alert reactivado';
 $pia_journ_lang['LogStr_0511'] = 'Pi.Alert desactivado (con especificación de tiempo)';
 $pia_journ_lang['LogStr_0512'] = 'Pi.Alert desactivado (durante 10 minutos)';

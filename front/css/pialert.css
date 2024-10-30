@@ -563,3 +563,11 @@ body.modal-open {
 .report_custom_colors_input {
   padding:6px 12px;padding-bottom: 6px;font-size:14px; width:150px; top: 1px; margin-right: 5px;
 }
+
+.report_archive_btn {
+  text-align: center; padding-top: 5px; padding-bottom: 5px;
+}
+
+.report_delete_btn {
+  text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;
+}

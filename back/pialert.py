@@ -65,7 +65,7 @@ def main():
     # Header
     print('\nPi.Alert v'+ VERSION_DATE)
     print('---------------------------------------------------------')
-    print(f"Executing user: {get_username()}\n")
+    print(f"Executing user: {get_username()}")
 
     # Initialize global variables
     log_timestamp  = datetime.datetime.now()
@@ -78,6 +78,8 @@ def main():
     # Timestamp
     startTime = datetime.datetime.now()
     startTime = startTime.replace (second=0, microsecond=0)
+
+    print('Timestamp:', startTime )
 
     # Check parameters
     if len(sys.argv) != 2 :
@@ -191,9 +193,6 @@ def check_pialert_countdown():
 # INTERNET IP CHANGE
 #===============================================================================
 def check_internet_IP():
-    # Header
-    print('Check Internet IP')
-    print('    Timestamp:', startTime )
 
     if not OFFLINE_MODE :
         print('\nRetrieving Internet IP...')
@@ -286,6 +285,34 @@ def check_internet_IP():
             print("    Backup function pending.")
     else:
         print(f"    Skipping Auto Backup... Not activated!")
+
+    # Move Reports
+    print(f"\nCleanup Reports...")
+
+    if REPORT_TO_ARCHIVE > 0:
+        rep_counter = 0
+        archive_threshold = startTime - timedelta(hours=REPORT_TO_ARCHIVE)
+        report_path = PIALERT_PATH + "/front/reports"
+        archive_path = report_path + "/archived"
+        
+        for filename in os.listdir(report_path):
+            if filename.endswith(".txt"):
+                file_path = os.path.join(report_path, filename)
+                file_creation_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+                
+                if file_creation_time < archive_threshold:
+                    new_path = os.path.join(archive_path, filename)
+                    os.rename(file_path, new_path)
+                    rep_counter += 1
+        
+        if rep_counter > 0:
+            openDB()
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_050', 'cronjob', 'LogStr_0508', '', ?) """, (startTime,'Archived Reports: '+rep_counter))
+            closeDB()
+
+    else:
+        print(f"    Skipping Cleanup Reports... Not activated!")
 
     return 0
 
@@ -577,8 +604,6 @@ def check_IP_format(pIP):
 # Cleanup Tasks
 #===============================================================================
 def cleanup_database():
-    print('Cleanup Database')
-    print('    Timestamp:', startTime )
     openDB()
     try:
         strdaystokeepOH = str(DAYS_TO_KEEP_ONLINEHISTORY)
@@ -588,9 +613,10 @@ def cleanup_database():
         strdaystokeepEV = str(DAYS_TO_KEEP_EVENTS)
     except NameError: # variable not defined, use a default
         strdaystokeepEV = str(90) # 90 days
-    print('    Online_History, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Events, up to the lastest '+strdaystokeepEV+' days...')
+
+
+    print('\nCleanup tables, up to the lastest '+strdaystokeepEV+' days:')
+    print('    Events')
     sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-"+strdaystokeepEV+" day')")
     print('        ...Fixing missing or VOIDED events')
     RepairedEventTime = startTime - timedelta(days=int(strdaystokeepEV))
@@ -608,18 +634,24 @@ def cleanup_database():
                 "INSERT INTO Events (eve_MAC, eve_EventType, eve_IP, eve_DateTime, eve_PendingAlertEmail) VALUES (?, ?, ?, ?, ?)",
                 (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
             )
+    print('    Nmap Scan Results')
+    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepEV+" day')")
 
-    print('    Services_Events, up to the lastest '+strdaystokeepOH+' days...')
+    print('\nCleanup tables, up to the lastest '+strdaystokeepOH+' days:')
+    print('    Online_History')
+    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
+    print('    Services_Events')
     sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    ICMP_Mon_Events, up to the lastest '+strdaystokeepOH+' days...')
+    print('    ICMP_Mon_Events')
     sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Trim Journal to the lastest 1000 entries')
-    sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
-    print('    Speedtest_History, up to the lastest '+strdaystokeepOH+' days...')
+    print('    Speedtest_History')
     sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Nmap Scan Results, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Shrink Database...')
+
+
+    print('\nTrim Journal to the lastest 1000 entries')
+    sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
+
+    print('\nShrink Database...')
     sql.execute("VACUUM;")
     sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                     VALUES (?, 'c_010', 'cronjob', 'LogStr_0101', '', 'Cleanup') """, (startTime,))
@@ -630,8 +662,6 @@ def cleanup_database():
 # UPDATE DEVICE MAC VENDORS
 #===============================================================================
 def update_devices_MAC_vendors (pArg = ''):
-    print('Update HW Vendors')
-    print('    Timestamp:', startTime )
 
     if not OFFLINE_MODE :
         # Update vendors DB (oui)
@@ -719,10 +749,6 @@ def scan_network():
     # Create scan status file
     with open(STATUS_FILE_SCAN, "w") as f:
         f.write("")
-
-    # Header
-    print('Scan Devices')
-    print('    Timestamp:', startTime )
 
     # correct db permission every scan (user must/should be sudoer)
     set_db_file_permissions()
@@ -823,6 +849,7 @@ def scan_network():
     # new column for example "dev_alarm_delay" (True/False) and config parameter (2) scan counter
     # For devices that are in the “Current_Scan” table and for which “alarm_delay” is set to True, 
     # “Pending_Alert” is reset if the time interval is less than the desired one.
+    # maybe a new function like "apply_notifivation_delay()""
 
     # Web Service Monitoring
     try:

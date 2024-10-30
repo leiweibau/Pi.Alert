@@ -4,7 +4,7 @@
 #
 #  reports.php - Front module. WebGUI Notification page
 #-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                          GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
 <?php
@@ -43,7 +43,7 @@ function delete_single_archive_report() {
 			if (file_exists('./reports/archived/' . $prep_remove_report)) {
 				unlink('./reports/archived/' . $prep_remove_report);
 				// Logging
-				pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0503', '', $prep_remove_report);
+				pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0505', '', $prep_remove_report);
 			}
 		}
 	}
@@ -57,7 +57,7 @@ function archive_single_webgui_report() {
 			if (file_exists('./reports/' . $prep_remove_report)) {
 				rename('./reports/' . $prep_remove_report, './reports/archived/' . $prep_remove_report);
 				// Logging
-				//pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0503', '', $prep_remove_report);
+				pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0507', '', $prep_remove_report);
 			}
 		}
 	}
@@ -274,6 +274,45 @@ function reports_archive_couter() {
 	return sizeof($scanned_directory);
 }
 
+function generate_report_button($source) {
+	global $pia_lang;
+
+	if ($source == "archive") {
+		$archive_btn = '<div class="box">
+                          <div class="box-body report_archive_btn" id="ShowArchivedReports">
+                             <a href="./reports.php" class="btn btn-default">'.$pia_lang['REP_show_cur'].'</a>
+                          </div>
+                        </div>';
+	} else {
+		$archive_btn = '<div class="box">
+                          <div class="box-body report_archive_btn" id="ShowArchivedReports">
+                             <a href="./reports.php?report_source=archive" class="btn btn-default"><i class="fa-regular fa-folder"></i>&nbsp;&nbsp;'.$pia_lang['REP_show_archive'].' ('. reports_archive_couter() . ')</a>';
+		if (get_config_parmeter('REPORT_TO_ARCHIVE') > 0) {
+			$archive_btn .= '<p style="text-align: center; margin-top: 10px; margin-bottom: 5px; color: #888;">automatische Archivierung nach '.get_config_parmeter('REPORT_TO_ARCHIVE').' Stunde(n)</p>';
+		}
+        $archive_btn .= '</div>
+                        </div>';
+
+	}
+	echo $archive_btn;
+
+	if ($source == "archive") {
+		$delete_btn = '<div class="box">
+				          <div class="box-body report_delete_btn" id="RemoveAllNotifications">
+				              <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotificationsArchive()">'.$pia_lang['REP_delete_all'].' (Archive)</button>
+				          </div>
+				       </div>';
+	} else {
+		$delete_btn = '<div class="box">
+				          <div class="box-body report_delete_btn" id="RemoveAllNotifications">
+				              <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotifications()">'.$pia_lang['REP_delete_all'].'</button>
+				          </div>
+				       </div>';
+	}
+
+	echo $delete_btn;
+}
+
 // Archive Reports
 archive_single_webgui_report();
 // Delete Reports
@@ -286,13 +325,9 @@ $headline_colors = get_Report_Headline_Colors();
 if ($_REQUEST['report_source'] == "" || $_REQUEST['report_source'] != "archive") {
 	$directory = './reports/';
 	$ext_headline = '';
-	$button_link = './reports.php?report_source=archive';
-	$button_link_text = '<i class="fa-regular fa-folder"></i>&nbsp;&nbsp;'.$pia_lang['REP_show_archive'].' ('. reports_archive_couter() . ')';
 } else {
 	$directory = './reports/archived/';
 	$ext_headline = ' - <span class="text-danger">'.$pia_lang['Device_Shortcut_Archived'].'</span>';
-	$button_link = './reports.php';
-	$button_link_text = $pia_lang['REP_show_cur'];
 }
 
 $scanned_directory = array_diff(scandir($directory), array('..', '.', 'archived'));
@@ -378,22 +413,8 @@ foreach ($scanned_directory as $file) {
             </div>
         </div>
 
-      <div class="box">
-          <div class="box-body" id="ShowArchivedReports" style="text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;">
-              <a href="<?=$button_link?>" class="btn btn-default"><?=$button_link_text?></a>
-        </div>
-      </div>
 <?php
-if ($_REQUEST['report_source'] != "archive") {
-?>
-      <div class="box">
-          <div class="box-body" id="RemoveAllNotifications" style="text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;">
-              <button type="button" id="rqwejwedewjpjo" class="btn btn-danger" onclick="askdeleteAllNotifications()"><?=$pia_lang['REP_delete_all'];?></button>
-        </div>
-      </div>
-<?php
-}
-
+generate_report_button($_REQUEST['report_source']);
 
 for ($x = 0; $x < sizeof($special_notification); $x++) {
 	echo $special_notification[$x];
@@ -438,7 +459,7 @@ function SetReportColors() {
   });
 }
 
-function askdeleteAllNotifications () {
+function askdeleteAllNotifications() {
   showModalWarning('<?=$pia_lang['REP_delete_all_noti'];?>', '<?=$pia_lang['REP_delete_all_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotifications');
 }
@@ -448,6 +469,18 @@ function deleteAllNotifications()
     showMessage (msg);
   });
 }
+
+function askdeleteAllNotificationsArchive() {
+  showModalWarning('<?=$pia_lang['REP_delete_all_noti'];?>', '<?=$pia_lang['REP_delete_all_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotificationsArchive');
+}
+function deleteAllNotificationsArchive()
+{
+  $.get('php/server/files.php?action=deleteAllNotificationsArchive', function(msg) {
+    showMessage (msg);
+  });
+}
+
 function ReportReload() {
     setTimeout(function() {
         location.reload();

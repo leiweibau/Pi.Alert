@@ -48,6 +48,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'deleteAllNotifications':deleteAllNotifications();
 		break;
+	case 'deleteAllNotificationsArchive':deleteAllNotificationsArchive();
+		break;
 	case 'setTheme':setTheme();
 		break;
 	case 'setLanguage':setLanguage();
@@ -261,6 +263,8 @@ SMTP_SKIP_LOGIN	           = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) .
 # ----------------------
 REPORT_WEBGUI              = " . convert_bool($configArray['REPORT_WEBGUI']) . "
 REPORT_WEBGUI_WEBMON       = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON']) . "
+REPORT_TO_ARCHIVE          = " . $configArray['REPORT_TO_ARCHIVE'] . "
+# Number of hours after which a report is moved to the archive. The value 0 disables the feature
 
 # Mail Reporting
 # ----------------------
@@ -887,6 +891,25 @@ function deleteAllNotifications() {
 	echo "<meta http-equiv='refresh' content='2; URL=./reports.php'>";
 	// Logging
 	pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0504', '', '');
+}
+
+//  Delete All Notification in WebGUI
+function deleteAllNotificationsArchive() {
+	global $pia_lang;
+
+	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
+	$reports_path = '../../reports/archived/';
+	$files = array_diff(scandir($reports_path, SCANDIR_SORT_DESCENDING), array('.', '..', 'archived'));
+	$count_all_reports = sizeof($files);
+	foreach ($files as &$item) {
+		if (preg_match($regex, $item) == True) {
+			unlink($reports_path . $item);
+		}
+	}
+	echo $count_all_reports . ' ' . $pia_lang['BE_Dev_Report_Delete'];
+	echo "<meta http-equiv='refresh' content='2; URL=./reports.php?report_source=archive'>";
+	// Logging
+	pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0506', '', '');
 }
 
 // Get Report Counter
