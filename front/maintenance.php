@@ -6,7 +6,7 @@
 #------------------------------------------------------------------------------
 #  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
 #  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-#  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
+#  leiweibau  2024+       https://github.com/leiweibau     GNU GPLv3
 #-------------------------------------------------------------------------- -->
 
 <?php
@@ -19,6 +19,7 @@ if ($_SESSION["login"] != 1) {
 }
 
 require 'php/templates/header.php';
+require 'php/templates/maintenance_func.php';
 require 'php/server/journal.php';
 
 ?>
