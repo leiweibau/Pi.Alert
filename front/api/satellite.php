@@ -1,10 +1,17 @@
 <?php
+
+// 0 = ok
+// 1 = config error
+// 2 = file error
+// 3 = permission error
+
+# require '../php/server/timezone.php';
 // Get all configured Sat Tokens in direct mode
 function get_all_satellites() {
     $database = '../../db/pialert.db';
     // Check if the database is available, else Error via JSON
     if (!file_exists($database)) {
-		json_response("Pi.Alert database not found");
+		json_response(1, "Pi.Alert database not found");
     	die();
     }
 
@@ -27,9 +34,9 @@ function get_all_satellites() {
     return $func_satellite_list;
 }
 // JSON Response
-function json_response($api_message) {
+function json_response($status_code, $api_message) {
 	header('Content-Type: application/json');
-	$response = array("message" => "$api_message");
+	$response = array("status" => "$status_code", "message" => "$api_message");
 	echo json_encode($response);
 }
 function purge_old_results() {
@@ -100,7 +107,7 @@ if ($_REQUEST['mode'] == "direct") {
 
 		// Check whether the payload has been moved to the target directory, else Error via JSON
 		if (!file_exists($destinationPath)) {
-			json_response("File was not received");
+			json_response(2,"File was not received");
 			die();
 		}
 
@@ -114,13 +121,13 @@ if ($_REQUEST['mode'] == "direct") {
 
 		$decrypted_data = shell_exec($openssl_command);
 		if ($decrypted_data === null) {
-			json_response("Decryption Error");
+			json_response(1,"Decryption Error");
 		    die();
 		}
 
 		$decrypted_array = json_decode($decrypted_data, true);
 		if (json_last_error() !== JSON_ERROR_NONE) {
-			json_response("JSON Error");
+			json_response(2,"JSON Error");
 			die();
 		}
 
@@ -128,19 +135,23 @@ if ($_REQUEST['mode'] == "direct") {
 		unlink($destinationPath);
 
 		// Run through the process without errors
-		json_response("File was received");
+		json_response(0,"File was received");
 	} else {
 		// If the token is invalid
-		json_response("Invalid Satellite ID");		
+		json_response(3,"Invalid Satellite ID");		
 	}
 
 } elseif ($_REQUEST['mode'] == "proxy") {
     // Procedure for Proxy Mode API call
     // Check if the config file is available, else Error via JSON
     if (!file_exists('config.php')) {
-		json_response("Config file not found");
+		json_response(1,"Config file not found");
     	die();
     }
+	if (!is_dir( '../satellites' )) {
+		json_response(1,"satellites folder not found");
+    	die();    
+	}
     // import config file
     require 'config.php';
 
@@ -155,15 +166,15 @@ if ($_REQUEST['mode'] == "direct") {
 
 		// Check whether the payload has been moved to the target directory, else Error via JSON
 		if (!file_exists($destinationPath)) {
-			json_response("File was not received by proxy");	
+			json_response(2,"File was not received by proxy");	
 			die();
 		}
 
 		// Run through the process without errors
-		json_response("File was received by proxy");	
+		json_response(0,"File was received by proxy");	
 	} else {
 		// If the token is invalid
-		json_response("Invalid Satellite ID");	
+		json_response(3,"Invalid Satellite ID");	
 	}
 } elseif ($_REQUEST['mode'] == "get") {
 	purge_old_results();
