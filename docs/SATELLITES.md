@@ -17,6 +17,8 @@ works in "Standard" or "Direct" mode.
 4. The URL of Pi.Alert must also be entered in the satellite (e.g. 'http://pialert.lan/pialert/api/satellite.php'). Instead of "pialert.lan", the correct name of the device running Pi.Alert must be entered here. An IP address can also be entered. It is only important that the URL can actually be called up directly from the satellite. If this is not possible, the satellite can also work in "PROXY_MODE".
 5. As soon as the satellite is installed and configured, it starts transmitting its scan results and Pi.Alert can process them.
 
+The red “R” next to the version indicates that notification of transmission errors is activated for this satellite. This requires the storage of mail account data in the satellite's configuration file.
+
 The satellite scan is performed every 5 minutes and the log file is located in the "pialert-satellite" folder under "/log/satellite.scan.log"
 
 ### Configuration PROXY_MODE
