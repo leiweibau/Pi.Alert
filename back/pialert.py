@@ -605,21 +605,11 @@ def check_IP_format(pIP):
 #===============================================================================
 def cleanup_database():
     openDB()
-    try:
-        strdaystokeepOH = str(DAYS_TO_KEEP_ONLINEHISTORY)
-    except NameError: # variable not defined, use a default
-        strdaystokeepOH = str(30) # 1 month
-    try:
-        strdaystokeepEV = str(DAYS_TO_KEEP_EVENTS)
-    except NameError: # variable not defined, use a default
-        strdaystokeepEV = str(90) # 90 days
-
-
-    print('\nCleanup tables, up to the lastest '+strdaystokeepEV+' days:')
+    print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_EVENTS) + ' days:')
     print('    Events')
-    sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-"+strdaystokeepEV+" day')")
+    sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
     print('        ...Fixing missing or VOIDED events')
-    RepairedEventTime = startTime - timedelta(days=int(strdaystokeepEV))
+    RepairedEventTime = startTime - timedelta(days=DAYS_TO_KEEP_EVENTS)
     sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
     sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
     repair_devices = sql.fetchall()
@@ -635,17 +625,17 @@ def cleanup_database():
                 (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
             )
     print('    Nmap Scan Results')
-    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepEV+" day')")
+    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
 
-    print('\nCleanup tables, up to the lastest '+strdaystokeepOH+' days:')
+    print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_ONLINEHISTORY) + ' days:')
     print('    Online_History')
-    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
     print('    Services_Events')
-    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
     print('    ICMP_Mon_Events')
-    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
     print('    Speedtest_History')
-    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-"+strdaystokeepOH+" day')")
+    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
 
 
     print('\nTrim Journal to the lastest 1000 entries')
@@ -852,26 +842,14 @@ def scan_network():
     # maybe a new function like "apply_notifivation_delay()""
 
     # Web Service Monitoring
-    try:
-        enable_services_monitoring = SCAN_WEBSERVICES
-    except NameError:
-        enable_services_monitoring = False
-    if enable_services_monitoring == True:
+    if SCAN_WEBSERVICES:
         if str(startTime)[15] == "0":
             service_monitoring()
     # ICMP Monitoring
-    try:
-        enable_icmp_monitoring = ICMPSCAN_ACTIVE
-    except NameError:
-        enable_icmp_monitoring = False
-    if enable_icmp_monitoring == True:
+    if ICMPSCAN_ACTIVE:
         icmp_monitoring()
     # Check Rogue DHCP
-    try:
-        enable_rogue_dhcp_detection = SCAN_ROGUE_DHCP
-    except NameError:
-        enable_rogue_dhcp_detection = False
-    if enable_rogue_dhcp_detection == True:
+    if SCAN_ROGUE_DHCP:
         print('\nLooking for Rogue DHCP Servers...')
         rogue_dhcp_detection()
 
@@ -920,11 +898,7 @@ def query_ScanCycle_Data(pOpenCloseDB = False):
 def execute_arpscan():
 
     # check if arp-scan is active
-    try:
-        module_arpscan_status = ARPSCAN_ACTIVE
-    except NameError:
-        module_arpscan_status = True
-    if not module_arpscan_status :
+    if not ARPSCAN_ACTIVE:
         print('        ...Skipped')
         unique_devices = []
         return unique_devices
@@ -3573,19 +3547,11 @@ def email_reporting():
 
     sql_connection.commit()
 
-    try:
-        enable_services_monitoring = SCAN_WEBSERVICES
-    except NameError:
-        enable_services_monitoring = False
-    if enable_services_monitoring == True:
+    if SCAN_WEBSERVICES:
         if str(startTime)[15] == "0":
             service_monitoring_notification()
 
-    try:
-        enable_icmp_monitoring = ICMPSCAN_ACTIVE
-    except NameError:
-        enable_icmp_monitoring = False
-    if enable_icmp_monitoring == True:
+    if ICMPSCAN_ACTIVE:
         icmphost_monitoring_notification()
 
     closeDB()
