@@ -288,7 +288,7 @@ function generate_report_button($source) {
                           <div class="box-body report_archive_btn" id="ShowArchivedReports">
                              <a href="./reports.php?report_source=archive" class="btn btn-default"><i class="fa-regular fa-folder"></i>&nbsp;&nbsp;'.$pia_lang['REP_show_archive'].' ('. reports_archive_couter() . ')</a>';
 		if (get_config_parmeter('REPORT_TO_ARCHIVE') > 0) {
-			$archive_btn .= '<p style="text-align: center; margin-top: 10px; margin-bottom: 5px; color: #888;">automatische Archivierung nach '.get_config_parmeter('REPORT_TO_ARCHIVE').' Stunde(n)</p>';
+			$archive_btn .= '<p style="text-align: center; margin-top: 10px; margin-bottom: 5px; color: #888;">'.$pia_lang['Auto_Archive_note_a'].get_config_parmeter('REPORT_TO_ARCHIVE').$pia_lang['Auto_Archive_note_b'].'</p>';
 		}
         $archive_btn .= '</div>
                         </div>';

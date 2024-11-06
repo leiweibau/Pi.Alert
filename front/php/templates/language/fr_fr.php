@@ -638,6 +638,8 @@ $pia_lang['REP_delete_all'] = 'Supprimer toutes les notifications';
 $pia_lang['REP_delete_all_noti'] = 'Supprimer toutes les notifications';
 $pia_lang['REP_delete_all_noti_text'] = 'Toutes les notifications sont supprimées. Le compteur est ainsi remis à zéro.';
 $pia_lang['REP_Rogue_hint'] = 'Un nouveau message concernant un serveur DHCP inconnu n&apos;est envoyé qu&apos;après la suppression de ce message.';
+$pia_lang['Auto_Archive_note_a'] = 'Archivage automatique après ';
+$pia_lang['Auto_Archive_note_b'] = ' heure(s)';
 // UpdateCheck
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_Tools_Updatecheck'] = 'Vérifier les mises à jour';
