@@ -288,7 +288,6 @@ def check_internet_IP():
 
     # Move Reports
     print(f"\nCleanup Reports...")
-
     if REPORT_TO_ARCHIVE > 0:
         rep_counter = 0
         archive_threshold = startTime - timedelta(hours=REPORT_TO_ARCHIVE)
@@ -306,11 +305,12 @@ def check_internet_IP():
                     rep_counter += 1
         
         if rep_counter > 0:
+            infostring = 'Archived Reports: ' + str(rep_counter)
             openDB()
             sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                           VALUES (?, 'c_050', 'cronjob', 'LogStr_0508', '', ?) """, (startTime,'Archived Reports: '+rep_counter))
+                           VALUES (?, 'c_050', 'cronjob', 'LogStr_0508', '', ?) """, (startTime,infostring))
+            sql_connection.commit()
             closeDB()
-
     else:
         print(f"    Skipping Cleanup Reports... Not activated!")
 
@@ -1101,15 +1101,15 @@ def copy_pihole_network_six():
     global PIHOLE6_SES_VALID
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
+    global PIHOLE6_API_MAXCLIENTS
 
     if PIHOLE6_SES_VALID == True:
         headers = {
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        #max_devices=-1 seems to be "all". no more detailed information found in the API documentation
         #max_addresses=2 IPs per host
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=-1&max_addresses=2', headers=headers, verify=False)
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=' + str(PIHOLE6_API_MAXCLIENTS) + '&max_addresses=2', headers=headers, verify=False)
 
         result = {}
         deviceslist = raw_deviceslist.json()

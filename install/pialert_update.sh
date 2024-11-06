@@ -403,6 +403,8 @@ if ! grep -Fq "REPORT_TO_ARCHIVE" "$PIALERT_HOME/config/pialert.conf" ; then
 
 REPORT_TO_ARCHIVE          = 0
 # Number of hours after which a report is moved to the archive. The value 0 disables the feature
+
+PIHOLE6_API_MAXCLIENTS     = 100
 EOF
 fi
 

@@ -352,6 +352,7 @@ PIHOLE_VERSION             = " . $configArray['PIHOLE_VERSION'] . "
 PIHOLE_DB                  = '" . $configArray['PIHOLE_DB'] . "'
 PIHOLE6_URL                = '" . $configArray['PIHOLE6_URL'] . "'
 PIHOLE6_PASSWORD           = '" . $configArray['PIHOLE6_PASSWORD'] . "'
+PIHOLE6_API_MAXCLIENTS     = " . $configArray['PIHOLE6_API_MAXCLIENTS'] . "
 DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
 DHCP_LEASES                = '" . $configArray['DHCP_LEASES'] . "'
 DHCP_INCL_SELF_TO_LEASES   = " . convert_bool($configArray['DHCP_INCL_SELF_TO_LEASES']) . "
