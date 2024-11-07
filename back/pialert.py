@@ -136,12 +136,12 @@ def set_db_file_permissions():
     print_log(f"\nPrepare Scan...")
     print_log(f"    Force file permissions on Pi.Alert db...")
     # Set permissions
-    os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
-    os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
+    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
+    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
 
     # Set permissions Experimental
-    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
-    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
+    os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
+    os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
 
     # Get permissions
     fileinfo = Path(PIALERT_DB_FILE)
@@ -834,6 +834,8 @@ def scan_network():
     # Calc Activity History
     print('    Calculate Activity History...')
     calc_activity_history_main_scan()
+    sql_connection.commit()
+    closeDB()
 
     # Issue #370
     # new column for example "dev_alarm_delay" (True/False) and config parameter (2) scan counter
@@ -853,8 +855,7 @@ def scan_network():
         print('\nLooking for Rogue DHCP Servers...')
         rogue_dhcp_detection()
 
-    sql_connection.commit()
-    closeDB()
+
 
     return 0
 
@@ -2033,19 +2034,24 @@ def update_devices_data_from_scan():
                     (cycle,))
 
     # Update IP & Vendor
-    print_log ('Update devices - 3 LastIP & Vendor')
-    sql.execute ("""UPDATE Devices
-                    SET dev_LastIP = (SELECT cur_IP FROM CurrentScan
-                                      WHERE dev_MAC = cur_MAC
-                                        AND dev_ScanCycle = cur_ScanCycle),
-                        dev_Vendor = (SELECT cur_Vendor FROM CurrentScan
-                                      WHERE dev_MAC = cur_MAC
-                                        AND dev_ScanCycle = cur_ScanCycle)
-                    WHERE dev_ScanCycle = ?
-                      AND EXISTS (SELECT 1 FROM CurrentScan
-                                  WHERE dev_MAC = cur_MAC
-                                    AND dev_ScanCycle = cur_ScanCycle) """,
-                    (cycle,)) 
+    print_log('Update devices - 3 LastIP & Vendor')
+    sql.execute("""UPDATE Devices
+                   SET dev_LastIP = (SELECT cur_IP FROM CurrentScan
+                                     WHERE dev_MAC = cur_MAC
+                                       AND dev_ScanCycle = cur_ScanCycle),
+                       dev_Vendor = CASE
+                                      WHEN dev_Vendor IS NULL OR dev_Vendor = ''
+                                      THEN (SELECT cur_Vendor FROM CurrentScan
+                                            WHERE dev_MAC = cur_MAC
+                                              AND dev_ScanCycle = cur_ScanCycle)
+                                      ELSE dev_Vendor
+                                    END
+                   WHERE dev_ScanCycle = ?
+                     AND EXISTS (SELECT 1 FROM CurrentScan
+                                 WHERE dev_MAC = cur_MAC
+                                   AND dev_ScanCycle = cur_ScanCycle)""",
+                (cycle,))
+
 
     # Pi-hole Network - Update (unknown) Name
     print_log ('Update devices - 4 Unknown Name')
@@ -2408,6 +2414,7 @@ def validate_dhcp_address(ip_string):
 
 # -----------------------------------------------------------------------------------
 def rogue_dhcp_detection():
+    openDB()
     # Create Table is not exist
     sql_create_table = """ CREATE TABLE IF NOT EXISTS Nmap_DHCP_Server(
                                 scan_num INTEGER NOT NULL,
@@ -2419,6 +2426,8 @@ def rogue_dhcp_detection():
     # Flush Table
     sql.execute("DELETE FROM Nmap_DHCP_Server")
     sql_connection.commit()
+
+    closeDB()
 
     # Execute 15 probes and insert in list
     dhcp_probes = 15
@@ -2439,6 +2448,7 @@ def rogue_dhcp_detection():
             if len(multiple_dhcp) >= 7:
                 dhcp_server_list.append(multiple_dhcp)
 
+    openDB()
     for i in range(len(dhcp_server_list)):
         # Insert list in database
         sqlite_insert = """INSERT INTO Nmap_DHCP_Server
@@ -2453,6 +2463,9 @@ def rogue_dhcp_detection():
     sql_connection.commit()
 
     rogue_dhcp_notification()
+
+    sql_connection.commit()
+    closeDB()
 
 # -----------------------------------------------------------------------------------
 def rogue_dhcp_notification():
@@ -2859,52 +2872,81 @@ def service_monitoring():
         monitor_logfile.write("    Timestamp: " + strftime("%Y-%m-%d %H:%M:%S") + "\n")
         monitor_logfile.close()
 
+    # Open DB for Web Service Monitoring
+    openDB()
+    
     print("    Get Services List...")
     sites = get_services_list()
 
     print("    Flush previous scan results...")
     flush_services_current_scan()
 
-    print("    Check Services...")
+    # Close DB
+    sql_connection.commit()
+    closeDB()
+    
+    print("    Check Services (New)...")
     with open(PIALERT_WEBSERVICES_LOG, 'a') as monitor_logfile:
         monitor_logfile.write("\nStart Services Monitoring\n\n Timestamp          | StatusCode | ResponseTime | URL \n-----------------------------------------------------------------\n") 
         monitor_logfile.close()
 
     scantime = startTime.strftime("%Y-%m-%d %H:%M")
 
+    results_log = []
+    scan_data = []
+    event_data = []
+    update_data = []
+
     while sites:
         for site in sites:
-            status,latency = check_services_health(site)
+            status, latency = check_services_health(site)
             site_retry = ''
-            if latency == "99999999" :
-                # 2nd Retry if the first attempt fails
-                status,latency = check_services_health(site)
+            if latency == "99999999":
+                # 2. Versuch bei Fehler im ersten Durchlauf
+                status, latency = check_services_health(site)
                 site_retry = '*'
-                if latency == "99999999" :
-                    # 3rd Retry if the second attempt fails
-                    status,latency = check_services_health(site)
+                if latency == "99999999":
+                    # 3. Versuch bei Fehler im zweiten Durchlauf
+                    status, latency = check_services_health(site)
                     site_retry = '**'
 
-            #Get IP from Domain
+            # Hole IP aus der Domain
             if latency != "99999999":
                 redirect_state = check_services_redirect(site)
                 domain = urlparse(site).netloc
                 domain = domain.split(":")[0]
                 domain_ip = socket.gethostbyname(domain)
-                # get SSL info
+                # Hole SSL-Informationen
                 ssl_info = get_ssl_cert_info(site)
-                #print(ssl_info)
             else:
                 domain_ip = ""
                 redirect_state = ""
                 ssl_info = ""
 
-            service_monitoring_log(site + ' ' + site_retry, status, latency)
-            ssl_fc = set_services_current_scan(site, scantime, status, latency, domain_ip, ssl_info)
-            set_services_events(site, scantime, status, latency, domain_ip, ssl_fc)
-#            set_services_current_scan(site, scantime, status, latency, domain_ip, ssl_info)
-            sys.stdout.flush()
-            set_service_update(site, scantime, status, latency, domain_ip, redirect_state, ssl_info, ssl_fc)
+            # Speicherung der Ergebnisse in Listen/Dictionaries
+            results_log.append((site + ' ' + site_retry, status, latency))
+            scan_data.append((site, scantime, status, latency, domain_ip, ssl_info))
+            event_data.append((site, scantime, status, latency, domain_ip, ""))
+            update_data.append((site, scantime, status, latency, domain_ip, redirect_state, ssl_info, ""))
+
+        # OpenDB to save Scan Results
+        openDB()
+        for log_entry in results_log:
+            service_monitoring_log(*log_entry)
+
+        for scan_entry in scan_data:
+            ssl_fc = set_services_current_scan(*scan_entry)
+
+        for event_entry in event_data:
+            set_services_events(*event_entry)
+
+        for update_entry in update_data:
+            set_service_update(*update_entry)
+
+        # Close DB after saving
+        sql_connection.commit()
+        closeDB()
+
         break
 
     else:
@@ -2913,14 +2955,19 @@ def service_monitoring():
             monitor_logfile.write("\n**************** No site(s) to monitor!! ****************\n")
             monitor_logfile.close()
 
+    openDB()
     # Print to log file
     print_service_monitoring_changes()
+
+    sql_connection.commit()
+    closeDB()
 
 #===============================================================================
 # ICMP Monitoring
 #===============================================================================
 def icmp_monitoring():
 
+    openDB()
     print("\nStart ICMP Monitoring...")
     print("    Get Host/Domain List...")
     icmphosts = get_icmphost_list()
@@ -2985,8 +3032,11 @@ def icmp_monitoring():
         print("    Calculate Activity History...")
         calc_activity_history_icmp(icmphosts_online, icmphosts_offline)
 
+        sql_connection.commit()
+        closeDB()
+
     else:
-        openDB()
+        # openDB()
         print("    No Hosts(s) to monitor!")
 
 # -----------------------------------------------------------------------------
