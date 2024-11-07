@@ -93,6 +93,8 @@ function ssl_code_tooltip($sslcode) {
 	if ($sslcode >= 1) {
 		$sslinfo[] = "Valid to";
 		$sslcode = $sslcode-1;
+	} else {
+		$sslinfo[] = "none";
 	}
 	return 'Values changed: '.implode(', ', $sslinfo);
 }
@@ -167,11 +169,12 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
 				if ($tempmac[1] != "0") {$code_color = 'red';} else {$code_color = 'green';}
-				$webgui_report .= "\t<span style=\"cursor:pointer\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"". ssl_code_tooltip($tempmac[1]) ."\">SSL Status:\t\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span></span>\n";
-			}else {
+				$webgui_report .= "\t<span style=\"cursor:pointer\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"". ssl_code_tooltip($tempmac[1]) . "\">SSL Status:\t\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span></span>\n";
+			} else {
 				// Default handling
 				$webgui_report .= $line;
 			}
+			//$webgui_report .= $line;
 		} elseif (trim($line) != "") {
 			$webgui_report .= $line;
 		}
@@ -333,10 +336,11 @@ if ($_REQUEST['report_source'] == "" || $_REQUEST['report_source'] != "archive")
 $scanned_directory = array_diff(scandir($directory), array('..', '.', 'archived'));
 rsort($scanned_directory);	
 
+
 $standard_notification = array();
 $special_notification = array();
 foreach ($scanned_directory as $file) {
-	if (substr($file, -4) == '.txt') {
+	if (substr(strtolower($file), -4) == '.txt') {
 		$notification_class = get_notification_class($file);
 		if ($notification_class[1] == "arp") {
 			array_push($standard_notification, process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[1], 'fa-laptop'));
