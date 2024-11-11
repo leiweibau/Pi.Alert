@@ -408,13 +408,13 @@ if ($_REQUEST['mod'] == 'bulkedit') {
                                 </div>
                             </div>
                             <div class="form-group col-xs-12">
-                                <label class="col-xs-3 control-label"><?=$pia_lang['WebServices_label_AlertEvents'];?></label>
+                                <label class="col-xs-3 control-label"><?=$pia_lang['WEBS_label_AlertEvents'];?></label>
                                 <div class="col-xs-9" style="margin-top: 0px;">
                                   <input class="checkbox blue" id="insAlertEvents" type="checkbox">
                                 </div>
                             </div>
                             <div class="form-group col-xs-12">
-                                <label class="col-xs-3 control-label"><?=$pia_lang['WebServices_label_AlertDown'];?></label>
+                                <label class="col-xs-3 control-label"><?=$pia_lang['WEBS_label_AlertDown'];?></label>
                                 <div class="col-xs-9" style="margin-top: 0px;">
                                   <input class="checkbox red" id="insAlertDown" type="checkbox">
                                 </div>
@@ -550,8 +550,8 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
                   <th><?=$pia_lang['Device_TableHead_Name']?></th>
                   <th>IP</th>
                   <th><?=$pia_lang['Device_TableHead_Favorite']?></th>
-                  <th><?=$pia_lang['WebServices_Events_TableHead_ResponsTime']?></th>
-                  <th style="white-space: nowrap;"><?=$pia_lang['WebServices_tablehead_ScanTime']?></th>
+                  <th><?=$pia_lang['WEBS_EVE_TableHead_ResponsTime']?></th>
+                  <th style="white-space: nowrap;"><?=$pia_lang['WEBS_tablehead_ScanTime']?></th>
                   <th><?=$pia_lang['Device_TableHead_Status']?></th>
                   <th>Present</th>
                   <th>RowID</th>

@@ -65,7 +65,7 @@ def main():
     # Header
     print('\nPi.Alert v'+ VERSION_DATE)
     print('---------------------------------------------------------')
-    print(f"Executing user: {get_username()}\n")
+    print(f"Executing user: {get_username()}")
 
     # Initialize global variables
     log_timestamp  = datetime.datetime.now()
@@ -78,6 +78,8 @@ def main():
     # Timestamp
     startTime = datetime.datetime.now()
     startTime = startTime.replace (second=0, microsecond=0)
+
+    print('Timestamp:', startTime )
 
     # Check parameters
     if len(sys.argv) != 2 :
@@ -134,12 +136,12 @@ def set_db_file_permissions():
     print_log(f"\nPrepare Scan...")
     print_log(f"    Force file permissions on Pi.Alert db...")
     # Set permissions
-    os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
-    os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
+    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
+    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
 
     # Set permissions Experimental
-    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
-    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
+    os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
+    os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
 
     # Get permissions
     fileinfo = Path(PIALERT_DB_FILE)
@@ -191,9 +193,6 @@ def check_pialert_countdown():
 # INTERNET IP CHANGE
 #===============================================================================
 def check_internet_IP():
-    # Header
-    print('Check Internet IP')
-    print('    Timestamp:', startTime )
 
     if not OFFLINE_MODE :
         print('\nRetrieving Internet IP...')
@@ -286,6 +285,34 @@ def check_internet_IP():
             print("    Backup function pending.")
     else:
         print(f"    Skipping Auto Backup... Not activated!")
+
+    # Move Reports
+    print(f"\nCleanup Reports...")
+    if REPORT_TO_ARCHIVE > 0:
+        rep_counter = 0
+        archive_threshold = startTime - timedelta(hours=REPORT_TO_ARCHIVE)
+        report_path = PIALERT_PATH + "/front/reports"
+        archive_path = report_path + "/archived"
+        
+        for filename in os.listdir(report_path):
+            if filename.endswith(".txt"):
+                file_path = os.path.join(report_path, filename)
+                file_creation_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+                
+                if file_creation_time < archive_threshold:
+                    new_path = os.path.join(archive_path, filename)
+                    os.rename(file_path, new_path)
+                    rep_counter += 1
+        
+        if rep_counter > 0:
+            infostring = 'Archived Reports: ' + str(rep_counter)
+            openDB()
+            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                           VALUES (?, 'c_050', 'cronjob', 'LogStr_0508', '', ?) """, (startTime,infostring))
+            sql_connection.commit()
+            closeDB()
+    else:
+        print(f"    Skipping Cleanup Reports... Not activated!")
 
     return 0
 
@@ -577,23 +604,12 @@ def check_IP_format(pIP):
 # Cleanup Tasks
 #===============================================================================
 def cleanup_database():
-    print('Cleanup Database')
-    print('    Timestamp:', startTime )
     openDB()
-    try:
-        strdaystokeepOH = str(DAYS_TO_KEEP_ONLINEHISTORY)
-    except NameError: # variable not defined, use a default
-        strdaystokeepOH = str(30) # 1 month
-    try:
-        strdaystokeepEV = str(DAYS_TO_KEEP_EVENTS)
-    except NameError: # variable not defined, use a default
-        strdaystokeepEV = str(90) # 90 days
-    print('    Online_History, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Events, up to the lastest '+strdaystokeepEV+' days...')
-    sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-"+strdaystokeepEV+" day')")
+    print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_EVENTS) + ' days:')
+    print('    Events')
+    sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
     print('        ...Fixing missing or VOIDED events')
-    RepairedEventTime = startTime - timedelta(days=int(strdaystokeepEV))
+    RepairedEventTime = startTime - timedelta(days=DAYS_TO_KEEP_EVENTS)
     sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
     sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
     repair_devices = sql.fetchall()
@@ -608,18 +624,24 @@ def cleanup_database():
                 "INSERT INTO Events (eve_MAC, eve_EventType, eve_IP, eve_DateTime, eve_PendingAlertEmail) VALUES (?, ?, ?, ?, ?)",
                 (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
             )
+    print('    Nmap Scan Results')
+    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
 
-    print('    Services_Events, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    ICMP_Mon_Events, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Trim Journal to the lastest 1000 entries')
+    print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_ONLINEHISTORY) + ' days:')
+    print('    Online_History')
+    sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
+    print('    Services_Events')
+    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
+    print('    ICMP_Mon_Events')
+    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
+    print('    Speedtest_History')
+    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
+
+
+    print('\nTrim Journal to the lastest 1000 entries')
     sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
-    print('    Speedtest_History, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Nmap Scan Results, up to the lastest '+strdaystokeepOH+' days...')
-    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-"+strdaystokeepOH+" day')")
-    print('    Shrink Database...')
+
+    print('\nShrink Database...')
     sql.execute("VACUUM;")
     sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                     VALUES (?, 'c_010', 'cronjob', 'LogStr_0101', '', 'Cleanup') """, (startTime,))
@@ -630,8 +652,6 @@ def cleanup_database():
 # UPDATE DEVICE MAC VENDORS
 #===============================================================================
 def update_devices_MAC_vendors (pArg = ''):
-    print('Update HW Vendors')
-    print('    Timestamp:', startTime )
 
     if not OFFLINE_MODE :
         # Update vendors DB (oui)
@@ -719,10 +739,6 @@ def scan_network():
     # Create scan status file
     with open(STATUS_FILE_SCAN, "w") as f:
         f.write("")
-
-    # Header
-    print('Scan Devices')
-    print('    Timestamp:', startTime )
 
     # correct db permission every scan (user must/should be sudoer)
     set_db_file_permissions()
@@ -818,32 +834,28 @@ def scan_network():
     # Calc Activity History
     print('    Calculate Activity History...')
     calc_activity_history_main_scan()
+    sql_connection.commit()
+    closeDB()
+
+    # Issue #370
+    # new column for example "dev_alarm_delay" (True/False) and config parameter (2) scan counter
+    # For devices that are in the “Current_Scan” table and for which “alarm_delay” is set to True, 
+    # “Pending_Alert” is reset if the time interval is less than the desired one.
+    # maybe a new function like "apply_notifivation_delay()""
+
     # Web Service Monitoring
-    try:
-        enable_services_monitoring = SCAN_WEBSERVICES
-    except NameError:
-        enable_services_monitoring = False
-    if enable_services_monitoring == True:
+    if SCAN_WEBSERVICES:
         if str(startTime)[15] == "0":
             service_monitoring()
     # ICMP Monitoring
-    try:
-        enable_icmp_monitoring = ICMPSCAN_ACTIVE
-    except NameError:
-        enable_icmp_monitoring = False
-    if enable_icmp_monitoring == True:
+    if ICMPSCAN_ACTIVE:
         icmp_monitoring()
     # Check Rogue DHCP
-    try:
-        enable_rogue_dhcp_detection = SCAN_ROGUE_DHCP
-    except NameError:
-        enable_rogue_dhcp_detection = False
-    if enable_rogue_dhcp_detection == True:
+    if SCAN_ROGUE_DHCP:
         print('\nLooking for Rogue DHCP Servers...')
         rogue_dhcp_detection()
 
-    sql_connection.commit()
-    closeDB()
+
 
     return 0
 
@@ -887,11 +899,7 @@ def query_ScanCycle_Data(pOpenCloseDB = False):
 def execute_arpscan():
 
     # check if arp-scan is active
-    try:
-        module_arpscan_status = ARPSCAN_ACTIVE
-    except NameError:
-        module_arpscan_status = True
-    if not module_arpscan_status :
+    if not ARPSCAN_ACTIVE:
         print('        ...Skipped')
         unique_devices = []
         return unique_devices
@@ -1068,15 +1076,15 @@ def copy_pihole_network_six():
     global PIHOLE6_SES_VALID
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
+    global PIHOLE6_API_MAXCLIENTS
 
     if PIHOLE6_SES_VALID == True:
         headers = {
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        #max_devices=-1 seems to be "all". no more detailed information found in the API documentation
         #max_addresses=2 IPs per host
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=-1&max_addresses=2', headers=headers, verify=False)
+        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=' + str(PIHOLE6_API_MAXCLIENTS) + '&max_addresses=2', headers=headers, verify=False)
 
         result = {}
         deviceslist = raw_deviceslist.json()
@@ -2026,19 +2034,24 @@ def update_devices_data_from_scan():
                     (cycle,))
 
     # Update IP & Vendor
-    print_log ('Update devices - 3 LastIP & Vendor')
-    sql.execute ("""UPDATE Devices
-                    SET dev_LastIP = (SELECT cur_IP FROM CurrentScan
-                                      WHERE dev_MAC = cur_MAC
-                                        AND dev_ScanCycle = cur_ScanCycle),
-                        dev_Vendor = (SELECT cur_Vendor FROM CurrentScan
-                                      WHERE dev_MAC = cur_MAC
-                                        AND dev_ScanCycle = cur_ScanCycle)
-                    WHERE dev_ScanCycle = ?
-                      AND EXISTS (SELECT 1 FROM CurrentScan
-                                  WHERE dev_MAC = cur_MAC
-                                    AND dev_ScanCycle = cur_ScanCycle) """,
-                    (cycle,)) 
+    print_log('Update devices - 3 LastIP & Vendor')
+    sql.execute("""UPDATE Devices
+                   SET dev_LastIP = (SELECT cur_IP FROM CurrentScan
+                                     WHERE dev_MAC = cur_MAC
+                                       AND dev_ScanCycle = cur_ScanCycle),
+                       dev_Vendor = CASE
+                                      WHEN dev_Vendor IS NULL OR dev_Vendor = ''
+                                      THEN (SELECT cur_Vendor FROM CurrentScan
+                                            WHERE dev_MAC = cur_MAC
+                                              AND dev_ScanCycle = cur_ScanCycle)
+                                      ELSE dev_Vendor
+                                    END
+                   WHERE dev_ScanCycle = ?
+                     AND EXISTS (SELECT 1 FROM CurrentScan
+                                 WHERE dev_MAC = cur_MAC
+                                   AND dev_ScanCycle = cur_ScanCycle)""",
+                (cycle,))
+
 
     # Pi-hole Network - Update (unknown) Name
     print_log ('Update devices - 4 Unknown Name')
@@ -2401,6 +2414,7 @@ def validate_dhcp_address(ip_string):
 
 # -----------------------------------------------------------------------------------
 def rogue_dhcp_detection():
+    openDB()
     # Create Table is not exist
     sql_create_table = """ CREATE TABLE IF NOT EXISTS Nmap_DHCP_Server(
                                 scan_num INTEGER NOT NULL,
@@ -2412,6 +2426,8 @@ def rogue_dhcp_detection():
     # Flush Table
     sql.execute("DELETE FROM Nmap_DHCP_Server")
     sql_connection.commit()
+
+    closeDB()
 
     # Execute 15 probes and insert in list
     dhcp_probes = 15
@@ -2432,6 +2448,7 @@ def rogue_dhcp_detection():
             if len(multiple_dhcp) >= 7:
                 dhcp_server_list.append(multiple_dhcp)
 
+    openDB()
     for i in range(len(dhcp_server_list)):
         # Insert list in database
         sqlite_insert = """INSERT INTO Nmap_DHCP_Server
@@ -2446,6 +2463,9 @@ def rogue_dhcp_detection():
     sql_connection.commit()
 
     rogue_dhcp_notification()
+
+    sql_connection.commit()
+    closeDB()
 
 # -----------------------------------------------------------------------------------
 def rogue_dhcp_notification():
@@ -2852,52 +2872,81 @@ def service_monitoring():
         monitor_logfile.write("    Timestamp: " + strftime("%Y-%m-%d %H:%M:%S") + "\n")
         monitor_logfile.close()
 
+    # Open DB for Web Service Monitoring
+    openDB()
+    
     print("    Get Services List...")
     sites = get_services_list()
 
     print("    Flush previous scan results...")
     flush_services_current_scan()
 
-    print("    Check Services...")
+    # Close DB
+    sql_connection.commit()
+    closeDB()
+    
+    print("    Check Services (New)...")
     with open(PIALERT_WEBSERVICES_LOG, 'a') as monitor_logfile:
         monitor_logfile.write("\nStart Services Monitoring\n\n Timestamp          | StatusCode | ResponseTime | URL \n-----------------------------------------------------------------\n") 
         monitor_logfile.close()
 
     scantime = startTime.strftime("%Y-%m-%d %H:%M")
 
+    results_log = []
+    scan_data = []
+    event_data = []
+    update_data = []
+
     while sites:
         for site in sites:
-            status,latency = check_services_health(site)
+            status, latency = check_services_health(site)
             site_retry = ''
-            if latency == "99999999" :
-                # 2nd Retry if the first attempt fails
-                status,latency = check_services_health(site)
+            if latency == "99999999":
+                # 2. Versuch bei Fehler im ersten Durchlauf
+                status, latency = check_services_health(site)
                 site_retry = '*'
-                if latency == "99999999" :
-                    # 3rd Retry if the second attempt fails
-                    status,latency = check_services_health(site)
+                if latency == "99999999":
+                    # 3. Versuch bei Fehler im zweiten Durchlauf
+                    status, latency = check_services_health(site)
                     site_retry = '**'
 
-            #Get IP from Domain
+            # Hole IP aus der Domain
             if latency != "99999999":
                 redirect_state = check_services_redirect(site)
                 domain = urlparse(site).netloc
                 domain = domain.split(":")[0]
                 domain_ip = socket.gethostbyname(domain)
-                # get SSL info
+                # Hole SSL-Informationen
                 ssl_info = get_ssl_cert_info(site)
-                #print(ssl_info)
             else:
                 domain_ip = ""
                 redirect_state = ""
                 ssl_info = ""
 
-            service_monitoring_log(site + ' ' + site_retry, status, latency)
-            ssl_fc = set_services_current_scan(site, scantime, status, latency, domain_ip, ssl_info)
-            set_services_events(site, scantime, status, latency, domain_ip, ssl_fc)
-#            set_services_current_scan(site, scantime, status, latency, domain_ip, ssl_info)
-            sys.stdout.flush()
-            set_service_update(site, scantime, status, latency, domain_ip, redirect_state, ssl_info, ssl_fc)
+            # Speicherung der Ergebnisse in Listen/Dictionaries
+            results_log.append((site + ' ' + site_retry, status, latency))
+            scan_data.append((site, scantime, status, latency, domain_ip, ssl_info))
+            event_data.append((site, scantime, status, latency, domain_ip, ""))
+            update_data.append((site, scantime, status, latency, domain_ip, redirect_state, ssl_info, ""))
+
+        # OpenDB to save Scan Results
+        openDB()
+        for log_entry in results_log:
+            service_monitoring_log(*log_entry)
+
+        for scan_entry in scan_data:
+            ssl_fc = set_services_current_scan(*scan_entry)
+
+        for event_entry in event_data:
+            set_services_events(*event_entry)
+
+        for update_entry in update_data:
+            set_service_update(*update_entry)
+
+        # Close DB after saving
+        sql_connection.commit()
+        closeDB()
+
         break
 
     else:
@@ -2906,14 +2955,19 @@ def service_monitoring():
             monitor_logfile.write("\n**************** No site(s) to monitor!! ****************\n")
             monitor_logfile.close()
 
+    openDB()
     # Print to log file
     print_service_monitoring_changes()
+
+    sql_connection.commit()
+    closeDB()
 
 #===============================================================================
 # ICMP Monitoring
 #===============================================================================
 def icmp_monitoring():
 
+    openDB()
     print("\nStart ICMP Monitoring...")
     print("    Get Host/Domain List...")
     icmphosts = get_icmphost_list()
@@ -2978,8 +3032,11 @@ def icmp_monitoring():
         print("    Calculate Activity History...")
         calc_activity_history_icmp(icmphosts_online, icmphosts_offline)
 
+        sql_connection.commit()
+        closeDB()
+
     else:
-        openDB()
+        # openDB()
         print("    No Hosts(s) to monitor!")
 
 # -----------------------------------------------------------------------------
@@ -3424,6 +3481,9 @@ def email_reporting():
         '  <td> <a href="{}{}"> {} </a>  </td><td> {} </td>'+ \
         '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'
 
+    # Issue #370
+    # AND eve_DateTime < datetime('now', '-{DELAY} minutes') for devices where dev_alarm_delay is true
+
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
                       AND eve_EventType = 'Device Down'
@@ -3515,6 +3575,19 @@ def email_reporting():
     sql.execute("""UPDATE Events SET eve_PendingAlertEmail = 0
                    WHERE eve_PendingAlertEmail = 1""")
 
+    # Issue #370
+    # Clean Pending Alert Events
+    # sql.execute("""UPDATE Devices SET dev_LastNotification = ?
+    #                WHERE dev_MAC IN (SELECT eve_MAC FROM Events
+    #                   WHERE eve_PendingAlertEmail = 1 AND eve_EventType =='Device Down' 
+    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
+    #         """, (datetime.datetime.now(),))
+    # sql.execute ("""UPDATE Events SET eve_PendingAlertEmail = 0
+    #                 WHERE eve_PendingAlertEmail = 1 
+    #                 AND eve_EventType =='Device Down' 
+    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
+    #         """)
+
     # Set Notification Presets
     sql.execute("""UPDATE Devices SET dev_AlertEvents = ?, dev_AlertDeviceDown = ?
                    WHERE dev_NewDevice = 1
@@ -3524,19 +3597,11 @@ def email_reporting():
 
     sql_connection.commit()
 
-    try:
-        enable_services_monitoring = SCAN_WEBSERVICES
-    except NameError:
-        enable_services_monitoring = False
-    if enable_services_monitoring == True:
+    if SCAN_WEBSERVICES:
         if str(startTime)[15] == "0":
             service_monitoring_notification()
 
-    try:
-        enable_icmp_monitoring = ICMPSCAN_ACTIVE
-    except NameError:
-        enable_icmp_monitoring = False
-    if enable_icmp_monitoring == True:
+    if ICMPSCAN_ACTIVE:
         icmphost_monitoring_notification()
 
     closeDB()

@@ -48,6 +48,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'deleteAllNotifications':deleteAllNotifications();
 		break;
+	case 'deleteAllNotificationsArchive':deleteAllNotificationsArchive();
+		break;
 	case 'setTheme':setTheme();
 		break;
 	case 'setLanguage':setLanguage();
@@ -261,6 +263,8 @@ SMTP_SKIP_LOGIN	           = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) .
 # ----------------------
 REPORT_WEBGUI              = " . convert_bool($configArray['REPORT_WEBGUI']) . "
 REPORT_WEBGUI_WEBMON       = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON']) . "
+REPORT_TO_ARCHIVE          = " . $configArray['REPORT_TO_ARCHIVE'] . "
+# Number of hours after which a report is moved to the archive. The value 0 disables the feature
 
 # Mail Reporting
 # ----------------------
@@ -348,6 +352,7 @@ PIHOLE_VERSION             = " . $configArray['PIHOLE_VERSION'] . "
 PIHOLE_DB                  = '" . $configArray['PIHOLE_DB'] . "'
 PIHOLE6_URL                = '" . $configArray['PIHOLE6_URL'] . "'
 PIHOLE6_PASSWORD           = '" . $configArray['PIHOLE6_PASSWORD'] . "'
+PIHOLE6_API_MAXCLIENTS     = " . $configArray['PIHOLE6_API_MAXCLIENTS'] . "
 DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
 DHCP_LEASES                = '" . $configArray['DHCP_LEASES'] . "'
 DHCP_INCL_SELF_TO_LEASES   = " . convert_bool($configArray['DHCP_INCL_SELF_TO_LEASES']) . "
@@ -876,7 +881,7 @@ function deleteAllNotifications() {
 
 	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
 	$reports_path = '../../reports/';
-	$files = array_diff(scandir($reports_path, SCANDIR_SORT_DESCENDING), array('.', '..', 'download_report.php'));
+	$files = array_diff(scandir($reports_path, SCANDIR_SORT_DESCENDING), array('.', '..', 'archived'));
 	$count_all_reports = sizeof($files);
 	foreach ($files as &$item) {
 		if (preg_match($regex, $item) == True) {
@@ -889,9 +894,28 @@ function deleteAllNotifications() {
 	pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0504', '', '');
 }
 
+//  Delete All Notification in WebGUI
+function deleteAllNotificationsArchive() {
+	global $pia_lang;
+
+	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
+	$reports_path = '../../reports/archived/';
+	$files = array_diff(scandir($reports_path, SCANDIR_SORT_DESCENDING), array('.', '..', 'archived'));
+	$count_all_reports = sizeof($files);
+	foreach ($files as &$item) {
+		if (preg_match($regex, $item) == True) {
+			unlink($reports_path . $item);
+		}
+	}
+	echo $count_all_reports . ' ' . $pia_lang['BE_Dev_Report_Delete'];
+	echo "<meta http-equiv='refresh' content='2; URL=./reports.php?report_source=archive'>";
+	// Logging
+	pialert_logging('a_050', $_SERVER['REMOTE_ADDR'], 'LogStr_0506', '', '');
+}
+
 // Get Report Counter
 function getReportTotals() {
-	$files = array_diff(scandir('../../reports'), array('..', '.', 'download_report.php'));
+	$files = array_diff(scandir('../../reports'), array('..', '.', 'archived'));
 	$report_counter = count($files);
 	$totals = array($report_counter);
 	echo (json_encode($totals));

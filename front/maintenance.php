@@ -6,7 +6,7 @@
 #------------------------------------------------------------------------------
 #  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
 #  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-#  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
+#  leiweibau  2024+       https://github.com/leiweibau     GNU GPLv3
 #-------------------------------------------------------------------------- -->
 
 <?php
@@ -19,6 +19,7 @@ if ($_SESSION["login"] != 1) {
 }
 
 require 'php/templates/header.php';
+require 'php/templates/maintenance_func.php';
 require 'php/server/journal.php';
 
 ?>
@@ -726,10 +727,10 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 
     <div class="box box-solid box-danger collapsed-box" style="margin-top: -15px;">
     <div class="box-header with-border" data-widget="collapse" id="configeditor_innerbox">
-           <h3 class="box-title"><?=$pia_lang['MT_ConfEditor_Hint'];?></h3>
-          <div class="box-tools pull-right">
+        <h3 class="box-title"><?=$pia_lang['MT_ConfEditor_Hint'];?></h3>
+        <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool"><i class="fa fa-plus"></i></button>
-          </div>
+        </div>
     </div>
     <div class="box-body">
            <table class="table configeditor_help">
@@ -761,6 +762,8 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span></button>
                     <h4 class="modal-title">Config Editor</h4>
+                     <input type="text" id="searchInput" placeholder="<?=$pia_lang['Device_Searchbox'];?>..." class="form-control" style="margin-top: 10px; max-width: 200px; display: inline-block;">
+                    <button type="button" id="nextButton" class="btn btn-primary" style="margin-left: 10px;">Next</button>
                 </div>
                 <div class="modal-body" style="text-align: left;">
                     <textarea class="form-control" name="txtConfigFileEditor" id="ConfigFileEditor" spellcheck="false" wrap="off" style="resize: none; font-family: monospace; height: 70vh;"><?=file_get_contents('../config/pialert.conf');?></textarea>
@@ -819,6 +822,38 @@ $(document).ready(function () {
     $(function () {
       $('[data-toggle="tooltip"]').tooltip()
     })
+
+    let searchIndex = 0;
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+        searchIndex = 0;
+        highlightNextMatch(false);
+    });
+
+    document.getElementById('nextButton').addEventListener('click', function () {
+        highlightNextMatch(false);
+    });
+
+    function highlightNextMatch() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const textarea = document.getElementById('ConfigFileEditor');
+        const text = textarea.value.toLowerCase();
+
+        if (searchText) {
+            const nextIndex = text.indexOf(searchText, searchIndex);
+            if (nextIndex !== -1) {
+                const beforeMatch = textarea.value.substring(0, nextIndex);
+                const lineHeight = textarea.scrollHeight / textarea.value.split('\n').length;
+                const lineNumber = beforeMatch.split('\n').length - 1;
+                textarea.scrollTop = lineHeight * lineNumber;
+                searchIndex = nextIndex + searchText.length;
+            } else {
+                searchIndex = 0;
+                alert('<?=$pia_lang['MT_ConfEditor_SearchEnd'];?>');
+            }
+        }
+    }
+
 });
 </script>
 

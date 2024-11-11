@@ -6,6 +6,12 @@ if ($_SESSION["login"] != 1) {
 	exit;
 }
 
+if ($_REQUEST['report_source'] == "" || $_REQUEST['report_source'] != "archive") {
+	$directory = '../reports/';
+} else {
+	$directory = '../reports/archived/';
+}
+
 require '../lib/fpdf/fpdf.php';
 $regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
 $filename = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['report']) . '.txt';
@@ -44,22 +50,22 @@ if (preg_match($regex, $filename) == True) {
 			// Line break
 			$this->Ln(4);
 		}
-		function reportContent($file) {
+		function reportContent($file,$directory) {
 			// Read text file
-			$f = fopen('../reports/' . $file, 'r');
-			$txt = fread($f, filesize('../reports/' . $file));
+			$f = fopen($directory . $file, 'r');
+			$txt = fread($f, filesize($directory . $file));
 			fclose($f);
 			$this->SetFont('Courier', '', 10);
 			$this->SetTextColor(0, 0, 0);
 			// It prints texts with line breaks
 			$this->MultiCell(0, 5, $txt);
 		}
-		function showReport($headline, $file) {
+		function showReport($headline, $file, $directory) {
 			// Add a new page
 			$this->AddPage();
 			$this->headline();
 			$this->reportTitle($headline);
-			$this->reportContent($file);
+			$this->reportContent($file,$directory);
 		}
 	}
 
@@ -71,10 +77,7 @@ if (preg_match($regex, $filename) == True) {
 // Sets the document author name
 	$pdf->SetAuthor('Pi.Alert');
 
-	$pdf->showReport(
-		$headline,
-		$filename
-	);
+	$pdf->showReport($headline, $filename, $directory);
 
 	header('Content-type: application/download');
 	header('Content-Disposition: attachment; filename="' . $downloadname . '.pdf"');

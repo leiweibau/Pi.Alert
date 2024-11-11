@@ -652,10 +652,10 @@ if ($_REQUEST['mac'] != 'Internet') {
                 <table id="tableEvents" class="table table-bordered table-hover table-striped ">
                   <thead>
                   <tr>
-                    <th><?=$pia_lang['Events_TableHead_Date'];?></th>
-                    <th><?=$pia_lang['Events_TableHead_EventType'];?></th>
-                    <th><?=$pia_lang['Events_TableHead_IP'];?></th>
-                    <th><?=$pia_lang['Events_TableHead_AdditionalInfo'];?></th>
+                    <th><?=$pia_lang['EVE_TableHead_Date'];?></th>
+                    <th><?=$pia_lang['EVE_TableHead_EventType'];?></th>
+                    <th><?=$pia_lang['EVE_TableHead_IP'];?></th>
+                    <th><?=$pia_lang['EVE_TableHead_AdditionalInfo'];?></th>
                   </tr>
                   </thead>
                 </table>
@@ -1046,13 +1046,13 @@ function initializeDatatables () {
                   '<td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw">'+
                   '</td></table>',
       emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Events_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Events_Searchbox'];?>: ",
+      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
+      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
       "paginate": {
-          "next":       "<?=$pia_lang['Events_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Events_Table_nav_prev'];?>"
+          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
+          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
       },
-      "info":           "<?=$pia_lang['Events_Table_info'];?>",
+      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     }
   });
 
@@ -1085,13 +1085,13 @@ function initializeDatatables () {
                   '<td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw">'+
                   '</td></table>',
       emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Events_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Events_Searchbox'];?>: ",
+      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
+      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
       "paginate": {
-          "next":       "<?=$pia_lang['Events_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Events_Table_nav_prev'];?>"
+          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
+          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
       },
-      "info":           "<?=$pia_lang['Events_Table_info'];?>",
+      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     }
   });
 
@@ -1126,7 +1126,7 @@ function initializeCalendar () {
     slotLabelInterval : '04:00:00',
     slotLabelFormat   : 'H:mm',
     timeFormat        : 'H:mm',
-    locale            : '<?=$pia_lang['Presence_CalHead_lang'];?>',
+    locale            : '<?=$pia_lang['PRE_CalHead_lang'];?>',
     header: {
       left            : 'prev,next today',
       center          : 'title',
@@ -1137,23 +1137,23 @@ function initializeCalendar () {
       agendaYear: {
         type               : 'agenda',
         duration           : { year: 1 },
-        buttonText         : '<?=$pia_lang['Presence_CalHead_year'];?>',
+        buttonText         : '<?=$pia_lang['PRE_CalHead_year'];?>',
         columnHeaderFormat : ''
       },
 
       agendaMonth: {
         type               : 'agenda',
         duration           : { month: 1 },
-        buttonText         : '<?=$pia_lang['Presence_CalHead_month'];?>',
+        buttonText         : '<?=$pia_lang['PRE_CalHead_month'];?>',
         columnHeaderFormat : 'D'
       },
       agendaWeek: {
-        buttonText         : '<?=$pia_lang['Presence_CalHead_week'];?>',
+        buttonText         : '<?=$pia_lang['PRE_CalHead_week'];?>',
       },
       agendaDay: {
         type              : 'agenda',
         duration          : { day: 1 },
-        buttonText        : '<?=$pia_lang['Presence_CalHead_day'];?>',
+        buttonText        : '<?=$pia_lang['PRE_CalHead_day'];?>',
         slotLabelFormat   : 'H',
         slotDuration      : '01:00:00'
       }
@@ -1589,13 +1589,13 @@ function initializeSpeedtest () {
     'language'    : {
       processing: '<table><td width="130px" align="middle">Loading...</td><td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw"></td></table>',
       emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Events_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Events_Searchbox'];?>: ",
+      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
+      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
       "paginate": {
-          "next":       "<?=$pia_lang['Events_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Events_Table_nav_prev'];?>"
+          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
+          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
       },
-      "info":           "<?=$pia_lang['Events_Table_info'];?>",
+      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     },
   });
 };

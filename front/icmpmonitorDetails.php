@@ -78,7 +78,7 @@ function set_table_headline($icmpfilter) {
 	global $pia_lang;
 
 	if ($icmpfilter == 'all') {
-		echo '<h3 class="text-aqua" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['WebServices_Events_Shortcut_All'] . '</h3>';
+		echo '<h3 class="text-aqua" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['WEBS_EVE_Shortcut_All'] . '</h3>';
 	} elseif ($icmpfilter == 'Online') {
 		echo '<h3 class="text-green" style="display: inline-block;font-size: 18px; margin: 0; line-height: 1; margin-bottom: 15px;">' . $pia_lang['ICMPMonitor_Shortcut_Online'] . '</h3>';
 	} elseif ($icmpfilter == 'Offline') {
@@ -258,7 +258,7 @@ function get_host_statistic($hostip) {
           <a href="./icmpmonitorDetails.php?hostip=<?=$hostip?>&icmpfilter=all">
             <div class="small-box bg-aqua">
               <div class="inner"> <h3 id="eventsAll"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['WebServices_Events_Shortcut_All'];?></p>
+                <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_All'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-bolt text-aqua-40"></i> </div>
             </div>
@@ -298,7 +298,7 @@ function get_host_statistic($hostip) {
               <li class=""> <a id="tabDetails" href="#panDetails" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Details'];?></a></li>
               <li class=""> <a id="tabNmap" href="#panNmap" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Nmap'];?>     </a></li>
               <li class=""> <a id="tabEvents" href="#panEvents" data-toggle="tab"> <?=$pia_lang['DevDetail_Tab_Events'];?></a></li>
-              <li class=""> <a id="tabGraph" href="#panGraph" data-toggle="tab"> <?=$pia_lang['WebServices_Tab_Graph'];?></a></li>
+              <li class=""> <a id="tabGraph" href="#panGraph" data-toggle="tab"> <?=$pia_lang['WEBS_Tab_Graph'];?></a></li>
             </ul>
 
             <div class="tab-content" style="min-height: 480px;">
@@ -411,7 +411,7 @@ function get_host_statistic($hostip) {
 
                       <!-- Notes -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['WebServices_label_Notes'];?></label>
+                        <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Notes'];?></label>
                         <div class="col-sm-9">
                           <input class="form-control" id="txtNotes" type="text" value="<?=$icmpmonitorDetails['icmp_Notes']?>">
                         </div>
@@ -427,7 +427,7 @@ function get_host_statistic($hostip) {
 
                       <!-- Last Scan -->
                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['WebServices_label_ScanTime'];?></label>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_ScanTime'];?></label>
                         <div class="col-sm-8">
                           <input class="form-control" id="txtLastScan" type="text" readonly value="<?=$icmpmonitorDetails['icmp_LastScan']?>">
                         </div>
@@ -458,7 +458,7 @@ function get_host_statistic($hostip) {
 
                       <!-- Alert events -->
                       <div class="form-group">
-                        <label class="col-xs-4 control-label"><?=$pia_lang['WebServices_label_AlertEvents'];?></label>
+                        <label class="col-xs-4 control-label"><?=$pia_lang['WEBS_label_AlertEvents'];?></label>
                         <div class="col-xs-4" style="padding-top:6px;">
                           <input class="checkbox blue" id="chkAlertEvents" <?php if ($icmpmonitorDetails['icmp_AlertEvents'] == 1) {echo 'checked';}?> type="checkbox">
                         </div>
@@ -466,7 +466,7 @@ function get_host_statistic($hostip) {
 
                       <!-- Alert Down -->
                       <div class="form-group">
-                        <label class="col-xs-4 control-label"><?=$pia_lang['WebServices_label_AlertDown'];?></label>
+                        <label class="col-xs-4 control-label"><?=$pia_lang['WEBS_label_AlertDown'];?></label>
                         <div class="col-xs-4" style="padding-top:6px;">
                           <input class="checkbox red" id="chkAlertDown" <?php if ($icmpmonitorDetails['icmp_AlertDown'] == 1) {echo 'checked';}?> type="checkbox">
                         </div>
@@ -529,9 +529,9 @@ set_table_headline($icmpfilter);
                   <thead>
                     <tr>
                       <!-- <th>Service URL</th> -->
-                      <th><?=$pia_lang['WebServices_tablehead_TargetIP'];?></th>
-                      <th><?=$pia_lang['WebServices_tablehead_ScanTime'];?></th>
-                      <th><?=$pia_lang['WebServices_tablehead_Response_Time'];?></th>
+                      <th><?=$pia_lang['WEBS_tablehead_TargetIP'];?></th>
+                      <th><?=$pia_lang['WEBS_tablehead_ScanTime'];?></th>
+                      <th><?=$pia_lang['WEBS_tablehead_Response_Time'];?></th>
                       <th><?=$pia_lang['Device_TableHead_Status'];?></th>
                     </tr>
                   </thead>
@@ -546,7 +546,7 @@ get_icmphost_events_table($hostip, $icmpfilter);
 
 <!-- Graph ------------------------------------------------------------ -->
               <div class="tab-pane fade table-responsive" id="panGraph" style="height:100%;">
-                <h4 class="text-aqua" style="font-size: 18px; margin: 0; line-height: 1; margin-bottom: 20px;"><?=$pia_lang['WebServices_Chart_a'];?> <span class="maxlogage-interval">24</span> <?=$pia_lang['WebServices_Chart_b'];?></h4>
+                <h4 class="text-aqua" style="font-size: 18px; margin: 0; line-height: 1; margin-bottom: 20px;"><?=$pia_lang['WEBS_Chart_a'];?> <span class="maxlogage-interval">24</span> <?=$pia_lang['WEBS_Chart_b'];?></h4>
                 <div class="col-md-12">
                   <div class="chart" style="height: 150px;">
                     <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
@@ -569,7 +569,7 @@ $statistic = get_host_statistic($hostip);
                 <div class="col-md-12">
 
                   <div class="row" style="margin-top: 10px;">
-                    <div class="col-sm-12" style="font-weight: 600;"><?=$pia_lang['WebServices_Stats_Time'];?>:</div>
+                    <div class="col-sm-12" style="font-weight: 600;"><?=$pia_lang['WEBS_Stats_Time'];?>:</div>
                   </div>
                   <div class="row" style="margin-top: 10px;">
                     <div class="col-sm-2" style="font-weight: 600;">24h</div>
@@ -792,13 +792,13 @@ function initializeDatatable () {
     'language'    : {
       processing: '<table><td width="130px" align="middle">Loading...</td><td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw"></td></table>',
       emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Events_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Events_Searchbox'];?>: ",
+      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
+      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
       "paginate": {
-          "next":       "<?=$pia_lang['Events_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Events_Table_nav_prev'];?>"
+          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
+          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
       },
-      "info":           "<?=$pia_lang['Events_Table_info'];?>",
+      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     },
   });
 };
@@ -847,7 +847,7 @@ function askdeleteICMPHost () {
   }
 
   // Ask delete device
-  showModalWarning ('<?=$pia_lang['WebServices_button_Delete_label'];?>', '<?=$pia_lang['WebServices_button_Delete_Warning'];?>',
+  showModalWarning ('<?=$pia_lang['WEBS_button_Delete_label'];?>', '<?=$pia_lang['WEBS_button_Delete_Warning'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteICMPHost');
 }
 
