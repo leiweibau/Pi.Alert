@@ -463,6 +463,7 @@ $pia_lang['MT_Tool_logindisable_text'] = 'The login will be deactivated. Every u
 $pia_lang['MT_Tool_logindisable_noti'] = 'Disable Login';
 $pia_lang['MT_Tool_logindisable_noti_text'] = 'Are you sure you want to deactivate the login?';
 $pia_lang['MT_ConfEditor_Start'] = 'Edit Pi.Alert Config';
+$pia_lang['MT_ConfEditor_SearchEnd'] = 'No further matches found';
 $pia_lang['MT_ConfEditor_Hint'] = 'Notes to the editor';
 $pia_lang['MT_ConfEditor_Backup'] = 'Create Backup';
 $pia_lang['MT_ConfEditor_Restore'] = 'Prev. Version';

@@ -462,6 +462,7 @@ $pia_lang['MT_Tool_logindisable_text'] = 'L&apos;accesso verrà disabilitato. Og
 $pia_lang['MT_Tool_logindisable_noti'] = 'Disabilita accesso';
 $pia_lang['MT_Tool_logindisable_noti_text'] = 'Sei sicuro di voler disabilitare l&apos;accesso?';
 $pia_lang['MT_ConfEditor_Start'] = 'Modifica configurazione Pi.Alert';
+$pia_lang['MT_ConfEditor_SearchEnd'] = 'Nessun altro risultato trovato';
 $pia_lang['MT_ConfEditor_Hint'] = 'Note sull&apos;editor';
 $pia_lang['MT_ConfEditor_Backup'] = 'Crea backup';
 $pia_lang['MT_ConfEditor_Restore'] = 'Versione precedente';

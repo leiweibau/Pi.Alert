@@ -463,6 +463,7 @@ $pia_lang['MT_Tool_logindisable_text'] = 'El inicio de sesión se desactivará. 
 $pia_lang['MT_Tool_logindisable_noti'] = 'Login desactivado.';
 $pia_lang['MT_Tool_logindisable_noti_text'] = '¿Estás seguro de que quieres desactivar el inicio de sesión?';
 $pia_lang['MT_ConfEditor_Start'] = 'Editar Pi.Alert Config';
+$pia_lang['MT_ConfEditor_SearchEnd'] = 'No se encontraron más coincidencias';
 $pia_lang['MT_ConfEditor_Hint'] = 'Notas sobre el editor';
 $pia_lang['MT_ConfEditor_Backup'] = 'Crear copia de seguridad';
 $pia_lang['MT_ConfEditor_Restore'] = 'A la última versión';
