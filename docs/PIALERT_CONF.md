@@ -71,6 +71,7 @@ I would like to give a short explanation to the individual points.
 |----------------------|------------------------------------------------------------------------------------------------------|
 | REPORT_WEBGUI        | Enables/disables the notifications about changes in the network in the web interface.                |
 | REPORT_WEBGUI_WEBMON | Enables/disables the notifications about changes in the monitored web services in the web interface. |
+| REPORT_TO_ARCHIVE    | Number of hours after which a report is moved to the archive. The value 0 disables the feature       |
 
 
 #### Mail Reporting
