@@ -26,12 +26,19 @@ To edit device information:
   - **Comments**: Type any comments for the device
 
 ## Session Info
-  - **Status**: Show device status : On-line / Off-Line
+  - **Status**: Show device status : Online / Offline
   - **First Session**: Date and time of the first connection
   - **Last Session**: Date and time of the last connection
   - **Last IP**: Last known IP used during the last connection
   - **Static IP**: Check this box to identify devices that always use the
       same IP
+
+## Network
+  - **Uplink Target**: A switch, router or similar device created on the network side.
+  - **Target Port Number**: The port number of this device to which the host is connected.
+  - **Connection Type**: Self explanatory
+  - **Link Speed**: Self explanatory
+
 
 ## Events & Alerts config
   - **Scan Cycle**: Select the scan cycle: 0, 1'
@@ -46,6 +53,8 @@ To edit device information:
       connects and disconnects)*
   - **Favorite**: Mark the device as favorite and then it will appears at the
     begining of the device list
+  - **Show on "Presence"**: The device can be hidden on the “Presence” page, 
+    e.g. to increase the overview or because presence tracking is not necessary.
 
 # Random MAC's
 <!--- --------------------------------------------------------------------- --->

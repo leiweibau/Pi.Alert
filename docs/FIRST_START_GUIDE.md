@@ -40,6 +40,9 @@ would be ICMP monitoring. However, this cannot be used to detect new devices, on
 satellite function, I offer a possibility to place a satellite in such a separate network, which independently executes scans there and 
 sends the results to a previously configured Pi.Alert instance. These satellites can also be used to detect new devices in separate networks.
 
+The "**4**" (🟪) is a link to the “docs” path in this repository
+
+
 [Next - Discreet buttons and menus](./guide/001.md)
 
 [Back to Readme](https://github.com/leiweibau/Pi.Alert)
