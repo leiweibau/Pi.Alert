@@ -11,13 +11,11 @@
   <!-- Main Footer -->
   <footer class="main-footer">
     <!-- Default to the left -->
-<?php
-echo '<span style="display:inline-block; transform: rotate(180deg)">&copy;</span> ' . $conf_data['VERSION_YEAR'] . ' Puche & leiweibau';
-?>
+    <a href="https://leiweibau.net/" target="_blank">leiweibau</a>
     <!-- To the right -->
     <div class="pull-right no-hidden-xs">
 <?php
-echo $conf_data['VERSION'] . '&nbsp;&nbsp;<small>(' . $conf_data['VERSION_DATE'] . ')</small>';
+echo 'Version: ' . $conf_data['VERSION_DATE'];
 ?>
     </div>
   </footer>

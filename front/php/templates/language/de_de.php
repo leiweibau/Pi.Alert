@@ -506,15 +506,15 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Hier kann der Installationsbefehl sowe
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Es befinden sich noch Journaleinträge im Zwischenspeicher';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
-$pia_lang['BE_Dev_Arpscan_disabled'] = 'Automatischer Arp-Scan deaktiviert.';
-$pia_lang['BE_Dev_Arpscan_enabled'] = 'Automatischer Arp-Scan aktiviert';
+$pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';
+$pia_lang['BE_Dev_Arpscan_enabled'] = 'Alle Scan-Module und Importe aktiviert';
 $pia_lang['BE_Dev_setapikey'] = 'API-Key wurde gesetzt';
 $pia_lang['BE_Dev_test_notification'] = 'Testnachricht wurde gesendet';
 $pia_lang['BE_Dev_darkmode_disabled'] = 'Heller Modus aktiviert';
 $pia_lang['BE_Dev_darkmode_enabled'] = 'Dunkler Modus aktiviert';
 $pia_lang['BE_Dev_webservicemon_disabled'] = 'Web Service Überwachung ist deaktiviert';
 $pia_lang['BE_Dev_webservicemon_enabled'] = 'Web Service Überwachung ist aktiviert';
-$pia_lang['BE_Dev_MainScan_disabled'] = 'Haupt Scan ist deaktiviert';
+$pia_lang['BE_Dev_MainScan_disabled'] = 'Haupt Scan ist deaktiviert. Importe sind weiterhin aktiv';
 $pia_lang['BE_Dev_MainScan_enabled'] = 'Haupt Scan ist aktiviert';
 $pia_lang['BE_Dev_onlinehistorygraph_disabled'] = 'Aktivitätsverlauf deaktiviert';
 $pia_lang['BE_Dev_onlinehistorygraph_enabled'] = 'Aktivitätsverlauf aktiviert';

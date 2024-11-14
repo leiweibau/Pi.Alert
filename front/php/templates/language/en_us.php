@@ -509,15 +509,15 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Here, the installation command can be 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'There are still journal entries in the cache';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
-$pia_lang['BE_Dev_Arpscan_disabled'] = 'Arp-Scan Disabled';
-$pia_lang['BE_Dev_Arpscan_enabled'] = 'Arp-Scan Enabled';
+$pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';
+$pia_lang['BE_Dev_Arpscan_enabled'] = 'All scan modules and imports enabled';
 $pia_lang['BE_Dev_setapikey'] = 'API-Key set';
 $pia_lang['BE_Dev_test_notification'] = 'Notification sent';
 $pia_lang['BE_Dev_darkmode_disabled'] = 'Darkmode Disabled';
 $pia_lang['BE_Dev_darkmode_enabled'] = 'Darkmode Enabled';
 $pia_lang['BE_Dev_webservicemon_disabled'] = 'Web Service Monitoring Disabled';
 $pia_lang['BE_Dev_webservicemon_enabled'] = 'Web Service Monitoring Enabled';
-$pia_lang['BE_Dev_MainScan_disabled'] = 'Main Scan is disabled';
+$pia_lang['BE_Dev_MainScan_disabled'] = 'Main scan is disabled. Imports are still active';
 $pia_lang['BE_Dev_MainScan_enabled'] = 'Main Scan is enabled';
 $pia_lang['BE_Dev_onlinehistorygraph_disabled'] = 'Graph disabled.';
 $pia_lang['BE_Dev_onlinehistorygraph_enabled'] = 'Graph enabled.';

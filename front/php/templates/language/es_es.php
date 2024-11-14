@@ -509,15 +509,15 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Aquí se puede preparar el comando de 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Todavía hay entradas de diario en la caché';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
-$pia_lang['BE_Dev_Arpscan_disabled'] = 'Arp-Scan Desactivado';
-$pia_lang['BE_Dev_Arpscan_enabled'] = 'Arp-Scan Activado';
+$pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';
+$pia_lang['BE_Dev_Arpscan_enabled'] = 'Todos los módulos de escaneo e importaciones activados';
 $pia_lang['BE_Dev_setapikey'] = 'API-Key set';
 $pia_lang['BE_Dev_test_notification'] = 'Notification sent';
 $pia_lang['BE_Dev_darkmode_disabled'] = 'Darkmode Desactivado';
 $pia_lang['BE_Dev_darkmode_enabled'] = 'Darkmode Activado';
 $pia_lang['BE_Dev_webservicemon_disabled'] = 'Web Service Monitoring Disabled';
 $pia_lang['BE_Dev_webservicemon_enabled'] = 'Web Service Monitoring Enabled';
-$pia_lang['BE_Dev_MainScan_disabled'] = 'El Escaneo Principal está desactivado';
+$pia_lang['BE_Dev_MainScan_disabled'] = 'El escaneo principal está desactivado. Las importaciones siguen activas';
 $pia_lang['BE_Dev_MainScan_enabled'] = 'El Escaneo Principal está activado';
 $pia_lang['BE_Dev_onlinehistorygraph_disabled'] = 'Graph disabled.';
 $pia_lang['BE_Dev_onlinehistorygraph_enabled'] = 'Graph enabled.';
