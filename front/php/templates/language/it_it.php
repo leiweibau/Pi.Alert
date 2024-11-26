@@ -508,15 +508,15 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Qui, il comando di installazione può 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Ci sono ancora voci di diario nella cache';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
-$pia_lang['BE_Dev_Arpscan_disabled'] = 'Scansione ARP automatica disattivata.';
-$pia_lang['BE_Dev_Arpscan_enabled'] = 'Scansione ARP automatica abilitata';
+$pia_lang['BE_Dev_Arpscan_disabled'] = 'Tutti i moduli di scansione e le importazioni disattivati';
+$pia_lang['BE_Dev_Arpscan_enabled'] = 'Tutti i moduli di scansione e le importazioni attivati';
 $pia_lang['BE_Dev_setapikey'] = 'Chiave API impostata';
 $pia_lang['BE_Dev_test_notification'] = 'Messaggio di test inviato';
 $pia_lang['BE_Dev_darkmode_disabled'] = 'Modalità scura disattivata';
 $pia_lang['BE_Dev_darkmode_enabled'] = 'Modalità scura abilitata';
 $pia_lang['BE_Dev_webservicemon_disabled'] = 'Monitoraggio del servizio web disattivato';
 $pia_lang['BE_Dev_webservicemon_enabled'] = 'Monitoraggio del servizio web abilitato';
-$pia_lang['BE_Dev_MainScan_disabled'] = 'Scansione principale disattivata';
+$pia_lang['BE_Dev_MainScan_disabled'] = 'La scansione principale è disattivata. Le importazioni restano attive';
 $pia_lang['BE_Dev_MainScan_enabled'] = 'Scansione principale abilitata';
 $pia_lang['BE_Dev_onlinehistorygraph_disabled'] = 'Cronologia dell&apos;attività online disattivata';
 $pia_lang['BE_Dev_onlinehistorygraph_enabled'] = 'Cronologia dell&apos;attività online abilitata';

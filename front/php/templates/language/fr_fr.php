@@ -506,15 +506,15 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Ici, la commande d&apos;installation p
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Il y a encore des entrées de journal dans le cache';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
-$pia_lang['BE_Dev_Arpscan_disabled'] = 'arp-scan automatique désactivé.';
-$pia_lang['BE_Dev_Arpscan_enabled'] = 'arp-scan automatique activé.';
+$pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';
+$pia_lang['BE_Dev_Arpscan_enabled'] = 'Tous les modules de scan et les importations activés';
 $pia_lang['BE_Dev_setapikey'] = 'La clé API a été définie';
 $pia_lang['BE_Dev_test_notification'] = 'Le message de test a été envoyé';
 $pia_lang['BE_Dev_darkmode_disabled'] = 'Mode clair activé.';
 $pia_lang['BE_Dev_darkmode_enabled'] = 'Mode sombre activé.';
 $pia_lang['BE_Dev_webservicemon_disabled'] = 'Web Service Monitoring Disabled';
 $pia_lang['BE_Dev_webservicemon_enabled'] = 'Web Service Monitoring Enabled';
-$pia_lang['BE_Dev_MainScan_disabled'] = 'La numérisation principale est désactivée';
+$pia_lang['BE_Dev_MainScan_disabled'] = 'Le scan principal est désactivé. Les importations restent actives';
 $pia_lang['BE_Dev_MainScan_enabled'] = 'La numérisation principale est activée';
 $pia_lang['BE_Dev_onlinehistorygraph_disabled'] = 'Historique d&apos;activité désactivé.';
 $pia_lang['BE_Dev_onlinehistorygraph_enabled'] = 'Historique d&apos;activité activé.';
