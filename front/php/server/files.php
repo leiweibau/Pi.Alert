@@ -209,6 +209,8 @@ function SaveConfigFile() {
 		    $configArray['NETWORK_DNS_SERVER'] = $configArray['NETWORK_DNS_SERVER'];
 		} else {$configArray['NETWORK_DNS_SERVER'] = "localhost";}
 	}
+	# Fix install script error 26.11.2024
+	if (!is_numeric($configArray['REPORT_TO_ARCHIVE'])) {$configArray['REPORT_TO_ARCHIVE'] = 0;}
 
 
 	$config_template = "# General Settings
