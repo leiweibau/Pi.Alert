@@ -43,12 +43,12 @@
 
   FIRST_SCAN_KNOWN=true
   
-  REPORT_MAIL=False
-  REPORT_TO=user@gmail.com
-  SMTP_SERVER=smtp.gmail.com
-  SMTP_PORT=587
-  SMTP_USER=user@gmail.com
-  SMTP_PASS=password
+  # REPORT_MAIL=False
+  # REPORT_TO=user@gmail.com
+  # SMTP_SERVER=smtp.gmail.com
+  # SMTP_PORT=587
+  # SMTP_USER=user@gmail.com
+  # SMTP_PASS=password
   
   DDNS_ACTIVE=False
   DDNS_DOMAIN='your_domain.freeddns.org'
@@ -176,29 +176,29 @@ ask_config() {
             "Do you want to mark the new devices as known devices during the first scan?" "YES"
   FIRST_SCAN_KNOWN=$ANSWER
 
-  # Ask e-mail notification config
-  MAIL_REPORT=false
-  ask_yesno "Pi.Alert can notify you by e-mail when a network event occurs" \
-            "Do you want to activate this feature ?"
-  if $ANSWER ; then
-    ask_yesno "e-mail notification needs a SMTP server (i.e. smtp.gmail.com)" \
-              "Do you want to continue activating this feature ?"
-    MAIL_REPORT=$ANSWER
-  fi
+  # # Ask e-mail notification config
+  # MAIL_REPORT=false
+  # ask_yesno "Pi.Alert can notify you by e-mail when a network event occurs" \
+  #           "Do you want to activate this feature ?"
+  # if $ANSWER ; then
+  #   ask_yesno "e-mail notification needs a SMTP server (i.e. smtp.gmail.com)" \
+  #             "Do you want to continue activating this feature ?"
+  #   MAIL_REPORT=$ANSWER
+  # fi
 
-  if $MAIL_REPORT ; then
-    ask_input "" "Notify alert to this e-mail address:" "user@gmail.com"
-    REPORT_TO=$ANSWER
+  # if $MAIL_REPORT ; then
+  #   ask_input "" "Notify alert to this e-mail address:" "user@gmail.com"
+  #   REPORT_TO=$ANSWER
 
-    ask_input "" "SMTP server:" "smtp.gmail.com"
-    SMTP_SERVER=$ANSWER
+  #   ask_input "" "SMTP server:" "smtp.gmail.com"
+  #   SMTP_SERVER=$ANSWER
 
-    ask_input "" "SMTP user:" "user@gmail.com"
-    SMTP_USER=$ANSWER
+  #   ask_input "" "SMTP user:" "user@gmail.com"
+  #   SMTP_USER=$ANSWER
 
-    ask_input "" "SMTP password:" "password"
-    SMTP_PASS=$ANSWER
-  fi
+  #   ask_input "" "SMTP password:" "password"
+  #   SMTP_PASS=$ANSWER
+  # fi
 
   # Ask Dynamic DNS config
   DDNS_ACTIVE=false
@@ -498,12 +498,12 @@ configure_pialert() {
 
   set_pialert_parameter PIALERT_PATH    "'$PIALERT_HOME'"
   
-  set_pialert_parameter REPORT_MAIL     "$REPORT_MAIL"
-  set_pialert_parameter REPORT_TO       "'$REPORT_TO'"
-  set_pialert_parameter SMTP_SERVER     "'$SMTP_SERVER'"
-  set_pialert_parameter SMTP_PORT       "$SMTP_PORT"
-  set_pialert_parameter SMTP_USER       "'$SMTP_USER'"
-  set_pialert_parameter SMTP_PASS       "'$SMTP_PASS'"
+  # set_pialert_parameter REPORT_MAIL     "$REPORT_MAIL"
+  # set_pialert_parameter REPORT_TO       "'$REPORT_TO'"
+  # set_pialert_parameter SMTP_SERVER     "'$SMTP_SERVER'"
+  # set_pialert_parameter SMTP_PORT       "$SMTP_PORT"
+  # set_pialert_parameter SMTP_USER       "'$SMTP_USER'"
+  # set_pialert_parameter SMTP_PASS       "'$SMTP_PASS'"
 
   set_pialert_parameter DDNS_ACTIVE     "$DDNS_ACTIVE"
   set_pialert_parameter DDNS_DOMAIN     "'$DDNS_DOMAIN'"
