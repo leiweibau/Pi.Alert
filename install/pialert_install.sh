@@ -494,7 +494,7 @@ download_pialert() {
 # Configure Pi.Alert parameters
 # ------------------------------------------------------------------------------
 configure_pialert() {
-  print_msg "- Settting Pi.Alert config file"
+  print_msg "- Setting Pi.Alert config file"
 
   set_pialert_parameter PIALERT_PATH    "'$PIALERT_HOME'"
   
