@@ -414,6 +414,34 @@ fi
 #  DB DDL
 # ------------------------------------------------------------------------------
 update_db() {
+  print_msg "- Create user_vendors.txt if not exists..."
+  CUSTOM_VENDORFILE="$PIALERT_HOME/db/user_vendors.txt"
+
+  if [ ! -f "$CUSTOM_VENDORFILE" ]; then
+      cat <<EOL > "$CUSTOM_VENDORFILE"
+# Syntax
+#
+# <MAC-Prefix><TAB><Vendor>
+# 010B45DH\tYour Hardware Vendor
+#
+# Where <MAC-Prefix> is the prefix of the MAC address in hex, and <Vendor>
+# is the name of the vendor. The prefix must have a length of 8 hex 
+# digits. This makes it easier to filter the correct entry.
+#
+# The order of entries in this file are not important.
+#
+# If a manufacturer can already be assigned during the arp-scan, entries 
+# in this file have no relevance. However, if the Mac address in question 
+# cannot be assigned to a manufacturer using the arp-scan vendor database,
+# this file can be used for assignment.
+#
+#
+EOL
+
+  else
+      print_msg "- 'user_vendors.txt' already exists"
+  fi
+
   print_msg "- Updating DB permissions..."
   sudo chgrp -R www-data $PIALERT_HOME/db                         2>&1 >> "$LOG"
   sudo chmod -R 775 $PIALERT_HOME/db                              2>&1 >> "$LOG"
