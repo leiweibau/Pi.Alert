@@ -422,7 +422,7 @@ update_db() {
 # Syntax
 #
 # <MAC-Prefix><TAB><Vendor>
-# 010B45DH\tYour Hardware Vendor
+# 010B45DH      Your Hardware Vendor
 #
 # Where <MAC-Prefix> is the prefix of the MAC address in hex, and <Vendor>
 # is the name of the vendor. The prefix must have a length of 8 hex 

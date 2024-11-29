@@ -66,7 +66,7 @@ function get_service_events_table($service_URL, $service_filter) {
 		$filter_sql = 'AND moneve_Latency="99999999"';
 	}
 
-	$moneve_res = $db->query('SELECT * FROM Services_Events WHERE moneve_URL="' . $service_URL . '"' . $filter_sql);
+	$moneve_res = $db->query('SELECT * FROM Services_Events WHERE moneve_URL="' . $service_URL . '"' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000');
 	while ($row = $moneve_res->fetchArray()) {
 		if ($row['moneve_TargetIP'] == '') {$func_TargetIP = 'n.a.';} else {
 			$func_TargetIP = $row['moneve_TargetIP'];

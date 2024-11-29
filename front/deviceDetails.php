@@ -159,20 +159,20 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 
                       <!-- MAC -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtMAC" type="text" readonly value="--"></div>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
+                        <div class="col-sm-8"><input class="form-control" id="txtMAC" type="text" readonly value="--"></div>
                       </div>
 
                       <!-- Name -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Name'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtName" type="text" value="--"></div>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Name'];?></label>
+                        <div class="col-sm-8"><input class="form-control" id="txtName" type="text" value="--"></div>
                       </div>
 
                       <!-- Owner -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Owner'];?></label>
-                        <div class="col-sm-9">
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Owner'];?></label>
+                        <div class="col-sm-8">
                           <div class="input-group">
                             <input class="form-control" id="txtOwner" type="text" value="--">
                             <div class="input-group-btn">
@@ -187,8 +187,8 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 
                       <!-- Type -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Type'];?></label>
-                        <div class="col-sm-9">
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Type'];?></label>
+                        <div class="col-sm-8">
                           <div class="input-group">
                             <input class="form-control" id="txtDeviceType" type="text" value="--">
                             <div class="input-group-btn">
@@ -207,26 +207,26 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 
                       <!-- Vendor -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Vendor'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtVendor" type="text" value="--"></div>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Vendor'];?></label>
+                        <div class="col-sm-8"><input class="form-control" id="txtVendor" type="text" value="--"></div>
                       </div>
 
                       <!-- Model -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Model'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtModel" type="text" value="--"></div>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Model'];?></label>
+                        <div class="col-sm-8"><input class="form-control" id="txtModel" type="text" value="--"></div>
                       </div>
 
                       <!-- Serialnumber -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Serialnumber'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtSerialnumber" type="text" value="--"></div>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Serialnumber'];?></label>
+                        <div class="col-sm-8"><input class="form-control" id="txtSerialnumber" type="text" value="--"></div>
                       </div>
 
                       <!-- Group -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Group'];?></label>
-                        <div class="col-sm-9">
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Group'];?></label>
+                        <div class="col-sm-8">
                           <div class="input-group">
                             <input class="form-control" id="txtGroup" type="text" value="--">
                             <div class="input-group-btn">
@@ -246,8 +246,8 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 
                       <!-- Location -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Location'];?></label>
-                        <div class="col-sm-9">
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Location'];?></label>
+                        <div class="col-sm-8">
                           <div class="input-group">
                             <input class="form-control" id="txtLocation" type="text" value="--">
                             <div class="input-group-btn">
@@ -265,6 +265,12 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                             </div>
                           </div>
                         </div>
+                      </div>
+
+                      <!-- Favorite -->
+                      <div class="form-group">
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Favorite'];?></label>
+                        <div class="col-sm-8" style="padding-top:6px;"><input class="checkbox blue hidden" id="chkFavorite" type="checkbox"></div>
                       </div>
 
                       <!-- Comments -->
@@ -455,12 +461,6 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                       <div class="form-group">
                         <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_EveandAl_NewDevice'];?>:</label>
                         <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox orange hidden" id="chkNewDevice" type="checkbox"></div>
-                      </div>
-
-                      <!-- Favorite -->
-                      <div class="form-group">
-                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_MainInfo_Favorite'];?></label>
-                        <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox blue hidden" id="chkFavorite" type="checkbox"></div>
                       </div>
 
                       <!-- Archived -->
