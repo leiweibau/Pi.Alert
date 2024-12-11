@@ -2,7 +2,7 @@
 session_start();
 
 if ($_SESSION["login"] != 1) {
-	header('Location: ./index.php');
+	header('Location: ../../index.php');
 	exit;
 }
 ?>
@@ -69,14 +69,11 @@ if ($_SESSION["login"] != 1) {
             const host = window.location.host;        // z. B. "demo.host:8080"
             const path = window.location.pathname;    // z. B. "/subdir/script.php"
 
-            // Verzeichnis des aktuellen Skripts
-            const scriptDir = path.substring(0, path.lastIndexOf('/') + 1);
+            const scriptDir = path.substring(0, path.lastIndexOf('/') + 1).replace('php/debugging/', '');
 
-            // Zusammensetzen der Basis-URL
             return `${protocol}//${host}${scriptDir}`;
         }
 
-        // Basis-URL ermitteln
         const baseUrl = getBaseUrl();
 
 		const pialertDiv = document.getElementById("pialert_url");
@@ -159,10 +156,10 @@ if ($_SESSION["login"] != 1) {
         async function checkJson(url, listElement) {
             totalTests++;
             try {
-                // Abrufen der URL
+                // call URL
                 const response = await fetch(url);
 
-                // Überprüfen des HTTP-Statuscodes
+                // check HTTP status codes
                 if (!response.ok) {
                     failedTests++;
                     const listItem = document.createElement("li");
@@ -171,7 +168,7 @@ if ($_SESSION["login"] != 1) {
                     return;
                 }
 
-                // Versuchen, die Antwort als JSON zu parsen
+                // try to parse JSON
                 await response.json();
                 passedTests++;
                 const listItem = document.createElement("li");
