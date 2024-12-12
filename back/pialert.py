@@ -2185,7 +2185,8 @@ def update_devices_data_from_scan():
 
     recordsToUpdate = []
     query = """SELECT * FROM Devices
-               WHERE dev_Vendor = '(unknown)' OR dev_Vendor =''
+               WHERE dev_Vendor = '(unknown)' OR dev_Vendor = ''
+                  OR dev_Vendor = '(Unknown: locally administered)'
                   OR dev_Vendor IS NULL"""
 
     for device in sql.execute (query) :
