@@ -341,7 +341,7 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
 <!-- SelfCheck JSON ----------------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                    <a href="./test_json_calls.php">
+                                    <a href="./php/debugging/test_json_calls.php">
                                         <button type="button" class="btn btn-default dbtools-button">Test Main JSON Calls</button>
                                     </a>
                                 </div>
