@@ -209,6 +209,8 @@ function SaveConfigFile() {
 		    $configArray['NETWORK_DNS_SERVER'] = $configArray['NETWORK_DNS_SERVER'];
 		} else {$configArray['NETWORK_DNS_SERVER'] = "localhost";}
 	}
+	# Fix install script error 26.11.2024
+	if (!is_numeric($configArray['REPORT_TO_ARCHIVE'])) {$configArray['REPORT_TO_ARCHIVE'] = 0;}
 
 
 	$config_template = "# General Settings
@@ -595,7 +597,7 @@ function PurgeDBBackups() {
 	// Clean DB Backups
 	$Pia_Archive_Path = '../../../db';
 	$Pia_Backupfiles = array();
-	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.db', 'temp', 'GeoLite2-Country.mmdb', 'pialert.db-shm', 'pialert.db-wal', 'pialertcsv.zip'));
+	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.db', 'temp', 'GeoLite2-Country.mmdb', 'pialert.db-shm', 'pialert.db-wal', 'pialertcsv.zip', 'user_vendors.txt'));
 	foreach ($files as &$item) {
 		$item = $Pia_Archive_Path . '/' . $item;
 		if (stristr($item, 'setting_') == '') {array_push($Pia_Backupfiles, $item);}

@@ -334,6 +334,22 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                     <td class="db_info_table_cell db_tools_table_cell_b text-danger">' . $pia_lang['MT_Tool_logindisable_text'] . '</td>';}
 ?>
                 </tr>
+                <tr><td colspan="2"><h4 class="bottom-border-aqua">Advanced</h4></td></tr>
+                <tr class="table_settings_row">
+                    <td class="db_info_table_cell" colspan="2" style="padding-bottom: 20px;">
+                        <div style="display: flex; justify-content: center; flex-wrap: wrap;">
+<!-- SelfCheck JSON ----------------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <a href="./php/debugging/test_json_calls.php">
+                                        <button type="button" class="btn btn-default dbtools-button">Test Main JSON Calls</button>
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </td>
+                </tr>
             </table>
         </div>
         <div class="tab-pane <?=$pia_tab_gui;?>" id="tab_GUI">

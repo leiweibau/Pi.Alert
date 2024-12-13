@@ -56,12 +56,14 @@ function get_icmphost_events_table($icmp_ip, $icmpfilter) {
 	} elseif ($icmpfilter == 'Offline') {
 		$filter_sql = 'AND icmpeve_Present=0';
 	}
+	//$icmp_res = $db->query('SELECT rowid,* FROM ICMP_Mon WHERE icmp_ip="' . $icmp_ip . '"');
+	
 	$icmp_res = $db->query('SELECT rowid,* FROM ICMP_Mon WHERE icmp_ip="' . $icmp_ip . '"');
 	while ($rowa = $icmp_res->fetchArray(SQLITE3_ASSOC)) {
 		$icmp_hostname = $rowa['icmp_hostname'];
 	}
 
-	$icmpeve_res = $db->query('SELECT * FROM ICMP_Mon_Events WHERE icmpeve_ip="' . $icmp_ip . '"' . $filter_sql);
+	$icmpeve_res = $db->query('SELECT * FROM ICMP_Mon_Events WHERE icmpeve_ip="' . $icmp_ip . '"' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000');
 	while ($row = $icmpeve_res->fetchArray()) {
 		if ($icmp_hostname != "" && strlen($icmp_hostname) > 0) {$icmpeve_ip = $icmp_hostname;} else { $icmpeve_ip = $row['icmpeve_ip'];}
 		echo '<tr>

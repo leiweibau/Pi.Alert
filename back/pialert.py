@@ -709,25 +709,81 @@ def update_devices_MAC_vendors (pArg = ''):
 
 #-------------------------------------------------------------------------------
 def query_MAC_vendor(pMAC):
-    try :
+    try:
         pMACstr = str(pMAC)
 
         # Check MAC parameter
-        mac = pMACstr.replace (':','')
-        if len(pMACstr) != 17 or len(mac) != 12 :
+        mac = pMACstr.replace(':', '')
+        if len(pMACstr) != 17 or len(mac) != 12:
             return -2
 
-        # Search vendor in HW Vendors DB
-        mac = mac[0:6]
-        grep_args = ['grep', '-i', mac, VENDORS_DB]
-        grep_output = subprocess.check_output (grep_args)
+        # Custom Vendor List
+        mac_prefix = mac[0:8]
+        user_vendors_file = PIALERT_DB_PATH + '/user_vendors.txt'
+        if os.path.exists(user_vendors_file):
+            grep_args = ['grep', '-i', mac_prefix, user_vendors_file]
+            result = subprocess.run(grep_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            result = subprocess.CompletedProcess(args=None, returncode=1, stdout=b'', stderr=b'')
 
-        # Return Vendor
-        vendor = grep_output[7:]
-        return vendor.rstrip()
+        if result.returncode != 0:
+            # Query public Vendor list
+            mac_prefix = mac[0:6]
+            grep_args = ['grep', '-i', mac_prefix, VENDORS_DB]
+            result = subprocess.run(grep_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode != 0:
+                grep_output = []  # no results
+            else:
+                grep_output = result.stdout.decode().splitlines()
+                vendor_start_index = 7
 
-    # not Found
-    except subprocess.CalledProcessError :
+            # Additional query for multiple hits
+            if len(grep_output) > 1:
+                mac_prefix = mac[0:7]
+                grep_args = ['grep', '-i', mac_prefix, VENDORS_DB]
+                result = subprocess.run(grep_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if result.returncode != 0:
+                    grep_output = []  # no results
+                else:
+                    grep_output = result.stdout.decode().splitlines()
+                    vendor_start_index = 8
+
+            # Further specification 1
+            if len(grep_output) > 1:
+                mac_prefix = mac[0:8]
+                grep_args = ['grep', '-i', mac_prefix, VENDORS_DB]
+                result = subprocess.run(grep_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if result.returncode != 0:
+                    grep_output = []  # no results
+                else:
+                    grep_output = result.stdout.decode().splitlines()
+                    vendor_start_index = 9
+
+            # Further specification 2
+            if len(grep_output) > 1:
+                mac_prefix = mac[0:9]
+                grep_args = ['grep', '-i', mac_prefix, VENDORS_DB]
+                result = subprocess.run(grep_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if result.returncode != 0:
+                    grep_output = []  # no results
+                else:
+                    grep_output = result.stdout.decode().splitlines()
+                    vendor_start_index = 10
+
+        else:
+            grep_output = result.stdout.decode().splitlines()
+            vendor_start_index = 9
+
+        # no results
+        if not grep_output:
+            return -1
+
+        # return Vendor
+        vendor_line = grep_output[0]
+        vendor = vendor_line[vendor_start_index:].strip()
+        return vendor
+
+    except subprocess.CalledProcessError:
         return -1
 
 #===============================================================================
@@ -2129,7 +2185,8 @@ def update_devices_data_from_scan():
 
     recordsToUpdate = []
     query = """SELECT * FROM Devices
-               WHERE dev_Vendor = '(unknown)' OR dev_Vendor =''
+               WHERE dev_Vendor = '(unknown)' OR dev_Vendor = ''
+                  OR dev_Vendor = '(Unknown: locally administered)'
                   OR dev_Vendor IS NULL"""
 
     for device in sql.execute (query) :
@@ -3593,7 +3650,7 @@ def email_reporting():
                    WHERE dev_NewDevice = 1
                 """,(preset_events, preset_down,))
 
-    print('    Notifications:', sql.rowcount)
+    # print('    Notifications:', sql.rowcount)
 
     sql_connection.commit()
 
