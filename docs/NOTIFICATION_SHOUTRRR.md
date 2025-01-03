@@ -1,6 +1,8 @@
 ## Implementation notes
 
-This fork comes with 3 binaries of "shoutrrr" (arm64, armhf and x86). Depending on the system you use Pi.Alert on, you have to define in the configuration file in the parameter "SHOUTRRR_BINARY" which binary should be used.
+I use "shoutrrrr" because it offers a user-friendly wizard to determine the necessary parameters for the various services. Despite the large number of services supported by "shoutrrrr", Pi.Alert currently only supports notification via "Telegram".
+
+Pi.Alert comes with 3 binaries of "shoutrrr" (arm64, armhf and x86). Depending on the system you use Pi.Alert on, you have to define in the configuration file in the parameter "SHOUTRRR_BINARY" which binary should be used.
 
 [Shoutrrr Documentation - Telegram](https://containrrr.dev/shoutrrr/v0.8/services/telegram/)
 
