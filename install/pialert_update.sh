@@ -545,6 +545,7 @@ check_python_version() {
     check_and_install_package "fritzconnection"
     check_and_install_package "routeros_api"
     check_and_install_package "pyunifi"
+    check_and_install_package "openwrt-luci-rpc"
   else
     print_msg "Python 3 NOT installed"
     process_error "Python 3 is required for this application"

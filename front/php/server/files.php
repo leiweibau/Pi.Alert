@@ -382,6 +382,13 @@ UNIFI_USER                 = '" . $configArray['UNIFI_USER'] . "'
 UNIFI_PASS                 = '" . $configArray['UNIFI_PASS'] . "'
 # Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
 
+# OpenWRT Configuration
+# ----------------------
+OPENWRT_ACTIVE            = " . convert_bool($configArray['OPENWRT_ACTIVE']) . "
+OPENWRT_IP                = '" . $configArray['OPENWRT_IP'] . "'
+OPENWRT_USER              = '" . $configArray['OPENWRT_USER'] . "'
+OPENWRT_PASS              = '" . $configArray['OPENWRT_PASS'] . "'
+
 # Satellite Configuration
 # -----------------------
 SATELLITE_PROXY_MODE       = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "

@@ -844,6 +844,13 @@ def scan_network():
     openDB()
     print_log ('UniFi copy starts...')
     read_unifi_clients()
+
+    # OpenWRT
+    print('    OpenWRT Method...')
+    openDB()
+    print_log ('OpenWRT copy starts...')
+    read_openwrt_clients()
+
     # Import Satellites Scans
     print('    Satellite Import...')
     get_satellite_scans()
@@ -1238,7 +1245,11 @@ def read_fritzbox_active_hosts():
         print('        ...Skipped')
         return
 
-    from fritzconnection.lib.fritzhosts import FritzHosts
+    try:
+        from fritzconnection.lib.fritzhosts import FritzHosts
+    except:
+        print('        Missing python package')
+        return
 
     # copy Fritzbox Network list
     fh = FritzHosts(address=FRITZBOX_IP, user=FRITZBOX_USER, password=FRITZBOX_PASS)
@@ -1275,8 +1286,11 @@ def read_mikrotik_leases():
         print('        ...Skipped')
         return
 
-    #installed using pip3 install routeros_api
-    import routeros_api
+    try:
+        import routeros_api
+    except:
+        print('        Missing python package')
+        return
 
     data = []
     conn = routeros_api.RouterOsApiPool(MIKROTIK_IP, MIKROTIK_USER, MIKROTIK_PASS, plaintext_login=True)
@@ -1314,7 +1328,11 @@ def read_unifi_clients():
         print('        ...Skipped')
         return
 
-    from pyunifi.controller import Controller
+    try:
+        from pyunifi.controller import Controller
+    except:
+        print('        Missing python package')
+        return
 
     # Enable self signed SSL / no warnings
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -1337,13 +1355,50 @@ def read_unifi_clients():
                 try:
                     vendor = MacLookup().lookup(mac)
                 except:
-                    vendor = "Prefix is not registered"
+                    vendor = "(unknown)"
 
             sql.execute ("INSERT INTO Unifi_Network (UF_MAC, UF_IP, UF_Name, UF_Vendor) "+
                          "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
 
     except Exception as e:
         print('        Could not connect to UniFi Controller')
+
+#-------------------------------------------------------------------------------
+def read_openwrt_clients():
+    # create table if not exists
+    sql_create_table = """ CREATE TABLE IF NOT EXISTS Openwrt_Network(
+                                "OWRT_MAC" STRING(50) NOT NULL COLLATE NOCASE,
+                                "OWRT_IP" STRING(50) COLLATE NOCASE,
+                                "OWRT_Name" STRING(50),
+                                "OWRT_Vendor" STRING(250)
+                            ); """
+    sql.execute(sql_create_table)
+    sql_connection.commit()
+
+    # empty Fritzbox Network table
+    sql.execute ("DELETE FROM Openwrt_Network")
+
+    if not OPENWRT_ACTIVE:
+        print('        ...Skipped')
+        return
+
+    try:
+        from openwrt_luci_rpc import OpenWrtRpc
+    except:
+        print('        Missing python package')
+        return
+
+    router = OpenWrtRpc(str(OPENWRT_IP), str(OPENWRT_USER), str(OPENWRT_PASS))
+    result = router.get_all_connected_devices(only_reachable=True)
+
+    print(result)
+
+    # for device in result:
+    #    mac = device.mac
+    #    name = device.hostname
+
+    #    # convert class to a dict
+    #    device_dict = device._asdict()
 
 #-------------------------------------------------------------------------------
 def read_DHCP_leases():
