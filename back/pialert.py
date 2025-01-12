@@ -1835,31 +1835,25 @@ def print_scan_stats():
                     WHERE cur_ScanCycle = ? """,
                     (cycle,))
     print('    Devices Detected.......:', str (sql.fetchone()[0]) )
-    # Devices arp-scan
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='arp-scan' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        arp-scan Method....:', str (sql.fetchone()[0]) )
-    # Devices Pi-hole
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='Pi-hole' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        Pi-hole Method.....: +' + str (sql.fetchone()[0]) )
-    # Devices Fritzbox
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='Fritzbox' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        Fritzbox Method....: +' + str (sql.fetchone()[0]) )
-    # Devices Mikrotik
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='Mikrotik' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        Mikrotik Method....: +' + str (sql.fetchone()[0]) )
-    # Devices UniFi
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='UniFi' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        UniFi Method.......: +' + str (sql.fetchone()[0]) )
+
+    scan_methods = [
+        "arp-scan",
+        "Pi-hole",
+        "Fritzbox",
+        "Mikrotik",
+        "UniFi",
+        "OpenWRT"
+    ]
+
+    # Count devices for each method and output if count > 0
+    for method in scan_methods:
+        sql.execute("""SELECT COUNT(*) FROM CurrentScan
+                       WHERE cur_ScanMethod = ? AND cur_ScanCycle = ?""",
+                    (method, cycle))
+        count = sql.fetchone()[0]
+        if count > 0:
+            print(f'        {method} Method: +{count}')
+
     # New Devices
     sql.execute ("""SELECT COUNT(*) FROM CurrentScan
                     WHERE cur_ScanCycle = ? 
