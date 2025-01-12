@@ -1661,33 +1661,12 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                     (cycle,
                      (int(startTime.strftime('%s')) - 60 * p_cycle_interval),
                      cycle) )
-
-    # Insert Fritzbox devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, FB_MAC, FB_IP, FB_Vendor, 'Fritzbox'
-                    FROM Fritzbox_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = FB_MAC )""",
-                    (cycle) )
-
-    # Insert Mikrotik devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, MT_MAC, MT_IP, MT_Vendor, 'Mikrotik'
-                    FROM Mikrotik_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = MT_MAC )""",
-                    (cycle) )
-
-    # Insert UniFi devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, UF_MAC, UF_IP, UF_Vendor, 'UniFi'
-                    FROM Unifi_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = UF_MAC )""",
-                    (cycle) )
+    
+    # External source import
+    insert_ext_sources(sql, cycle, 'Fritzbox_Network', 'FB_MAC', 'FB_IP', 'FB_Vendor', 'Fritzbox')
+    insert_ext_sources(sql, cycle, 'Mikrotik_Network', 'MT_MAC', 'MT_IP', 'MT_Vendor', 'Mikrotik')
+    insert_ext_sources(sql, cycle, 'Unifi_Network', 'UF_MAC', 'UF_IP', 'UF_Vendor', 'UniFi')
+    insert_ext_sources(sql, cycle, 'Openwrt_Network', 'OWRT_MAC', 'OWRT_IP', 'OWRT_Vendor', 'OpenWRT')
 
     # Insert Satellite devices
     sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
@@ -1721,6 +1700,16 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     if sql.fetchone()[0] == 0 :
         sql.execute ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod) "+
                      "VALUES ( ?, ?, ?, Null, 'local_MAC') ", (cycle, local_mac, local_ip) )
+
+#-------------------------------------------------------------------------------
+def insert_ext_sources(sql, cycle, network_table, mac_column, ip_column, vendor_column, scan_method):
+    sql.execute(f"""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
+                        cur_IP, cur_Vendor, cur_ScanMethod)
+                    SELECT ?, {mac_column}, {ip_column}, {vendor_column}, ?
+                    FROM {network_table}
+                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
+                                      WHERE cur_MAC = {mac_column} )""",
+                (cycle, scan_method))
 
 #-------------------------------------------------------------------------------
 def dump_all_resulttables():
