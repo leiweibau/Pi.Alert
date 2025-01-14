@@ -815,44 +815,34 @@ def scan_network():
     #arpscan_retries = scanCycle_data['cic_arpscanCycles']
     # arp-scan command
     print('\nScanning...')
-    print('    arp-scan Method...')
     print_log ('arp-scan starts...')
     arpscan_devices = execute_arpscan()
     print_log ('arp-scan ends')
     # Pi-hole
-    print(f"    Pi-hole {PIHOLE_VERSION} Client List Method...")
     openDB()
     print_log ('Pi-hole copy starts...')
     copy_pihole_network()
     # DHCP Leases
-    print(f"    Pi-hole {PIHOLE_VERSION} DHCP Leases Method...")
     read_DHCP_leases()
     if PIHOLE6_SES_VALID==True:
         pihole_six_api_deauth()
     # Fritzbox
-    print('    Fritzbox Method...')
     openDB()
     print_log ('Fritzbox copy starts...')
     read_fritzbox_active_hosts()
     # Mikrotik
-    print('    Mikrotik Method...')
     openDB()
     print_log ('Mikrotik copy starts...')
     read_mikrotik_leases()
     # UniFi
-    print('    UniFi Method...')
     openDB()
     print_log ('UniFi copy starts...')
     read_unifi_clients()
-
     # OpenWRT
-    print('    OpenWRT Method...')
     openDB()
     print_log ('OpenWRT copy starts...')
     read_openwrt_clients()
-
     # Import Satellites Scans
-    print('    Satellite Import...')
     get_satellite_scans()
     # Load current scan data 1/2
     print('\nProcessing scan results...')
@@ -963,21 +953,22 @@ def execute_arpscan():
 
     # check if arp-scan is active
     if not ARPSCAN_ACTIVE:
-        print('        ...Skipped')
         unique_devices = []
         return unique_devices
+
+    print('    arp-scan Method...')
 
     # output of possible multiple interfaces
     arpscan_output = ""
 
     # multiple interfaces
     if type(SCAN_SUBNETS) is list:
-        print("    arp-scan: Multiple interfaces")
+        print("        ...arp-scan: Multiple interfaces")
         for interface in SCAN_SUBNETS :
             arpscan_output += execute_arpscan_on_interface (interface)
     # one interface only
     else:
-        print("    arp-scan: One interface")
+        print("        ...arp-scan: One interface")
         arpscan_output += execute_arpscan_on_interface (SCAN_SUBNETS)
 
     # Search IP + MAC + Vendor as regular expresion
@@ -1026,8 +1017,9 @@ def copy_pihole_network():
 
     # check if Pi-hole is active
     if not PIHOLE_ACTIVE :
-        print("        ...Skipped")
         return
+
+    print(f"    Pi-hole {PIHOLE_VERSION} Client List Method...")
 
     if PIHOLE_VERSION in (None, 5):
         copy_pihole_network_five()
@@ -1242,8 +1234,9 @@ def read_fritzbox_active_hosts():
 
     # check if Pi-hole is active
     if not FRITZBOX_ACTIVE :
-        print('        ...Skipped')
         return
+
+    print('    Fritzbox Method...')
 
     try:
         from fritzconnection.lib.fritzhosts import FritzHosts
@@ -1283,8 +1276,9 @@ def read_mikrotik_leases():
     sql.execute ("DELETE FROM Mikrotik_Network")
 
     if not MIKROTIK_ACTIVE:
-        print('        ...Skipped')
         return
+
+    print('    Mikrotik Method...')
 
     try:
         import routeros_api
@@ -1325,8 +1319,9 @@ def read_unifi_clients():
     sql.execute ("DELETE FROM Unifi_Network")
 
     if not UNIFI_ACTIVE:
-        print('        ...Skipped')
         return
+
+    print('    UniFi Method...')
 
     try:
         from pyunifi.controller import Controller
@@ -1379,8 +1374,9 @@ def read_openwrt_clients():
     sql.execute ("DELETE FROM Openwrt_Network")
 
     if not OPENWRT_ACTIVE:
-        print('        ...Skipped')
         return
+
+    print('    OpenWRT Method...')
 
     try:
         from openwrt_luci_rpc import OpenWrtRpc
@@ -1404,8 +1400,9 @@ def read_openwrt_clients():
 def read_DHCP_leases():
     # check DHCP Leases is active
     if not DHCP_ACTIVE :
-        print('        ...Skipped')
         return
+
+    print(f"    Pi-hole {PIHOLE_VERSION} DHCP Leases Method...")
 
     if PIHOLE_VERSION in (None, 5):
         read_DHCP_leases_five()
@@ -1496,8 +1493,9 @@ def read_DHCP_leases_six():
 def get_satellite_scans():
     sql.execute ("DELETE FROM Satellites_Network")
     if not SATELLITES_ACTIVE:
-        print('        ...Skipped')
         return
+
+    print('    Satellite Import...')
 
     print_log('        ...Mode detection')
     get_satellites = "SELECT sat_password, sat_token FROM Satellites"
