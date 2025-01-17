@@ -1384,17 +1384,32 @@ def read_openwrt_clients():
         print('        Missing python package')
         return
 
-    router = OpenWrtRpc(str(OPENWRT_IP), str(OPENWRT_USER), str(OPENWRT_PASS))
-    result = router.get_all_connected_devices(only_reachable=True)
+    
+    try:
+        router = OpenWrtRpc(str(OPENWRT_IP), str(OPENWRT_USER), str(OPENWRT_PASS))
+        result = router.get_all_connected_devices(only_reachable=True)
 
-    print(result)
+        # devices_info = []
 
-    # for device in result:
-    #    mac = device.mac
-    #    name = device.hostname
+        for device in result:
+            if str(device.hostname) == 'None':
+                hostname = '(unknown)'
+            else:
+                hostname = device.hostname
 
-    #    # convert class to a dict
-    #    device_dict = device._asdict()
+            # device_data = {
+            #     'mac': device.mac,
+            #     'hostname': hostname,
+            #     'ip': device.ip
+            # }
+            # devices_info.append(device_data)
+
+            sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, UF_Name, OWRT_Vendor) "+
+                         "VALUES (?, ?, ?, ?) ", (device.mac, device.ip, hostname, '(unknown)') )
+
+    except Exception as e:
+        #print(f"Es ist ein Fehler aufgetreten")
+        print(f"Error")
 
 #-------------------------------------------------------------------------------
 def read_DHCP_leases():
@@ -2365,14 +2380,13 @@ def resolve_device_name(pMAC, pIP):
         return -2
         
     # Eliminate local domain
-    if newName.endswith('.') :
-        newName = newName[:-1]
-    if newName.endswith('.lan') :
-        newName = newName[:-4]
-    if newName.endswith('.local') :
-        newName = newName[:-6]
-    if newName.endswith('.home') :
-        newName = newName[:-5]
+    suffixes = ['.', '.lan', '.local', '.home']
+
+    for suffix in suffixes:
+        if newName.endswith(suffix):
+            newName = newName[:-len(suffix)]
+            break
+
     return newName
 
 #-------------------------------------------------------------------------------
