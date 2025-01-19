@@ -176,11 +176,11 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
 	echo '      <div class="db_info_table_row">
                     <div class="col-xs-12 col-md-2 text-muted">Version: '.$sat_version.'</div>
                     <div class="col-xs-12 col-md-8 text-muted">
-	                    <div style="display: inline-block; width: 140px;">arp Scan: '.convert_state($scan_arp,0).'</div>
-	                    <div style="display: inline-block; width: 140px;">Fritzbox: '.convert_state($scan_fritzbox,0).'</div>
-	                    <div style="display: inline-block; width: 140px;">Mikrotik: '.convert_state($scan_mikrotik,0).'</div>
-	                    <div style="display: inline-block; width: 140px;">UniFi: '.convert_state($scan_unifi,0).'</div>
-	                    <div style="display: inline-block; width: 140px;">OpenWRT: '.convert_state($scan_openwrt,0).'</div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">arp Scan:</span><span class="sat_config_list_stat '.colorize_state($scan_arp,1).'"> '.convert_state($scan_arp,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Fritzbox:</span><span class="sat_config_list_stat '.colorize_state($scan_fritzbox,1).'"> '.convert_state($scan_fritzbox,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Mikrotik:</span><span class="sat_config_list_stat '.colorize_state($scan_mikrotik,1).'"> '.convert_state($scan_mikrotik,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">UniFi:</span><span class="sat_config_list_stat '.colorize_state($scan_unifi,1).'"> '.convert_state($scan_unifi,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">OpenWRT:</span><span class="sat_config_list_stat '.colorize_state($scan_openwrt,1).'"> '.convert_state($scan_openwrt,0).'</span></div>
                     </div>
                 </div>';
 }

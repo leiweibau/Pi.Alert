@@ -147,9 +147,9 @@ function GetLogfiles() {
 				$file = str_replace("Start Services Monitoring\n\n", "Start Services Monitoring\n\n<pre style=\"border: solid 1px #666; background-color: transparent;\">", $file);
 				$file = str_replace("\nServices Monitoring Changes:", "\n</pre>Services Monitoring Changes:", $file);
 			}
-			if ($logfiles[$i] == "pialert.1.log") {
-				$file = str_replace("\n        ...Skipped", "<span style=\"color:red;\"> Skipped</span>", $file);
-			}
+			// if ($logfiles[$i] == "pialert.1.log") {
+			// 	$file = str_replace("\n        ...Skipped", "<span style=\"color:red;\"> Skipped</span>", $file);
+			// }
 			$templog = str_replace("\n", '<br>', str_replace("    ", '&nbsp;&nbsp;&nbsp;&nbsp;', str_replace("        ", '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $file)));
 			array_push($logs, $templog);
 		}
@@ -722,14 +722,14 @@ function setTheme() {
 		if (in_array($skin_selector, $installed_skins)) {
 			// lösche alle vorherigen skins
 			foreach ($installed_skins as $file) {
-				unlink($skin_set_dir . '/setting_' . $file);
+				unlink($skin_set_dir . 'setting_' . $file);
 			}
 			// lösche alle vorherigen themes
 			foreach ($installed_themes as $file) {
-				unlink($skin_set_dir . '/setting_theme_' . $file);
+				unlink($skin_set_dir . 'setting_theme_' . $file);
 			}
 			foreach ($installed_skins as $file) {
-				if (file_exists($skin_set_dir . '/setting_' . $file)) {
+				if (file_exists($skin_set_dir . 'setting_' . $file)) {
 					$skin_error = True;
 					break;
 				} else {
@@ -747,14 +747,14 @@ function setTheme() {
 		} elseif (in_array($skin_selector, $installed_themes)) {
 			// lösche alle vorherigen skins
 			foreach ($installed_skins as $file) {
-				unlink($skin_set_dir . '/setting_' . $file);
+				unlink($skin_set_dir . 'setting_' . $file);
 			}
 			// lösche alle vorherigen themes
 			foreach ($installed_themes as $file) {
-				unlink($skin_set_dir . '/setting_theme_' . $file);
+				unlink($skin_set_dir . 'setting_theme_' . $file);
 			}
 			foreach ($installed_skins as $file) {
-				if (file_exists($skin_set_dir . '/setting_theme_' . $file)) {
+				if (file_exists($skin_set_dir . 'setting_theme_' . $file)) {
 					$skin_error = True;
 					break;
 				} else {
@@ -790,10 +790,10 @@ function setLanguage() {
 		$pia_lang_selector = htmlspecialchars($_REQUEST['LangSelection']);
 		if (in_array($pia_lang_selector, $pia_installed_langs)) {
 			foreach ($pia_installed_langs as $file) {
-				unlink($pia_lang_set_dir . '/setting_language_' . $file);
+				unlink($pia_lang_set_dir . 'setting_language_' . $file);
 			}
 			foreach ($pia_installed_langs as $file) {
-				if (file_exists($pia_lang_set_dir . '/setting_language_' . $file)) {
+				if (file_exists($pia_lang_set_dir . 'setting_language_' . $file)) {
 					$pia_lang_error = True;
 					break;
 				} else {

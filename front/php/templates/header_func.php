@@ -228,6 +228,14 @@ function convert_state_action($state, $revert) {
 		if ($state != 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
 	}
 }
+function colorize_state($state, $revert) {
+	global $pia_lang;
+	if ($revert == 1) {
+		if ($state == 1) {return "text-green";} else {return "text-red";}
+	} elseif ($revert == 0) {
+		if ($state != 1) {return "text-green";} else {return "text-red";}
+	}
+}
 // Top Navbar - Back button for details pages
 function insert_back_button() {
 	$pagename = basename($_SERVER['PHP_SELF']);

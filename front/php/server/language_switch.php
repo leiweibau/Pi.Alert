@@ -1,4 +1,5 @@
 <?php
+$pia_lang_selected = "";
 foreach (glob("../../../config/setting_language*") as $filename) {
 	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
 }

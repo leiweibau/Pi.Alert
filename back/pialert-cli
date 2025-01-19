@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.29'
+SCRIPTVERSION='v1.30'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -634,6 +634,15 @@ EOM
     else
       echo "        Column 'par_Long_Value' already exists in the 'Parameters' table."
     fi
+    # Satellites.sat_conf_scan_openwrt
+    echo -e "...Insert new column 'sat_conf_scan_openwrt' to table 'Satellites' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Satellites');" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_openwrt")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Satellites' ADD COLUMN 'sat_conf_scan_openwrt' BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'sat_conf_scan_openwrt' already exists in the 'Satellites' table."
+    fi
+
 
     echo -e "\nUpdate finished!\n"
 

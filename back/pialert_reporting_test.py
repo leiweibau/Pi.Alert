@@ -23,18 +23,7 @@ try:
   from urlparse import urlparse
 except ImportError:
   from urllib.parse import urlparse
-import sys
-import subprocess
-import os
-import re
-import datetime
-import socket
-import io
-import smtplib
-import requests
-import time
-import pwd
-import glob
+import sys, subprocess, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob
 
 #===============================================================================
 # CONFIG CONSTANTS
