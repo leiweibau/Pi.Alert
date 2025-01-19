@@ -1555,11 +1555,13 @@ def process_satellites(satellite_list):
                     scan_fritzbox = 1 if satellite_scan_config.get('scan_fritzbox', False) else 0
                     scan_mikrotik = 1 if satellite_scan_config.get('scan_mikrotik', False) else 0
                     scan_unifi = 1 if satellite_scan_config.get('scan_unifi', False) else 0
+                    scan_openwrt = 1 if satellite_scan_config.get('scan_openwrt', False) else 0
                 except (KeyError, IndexError, TypeError):
                     scan_arp = 0
                     scan_fritzbox = 0
                     scan_mikrotik = 0
                     scan_unifi = 0
+                    scan_openwrt = 0
 
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check':
@@ -1587,8 +1589,9 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_fritzbox = ?,
                                     sat_conf_scan_mikrotik = ?,
                                     sat_conf_scan_unifi = ?,
+                                    sat_conf_scan_openwrt = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
@@ -2341,12 +2344,12 @@ def resolve_device_name_avahi(pIP):
 def resolve_device_name_dig(pIP):
     # DNS Server Fallback
     try:
-        temp = NETWORK_DNS_SERVER
+        dnsserver = str(NETWORK_DNS_SERVER)
     except NameError:
-        NETWORK_DNS_SERVER = "localhost"
+        dnsserver = "localhost"
 
     try: 
-        dig_args = ['dig', '+short', '-x', pIP, '@'+NETWORK_DNS_SERVER]
+        dig_args = ['dig', '+short', '-x', pIP, '@'+dnsserver]
         newName = subprocess.check_output (dig_args, universal_newlines=True, timeout=5)
         if ";; communications error to" in newName:
             newName = ""
