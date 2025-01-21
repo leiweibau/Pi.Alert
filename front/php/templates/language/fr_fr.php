@@ -630,6 +630,10 @@ $pia_lang['NET_UnMan_Devices_Connected'] = 'Connecté à';
 $pia_lang['NET_UnMan_Devices_Connected_text'] = 'Sélectionner un appareil';
 $pia_lang['NET_UnMan_Devices_Port'] = 'Sur le port';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'Sur le numéro de port de l&apos;appareil sélectionné';
+$pia_lang['NET_Network_head'] = 'Réseau';
+$pia_lang['NET_Man_Add_NetName'] = 'Nom du réseau';
+$pia_lang['NET_Man_Edit_NetName'] = 'Nouveau nom du réseau';
+$pia_lang['NET_Man_Add_NetName_text'] = 'Nom du réseau ou du groupe';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifications';

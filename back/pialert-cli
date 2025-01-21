@@ -642,7 +642,14 @@ EOM
     else
       echo "        Column 'sat_conf_scan_openwrt' already exists in the 'Satellites' table."
     fi
-
+    # network_infrastructure.net_networkname
+    echo -e "...Insert new column 'net_networkname' to table 'network_infrastructure' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('network_infrastructure');" | awk -F\| '{print $2}' | grep -wci "net_networkname")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'network_infrastructure' ADD COLUMN 'net_networkname' STRING(250) NOT NULL DEFAULT 'local';"
+    else
+      echo "        Column 'net_networkname' already exists in the 'network_infrastructure' table."
+    fi
 
     echo -e "\nUpdate finished!\n"
 

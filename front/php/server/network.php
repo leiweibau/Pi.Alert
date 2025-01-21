@@ -5,7 +5,7 @@
 //
 //  network.php - Back module. Server side. Manage Devices
 //------------------------------------------------------------------------------
-//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -37,6 +37,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 	case 'NetworkInfrastructure_list':NetworkInfrastructure_list();
 		break;
 	case 'NetworkDeviceTyp_list':NetworkDeviceTyp_list();
+		break;
+	case 'NetworkGroupName_list':NetworkGroupName_list();
 		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
@@ -83,6 +85,26 @@ function NetworkDeviceTyp_list() {
 	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'3_WLAN\')">3. WLAN</a></li>';
 	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'4_Powerline\')">4. Powerline</a></li>';
 	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'5_Hypervisor\')">5. Hypervisor</a></li>';
+}
+
+function NetworkGroupName_list() {
+	global $db;
+	if ($_REQUEST['mode'] == "add") {$inputfield = "txtNetworkGroupName";}
+	if ($_REQUEST['mode'] == "edit") {$inputfield = "txtNewNetworkGroupName";}
+
+	$func_sql = 'SELECT "sat_name" FROM "Satellites"';
+	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
+	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
+		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'' . $inputfield . '\',\'' . $func_res['sat_name'] . '\')">Satellite ' . $func_res['sat_name'] . '</a></li>';
+	}
+	echo '<li class="divider"></li>';
+
+	$func_sql = 'SELECT DISTINCT "net_networkname" FROM "network_infrastructure"';
+	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
+	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
+		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'' . $inputfield . '\',\'' . $func_res['net_networkname'] . '\')">Network ' . $func_res['net_networkname'] . '</a></li>';
+	}
+	//echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'1_Router\')">Satellite A</a></li>';
 }
 //  End
 ?>

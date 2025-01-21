@@ -4,7 +4,7 @@
 #
 #  network.php - Front module. network relationship
 #-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                          GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
 <?php
@@ -28,7 +28,7 @@ OpenDB();
 // Add New Network Devices
 if ($_REQUEST['Networkinsert'] == "yes") {
 	if (isset($_REQUEST['NetworkDeviceName']) && isset($_REQUEST['NetworkDeviceTyp'])) {
-		$sql = 'INSERT INTO "network_infrastructure" ("net_device_name", "net_device_typ", "net_device_port") VALUES("' . $_REQUEST['NetworkDeviceName'] . '", "' . $_REQUEST['NetworkDeviceTyp'] . '", "' . $_REQUEST['NetworkDevicePort'] . '")';
+		$sql = 'INSERT INTO "network_infrastructure" ("net_device_name", "net_device_typ", "net_device_port", "net_networkname") VALUES("' . $_REQUEST['NetworkDeviceName'] . '", "' . $_REQUEST['NetworkDeviceTyp'] . '", "' . $_REQUEST['NetworkDevicePort'] . '", "' . $_REQUEST['NetworkGroupName'] . '")';
 		$result = $db->query($sql);
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0030', '', '');
@@ -37,17 +37,15 @@ if ($_REQUEST['Networkinsert'] == "yes") {
 // Edit Network Devices
 if ($_REQUEST['Networkedit'] == "yes") {
 	if (($_REQUEST['NewNetworkDeviceName'] != "") && isset($_REQUEST['NewNetworkDeviceTyp'])) {
-		$sql = 'UPDATE "network_infrastructure" SET "net_device_name" = "' . $_REQUEST['NewNetworkDeviceName'] . '", "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '" WHERE "device_id"="' . $_REQUEST['NetworkDeviceID'] . '"';
+		$sql = 'UPDATE "network_infrastructure" SET "net_device_name" = "' . $_REQUEST['NewNetworkDeviceName'] . '", "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '", "net_networkname" = "' . $_REQUEST['NewNetworkGroupName'] . '" WHERE "device_id"="' . $_REQUEST['NetworkDeviceID'] . '"';
 		$result = $db->query($sql);
 	}
-
 	if (($_REQUEST['NewNetworkDeviceName'] == "") && isset($_REQUEST['NewNetworkDeviceTyp'])) {
-		$sql = 'UPDATE "network_infrastructure" SET "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '" WHERE "device_id "="' . $_REQUEST['NetworkDeviceID'] . '"';
+		$sql = 'UPDATE "network_infrastructure" SET "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '", "net_networkname" = "' . $_REQUEST['NewNetworkGroupName'] . '" WHERE "device_id "="' . $_REQUEST['NetworkDeviceID'] . '"';
 		$result = $db->query($sql);
 	}
 	// Logging
 	pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0031', '', '');
-
 }
 // remove Network Devices
 if ($_REQUEST['Networkdelete'] == "yes") {
@@ -75,7 +73,6 @@ if ($_REQUEST['NetworkUnmanagedDevedit'] == "yes") {
 		$sql = 'UPDATE "network_dumb_dev" SET "dev_Name" = "' . $_REQUEST['NewNetworkUnmanagedDevName'] . '", "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id "="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
 		$result = $db->query($sql);
 	}
-
 	if (($_REQUEST['NewNetworkUnmanagedDevName'] == "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
 		$sql = 'UPDATE "network_dumb_dev" SET "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id"="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
 		$result = $db->query($sql);
@@ -149,6 +146,18 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
                 <label for="NetworkDevicePort"><?=$pia_lang['NET_Man_Add_Port'];?>:</label>
                 <input type="text" class="form-control" id="NetworkDevicePort" name="NetworkDevicePort" placeholder="<?=$pia_lang['NET_Man_Add_Port_text'];?>">
               </div>
+              <div class="form-group has-success">
+                  <label for="NetworkGroupName"><?=$pia_lang['NET_Man_Add_NetName'];?>:</label>
+                  <div class="input-group">
+                      <input class="form-control" id="txtNetworkGroupName" name="NetworkGroupName" type="text" placeholder="<?=$pia_lang['NET_Man_Add_NetName_text'];?>">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkGroupName">
+                                <span class="fa fa-caret-down"></span>
+                            </button>
+                            <ul id="dropdownNetworkGroupName" class="dropdown-menu dropdown-menu-right"></ul>
+                          </div>
+                  </div>
+              </div>
               <div class="form-group">
               <button type="submit" class="btn btn-success" name="Networkinsert" value="yes"><?=$pia_lang['NET_Man_Add_Submit'];?></button>
           	  </div>
@@ -165,7 +174,7 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
                   <select class="form-control" name="NetworkDeviceID" onchange="get_networkdev_values(event)">
                     <option value=""><?=$pia_lang['NET_Man_Edit_ID_text'];?></option>
 <?php
-$sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
+$sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices", "net_networkname" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
 $result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
 $netdev_all_ids = array();
 while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -182,6 +191,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	$$temp_name[2] = $res['net_device_typ'];
 	$$temp_name[3] = $res['net_downstream_devices'];
 	$$temp_name[4] = $res['net_device_port'];
+  $$temp_name[5] = $res['net_networkname'];
 }
 ?>
                   </select>
@@ -194,7 +204,7 @@ function get_networkdev_values(event) {
 
 <?php
 foreach ($netdev_all_ids as $key => $value) {
-	echo '    const ' . $value . ' = ["' . $$value[0] . '", "' . $$value[1] . '", "' . $$value[2] . '" , "' . $$value[3] . '", "' . $$value[4] . '"];';
+	echo '    const ' . $value . ' = ["' . $$value[0] . '", "' . $$value[1] . '", "' . $$value[2] . '" , "' . $$value[3] . '", "' . $$value[4] . '", "' . $$value[5] . '"];';
 	echo "\n";
 }
 
@@ -214,6 +224,8 @@ echo '    };';
     $('#txtNetworkDeviceDownlinkMac').val(port_config);
     var port_count = netdev_arrays[value][4];
     $('#NewNetworkDevicePort').val(port_count);
+    var networkgroup = netdev_arrays[value][5];
+    $('#txtNewNetworkGroupName').val(networkgroup);
 
 loadNetworkDevices(netdev_type);
 };
@@ -231,6 +243,18 @@ loadNetworkDevices(netdev_type);
                                 <span class="fa fa-caret-down"></span>
                             </button>
                             <ul id="dropdownNewNetworkDeviceTyp" class="dropdown-menu dropdown-menu-right"></ul>
+                          </div>
+                  </div>
+              </div>
+              <div class="form-group has-warning">
+                  <label for="NewNetworkGroupName"><?=$pia_lang['NET_Man_Edit_NetName'];?>:</label>
+                  <div class="input-group">
+                      <input class="form-control" id="txtNewNetworkGroupName" name="NewNetworkGroupName" type="text" placeholder="<?=$pia_lang['NET_Man_Add_NetName_text'];?>">
+                          <div class="input-group-btn">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNewNetworkGroupName">
+                                <span class="fa fa-caret-down"></span>
+                            </button>
+                            <ul id="dropdownNewNetworkGroupName" class="dropdown-menu dropdown-menu-right"></ul>
                           </div>
                   </div>
               </div>
@@ -431,6 +455,8 @@ function main(){
   NetworkInfrastructure_list();
   NetworkDeviceTyp_list("add");
   NetworkDeviceTyp_list("edit");
+  NetworkGroupName_list("add");
+  NetworkGroupName_list("edit");
 }
 
 function setTextValue (textElement, textValue) {
@@ -465,7 +491,16 @@ function NetworkDeviceTyp_list(mode) {
     }
   } );
 }
-
+function NetworkGroupName_list(mode) {
+  $.get('php/server/network.php?action=NetworkGroupName_list&mode=' + mode, function(data) {
+    if (mode == "add") {
+      $("#dropdownNetworkGroupName").html(data);
+    }
+    if (mode == "edit") {
+      $("#dropdownNewNetworkGroupName").html(data);
+    }
+  } );
+}
 // Function to set placeholder
 function set_placeholder(inputId, typ) {
     var placeholders = ["3_WLAN","4_Powerline","5_Hypervisor"];
