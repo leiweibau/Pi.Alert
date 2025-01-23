@@ -174,7 +174,7 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
                   <select class="form-control" name="NetworkDeviceID" onchange="get_networkdev_values(event)">
                     <option value=""><?=$pia_lang['NET_Man_Edit_ID_text'];?></option>
 <?php
-$sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices", "net_networkname" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
+$sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices", "net_networkname" FROM "network_infrastructure" ORDER BY "net_networkname" ASC, "net_device_typ" ASC';
 $result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
 $netdev_all_ids = array();
 while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -182,7 +182,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 		continue;
 	}
 	$temp_name = "netdev_id_" . $res['device_id'];
-	echo '<option value="' . $res['device_id'] . '">' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
+	echo '<option value="' . $res['device_id'] . '">'.$res['net_networkname'].' - ' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
 
 	$$temp_name = array();
 	array_push($netdev_all_ids, $temp_name);
