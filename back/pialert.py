@@ -633,7 +633,7 @@ def cleanup_database():
     print('    Services_Events')
     sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
     print('    ICMP_Mon_Events')
-    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
+    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(14) + " day')")
     print('    Speedtest_History')
     sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
 
@@ -3139,6 +3139,9 @@ def icmp_monitoring():
         # Save Scan Results
         icmp_save_scandata(icmp_scan_results)
 
+        print("    Create Events...")
+        icmp_create_events()
+
         print("    Calculate Activity History...")
         calc_activity_history_icmp(icmphosts_online, icmphosts_offline)
 
@@ -3153,11 +3156,62 @@ def icmp_monitoring():
 def icmp_save_scandata(data):
     print("    Save scan results...")
     for host_ip, scan_data in data.items():
-        #print(f"Host IP: {host_ip}")
-        #print(f"ICMP Status: {scan_data['icmp_status']}")
         set_icmphost_events(host_ip, scan_data['scantime'], scan_data['icmp_status'], scan_data['icmp_rtt'])
         set_icmphost_current_scan(host_ip, scan_data['scantime'], scan_data['icmp_status'], scan_data['icmp_rtt'])
         set_icmphost_update(host_ip, scan_data['scantime'], scan_data['icmp_status'], scan_data['icmp_rtt'])
+
+# -----------------------------------------------------------------------------
+def icmp_create_events():
+
+    # Check new connections
+    print_log ('Events - New Connections')
+    sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
+                        SELECT 
+                            cur.cur_ip AS icmpeve_ip,
+                            cur.cur_LastScan AS icmpeve_DateTime,
+                            cur.cur_Present AS icmpeve_Present,
+                            'Connected' AS icmpeve_EventType
+                        FROM 
+                            ICMP_Mon_CurrentScan cur
+                        WHERE 
+                            cur.cur_Present = 1
+                            AND cur.cur_PresentChanged = 1;""")
+
+    print_log ('Events - Disconnections')
+    sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
+                        SELECT 
+                            cur.cur_ip AS icmpeve_ip,
+                            cur.cur_LastScan AS icmpeve_DateTime,
+                            cur.cur_Present AS icmpeve_Present,
+                            'Disconnected' AS icmpeve_EventType
+                        FROM 
+                            ICMP_Mon_CurrentScan cur
+                        JOIN 
+                            ICMP_Mon mon
+                        ON 
+                            cur.cur_ip = mon.icmp_ip
+                        WHERE 
+                            cur.cur_Present = 0
+                            AND cur.cur_PresentChanged = 1
+                            AND mon.icmp_AlertDown = 0;""")
+
+    print_log ('Events - Down')
+    sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
+                        SELECT 
+                            cur.cur_ip AS icmpeve_ip,
+                            cur.cur_LastScan AS icmpeve_DateTime,
+                            cur.cur_Present AS icmpeve_Present,
+                            'Down' AS icmpeve_EventType
+                        FROM 
+                            ICMP_Mon_CurrentScan cur
+                        JOIN 
+                            ICMP_Mon mon
+                        ON 
+                            cur.cur_ip = mon.icmp_ip
+                        WHERE 
+                            cur.cur_Present = 0
+                            AND cur.cur_PresentChanged = 1
+                            AND mon.icmp_AlertDown = 1;""")
 
 # -----------------------------------------------------------------------------
 def get_icmphost_list():

@@ -241,24 +241,42 @@ function getEventsTotalsforICMP() {
 
 	// Request Parameters
 	$hostip = $_REQUEST['hostip'];
-	// SQL
+
+	$SQL = 'SELECT icmpeve_DateTime, icmpeve_EventType
+	        FROM ICMP_Mon_Connections
+	        WHERE icmpeve_ip = "' . $hostip . '"
+	        ORDER BY icmpeve_DateTime DESC
+	        LIMIT 1';
+
+    $result = $db->query($SQL);
+	if ($result && $result->num_rows > 0) {
+	    $row = $result->fetch_assoc();
+
+	    if ($row['icmpeve_EventType'] === 'Connected') {
+	        $currentTime = new DateTime();
+	        $recordTime = new DateTime($row['icmpeve_DateTime']);
+
+	        $interval = $currentTime->diff($recordTime);
+	        $hoursDifference = $interval->h + ($interval->days * 24);
+
+	        $eventspresence = $hoursDifference;
+	    } else {
+	        $eventspresence = 0;
+	    }
+	} else {
+	    $eventspresence = 0;
+	}
+
+	// Down
 	$SQL1 = 'SELECT Count(*)
-           FROM ICMP_Mon_Events
-           WHERE icmpeve_ip = "' . $hostip . '"';
-	// All
+           FROM ICMP_Mon_Connections
+           WHERE icmpeve_ip = "' . $hostip . '" AND icmpeve_EventType = "Down"';
 	$result = $db->query($SQL1);
 	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsAll = $row[0];
-	// Online
-	$result = $db->query($SQL1 . ' AND icmpeve_Present = "1" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsonline = $row[0];
-	// Offline
-	$result = $db->query($SQL1 . ' AND icmpeve_Present = "0" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsoffline = $row[0];
+	$eventsdown = $row[0];
 	// Return json
-	echo (json_encode(array($eventsAll, $eventsonline, $eventsoffline)));
+
+	echo (json_encode(array($eventspresence, $eventsdown)));
 }
 
 //  Bulk Deletion

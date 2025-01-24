@@ -650,6 +650,9 @@ EOM
     else
       echo "        Column 'net_networkname' already exists in the 'network_infrastructure' table."
     fi
+    # ICMP_Mon_Connections
+    echo -e "...Insert new table 'ICMP_Mon_Connections' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'ICMP_Mon_Connections' ('icmpeve_ip' NUMERIC NOT NULL,'icmpeve_DateTime' TEXT NOT NULL,'icmpeve_Present' INTEGER,'icmpeve_EventType' STRING(50) NOT NULL COLLATE NOCASE, 'icmpeve_AdditionalInfo' STRING(250) DEFAULT (''));"
 
     echo -e "\nUpdate finished!\n"
 
