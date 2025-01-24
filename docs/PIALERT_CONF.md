@@ -121,6 +121,7 @@ I would like to give a short explanation to the individual points.
 | NTFY_PASSWORD      | The password used for authentication with the NTFY server.                      |
 | NTFY_PRIORITY      | Priority of notifications sent via NTFY                                         |
 | NTFY_CLICKABLE     | Enables or disables the click action for the notification.                      |
+| NTFY_TOKEN         | The accesstoken can be used instead of username/password authentication.         |
 
 
 #### Shoutrrr
