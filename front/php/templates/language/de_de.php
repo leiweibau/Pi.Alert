@@ -504,6 +504,8 @@ $pia_lang['MT_SET_SatEdit_head'] = 'Satelliten verwalten';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Installationsbefehl mit Vorkonfiguration';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Hier kann der Installationsbefehl soweit vorbereitet werden, dass die wichtigsten Parameter schon bei der Installation eingetragen werden. Die verschiedenen Scans bleiben alle deaktiviert und müssen explizit in der Konfigurationsdatei aktiviert werden.';
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Es befinden sich noch Journaleinträge im Zwischenspeicher';
+$pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
+$pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED Events werden im Anwesenheits-Kalender nicht dargestellt. Um alle VOIDED Events (Verbunden/Getrennt) zurückzusetzen, führe diese Funktion aus.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';
@@ -592,6 +594,9 @@ $pia_lang['BE_Param_error_update'] = 'Fehler bei der Parameteraktualisierung';
 $pia_lang['BE_Param_error_create'] = 'Fehler bei der Parametererstellung';
 $pia_lang['BE_Param_Colors'] = 'Farbe(n) gespeichert';
 $pia_lang['BE_Param_Colors_error'] = 'Farbe(n) wurde(n) nicht geändert oder nicht gespeichert (Datenbank durch Scan in Verwendung)';
+$pia_lang['BE_Dev_DBTools_resetVoided'] = 'Die VOIDED Events wurden in "gültige" Events umgewandelt';
+$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fehler aktualisieren der VOIDED Events';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netzwerkübersicht';
@@ -813,6 +818,8 @@ $pia_journ_lang['LogStr_0067'] = 'Es wurde keine neuere Version gefunden';
 $pia_journ_lang['LogStr_0068'] = 'Pi.Alert-Satellite Update verfügbar';
 $pia_journ_lang['LogStr_0069'] = 'Kein Pi.Alert-Satellite Update verfügbar';
 $pia_journ_lang['LogStr_0101'] = 'Datenbank aufgeräumt und optimiert';
+$pia_journ_lang['LogStr_0102'] = 'VOIDED Events zurückgesetzt';
+$pia_journ_lang['LogStr_0103'] = 'VOIDED Events zurückgesetzt (mit Fehler)';
 $pia_journ_lang['LogStr_0210'] = 'Individuellen nmap Scan durchgeführt';
 $pia_journ_lang['LogStr_0221'] = 'Nmap Resultate exportiert als CSV';
 $pia_journ_lang['LogStr_0222'] = 'Nmap Resultate wurde wegen eines Fehlers nicht exportiert (Ungültige IP)';

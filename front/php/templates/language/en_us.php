@@ -507,6 +507,8 @@ $pia_lang['MT_SET_SatEdit_head'] = 'Manage Satellites';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Installation Command with Preconfiguration';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Here, the installation command can be prepared so that the most important parameters are already entered during installation. The various scans remain all deactivated and must be explicitly enabled in the configuration file.';
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'There are still journal entries in the cache';
+$pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
+$pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED events are not displayed in the attendance calendar. To reset all VOIDED events (Connected/Disconnected), execute this function.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';
@@ -593,7 +595,8 @@ $pia_lang['BE_Param_error_update'] = 'Error updating parameter';
 $pia_lang['BE_Param_error_create'] = 'Error creating parameter';
 $pia_lang['BE_Param_Colors'] = 'Color(s) saved';
 $pia_lang['BE_Param_Colors_error'] = 'Color(s) were not changed or saved (database in use by scan)';
-
+$pia_lang['BE_Dev_DBTools_resetVoided'] = 'The VOIDED events have been converted into "valid" events';
+$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error updating the VOIDED events';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';
@@ -809,6 +812,8 @@ $pia_journ_lang['LogStr_0067'] = 'No newer version found';
 $pia_journ_lang['LogStr_0068'] = 'Pi.Alert-Satellie update available';
 $pia_journ_lang['LogStr_0069'] = 'No Pi.Alert-Satellie update available';
 $pia_journ_lang['LogStr_0101'] = 'Database cleaned and optimized';
+$pia_journ_lang['LogStr_0102'] = 'VOIDED events reset';
+$pia_journ_lang['LogStr_0103'] = 'VOIDED events reset (with errors)';
 $pia_journ_lang['LogStr_0210'] = 'Performed individual nmap scan';
 $pia_journ_lang['LogStr_0221'] = 'Nmap results exported as CSV';
 $pia_journ_lang['LogStr_0222'] = 'Nmap results not exported due to an error (Invalid IP)';

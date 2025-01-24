@@ -619,6 +619,12 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_tools_table_cell_a">
+                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteAllEvents" onclick="askresetVoidedEvents()"><?=$pia_lang['MT_Tool_reset_voided'];?></button>
+                    </div>
+                    <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_reset_voided_text'];?></div>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="db_tools_table_cell_a">
                         <button type="button" class="btn btn-default dbtools-button" id="btnDeleteActHistory" onclick="askDeleteActHistory()"><?=$pia_lang['MT_Tool_del_ActHistory'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_del_ActHistory_text'];?></div>
@@ -954,6 +960,15 @@ function askDeleteNmapScansResults() {
 }
 function DeleteNmapScansResults() {
 	$.get('php/server/devices.php?action=DeleteNmapScansResults', function(msg) {showMessage (msg);});
+}
+
+// reset VOIDED
+function askresetVoidedEvents() {
+  showModalWarning('<?=$pia_lang['MT_Tool_reset_voided'];?>', '<?=$pia_lang['MT_Tool_reset_voided_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'resetVoidedEvents');
+}
+function resetVoidedEvents() {
+    $.get('php/server/devices.php?action=resetVoidedEvents', function(msg) {showMessage (msg);});
 }
 
 // Backup DB to Archive

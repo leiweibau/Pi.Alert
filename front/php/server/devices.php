@@ -100,6 +100,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'DeleteSatellite':DeleteSatellite();
 		break;
+	case 'resetVoidedEvents':resetVoidedEvents();
+		break;
      default:logServerConsole('Action: ' . $action);
 		break;
 	}
@@ -513,6 +515,9 @@ function deleteEvents() {
 	global $pia_lang;
 
 	$sql = 'DELETE FROM Events';
+	$result = $db->query($sql);
+
+	$sql = 'DELETE FROM Sessions';
 	$result = $db->query($sql);
 
 	if ($result == TRUE) {
@@ -1037,6 +1042,31 @@ function DeleteNmapScansResults() {
 		echo $pia_lang['BE_Dev_DBTools_DelNmapScansError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0038', '', '');
+	}
+}
+
+function resetVoidedEvents() {
+	global $db;
+	global $pia_lang;
+
+	$sql = 'UPDATE "Events"
+			SET "eve_EventType" = "Disconnected"
+			WHERE "eve_EventType" = "VOIDED - Disconnected"';
+	$result = $db->query($sql);
+
+	$sql = 'UPDATE "Events"
+			SET "eve_EventType" = "Connected"
+			WHERE "eve_EventType" = "VOIDED - Connected"';
+	$result = $db->query($sql);
+
+	if ($result == TRUE) {
+		echo $pia_lang['BE_Dev_DBTools_resetVoided'];
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0102', '', '');
+	} else {
+		echo $pia_lang['BE_Dev_DBTools_resetVoidedError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0103', '', '');
 	}
 }
 //  End

@@ -504,6 +504,8 @@ $pia_lang['MT_SET_SatEdit_head'] = 'Gérer les satellites';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Commande d&apos;installation avec préconfiguration';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Ici, la commande d&apos;installation peut être préparée de sorte que les paramètres les plus importants soient déjà entrés lors de l&apos;installation. Les différents scans restent tous désactivés et doivent être activés explicitement dans le fichier de configuration.';
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Il y a encore des entrées de journal dans le cache';
+$pia_lang['MT_Tool_reset_voided'] = 'Réinitialiser les événements ANNULÉS';
+$pia_lang['MT_Tool_reset_voided_text'] = 'Les événements ANNULÉS ne sont pas affichés dans le calendrier de présence. Pour réinitialiser tous les événements ANNULÉS (Connecté/Déconnecté), exécutez cette fonction.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';
@@ -592,6 +594,8 @@ $pia_lang['BE_Param_error_update'] = 'Erreur lors de la mise à jour du paramèt
 $pia_lang['BE_Param_error_create'] = 'Erreur lors de la création du paramètre';
 $pia_lang['BE_Param_Colors'] = 'Couleur(s) enregistrée(s)';
 $pia_lang['BE_Param_Colors_error'] = 'La/les couleur(s) n&apos;ont pas été modifiées ou enregistrées (base de données utilisée par un scan)';
+$pia_lang['BE_Dev_DBTools_resetVoided'] = 'Les événements ANNULÉS ont été convertis en événements "valides"';
+$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Erreur lors de la mise à jour des événements ANNULÉS';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';
@@ -807,6 +811,8 @@ $pia_journ_lang['LogStr_0067'] = 'Aucune version plus récente trouvée';
 $pia_journ_lang['LogStr_0068'] = 'Mise à jour Pi.Alert-Satellite disponible';
 $pia_journ_lang['LogStr_0069'] = 'Aucune mise à jour Pi.Alert-Satellite disponible';
 $pia_journ_lang['LogStr_0101'] = 'Base de données nettoyée et optimisée';
+$pia_journ_lang['LogStr_0102'] = 'Événements ANNULÉS réinitialisés';
+$pia_journ_lang['LogStr_0103'] = 'Événements ANNULÉS réinitialisés (avec erreurs)';
 $pia_journ_lang['LogStr_0210'] = 'Exécution d&apos;un scan nmap individuel';
 $pia_journ_lang['LogStr_0221'] = 'Résultats de Nmap exportés en CSV';
 $pia_journ_lang['LogStr_0222'] = 'Les résultats de Nmap n&apos;ont pas été exportés en raison d&apos;une erreur (IP invalide)';
