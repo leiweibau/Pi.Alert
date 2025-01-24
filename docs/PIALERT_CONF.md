@@ -122,6 +122,8 @@ I would like to give a short explanation to the individual points.
 | NTFY_PRIORITY      | Priority of notifications sent via NTFY                                         |
 | NTFY_CLICKABLE     | Enables or disables the click action for the notification.                      |
 
+:exclamation: If you want to use a token instead of username and password, leave the username blank and use the token as the password.
+
 
 #### Shoutrrr
 

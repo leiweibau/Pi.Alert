@@ -3797,7 +3797,7 @@ def send_ntfy (_Text):
     if NTFY_CLICKABLE == True:
         headers["Click"] = REPORT_DASHBOARD_URL
     # if username and password are set generate hash and update header
-    if NTFY_USER != "" and NTFY_PASSWORD != "":
+    if NTFY_PASSWORD != "":
     # Generate hash for basic auth
         usernamepassword = "{}:{}".format(NTFY_USER,NTFY_PASSWORD)
         basichash = b64encode(bytes(NTFY_USER + ':' + NTFY_PASSWORD, "utf-8")).decode("ascii")

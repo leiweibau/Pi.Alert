@@ -147,7 +147,8 @@ def send_ntfy_test(_notiMessage):
 
     if NTFY_CLICKABLE == True:
         headers["Click"] = REPORT_DASHBOARD_URL
-    if NTFY_USER != "" and NTFY_PASSWORD != "":
+    #if NTFY_USER != "" and NTFY_PASSWORD != "":
+    if NTFY_PASSWORD != "":
     # Generate hash for basic auth
         usernamepassword = f"{NTFY_USER}:{NTFY_PASSWORD}"
         basichash = b64encode(bytes(f'{NTFY_USER}:{NTFY_PASSWORD}',
