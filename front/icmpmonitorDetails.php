@@ -234,7 +234,7 @@ function get_host_statistic($hostip) {
           <a href="#">
             <div class="small-box bg-yellow">
               <div class="inner"> <h3 id="eventspresence"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_Presence'];?></p>
+                <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_curPresence'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-check2-square text-green-40"></i> </div>
             </div>

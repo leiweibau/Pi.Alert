@@ -191,6 +191,7 @@ $pia_lang['DevDetail_Periodselect_All'] = 'Tutte le informazioni';
 $pia_lang['DevDetail_Shortcut_CurrentStatus'] = 'Stato attuale';
 $pia_lang['DevDetail_Shortcut_Sessions'] = 'Sessioni';
 $pia_lang['DevDetail_Shortcut_Presence'] = 'Presenza';
+$pia_lang['DevDetail_Shortcut_curPresence'] = 'Presenza attuale';
 $pia_lang['DevDetail_Shortcut_DownAlerts'] = 'Segnalazioni inattive';
 $pia_lang['DevDetail_Tab_Details'] = 'Dettagli';
 $pia_lang['DevDetail_Tab_Nmap'] = 'Strumenti';

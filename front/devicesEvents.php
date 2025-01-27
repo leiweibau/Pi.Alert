@@ -232,7 +232,29 @@ function initializeDatatable () {
       // Device Name
       {targets: [1],
         "createdCell": function (td, cellData, rowData, row, col) {
-          $(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[13] +'" class="">'+ cellData +'</a></b>');
+          // $(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[13] +'" class="">'+ cellData +'</a></b>');
+          if (rowData[13]) {
+              $(td).html('<b><a href="deviceDetails.php?mac=' + rowData[13] + '" class="">' + cellData + '</a></b>');
+          } else {
+              // $(td).html('<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' + cellData + '</a></b>');
+
+              if (String(cellData).endsWith("**")) {
+                  const mainText = String(cellData).slice(0, -2);
+
+                  $(td).html(
+                      '<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' +
+                      mainText +
+                      '<span class="text-warning">**</span>' +
+                      '</a></b>'
+                  );
+              } else {
+                  // Standardfall, keine Hervorhebung nötig
+                  $(td).html('<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' + cellData + '</a></b>');
+              }
+
+
+
+          }
       } },
 
       // Replace HTML codes

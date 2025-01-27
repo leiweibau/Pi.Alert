@@ -115,9 +115,56 @@ function getEvents() {
                   dev_name, dev_owner, Null, Null, ses_DateTimeConnection, ses_DateTimeDisconnection, NULL, NULL, ses_IP, NULL,  ses_AdditionalInfo, ses_StillConnected, Dev_MAC
            FROM Sessions_Devices ';
 
+  $SQL3 = '
+SELECT 
+    eve_DateTime AS eve_DateTimeOrder, 
+    dev_name, 
+    dev_owner, 
+    eve_DateTime, 
+    eve_EventType, 
+    NULL AS col6, 
+    NULL AS col7, 
+    NULL AS col8, 
+    NULL AS col9, 
+    eve_IP, 
+    NULL AS col11, 
+    eve_AdditionalInfo, 
+    NULL AS col13, 
+    Dev_MAC
+FROM 
+    Events_Devices
+WHERE 
+    eve_DateTime >= ' . $periodDate . '
+
+UNION ALL
+
+SELECT 
+    icmpeve_DateTime AS eve_DateTimeOrder, 
+    icmp_hostname || " **" AS dev_name, 
+    icmp_owner AS dev_owner, 
+    icmpeve_DateTime AS eve_DateTime, 
+    icmpeve_EventType AS eve_EventType, 
+    NULL AS col6, 
+    NULL AS col7, 
+    NULL AS col8, 
+    NULL AS col9, 
+    icmpeve_ip AS eve_IP, 
+    NULL AS col11, 
+    icmpeve_AdditionalInfo AS eve_AdditionalInfo, 
+    NULL AS col13, 
+    NULL AS Dev_MAC
+FROM 
+    ICMP_Mon_Connections
+LEFT JOIN 
+    ICMP_Mon 
+    ON ICMP_Mon_Connections.icmpeve_ip = ICMP_Mon.icmp_ip
+WHERE 
+    icmpeve_DateTime >= ' . $periodDate;
+
+
 	// SQL Variations for status
 	switch ($type) {
-	case 'all':$SQL = $SQL1;
+	case 'all':$SQL = $SQL3;
 		break;
 	case 'sessions':
 		$SQL = $SQL2 . ' WHERE (  ses_DateTimeConnection >= ' . $periodDate . ' OR ses_DateTimeDisconnection >= ' . $periodDate . ' OR ses_StillConnected = 1 ) ';
@@ -132,7 +179,7 @@ function getEvents() {
 		break;
 	case 'down':$SQL = $SQL1 . ' AND eve_EventType = "Device Down" ';
 		break;
-	default:$SQL = $SQL1 . ' AND 1==0 ';
+	default:$SQL = $SQL3 . ' AND 1==0 ';
 		break;
 	}
 
