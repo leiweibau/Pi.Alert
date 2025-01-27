@@ -47,6 +47,7 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
   - **Fritzbox**. If you use a Fritzbox (a router from the company "AVM"), it is possible to perform a query of the active hosts. This also includes hosts of the guest WLAN and Powerline devices from "AVM".
   - **Mikrotik**. If you use Mikrotik Router as DHCP server, it is possible to read DHCP leases.
   - **UniFi**. If you use UniFi controller, it is possible to read clients (Client Devices)
+  - **OpenWRT**. If you are using a router based on OpenWRT, you can import the active devices.
   - **Web service monitoring**. An HTTP request is sent and the web server's response is processed. If self signed certificates are used, no validation of the certificate is performed.
   - **ICMP monitoring**. A "ping" is sent to a manually specified IP/hostname/domain name and the response is evaluated
   - **DHCP Server Scan**. Nmap is used to send DHCP requests into the network to detect unknown (rogue) DHCP servers.
