@@ -630,13 +630,14 @@ def cleanup_database():
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_ONLINEHISTORY) + ' days:')
     print('    Online_History')
     sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
-    print('    Services_Events')
-    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
-    print('    ICMP_Mon_Events')
-    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(14) + " day')")
     print('    Speedtest_History')
     sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
 
+    print('\nCleanup tables, up to the lastest hard-coded days:')
+    print('    Services_Events (30)')
+    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-" + str(30) + " day')")
+    print('    ICMP_Mon_Events (14)')
+    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(14) + " day')")
 
     print('\nTrim Journal to the lastest 1000 entries')
     sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
