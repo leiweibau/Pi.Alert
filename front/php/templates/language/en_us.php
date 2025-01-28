@@ -376,6 +376,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'You can enter your desired FavIcon URL in the field, or choose between local or remote (https://github.com/leiweibau/Pi.Alert) FavIcons. Depending on the configuration, local FavIcons may not work as a HomeScreen icon.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Filter Editor (Sidebar)';
+$pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Imports';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Toggle Modes';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'After the theme switch, the page tries to reload itself to activate the change. If necessary, the cache must be cleared.';
@@ -510,6 +511,8 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Here, the installation command can be 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'There are still journal entries in the cache';
 $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED events are not displayed in the attendance calendar. To reset all VOIDED events (Connected/Disconnected), execute this function.';
+$pia_lang['MT_Tggl_Import_head'] = 'Enable/Disable Source for Import';
+$pia_lang['MT_Tggl_Import_text'] = 'This enables or disables the desired source for importing data. Ongoing scans are not affected by the activation or deactivation. Data that has already been imported remains preserved after deactivation.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';

@@ -82,6 +82,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'GetAutoBackupStatus':GetAutoBackupStatus();
 		break;
+	case 'ToggleImport':ToggleImport();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
@@ -1009,5 +1011,60 @@ function setFavIconURL() {
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 	// Logging
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0059', '', $_REQUEST['FavIconURL']);
+}
+
+
+function ToggleImport() {
+
+    $file_path = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['deviceType']) || !isset($_REQUEST['toggleState'])) {
+        echo "Missing Parameter";
+        exit;
+    }
+
+    $deviceMap = [
+        'FB' => 'FRITZBOX_ACTIVE',
+        'MT' => 'MIKROTIK_ACTIVE',
+        'UF' => 'UNIFI_ACTIVE',
+        'OW' => 'OPENWRT_ACTIVE',
+    ];
+
+    $deviceType = $_REQUEST['deviceType'];
+    $toggleState = filter_var($_REQUEST['toggleState'], FILTER_VALIDATE_BOOLEAN);
+
+    if (!array_key_exists($deviceType, $deviceMap)) {
+        echo 'Invalid device type';
+        exit;
+    }
+
+    $configKey = $deviceMap[$deviceType];
+    $newValue = $toggleState ? 'False' : 'True';
+
+    if (!file_exists($file_path)) {
+        echo 'Configuration file not found';
+        exit;
+    }
+
+    $fileContents = file_get_contents($file_path);
+    if (strpos($fileContents, $configKey) === false) {
+        echo "Key '{$configKey}' not found in configuration";
+        exit;
+    }
+
+    $pattern = '/^(' . preg_quote($configKey, '/') . '\s*=\s*)(True|False)$/m';
+    $replacement = '${1}' . $newValue;
+
+    $newContents = preg_replace($pattern, $replacement, $fileContents);
+
+    if ($newContents !== null) {
+        file_put_contents($file_path, $newContents);
+        echo "{$configKey} set to {$newValue}";
+    } else {
+        echo 'Failed to update configuration';
+    }
+	// Logging
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $configKey.' set to '.$newValue);
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>";
 }
 ?>

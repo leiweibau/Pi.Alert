@@ -373,6 +373,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Vous pouvez entrer l&apos;URL de votre FavIcon souhaité dans le champ, ou choisir entre des FavIcons locaux ou distants (https://github.com/leiweibau/Pi.Alert). Selon la configuration, les FavIcons locaux peuvent ne pas fonctionner comme une icône d&apos;écran principal.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Éditeur de filtres (barre latérale)';
+$pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importations';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Changement d&apos;affichage';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Permet de passer de l&apos;affichage clair à l&apos;affichage foncé. Si la commutation ne fonctionne pas correctement, essayez d&apos;effacer le cache du navigateur.';
@@ -507,6 +508,8 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Ici, la commande d&apos;installation p
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Il y a encore des entrées de journal dans le cache';
 $pia_lang['MT_Tool_reset_voided'] = 'Réinitialiser les événements ANNULÉS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Les événements ANNULÉS ne sont pas affichés dans le calendrier de présence. Pour réinitialiser tous les événements ANNULÉS (Connecté/Déconnecté), exécutez cette fonction.';
+$pia_lang['MT_Tggl_Import_head'] = 'Activer/Désactiver la source pour l&apos;importation';
+$pia_lang['MT_Tggl_Import_text'] = 'Cela active ou désactive la source souhaitée pour l&apos;importation de données. Les analyses en cours ne sont pas affectées par l&apos;activation ou la désactivation. Les données déjà importées restent conservées après la désactivation.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';

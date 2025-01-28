@@ -376,6 +376,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Puedes ingresar la URL de tu FavIcon deseado en el campo, o elegir entre FavIcons locales o remotos (https://github.com/leiweibau/Pi.Alert). Dependiendo de la configuración, los FavIcons locales pueden no funcionar como un icono de pantalla principal.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Editor de filtros (barra lateral)';
+$pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importaciones';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Cambiar Modo';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Después del cambio de tema, la página intenta volver a cargar para activar el cambio. Si es necesario, el caché debe ser eliminado.';
@@ -510,6 +511,8 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Aquí se puede preparar el comando de 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Todavía hay entradas de diario en la caché';
 $pia_lang['MT_Tool_reset_voided'] = 'Restablecer eventos ANULADOS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Los eventos ANULADOS no se muestran en el calendario de asistencia. Para restablecer todos los eventos ANULADOS (Conectado/Desconectado), ejecuta esta función.';
+$pia_lang['MT_Tggl_Import_head'] = 'Habilitar/Deshabilitar fuente para importación';
+$pia_lang['MT_Tggl_Import_text'] = 'Esto habilita o deshabilita la fuente deseada para la importación de datos. Los análisis en curso no se ven afectados por la activación o desactivación. Los datos ya importados se conservarán tras la desactivación.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';
