@@ -608,9 +608,9 @@ def cleanup_database():
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_EVENTS) + ' days:')
     print('    Events')
     sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
-    print('        ...Fixing missing or VOIDED events')
+    #print('        ...Fixing missing or VOIDED events')
     RepairedEventTime = startTime - timedelta(days=DAYS_TO_KEEP_EVENTS)
-    sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
+    #sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
     sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
     repair_devices = sql.fetchall()
     for device in repair_devices:
