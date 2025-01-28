@@ -437,6 +437,7 @@ body.modal-open {
 .sysinfo_usbdev_b {padding-left: 30px;  padding-top: 2px; padding-bottom: 2px;}
 /* ----------------- Maintenance -------------------------------------------- */
 .dbtools-button { display: inline-block; width: 160px; height: 73px; white-space: normal; word-wrap: break-word; font-size: 16px; padding: 4px;}
+.dbtools-button-sm { display: inline-block; width: 140px; height: 73px; white-space: normal; word-wrap: break-word; font-size: 16px; padding: 4px;}
 .db_info_table_cell:nth-child(1) { background: white }
 .db_info_table_cell:nth-child(2) { background: white }
 .db_tools_table_cell_a:nth-child(1) { background: white }

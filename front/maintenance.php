@@ -295,28 +295,28 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['FRITZBOX_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableMainScanMon" onclick="askToggleImport('FB',<?=$_SESSION['FRITZBOX_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_FB'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleFB" onclick="askToggleImport('FB',<?=$_SESSION['FRITZBOX_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_FB'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Mikrotik ---------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['MIKROTIK_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableWebServiceMon" onclick="askToggleImport('MT',<?=$_SESSION['MIKROTIK_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_MT'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleMT" onclick="askToggleImport('MT',<?=$_SESSION['MIKROTIK_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_MT'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Unifi ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['UNIFI_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableICMPMon" onclick="askToggleImport('UF',<?=$_SESSION['UNIFI_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_UF'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleUF" onclick="askToggleImport('UF',<?=$_SESSION['UNIFI_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_UF'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Openwrt ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['OPENWRT_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableSatellites" onclick="askToggleImport('OW',<?=$_SESSION['OPENWRT_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_OW'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('OW',<?=$_SESSION['OPENWRT_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_OW'] . '<br>' . $state;?></button>
                                 </div>
                             </div>
                         </div>
