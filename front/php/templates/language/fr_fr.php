@@ -508,6 +508,10 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Ici, la commande d&apos;installation p
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Il y a encore des entrées de journal dans le cache';
 $pia_lang['MT_Tool_reset_voided'] = 'Réinitialiser les événements ANNULÉS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Les événements ANNULÉS ne sont pas affichés dans le calendrier de présence. Pour réinitialiser tous les événements ANNULÉS (Connecté/Déconnecté), exécutez cette fonction.';
+$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
+$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
+$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
+$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
 $pia_lang['MT_Tggl_Import_head'] = 'Activer/Désactiver la source pour l&apos;importation';
 $pia_lang['MT_Tggl_Import_text'] = 'Cela active ou désactive la source souhaitée pour l&apos;importation de données. Les analyses en cours ne sont pas affectées par l&apos;activation ou la désactivation. Les données déjà importées restent conservées après la désactivation.';
 // Maintenance Page (Backend)

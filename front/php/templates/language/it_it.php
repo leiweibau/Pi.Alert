@@ -510,6 +510,10 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Qui, il comando di installazione può 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Ci sono ancora voci di diario nella cache';
 $pia_lang['MT_Tool_reset_voided'] = 'Reimposta eventi ANNULLATI';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Gli eventi ANNULLATI non vengono visualizzati nel calendario delle presenze. Per reimpostare tutti gli eventi ANNULLATI (Connesso/Disconnesso), esegui questa funzione.';
+$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
+$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
+$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
+$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
 $pia_lang['MT_Tggl_Import_head'] = 'Attiva/Disattiva fonte per l&apos;importazione';
 $pia_lang['MT_Tggl_Import_text'] = 'Questo attiva o disattiva la fonte desiderata per l&apos;importazione dei dati. Le scansioni in corso non sono influenzate dall&apos;attivazione o disattivazione. I dati già importati rimangono conservati dopo la disattivazione.';
 // Maintenance Page (Backend)

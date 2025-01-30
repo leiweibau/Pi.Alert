@@ -255,8 +255,6 @@ $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'The Wake-on-LAN command is sent to
 $pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Result of the latest Nmap Scan';
 $pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Result of the current Nmap Scan';
 $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Result of the previous Nmap Scan';
-$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
-$pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'The automatic speed test starts at ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' and ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' o&apos;clock';
@@ -511,6 +509,10 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Here, the installation command can be 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'There are still journal entries in the cache';
 $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED events are not displayed in the attendance calendar. To reset all VOIDED events (Connected/Disconnected), execute this function.';
+$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
+$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
+$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
+$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
 $pia_lang['MT_Tggl_Import_head'] = 'Enable/Disable Source for Import';
 $pia_lang['MT_Tggl_Import_text'] = 'This enables or disables the desired source for importing data. Ongoing scans are not affected by the activation or deactivation. Data that has already been imported remains preserved after deactivation.';
 // Maintenance Page (Backend)
@@ -601,6 +603,8 @@ $pia_lang['BE_Param_Colors'] = 'Color(s) saved';
 $pia_lang['BE_Param_Colors_error'] = 'Color(s) were not changed or saved (database in use by scan)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'The VOIDED events have been converted into "valid" events';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error updating the VOIDED events';
+$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
+$pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';
