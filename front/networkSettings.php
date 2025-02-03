@@ -25,29 +25,6 @@ require 'php/server/journal.php';
 $DBFILE = '../db/pialert.db';
 OpenDB();
 
-// Edit  unmanaged Device
-if ($_REQUEST['NetworkUnmanagedDevedit'] == "yes") {
-	if (($_REQUEST['NewNetworkUnmanagedDevName'] != "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
-		$sql = 'UPDATE "network_dumb_dev" SET "dev_Name" = "' . $_REQUEST['NewNetworkUnmanagedDevName'] . '", "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id "="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
-		$result = $db->query($sql);
-	}
-	if (($_REQUEST['NewNetworkUnmanagedDevName'] == "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
-		$sql = 'UPDATE "network_dumb_dev" SET "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id"="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
-		$result = $db->query($sql);
-	}
-	// Logging
-	pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0034', '', '');
-}
-// remove unmanaged Device
-if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
-	if (isset($_REQUEST['NetworkUnmanagedDevID'])) {
-		$sql = 'DELETE FROM "network_dumb_dev" WHERE "id"="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
-		$result = $db->query($sql);
-		// Logging
-		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0035', '', '');
-	}
-}
-
 ?>
 
 <div class="content-wrapper">
@@ -325,7 +302,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
               <form role="form" method="post" action="./networkSettings.php">
               <div class="form-group has-warning">
                 <label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
-                  <select class="form-control" name="NetworkUnmanagedDevID">
+                  <select class="form-control" id="NetworkUnmanagedDevID" name="NetworkUnmanagedDevID">
                     <option value=""><?=$pia_lang['NET_Man_Edit_ID_text'];?></option>
 <?php
 $sql = 'SELECT * FROM "network_dumb_dev" ORDER BY "dev_Name" ASC';
@@ -347,7 +324,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 
               <div class="form-group has-warning">
                 <label><?=$pia_lang['NET_UnMan_Devices_Connected'];?>:</label>
-                  <select class="form-control" name="NewNetworkUnmanagedDevConnect">
+                  <select class="form-control" id="NewNetworkUnmanagedDevConnect" name="NewNetworkUnmanagedDevConnect">
                     <option value=""><?=$pia_lang['NET_UnMan_Devices_Connected_text'];?></option>
 <?php
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
@@ -380,7 +357,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
               <form role="form" method="post" action="./networkSettings.php">
               <div class="form-group has-error">
                 <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
-                  <select class="form-control" name="NetworkUnmanagedDevID">
+                  <select class="form-control" id="DelNetworkUnmanagedDevID" name="DelNetworkUnmanagedDevID">
                     <option value=""><?=$pia_lang['NET_Man_Del_Name_text'];?></option>
 <?php
 $sql = 'SELECT "id", "dev_Name" FROM "network_dumb_dev" ORDER BY "dev_Name" ASC';
@@ -540,6 +517,44 @@ function addUnManagedDev(refreshCallback='') {
     + '&NetworkUnmanagedDevName='     + $('#txtNetworkUnmanagedDevName').val()
     + '&NetworkUnmanagedDevConnect='  + $('#txtNetworkUnmanagedDevConnect').val()
     + '&NetworkUnmanagedDevPort='     + $('#NetworkUnmanagedDevPort').val()
+    , function(msg) {
+
+    showMessage (msg);
+    // Callback fuction
+    if (typeof refreshCallback == 'function') {
+      refreshCallback();
+    }
+  });
+}
+
+// -----------------------------------------------------------------------------
+function updUnManagedDev(refreshCallback='') {
+  if ($('#NetworkUnmanagedDevID').val() == '') {
+    return;
+  }
+
+  $.get('php/server/network.php?action=updUnManagedDev'
+    + '&NetworkUnmanagedDevID='          + $('#NetworkUnmanagedDevID').val()
+    + '&NewNetworkUnmanagedDevName='     + $('#NewNetworkUnmanagedDevName').val()
+    + '&NewNetworkUnmanagedDevConnect='  + $('#NewNetworkUnmanagedDevConnect').val()
+    + '&NewNetworkUnmanagedDevPort='     + $('#NewNetworkUnmanagedDevPort').val()
+    , function(msg) {
+
+    showMessage (msg);
+    // Callback fuction
+    if (typeof refreshCallback == 'function') {
+      refreshCallback();
+    }
+  });
+}
+// -----------------------------------------------------------------------------
+function delUnManagedDev(refreshCallback='') {
+  if ($('#DelNetworkUnmanagedDevID').val() == '') {
+    return;
+  }
+
+  $.get('php/server/network.php?action=delUnManagedDev'
+    + '&NetworkUnmanagedDevID='          + $('#DelNetworkUnmanagedDevID').val()
     , function(msg) {
 
     showMessage (msg);

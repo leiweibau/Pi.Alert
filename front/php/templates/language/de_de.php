@@ -654,14 +654,18 @@ $pia_lang['NET_Man_Add_NetName_text'] = 'Netzwerk- oder Gruppenname';
 // Network Page (BackEnd)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_NET_Man_Add'] = 'Eine neue aktive Netzwerkkomponente wurde der Netzwerkübersicht hinzugefügt.';
-$pia_lang['BE_NET_Man_Add_Err'] = 'Fehler beim Hinzufügen der neuen Komponente zur Netzwerkübersicht.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Fehler beim Hinzufügen der neuen aktiven Komponente zur Netzwerkübersicht.';
 $pia_lang['BE_NET_Man_Upd'] = 'Die aktive Netzwerkkomponente wurde aktualisiert.';
 $pia_lang['BE_NET_Man_Upd_Err'] = 'Die aktive Netzwerkkomponente wurde wegen eines Fehlers nicht aktualisiert.';
 $pia_lang['BE_NET_Man_Del'] = 'Die aktive Netzwerkkomponente wurde gelöscht.';
-$pia_lang['BE_NET_Man_Del_Err'] = 'Fehler beim löschen der aktiven Netzwerkkomponente.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Fehler beim Löschen der aktiven Netzwerkkomponente.';
+
 $pia_lang['BE_NET_Man_AddUn'] = 'Eine neue passive Netzwerkkomponente wurde der Netzwerkübersicht hinzugefügt.';
-
-
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Fehler beim Hinzufügen der neuen passiven Komponente zur Netzwerkübersicht.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'Die passive Netzwerkkomponente wurde aktualisiert.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'Die passive Netzwerkkomponente wurde wegen eines Fehlers nicht aktualisiert.';
+$pia_lang['BE_NET_Man_DelUn'] = 'Die passive Netzwerkkomponente wurde gelöscht.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Fehler beim Löschen der passiven Netzwerkkomponente.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Reports';
@@ -838,7 +842,9 @@ $pia_journ_lang['LogStr_0069'] = 'Kein Pi.Alert-Satellite Update verfügbar';
 $pia_journ_lang['LogStr_0070'] = 'Fehler beim Hinzufügen einer aktiven Netzwerkkomponente';
 $pia_journ_lang['LogStr_0071'] = 'Fehler beim Aktualisieren einer aktiven Netzwerkkomponente';
 $pia_journ_lang['LogStr_0072'] = 'Fehler beim Löschen einer aktiven Netzwerkkomponente';
-$pia_journ_lang['LogStr_0073'] = 'Fehler beim Hinzufügen einer passiven Netzwerkkomponente';
+$pia_journ_lang['LogStr_0073'] = 'Fehler beim Hinzufügen eines nicht scanbaren Gerätes';
+$pia_journ_lang['LogStr_0074'] = 'Fehler beim Aktualisieren eines nicht scanbaren Gerätes';
+$pia_journ_lang['LogStr_0072'] = 'Fehler beim Löschen eines nicht scanbaren Gerätes';
 $pia_journ_lang['LogStr_0101'] = 'Datenbank aufgeräumt und optimiert';
 $pia_journ_lang['LogStr_0102'] = 'VOIDED Events zurückgesetzt';
 $pia_journ_lang['LogStr_0103'] = 'VOIDED Events zurückgesetzt (mit Fehler)';

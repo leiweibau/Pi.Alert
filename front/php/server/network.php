@@ -203,11 +203,58 @@ function addUnManagedDev() {
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0033', '', '');
 	} else {
-		echo $pia_lang['BE_NET_Man_Add_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_NET_Man_AddUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0073', '', '');
 	}
 	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 }
+
+function updUnManagedDev() {
+	global $db;
+	global $pia_lang;
+
+	if (($_REQUEST['NewNetworkUnmanagedDevName'] != "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
+		$sql = 'UPDATE "network_dumb_dev" SET "dev_Name" = "' . $_REQUEST['NewNetworkUnmanagedDevName'] . '", "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id "="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
+		$result = $db->query($sql);
+	}
+	if (($_REQUEST['NewNetworkUnmanagedDevName'] == "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
+		$sql = 'UPDATE "network_dumb_dev" SET "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id"="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
+		$result = $db->query($sql);
+	}
+
+	if ($result == TRUE) {
+		echo $pia_lang['BE_NET_Man_UpdUn'];
+		// Logging
+		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0034', '', '');
+	} else {
+		echo $pia_lang['BE_NET_Man_UpdUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0074', '', '');
+	}
+	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
+}
+
+function delUnManagedDev() {
+	global $db;
+	global $pia_lang;
+
+	if (isset($_REQUEST['NetworkUnmanagedDevID'])) {
+		$sql = 'DELETE FROM "network_dumb_dev" WHERE "id"="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
+		$result = $db->query($sql);
+	}
+
+	if ($result == TRUE) {
+		echo $pia_lang['BE_NET_Man_DelUn'];
+		// Logging
+		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0035', '', '');
+	} else {
+		echo $pia_lang['BE_NET_Man_DelUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		// Logging
+		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0075', '', '');
+	}
+	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
+}
+
 //  End
 ?>
