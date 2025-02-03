@@ -647,6 +647,14 @@ $pia_lang['NET_Network_head'] = 'Red';
 $pia_lang['NET_Man_Add_NetName'] = 'Nombre de la red';
 $pia_lang['NET_Man_Edit_NetName'] = 'Nuevo nombre de la red';
 $pia_lang['NET_Man_Add_NetName_text'] = 'Nombre de red o grupo';
+// Network Page (BackEnd)
+//////////////////////////////////////////////////////////////////
+$pia_lang['BE_NET_Man_Add'] = 'Se ha añadido un nuevo componente de red activo a la vista general de la red.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Error al añadir el nuevo componente a la vista general de la red.';
+$pia_lang['BE_NET_Man_Upd'] = 'El componente de red activo ha sido actualizado.';
+$pia_lang['BE_NET_Man_Upd_Err'] = 'El componente de red activo no se actualizó debido a un error.';
+$pia_lang['BE_NET_Man_Del'] = 'El componente de red activo ha sido eliminado.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Error al eliminar el componente de red activo.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notificaciones';
@@ -819,6 +827,9 @@ $pia_journ_lang['LogStr_0066'] = 'Error: Información de actualización no váli
 $pia_journ_lang['LogStr_0067'] = 'No se encontró una versión más reciente';
 $pia_journ_lang['LogStr_0068'] = 'Actualización de Pi.Alert-Satellite disponible';
 $pia_journ_lang['LogStr_0069'] = 'No hay actualización de Pi.Alert-Satellite disponible';
+$pia_journ_lang['LogStr_0070'] = 'Error al añadir un componente de red activo';
+$pia_journ_lang['LogStr_0071'] = 'Error al actualizar un componente de red activo';
+$pia_journ_lang['LogStr_0072'] = 'Error al eliminar un componente de red activo';
 $pia_journ_lang['LogStr_0101'] = 'Base de datos limpiada y optimizada';
 $pia_journ_lang['LogStr_0102'] = 'Eventos ANULADOS restablecidos';
 $pia_journ_lang['LogStr_0103'] = 'Eventos ANULADOS restablecidos (con errores)';

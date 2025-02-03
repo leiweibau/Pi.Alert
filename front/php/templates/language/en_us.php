@@ -647,6 +647,14 @@ $pia_lang['NET_Network_head'] = 'Network';
 $pia_lang['NET_Man_Add_NetName'] = 'Network Name';
 $pia_lang['NET_Man_Edit_NetName'] = 'New Network Name';
 $pia_lang['NET_Man_Add_NetName_text'] = 'Network or Group Name';
+// Network Page (BackEnd)
+//////////////////////////////////////////////////////////////////
+$pia_lang['BE_NET_Man_Add'] = 'A new active network component has been added to the network overview.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Error adding the new component to the network overview.';
+$pia_lang['BE_NET_Man_Upd'] = 'The active network component has been updated.';
+$pia_lang['BE_NET_Man_Upd_Err'] = 'The active network component was not updated due to an error.';
+$pia_lang['BE_NET_Man_Del'] = 'The active network component has been deleted.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Error deleting the active network component.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifications';
@@ -819,6 +827,9 @@ $pia_journ_lang['LogStr_0066'] = 'Error: Invalid update information';
 $pia_journ_lang['LogStr_0067'] = 'No newer version found';
 $pia_journ_lang['LogStr_0068'] = 'Pi.Alert-Satellie update available';
 $pia_journ_lang['LogStr_0069'] = 'No Pi.Alert-Satellie update available';
+$pia_journ_lang['LogStr_0070'] = 'Error adding an active network component';
+$pia_journ_lang['LogStr_0071'] = 'Error updating an active network component';
+$pia_journ_lang['LogStr_0072'] = 'Error deleting an active network component';
 $pia_journ_lang['LogStr_0101'] = 'Database cleaned and optimized';
 $pia_journ_lang['LogStr_0102'] = 'VOIDED events reset';
 $pia_journ_lang['LogStr_0103'] = 'VOIDED events reset (with errors)';

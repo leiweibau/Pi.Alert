@@ -646,6 +646,14 @@ $pia_lang['NET_Network_head'] = 'Réseau';
 $pia_lang['NET_Man_Add_NetName'] = 'Nom du réseau';
 $pia_lang['NET_Man_Edit_NetName'] = 'Nouveau nom du réseau';
 $pia_lang['NET_Man_Add_NetName_text'] = 'Nom du réseau ou du groupe';
+// Network Page (BackEnd)
+//////////////////////////////////////////////////////////////////
+$pia_lang['BE_NET_Man_Add'] = 'Un nouveau composant réseau actif a été ajouté à l&apos;aperçu du réseau.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Erreur lors de l&apos;ajout du nouveau composant à l&apos;aperçu du réseau.';
+$pia_lang['BE_NET_Man_Upd'] = 'Le composant réseau actif a été mis à jour.';
+$pia_lang['BE_NET_Man_Upd_Err'] = 'Le composant réseau actif n&apos;a pas été mis à jour en raison d&apos;une erreur.';
+$pia_lang['BE_NET_Man_Del'] = 'Le composant réseau actif a été supprimé.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Erreur lors de la suppression du composant réseau actif.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifications';
@@ -818,6 +826,9 @@ $pia_journ_lang['LogStr_0066'] = 'Erreur : Informations de mise à jour invalide
 $pia_journ_lang['LogStr_0067'] = 'Aucune version plus récente trouvée';
 $pia_journ_lang['LogStr_0068'] = 'Mise à jour Pi.Alert-Satellite disponible';
 $pia_journ_lang['LogStr_0069'] = 'Aucune mise à jour Pi.Alert-Satellite disponible';
+$pia_journ_lang['LogStr_0070'] = 'Erreur lors de l&apos;ajout d&apos;un composant réseau actif';
+$pia_journ_lang['LogStr_0071'] = 'Erreur lors de la mise à jour d&apos;un composant réseau actif';
+$pia_journ_lang['LogStr_0072'] = 'Erreur lors de la suppression d&apos;un composant réseau actif';
 $pia_journ_lang['LogStr_0101'] = 'Base de données nettoyée et optimisée';
 $pia_journ_lang['LogStr_0102'] = 'Événements ANNULÉS réinitialisés';
 $pia_journ_lang['LogStr_0103'] = 'Événements ANNULÉS réinitialisés (avec erreurs)';

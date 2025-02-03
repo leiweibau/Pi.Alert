@@ -25,48 +25,6 @@ require 'php/server/journal.php';
 $DBFILE = '../db/pialert.db';
 OpenDB();
 
-// Add New Network Devices
-if ($_REQUEST['Networkinsert'] == "yes") {
-	if (isset($_REQUEST['NetworkDeviceName']) && isset($_REQUEST['NetworkDeviceTyp'])) {
-		$sql = 'INSERT INTO "network_infrastructure" ("net_device_name", "net_device_typ", "net_device_port", "net_networkname") VALUES("' . $_REQUEST['NetworkDeviceName'] . '", "' . $_REQUEST['NetworkDeviceTyp'] . '", "' . $_REQUEST['NetworkDevicePort'] . '", "' . $_REQUEST['NetworkGroupName'] . '")';
-		$result = $db->query($sql);
-		// Logging
-		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0030', '', '');
-	}
-}
-// Edit Network Devices
-if ($_REQUEST['Networkedit'] == "yes") {
-	if (($_REQUEST['NewNetworkDeviceName'] != "") && isset($_REQUEST['NewNetworkDeviceTyp'])) {
-		$sql = 'UPDATE "network_infrastructure" SET "net_device_name" = "' . $_REQUEST['NewNetworkDeviceName'] . '", "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '", "net_networkname" = "' . $_REQUEST['NewNetworkGroupName'] . '" WHERE "device_id"="' . $_REQUEST['NetworkDeviceID'] . '"';
-		$result = $db->query($sql);
-	}
-	if (($_REQUEST['NewNetworkDeviceName'] == "") && isset($_REQUEST['NewNetworkDeviceTyp'])) {
-		$sql = 'UPDATE "network_infrastructure" SET "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '", "net_networkname" = "' . $_REQUEST['NewNetworkGroupName'] . '" WHERE "device_id "="' . $_REQUEST['NetworkDeviceID'] . '"';
-		$result = $db->query($sql);
-	}
-	// Logging
-	pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0031', '', '');
-}
-// remove Network Devices
-if ($_REQUEST['Networkdelete'] == "yes") {
-	if (isset($_REQUEST['NetworkDeviceID'])) {
-		$sql = 'DELETE FROM "network_infrastructure" WHERE "device_id"="' . $_REQUEST['NetworkDeviceID'] . '"';
-		$result = $db->query($sql);
-	}
-	// Logging
-	pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0032', '', '');
-}
-// Add New unmanaged Device
-if ($_REQUEST['NetworkUnmanagedDevinsert'] == "yes") {
-	if (isset($_REQUEST['NetworkUnmanagedDevName']) && isset($_REQUEST['NetworkUnmanagedDevConnect'])) {
-		$ip = 'Unmanaged';
-		$dumbvar = 'dumb';
-		$sql = 'INSERT INTO "network_dumb_dev" ("dev_Name", "dev_MAC", "dev_Infrastructure", "dev_Infrastructure_port", "dev_PresentLastScan", "dev_LastIP") VALUES("' . $_REQUEST['NetworkUnmanagedDevName'] . '", "' . $dumbvar . '", "' . $_REQUEST['NetworkUnmanagedDevConnect'] . '", "' . $_REQUEST['NetworkUnmanagedDevPort'] . '", "' . $dumbvar . '", "' . $ip . '")';
-		$result = $db->query($sql);
-		// Logging
-		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0033', '', '');
-	}
-}
 // Edit  unmanaged Device
 if ($_REQUEST['NetworkUnmanagedDevedit'] == "yes") {
 	if (($_REQUEST['NewNetworkUnmanagedDevName'] != "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
@@ -121,7 +79,7 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
               <div class="form-group has-success">
                   <label for="NetworkDeviceName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
                   <div class="input-group">
-                      <input class="form-control" id="txtNetworkNodeMac" name="NetworkDeviceName" type="text" placeholder="<?=$pia_lang['NET_Man_Add_Name_text'];?>">
+                      <input class="form-control" id="txtNetworkDeviceName" name="NetworkDeviceName" type="text" placeholder="<?=$pia_lang['NET_Man_Add_Name_text'];?>">
                           <div class="input-group-btn">
                             <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkNodeMac">
                                 <span class="fa fa-caret-down"></span>
@@ -159,7 +117,7 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
                   </div>
               </div>
               <div class="form-group">
-              <button type="submit" class="btn btn-success" name="Networkinsert" value="yes"><?=$pia_lang['NET_Man_Add_Submit'];?></button>
+              <button type="button" class="btn btn-success" name="Networkinsert" onclick="addManagedDev()"><?=$pia_lang['NET_Man_Add_Submit'];?></button>
           	  </div>
           </form>
               <!-- /.form-group -->
@@ -171,7 +129,7 @@ if ($_REQUEST['NetworkUnmanagedDevdelete'] == "yes") {
               <form role="form" method="post" action="./networkSettings.php">
               <div class="form-group has-warning">
               	<label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
-                  <select class="form-control" name="NetworkDeviceID" onchange="get_networkdev_values(event)">
+                  <select class="form-control" id="UpdNetworkDeviceID" name="UpdNetworkDeviceID" onchange="get_networkdev_values(event)">
                     <option value=""><?=$pia_lang['NET_Man_Edit_ID_text'];?></option>
 <?php
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices", "net_networkname" FROM "network_infrastructure" ORDER BY "net_networkname" ASC, "net_device_typ" ASC';
@@ -275,7 +233,7 @@ loadNetworkDevices(netdev_type);
                   </div>
               </div>
               <div class="form-group">
-                <button type="submit" class="btn btn-warning" name="Networkedit" value="yes"><?=$pia_lang['NET_Man_Edit_Submit'];?></button>
+                <button type="button" class="btn btn-warning" name="Networkedit" onclick="updManagedDev()"><?=$pia_lang['NET_Man_Edit_Submit'];?></button>
               </div>
          	 </form>
               <!-- /.form-group -->
@@ -287,23 +245,23 @@ loadNetworkDevices(netdev_type);
               <form role="form" method="post" action="./networkSettings.php">
               <div class="form-group has-error">
                 <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
-                  <select class="form-control" name="NetworkDeviceID">
+                  <select class="form-control" id="DelNetworkDeviceID" name="DelNetworkDeviceID">
                     <option value=""><?=$pia_lang['NET_Man_Del_Name_text'];?></option>
 <?php
-$sql = 'SELECT "device_id", "net_device_name", "net_device_typ" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
+$sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_networkname" FROM "network_infrastructure" ORDER BY "net_networkname" ASC, "net_device_typ" ASC';
 $result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
 while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['device_id'])) {
 		continue;
 	}
-	echo '<option value="' . $res['device_id'] . '">' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
+	echo '<option value="' . $res['device_id'] . '">'.$res['net_networkname'].' - ' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
 }
 ?>
                   </select>
               </div>
               <!-- /.form-group -->
               <div class="form-group">
-                <button type="submit" class="btn btn-danger" name="Networkdelete" value="yes"><?=$pia_lang['NET_Man_Del_Submit'];?></button>
+                <button type="button" class="btn btn-danger" name="Networkdelete" onclick="delManagedDev()"><?=$pia_lang['NET_Man_Del_Submit'];?></button>
               </div>
            </form>
               <!-- /.form-group -->
@@ -330,12 +288,12 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
               <!-- /.form-group -->
               <div class="form-group has-success">
                 <label for="NetworkUnmanagedDevName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
-                <input type="text" class="form-control" id="NetworkUnmanagedDevName" name="NetworkUnmanagedDevName" placeholder="<?=$pia_lang['NET_Man_Add_Name_text'];?>">
+                <input type="text" class="form-control" id="txtNetworkUnmanagedDevName" name="NetworkUnmanagedDevName" placeholder="<?=$pia_lang['NET_Man_Add_Name_text'];?>">
               </div>
 
               <div class="form-group has-success">
                 <label><?=$pia_lang['NET_UnMan_Devices_Connected'];?>:</label>
-                  <select class="form-control" name="NetworkUnmanagedDevConnect">
+                  <select class="form-control" id="txtNetworkUnmanagedDevConnect" name="NetworkUnmanagedDevConnect">
                     <option value=""><?=$pia_lang['NET_UnMan_Devices_Connected_text'];?></option>
 <?php
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
@@ -355,7 +313,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
                 <input type="text" class="form-control" id="NetworkUnmanagedDevPort" name="NetworkUnmanagedDevPort" placeholder="<?=$pia_lang['NET_UnMan_Devices_Port_text'];?>">
               </div>
               <div class="form-group">
-              <button type="submit" class="btn btn-success" name="NetworkUnmanagedDevinsert" value="yes"><?=$pia_lang['NET_Man_Add_Submit'];?></button>
+              <button type="button" class="btn btn-success" name="NetworkUnmanagedDevinsert" onclick="addUnManagedDev()"><?=$pia_lang['NET_Man_Add_Submit'];?></button>
               </div>
           </form>
               <!-- /.form-group -->
@@ -410,7 +368,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
               </div>
 
               <div class="form-group">
-                <button type="submit" class="btn btn-warning" name="NetworkUnmanagedDevedit" value="yes"><?=$pia_lang['NET_Man_Edit_Submit'];?></button>
+                <button type="button" class="btn btn-warning" name="NetworkUnmanagedDevedit" onclick="updUnManagedDev()"><?=$pia_lang['NET_Man_Edit_Submit'];?></button>
               </div>
            </form>
               <!-- /.form-group -->
@@ -438,7 +396,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
               </div>
               <!-- /.form-group -->
               <div class="form-group">
-                <button type="submit" class="btn btn-danger" name="NetworkUnmanagedDevdelete" value="yes"><?=$pia_lang['NET_Man_Del_Submit'];?></button>
+                <button type="button" class="btn btn-danger" name="NetworkUnmanagedDevdelete" onclick="delUnManagedDev()"><?=$pia_lang['NET_Man_Del_Submit'];?></button>
               </div>
            </form>
               <!-- /.form-group -->
@@ -511,6 +469,85 @@ function set_placeholder(inputId, typ) {
     } else {
         inputElement.placeholder = "<?=$pia_lang['NET_Man_Edit_Downlink_text'];?>";
     }
+}
+// -----------------------------------------------------------------------------
+function addManagedDev(refreshCallback='') {
+  if ($('#txtNetworkDeviceName').val() == '') {
+    return;
+  }
+
+  $.get('php/server/network.php?action=addManagedDev'
+    + '&NetworkDeviceName='  + $('#txtNetworkDeviceName').val()
+    + '&NetworkDeviceTyp='   + $('#txtNetworkDeviceTyp').val()
+    + '&NetworkDevicePort='  + $('#NetworkDevicePort').val()
+    + '&NetworkGroupName='   + $('#txtNetworkGroupName').val()
+    , function(msg) {
+
+    showMessage (msg);
+    // Callback fuction
+    if (typeof refreshCallback == 'function') {
+      refreshCallback();
+    }
+  });
+}
+// -----------------------------------------------------------------------------
+function updManagedDev(refreshCallback='') {
+  if ($('#UpdNetworkDeviceID').val() == '') {
+    return;
+  }
+
+  $.get('php/server/network.php?action=updManagedDev'
+    + '&NetworkDeviceID='          + $('#UpdNetworkDeviceID').val()
+    + '&NewNetworkDeviceName='     + $('#NewNetworkDeviceName').val()
+    + '&NewNetworkDeviceTyp='      + $('#txtNewNetworkDeviceTyp').val()
+    + '&NewNetworkDevicePort='     + $('#NewNetworkDevicePort').val()
+    + '&NewNetworkGroupName='      + $('#txtNewNetworkGroupName').val()
+    + '&NetworkDeviceDownlink='    + $('#txtNetworkDeviceDownlinkMac').val()
+    , function(msg) {
+
+    showMessage (msg);
+    // Callback fuction
+    if (typeof refreshCallback == 'function') {
+      refreshCallback();
+    }
+  });
+}
+// -----------------------------------------------------------------------------
+function delManagedDev(refreshCallback='') {
+  if ($('#DelNetworkDeviceID').val() == '') {
+    return;
+  }
+
+  $.get('php/server/network.php?action=delManagedDev'
+    + '&NetworkDeviceID='          + $('#DelNetworkDeviceID').val()
+    , function(msg) {
+
+    showMessage (msg);
+    // Callback fuction
+    if (typeof refreshCallback == 'function') {
+      refreshCallback();
+    }
+  });
+}
+
+// -----------------------------------------------------------------------------
+function addUnManagedDev(refreshCallback='') {
+  if ($('#txtNetworkUnmanagedDevName').val() == '') {
+    return;
+  }
+
+  $.get('php/server/network.php?action=addUnManagedDev'
+    + '&NetworkUnmanagedDevName='     + $('#txtNetworkUnmanagedDevName').val()
+    + '&NetworkUnmanagedDevConnect='  + $('#txtNetworkUnmanagedDevConnect').val()
+    + '&NetworkUnmanagedDevPort='     + $('#NetworkUnmanagedDevPort').val()
+    , function(msg) {
+
+    showMessage (msg);
+    // Callback fuction
+    if (typeof refreshCallback == 'function') {
+      refreshCallback();
+    }
+  });
 }
 
 main();

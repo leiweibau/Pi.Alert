@@ -651,6 +651,14 @@ $pia_lang['NET_Network_head'] = 'Rete';
 $pia_lang['NET_Man_Add_NetName'] = 'Nome della rete';
 $pia_lang['NET_Man_Edit_NetName'] = 'Nuovo nome della rete';
 $pia_lang['NET_Man_Add_NetName_text'] = 'Nome della rete o del gruppo';
+// Network Page (BackEnd)
+//////////////////////////////////////////////////////////////////
+$pia_lang['BE_NET_Man_Add'] = 'È stato aggiunto un nuovo componente di rete attivo alla panoramica della rete.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Errore durante l&apos;aggiunta del nuovo componente alla panoramica della rete.';
+$pia_lang['BE_NET_Man_Upd'] = 'Il componente di rete attivo è stato aggiornato.';
+$pia_lang['BE_NET_Man_Upd_Err'] = 'Il componente di rete attivo non è stato aggiornato a causa di un errore.';
+$pia_lang['BE_NET_Man_Del'] = 'Il componente di rete attivo è stato eliminato.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Errore durante l&apos;eliminazione del componente di rete attivo.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifiche';
@@ -823,6 +831,9 @@ $pia_journ_lang['LogStr_0066'] = 'Errore: Informazioni di aggiornamento non vali
 $pia_journ_lang['LogStr_0067'] = 'Non è stata trovata una versione più recente';
 $pia_journ_lang['LogStr_0068'] = 'Aggiornamento Pi.Alert-Satellite disponibile';
 $pia_journ_lang['LogStr_0069'] = 'Nessun aggiornamento Pi.Alert-Satellite disponibile';
+$pia_journ_lang['LogStr_0070'] = 'Errore durante l&apos;aggiunta di un componente di rete attivo';
+$pia_journ_lang['LogStr_0071'] = 'Errore durante l&apos;aggiornamento di un componente di rete attivo';
+$pia_journ_lang['LogStr_0072'] = 'Errore durante l&apos;eliminazione di un componente di rete attivo';
 $pia_journ_lang['LogStr_0101'] = 'Ottimizzazione e pulizia del database';
 $pia_journ_lang['LogStr_0102'] = 'Eventi ANNULLATI reimpostati';
 $pia_journ_lang['LogStr_0103'] = 'Eventi ANNULLATI reimpostati (con errori)';
