@@ -408,6 +408,19 @@ PIHOLE6_API_MAXCLIENTS     = 100
 EOF
 fi
 
+# 2025-01-28
+if ! grep -Fq "# OpenWRT Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# OpenWRT Configuration
+# ----------------------
+OPENWRT_ACTIVE            = False
+OPENWRT_IP                = '192.168.1.1'
+OPENWRT_USER              = 'root'
+OPENWRT_PASS              = ''
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------
@@ -545,6 +558,7 @@ check_python_version() {
     check_and_install_package "fritzconnection"
     check_and_install_package "routeros_api"
     check_and_install_package "pyunifi"
+    check_and_install_package "openwrt-luci-rpc"
   else
     print_msg "Python 3 NOT installed"
     process_error "Python 3 is required for this application"

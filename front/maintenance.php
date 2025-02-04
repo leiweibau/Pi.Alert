@@ -77,6 +77,11 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
 
+if (get_config_parmeter('FRITZBOX_ACTIVE') == 1) {$_SESSION['FRITZBOX_ACTIVE'] = 1;} else { $_SESSION['FRITZBOX_ACTIVE'] = 0;}
+if (get_config_parmeter('MIKROTIK_ACTIVE') == 1) {$_SESSION['MIKROTIK_ACTIVE'] = 1;} else { $_SESSION['MIKROTIK_ACTIVE'] = 0;}
+if (get_config_parmeter('UNIFI_ACTIVE') == 1) {$_SESSION['UNIFI_ACTIVE'] = 1;} else { $_SESSION['UNIFI_ACTIVE'] = 0;}
+if (get_config_parmeter('OPENWRT_ACTIVE') == 1) {$_SESSION['OPENWRT_ACTIVE'] = 1;} else { $_SESSION['OPENWRT_ACTIVE'] = 0;}
+
 // Buffer active --------------------------------------------------------------
 	$file = '../db/pialert_journal_buffer';
 	if (file_exists($file)) {
@@ -282,6 +287,41 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
                         </div>
                     </td>
 				</tr>
+                <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_g'];?></h4></td></tr>
+                <tr class="table_settings_row">
+                    <td class="db_info_table_cell" colspan="2" style="padding-bottom: 20px;">
+                        <div style="display: flex; justify-content: center; flex-wrap: wrap;">
+<!-- Toggle Fritzbox ----------------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['FRITZBOX_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleFB" onclick="askToggleImport('FB',<?=$_SESSION['FRITZBOX_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_FB'] . '<br>' . $state;?></button>
+                                </div>
+                            </div>
+<!-- Toggle Mikrotik ---------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['MIKROTIK_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleMT" onclick="askToggleImport('MT',<?=$_SESSION['MIKROTIK_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_MT'] . '<br>' . $state;?></button>
+                                </div>
+                            </div>
+<!-- Toggle Unifi ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['UNIFI_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleUF" onclick="askToggleImport('UF',<?=$_SESSION['UNIFI_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_UF'] . '<br>' . $state;?></button>
+                                </div>
+                            </div>
+<!-- Toggle Openwrt ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['OPENWRT_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('OW',<?=$_SESSION['OPENWRT_ACTIVE'];?>)"><?=$pia_lang['MT_Tggl_Import_OW'] . '<br>' . $state;?></button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
                 <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_c'];?></h4></td></tr>
 <!-- API Key -------------------------------------------------------------- -->
                 <tr class="table_settings_row">
@@ -619,6 +659,12 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_tools_table_cell_a">
+                        <button type="button" class="btn btn-default dbtools-button" id="btnDeleteAllEvents" onclick="askresetVoidedEvents()"><?=$pia_lang['MT_Tool_reset_voided'];?></button>
+                    </div>
+                    <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_reset_voided_text'];?></div>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="db_tools_table_cell_a">
                         <button type="button" class="btn btn-default dbtools-button" id="btnDeleteActHistory" onclick="askDeleteActHistory()"><?=$pia_lang['MT_Tool_del_ActHistory'];?></button>
                     </div>
                     <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_del_ActHistory_text'];?></div>
@@ -920,6 +966,24 @@ function deleteUnknownDevices() {
 	$.get('php/server/devices.php?action=deleteUnknownDevices', function(msg) {showMessage (msg);});
 }
 
+// Toggle Imports
+function askToggleImport(fdeviceType,ftoggleState) {
+  window.global_fdeviceType = fdeviceType;
+  window.global_ftoggleState = ftoggleState;
+  showModalWarning('<?=$pia_lang['MT_Tggl_Import_head'];?>', '<?=$pia_lang['MT_Tggl_Import_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'ToggleImport');
+}
+function ToggleImport() {
+  var fdeviceType = window.global_fdeviceType;
+  var ftoggleState = window.global_ftoggleState;
+  $.get('php/server/files.php?action=ToggleImport'
+    + '&deviceType='    + fdeviceType
+    + '&toggleState='   + ftoggleState
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+
 // delete all Events
 function askDeleteEvents() {
   showModalWarning('<?=$pia_lang['MT_Tool_del_allevents_noti'];?>', '<?=$pia_lang['MT_Tool_del_allevents_noti_text'];?>',
@@ -954,6 +1018,15 @@ function askDeleteNmapScansResults() {
 }
 function DeleteNmapScansResults() {
 	$.get('php/server/devices.php?action=DeleteNmapScansResults', function(msg) {showMessage (msg);});
+}
+
+// reset VOIDED
+function askresetVoidedEvents() {
+  showModalWarning('<?=$pia_lang['MT_Tool_reset_voided'];?>', '<?=$pia_lang['MT_Tool_reset_voided_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'resetVoidedEvents');
+}
+function resetVoidedEvents() {
+    $.get('php/server/devices.php?action=resetVoidedEvents', function(msg) {showMessage (msg);});
 }
 
 // Backup DB to Archive

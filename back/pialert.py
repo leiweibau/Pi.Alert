@@ -608,9 +608,9 @@ def cleanup_database():
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_EVENTS) + ' days:')
     print('    Events')
     sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
-    print('        ...Fixing missing or VOIDED events')
+    #print('        ...Fixing missing or VOIDED events')
     RepairedEventTime = startTime - timedelta(days=DAYS_TO_KEEP_EVENTS)
-    sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
+    #sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
     sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
     repair_devices = sql.fetchall()
     for device in repair_devices:
@@ -630,13 +630,14 @@ def cleanup_database():
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_ONLINEHISTORY) + ' days:')
     print('    Online_History')
     sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
-    print('    Services_Events')
-    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
-    print('    ICMP_Mon_Events')
-    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
     print('    Speedtest_History')
     sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
 
+    print('\nCleanup tables, up to the lastest hard-coded days:')
+    print('    Services_Events (30)')
+    sql.execute("DELETE FROM Services_Events WHERE moneve_DateTime <= date('now', '-" + str(30) + " day')")
+    print('    ICMP_Mon_Events (14)')
+    sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(14) + " day')")
 
     print('\nTrim Journal to the lastest 1000 entries')
     sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
@@ -815,37 +816,34 @@ def scan_network():
     #arpscan_retries = scanCycle_data['cic_arpscanCycles']
     # arp-scan command
     print('\nScanning...')
-    print('    arp-scan Method...')
     print_log ('arp-scan starts...')
     arpscan_devices = execute_arpscan()
     print_log ('arp-scan ends')
     # Pi-hole
-    print(f"    Pi-hole {PIHOLE_VERSION} Client List Method...")
     openDB()
     print_log ('Pi-hole copy starts...')
     copy_pihole_network()
     # DHCP Leases
-    print(f"    Pi-hole {PIHOLE_VERSION} DHCP Leases Method...")
     read_DHCP_leases()
     if PIHOLE6_SES_VALID==True:
         pihole_six_api_deauth()
     # Fritzbox
-    print('    Fritzbox Method...')
     openDB()
     print_log ('Fritzbox copy starts...')
     read_fritzbox_active_hosts()
     # Mikrotik
-    print('    Mikrotik Method...')
     openDB()
     print_log ('Mikrotik copy starts...')
     read_mikrotik_leases()
     # UniFi
-    print('    UniFi Method...')
     openDB()
     print_log ('UniFi copy starts...')
     read_unifi_clients()
+    # OpenWRT
+    openDB()
+    print_log ('OpenWRT copy starts...')
+    read_openwrt_clients()
     # Import Satellites Scans
-    print('    Satellite Import...')
     get_satellite_scans()
     # Load current scan data 1/2
     print('\nProcessing scan results...')
@@ -956,21 +954,22 @@ def execute_arpscan():
 
     # check if arp-scan is active
     if not ARPSCAN_ACTIVE:
-        print('        ...Skipped')
         unique_devices = []
         return unique_devices
+
+    print('    arp-scan Method...')
 
     # output of possible multiple interfaces
     arpscan_output = ""
 
     # multiple interfaces
     if type(SCAN_SUBNETS) is list:
-        print("    arp-scan: Multiple interfaces")
+        print("        ...arp-scan: Multiple interfaces")
         for interface in SCAN_SUBNETS :
             arpscan_output += execute_arpscan_on_interface (interface)
     # one interface only
     else:
-        print("    arp-scan: One interface")
+        print("        ...arp-scan: One interface")
         arpscan_output += execute_arpscan_on_interface (SCAN_SUBNETS)
 
     # Search IP + MAC + Vendor as regular expresion
@@ -1019,8 +1018,9 @@ def copy_pihole_network():
 
     # check if Pi-hole is active
     if not PIHOLE_ACTIVE :
-        print("        ...Skipped")
         return
+
+    print(f"    Pi-hole {PIHOLE_VERSION} Client List Method...")
 
     if PIHOLE_VERSION in (None, 5):
         copy_pihole_network_five()
@@ -1235,10 +1235,15 @@ def read_fritzbox_active_hosts():
 
     # check if Pi-hole is active
     if not FRITZBOX_ACTIVE :
-        print('        ...Skipped')
         return
 
-    from fritzconnection.lib.fritzhosts import FritzHosts
+    print('    Fritzbox Method...')
+
+    try:
+        from fritzconnection.lib.fritzhosts import FritzHosts
+    except:
+        print('        Missing python package')
+        return
 
     # copy Fritzbox Network list
     fh = FritzHosts(address=FRITZBOX_IP, user=FRITZBOX_USER, password=FRITZBOX_PASS)
@@ -1272,11 +1277,15 @@ def read_mikrotik_leases():
     sql.execute ("DELETE FROM Mikrotik_Network")
 
     if not MIKROTIK_ACTIVE:
-        print('        ...Skipped')
         return
 
-    #installed using pip3 install routeros_api
-    import routeros_api
+    print('    Mikrotik Method...')
+
+    try:
+        import routeros_api
+    except:
+        print('        Missing python package')
+        return
 
     data = []
     conn = routeros_api.RouterOsApiPool(MIKROTIK_IP, MIKROTIK_USER, MIKROTIK_PASS, plaintext_login=True)
@@ -1311,10 +1320,15 @@ def read_unifi_clients():
     sql.execute ("DELETE FROM Unifi_Network")
 
     if not UNIFI_ACTIVE:
-        print('        ...Skipped')
         return
 
-    from pyunifi.controller import Controller
+    print('    UniFi Method...')
+
+    try:
+        from pyunifi.controller import Controller
+    except:
+        print('        Missing python package')
+        return
 
     # Enable self signed SSL / no warnings
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -1337,7 +1351,7 @@ def read_unifi_clients():
                 try:
                     vendor = MacLookup().lookup(mac)
                 except:
-                    vendor = "Prefix is not registered"
+                    vendor = "(unknown)"
 
             sql.execute ("INSERT INTO Unifi_Network (UF_MAC, UF_IP, UF_Name, UF_Vendor) "+
                          "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
@@ -1346,11 +1360,65 @@ def read_unifi_clients():
         print('        Could not connect to UniFi Controller')
 
 #-------------------------------------------------------------------------------
+def read_openwrt_clients():
+    # create table if not exists
+    sql_create_table = """ CREATE TABLE IF NOT EXISTS Openwrt_Network(
+                                "OWRT_MAC" STRING(50) NOT NULL COLLATE NOCASE,
+                                "OWRT_IP" STRING(50) COLLATE NOCASE,
+                                "OWRT_Name" STRING(50),
+                                "OWRT_Vendor" STRING(250)
+                            ); """
+    sql.execute(sql_create_table)
+    sql_connection.commit()
+
+    # empty Fritzbox Network table
+    sql.execute ("DELETE FROM Openwrt_Network")
+
+    if not OPENWRT_ACTIVE:
+        return
+
+    print('    OpenWRT Method...')
+
+    try:
+        from openwrt_luci_rpc import OpenWrtRpc
+    except:
+        print('        Missing python package')
+        return
+
+    
+    try:
+        router = OpenWrtRpc(str(OPENWRT_IP), str(OPENWRT_USER), str(OPENWRT_PASS))
+        result = router.get_all_connected_devices(only_reachable=True)
+
+        # devices_info = []
+
+        for device in result:
+            if str(device.hostname) == 'None':
+                hostname = '(unknown)'
+            else:
+                hostname = device.hostname
+
+            # device_data = {
+            #     'mac': device.mac,
+            #     'hostname': hostname,
+            #     'ip': device.ip
+            # }
+            # devices_info.append(device_data)
+
+            sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, UF_Name, OWRT_Vendor) "+
+                         "VALUES (?, ?, ?, ?) ", (device.mac, device.ip, hostname, '(unknown)') )
+
+    except Exception as e:
+        #print(f"Es ist ein Fehler aufgetreten")
+        print(f"Error")
+
+#-------------------------------------------------------------------------------
 def read_DHCP_leases():
     # check DHCP Leases is active
     if not DHCP_ACTIVE :
-        print('        ...Skipped')
         return
+
+    print(f"    Pi-hole {PIHOLE_VERSION} DHCP Leases Method...")
 
     if PIHOLE_VERSION in (None, 5):
         read_DHCP_leases_five()
@@ -1441,8 +1509,9 @@ def read_DHCP_leases_six():
 def get_satellite_scans():
     sql.execute ("DELETE FROM Satellites_Network")
     if not SATELLITES_ACTIVE:
-        print('        ...Skipped')
         return
+
+    print('    Satellite Import...')
 
     print_log('        ...Mode detection')
     get_satellites = "SELECT sat_password, sat_token FROM Satellites"
@@ -1487,11 +1556,13 @@ def process_satellites(satellite_list):
                     scan_fritzbox = 1 if satellite_scan_config.get('scan_fritzbox', False) else 0
                     scan_mikrotik = 1 if satellite_scan_config.get('scan_mikrotik', False) else 0
                     scan_unifi = 1 if satellite_scan_config.get('scan_unifi', False) else 0
+                    scan_openwrt = 1 if satellite_scan_config.get('scan_openwrt', False) else 0
                 except (KeyError, IndexError, TypeError):
                     scan_arp = 0
                     scan_fritzbox = 0
                     scan_mikrotik = 0
                     scan_unifi = 0
+                    scan_openwrt = 0
 
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check':
@@ -1519,8 +1590,9 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_fritzbox = ?,
                                     sat_conf_scan_mikrotik = ?,
                                     sat_conf_scan_unifi = ?,
+                                    sat_conf_scan_openwrt = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
@@ -1606,33 +1678,12 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                     (cycle,
                      (int(startTime.strftime('%s')) - 60 * p_cycle_interval),
                      cycle) )
-
-    # Insert Fritzbox devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, FB_MAC, FB_IP, FB_Vendor, 'Fritzbox'
-                    FROM Fritzbox_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = FB_MAC )""",
-                    (cycle) )
-
-    # Insert Mikrotik devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, MT_MAC, MT_IP, MT_Vendor, 'Mikrotik'
-                    FROM Mikrotik_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = MT_MAC )""",
-                    (cycle) )
-
-    # Insert UniFi devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, UF_MAC, UF_IP, UF_Vendor, 'UniFi'
-                    FROM Unifi_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = UF_MAC )""",
-                    (cycle) )
+    
+    # External source import
+    insert_ext_sources(sql, cycle, 'Fritzbox_Network', 'FB_MAC', 'FB_IP', 'FB_Vendor', 'Fritzbox')
+    insert_ext_sources(sql, cycle, 'Mikrotik_Network', 'MT_MAC', 'MT_IP', 'MT_Vendor', 'Mikrotik')
+    insert_ext_sources(sql, cycle, 'Unifi_Network', 'UF_MAC', 'UF_IP', 'UF_Vendor', 'UniFi')
+    insert_ext_sources(sql, cycle, 'Openwrt_Network', 'OWRT_MAC', 'OWRT_IP', 'OWRT_Vendor', 'OpenWRT')
 
     # Insert Satellite devices
     sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
@@ -1666,6 +1717,16 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     if sql.fetchone()[0] == 0 :
         sql.execute ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod) "+
                      "VALUES ( ?, ?, ?, Null, 'local_MAC') ", (cycle, local_mac, local_ip) )
+
+#-------------------------------------------------------------------------------
+def insert_ext_sources(sql, cycle, network_table, mac_column, ip_column, vendor_column, scan_method):
+    sql.execute(f"""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
+                        cur_IP, cur_Vendor, cur_ScanMethod)
+                    SELECT ?, {mac_column}, {ip_column}, {vendor_column}, ?
+                    FROM {network_table}
+                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
+                                      WHERE cur_MAC = {mac_column} )""",
+                (cycle, scan_method))
 
 #-------------------------------------------------------------------------------
 def dump_all_resulttables():
@@ -1791,31 +1852,25 @@ def print_scan_stats():
                     WHERE cur_ScanCycle = ? """,
                     (cycle,))
     print('    Devices Detected.......:', str (sql.fetchone()[0]) )
-    # Devices arp-scan
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='arp-scan' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        arp-scan Method....:', str (sql.fetchone()[0]) )
-    # Devices Pi-hole
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='Pi-hole' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        Pi-hole Method.....: +' + str (sql.fetchone()[0]) )
-    # Devices Fritzbox
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='Fritzbox' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        Fritzbox Method....: +' + str (sql.fetchone()[0]) )
-    # Devices Mikrotik
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='Mikrotik' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        Mikrotik Method....: +' + str (sql.fetchone()[0]) )
-    # Devices UniFi
-    sql.execute ("""SELECT COUNT(*) FROM CurrentScan
-                    WHERE cur_ScanMethod='UniFi' AND cur_ScanCycle = ? """,
-                    (cycle,))
-    print('        UniFi Method.......: +' + str (sql.fetchone()[0]) )
+
+    scan_methods = [
+        "arp-scan",
+        "Pi-hole",
+        "Fritzbox",
+        "Mikrotik",
+        "UniFi",
+        "OpenWRT"
+    ]
+
+    # Count devices for each method and output if count > 0
+    for method in scan_methods:
+        sql.execute("""SELECT COUNT(*) FROM CurrentScan
+                       WHERE cur_ScanMethod = ? AND cur_ScanCycle = ?""",
+                    (method, cycle))
+        count = sql.fetchone()[0]
+        if count > 0:
+            print(f'        {method} Method: +{count}')
+
     # New Devices
     sql.execute ("""SELECT COUNT(*) FROM CurrentScan
                     WHERE cur_ScanCycle = ? 
@@ -2290,12 +2345,12 @@ def resolve_device_name_avahi(pIP):
 def resolve_device_name_dig(pIP):
     # DNS Server Fallback
     try:
-        temp = NETWORK_DNS_SERVER
+        dnsserver = str(NETWORK_DNS_SERVER)
     except NameError:
-        NETWORK_DNS_SERVER = "localhost"
+        dnsserver = "localhost"
 
     try: 
-        dig_args = ['dig', '+short', '-x', pIP, '@'+NETWORK_DNS_SERVER]
+        dig_args = ['dig', '+short', '-x', pIP, '@'+dnsserver]
         newName = subprocess.check_output (dig_args, universal_newlines=True, timeout=5)
         if ";; communications error to" in newName:
             newName = ""
@@ -2329,14 +2384,13 @@ def resolve_device_name(pMAC, pIP):
         return -2
         
     # Eliminate local domain
-    if newName.endswith('.') :
-        newName = newName[:-1]
-    if newName.endswith('.lan') :
-        newName = newName[:-4]
-    if newName.endswith('.local') :
-        newName = newName[:-6]
-    if newName.endswith('.home') :
-        newName = newName[:-5]
+    suffixes = ['.', '.lan', '.local', '.home']
+
+    for suffix in suffixes:
+        if newName.endswith(suffix):
+            newName = newName[:-len(suffix)]
+            break
+
     return newName
 
 #-------------------------------------------------------------------------------
@@ -3086,6 +3140,9 @@ def icmp_monitoring():
         # Save Scan Results
         icmp_save_scandata(icmp_scan_results)
 
+        print("    Create Events...")
+        icmp_create_events()
+
         print("    Calculate Activity History...")
         calc_activity_history_icmp(icmphosts_online, icmphosts_offline)
 
@@ -3100,11 +3157,62 @@ def icmp_monitoring():
 def icmp_save_scandata(data):
     print("    Save scan results...")
     for host_ip, scan_data in data.items():
-        #print(f"Host IP: {host_ip}")
-        #print(f"ICMP Status: {scan_data['icmp_status']}")
         set_icmphost_events(host_ip, scan_data['scantime'], scan_data['icmp_status'], scan_data['icmp_rtt'])
         set_icmphost_current_scan(host_ip, scan_data['scantime'], scan_data['icmp_status'], scan_data['icmp_rtt'])
         set_icmphost_update(host_ip, scan_data['scantime'], scan_data['icmp_status'], scan_data['icmp_rtt'])
+
+# -----------------------------------------------------------------------------
+def icmp_create_events():
+
+    # Check new connections
+    print_log ('Events - New Connections')
+    sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
+                        SELECT 
+                            cur.cur_ip AS icmpeve_ip,
+                            cur.cur_LastScan AS icmpeve_DateTime,
+                            cur.cur_Present AS icmpeve_Present,
+                            'Connected' AS icmpeve_EventType
+                        FROM 
+                            ICMP_Mon_CurrentScan cur
+                        WHERE 
+                            cur.cur_Present = 1
+                            AND cur.cur_PresentChanged = 1;""")
+
+    print_log ('Events - Disconnections')
+    sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
+                        SELECT 
+                            cur.cur_ip AS icmpeve_ip,
+                            cur.cur_LastScan AS icmpeve_DateTime,
+                            cur.cur_Present AS icmpeve_Present,
+                            'Disconnected' AS icmpeve_EventType
+                        FROM 
+                            ICMP_Mon_CurrentScan cur
+                        JOIN 
+                            ICMP_Mon mon
+                        ON 
+                            cur.cur_ip = mon.icmp_ip
+                        WHERE 
+                            cur.cur_Present = 0
+                            AND cur.cur_PresentChanged = 1
+                            AND mon.icmp_AlertDown = 0;""")
+
+    print_log ('Events - Down')
+    sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
+                        SELECT 
+                            cur.cur_ip AS icmpeve_ip,
+                            cur.cur_LastScan AS icmpeve_DateTime,
+                            cur.cur_Present AS icmpeve_Present,
+                            'Down' AS icmpeve_EventType
+                        FROM 
+                            ICMP_Mon_CurrentScan cur
+                        JOIN 
+                            ICMP_Mon mon
+                        ON 
+                            cur.cur_ip = mon.icmp_ip
+                        WHERE 
+                            cur.cur_Present = 0
+                            AND cur.cur_PresentChanged = 1
+                            AND mon.icmp_AlertDown = 1;""")
 
 # -----------------------------------------------------------------------------
 def get_icmphost_list():
@@ -3744,7 +3852,7 @@ def send_ntfy (_Text):
     if NTFY_CLICKABLE == True:
         headers["Click"] = REPORT_DASHBOARD_URL
     # if username and password are set generate hash and update header
-    if NTFY_USER != "" and NTFY_PASSWORD != "":
+    if NTFY_PASSWORD != "":
     # Generate hash for basic auth
         usernamepassword = "{}:{}".format(NTFY_USER,NTFY_PASSWORD)
         basichash = b64encode(bytes(NTFY_USER + ':' + NTFY_PASSWORD, "utf-8")).decode("ascii")

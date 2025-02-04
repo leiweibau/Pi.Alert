@@ -437,6 +437,7 @@ body.modal-open {
 .sysinfo_usbdev_b {padding-left: 30px;  padding-top: 2px; padding-bottom: 2px;}
 /* ----------------- Maintenance -------------------------------------------- */
 .dbtools-button { display: inline-block; width: 160px; height: 73px; white-space: normal; word-wrap: break-word; font-size: 16px; padding: 4px;}
+.dbtools-button-sm { display: inline-block; width: 140px; height: 73px; white-space: normal; word-wrap: break-word; font-size: 16px; padding: 4px;}
 .db_info_table_cell:nth-child(1) { background: white }
 .db_info_table_cell:nth-child(2) { background: white }
 .db_tools_table_cell_a:nth-child(1) { background: white }
@@ -456,6 +457,9 @@ body.modal-open {
 #configeditor {text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;}
 .configeditor_help {text-align: left; margin-top: 10px;}
 .statusbox_ro_inputs {width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;}
+.sat_config_list_a {display: inline-block; width: 170px; padding-right: 70px;}
+.sat_config_list_meth {font-weight: 600;}
+.sat_config_list_stat {float:right;}
 /* ----------------- Services ----------------------------------------------- */
 .servicelist_entry {display: flex; width: 100%; margin-bottom: 5px; margin-top: 5px;}
 .servicebox_httpstat_hover {display: flex; width: 70px; height: 70px;}

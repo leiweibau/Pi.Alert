@@ -409,7 +409,7 @@ function getDevicesPresence (status) {
   $('#calendar').fullCalendar ('refetchResources');
 
   $('#calendar').fullCalendar('removeEventSources');
-  $('#calendar').fullCalendar('addEventSource', { url: 'php/server/events.php?action=getEventsCalendar' });
+  $('#calendar').fullCalendar('addEventSource', { url: 'php/server/events.php?action=getEventsCalendar&scansource=<?=$SCANSOURCE?>' });
 };
 
 </script>

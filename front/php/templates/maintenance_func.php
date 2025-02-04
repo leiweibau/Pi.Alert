@@ -18,7 +18,7 @@ function get_all_satellites_list() {
             	if ($i!=0) {echo '<hr>';}
             	$sat_hostdata = extract_hostdata($row['sat_host_data']);
             	if ($sat_hostdata === True) {$sat_version = $row['sat_remote_version'].' (<span class="text-red">R</span>)';} else {$sat_version = $row['sat_remote_version'];}
-                show_all_satellites_list($row['sat_id'],$row['sat_name'],$row['sat_token'],$row['sat_password'],$row['sat_lastupdate'],$sat_version,$row['sat_conf_scan_arp'],$row['sat_conf_scan_fritzbox'],$row['sat_conf_scan_mikrotik'],$row['sat_conf_scan_unifi']);
+                show_all_satellites_list($row['sat_id'],$row['sat_name'],$row['sat_token'],$row['sat_password'],$row['sat_lastupdate'],$sat_version,$row['sat_conf_scan_arp'],$row['sat_conf_scan_fritzbox'],$row['sat_conf_scan_mikrotik'],$row['sat_conf_scan_unifi'], $row['sat_conf_scan_openwrt']);
                 $i++;
             }
         }
@@ -147,7 +147,7 @@ function print_logviewer_modal_foot() {
     </div>';
 }
 // Maintenance Page - Satellite List
-function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit, $sat_version, $scan_arp, $scan_fritzbox, $scan_mikrotik, $scan_unifi) {
+function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit, $sat_version, $scan_arp, $scan_fritzbox, $scan_mikrotik, $scan_unifi, $scan_openwrt) {
 	global $pia_lang;
 	echo '      <div class="db_info_table_row">
                     <div class="col-xs-12 col-md-2" style="padding: 5px;">
@@ -175,10 +175,13 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                 </div>';
 	echo '      <div class="db_info_table_row">
                     <div class="col-xs-12 col-md-2 text-muted">Version: '.$sat_version.'</div>
-                    <div class="col-xs-12 col-md-2 text-muted">arp Scan: '.convert_state($scan_arp,0).'</div>
-                    <div class="col-xs-12 col-md-2 text-muted">Fritzbox: '.convert_state($scan_fritzbox,0).'</div>
-                    <div class="col-xs-12 col-md-2 text-muted">Mikrotik: '.convert_state($scan_mikrotik,0).'</div>
-                    <div class="col-xs-12 col-md-2 text-muted">UniFi: '.convert_state($scan_unifi,0).'</div>
+                    <div class="col-xs-12 col-md-8 text-muted">
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">arp Scan:</span><span class="sat_config_list_stat '.colorize_state($scan_arp,1).'"> '.convert_state($scan_arp,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Fritzbox:</span><span class="sat_config_list_stat '.colorize_state($scan_fritzbox,1).'"> '.convert_state($scan_fritzbox,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Mikrotik:</span><span class="sat_config_list_stat '.colorize_state($scan_mikrotik,1).'"> '.convert_state($scan_mikrotik,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">UniFi:</span><span class="sat_config_list_stat '.colorize_state($scan_unifi,1).'"> '.convert_state($scan_unifi,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">OpenWRT:</span><span class="sat_config_list_stat '.colorize_state($scan_openwrt,1).'"> '.convert_state($scan_openwrt,0).'</span></div>
+                    </div>
                 </div>';
 }
 // Maintenance Page - Statusbox

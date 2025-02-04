@@ -82,6 +82,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'GetAutoBackupStatus':GetAutoBackupStatus();
 		break;
+	case 'ToggleImport':ToggleImport();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
@@ -147,9 +149,9 @@ function GetLogfiles() {
 				$file = str_replace("Start Services Monitoring\n\n", "Start Services Monitoring\n\n<pre style=\"border: solid 1px #666; background-color: transparent;\">", $file);
 				$file = str_replace("\nServices Monitoring Changes:", "\n</pre>Services Monitoring Changes:", $file);
 			}
-			if ($logfiles[$i] == "pialert.1.log") {
-				$file = str_replace("\n        ...Skipped", "<span style=\"color:red;\"> Skipped</span>", $file);
-			}
+			// if ($logfiles[$i] == "pialert.1.log") {
+			// 	$file = str_replace("\n        ...Skipped", "<span style=\"color:red;\"> Skipped</span>", $file);
+			// }
 			$templog = str_replace("\n", '<br>', str_replace("    ", '&nbsp;&nbsp;&nbsp;&nbsp;', str_replace("        ", '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $file)));
 			array_push($logs, $templog);
 		}
@@ -381,6 +383,13 @@ UNIFI_API                  = '" . $configArray['UNIFI_API'] . "'
 UNIFI_USER                 = '" . $configArray['UNIFI_USER'] . "'
 UNIFI_PASS                 = '" . $configArray['UNIFI_PASS'] . "'
 # Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
+
+# OpenWRT Configuration
+# ----------------------
+OPENWRT_ACTIVE            = " . convert_bool($configArray['OPENWRT_ACTIVE']) . "
+OPENWRT_IP                = '" . $configArray['OPENWRT_IP'] . "'
+OPENWRT_USER              = '" . $configArray['OPENWRT_USER'] . "'
+OPENWRT_PASS              = '" . $configArray['OPENWRT_PASS'] . "'
 
 # Satellite Configuration
 # -----------------------
@@ -715,14 +724,14 @@ function setTheme() {
 		if (in_array($skin_selector, $installed_skins)) {
 			// lösche alle vorherigen skins
 			foreach ($installed_skins as $file) {
-				unlink($skin_set_dir . '/setting_' . $file);
+				unlink($skin_set_dir . 'setting_' . $file);
 			}
 			// lösche alle vorherigen themes
 			foreach ($installed_themes as $file) {
-				unlink($skin_set_dir . '/setting_theme_' . $file);
+				unlink($skin_set_dir . 'setting_theme_' . $file);
 			}
 			foreach ($installed_skins as $file) {
-				if (file_exists($skin_set_dir . '/setting_' . $file)) {
+				if (file_exists($skin_set_dir . 'setting_' . $file)) {
 					$skin_error = True;
 					break;
 				} else {
@@ -740,14 +749,14 @@ function setTheme() {
 		} elseif (in_array($skin_selector, $installed_themes)) {
 			// lösche alle vorherigen skins
 			foreach ($installed_skins as $file) {
-				unlink($skin_set_dir . '/setting_' . $file);
+				unlink($skin_set_dir . 'setting_' . $file);
 			}
 			// lösche alle vorherigen themes
 			foreach ($installed_themes as $file) {
-				unlink($skin_set_dir . '/setting_theme_' . $file);
+				unlink($skin_set_dir . 'setting_theme_' . $file);
 			}
 			foreach ($installed_skins as $file) {
-				if (file_exists($skin_set_dir . '/setting_theme_' . $file)) {
+				if (file_exists($skin_set_dir . 'setting_theme_' . $file)) {
 					$skin_error = True;
 					break;
 				} else {
@@ -783,10 +792,10 @@ function setLanguage() {
 		$pia_lang_selector = htmlspecialchars($_REQUEST['LangSelection']);
 		if (in_array($pia_lang_selector, $pia_installed_langs)) {
 			foreach ($pia_installed_langs as $file) {
-				unlink($pia_lang_set_dir . '/setting_language_' . $file);
+				unlink($pia_lang_set_dir . 'setting_language_' . $file);
 			}
 			foreach ($pia_installed_langs as $file) {
-				if (file_exists($pia_lang_set_dir . '/setting_language_' . $file)) {
+				if (file_exists($pia_lang_set_dir . 'setting_language_' . $file)) {
 					$pia_lang_error = True;
 					break;
 				} else {
@@ -1002,5 +1011,60 @@ function setFavIconURL() {
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 	// Logging
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0059', '', $_REQUEST['FavIconURL']);
+}
+
+
+function ToggleImport() {
+
+    $file_path = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['deviceType']) || !isset($_REQUEST['toggleState'])) {
+        echo "Missing Parameter";
+        exit;
+    }
+
+    $deviceMap = [
+        'FB' => 'FRITZBOX_ACTIVE',
+        'MT' => 'MIKROTIK_ACTIVE',
+        'UF' => 'UNIFI_ACTIVE',
+        'OW' => 'OPENWRT_ACTIVE',
+    ];
+
+    $deviceType = $_REQUEST['deviceType'];
+    $toggleState = filter_var($_REQUEST['toggleState'], FILTER_VALIDATE_BOOLEAN);
+
+    if (!array_key_exists($deviceType, $deviceMap)) {
+        echo 'Invalid device type';
+        exit;
+    }
+
+    $configKey = $deviceMap[$deviceType];
+    $newValue = $toggleState ? 'False' : 'True';
+
+    if (!file_exists($file_path)) {
+        echo 'Configuration file not found';
+        exit;
+    }
+
+    $fileContents = file_get_contents($file_path);
+    if (strpos($fileContents, $configKey) === false) {
+        echo "Key '{$configKey}' not found in configuration";
+        exit;
+    }
+
+    $pattern = '/^(' . preg_quote($configKey, '/') . '\s*=\s*)(True|False)$/m';
+    $replacement = '${1}' . $newValue;
+
+    $newContents = preg_replace($pattern, $replacement, $fileContents);
+
+    if ($newContents !== null) {
+        file_put_contents($file_path, $newContents);
+        echo "{$configKey} set to {$newValue}";
+    } else {
+        echo 'Failed to update configuration';
+    }
+	// Logging
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $configKey.' set to '.$newValue);
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>";
 }
 ?>

@@ -192,6 +192,7 @@ $pia_lang['DevDetail_Periodselect_All'] = 'Toda la información';
 $pia_lang['DevDetail_Shortcut_CurrentStatus'] = 'Estado actual';
 $pia_lang['DevDetail_Shortcut_Sessions'] = 'Sesiones';
 $pia_lang['DevDetail_Shortcut_Presence'] = 'Historial';
+$pia_lang['DevDetail_Shortcut_curPresence'] = 'Presencia actual';
 $pia_lang['DevDetail_Shortcut_DownAlerts'] = 'Alerta(s) de caída(s)';
 $pia_lang['DevDetail_Tab_Details'] = 'Detalles';
 $pia_lang['DevDetail_Tab_Nmap'] = 'Tools';
@@ -375,6 +376,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Puedes ingresar la URL de tu FavIcon deseado en el campo, o elegir entre FavIcons locales o remotos (https://github.com/leiweibau/Pi.Alert). Dependiendo de la configuración, los FavIcons locales pueden no funcionar como un icono de pantalla principal.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Editor de filtros (barra lateral)';
+$pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importaciones';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Cambiar Modo';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Después del cambio de tema, la página intenta volver a cargar para activar el cambio. Si es necesario, el caché debe ser eliminado.';
@@ -507,6 +509,14 @@ $pia_lang['MT_SET_SatEdit_head'] = 'Gestionar satélites';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Comando de instalación con preconfiguración';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Aquí se puede preparar el comando de instalación de manera que los parámetros más importantes ya se ingresen durante la instalación. Los diferentes escaneos permanecen todos desactivados y deben activarse explícitamente en el archivo de configuración.';
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Todavía hay entradas de diario en la caché';
+$pia_lang['MT_Tool_reset_voided'] = 'Restablecer eventos ANULADOS';
+$pia_lang['MT_Tool_reset_voided_text'] = 'Los eventos ANULADOS no se muestran en el calendario de asistencia. Para restablecer todos los eventos ANULADOS (Conectado/Desconectado), ejecuta esta función.';
+$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
+$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
+$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
+$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
+$pia_lang['MT_Tggl_Import_head'] = 'Habilitar/Deshabilitar fuente para importación';
+$pia_lang['MT_Tggl_Import_text'] = 'Esto habilita o deshabilita la fuente deseada para la importación de datos. Los análisis en curso no se ven afectados por la activación o desactivación. Los datos ya importados se conservarán tras la desactivación.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';
@@ -593,6 +603,8 @@ $pia_lang['BE_Param_error_update'] = 'Error al actualizar el parámetro';
 $pia_lang['BE_Param_error_create'] = 'Error al crear el parámetro';
 $pia_lang['BE_Param_Colors'] = 'Color(es) guardado(s)';
 $pia_lang['BE_Param_Colors_error'] = 'El/los color(es) no se cambiaron o guardaron (base de datos en uso por escaneo)';
+$pia_lang['BE_Dev_DBTools_resetVoided'] = 'Los eventos ANULADOS se han convertido en eventos "válidos"';
+$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error al actualizar los eventos ANULADOS';
 // Network Page - Update by @TeroRERO 01ago2022
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Descripción general de la red';
@@ -631,6 +643,24 @@ $pia_lang['NET_UnMan_Devices_Connected'] = 'Conectado a';
 $pia_lang['NET_UnMan_Devices_Connected_text'] = 'Seleccionar dispositivo';
 $pia_lang['NET_UnMan_Devices_Port'] = 'En el puerto';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'En el número de puerto del dispositivo seleccionado';
+$pia_lang['NET_Network_head'] = 'Red';
+$pia_lang['NET_Man_Add_NetName'] = 'Nombre de la red';
+$pia_lang['NET_Man_Edit_NetName'] = 'Nuevo nombre de la red';
+$pia_lang['NET_Man_Add_NetName_text'] = 'Nombre de red o grupo';
+// Network Page (BackEnd)
+//////////////////////////////////////////////////////////////////
+$pia_lang['BE_NET_Man_Add'] = 'Se ha añadido un nuevo componente de red activo a la vista general de la red.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Error al añadir el nuevo componente a la vista general de la red.';
+$pia_lang['BE_NET_Man_Upd'] = 'El componente de red activo ha sido actualizado.';
+$pia_lang['BE_NET_Man_Upd_Err'] = 'El componente de red activo no se actualizó debido a un error.';
+$pia_lang['BE_NET_Man_Del'] = 'El componente de red activo ha sido eliminado.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Error al eliminar el componente de red activo.';
+$pia_lang['BE_NET_Man_AddUn'] = 'Se ha añadido un nuevo componente de red pasivo a la vista general de la red.';
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Error al añadir el nuevo componente pasivo a la vista general de la red.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'El componente de red pasivo ha sido actualizado.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'El componente de red pasivo no se actualizó debido a un error.';
+$pia_lang['BE_NET_Man_DelUn'] = 'El componente de red pasivo ha sido eliminado.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Error al eliminar el componente de red pasivo.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notificaciones';
@@ -803,7 +833,15 @@ $pia_journ_lang['LogStr_0066'] = 'Error: Información de actualización no váli
 $pia_journ_lang['LogStr_0067'] = 'No se encontró una versión más reciente';
 $pia_journ_lang['LogStr_0068'] = 'Actualización de Pi.Alert-Satellite disponible';
 $pia_journ_lang['LogStr_0069'] = 'No hay actualización de Pi.Alert-Satellite disponible';
+$pia_journ_lang['LogStr_0070'] = 'Error al añadir un componente de red activo';
+$pia_journ_lang['LogStr_0071'] = 'Error al actualizar un componente de red activo';
+$pia_journ_lang['LogStr_0072'] = 'Error al eliminar un componente de red activo';
+$pia_journ_lang['LogStr_0073'] = 'Error al añadir un dispositivo no escaneable';
+$pia_journ_lang['LogStr_0074'] = 'Error al actualizar un dispositivo no escaneable';
+$pia_journ_lang['LogStr_0075'] = 'Error al eliminar un dispositivo no escaneable';
 $pia_journ_lang['LogStr_0101'] = 'Base de datos limpiada y optimizada';
+$pia_journ_lang['LogStr_0102'] = 'Eventos ANULADOS restablecidos';
+$pia_journ_lang['LogStr_0103'] = 'Eventos ANULADOS restablecidos (con errores)';
 $pia_journ_lang['LogStr_0210'] = 'Escaneo individual de nmap realizado';
 $pia_journ_lang['LogStr_0221'] = 'Resultados de Nmap exportados como CSV';
 $pia_journ_lang['LogStr_0222'] = 'Los resultados de Nmap no se exportaron debido a un error (IP inválida)';

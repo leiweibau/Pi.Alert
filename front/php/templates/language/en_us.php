@@ -192,6 +192,7 @@ $pia_lang['DevDetail_Periodselect_All'] = 'All Info';
 $pia_lang['DevDetail_Shortcut_CurrentStatus'] = 'Current Status';
 $pia_lang['DevDetail_Shortcut_Sessions'] = 'Sessions';
 $pia_lang['DevDetail_Shortcut_Presence'] = 'Presence';
+$pia_lang['DevDetail_Shortcut_curPresence'] = 'Current Presence';
 $pia_lang['DevDetail_Shortcut_DownAlerts'] = 'Down Alerts';
 $pia_lang['DevDetail_Tab_Details'] = 'Details';
 $pia_lang['DevDetail_Tab_Nmap'] = 'Tools';
@@ -254,8 +255,6 @@ $pia_lang['DevDetail_Tools_WOL_noti_text'] = 'The Wake-on-LAN command is sent to
 $pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Result of the latest Nmap Scan';
 $pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Result of the current Nmap Scan';
 $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Result of the previous Nmap Scan';
-$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
-$pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'The automatic speed test starts at ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' and ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' o&apos;clock';
@@ -375,6 +374,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'You can enter your desired FavIcon URL in the field, or choose between local or remote (https://github.com/leiweibau/Pi.Alert) FavIcons. Depending on the configuration, local FavIcons may not work as a HomeScreen icon.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Filter Editor (Sidebar)';
+$pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Imports';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Toggle Modes';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'After the theme switch, the page tries to reload itself to activate the change. If necessary, the cache must be cleared.';
@@ -507,6 +507,14 @@ $pia_lang['MT_SET_SatEdit_head'] = 'Manage Satellites';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Installation Command with Preconfiguration';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Here, the installation command can be prepared so that the most important parameters are already entered during installation. The various scans remain all deactivated and must be explicitly enabled in the configuration file.';
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'There are still journal entries in the cache';
+$pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
+$pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED events are not displayed in the attendance calendar. To reset all VOIDED events (Connected/Disconnected), execute this function.';
+$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
+$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
+$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
+$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
+$pia_lang['MT_Tggl_Import_head'] = 'Enable/Disable Source for Import';
+$pia_lang['MT_Tggl_Import_text'] = 'This enables or disables the desired source for importing data. Ongoing scans are not affected by the activation or deactivation. Data that has already been imported remains preserved after deactivation.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';
@@ -593,7 +601,10 @@ $pia_lang['BE_Param_error_update'] = 'Error updating parameter';
 $pia_lang['BE_Param_error_create'] = 'Error creating parameter';
 $pia_lang['BE_Param_Colors'] = 'Color(s) saved';
 $pia_lang['BE_Param_Colors_error'] = 'Color(s) were not changed or saved (database in use by scan)';
-
+$pia_lang['BE_Dev_DBTools_resetVoided'] = 'The VOIDED events have been converted into "valid" events';
+$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error updating the VOIDED events';
+$pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
+$pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';
@@ -632,6 +643,24 @@ $pia_lang['NET_UnMan_Devices_Connected'] = 'Connected to';
 $pia_lang['NET_UnMan_Devices_Connected_text'] = 'Select Device';
 $pia_lang['NET_UnMan_Devices_Port'] = 'On Port';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'On Port number on the selected device';
+$pia_lang['NET_Network_head'] = 'Network';
+$pia_lang['NET_Man_Add_NetName'] = 'Network Name';
+$pia_lang['NET_Man_Edit_NetName'] = 'New Network Name';
+$pia_lang['NET_Man_Add_NetName_text'] = 'Network or Group Name';
+// Network Page (BackEnd)
+//////////////////////////////////////////////////////////////////
+$pia_lang['BE_NET_Man_Add'] = 'A new active network component has been added to the network overview.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Error adding the new component to the network overview.';
+$pia_lang['BE_NET_Man_Upd'] = 'The active network component has been updated.';
+$pia_lang['BE_NET_Man_Upd_Err'] = 'The active network component was not updated due to an error.';
+$pia_lang['BE_NET_Man_Del'] = 'The active network component has been deleted.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Error deleting the active network component.';
+$pia_lang['BE_NET_Man_AddUn'] = 'A new passive network component has been added to the network overview.';
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Error adding the new passive component to the network overview.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'The passive network component has been updated.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'The passive network component was not updated due to an error.';
+$pia_lang['BE_NET_Man_DelUn'] = 'The passive network component has been deleted.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Error deleting the passive network component.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifications';
@@ -804,7 +833,15 @@ $pia_journ_lang['LogStr_0066'] = 'Error: Invalid update information';
 $pia_journ_lang['LogStr_0067'] = 'No newer version found';
 $pia_journ_lang['LogStr_0068'] = 'Pi.Alert-Satellie update available';
 $pia_journ_lang['LogStr_0069'] = 'No Pi.Alert-Satellie update available';
+$pia_journ_lang['LogStr_0070'] = 'Error adding an active network component';
+$pia_journ_lang['LogStr_0071'] = 'Error updating an active network component';
+$pia_journ_lang['LogStr_0072'] = 'Error deleting an active network component';
+$pia_journ_lang['LogStr_0073'] = 'Error adding a non-scannable device';
+$pia_journ_lang['LogStr_0074'] = 'Error updating a non-scannable device';
+$pia_journ_lang['LogStr_0075'] = 'Error deleting a non-scannable device';
 $pia_journ_lang['LogStr_0101'] = 'Database cleaned and optimized';
+$pia_journ_lang['LogStr_0102'] = 'VOIDED events reset';
+$pia_journ_lang['LogStr_0103'] = 'VOIDED events reset (with errors)';
 $pia_journ_lang['LogStr_0210'] = 'Performed individual nmap scan';
 $pia_journ_lang['LogStr_0221'] = 'Nmap results exported as CSV';
 $pia_journ_lang['LogStr_0222'] = 'Nmap results not exported due to an error (Invalid IP)';

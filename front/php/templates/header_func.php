@@ -206,6 +206,7 @@ if (get_config_parmeter('AUTO_UPDATE_CHECK') == 1) {$_SESSION['Auto_Update_Check
 if (get_config_parmeter('AUTO_DB_BACKUP') == 1) {$_SESSION['AUTO_DB_BACKUP'] = True;} else { $_SESSION['AUTO_DB_BACKUP'] = False;}
 if (get_config_parmeter('SPEEDTEST_TASK_ACTIVE') == 1) {$_SESSION['SPEEDTEST_TASK_ACTIVE'] = True;} else { $_SESSION['SPEEDTEST_TASK_ACTIVE'] = False;}
 if (get_config_parmeter('SATELLITES_ACTIVE') == 1) {$_SESSION['SATELLITES_ACTIVE'] = True;} else { $_SESSION['SATELLITES_ACTIVE'] = False;}
+
 $_SESSION['AUTO_UPDATE_CHECK_CRON'] = get_config_parmeter('AUTO_UPDATE_CHECK_CRON');
 $_SESSION['AUTO_DB_BACKUP_CRON'] = get_config_parmeter('AUTO_DB_BACKUP_CRON');
 $_SESSION['SPEEDTEST_TASK_CRON'] = get_config_parmeter('SPEEDTEST_TASK_CRON');
@@ -226,6 +227,14 @@ function convert_state_action($state, $revert) {
 		if ($state == 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
 	} elseif ($revert == 0) {
 		if ($state != 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
+	}
+}
+function colorize_state($state, $revert) {
+	global $pia_lang;
+	if ($revert == 1) {
+		if ($state == 1) {return "text-green";} else {return "text-red";}
+	} elseif ($revert == 0) {
+		if ($state != 1) {return "text-green";} else {return "text-red";}
 	}
 }
 // Top Navbar - Back button for details pages

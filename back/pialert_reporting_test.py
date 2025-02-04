@@ -23,18 +23,7 @@ try:
   from urlparse import urlparse
 except ImportError:
   from urllib.parse import urlparse
-import sys
-import subprocess
-import os
-import re
-import datetime
-import socket
-import io
-import smtplib
-import requests
-import time
-import pwd
-import glob
+import sys, subprocess, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -158,7 +147,8 @@ def send_ntfy_test(_notiMessage):
 
     if NTFY_CLICKABLE == True:
         headers["Click"] = REPORT_DASHBOARD_URL
-    if NTFY_USER != "" and NTFY_PASSWORD != "":
+    #if NTFY_USER != "" and NTFY_PASSWORD != "":
+    if NTFY_PASSWORD != "":
     # Generate hash for basic auth
         usernamepassword = f"{NTFY_USER}:{NTFY_PASSWORD}"
         basichash = b64encode(bytes(f'{NTFY_USER}:{NTFY_PASSWORD}',

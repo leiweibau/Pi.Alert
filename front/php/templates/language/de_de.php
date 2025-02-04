@@ -191,6 +191,7 @@ $pia_lang['DevDetail_Periodselect_All'] = 'Alle Infos';
 $pia_lang['DevDetail_Shortcut_CurrentStatus'] = 'aktueller Status';
 $pia_lang['DevDetail_Shortcut_Sessions'] = 'Sitzungen';
 $pia_lang['DevDetail_Shortcut_Presence'] = 'Anwesenheit';
+$pia_lang['DevDetail_Shortcut_curPresence'] = 'Aktuelle Anwesenheit';
 $pia_lang['DevDetail_Shortcut_DownAlerts'] = 'Down Meldungen';
 $pia_lang['DevDetail_Tab_Details'] = 'Details';
 $pia_lang['DevDetail_Tab_Nmap'] = 'Tools';
@@ -372,6 +373,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_d'] = 'Scans';
 $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Du kannst in dem Feld eine eigene URL zu deinem gewünschten FavIcon eintragen, oder zwischen lokalen oder remote (https://github.com/leiweibau/Pi.Alert) FavIcons wählen. Je nach Konfiguration kann es sein, dass lokale FavIcons nicht als HomeScreen Icon funktionieren.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Filter Editor (Seitenleiste)';
+$pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Imports';
 $pia_lang['MT_Tool_darkmode'] = 'Dunkel Modus';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Darstellungswechsel';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Wechselt zwischen der hellen und der dunklen Darstellung. Wenn die Umschaltung nicht ordentlich funktionieren sollte, versuchen Sie den Browsercache zu löschen.';
@@ -504,6 +506,14 @@ $pia_lang['MT_SET_SatEdit_head'] = 'Satelliten verwalten';
 $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Installationsbefehl mit Vorkonfiguration';
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Hier kann der Installationsbefehl soweit vorbereitet werden, dass die wichtigsten Parameter schon bei der Installation eingetragen werden. Die verschiedenen Scans bleiben alle deaktiviert und müssen explizit in der Konfigurationsdatei aktiviert werden.';
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Es befinden sich noch Journaleinträge im Zwischenspeicher';
+$pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
+$pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED Events werden im Anwesenheits-Kalender nicht dargestellt. Um alle VOIDED Events (Verbunden/Getrennt) zurückzusetzen, führe diese Funktion aus.';
+$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
+$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
+$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
+$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
+$pia_lang['MT_Tggl_Import_head'] = 'Quelle für Import de-/aktivieren';
+$pia_lang['MT_Tggl_Import_text'] = 'Hiermit wird die gewünschte Quelle für den Import von Daten de- oder aktiviert. Noch laufende Scans sind von der De-/Aktivierung ausgenommen. Daten die bereits zuvor importiert wurden, bleiben bei der Deaktivierung erhalten';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';
@@ -592,6 +602,8 @@ $pia_lang['BE_Param_error_update'] = 'Fehler bei der Parameteraktualisierung';
 $pia_lang['BE_Param_error_create'] = 'Fehler bei der Parametererstellung';
 $pia_lang['BE_Param_Colors'] = 'Farbe(n) gespeichert';
 $pia_lang['BE_Param_Colors_error'] = 'Farbe(n) wurde(n) nicht geändert oder nicht gespeichert (Datenbank durch Scan in Verwendung)';
+$pia_lang['BE_Dev_DBTools_resetVoided'] = 'Die VOIDED Events wurden in "gültige" Events umgewandelt';
+$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fehler aktualisieren der VOIDED Events';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netzwerkübersicht';
@@ -635,6 +647,24 @@ $pia_lang['NET_UnMan_Devices_Connected'] = 'Verbunden mit';
 $pia_lang['NET_UnMan_Devices_Connected_text'] = 'Gerät auswählen';
 $pia_lang['NET_UnMan_Devices_Port'] = 'Am Port';
 $pia_lang['NET_UnMan_Devices_Port_text'] = 'Am Portnummer am ausgewählten Gerät';
+$pia_lang['NET_Network_head'] = 'Netzwerk';
+$pia_lang['NET_Man_Add_NetName'] = 'Netzwerk Name';
+$pia_lang['NET_Man_Edit_NetName'] = 'Neuer Netzwerk Name';
+$pia_lang['NET_Man_Add_NetName_text'] = 'Netzwerk- oder Gruppenname';
+// Network Page (BackEnd)
+//////////////////////////////////////////////////////////////////
+$pia_lang['BE_NET_Man_Add'] = 'Eine neue aktive Netzwerkkomponente wurde der Netzwerkübersicht hinzugefügt.';
+$pia_lang['BE_NET_Man_Add_Err'] = 'Fehler beim Hinzufügen der neuen aktiven Komponente zur Netzwerkübersicht.';
+$pia_lang['BE_NET_Man_Upd'] = 'Die aktive Netzwerkkomponente wurde aktualisiert.';
+$pia_lang['BE_NET_Man_Upd_Err'] = 'Die aktive Netzwerkkomponente wurde wegen eines Fehlers nicht aktualisiert.';
+$pia_lang['BE_NET_Man_Del'] = 'Die aktive Netzwerkkomponente wurde gelöscht.';
+$pia_lang['BE_NET_Man_Del_Err'] = 'Fehler beim Löschen der aktiven Netzwerkkomponente.';
+$pia_lang['BE_NET_Man_AddUn'] = 'Eine neue passive Netzwerkkomponente wurde der Netzwerkübersicht hinzugefügt.';
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Fehler beim Hinzufügen der neuen passiven Komponente zur Netzwerkübersicht.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'Die passive Netzwerkkomponente wurde aktualisiert.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'Die passive Netzwerkkomponente wurde wegen eines Fehlers nicht aktualisiert.';
+$pia_lang['BE_NET_Man_DelUn'] = 'Die passive Netzwerkkomponente wurde gelöscht.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Fehler beim Löschen der passiven Netzwerkkomponente.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Reports';
@@ -808,7 +838,15 @@ $pia_journ_lang['LogStr_0066'] = 'Fehler: Ungültige Updateinformationen';
 $pia_journ_lang['LogStr_0067'] = 'Es wurde keine neuere Version gefunden';
 $pia_journ_lang['LogStr_0068'] = 'Pi.Alert-Satellite Update verfügbar';
 $pia_journ_lang['LogStr_0069'] = 'Kein Pi.Alert-Satellite Update verfügbar';
+$pia_journ_lang['LogStr_0070'] = 'Fehler beim Hinzufügen einer aktiven Netzwerkkomponente';
+$pia_journ_lang['LogStr_0071'] = 'Fehler beim Aktualisieren einer aktiven Netzwerkkomponente';
+$pia_journ_lang['LogStr_0072'] = 'Fehler beim Löschen einer aktiven Netzwerkkomponente';
+$pia_journ_lang['LogStr_0073'] = 'Fehler beim Hinzufügen eines nicht scanbaren Gerätes';
+$pia_journ_lang['LogStr_0074'] = 'Fehler beim Aktualisieren eines nicht scanbaren Gerätes';
+$pia_journ_lang['LogStr_0075'] = 'Fehler beim Löschen eines nicht scanbaren Gerätes';
 $pia_journ_lang['LogStr_0101'] = 'Datenbank aufgeräumt und optimiert';
+$pia_journ_lang['LogStr_0102'] = 'VOIDED Events zurückgesetzt';
+$pia_journ_lang['LogStr_0103'] = 'VOIDED Events zurückgesetzt (mit Fehler)';
 $pia_journ_lang['LogStr_0210'] = 'Individuellen nmap Scan durchgeführt';
 $pia_journ_lang['LogStr_0221'] = 'Nmap Resultate exportiert als CSV';
 $pia_journ_lang['LogStr_0222'] = 'Nmap Resultate wurde wegen eines Fehlers nicht exportiert (Ungültige IP)';

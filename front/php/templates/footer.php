@@ -5,7 +5,7 @@
 #  footer.php - Front module. Common footer to all the web pages
 #-------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                          GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
   <!-- Main Footer -->
@@ -148,7 +148,7 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
     updateTotals();
 
     // Start function timers
-    setInterval(updateTotals, 60000);
+    setInterval(updateTotals, 30000);
     setInterval(getReportTotalsBadge, 15000);
   </script>
 

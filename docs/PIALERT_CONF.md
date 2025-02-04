@@ -26,7 +26,6 @@ I would like to give a short explanation to the individual points.
 | OFFLINE_MODE             | After the installation and the initial test of all script components, the offline mode can be configured to prevent any communication with the Internet                                                                                            |
 
 
-
 #### Other Modules
 
 | Option            | Description |
@@ -123,6 +122,8 @@ I would like to give a short explanation to the individual points.
 | NTFY_PRIORITY      | Priority of notifications sent via NTFY                                         |
 | NTFY_CLICKABLE     | Enables or disables the click action for the notification.                      |
 
+:exclamation: If you want to use a token instead of username and password, leave the username blank and use the token as the password.
+
 
 #### Shoutrrr
 
@@ -193,17 +194,17 @@ I would like to give a short explanation to the individual points.
 
 #### Fritzbox Configuration
 
-| Option               | Description |
-|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| FRITZBOX_ACTIVE | If a Fritzbox is used in the network, it can be used as a data source. This can be activated or deactivated at this point.                                           |
-| FRITZBOX_IP     | IP address of the Fritzbox.                                                                                                                                          |
-| FRITZBOX_USER   | User nameThis assumes that the Fritzbox is configured for a login with username and password, instead of password only. A login with password only is not supported. |
-| FRITZBOX_PASS   | Password                                                                                                                                                             |
+| Option          | Description |
+|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FRITZBOX_ACTIVE | If a Fritzbox is used in the network, it can be used as a data source. This can be activated or deactivated at this point.                                  |
+| FRITZBOX_IP     | IP address of the Fritzbox.                                                                                                                                 |
+| FRITZBOX_USER   | This assumes that the Fritzbox is configured for a login with username and password, instead of password only. A login with password only is not supported. |
+| FRITZBOX_PASS   | Password                                                                                                                                                    |
 
 
 #### Mikrotik Configuration
 
-| Option               | Description |
+| Option          | Description |
 |-----------------|------------------------------------------------------------------------------------------------------------------------------|
 | MIKROTIK_ACTIVE | If a Mikrotik router is used in the network, it can be used as a data source. This can be enabled or disabled at this point. |
 | MIKROTIK_IP     | IP address of the Mikrotik router.                                                                                           |
@@ -213,7 +214,7 @@ I would like to give a short explanation to the individual points.
 
 #### UniFi Configuration
 
-| Option               | Description |
+| Option       | Description |
 |--------------|---------------------------------------------------------------------------------------------------------------------------|
 | UNIFI_ACTIVE | If a UniFi system is used in the network, it can be used as a data source. This can be enabled or disabled at this point. |
 | UNIFI_IP     | IP address of the Unifi system.                                                                                           |
@@ -221,6 +222,15 @@ I would like to give a short explanation to the individual points.
 | UNIFI_USER   | Username                                                                                                                  |
 | UNIFI_PASS   | Password                                                                                                                  |
 
+
+#### OpenWRT Configuration
+
+| Option         | Description |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| OPENWRT_ACTIVE | The package `luci-mod-rpc`need to be installed, on your OpenWrt router. If a OpenWRT is used in the network, it can be used as a data source. This can be activated or deactivated at this point. |
+| OPENWRT_IP     | IP address of the OpenWRT router.                                                                                                                                                                 |
+| OPENWRT_USER   | Username                                                                                                                                                                                          |
+| OPENWRT_PASS   | Password                                                                                                                                                                                          |
 
 #### Satellite Configuration
 

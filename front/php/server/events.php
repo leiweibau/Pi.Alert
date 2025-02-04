@@ -115,9 +115,56 @@ function getEvents() {
                   dev_name, dev_owner, Null, Null, ses_DateTimeConnection, ses_DateTimeDisconnection, NULL, NULL, ses_IP, NULL,  ses_AdditionalInfo, ses_StillConnected, Dev_MAC
            FROM Sessions_Devices ';
 
+  $SQL3 = '
+SELECT 
+    eve_DateTime AS eve_DateTimeOrder, 
+    dev_name, 
+    dev_owner, 
+    eve_DateTime, 
+    eve_EventType, 
+    NULL AS col6, 
+    NULL AS col7, 
+    NULL AS col8, 
+    NULL AS col9, 
+    eve_IP, 
+    NULL AS col11, 
+    eve_AdditionalInfo, 
+    NULL AS col13, 
+    Dev_MAC
+FROM 
+    Events_Devices
+WHERE 
+    eve_DateTime >= ' . $periodDate . '
+
+UNION ALL
+
+SELECT 
+    icmpeve_DateTime AS eve_DateTimeOrder, 
+    icmp_hostname || " **" AS dev_name, 
+    icmp_owner AS dev_owner, 
+    icmpeve_DateTime AS eve_DateTime, 
+    icmpeve_EventType AS eve_EventType, 
+    NULL AS col6, 
+    NULL AS col7, 
+    NULL AS col8, 
+    NULL AS col9, 
+    icmpeve_ip AS eve_IP, 
+    NULL AS col11, 
+    icmpeve_AdditionalInfo AS eve_AdditionalInfo, 
+    NULL AS col13, 
+    NULL AS Dev_MAC
+FROM 
+    ICMP_Mon_Connections
+LEFT JOIN 
+    ICMP_Mon 
+    ON ICMP_Mon_Connections.icmpeve_ip = ICMP_Mon.icmp_ip
+WHERE 
+    icmpeve_DateTime >= ' . $periodDate;
+
+
 	// SQL Variations for status
 	switch ($type) {
-	case 'all':$SQL = $SQL1;
+	case 'all':$SQL = $SQL3;
 		break;
 	case 'sessions':
 		$SQL = $SQL2 . ' WHERE (  ses_DateTimeConnection >= ' . $periodDate . ' OR ses_DateTimeDisconnection >= ' . $periodDate . ' OR ses_StillConnected = 1 ) ';
@@ -132,7 +179,7 @@ function getEvents() {
 		break;
 	case 'down':$SQL = $SQL1 . ' AND eve_EventType = "Device Down" ';
 		break;
-	default:$SQL = $SQL1 . ' AND 1==0 ';
+	default:$SQL = $SQL3 . ' AND 1==0 ';
 		break;
 	}
 
@@ -326,30 +373,60 @@ function getDevicePresence() {
 //  Query Presence Calendar for all Devices
 function getEventsCalendar() {
 	global $db;
+	if (!$_REQUEST['scansource']) {$scansource = 'local';} else {$scansource = $_REQUEST['scansource'];}
 
 	// Request Parameters
 	$startDate = '"' . $_REQUEST['start'] . '"';
 	$endDate = '"' . $_REQUEST['end'] . '"';
 
 	// SQL
+	// $SQL = 'SELECT ses_MAC, ses_EventTypeConnection, ses_DateTimeConnection,
+  //                ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
+
+  //                CASE
+  //                  WHEN ses_EventTypeConnection = "<missing event>" THEN
+  //                       IFNULL ((SELECT MAX(ses_DateTimeDisconnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),  DATETIME(ses_DateTimeDisconnection, "-1 hour"))
+  //                  ELSE ses_DateTimeConnection
+  //                END AS ses_DateTimeConnectionCorrected,
+
+  //                CASE
+  //                  WHEN ses_EventTypeDisconnection = "<missing event>" THEN
+  //                       (SELECT MIN(ses_DateTimeConnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
+  //                  ELSE ses_DateTimeDisconnection
+  //                END AS ses_DateTimeDisconnectionCorrected
+
+  //         FROM Sessions AS SES1
+  //         WHERE (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
+  //                AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
+
 	$SQL = 'SELECT ses_MAC, ses_EventTypeConnection, ses_DateTimeConnection,
-                 ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
+	                 ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
 
-                 CASE
-                   WHEN ses_EventTypeConnection = "<missing event>" THEN
-                        IFNULL ((SELECT MAX(ses_DateTimeDisconnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),  DATETIME(ses_DateTimeDisconnection, "-1 hour"))
-                   ELSE ses_DateTimeConnection
-                 END AS ses_DateTimeConnectionCorrected,
+	                 CASE
+	                   WHEN ses_EventTypeConnection = "<missing event>" THEN
+	                        IFNULL ((SELECT MAX(ses_DateTimeDisconnection) 
+	                                 FROM Sessions AS SES2 
+	                                 WHERE SES2.ses_MAC = SES1.ses_MAC 
+	                                   AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),  
+	                                 DATETIME(ses_DateTimeDisconnection, "-1 hour"))
+	                   ELSE ses_DateTimeConnection
+	                 END AS ses_DateTimeConnectionCorrected,
 
-                 CASE
-                   WHEN ses_EventTypeDisconnection = "<missing event>" THEN
-                        (SELECT MIN(ses_DateTimeConnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
-                   ELSE ses_DateTimeDisconnection
-                 END AS ses_DateTimeDisconnectionCorrected
+	                 CASE
+	                   WHEN ses_EventTypeDisconnection = "<missing event>" THEN
+	                        (SELECT MIN(ses_DateTimeConnection) 
+	                         FROM Sessions AS SES2 
+	                         WHERE SES2.ses_MAC = SES1.ses_MAC 
+	                           AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
+	                   ELSE ses_DateTimeDisconnection
+	                 END AS ses_DateTimeDisconnectionCorrected
 
-          FROM Sessions AS SES1
-          WHERE (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
-                 AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
+	          FROM Sessions AS SES1
+	          JOIN Devices AS DEV ON SES1.ses_MAC = DEV.dev_MAC
+	          WHERE DEV.dev_ScanSource = "' . $scansource . '" 
+	            AND (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
+	                 AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
+
 	$result = $db->query($SQL);
 
 	// arrays of rows
