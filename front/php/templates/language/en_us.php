@@ -655,6 +655,12 @@ $pia_lang['BE_NET_Man_Upd'] = 'The active network component has been updated.';
 $pia_lang['BE_NET_Man_Upd_Err'] = 'The active network component was not updated due to an error.';
 $pia_lang['BE_NET_Man_Del'] = 'The active network component has been deleted.';
 $pia_lang['BE_NET_Man_Del_Err'] = 'Error deleting the active network component.';
+$pia_lang['BE_NET_Man_AddUn'] = 'A new passive network component has been added to the network overview.';
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Error adding the new passive component to the network overview.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'The passive network component has been updated.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'The passive network component was not updated due to an error.';
+$pia_lang['BE_NET_Man_DelUn'] = 'The passive network component has been deleted.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Error deleting the passive network component.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifications';
@@ -830,6 +836,9 @@ $pia_journ_lang['LogStr_0069'] = 'No Pi.Alert-Satellie update available';
 $pia_journ_lang['LogStr_0070'] = 'Error adding an active network component';
 $pia_journ_lang['LogStr_0071'] = 'Error updating an active network component';
 $pia_journ_lang['LogStr_0072'] = 'Error deleting an active network component';
+$pia_journ_lang['LogStr_0073'] = 'Error adding a non-scannable device';
+$pia_journ_lang['LogStr_0074'] = 'Error updating a non-scannable device';
+$pia_journ_lang['LogStr_0075'] = 'Error deleting a non-scannable device';
 $pia_journ_lang['LogStr_0101'] = 'Database cleaned and optimized';
 $pia_journ_lang['LogStr_0102'] = 'VOIDED events reset';
 $pia_journ_lang['LogStr_0103'] = 'VOIDED events reset (with errors)';

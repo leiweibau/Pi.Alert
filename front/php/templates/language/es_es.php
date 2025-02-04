@@ -655,6 +655,12 @@ $pia_lang['BE_NET_Man_Upd'] = 'El componente de red activo ha sido actualizado.'
 $pia_lang['BE_NET_Man_Upd_Err'] = 'El componente de red activo no se actualizó debido a un error.';
 $pia_lang['BE_NET_Man_Del'] = 'El componente de red activo ha sido eliminado.';
 $pia_lang['BE_NET_Man_Del_Err'] = 'Error al eliminar el componente de red activo.';
+$pia_lang['BE_NET_Man_AddUn'] = 'Se ha añadido un nuevo componente de red pasivo a la vista general de la red.';
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Error al añadir el nuevo componente pasivo a la vista general de la red.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'El componente de red pasivo ha sido actualizado.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'El componente de red pasivo no se actualizó debido a un error.';
+$pia_lang['BE_NET_Man_DelUn'] = 'El componente de red pasivo ha sido eliminado.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Error al eliminar el componente de red pasivo.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notificaciones';
@@ -830,6 +836,9 @@ $pia_journ_lang['LogStr_0069'] = 'No hay actualización de Pi.Alert-Satellite di
 $pia_journ_lang['LogStr_0070'] = 'Error al añadir un componente de red activo';
 $pia_journ_lang['LogStr_0071'] = 'Error al actualizar un componente de red activo';
 $pia_journ_lang['LogStr_0072'] = 'Error al eliminar un componente de red activo';
+$pia_journ_lang['LogStr_0073'] = 'Error al añadir un dispositivo no escaneable';
+$pia_journ_lang['LogStr_0074'] = 'Error al actualizar un dispositivo no escaneable';
+$pia_journ_lang['LogStr_0075'] = 'Error al eliminar un dispositivo no escaneable';
 $pia_journ_lang['LogStr_0101'] = 'Base de datos limpiada y optimizada';
 $pia_journ_lang['LogStr_0102'] = 'Eventos ANULADOS restablecidos';
 $pia_journ_lang['LogStr_0103'] = 'Eventos ANULADOS restablecidos (con errores)';

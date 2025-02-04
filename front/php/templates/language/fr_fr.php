@@ -654,6 +654,12 @@ $pia_lang['BE_NET_Man_Upd'] = 'Le composant réseau actif a été mis à jour.';
 $pia_lang['BE_NET_Man_Upd_Err'] = 'Le composant réseau actif n&apos;a pas été mis à jour en raison d&apos;une erreur.';
 $pia_lang['BE_NET_Man_Del'] = 'Le composant réseau actif a été supprimé.';
 $pia_lang['BE_NET_Man_Del_Err'] = 'Erreur lors de la suppression du composant réseau actif.';
+$pia_lang['BE_NET_Man_AddUn'] = 'Un nouveau composant réseau passif a été ajouté à l&apos;aperçu du réseau.';
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Erreur lors de l&apos;ajout du nouveau composant passif à l&apos;aperçu du réseau.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'Le composant réseau passif a été mis à jour.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'Le composant réseau passif n&apos;a pas été mis à jour en raison d&apos;une erreur.';
+$pia_lang['BE_NET_Man_DelUn'] = 'Le composant réseau passif a été supprimé.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Erreur lors de la suppression du composant réseau passif.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifications';
@@ -829,6 +835,9 @@ $pia_journ_lang['LogStr_0069'] = 'Aucune mise à jour Pi.Alert-Satellite disponi
 $pia_journ_lang['LogStr_0070'] = 'Erreur lors de l&apos;ajout d&apos;un composant réseau actif';
 $pia_journ_lang['LogStr_0071'] = 'Erreur lors de la mise à jour d&apos;un composant réseau actif';
 $pia_journ_lang['LogStr_0072'] = 'Erreur lors de la suppression d&apos;un composant réseau actif';
+$pia_journ_lang['LogStr_0073'] = 'Erreur lors de l&apos;ajout d&apos;un appareil non scannable';
+$pia_journ_lang['LogStr_0074'] = 'Erreur lors de la mise à jour d&apos;un appareil non scannable';
+$pia_journ_lang['LogStr_0075'] = 'Erreur lors de la suppression d&apos;un appareil non scannable';
 $pia_journ_lang['LogStr_0101'] = 'Base de données nettoyée et optimisée';
 $pia_journ_lang['LogStr_0102'] = 'Événements ANNULÉS réinitialisés';
 $pia_journ_lang['LogStr_0103'] = 'Événements ANNULÉS réinitialisés (avec erreurs)';

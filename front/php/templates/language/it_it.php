@@ -659,6 +659,12 @@ $pia_lang['BE_NET_Man_Upd'] = 'Il componente di rete attivo è stato aggiornato.
 $pia_lang['BE_NET_Man_Upd_Err'] = 'Il componente di rete attivo non è stato aggiornato a causa di un errore.';
 $pia_lang['BE_NET_Man_Del'] = 'Il componente di rete attivo è stato eliminato.';
 $pia_lang['BE_NET_Man_Del_Err'] = 'Errore durante l&apos;eliminazione del componente di rete attivo.';
+$pia_lang['BE_NET_Man_AddUn'] = 'È stato aggiunto un nuovo componente di rete passivo alla panoramica della rete.';
+$pia_lang['BE_NET_Man_AddUn_Err'] = 'Errore durante l&apos;aggiunta del nuovo componente passivo alla panoramica della rete.';
+$pia_lang['BE_NET_Man_UpdUn'] = 'Il componente di rete passivo è stato aggiornato.';
+$pia_lang['BE_NET_Man_UpdUn_Err'] = 'Il componente di rete passivo non è stato aggiornato a causa di un errore.';
+$pia_lang['BE_NET_Man_DelUn'] = 'Il componente di rete passivo è stato eliminato.';
+$pia_lang['BE_NET_Man_DelUn_Err'] = 'Errore durante l&apos;eliminazione del componente di rete passivo.';
 // Reports Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['REP_Title'] = 'Notifiche';
@@ -834,6 +840,9 @@ $pia_journ_lang['LogStr_0069'] = 'Nessun aggiornamento Pi.Alert-Satellite dispon
 $pia_journ_lang['LogStr_0070'] = 'Errore durante l&apos;aggiunta di un componente di rete attivo';
 $pia_journ_lang['LogStr_0071'] = 'Errore durante l&apos;aggiornamento di un componente di rete attivo';
 $pia_journ_lang['LogStr_0072'] = 'Errore durante l&apos;eliminazione di un componente di rete attivo';
+$pia_journ_lang['LogStr_0073'] = 'Errore durante l&apos;aggiunta di un dispositivo non scansionabile';
+$pia_journ_lang['LogStr_0074'] = 'Errore durante l&apos;aggiornamento di un dispositivo non scansionabile';
+$pia_journ_lang['LogStr_0075'] = 'Errore durante l&apos;eliminazione di un dispositivo non scansionabile';
 $pia_journ_lang['LogStr_0101'] = 'Ottimizzazione e pulizia del database';
 $pia_journ_lang['LogStr_0102'] = 'Eventi ANNULLATI reimpostati';
 $pia_journ_lang['LogStr_0103'] = 'Eventi ANNULLATI reimpostati (con errori)';
