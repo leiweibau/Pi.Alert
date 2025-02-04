@@ -133,12 +133,12 @@ function addManagedDev() {
 		echo $pia_lang['BE_NET_Man_Add'];
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0030', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
 		echo $pia_lang['BE_NET_Man_Add_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0070', '', '');
 	}
-	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 }
 
 function updManagedDev() {
@@ -158,12 +158,12 @@ function updManagedDev() {
 		echo $pia_lang['BE_NET_Man_Upd'];
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0031', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
 		echo $pia_lang['BE_NET_Man_Upd_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0071', '', '');
 	}
-	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 }
 
 function delManagedDev() {
@@ -179,12 +179,12 @@ function delManagedDev() {
 		echo $pia_lang['BE_NET_Man_Del'];
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0032', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
 		echo $pia_lang['BE_NET_Man_Del_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0072', '', '');
 	}
-	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 }
 
 function addUnManagedDev() {
@@ -202,12 +202,12 @@ function addUnManagedDev() {
 		echo $pia_lang['BE_NET_Man_AddUn'];
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0033', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
 		echo $pia_lang['BE_NET_Man_AddUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0073', '', '');
 	}
-	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 }
 
 function updUnManagedDev() {
@@ -227,12 +227,12 @@ function updUnManagedDev() {
 		echo $pia_lang['BE_NET_Man_UpdUn'];
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0034', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
 		echo $pia_lang['BE_NET_Man_UpdUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0074', '', '');
 	}
-	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 }
 
 function delUnManagedDev() {
@@ -248,12 +248,12 @@ function delUnManagedDev() {
 		echo $pia_lang['BE_NET_Man_DelUn'];
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0035', '', '');
+		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
 		echo $pia_lang['BE_NET_Man_DelUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0075', '', '');
 	}
-	echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 }
 
 //  End
