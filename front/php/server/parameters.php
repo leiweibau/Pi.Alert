@@ -6,7 +6,7 @@
 //  parameters.php - Front module. Server side. Manage Parameters
 //------------------------------------------------------------------------------
 //  Puche 2021              pi.alert.application@gmail.com     GNU GPLv3
-//  leiweibau  2024+        https://github.com/leiweibau       GNU GPLv3
+//  leiweibau  2023+        https://github.com/leiweibau       GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -71,8 +71,7 @@ function getParameter() {
           WHERE par_ID="' . quotes($_REQUEST['parameter']) . '"';
 	$result = $db->query($sql);
 	$row = $result->fetchArray(SQLITE3_NUM);
-	if (isset($row[0])) {$value = $row[0];} else {unset($value);}
-	//$value = $row[0];
+	$value = $row[0];
 
 	echo (json_encode($value));
 }
