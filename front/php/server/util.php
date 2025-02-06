@@ -39,7 +39,7 @@ function formatIPlong($IP) {
 
 // Others functions
 function getDateFromPeriod() {
-	if (isset($_REQUEST['period'])) {$period = $_REQUEST['period'];} else {$period = "";}
+	if (isset($_REQUEST['period'])) {$period = $_REQUEST['period'];} else {unset($period);}
 	//$period = $_REQUEST['period'];
 	return '"' . date('Y-m-d', strtotime('+1 day -' . $period)) . '"';
 }
