@@ -387,6 +387,15 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                                 </div>
                             </div>
 
+<!-- Raw Devices table ----------------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <a href="./php/debugging/test_devices_table_rawcontent.php">
+                                        <button type="button" class="btn btn-default dbtools-button">Show raw Devices Table</button>
+                                    </a>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
