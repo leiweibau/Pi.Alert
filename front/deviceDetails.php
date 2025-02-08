@@ -457,6 +457,15 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                         </div>
                       </div>
 
+                      <?php 
+                      $pia_lang['DevDetail_MainInfo_ScanValid'] = 'Scan Validierung';
+                      ?>
+                      <!-- Scan Validation -->
+                      <div class="form-group">
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_MainInfo_ScanValid'];?></label>
+                        <div class="col-sm-7"><input class="form-control" id="txtScanValidation" type="text" value="--"></div>
+                      </div>
+
                       <!-- New Device -->
                       <div class="form-group">
                         <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_EveandAl_NewDevice'];?>:</label>
@@ -1297,6 +1306,7 @@ function getDeviceData (readAllData=false) {
       $('#chkAlertEvents').iCheck  ('uncheck');
       $('#chkAlertDown').iCheck    ('uncheck');
       $('#txtSkipRepeated').val    ('--');
+      $('#txtScanValidation').val  ('--');
       $('#chkNewDevice').iCheck    ('uncheck');
       $('#chkArchived').iCheck     ('uncheck');
 
@@ -1392,6 +1402,7 @@ function getDeviceData (readAllData=false) {
         if (deviceData['dev_AlertEvents'] == 1)      {$('#chkAlertEvents').iCheck('check');} else {$('#chkAlertEvents').iCheck('uncheck');}
         if (deviceData['dev_AlertDeviceDown'] == 1)  {$('#chkAlertDown').iCheck('check');}   else {$('#chkAlertDown').iCheck('uncheck');}
         $('#txtSkipRepeated').val                    (findSkipRepeated (deviceData['dev_SkipRepeated']));
+        $('#txtScanValidation').val                  (deviceData['dev_Scan_Validation']);
         if (deviceData['dev_NewDevice'] == 1)        {$('#chkNewDevice').iCheck('check');}   else {$('#chkNewDevice').iCheck('uncheck');}
         if (deviceData['dev_Archived'] == 1)         {$('#chkArchived').iCheck('check');}    else {$('#chkArchived').iCheck('uncheck');}
 
@@ -1523,6 +1534,7 @@ function setDeviceData (refreshCallback='') {
     + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
     + '&skiprepeated='    + $('#txtSkipRepeated').val().split(' ')[0]
+    + '&scanvalid='       + $('#txtScanValidation').val()
     + '&newdevice='       + ($('#chkNewDevice')[0].checked * 1)
     + '&archived='        + ($('#chkArchived')[0].checked * 1)
     , function(msg) {

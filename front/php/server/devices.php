@@ -395,6 +395,7 @@ function setDeviceData() {
                  dev_AlertEvents          = "' . quotes($_REQUEST['alertevents']) . '",
                  dev_AlertDeviceDown      = "' . quotes($_REQUEST['alertdown']) . '",
                  dev_SkipRepeated         = "' . quotes($_REQUEST['skiprepeated']) . '",
+                 dev_Scan_Validation      = "' . quotes($_REQUEST['scanvalid']) . '",
                  dev_NewDevice            = "' . quotes($_REQUEST['newdevice']) . '",
                  dev_Archived             = "' . quotes($_REQUEST['archived']) . '"
           WHERE dev_MAC="' . $_REQUEST['mac'] . '"';
@@ -590,6 +591,7 @@ function getDevicesList() {
             WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
             WHEN dev_NewDevice=1 AND dev_PresentLastScan=1 THEN "NewON"
             WHEN dev_NewDevice=1 AND dev_PresentLastScan=0 THEN "NewOFF"
+            WHEN dev_Scan_Validation > 0 AND dev_Scan_Validation_State > 0 AND dev_Scan_Validation_State <= dev_Scan_Validation AND dev_PresentLastScan=1 THEN "OnlineV"
             WHEN dev_PresentLastScan=1 THEN "On-line"
             ELSE "Off-line"
           END AS dev_Status

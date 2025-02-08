@@ -6,10 +6,11 @@
 //  parameters.php - Front module. Server side. Manage Parameters
 //------------------------------------------------------------------------------
 //  Puche 2021              pi.alert.application@gmail.com     GNU GPLv3
-//  leiweibau  2023+        https://github.com/leiweibau       GNU GPLv3
+//  leiweibau  2024+        https://github.com/leiweibau       GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
+error_reporting(0);
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');

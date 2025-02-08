@@ -845,13 +845,14 @@ function initializeDatatable () {
       {targets: [13],
         'createdCell': function (td, cellData, rowData, row, col) {
           switch (rowData[13]) {
-            case 'Down':      color='red';                 statusname='Down';       break;
-            case 'NewON':     color='grad-green-yellow';   statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';        break;
-            case 'NewOFF':    color='grad-gray-yellow';    statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';        break;
-            case 'On-line':   color='green';               statusname='Online';     break;
-            case 'Off-line':  color='gray text-white';     statusname='Offline';    break;
-            case 'Archived':  color='gray text-white';     statusname='Archived';   break;
-            default:          color='aqua';                statusname=''; 					break;
+            case 'Down':      color='red';                 statusname='Down';                          break;
+            case 'NewON':     color='grad-green-yellow';   statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';   break;
+            case 'NewOFF':    color='grad-gray-yellow';    statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';   break;
+            case 'OnlineV':   color='green';               statusname='Online*';                       break;
+            case 'On-line':   color='green';               statusname='Online';                        break;
+            case 'Off-line':  color='gray text-white';     statusname='Offline';                       break;
+            case 'Archived':  color='gray text-white';     statusname='Archived';                      break;
+            default:          color='aqua';                statusname=''; 					                   break;
           };
           $(td).html ('<a href="deviceDetails.php?mac='+ rowData[11] +'" class="badge bg-'+ color +'">'+ statusname +'</a>');
       } },

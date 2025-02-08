@@ -1655,6 +1655,42 @@ def cleanup_satellite_scans(satellite_list):
             os.remove(WORKING_DIR+token+".json") 
 
 #-------------------------------------------------------------------------------
+def update_scan_validation():
+    print('    Update Scan Validation...')
+    # 1. Setze dev_Scan_Validation_State auf 0 für Geräte, die im CurrentScan sind und dev_Scan_Validation > 0 haben
+    sql.execute("""
+        UPDATE Devices
+        SET dev_Scan_Validation_State = 0
+        WHERE dev_Scan_Validation > 0
+        AND dev_MAC IN (SELECT cur_MAC FROM CurrentScan)
+    """)
+    
+    # 2. Finde Geräte, die in CurrentScan eingefügt werden sollen, und speichere sie in einer Liste
+    sql.execute("""
+        SELECT dev_ScanCycle, dev_MAC, dev_LastIP, dev_Vendor, dev_ScanSource
+        FROM Devices
+        WHERE dev_Scan_Validation > 0
+        AND dev_Scan_Validation_State < dev_Scan_Validation
+        AND dev_MAC NOT IN (SELECT cur_MAC FROM CurrentScan)
+    """)
+    devices_to_insert = sql.fetchall()
+    
+    # Füge die Geräte in CurrentScan ein
+    sql.executemany("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
+        VALUES (?, ?, ?, ?, NULL, ?)
+    """, devices_to_insert)
+    
+    # 4. Erhöhe dev_Scan_Validation_State um 1 für die in Punkt 2 gespeicherten Geräte
+    mac_addresses = [device[1] for device in devices_to_insert]
+    if mac_addresses:
+        sql.executemany("""
+            UPDATE Devices
+            SET dev_Scan_Validation_State = dev_Scan_Validation_State + 1
+            WHERE dev_MAC = ?
+        """, [(mac,) for mac in mac_addresses])
+
+#-------------------------------------------------------------------------------
 def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     # Delete previous scan data
     sql.execute ("DELETE FROM CurrentScan WHERE cur_ScanCycle = ?",
@@ -1693,6 +1729,13 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                     WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
                                       WHERE cur_MAC = Sat_MAC )""",
                     (cycle) )
+
+    # Alle Geräte, die im Current_Scan sind und bei denen in der device Liste "dev_Scan_Validation" > 0 ist, bekommen den Wert im Feld "dev_Scan_Validation_State" auf 0 zurückgesetzt
+    # Füge die Geräte aus der device liste ein bei dem "dev_Scan_Validation" > 0 ist und "Scan_Validation_State" < "dev_Scan_Validation" in Current Scan ein
+    # Geräte bei denen "dev_Scan_Validation_State" = "dev_Scan_Validation" ist werden nicht mehr eingefügt.
+    # Alle Geräte, die nicht im Current_Scan sind und bei denen in der device Liste "dev_Scan_Validation" > 0 und "dev_Scan_Validation_State" < "dev_Scan_Validation" ist, bekommen den Wert im Feld "dev_Scan_Validation_State" um 1 erhöht
+
+    update_scan_validation()
 
     if not OFFLINE_MODE :
         # Check Internet connectivity
