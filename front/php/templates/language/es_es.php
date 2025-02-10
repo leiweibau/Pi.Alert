@@ -228,6 +228,7 @@ $pia_lang['DevDetail_EveandAl_ScanCycle'] = 'Ciclo de escaneo';
 $pia_lang['DevDetail_EveandAl_AlertAllEvents'] = 'Alerta a todos los eventos';
 $pia_lang['DevDetail_EveandAl_AlertDown'] = 'Alerta de caída';
 $pia_lang['DevDetail_EveandAl_Skip'] = 'Omitir notificaciones repetidas durante';
+$pia_lang['DevDetail_EveandAl_ScanValid'] = 'Validación de escaneo';
 $pia_lang['DevDetail_EveandAl_NewDevice'] = 'Nuevo dispositivo';
 $pia_lang['DevDetail_EveandAl_Archived'] = 'Archivada';
 $pia_lang['DevDetail_EveandAl_RandomMAC'] = 'MAC al azar';

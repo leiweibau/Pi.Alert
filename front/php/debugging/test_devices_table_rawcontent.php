@@ -27,6 +27,9 @@ if ($_SESSION["login"] != 1) {
         }
         th {
             background-color: #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
         tr:nth-child(even) {
             background-color: #f0f0f0;

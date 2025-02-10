@@ -24,6 +24,7 @@ Various badges can appear in the "Status" column:
  - "red" = offline, "Down" notification activated
  - "gray" = offline
  - "green" = online
+ - "green" = online*, pending Scan Validation
  - "yellow, green" = new and online
  - "yellow, gray" = new and offline
 
