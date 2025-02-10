@@ -5,7 +5,7 @@
 #  deviceDetails.php - Front module. Device management page
 #-------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                         GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
 <?php
@@ -457,12 +457,9 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                         </div>
                       </div>
 
-                      <?php 
-                      $pia_lang['DevDetail_MainInfo_ScanValid'] = 'Scan Validierung';
-                      ?>
                       <!-- Scan Validation -->
                       <div class="form-group">
-                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_MainInfo_ScanValid'];?></label>
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_EveandAl_ScanValid'];?></label>
                         <div class="col-sm-7"><input class="form-control" id="txtScanValidation" type="text" value="--"></div>
                       </div>
 

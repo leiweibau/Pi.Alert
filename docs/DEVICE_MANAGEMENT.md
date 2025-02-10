@@ -23,6 +23,7 @@ To edit device information:
   - **Serial Number**: Here you can enter any existing serial number for unique identification
   - **Group**: Select a grouper ('Always on', 'Personal', Friends') or type your own Group name
   - **Location**: Select a location ('Hall', 'Kitchen', ....) of the device
+  - **Favorite**: Mark the device as favorite and then it will appears at the begining of the device list
   - **Comments**: Type any comments for the device
 
 ## Session Info
@@ -51,8 +52,9 @@ To edit device information:
       notification to this device for X hours
     - *(Useful to avoid notification saturation on devices that frequently
       connects and disconnects)*
-  - **Favorite**: Mark the device as favorite and then it will appears at the
-    begining of the device list
+  - **Scan Validation**: The "Scan Validation" parameter determines how many consecutive scans 
+      must detect a device as offline before its status is officially changed to "offline" or 
+      "down." If a validation is pending, the device is marked as "online*" (with an asterisk as an indicator).
   - **Show on "Presence"**: The device can be hidden on the “Presence” page, 
     e.g. to increase the overview or because presence tracking is not necessary.
 
