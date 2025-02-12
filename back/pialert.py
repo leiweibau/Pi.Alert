@@ -1385,12 +1385,9 @@ def read_openwrt_clients():
         print('        Missing python package')
         return
 
-    
     try:
         router = OpenWrtRpc(str(OPENWRT_IP), str(OPENWRT_USER), str(OPENWRT_PASS))
         result = router.get_all_connected_devices(only_reachable=True)
-
-        # devices_info = []
 
         for device in result:
             if str(device.hostname) == 'None':
@@ -1398,18 +1395,10 @@ def read_openwrt_clients():
             else:
                 hostname = device.hostname
 
-            # device_data = {
-            #     'mac': device.mac,
-            #     'hostname': hostname,
-            #     'ip': device.ip
-            # }
-            # devices_info.append(device_data)
-
             sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, UF_Name, OWRT_Vendor) "+
-                         "VALUES (?, ?, ?, ?) ", (device.mac, device.ip, hostname, '(unknown)') )
+                         "VALUES (?, ?, ?, ?) ", (device.mac.lower(), device.ip, hostname, '(unknown)') )
 
     except Exception as e:
-        #print(f"Es ist ein Fehler aufgetreten")
         print(f"Error")
 
 #-------------------------------------------------------------------------------
@@ -1566,7 +1555,7 @@ def process_satellites(satellite_list):
 
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check':
-                        sat_MAC = result['cur_MAC']
+                        sat_MAC = result['cur_MAC'].lower()
                         sat_IP = result['cur_IP']
                         sat_hostname = result['cur_hostname']
                         sat_Vendor = result['cur_Vendor']
@@ -1657,7 +1646,7 @@ def cleanup_satellite_scans(satellite_list):
 #-------------------------------------------------------------------------------
 def update_scan_validation():
     print('    Update Scan Validation...')
-    # 1. Setze dev_Scan_Validation_State auf 0 für Geräte, die im CurrentScan sind und dev_Scan_Validation > 0 haben
+    # 1. set dev_Scan_Validation_State to 0 for devices that are in CurrentScan and have dev_Scan_Validation > 0
     sql.execute("""
         UPDATE Devices
         SET dev_Scan_Validation_State = 0
@@ -1665,7 +1654,7 @@ def update_scan_validation():
         AND dev_MAC IN (SELECT cur_MAC FROM CurrentScan)
     """)
     
-    # 2. Finde Geräte, die in CurrentScan eingefügt werden sollen, und speichere sie in einer Liste
+    # 2. find devices to be inserted in CurrentScan and save them in a list
     sql.execute("""
         SELECT dev_ScanCycle, dev_MAC, dev_LastIP, dev_Vendor, dev_ScanSource
         FROM Devices
@@ -1675,13 +1664,13 @@ def update_scan_validation():
     """)
     devices_to_insert = sql.fetchall()
     
-    # Füge die Geräte in CurrentScan ein
+    # Add the devices to CurrentScan
     sql.executemany("""
         INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
         VALUES (?, ?, ?, ?, NULL, ?)
     """, devices_to_insert)
     
-    # 4. Erhöhe dev_Scan_Validation_State um 1 für die in Punkt 2 gespeicherten Geräte
+    # 4. increase dev_Scan_Validation_State by 1 for the devices saved in point 2
     mac_addresses = [device[1] for device in devices_to_insert]
     if mac_addresses:
         sql.executemany("""
@@ -1730,11 +1719,7 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                                       WHERE cur_MAC = Sat_MAC )""",
                     (cycle) )
 
-    # Alle Geräte, die im Current_Scan sind und bei denen in der device Liste "dev_Scan_Validation" > 0 ist, bekommen den Wert im Feld "dev_Scan_Validation_State" auf 0 zurückgesetzt
-    # Füge die Geräte aus der device liste ein bei dem "dev_Scan_Validation" > 0 ist und "Scan_Validation_State" < "dev_Scan_Validation" in Current Scan ein
-    # Geräte bei denen "dev_Scan_Validation_State" = "dev_Scan_Validation" ist werden nicht mehr eingefügt.
-    # Alle Geräte, die nicht im Current_Scan sind und bei denen in der device Liste "dev_Scan_Validation" > 0 und "dev_Scan_Validation_State" < "dev_Scan_Validation" ist, bekommen den Wert im Feld "dev_Scan_Validation_State" um 1 erhöht
-
+    # Scan Validation
     update_scan_validation()
 
     if not OFFLINE_MODE :
