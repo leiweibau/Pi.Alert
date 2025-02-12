@@ -275,8 +275,8 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 
                       <!-- Comments -->
                       <div class="form-group">
-                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Comments'];?></label>
-                        <div class="col-sm-9"><textarea class="form-control" rows="3" id="txtComments"></textarea></div>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Comments'];?></label>
+                        <div class="col-sm-8"><textarea class="form-control" rows="3" id="txtComments"></textarea></div>
                       </div>
 
                       <!-- ScanSource -->
