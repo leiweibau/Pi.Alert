@@ -77,8 +77,9 @@ function getDevicesList() {
 	$condition = getDeviceCondition($_REQUEST['status']);
 	$sql = 'SELECT rowid, *, CASE
             WHEN icmp_AlertDown=1 AND icmp_PresentLastScan=0 THEN "Down"
-            WHEN icmp_PresentLastScan=1 THEN "On-line"
-            ELSE "Off-line"
+            WHEN icmp_Scan_Validation_State=0 AND icmp_PresentLastScan=1 THEN "Online"
+            WHEN icmp_Scan_Validation > 0 AND icmp_Scan_Validation_State > 0 AND icmp_Scan_Validation_State <= icmp_Scan_Validation AND icmp_PresentLastScan=1 THEN "OnlineV"
+            ELSE "Offline"
           END AS icmp_Status
           FROM ICMP_Mon ' . $condition;
 	$result = $db->query($sql);
@@ -94,6 +95,7 @@ function getDevicesList() {
 			$row['icmp_LastScan'],
 			$row['icmp_PresentLastScan'],
 			$row['icmp_AlertDown'],
+			$row['icmp_Status'],
 			$row['rowid'], // Rowid (hidden)
 		);
 	}
@@ -131,18 +133,20 @@ function setICMPHostData() {
 	if ($_REQUEST['icmp_group'] == '--') {unset($_REQUEST['icmp_group']);}
 	if ($_REQUEST['icmp_type'] == '--') {unset($_REQUEST['icmp_type']);}
 	if ($_REQUEST['icmp_location'] == '--') {unset($_REQUEST['icmp_location']);}
+	if (!is_numeric($_REQUEST['icmp_scanvalid'])) {$_REQUEST['icmp_scanvalid'] = 0;}
 
 	$sql = 'UPDATE ICMP_Mon SET
-				icmp_hostname    = "' . quotes($_REQUEST['icmp_hostname']) . '",
-                icmp_type        = "' . quotes($_REQUEST['icmp_type']) . '",
-                icmp_group       = "' . quotes($_REQUEST['icmp_group']) . '",
-                icmp_location    = "' . quotes($_REQUEST['icmp_location']) . '",
-                icmp_owner       = "' . quotes($_REQUEST['icmp_owner']) . '",
-                icmp_notes       = "' . quotes($_REQUEST['icmp_notes']) . '",
-                icmp_AlertEvents = "' . quotes($_REQUEST['alertevents']) . '",
-                icmp_AlertDown   = "' . quotes($_REQUEST['alertdown']) . '",
-                icmp_Favorite    = "' . quotes($_REQUEST['favorit']) . '",
-                icmp_Archived    = "' . quotes($_REQUEST['archived']) . '"
+				icmp_hostname        = "' . quotes($_REQUEST['icmp_hostname']) . '",
+                icmp_type            = "' . quotes($_REQUEST['icmp_type']) . '",
+                icmp_group           = "' . quotes($_REQUEST['icmp_group']) . '",
+                icmp_location        = "' . quotes($_REQUEST['icmp_location']) . '",
+                icmp_owner           = "' . quotes($_REQUEST['icmp_owner']) . '",
+                icmp_notes           = "' . quotes($_REQUEST['icmp_notes']) . '",
+                icmp_Scan_Validation = "' . quotes($_REQUEST['icmp_scanvalid']) . '",
+                icmp_AlertEvents     = "' . quotes($_REQUEST['alertevents']) . '",
+                icmp_AlertDown       = "' . quotes($_REQUEST['alertdown']) . '",
+                icmp_Favorite        = "' . quotes($_REQUEST['favorit']) . '",
+                icmp_Archived        = "' . quotes($_REQUEST['archived']) . '"
           WHERE icmp_ip="' . $_REQUEST['icmp_ip'] . '"';
 
 	$result = $db->query($sql);

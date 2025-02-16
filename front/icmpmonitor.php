@@ -5,7 +5,7 @@
 //
 //  icmpmonitor.php - Front module. Ping polling
 //------------------------------------------------------------------------------
-//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2024+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 session_start();
 error_reporting(0);
@@ -493,7 +493,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
       </div>
 
-
 <!-- Activity Chart ------------------------------------------------------- -->
 
 <?php
@@ -517,22 +516,15 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 
       <script src="js/graph_online_history.js"></script>
       <script>
-        // var pia_js_online_history_time = [<?php pia_graph_devices_data($Graph_Device_Time);?>];
-        // var pia_js_online_history_ondev = [<?php pia_graph_devices_data($Graph_Device_Online);?>];
-        // var pia_js_online_history_dodev = [<?php pia_graph_devices_data($Graph_Device_Down);?>];
-        // graph_online_history_icmp(pia_js_online_history_time, pia_js_online_history_ondev, pia_js_online_history_dodev);
-
         var online_history_time = [<?php pia_graph_devices_data($Graph_Device_Time);?>];
         var online_history_ondev = [<?php pia_graph_devices_data($Graph_Device_Online);?>];
         var online_history_dodev = [<?php pia_graph_devices_data($Graph_Device_Down);?>];
         var online_history_ardev = [<?php pia_graph_devices_data($Graph_Device_Arch);?>];
         graph_online_history_icmp(online_history_time, online_history_ondev, online_history_dodev, online_history_ardev);
-
       </script>
 <?php
 }
 	?>
-
       <div class="row">
         <div class="col-xs-12">
           <div id="tableDevicesBox" class="box">
@@ -553,7 +545,8 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
                   <th><?=$pia_lang['WEBS_EVE_TableHead_ResponsTime']?></th>
                   <th style="white-space: nowrap;"><?=$pia_lang['WEBS_tablehead_ScanTime']?></th>
                   <th><?=$pia_lang['Device_TableHead_Status']?></th>
-                  <th>Present</th>
+                  <th>row6</th>
+                  <th>row7</th>
                   <th>RowID</th>
                 </tr>
                 </thead>
@@ -635,7 +628,7 @@ function initializeDatatable () {
     'order'       : [[0,'asc']],
 
     'columnDefs'   : [
-      {visible:   false,         targets: [6,7] },
+      {visible:   false,         targets: [6,7,8] },
       {className: 'text-center', targets: [1,2,3,4,5] },
       {className: 'text-left',   targets: [0] },
       {width:     '150px',       targets: [4] },
@@ -665,15 +658,15 @@ function initializeDatatable () {
       } },
       {targets: [5],
         'createdCell': function (td, cellData, rowData, row, col) {
-          if (cellData == 1){
-            $(td).html ('<a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="badge bg-green">Online</a>');
-          } else if (cellData == 0 && rowData[6] == 1) {
-            $(td).html ('<a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="badge bg-red">Down</a>');
-          } else {
-            $(td).html ('<a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="badge bg-gray text-white">Offline</a>');
-          }
+          switch (rowData[7]) {
+            case 'Down':     color='red';                 statusname='Down';                          break;
+            case 'OnlineV':  color='green';               statusname='Online*';                       break;
+            case 'Online':   color='green';               statusname='Online';                        break;
+            case 'Offline':  color='gray text-white';     statusname='Offline';                       break;
+            default:         color='aqua';                statusname=''; 					                   break;
+          };
+          $(td).html ('<a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="badge bg-'+ color +'">'+ statusname +'</a>');
       } },
-
     ],
 
     // Processing
@@ -693,13 +686,6 @@ function initializeDatatable () {
 };
 
 // -----------------------------------------------------------------------------
-// function getDevicesList () {
-//   // Define new datasource URL and reload
-//   $('#tableDevices').DataTable().ajax.url(
-//     'php/server/icmpmonitor.php?action=getDevicesList').load();
-// };
-
-
 function getDevicesList(status) {
   // Save status selected
   deviceStatus = status;

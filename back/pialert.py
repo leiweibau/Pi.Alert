@@ -891,12 +891,6 @@ def scan_network():
     sql_connection.commit()
     closeDB()
 
-    # Issue #370
-    # new column for example "dev_alarm_delay" (True/False) and config parameter (2) scan counter
-    # For devices that are in the “Current_Scan” table and for which “alarm_delay” is set to True, 
-    # “Pending_Alert” is reset if the time interval is less than the desired one.
-    # maybe a new function like "apply_notifivation_delay()""
-
     # Web Service Monitoring
     if SCAN_WEBSERVICES:
         if str(startTime)[15] == "0":
@@ -908,8 +902,6 @@ def scan_network():
     if SCAN_ROGUE_DHCP:
         print('\nLooking for Rogue DHCP Servers...')
         rogue_dhcp_detection()
-
-
 
     return 0
 
@@ -1664,7 +1656,7 @@ def update_scan_validation():
     """)
     devices_to_insert = sql.fetchall()
     
-    # Add the devices to CurrentScan
+    # 3. Add the devices to CurrentScan
     sql.executemany("""
         INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
         VALUES (?, ?, ?, ?, NULL, ?)
@@ -3118,12 +3110,8 @@ def icmp_monitoring():
 
     closeDB()
     scantime = startTime.strftime("%Y-%m-%d %H:%M")
-
     icmp_scan_results = {}
-
     icmphosts_all = len(icmphosts)
-    icmphosts_online = 0
-    icmphosts_offline = 0
 
     try:
         ping_retries = ICMP_ONLINE_TEST
@@ -3136,18 +3124,14 @@ def icmp_monitoring():
         while icmphosts_index < icmphosts_all:
             host_ip = icmphosts[icmphosts_index]
             for i in range(ping_retries):
-                # print("Host %s retry %s" % (host_ip, str(i+1)))
                 icmp_status = ping(host_ip)
                 if icmp_status == "1":
                     break;
 
             if icmp_status == "1":
                 icmp_rtt = ping_avg(host_ip)
-                # print("Host %s RTT %s" % (host_ip, str(icmp_rtt)))
-                icmphosts_online+=1
             else:
                 icmp_rtt = "99999"
-                icmphosts_offline+=1
 
             current_data = {
                 "host_ip": host_ip,
@@ -3161,18 +3145,20 @@ def icmp_monitoring():
 
             icmphosts_index += 1
 
-        print("        Online Host(s)  : " + str(icmphosts_online))
-        print("        Offline Host(s) : " + str(icmphosts_offline))
-
         openDB()
         # Save Scan Results
         icmp_save_scandata(icmp_scan_results)
+
+        update_icmp_validation()
+        online, offline = get_online_offline_hosts()
+        print("        Online Host(s)  : " + str(online))
+        print("        Offline Host(s) : " + str(offline))
 
         print("    Create Events...")
         icmp_create_events()
 
         print("    Calculate Activity History...")
-        calc_activity_history_icmp(icmphosts_online, icmphosts_offline)
+        calc_activity_history_icmp(online, offline)
 
         sql_connection.commit()
         closeDB()
@@ -3180,6 +3166,67 @@ def icmp_monitoring():
     else:
         # openDB()
         print("    No Hosts(s) to monitor!")
+
+
+#-------------------------------------------------------------------------------
+def get_online_offline_hosts():
+    sql.execute("""
+        SELECT COUNT(*) 
+        FROM ICMP_Mon_CurrentScan 
+        WHERE cur_Present = 1
+    """)
+    icmphosts_online = sql.fetchone()[0]
+
+    sql.execute("""
+        SELECT COUNT(*) 
+        FROM ICMP_Mon_CurrentScan 
+        WHERE cur_Present = 0
+    """)
+    icmphosts_offline = sql.fetchone()[0]
+
+    return icmphosts_online, icmphosts_offline
+
+#-------------------------------------------------------------------------------
+def update_icmp_validation():
+    print('    Update ICMP Validation...')
+    # 1. Set dev_Scan_Validation_State to 0 for devices that are in Present in CurrentScan and have dev_Scan_Validation > 0
+    sql.execute("""
+        UPDATE ICMP_Mon
+        SET icmp_Scan_Validation_State = 0
+        WHERE icmp_Scan_Validation > 0
+        AND icmp_ip IN (
+            SELECT cur_ip FROM ICMP_Mon_CurrentScan WHERE cur_Present = 1
+        );
+    """)
+    # 2. Find devices in CurrentScan that have activated Scan_Validation and are not currently active
+    sql.execute("""
+        SELECT cur_ip 
+        FROM ICMP_Mon_CurrentScan 
+        WHERE cur_Present = 0 
+        AND cur_ip IN (
+            SELECT icmp_ip 
+            FROM ICMP_Mon 
+            WHERE icmp_Scan_Validation > 0 
+            AND icmp_Scan_Validation_State < icmp_Scan_Validation
+        )
+    """)
+    host_ips = [(row[0],) for row in sql.fetchall()]
+    # 3. Set the relevant devices as online
+    sql.executemany("""
+        UPDATE ICMP_Mon_CurrentScan 
+        SET cur_Present = 1, cur_PresentChanged = 0, cur_avgrrt = 999
+        WHERE cur_ip = ?
+    """, host_ips)
+    # 4. increase dev_Scan_Validation_State by 1 for the devices saved in point 2
+    sql.executemany("""
+        UPDATE ICMP_Mon
+        SET icmp_Scan_Validation_State = icmp_Scan_Validation_State + 1,
+            icmp_PresentLastScan = 1,
+            icmp_avgrtt = 999
+        WHERE icmp_Scan_Validation > 0 AND icmp_ip = ?
+    """, host_ips)
+
+    sql_connection.commit()
 
 # -----------------------------------------------------------------------------
 def icmp_save_scandata(data):
@@ -3191,7 +3238,6 @@ def icmp_save_scandata(data):
 
 # -----------------------------------------------------------------------------
 def icmp_create_events():
-
     # Check new connections
     print_log ('Events - New Connections')
     sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
@@ -3674,9 +3720,6 @@ def email_reporting():
         '  <td> <a href="{}{}"> {} </a>  </td><td> {} </td>'+ \
         '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'
 
-    # Issue #370
-    # AND eve_DateTime < datetime('now', '-{DELAY} minutes') for devices where dev_alarm_delay is true
-
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
                       AND eve_EventType = 'Device Down'
@@ -3767,19 +3810,6 @@ def email_reporting():
                 """, (datetime.datetime.now(),))
     sql.execute("""UPDATE Events SET eve_PendingAlertEmail = 0
                    WHERE eve_PendingAlertEmail = 1""")
-
-    # Issue #370
-    # Clean Pending Alert Events
-    # sql.execute("""UPDATE Devices SET dev_LastNotification = ?
-    #                WHERE dev_MAC IN (SELECT eve_MAC FROM Events
-    #                   WHERE eve_PendingAlertEmail = 1 AND eve_EventType =='Device Down' 
-    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
-    #         """, (datetime.datetime.now(),))
-    # sql.execute ("""UPDATE Events SET eve_PendingAlertEmail = 0
-    #                 WHERE eve_PendingAlertEmail = 1 
-    #                 AND eve_EventType =='Device Down' 
-    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
-    #         """)
 
     # Set Notification Presets
     sql.execute("""UPDATE Devices SET dev_AlertEvents = ?, dev_AlertDeviceDown = ?
