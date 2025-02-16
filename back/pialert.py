@@ -2557,7 +2557,6 @@ def rogue_dhcp_detection():
     # Flush Table
     sql.execute("DELETE FROM Nmap_DHCP_Server")
     sql_connection.commit()
-
     closeDB()
 
     # Execute 15 probes and insert in list
@@ -2567,7 +2566,6 @@ def rogue_dhcp_detection():
     for _ in range(dhcp_probes):
         stream = os.popen('sudo nmap --script broadcast-dhcp-discover 2>/dev/null | grep "Server Identifier" | awk \'{ print $4 }\'')
         output = stream.read()
-        # dhcp_server_list.append(output.replace("\n", ""))
 
         multiple_dhcp_ips = output.split("\n")
 
