@@ -406,7 +406,7 @@ function getEventsCalendar() {
 	                   WHEN ses_EventTypeConnection = "<missing event>" THEN
 	                        IFNULL ((SELECT MAX(ses_DateTimeDisconnection) 
 	                                 FROM Sessions AS SES2 
-	                                 WHERE SES2.ses_MAC = SES1.ses_MAC 
+	                                 WHERE LOWER(SES2.ses_MAC) = LOWER(SES1.ses_MAC) 
 	                                   AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),  
 	                                 DATETIME(ses_DateTimeDisconnection, "-1 hour"))
 	                   ELSE ses_DateTimeConnection
@@ -416,13 +416,13 @@ function getEventsCalendar() {
 	                   WHEN ses_EventTypeDisconnection = "<missing event>" THEN
 	                        (SELECT MIN(ses_DateTimeConnection) 
 	                         FROM Sessions AS SES2 
-	                         WHERE SES2.ses_MAC = SES1.ses_MAC 
+	                         WHERE LOWER(SES2.ses_MAC) = LOWER(SES1.ses_MAC) 
 	                           AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
 	                   ELSE ses_DateTimeDisconnection
 	                 END AS ses_DateTimeDisconnectionCorrected
 
 	          FROM Sessions AS SES1
-	          JOIN Devices AS DEV ON SES1.ses_MAC = DEV.dev_MAC
+	          JOIN Devices AS DEV ON LOWER(SES1.ses_MAC) = LOWER(DEV.dev_MAC)
 	          WHERE DEV.dev_ScanSource = "' . $scansource . '" 
 	            AND (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
 	                 AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
@@ -447,7 +447,7 @@ function getEventsCalendar() {
 
 		// Save row data
 		$tableData[] = array(
-			'resourceId' => $row['ses_MAC'],
+			'resourceId' => strtolower($row['ses_MAC']),
 			'title' => '',
 			'start' => formatDateISO($row['ses_DateTimeConnectionCorrected']),
 			'end' => formatDateISO($row['ses_DateTimeDisconnectionCorrected']),

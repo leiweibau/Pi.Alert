@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.30'
+SCRIPTVERSION='v1.31'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -653,6 +653,41 @@ EOM
     # ICMP_Mon_Connections
     echo -e "...Insert new table 'ICMP_Mon_Connections' to DB"
     sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'ICMP_Mon_Connections' ('icmpeve_ip' NUMERIC NOT NULL,'icmpeve_DateTime' TEXT NOT NULL,'icmpeve_Present' INTEGER,'icmpeve_EventType' STRING(50) NOT NULL COLLATE NOCASE, 'icmpeve_AdditionalInfo' STRING(250) DEFAULT (''));"
+    # Devices.dev_Scan_Validation
+    echo -e "...Insert new column 'dev_Scan_Validation' to table 'Devices' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Devices');" | awk -F\| '{print $2}' | grep -wci "dev_Scan_Validation")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Devices' ADD COLUMN 'dev_Scan_Validation' INTEGER NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'dev_Scan_Validation' already exists in the 'Devices' table."
+    fi
+    # Devices.dev_Scan_Validation_State
+    echo -e "...Insert new column 'dev_Scan_Validation_State' to table 'Devices' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Devices');" | awk -F\| '{print $2}' | grep -wci "dev_Scan_Validation_State")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Devices' ADD COLUMN 'dev_Scan_Validation_State' INTEGER NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'dev_Scan_Validation_State' already exists in the 'Devices' table."
+    fi
+    # ICMP_Mon.icmp_Scan_Validation
+    echo -e "...Insert new column 'icmp_Scan_Validation' to table 'ICMP_Mon' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('ICMP_Mon');" | awk -F\| '{print $2}' | grep -wci "icmp_Scan_Validation")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'ICMP_Mon' ADD COLUMN 'icmp_Scan_Validation' INTEGER NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'icmp_Scan_Validation' already exists in the 'ICMP_Mon' table."
+    fi
+    # ICMP_Mon.icmp_Scan_Validation_State
+    echo -e "...Insert new column 'icmp_Scan_Validation_State' to table 'ICMP_Mon' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('ICMP_Mon');" | awk -F\| '{print $2}' | grep -wci "icmp_Scan_Validation_State")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'ICMP_Mon' ADD COLUMN 'icmp_Scan_Validation_State' INTEGER NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'icmp_Scan_Validation_State' already exists in the 'ICMP_Mon' table."
+    fi
+
+
+
 
     echo -e "\nUpdate finished!\n"
 

@@ -891,12 +891,6 @@ def scan_network():
     sql_connection.commit()
     closeDB()
 
-    # Issue #370
-    # new column for example "dev_alarm_delay" (True/False) and config parameter (2) scan counter
-    # For devices that are in the “Current_Scan” table and for which “alarm_delay” is set to True, 
-    # “Pending_Alert” is reset if the time interval is less than the desired one.
-    # maybe a new function like "apply_notifivation_delay()""
-
     # Web Service Monitoring
     if SCAN_WEBSERVICES:
         if str(startTime)[15] == "0":
@@ -908,8 +902,6 @@ def scan_network():
     if SCAN_ROGUE_DHCP:
         print('\nLooking for Rogue DHCP Servers...')
         rogue_dhcp_detection()
-
-
 
     return 0
 
@@ -1385,12 +1377,9 @@ def read_openwrt_clients():
         print('        Missing python package')
         return
 
-    
     try:
         router = OpenWrtRpc(str(OPENWRT_IP), str(OPENWRT_USER), str(OPENWRT_PASS))
         result = router.get_all_connected_devices(only_reachable=True)
-
-        # devices_info = []
 
         for device in result:
             if str(device.hostname) == 'None':
@@ -1398,18 +1387,10 @@ def read_openwrt_clients():
             else:
                 hostname = device.hostname
 
-            # device_data = {
-            #     'mac': device.mac,
-            #     'hostname': hostname,
-            #     'ip': device.ip
-            # }
-            # devices_info.append(device_data)
-
             sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, UF_Name, OWRT_Vendor) "+
-                         "VALUES (?, ?, ?, ?) ", (device.mac, device.ip, hostname, '(unknown)') )
+                         "VALUES (?, ?, ?, ?) ", (device.mac.lower(), device.ip, hostname, '(unknown)') )
 
     except Exception as e:
-        #print(f"Es ist ein Fehler aufgetreten")
         print(f"Error")
 
 #-------------------------------------------------------------------------------
@@ -1566,7 +1547,7 @@ def process_satellites(satellite_list):
 
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check':
-                        sat_MAC = result['cur_MAC']
+                        sat_MAC = result['cur_MAC'].lower()
                         sat_IP = result['cur_IP']
                         sat_hostname = result['cur_hostname']
                         sat_Vendor = result['cur_Vendor']
@@ -1655,6 +1636,42 @@ def cleanup_satellite_scans(satellite_list):
             os.remove(WORKING_DIR+token+".json") 
 
 #-------------------------------------------------------------------------------
+def update_scan_validation():
+    print('    Update Scan Validation...')
+    # 1. set dev_Scan_Validation_State to 0 for devices that are in CurrentScan and have dev_Scan_Validation > 0
+    sql.execute("""
+        UPDATE Devices
+        SET dev_Scan_Validation_State = 0
+        WHERE dev_Scan_Validation > 0
+        AND dev_MAC IN (SELECT cur_MAC FROM CurrentScan)
+    """)
+    
+    # 2. find devices to be inserted in CurrentScan and save them in a list
+    sql.execute("""
+        SELECT dev_ScanCycle, dev_MAC, dev_LastIP, dev_Vendor, dev_ScanSource
+        FROM Devices
+        WHERE dev_Scan_Validation > 0
+        AND dev_Scan_Validation_State < dev_Scan_Validation
+        AND dev_MAC NOT IN (SELECT cur_MAC FROM CurrentScan)
+    """)
+    devices_to_insert = sql.fetchall()
+    
+    # 3. Add the devices to CurrentScan
+    sql.executemany("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
+        VALUES (?, ?, ?, ?, NULL, ?)
+    """, devices_to_insert)
+    
+    # 4. increase dev_Scan_Validation_State by 1 for the devices saved in point 2
+    mac_addresses = [device[1] for device in devices_to_insert]
+    if mac_addresses:
+        sql.executemany("""
+            UPDATE Devices
+            SET dev_Scan_Validation_State = dev_Scan_Validation_State + 1
+            WHERE dev_MAC = ?
+        """, [(mac,) for mac in mac_addresses])
+
+#-------------------------------------------------------------------------------
 def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     # Delete previous scan data
     sql.execute ("DELETE FROM CurrentScan WHERE cur_ScanCycle = ?",
@@ -1693,6 +1710,9 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                     WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
                                       WHERE cur_MAC = Sat_MAC )""",
                     (cycle) )
+
+    # Scan Validation
+    update_scan_validation()
 
     if not OFFLINE_MODE :
         # Check Internet connectivity
@@ -2537,7 +2557,6 @@ def rogue_dhcp_detection():
     # Flush Table
     sql.execute("DELETE FROM Nmap_DHCP_Server")
     sql_connection.commit()
-
     closeDB()
 
     # Execute 15 probes and insert in list
@@ -2547,7 +2566,6 @@ def rogue_dhcp_detection():
     for _ in range(dhcp_probes):
         stream = os.popen('sudo nmap --script broadcast-dhcp-discover 2>/dev/null | grep "Server Identifier" | awk \'{ print $4 }\'')
         output = stream.read()
-        # dhcp_server_list.append(output.replace("\n", ""))
 
         multiple_dhcp_ips = output.split("\n")
 
@@ -3090,12 +3108,8 @@ def icmp_monitoring():
 
     closeDB()
     scantime = startTime.strftime("%Y-%m-%d %H:%M")
-
     icmp_scan_results = {}
-
     icmphosts_all = len(icmphosts)
-    icmphosts_online = 0
-    icmphosts_offline = 0
 
     try:
         ping_retries = ICMP_ONLINE_TEST
@@ -3108,18 +3122,14 @@ def icmp_monitoring():
         while icmphosts_index < icmphosts_all:
             host_ip = icmphosts[icmphosts_index]
             for i in range(ping_retries):
-                # print("Host %s retry %s" % (host_ip, str(i+1)))
                 icmp_status = ping(host_ip)
                 if icmp_status == "1":
                     break;
 
             if icmp_status == "1":
                 icmp_rtt = ping_avg(host_ip)
-                # print("Host %s RTT %s" % (host_ip, str(icmp_rtt)))
-                icmphosts_online+=1
             else:
                 icmp_rtt = "99999"
-                icmphosts_offline+=1
 
             current_data = {
                 "host_ip": host_ip,
@@ -3133,18 +3143,20 @@ def icmp_monitoring():
 
             icmphosts_index += 1
 
-        print("        Online Host(s)  : " + str(icmphosts_online))
-        print("        Offline Host(s) : " + str(icmphosts_offline))
-
         openDB()
         # Save Scan Results
         icmp_save_scandata(icmp_scan_results)
+
+        update_icmp_validation()
+        online, offline = get_online_offline_hosts()
+        print("        Online Host(s)  : " + str(online))
+        print("        Offline Host(s) : " + str(offline))
 
         print("    Create Events...")
         icmp_create_events()
 
         print("    Calculate Activity History...")
-        calc_activity_history_icmp(icmphosts_online, icmphosts_offline)
+        calc_activity_history_icmp(online, offline)
 
         sql_connection.commit()
         closeDB()
@@ -3152,6 +3164,67 @@ def icmp_monitoring():
     else:
         # openDB()
         print("    No Hosts(s) to monitor!")
+
+
+#-------------------------------------------------------------------------------
+def get_online_offline_hosts():
+    sql.execute("""
+        SELECT COUNT(*) 
+        FROM ICMP_Mon_CurrentScan 
+        WHERE cur_Present = 1
+    """)
+    icmphosts_online = sql.fetchone()[0]
+
+    sql.execute("""
+        SELECT COUNT(*) 
+        FROM ICMP_Mon_CurrentScan 
+        WHERE cur_Present = 0
+    """)
+    icmphosts_offline = sql.fetchone()[0]
+
+    return icmphosts_online, icmphosts_offline
+
+#-------------------------------------------------------------------------------
+def update_icmp_validation():
+    print('    Update ICMP Validation...')
+    # 1. Set dev_Scan_Validation_State to 0 for devices that are in Present in CurrentScan and have dev_Scan_Validation > 0
+    sql.execute("""
+        UPDATE ICMP_Mon
+        SET icmp_Scan_Validation_State = 0
+        WHERE icmp_Scan_Validation > 0
+        AND icmp_ip IN (
+            SELECT cur_ip FROM ICMP_Mon_CurrentScan WHERE cur_Present = 1
+        );
+    """)
+    # 2. Find devices in CurrentScan that have activated Scan_Validation and are not currently active
+    sql.execute("""
+        SELECT cur_ip 
+        FROM ICMP_Mon_CurrentScan 
+        WHERE cur_Present = 0 
+        AND cur_ip IN (
+            SELECT icmp_ip 
+            FROM ICMP_Mon 
+            WHERE icmp_Scan_Validation > 0 
+            AND icmp_Scan_Validation_State < icmp_Scan_Validation
+        )
+    """)
+    host_ips = [(row[0],) for row in sql.fetchall()]
+    # 3. Set the relevant devices as online
+    sql.executemany("""
+        UPDATE ICMP_Mon_CurrentScan 
+        SET cur_Present = 1, cur_PresentChanged = 0, cur_avgrrt = 999
+        WHERE cur_ip = ?
+    """, host_ips)
+    # 4. increase dev_Scan_Validation_State by 1 for the devices saved in point 2
+    sql.executemany("""
+        UPDATE ICMP_Mon
+        SET icmp_Scan_Validation_State = icmp_Scan_Validation_State + 1,
+            icmp_PresentLastScan = 1,
+            icmp_avgrtt = 999
+        WHERE icmp_Scan_Validation > 0 AND icmp_ip = ?
+    """, host_ips)
+
+    sql_connection.commit()
 
 # -----------------------------------------------------------------------------
 def icmp_save_scandata(data):
@@ -3163,7 +3236,6 @@ def icmp_save_scandata(data):
 
 # -----------------------------------------------------------------------------
 def icmp_create_events():
-
     # Check new connections
     print_log ('Events - New Connections')
     sql.execute ("""INSERT INTO ICMP_Mon_Connections (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_EventType)
@@ -3646,9 +3718,6 @@ def email_reporting():
         '  <td> <a href="{}{}"> {} </a>  </td><td> {} </td>'+ \
         '  <td> {} </td><td> {} </td><td> {} </td></tr>\n'
 
-    # Issue #370
-    # AND eve_DateTime < datetime('now', '-{DELAY} minutes') for devices where dev_alarm_delay is true
-
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
                       AND eve_EventType = 'Device Down'
@@ -3739,19 +3808,6 @@ def email_reporting():
                 """, (datetime.datetime.now(),))
     sql.execute("""UPDATE Events SET eve_PendingAlertEmail = 0
                    WHERE eve_PendingAlertEmail = 1""")
-
-    # Issue #370
-    # Clean Pending Alert Events
-    # sql.execute("""UPDATE Devices SET dev_LastNotification = ?
-    #                WHERE dev_MAC IN (SELECT eve_MAC FROM Events
-    #                   WHERE eve_PendingAlertEmail = 1 AND eve_EventType =='Device Down' 
-    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
-    #         """, (datetime.datetime.now(),))
-    # sql.execute ("""UPDATE Events SET eve_PendingAlertEmail = 0
-    #                 WHERE eve_PendingAlertEmail = 1 
-    #                 AND eve_EventType =='Device Down' 
-    #                 AND eve_DateTime < datetime('now', '-{DELAY} minutes')
-    #         """)
 
     # Set Notification Presets
     sql.execute("""UPDATE Devices SET dev_AlertEvents = ?, dev_AlertDeviceDown = ?

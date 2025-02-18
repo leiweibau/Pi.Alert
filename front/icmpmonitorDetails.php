@@ -406,6 +406,12 @@ function get_host_statistic($hostip) {
                         </div>
                       </div>
 
+                      <!-- Scan Validation -->
+                      <div class="form-group">
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_EveandAl_ScanValid'];?></label>
+                        <div class="col-sm-8"><input class="form-control" id="txtScanValidation" type="text" value="<?=$icmpmonitorDetails['icmp_Scan_Validation']?>"></div>
+                      </div>
+
                       <div class="form-group">
                         <label class="col-xs-4 control-label"><?=$pia_lang['Device_TableHead_Favorite'];?></label>
                         <div class="col-xs-4" style="padding-top:6px;">
@@ -770,6 +776,7 @@ function setICMPHostData(refreshCallback='') {
     + '&icmp_location='   + $('#txtLocation').val()
     + '&icmp_owner='      + $('#txtOwner').val()
     + '&icmp_notes='      + $('#txtNotes').val()
+    + '&icmp_scanvalid='  + $('#txtScanValidation').val()
     + '&favorit='         + ($('#chkFavorit')[0].checked * 1)
     + '&archived='        + ($('#chkArchived')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)

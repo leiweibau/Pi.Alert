@@ -227,6 +227,7 @@ $pia_lang['DevDetail_EveandAl_ScanCycle'] = 'Intervallo scansione';
 $pia_lang['DevDetail_EveandAl_AlertAllEvents'] = 'Segnala tutti gli eventi';
 $pia_lang['DevDetail_EveandAl_AlertDown'] = 'Segnala down';
 $pia_lang['DevDetail_EveandAl_Skip'] = 'Sospendi notifiche ripetute per';
+$pia_lang['DevDetail_EveandAl_ScanValid'] = 'Validazione della scansione';
 $pia_lang['DevDetail_EveandAl_NewDevice'] = 'Nuovo dispositivo';
 $pia_lang['DevDetail_EveandAl_Archived'] = 'Archiviato';
 $pia_lang['DevDetail_EveandAl_RandomMAC'] = 'MAC casuale';
