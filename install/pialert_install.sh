@@ -14,27 +14,27 @@
 # ------------------------------------------------------------------------------
   COLS=70
   ROWS=12
-  
+
   INSTALL_DIR=~
   PIALERT_HOME="$INSTALL_DIR/pialert"
 
   LIGHTTPD_CONF_DIR="/etc/lighttpd"
   WEBROOT="/var/www/html"
   PIALERT_DEFAULT_PAGE=false
-  
+
   LOG="pialert_install_`date +"%Y-%m-%d_%H-%M"`.log"
-  
+
   # MAIN_IP=`ip -o route get 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
   MAIN_IP=`ip -o route get 1 | sed 's/^.*src \([^ ]*\).*$/\1/;q'`
-  
+
   PIHOLESIX_CHECK=false
   PIHOLESIX_CONFIG=false
-  
+
   USE_PYTHON_VERSION=0
   PYTHON_BIN=python
 
   FIRST_SCAN_KNOWN=true
-  
+
   DDNS_ACTIVE=False
   DDNS_DOMAIN='your_domain.freeddns.org'
   DDNS_USER='dynu_user'
@@ -80,7 +80,7 @@ check_pihole() {
     if systemctl list-unit-files | grep -q '^pihole-FTL.service'; then
         # Pi-hole Version abrufen
         VERSION_OUTPUT=$(sudo pihole -v)
-        
+
         # Extrahiere die Hauptversionsnummer
         CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
 
@@ -105,8 +105,9 @@ ask_config() {
 
   # Ask Pihole detection
   if ! $PIHOLESIX_CHECK; then
-    ask_yesno "Eine Pihole 6 installation wurde erkannt." \
-              "Das Webinterface von Pihole wird auf Port 8080 geändert" "YES"
+    ask_yesno "A Pihole 6 installation was detected." \
+              "The Pihole web interface is changed to port 8080" \
+              "to avoid conflicts during installation." "YES"
     if $ANSWER ; then
       PIHOLESIX_CONFIG=true
     else
@@ -123,7 +124,7 @@ ask_config() {
       PIALERT_DEFAULT_PAGE=true
     fi
   fi
-  
+
   # Ask Python version
   ask_option "Is Python 3 already installed in the system ?" \
               2 \
@@ -179,7 +180,7 @@ install_lighttpd() {
   if $PIHOLESIX_CONFIG ; then
     echo "Pi-hole detected. Webinterface moved to Port 8080..."
     sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
-    sudo pihole-FTL restart
+    sudo systemctl restart pihole-FTL
     echo "Pi-hole Configuration applied"
   fi
 
