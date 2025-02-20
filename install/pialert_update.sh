@@ -127,9 +127,9 @@ check_pihole() {
         if [[ $CORE_VERSION -ge 6 ]]; then
             print_header "Pi-hole 6.x detected. Webinterface moved to Port 8080..."
             sudo systemctl stop lighttpd
-            sudo systemctl start lighttpd
             sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
             sudo systemctl restart pihole-FTL
+            sudo systemctl enable lighttpd
             sudo systemctl start lighttpd
             #echo "Pi-hole Configuration applied"
             PIHOLE_MOVED=true
