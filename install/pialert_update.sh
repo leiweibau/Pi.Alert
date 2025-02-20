@@ -20,6 +20,7 @@ fi
 PIALERT_HOME="$INSTALL_DIR/pialert"
 LOG="pialert_update_`date +"%Y-%m-%d_%H-%M"`.log"
 PYTHON_BIN=python3
+PIHOLE_MOVED=false
 
 
 # ------------------------------------------------------------------------------
@@ -56,6 +57,10 @@ main() {
   test_pialert
   
   print_header "Update process finished"
+  if $PIHOLE_MOVED ; then
+    print_msg ""
+    print_msg "!! Pi-hole Webinterface moved from Port 80 to Port 8080 !!"
+  fi
   print_msg ""
 
   move_logfile
@@ -120,13 +125,14 @@ check_pihole() {
         CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
 
         if [[ $CORE_VERSION -ge 6 ]]; then
-            echo "Pi-hole detected. Webinterface moved to Port 8080..."
+            echo "Pi-hole 6.x detected. Webinterface moved to Port 8080..."
             sudo systemctl stop lighttpd
             sudo systemctl start lighttpd
             sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
             sudo systemctl restart pihole-FTL
             sudo systemctl start lighttpd
             echo "Pi-hole Configuration applied"
+            PIHOLE_MOVED=true
         fi
     fi
 
