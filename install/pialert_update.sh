@@ -34,6 +34,7 @@ main() {
 
   set -e
 
+  check_pihole
   check_pialert_home
   check_python_version
 
@@ -106,6 +107,30 @@ update_warning() {
   fi
 }
 
+# ------------------------------------------------------------------------------
+# Check Pihole
+# ------------------------------------------------------------------------------
+
+check_pihole() {
+    if systemctl list-unit-files | grep -q '^pihole-FTL.service'; then
+        # Pi-hole Version abrufen
+        VERSION_OUTPUT=$(sudo pihole -v)
+
+        # Extrahiere die Hauptversionsnummer
+        CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
+
+        if [[ $CORE_VERSION -ge 6 ]]; then
+            echo "Pi-hole detected. Webinterface moved to Port 8080..."
+            sudo systemctl stop lighttpd
+            sudo systemctl start lighttpd
+            sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
+            sudo systemctl restart pihole-FTL
+            sudo systemctl start lighttpd
+            echo "Pi-hole Configuration applied"
+        fi
+    fi
+
+}
 
 # ------------------------------------------------------------------------------
 # Stop Pi.Alert, if possible
