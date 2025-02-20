@@ -1005,7 +1005,7 @@ def execute_arpscan_on_interface(SCAN_SUBNETS):
 
 #-------------------------------------------------------------------------------
 def copy_pihole_network():
-    # empty Fritzbox Network table
+    # empty Pihole Network table
     sql.execute ("DELETE FROM PiHole_Network")
 
     # check if Pi-hole is active
