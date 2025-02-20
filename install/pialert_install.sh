@@ -6,7 +6,7 @@
 #  pialert_install.sh - Installation script
 # ------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                          GNU GPLv3
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -28,6 +28,7 @@
   MAIN_IP=`ip -o route get 1 | sed 's/^.*src \([^ ]*\).*$/\1/;q'`
   
   PIHOLESIX_CHECK=false
+  PIHOLESIX_CONFIG=false
   
   USE_PYTHON_VERSION=0
   PYTHON_BIN=python
@@ -57,7 +58,6 @@ main() {
 
   set -e
 
-  #install_pihole
   install_lighttpd
   install_arpscan
   install_python
@@ -87,10 +87,7 @@ check_pihole() {
         CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
 
         if [[ $CORE_VERSION -ge 6 ]]; then
-            echo "Pi-hole detected. Webinterface moved to Port 8080..."
-            sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
-            sudo pihole-FTL restart
-            echo "Configuration applied"
+            PIHOLESIX_CONFIG=true
         else
             echo "Pi-hole Version ist below 6."
         fi
@@ -112,8 +109,11 @@ ask_config() {
 
   # Ask Pi.Alert deafault page
   if ! $PIHOLESIX_CHECK; then
-    msgbox "Eine Pihole 6 installation wurde erkannt." \
-           "Das Webinterface von Pihole wird auf Port 8080 geändert"
+    ask_yesno "Eine Pihole 6 installation wurde erkannt." \
+              "Das Webinterface von Pihole wird auf Port 8080 geändert"
+    if $ANSWER ; then
+      PIHOLESIX_CONFIG=true
+    fi
   fi
 
   # Ask Pi.Alert deafault page
@@ -177,6 +177,14 @@ ask_config() {
 # Install Lighttpd & PHP
 # ------------------------------------------------------------------------------
 install_lighttpd() {
+
+  if $PIHOLESIX_CONFIG ; then
+    echo "Pi-hole detected. Webinterface moved to Port 8080..."
+    sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
+    sudo pihole-FTL restart
+    echo "Pi-hole Configuration applied"
+  fi
+
   print_header "Lighttpd & PHP"
 
   print_msg "- Installing apt-utils..."
@@ -375,9 +383,6 @@ configure_pialert() {
   set_pialert_parameter DDNS_USER       "'$DDNS_USER'"
   set_pialert_parameter DDNS_PASSWORD   "'$DDNS_PASSWORD'"
   set_pialert_parameter DDNS_UPDATE_URL "'$DDNS_UPDATE_URL'"
-
-  # set_pialert_parameter PIHOLE_ACTIVE   "$PIHOLE_ACTIVE"
-  # set_pialert_parameter DHCP_ACTIVE     "$DHCP_ACTIVE"
 }
 
 # ------------------------------------------------------------------------------
