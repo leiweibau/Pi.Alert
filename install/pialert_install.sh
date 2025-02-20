@@ -109,6 +109,8 @@ ask_config() {
               "Das Webinterface von Pihole wird auf Port 8080 geändert" "YES"
     if $ANSWER ; then
       PIHOLESIX_CONFIG=true
+    else
+      exit 1
     fi
   fi
 
