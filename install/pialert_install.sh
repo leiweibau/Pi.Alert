@@ -78,8 +78,6 @@ main() {
 
 check_pihole() {
     if systemctl list-unit-files | grep -q '^pihole-FTL.service'; then
-        echo "Pi-hole FTL ist installiert. Überprüfe Version..."
-
         # Pi-hole Version abrufen
         VERSION_OUTPUT=$(sudo pihole -v)
         
@@ -89,10 +87,8 @@ check_pihole() {
         if [[ $CORE_VERSION -ge 6 ]]; then
             PIHOLESIX_CONFIG=true
         else
-            echo "Pi-hole Version ist below 6."
+            PIHOLESIX_CHECK=true
         fi
-    else
-        echo "Pi-hole not detected."
     fi
 }
 
@@ -107,10 +103,10 @@ ask_config() {
     exit 1
   fi
 
-  # Ask Pi.Alert deafault page
+  # Ask Pihole detection
   if ! $PIHOLESIX_CHECK; then
     ask_yesno "Eine Pihole 6 installation wurde erkannt." \
-              "Das Webinterface von Pihole wird auf Port 8080 geändert"
+              "Das Webinterface von Pihole wird auf Port 8080 geändert" "YES"
     if $ANSWER ; then
       PIHOLESIX_CONFIG=true
     fi
