@@ -27,16 +27,7 @@
   # MAIN_IP=`ip -o route get 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
   MAIN_IP=`ip -o route get 1 | sed 's/^.*src \([^ ]*\).*$/\1/;q'`
   
-  # PIHOLE_INSTALL=false
-  # PIHOLE_ACTIVE=false
-  # DHCP_ACTIVATE=false
-  # DHCP_ACTIVE=false
-  
-  # DHCP_RANGE_START="192.168.1.200"
-  # DHCP_RANGE_END="192.168.1.251"
-  # DHCP_ROUTER="192.168.1.1"
-  # DHCP_LEASE="1"
-  # DHCP_DOMAIN="local"
+  PIHOLESIX_CHECK=false
   
   USE_PYTHON_VERSION=0
   PYTHON_BIN=python
@@ -59,14 +50,14 @@ main() {
   log "Logfile: $LOG"
   install_dependencies
 
+  check_pihole
+
   check_pialert_home
   ask_config
 
   set -e
 
   #install_pihole
-  #activate_DHCP
-  #add_pialert_DNS
   install_lighttpd
   install_arpscan
   install_python
@@ -81,6 +72,32 @@ main() {
   move_logfile
 }
 
+# ------------------------------------------------------------------------------
+# Check Pihole
+# ------------------------------------------------------------------------------
+
+check_pihole() {
+    if systemctl list-unit-files | grep -q '^pihole-FTL.service'; then
+        echo "Pi-hole FTL ist installiert. Überprüfe Version..."
+
+        # Pi-hole Version abrufen
+        VERSION_OUTPUT=$(sudo pihole -v)
+        
+        # Extrahiere die Hauptversionsnummer
+        CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
+
+        if [[ $CORE_VERSION -ge 6 ]]; then
+            echo "Pi-hole detected. Webinterface moved to Port 8080..."
+            sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
+            sudo pihole-FTL restart
+            echo "Configuration applied"
+        else
+            echo "Pi-hole Version ist below 6."
+        fi
+    else
+        echo "Pi-hole not detected."
+    fi
+}
 
 # ------------------------------------------------------------------------------
 # Ask config questions
@@ -93,55 +110,11 @@ ask_config() {
     exit 1
   fi
 
-  # # Ask Pi-hole Installation
-  # PIHOLE_ACTIVE=false
-  # if [ -e /usr/local/bin/pihole ] || [ -e /etc/pihole ]; then
-  #   PIHOLE_ACTIVE=true
-  # fi
-
-  # PIHOLE_INSTALL=false
-  # if $PIHOLE_ACTIVE ; then
-  #   msgbox "Pi-hole is already installed in this system." \
-  #          "Perfect: Pi-hole Installation is not necessary"
-  # else
-  #   ask_yesno "Pi-hole is not installed." \
-  #             "Do you want to install Pi-hole before installing Pi.Alert ?" "YES"
-  #   if $ANSWER ; then
-  #     PIHOLE_INSTALL=true
-  #     msgbox "In the installation wizard of Pi-hole, select this options" \
-  #            "'Install web admin interface' & 'Install web server lighttpd'"
-  #   fi
-  # fi
-
-  # # Ask DHCP Activation
-  # DHCP_ACTIVE=false
-  # DHCP_ACTIVATE=false
-  # if $PIHOLE_ACTIVE ; then
-  #   DHCP_ACTIVE=`sudo grep DHCP_ACTIVE /etc/pihole/setupVars.conf | awk -F= '/./{print $2}'`
-  #   if [ "$DHCP_ACTIVE" = "" ] ; then DHCP_ACTIVE=false; fi
- 
-  #   if ! $DHCP_ACTIVE ; then
-  #     ask_yesno "Pi-hole DHCP server is not active." \
-  #               "Do you want to activate Pi-hole DHCP server ?"
-  #     if $ANSWER ; then
-  #       DHCP_ACTIVATE=true
-  #     fi
-  #   fi
-
-  # elif $PIHOLE_INSTALL ; then
-  #   ask_yesno "Pi-hole installation." \
-  #             "Do you want to activate Pi-hole DHCP server ?"
-  #   if $ANSWER ; then
-  #     DHCP_ACTIVATE=true
-  #   fi
-  # fi
-
-  # if $DHCP_ACTIVATE ; then
-  #   msgbox "Default DHCP options will be used. Range=$DHCP_RANGE_START - $DHCP_RANGE_END / Router=$DHCP_ROUTER / Domain=$DHCP_DOMAIN / Leases=$DHCP_LEASE h." \
-  #          "You can change this values in your Pi-hole Admin Portal"
-  #   msgbox "Make sure your router's DHCP server is disabled" \
-  #          "when using the Pi-hole DHCP server!"
-  # fi
+  # Ask Pi.Alert deafault page
+  if ! $PIHOLESIX_CHECK; then
+    msgbox "Eine Pihole 6 installation wurde erkannt." \
+           "Das Webinterface von Pihole wird auf Port 8080 geändert"
+  fi
 
   # Ask Pi.Alert deafault page
   PIALERT_DEFAULT_PAGE=false
@@ -199,78 +172,6 @@ ask_config() {
 
   msgbox "" "The installation will start now"
 }
-
-# ------------------------------------------------------------------------------
-# Install Pi-hole
-# ------------------------------------------------------------------------------
-# install_pihole() {
-#   print_header "Pi-hole"
-
-#   if ! $PIHOLE_INSTALL ; then
-#     return
-#   fi
-
-#   print_msg "- Checking if Pi-hole is installed..."
-#   if [ -e /usr/local/bin/pihole ] || [ -e /etc/pihole ]; then
-#     print_msg "  - Pi-hole already installed"
-#     print_msg "`pihole -v 2>&1`"
-#     print_msg ""
-
-#     PIHOLE_ACTIVE=true
-#     return
-#   fi
-
-#   print_msg "- Installing Pi-hole..."
-#   print_msg "  - Pi-hole has its own logfile"
-#   curl -sSL https://install.pi-hole.net | bash
-#   print_msg ""
-#   PIHOLE_ACTIVE=true
-# }
-
-# ------------------------------------------------------------------------------
-# Activate DHCP
-# ------------------------------------------------------------------------------
-# activate_DHCP() {
-#   if ! $DHCP_ACTIVATE ; then
-#     return
-#   fi
-
-#   if ! $PIHOLE_ACTIVE ; then
-#     return
-#   fi
-
-#   print_msg "- Checking if DHCP is active..."
-#   if [ -e /etc/pihole ]; then
-#     DHCP_ACTIVE= `grep DHCP_ACTIVE /etc/pihole/setupVars.conf | awk -F= '/./{print $2}'`
-#   fi
-
-#   if $DHCP_ACTIVE ; then
-#     print_msg "  - DHCP already active"
-#   fi
-
-#   print_msg "- Activating DHCP..."
-#   sudo pihole -a enabledhcp "$DHCP_RANGE_START" "$DHCP_RANGE_END" "$DHCP_ROUTER" "$DHCP_LEASE" "$DHCP_DOMAIN"   2>&1 >> "$LOG"
-#   DHCP_ACTIVE=true
-# }
-
-# ------------------------------------------------------------------------------
-# Add Pi.Alert DNS
-# ------------------------------------------------------------------------------
-# add_pialert_DNS() {
-#   if ! $PIHOLE_ACTIVE ; then
-#     return
-#   fi
-
-#   print_msg "- Checking if 'pi.alert' is configured in Local DNS..."
-#   if grep -Fq pi.alert /etc/pihole/custom.list; then
-#     print_msg "  - 'pi.alert' already in Local DNS..."
-#     return
-#   fi
-
-#   print_msg "- Adding 'pi.alert' to Local DNS..."
-#   sudo sh -c "echo $MAIN_IP pi.alert >> /etc/pihole/custom.list"            2>&1 >> "$LOG"
-#   sudo pihole restartdns                                                    2>&1 >> "$LOG"
-# }
 
 # ------------------------------------------------------------------------------
 # Install Lighttpd & PHP
