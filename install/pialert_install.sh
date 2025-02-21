@@ -52,7 +52,6 @@ main() {
   install_dependencies
 
   check_pihole
-
   check_pialert_home
   ask_config
 
@@ -77,7 +76,8 @@ main() {
 # ------------------------------------------------------------------------------
 
 check_pihole() {
-    if systemctl list-unit-files | grep -q '^pihole-FTL.service'; then
+
+    if systemctl is-active --quiet pihole-FTL; then
         # Pi-hole Version abrufen
         VERSION_OUTPUT=$(sudo pihole -v)
 
@@ -85,10 +85,12 @@ check_pihole() {
         CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
 
         if [[ $CORE_VERSION -ge 6 ]]; then
-            PIHOLESIX_CONFIG=true
-        else
             PIHOLESIX_CHECK=true
+        else
+            PIHOLESIX_CHECK=false
         fi
+    else
+        PIHOLESIX_CHECK=false
     fi
 }
 
@@ -104,7 +106,7 @@ ask_config() {
   fi
 
   # Ask Pihole detection
-  if ! $PIHOLESIX_CHECK; then
+  if $PIHOLESIX_CHECK; then
     ask_yesno "A Pihole 6 installation was detected." \
               "The Pihole web interface is changed to port 8080" \
               "to avoid conflicts during installation." "YES"
