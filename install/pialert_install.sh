@@ -107,9 +107,8 @@ ask_config() {
 
   # Ask Pihole detection
   if $PIHOLESIX_CHECK; then
-    ask_yesno "A Pihole 6 installation was detected." \
-              "The Pihole web interface is changed to port 8080" \
-              "to avoid conflicts during installation." "YES"
+    ask_yesno "A Pi-hole 6 installation was detected." \
+              "The Pi-hole web interface is changed to port 8080 to avoid conflicts with this installation. If you select NO, the Pi.Alert installation will be aborted." "YES"
     if $ANSWER ; then
       PIHOLESIX_CONFIG=true
     else
