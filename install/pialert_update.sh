@@ -118,19 +118,20 @@ update_warning() {
 
 check_pihole() {
     if systemctl is-active --quiet pihole-FTL; then
-        # Pi-hole Version abrufen
         VERSION_OUTPUT=$(sudo pihole -v)
 
         # Extrahiere die Hauptversionsnummer
-        CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
+        #CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
+        CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+' || echo "")
 
-        if [[ $CORE_VERSION -ge 6 ]]; then
+        #if [[ $CORE_VERSION -ge 6 ]]; then
+        if [[ -n "$CORE_VERSION" && "$CORE_VERSION" -ge 6 ]]; then
             print_header "Pi-hole 6.x detected. Webinterface moved to Port 8080..."
-            sudo systemctl stop lighttpd                                                2>&1 >> "$LOG"
+            sudo systemctl stop lighttpd                                               2>&1 >> "$LOG"
             sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
-            sudo systemctl restart pihole-FTL                                           2>&1 >> "$LOG"
-            sudo systemctl enable lighttpd                                              2>&1 >> "$LOG"
-            sudo systemctl start lighttpd                                               2>&1 >> "$LOG"
+            sudo systemctl restart pihole-FTL                                          2>&1 >> "$LOG"
+            sudo systemctl enable lighttpd                                             2>&1 >> "$LOG"
+            sudo systemctl start lighttpd                                              2>&1 >> "$LOG"
             PIHOLE_MOVED=true
         fi
     fi
