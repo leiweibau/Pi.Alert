@@ -18,6 +18,31 @@ If you report an issue in this regard, please include the output of this functio
 5. execute the command "./pialert-cli set_permissions" in the "pialert/back" directory
 6. now everything should work again
 
+### Broken Scan after Pi-hole update from 5.x to 6.x
 
+```
+Scanning...
+    arp-scan Method...
+        ...arp-scan: One interface
+    Pi-hole 5 Client List Method...
+Traceback (most recent call last):
+  File "/home/user/pialert/back/pialert.py", line 4195, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/user/pialert/back/pialert.py", line 102, in main
+    res = scan_network()
+          ^^^^^^^^^^^^^^
+  File "/home/user/pialert/back/pialert.py", line 825, in scan_network
+    copy_pihole_network()
+  File "/home/user/pialert/back/pialert.py", line 1018, in copy_pihole_network
+    copy_pihole_network_five()
+  File "/home/user/pialert/back/pialert.py", line 1028, in copy_pihole_network_five
+    sql.execute ("ATTACH DATABASE '"+ PIHOLE_DB +"' AS PH")
+sqlite3.OperationalError: unable to open database: /etc/pihole/pihole-FTL.db
+```
+
+This is a normal error under these circumstances. This is because Pi.Alert uses different functions for these two different versions. 
+The correct PiHole version must be specified in the Pi.Alert configuration. You can find out how to do this in the documentation of 
+the configuration file [pialert.conf](./PIALERT_CONF.md).
 
 [Back](https://github.com/leiweibau/Pi.Alert)
