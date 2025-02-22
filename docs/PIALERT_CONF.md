@@ -180,16 +180,16 @@ I would like to give a short explanation to the individual points.
 #### Pi-hole Configuration
 
 | Option                   | Description |
-|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PIHOLE_ACTIVE            | This variable is set during installation.                                                                                                            |
-| PIHOLE_VERSION           | The version information is necessary because access to the Pi-hole data has fundamentally changed from version 5 to 6.                               |
-| PIHOLE_DB                | This variable is set during installation and should not be changed.                                                                                  |
-| PIHOLE6_URL              | If you want to access the Pi-hole data of version 6, enter the URL to the web interface (without the "/admin" suffix) here.                          |
-| PIHOLE6_PASSWORD         | Enter the password for the Pi-hole web interface here.                                                                                               |
-| PIHOLE6_API_MAXCLIENTS   | Specifies the maximum number of clients that are returned as a response from the API                                                                 |
-| DHCP_ACTIVE              | This variable is set during installation.                                                                                                            |
-| DHCP_LEASES              | This variable is set during installation and should not be changed.                                                                                  |
-| DHCP_INCL_SELF_TO_LEASES | Adds the Mac addresses of Pi-hole itself to the DHCP leases to import Pi-hole itself into the database if it is not in the local network of Pi.Alert |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PIHOLE_ACTIVE            | This variable is set during installation.                                                                                                                                   |
+| PIHOLE_VERSION           | The version information is necessary because access to the Pi-hole data has fundamentally changed from version 5 to 6. Default is 6 after the official realease of Pihole 6 |
+| PIHOLE_DB                | This variable is set during installation and should not be changed.                                                                                                         |
+| PIHOLE6_URL              | If you want to access the Pi-hole data of version 6, enter the URL to the web interface (without the "/admin" suffix) here.                                                 |
+| PIHOLE6_PASSWORD         | Enter the password for the Pi-hole web interface here.                                                                                                                      |
+| PIHOLE6_API_MAXCLIENTS   | Specifies the maximum number of clients that are returned as a response from the API                                                                                        |
+| DHCP_ACTIVE              | This variable is valid for the DHCP server of Pihole 5.x as well as for 6.x                                                                                                 |
+| DHCP_LEASES              | This path is only relevant for version 5.x of Pihole and should not be changed.                                                                                             |
+| DHCP_INCL_SELF_TO_LEASES | Adds the Mac addresses of Pi-hole itself to the DHCP leases to import Pi-hole itself into the database if it is not in the local network of Pi.Alert                        |
 
 
 #### Fritzbox Configuration
