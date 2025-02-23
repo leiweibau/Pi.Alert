@@ -637,8 +637,31 @@ function initializeDatatable () {
 
       {targets: [0],
         'createdCell': function (td, cellData, rowData, row, col) {
+	          switch (rowData[7]) {
+	            case 'Down':      color='red';                 break;
+	            case 'OnlineV':   color='#00A000';             break;
+	            case 'Online':    color='#00A000';             break;
+	            case 'Offline':   color='transparent';         break;
+	            default:          color='transparent';         break;
+	          };
             $(td).html ('<b><a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="">'+ cellData +'</a></b>');
             $(td).css('min-width', '160px');
+
+			      let tableWidth = $("#tableDevices").outerWidth();
+			      let viewportWidth = $(window).width();
+
+			      if (tableWidth > viewportWidth) {
+			          $(td).css({
+			              "border-left": `2px solid ${color}`,
+			              "padding-left": "8px" // Abstand zur Schrift
+			          });
+			      } else {
+			          $(td).css({
+			              "border-left": "",
+			              "padding-left": ""
+			          });
+			      }
+
       } },
       {targets: [2],
         'createdCell': function (td, cellData, rowData, row, col) {

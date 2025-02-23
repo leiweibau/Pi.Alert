@@ -807,11 +807,36 @@ function initializeDatatable () {
       // Device Name
       {targets: [0],
         'createdCell': function (td, cellData, rowData, row, col) {
+          switch (rowData[13]) {
+            case 'Down':      color='red';                 break;
+            case 'NewON':     color='#00A000';             break;
+            case 'NewOFF':    color='#00A000';             break;
+            case 'OnlineV':   color='#00A000';             break;
+            case 'On-line':   color='#00A000';             break;
+            case 'Off-line':  color='transparent';         break;
+            default:          color='transparent';         break;
+          };
         	if (rowData[11] == "Internet") {
         		$(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="text-danger">'+ cellData +'</a></b>');
         	} else {
             $(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="">'+ cellData +'</a></b>');
         	}
+
+		      let tableWidth = $("#tableDevices").outerWidth();
+		      let viewportWidth = $(window).width();
+
+		      if (tableWidth > viewportWidth) {
+		          $(td).css({
+		              "border-left": `2px solid ${color}`,
+		              "padding-left": "8px" // Abstand zur Schrift
+		          });
+		      } else {
+		          $(td).css({
+		              "border-left": "",
+		              "padding-left": ""
+		          });
+		      }
+
       } },
       // Favorite
       {targets: [4],
