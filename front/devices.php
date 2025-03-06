@@ -5,7 +5,7 @@
 #  devices.php - Front module. Devices list page
 #-------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                         GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
 <?php
@@ -809,8 +809,8 @@ function initializeDatatable () {
         'createdCell': function (td, cellData, rowData, row, col) {
           switch (rowData[13]) {
             case 'Down':      color='red';                 break;
-            case 'NewON':     color='#00A000';             break;
-            case 'NewOFF':    color='#00A000';             break;
+            case 'NewON':     color='orange';              break;
+            case 'NewOFF':    color='orange';              break;
             case 'OnlineV':   color='#00A000';             break;
             case 'On-line':   color='#00A000';             break;
             case 'Off-line':  color='transparent';         break;
@@ -822,21 +822,20 @@ function initializeDatatable () {
             $(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="">'+ cellData +'</a></b>');
         	}
 
-		      let tableWidth = $("#tableDevices").outerWidth();
-		      let viewportWidth = $(window).width();
+          let tableWidth = $("#tableDevices").outerWidth();
+          let viewportWidth = $(window).width() - 50;
 
-		      if (tableWidth > viewportWidth) {
-		          $(td).css({
-		              "border-left": `2px solid ${color}`,
-		              "padding-left": "8px" // Abstand zur Schrift
-		          });
-		      } else {
-		          $(td).css({
-		              "border-left": "",
-		              "padding-left": ""
-		          });
-		      }
-
+          if (tableWidth > viewportWidth) {
+              $(td).css({
+                  "border-left": `2px solid ${color}`,
+                  "padding-left": "8px"
+              });
+          } else {
+          	  $(td).css({
+          	  	  "border-left": "",
+          	  	  "padding-left": ""
+          	  });
+          }
       } },
       // Favorite
       {targets: [4],

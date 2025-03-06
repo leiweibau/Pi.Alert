@@ -647,21 +647,20 @@ function initializeDatatable () {
             $(td).html ('<b><a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="">'+ cellData +'</a></b>');
             $(td).css('min-width', '160px');
 
-			      let tableWidth = $("#tableDevices").outerWidth();
-			      let viewportWidth = $(window).width();
+            let tableWidth = $("#tableDevices").outerWidth();
+            let viewportWidth = $(window).width() - 50;
 
-			      if (tableWidth > viewportWidth) {
-			          $(td).css({
-			              "border-left": `2px solid ${color}`,
-			              "padding-left": "8px" // Abstand zur Schrift
-			          });
-			      } else {
-			          $(td).css({
-			              "border-left": "",
-			              "padding-left": ""
-			          });
-			      }
-
+            if (tableWidth > viewportWidth) {
+                $(td).css({
+                    "border-left": `2px solid ${color}`,
+                    "padding-left": "8px"
+                });
+            } else {
+            	  $(td).css({
+            	  	  "border-left": "",
+            	  	  "padding-left": ""
+            	  });
+            }
       } },
       {targets: [2],
         'createdCell': function (td, cellData, rowData, row, col) {
