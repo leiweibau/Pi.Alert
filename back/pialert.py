@@ -607,23 +607,29 @@ def cleanup_database():
     openDB()
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_EVENTS) + ' days:')
     print('    Events')
-    sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
-    #print('        ...Fixing missing or VOIDED events')
-    RepairedEventTime = startTime - timedelta(days=DAYS_TO_KEEP_EVENTS)
-    #sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
-    sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
-    repair_devices = sql.fetchall()
-    for device in repair_devices:
-        dev_mac, dev_lastip = device
-        
-        sql.execute("SELECT 1 FROM Events WHERE eve_MAC = ? AND eve_EventType='Connected'", (dev_mac,))
-        event_exists = sql.fetchone()
-        
-        if not event_exists:
-            sql.execute(
-                "INSERT INTO Events (eve_MAC, eve_EventType, eve_IP, eve_DateTime, eve_PendingAlertEmail) VALUES (?, ?, ?, ?, ?)",
-                (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
-            )
+
+    sql.execute("SELECT COUNT(*) FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
+    count = sql.fetchone()[0]
+
+    if count > 0:
+        sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
+        conn.commit()
+        RepairedEventTime = startTime - timedelta(days=DAYS_TO_KEEP_EVENTS)
+        #sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
+        sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
+        repair_devices = sql.fetchall()
+        for device in repair_devices:
+            dev_mac, dev_lastip = device
+            
+            sql.execute("SELECT 1 FROM Events WHERE eve_MAC = ? AND eve_EventType='Connected'", (dev_mac,))
+            event_exists = sql.fetchone()
+            
+            if not event_exists:
+                sql.execute(
+                    "INSERT INTO Events (eve_MAC, eve_EventType, eve_IP, eve_DateTime, eve_PendingAlertEmail) VALUES (?, ?, ?, ?, ?)",
+                    (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
+                )
+
     print('    Nmap Scan Results')
     sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
 
@@ -1005,7 +1011,7 @@ def execute_arpscan_on_interface(SCAN_SUBNETS):
 
 #-------------------------------------------------------------------------------
 def copy_pihole_network():
-    # empty Pihole Network table
+    # empty Fritzbox Network table
     sql.execute ("DELETE FROM PiHole_Network")
 
     # check if Pi-hole is active
