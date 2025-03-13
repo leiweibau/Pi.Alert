@@ -613,7 +613,7 @@ def cleanup_database():
 
     if count > 0:
         sql.execute("DELETE FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
-        conn.commit()
+        sql_connection.commit()
         RepairedEventTime = startTime - timedelta(days=DAYS_TO_KEEP_EVENTS)
         #sql.execute("DELETE FROM Events WHERE eve_EventType LIKE 'VOIDED%'")
         sql.execute("SELECT dev_MAC, dev_LastIP FROM Devices WHERE dev_PresentLastScan = 1")
