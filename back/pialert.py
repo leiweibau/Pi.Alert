@@ -1052,7 +1052,7 @@ def pihole_six_api_auth():
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
 
-    if not PIHOLE6_PASSWORD or not PIHOLE6_URL :
+    if not PIHOLE6_URL :
         print('        ...Skipped (Config Error)')
         return
 
@@ -1085,7 +1085,10 @@ def pihole_six_api_auth():
     if response_json['session']['valid'] == True :
         PIHOLE6_SES_VALID = response_json['session']['valid']
         PIHOLE6_SES_SID = response_json['session']['sid']
-        PIHOLE6_SES_CSRF = response_json['session']['csrf']
+        if not PIHOLE6_PASSWORD:
+            print(f"        No password needed")
+        else:
+            PIHOLE6_SES_CSRF = response_json['session']['csrf']
     else:
         print(f"        Auth required")
         return
