@@ -72,6 +72,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'setFavIconURL':setFavIconURL();
 		break;
+	case 'setPiholeURL':setPiholeURL();
+		break;
 	case 'GetLogfiles':GetLogfiles();
 		break;
 	case 'GetServerTime':GetServerTime();
@@ -932,7 +934,7 @@ function getReportTotals() {
 	echo (json_encode($totals));
 }
 
-//  Set Language
+//  Set FavIcon
 function setFavIconURL() {
 	global $pia_lang;
 
@@ -993,24 +995,47 @@ function setFavIconURL() {
 			$newfavicon_url = $iconlist[$url];
 		} else {
 			$temp_favicon_url = filter_var($url, FILTER_SANITIZE_URL);
-			if (filter_var($temp_favicon_url, FILTER_VALIDATE_URL)) {
-				if (strtolower(substr($temp_favicon_url, 0, 4)) == "http") {
-					$newfavicon_url = $temp_favicon_url;
-				} else {
-					echo $pia_lang['BackFiles_FavIcon_invalidURL'];
-				}
+			if (filter_var($temp_favicon_url, FILTER_VALIDATE_URL) && strtolower(substr($temp_favicon_url, 0, 4)) == "http") {
+				$newfavicon_url = $temp_favicon_url;
+				$file_path = '../../../config/setting_favicon';
+				file_put_contents($file_path, $newfavicon_url);
+				echo $pia_lang['BackFiles_FavIcon_okay'];
+				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			} else {
 				echo $pia_lang['BackFiles_FavIcon_ErrorURL'];
 			}
 		}
-		$file_path = '../../../config/setting_favicon';
-		file_put_contents($file_path, $newfavicon_url);
 	}
-
-	echo $pia_lang['BackFiles_FavIcon_okay'];
-	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 	// Logging
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0059', '', $_REQUEST['FavIconURL']);
+}
+
+
+//  Set Pihole URL
+function setPiholeURL() {
+	global $pia_lang;
+
+	if (isset($_REQUEST['PiholeURL'])) {
+				$url = $_REQUEST['PiholeURL'];
+		$temp_favicon_url = filter_var($url, FILTER_SANITIZE_URL);
+		if (filter_var($temp_favicon_url, FILTER_VALIDATE_URL) && strtolower(substr($temp_favicon_url, 0, 4)) == "http") {
+			$newfavicon_url = $temp_favicon_url;
+			$file_path = '../../../config/setting_piholebutton';
+			file_put_contents($file_path, $newfavicon_url);
+			echo 'URL gespeichert. Pi-hole Button aktiviert';
+			echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
+		} elseif ($url == "") {
+			$newfavicon_url = $temp_favicon_url;
+			$file_path = '../../../config/setting_piholebutton';
+			file_put_contents($file_path, $newfavicon_url);
+			echo 'Pi-hole Button entfernt';
+			echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
+		} else {
+			echo $pia_lang['BackFiles_FavIcon_ErrorURL'];
+		}
+	}
+	// Logging
+	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0059', '', $_REQUEST['PiholeURL']);
 }
 
 

@@ -375,6 +375,8 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Vous pouvez entrer l&apos;URL de votre FavIcon souhaité dans le champ, ou choisir entre des FavIcons locaux ou distants (https://github.com/leiweibau/Pi.Alert). Selon la configuration, les FavIcons locaux peuvent ne pas fonctionner comme une icône d&apos;écran principal.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Éditeur de filtres (barre latérale)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importations';
+$pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Bouton Pi-hole (Barre de menu)';
+$pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'En spécifiant l&apos;URL de l&apos;interface web de Pi-hole, vous pouvez créer un bouton Pi-hole dans la barre de menu. Si vous supprimez le champ de saisie, le bouton sera supprimé. Le bouton est marqué avec l&apos;icône <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Changement d&apos;affichage';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Permet de passer de l&apos;affichage clair à l&apos;affichage foncé. Si la commutation ne fonctionne pas correctement, essayez d&apos;effacer le cache du navigateur.';

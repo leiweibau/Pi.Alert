@@ -79,6 +79,7 @@
                     </td>
                 </tr>
                 <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_e'];?></h4></td></tr>
+<!-- FavIcon -------------------------------------------------------------- -->
                 <tr class="table_settings">
                     <td class="db_info_table_cell" colspan="2" style="text-align: justify;"><?=$pia_lang['MT_Tools_Tab_Subheadline_e_Intro'];?></td>
                 </tr>
@@ -170,22 +171,20 @@
         					<button type="button" class="btn btn-default" style="width:160px; margin-bottom: 20px;" id="btnSaveFavIconSelection" onclick="setFavIconURL()" ><?=$pia_lang['MT_themeselector_apply'];?> </button>
         				</div>
         			</div>
-
                     </td>
                 </tr>
-
-
-                <tr><td colspan="2"><h4 class="bottom-border-aqua">Pihole Button</h4></td></tr>
+<!-- Pi-hole -------------------------------------------------------------- -->
+                <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_h'];?></h4></td></tr>
                 <tr class="table_settings">
-                    <td class="db_info_table_cell" colspan="2" style="text-align: justify;"><?=$pia_lang['MT_Tools_Tab_Subheadline_e_Intro'];?></td>
+                    <td class="db_info_table_cell" colspan="2" style="text-align: justify;"><?=$pia_lang['MT_Tools_Tab_Subheadline_h_Intro'];?></td>
                 </tr>
                 <tr><td class="db_info_table_cell" colspan="2" style="padding: 10px;">
                     <div class="row">
                         <div class="col-md-10">
                           <div class="form-group">
-                            <label class="col-xs-3 col-md-2" style="margin-top: 5px;">Pihole URL</label>
+                            <label class="col-xs-3 col-md-2" style="margin-top: 5px;"><i class="mdi mdi-pi-hole" style="font-size: 20px;"></i> URL</label>
                             <div class="col-xs-9 col-md-10">
-                                <input class="form-control" id="txtPiholeURL" type="text" value="<?=$FRONTEND_PHBUTTON;?>" style="margin-bottom: 30px;">
+                                <input class="form-control" id="txtPiholeURL" type="text" value="<?=$FRONTEND_PHBUTTON;?>" style="margin-bottom: 36px;">
                             </div>
                           </div>
                         </div>
@@ -193,14 +192,13 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12 text-center">
-                            <button type="button" class="btn btn-default" style="width:160px; margin-bottom: 20px;" id="btnSaveFavIconSelection" onclick="setPiholeURL()" ><?=$pia_lang['MT_themeselector_apply'];?> </button>
+                            <button type="button" class="btn btn-default" style="width:160px; margin-bottom: 20px;" id="btnSavePiholeSelection" onclick="setPiholeURL()" ><?=$pia_lang['MT_themeselector_apply'];?> </button>
                         </div>
                     </div>
 
                     </td>
                 </tr>
-
-
+<!-- Column Config -------------------------------------------------------- -->
                 <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_b'];?></h4></td></tr>
                 <tr>
                     <td colspan="2" style="text-align: center;">
