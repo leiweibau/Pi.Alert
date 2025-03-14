@@ -416,6 +416,12 @@ if (file_exists('../config/setting_favicon')) {
 } else {
 	$FRONTEND_FAVICON = 'img/favicons/flat_blue_white.png';
 }
+// UI - Pihole Button
+if (file_exists('../config/setting_piholebutton')) {
+	$FRONTEND_PHBUTTON = file('../config/setting_piholebutton', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)[0];
+} else {
+	$FRONTEND_PHBUTTON = '';
+}
 // set ScanSource Defaults (Satellite Scans)
 if ($_REQUEST['scansource']) {$SCANSOURCE=$_REQUEST['scansource'];} else {$SCANSOURCE='local';}
 
