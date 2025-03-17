@@ -96,7 +96,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
               <div class="inner"><h3 id="deviceSessions"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_Sessions'];?></p>
               </div>
-              <div class="icon"><i class="fa fa-plug"></i></div>
+              <div class="icon"><i class="mdi mdi-lan-connect"></i></div>
             </div>
           </a>
         </div>
@@ -118,7 +118,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
               <div class="inner"><h3 id="deviceDownAlerts"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_DownAlerts'];?></p>
               </div>
-              <div class="icon"><i class="fa fa-warning"></i></div>
+              <div class="icon"><i class="mdi mdi-lan-disconnect"></i></div>
             </div>
           </a>
         </div>
@@ -1334,11 +1334,11 @@ function getDeviceData (readAllData=false) {
       // Status
       $('#deviceStatus').html (deviceData['dev_Status'].replace('-', ''));
       switch (deviceData['dev_Status']) {
-        case 'On-line':   icon='fa fa-check';    color='text-green';   break;
-        case 'Off-line':  icon='fa fa-close';    color='text-gray';    break;
-        case 'Down':      icon='fa fa-warning';  color='text-red';     break;
-        case null:        icon='fa fa-warning';  color='text-red';     $('#deviceStatus').html ('???');  break;
-        default:          icon='';               color='';             break;
+        case 'On-line':   icon='fa fa-check';             color='text-green';   break;
+        case 'Off-line':  icon='fa fa-close';             color='text-gray';    break;
+        case 'Down':      icon='mdi mdi-lan-disconnect';  color='text-red';     break;
+        case null:        icon='fa fa-warning';           color='text-red';     $('#deviceStatus').html ('???');  break;
+        default:          icon='';                        color='';             break;
       };
       $('#deviceStatus')[0].className = color;
       $('#deviceStatusIcon')[0].className = icon +' '+ color;

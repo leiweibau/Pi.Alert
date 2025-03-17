@@ -45,6 +45,13 @@ if ($_SESSION["login"] != 1) {
         .info_box {
         	margin-top: 20px;
         }
+        a {
+            color: dodgerblue;
+            text-decoration: none;
+        }
+        a:hover {
+            color: deepskyblue; 
+        }
     </style>
 </head>
 <body>
@@ -63,11 +70,10 @@ if ($_SESSION["login"] != 1) {
     <div id="results"></div>
 
     <script>
-        // Funktion zur Ermittlung der Basis-URL
         function getBaseUrl() {
-            const protocol = window.location.protocol; // z. B. "http:" oder "https:"
-            const host = window.location.host;        // z. B. "demo.host:8080"
-            const path = window.location.pathname;    // z. B. "/subdir/script.php"
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const path = window.location.pathname;
 
             const scriptDir = path.substring(0, path.lastIndexOf('/') + 1).replace('php/debugging/', '');
 
@@ -79,7 +85,7 @@ if ($_SESSION["login"] != 1) {
 		const pialertDiv = document.getElementById("pialert_url");
 		if (pialertDiv) {
 		    const baseUrlLink = document.createElement("a");
-		    baseUrlLink.href = baseUrl;
+		    baseUrlLink.href = baseUrl + 'maintenance.php';
 		    baseUrlLink.textContent = baseUrl;
 		    pialertDiv.appendChild(baseUrlLink);
 		}

@@ -197,7 +197,7 @@ get_devices_filter_list();
 echo $sat_sub_menu[0];
 ?>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('network.php', 'networkSettings.php'))) {echo 'active';}?>">
-          <a href="network.php"><i class="fa fa-server"></i> <span><?=$pia_lang['NAV_Network'];?></span></a>
+          <a href="network.php"><i class="bi bi-hdd-network-fill" style="margin-right: 5px;"></i> <span><?=$pia_lang['NAV_Network'];?></span></a>
         </li>
 <?php 
 toggle_webservices_menu('Main');

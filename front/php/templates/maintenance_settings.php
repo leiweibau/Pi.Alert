@@ -144,6 +144,15 @@ if (strtolower($_SESSION['WebProtection']) != 'true') {
                                 </div>
                             </div>
 
+<!-- Language Array ----------------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <a href="./php/debugging/validate_languages.php">
+                                        <button type="button" class="btn btn-default dbtools-button">Compare Language Arrays</button>
+                                    </a>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>

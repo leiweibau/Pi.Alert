@@ -484,7 +484,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           <a href="#" onclick="javascript: getDevicesList('connected');">
           <div class="small-box bg-green">
             <div class="inner"><h3 id="devicesConnected"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_Connected'];?></p></div>
-            <div class="icon"><i class="fa fa-plug text-green-40"></i></div>
+            <div class="icon"><i class="mdi mdi-lan-connect text-green-40"></i></div>
           </div>
           </a>
         </div>
@@ -508,7 +508,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           <a href="#" onclick="javascript: getDevicesList('down');">
           <div class="small-box bg-red">
             <div class="inner"><h3 id="devicesDown"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></p></div>
-            <div class="icon"><i class="fa fa-warning text-red-40"></i></div>
+            <div class="icon"><i class="mdi mdi-lan-disconnect text-red-40"></i></div>
           </div>
           </a>
         </div>

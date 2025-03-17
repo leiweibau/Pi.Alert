@@ -65,6 +65,13 @@ if ($_SESSION["login"] != 1) {
             padding: 5px 15px;
             font-size: 16px;
         }
+        a {
+            color: dodgerblue;
+            text-decoration: none;
+        }
+        a:hover {
+            color: deepskyblue; 
+        }
     </style>
 </head>
 <body>
@@ -131,7 +138,7 @@ $db->close();
     const pialertDiv = document.getElementById("pialert_url");
     if (pialertDiv) {
         const baseUrlLink = document.createElement("a");
-        baseUrlLink.href = baseUrl;
+        baseUrlLink.href = baseUrl + 'maintenance.php';
         baseUrlLink.textContent = baseUrl;
         pialertDiv.appendChild(baseUrlLink);
     }
