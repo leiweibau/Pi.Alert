@@ -15,17 +15,28 @@ if ($_SESSION["login"] != 1) {
     <style>
         body {
             font-family: Arial, sans-serif;
+            padding: 0px;
+            margin: 0px;
         }
         .heading {
             font-size: 1.2em;
-            margin-top: 20px;
+            margin: 0px;
         }
         .info_head {
             font-size: 1.2em;
             font-weight: bold;
         }
         .info_box {
-            margin-top: 20px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0px 0px 15px #bbb;
+            width: auto;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 10px;
+        }
+        .short {
+            width: 300px;
         }
         a {
             color: dodgerblue;
@@ -37,20 +48,35 @@ if ($_SESSION["login"] != 1) {
         .languages {
             display: inline-block; width: 120px;
         }
+        .topheader {
+            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
+        }
+        #pialert_url {
+            margin-top: 10px;
+        }
+        .resultheader {
+            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h2>Language Array Compare</h2>
+    <div class="topheader">
+        <h2 style="margin: 0px">Language Array Compare</h2>
+    </div>
 
-
-    <div class="info_box">
+    <div class="info_box short">
         <span class="info_head">Pi.Alert-URL:</span><br>
         <div id="pialert_url"></div>
     </div>
+
+    <div class="resultheader">
+        <h2 class="heading">Results</h2>
+    </div>
+
+    <div class="info_box">
+        <h2 class="heading">Entry Count</h2>
+
 <?php
-
-echo '<h2 class="heading">Entry Count</h2>';
-
 require '../templates/language/de_de.php';
 $dede = $pia_lang;
 echo '<div class="languages">German: </div>' .sizeof($pia_lang). ' entries';
@@ -74,7 +100,6 @@ echo '<br>';
 require '../templates/language/it_it.php';
 $itit = $pia_lang;
 echo '<div class="languages">Italian: </div>' .sizeof($pia_lang). ' entries';
-echo '<br>';
 
 $all_keys = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit)));
 
@@ -94,10 +119,14 @@ foreach ([
     }
 }
 
-echo '<h2 class="heading">Missing Entries</h2>';
+echo '</div>';
+
+echo '<div class="info_box">
+        <h2 class="heading">Missing Entries</h2>';
 foreach ($missing as $lang => $keys) {
-    echo '<strong>' . $lang . ':</strong> ' . implode(', ', $keys) . '<br>';
+    echo '<div class="languages"><strong>' . $lang . ':</strong></div> ' . implode(', ', $keys) . '<br>';
 }
+echo '</div>';
 ?>
 
     <script>

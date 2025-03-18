@@ -16,6 +16,8 @@ if ($_SESSION["login"] != 1) {
     <style>
         body {
             font-family: Arial, sans-serif;
+            padding: 0px;
+            margin: 0px;
         }
         table {
             width: 100%;
@@ -40,14 +42,25 @@ if ($_SESSION["login"] != 1) {
             font-weight: bold;
         }
         .info_box {
-            margin-top: 20px;
-            margin-bottom: 20px;
-/*            display: none;*/
+            margin-top: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0px 0px 15px #bbb;
+            width: auto;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 10px;
+        }
+        .short {
+            width: 300px;
         }
         .heading {
             font-size: 1.2em;
-            margin-top: 20px;
+            margin: 0px;
             display: none;
+        }
+        #resultheading {
+            font-size: 1.2em;
+            margin: 0px;
         }
         td:hover::after {
             content: attr(data-column);
@@ -72,21 +85,37 @@ if ($_SESSION["login"] != 1) {
         a:hover {
             color: deepskyblue; 
         }
+        .topheader {
+            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
+        }
+        #pialert_url {
+            margin-top: 10px;
+        }
+        .resultheader {
+            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h2>Show Main Table</h2>
-    <div class="info_box" id="info_devices">
+    <div class="topheader">
+        <h2 style="margin: 0px">Show Main Table</h2>
+    </div>
+
+    <div class="info_box short" id="info_devices">
         <span class="info_head">Pi.Alert-URL:</span><br>
         <div id="pialert_url"></div>
     </div>
 
-    <div>
+    <div class="info_box short">
         <span class="info_head">Select Table:</span>
         <select id="tableSelector" onchange="toggleTable()">
             <option value="devices">Devices Table</option>
             <option value="icmp">ICMP Table</option>
         </select>
+    </div>
+
+    <div class="resultheader">
+        <h2 id="resultheading">Results</h2>
     </div>
 
 <?php
@@ -104,9 +133,11 @@ foreach ($tables as $id => $table) {
         $rowCount++;
     }
     echo "<div class='info_box' id='summary_box_$id'><span class='info_head'>Table summary ($table):</span><div id='summary_$id'>$rowCount rows</div></div>";
-    echo "<h2 class='heading' id='heading_$id'>$table Raw Data</h2>";
-    echo "<table id='$id'>";
-    echo "<tr>";
+    echo "<div class='info_box' id='table_box_$id' >
+              <h2 class='heading' id='heading_$id'>$table Raw Data</h2>
+              <div style='overflow: auto'>
+              <table id='$id'>
+                <tr>";
     $result = $db->query($query);
     $columns = [];
     for ($i = 0; $i < $result->numColumns(); $i++) {
@@ -122,7 +153,9 @@ foreach ($tables as $id => $table) {
         }
         echo "</tr>";
     }
-    echo "</table>";
+    echo "</table>
+          </div>
+          </div>";
 }
 $db->close();
 ?>
@@ -147,6 +180,8 @@ $db->close();
         const selected = document.getElementById("tableSelector").value;
         document.getElementById("devices").style.display = selected === "devices" ? "table" : "none";
         document.getElementById("icmp").style.display = selected === "icmp" ? "table" : "none";
+        document.getElementById("table_box_devices").style.display = selected === "devices" ? "block" : "none";
+        document.getElementById("table_box_icmp").style.display = selected === "icmp" ? "block" : "none";
         document.getElementById("summary_box_devices").style.display = selected === "devices" ? "block" : "none";
         document.getElementById("summary_box_icmp").style.display = selected === "icmp" ? "block" : "none";
         document.getElementById("heading_devices").style.display = selected === "devices" ? "block" : "none";

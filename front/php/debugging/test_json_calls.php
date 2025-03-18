@@ -16,6 +16,8 @@ if ($_SESSION["login"] != 1) {
     <style>
         body {
             font-family: Arial, sans-serif;
+            padding: 0px;
+            margin: 0px;
         }
         ul {
             list-style-type: none;
@@ -36,14 +38,23 @@ if ($_SESSION["login"] != 1) {
         }
         .heading {
             font-size: 1.2em;
-            margin-top: 20px;
+            margin: 0px;
         }
         .info_head {
         	font-size: 1.2em;
         	font-weight: bold;
         }
         .info_box {
-        	margin-top: 20px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0px 0px 15px #bbb;
+            width: auto;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 10px;
+        }
+        .short {
+            width: 300px;
         }
         a {
             color: dodgerblue;
@@ -52,22 +63,40 @@ if ($_SESSION["login"] != 1) {
         a:hover {
             color: deepskyblue; 
         }
+        .topheader {
+            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
+        }
+        #pialert_url {
+            margin-top: 10px;
+        }
+        .resultheader {
+            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
+        }
     </style>
 </head>
 <body>
-	<h2>Test Main JSON Calls</h2>
+    <div class="topheader">
+        <h2 style="margin: 0px">Test Main JSON Calls</h2>
+    </div>
 
-	<div class="info_box">
+	<div class="info_box short">
 		<span class="info_head">Pi.Alert-URL:</span><br>
 		<div id="pialert_url"></div>
 	</div>
+
+    <div class="resultheader">
+        <h2 class="heading">Results</h2>
+    </div>
 
 	<div class="info_box">
 		<span class="info_head">Test summary:</span>
     	<div id="summary"></div>
     </div>
 
-    <div id="results"></div>
+    <div class="info_box">
+        <div id="results"></div>
+    </div>
+
 
     <script>
         function getBaseUrl() {
