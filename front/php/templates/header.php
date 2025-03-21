@@ -86,7 +86,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 <?php
 insert_back_button();
 ?>
-      <a id="navbar-reload-button" href="" role="button" onclick="window.location.href=window.location.href"><i class="fa fa-repeat"></i></a>
+      <a id="navbar-reload-button" href="" role="button" onclick="window.location.reload(true)"><i class="fa fa-repeat"></i></a>
       <script>
           function toggle_systeminfobox() {
             $("#sidebar_systeminfobox").toggleClass("collapse");
