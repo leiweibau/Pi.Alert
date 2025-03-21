@@ -453,7 +453,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
             <div class="inner"><h3 id="devicesConnected"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['Device_Shortcut_Connected'];?></p>
             </div>
-            <div class="icon"><i class="fa fa-plug text-green-40"></i></div>
+            <div class="icon"><i class="mdi mdi-lan-connect text-green-40"></i></div>
           </div>
         	</a>
         </div>
@@ -475,7 +475,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
             <div class="inner"><h3 id="devicesDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></p>
             </div>
-            <div class="icon"><i class="fa fa-warning text-red-40"></i></div>
+            <div class="icon"><i class="mdi mdi-lan-disconnect text-red-40"></i></div>
           </div>
         	</a>
         </div>
@@ -637,8 +637,30 @@ function initializeDatatable () {
 
       {targets: [0],
         'createdCell': function (td, cellData, rowData, row, col) {
+	          switch (rowData[7]) {
+	            case 'Down':      color='red';                 break;
+	            case 'OnlineV':   color='#00A000';             break;
+	            case 'Online':    color='#00A000';             break;
+	            case 'Offline':   color='transparent';         break;
+	            default:          color='transparent';         break;
+	          };
             $(td).html ('<b><a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="">'+ cellData +'</a></b>');
             $(td).css('min-width', '160px');
+
+            let tableWidth = $("#tableDevices").outerWidth();
+            let viewportWidth = $(window).width() - 50;
+
+            if (tableWidth > viewportWidth) {
+                $(td).css({
+                    "border-left": `2px solid ${color}`,
+                    "padding-left": "8px"
+                });
+            } else {
+            	  $(td).css({
+            	  	  "border-left": "",
+            	  	  "padding-left": ""
+            	  });
+            }
       } },
       {targets: [2],
         'createdCell': function (td, cellData, rowData, row, col) {

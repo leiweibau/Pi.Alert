@@ -247,7 +247,7 @@ function get_host_statistic($hostip) {
               <div class="inner"> <h3 id="eventsdown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_DownAlerts'];?></p>
               </div>
-              <div class="icon"> <i class="bi bi-sign-turn-right text-red-40"></i> </div>
+              <div class="icon"> <i class="mdi mdi-lan-disconnect text-red-40"></i> </div>
             </div>
           </a>
         </div>

@@ -61,7 +61,7 @@ require 'php/server/journal.php';
               <div class="inner"> <h3 id="eventsSessions"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_Sessions'];?></p>
               </div>
-              <div class="icon"> <i class="fa fa-plug text-green-40"></i> </div>
+              <div class="icon"> <i class="mdi mdi-lan-connect text-green-40"></i> </div>
             </div>
           </a>
         </div>
@@ -105,7 +105,7 @@ require 'php/server/journal.php';
               <div class="inner"> <h3 id="eventsDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_DownAlerts'];?></p>
               </div>
-              <div class="icon"> <i class="fa fa-warning text-red-40"></i> </div>
+              <div class="icon"> <i class="mdi mdi-lan-disconnect text-red-40"></i> </div>
             </div>
           </a>
         </div>

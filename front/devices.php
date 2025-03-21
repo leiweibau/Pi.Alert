@@ -5,7 +5,7 @@
 #  devices.php - Front module. Devices list page
 #-------------------------------------------------------------------------------
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024                                          GNU GPLv3
+#  leiweibau 2024+                                         GNU GPLv3
 #--------------------------------------------------------------------------- -->
 
 <?php
@@ -484,7 +484,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           <a href="#" onclick="javascript: getDevicesList('connected');">
           <div class="small-box bg-green">
             <div class="inner"><h3 id="devicesConnected"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_Connected'];?></p></div>
-            <div class="icon"><i class="fa fa-plug text-green-40"></i></div>
+            <div class="icon"><i class="mdi mdi-lan-connect text-green-40"></i></div>
           </div>
           </a>
         </div>
@@ -508,7 +508,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           <a href="#" onclick="javascript: getDevicesList('down');">
           <div class="small-box bg-red">
             <div class="inner"><h3 id="devicesDown"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></p></div>
-            <div class="icon"><i class="fa fa-warning text-red-40"></i></div>
+            <div class="icon"><i class="mdi mdi-lan-disconnect text-red-40"></i></div>
           </div>
           </a>
         </div>
@@ -807,11 +807,35 @@ function initializeDatatable () {
       // Device Name
       {targets: [0],
         'createdCell': function (td, cellData, rowData, row, col) {
+          switch (rowData[13]) {
+            case 'Down':      color='red';                 break;
+            case 'NewON':     color='orange';              break;
+            case 'NewOFF':    color='orange';              break;
+            case 'OnlineV':   color='#00A000';             break;
+            case 'On-line':   color='#00A000';             break;
+            case 'Off-line':  color='transparent';         break;
+            default:          color='transparent';         break;
+          };
         	if (rowData[11] == "Internet") {
         		$(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="text-danger">'+ cellData +'</a></b>');
         	} else {
             $(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="">'+ cellData +'</a></b>');
         	}
+
+          let tableWidth = $("#tableDevices").outerWidth();
+          let viewportWidth = $(window).width() - 50;
+
+          if (tableWidth > viewportWidth) {
+              $(td).css({
+                  "border-left": `2px solid ${color}`,
+                  "padding-left": "8px"
+              });
+          } else {
+          	  $(td).css({
+          	  	  "border-left": "",
+          	  	  "padding-left": ""
+          	  });
+          }
       } },
       // Favorite
       {targets: [4],

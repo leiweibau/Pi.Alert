@@ -180,7 +180,7 @@ install_lighttpd() {
 
   if $PIHOLESIX_CONFIG ; then
     echo "Pi-hole detected. Webinterface moved to Port 8080..."
-    sudo pihole-FTL --config webserver.port 8080o,[::]:8080o,443so,[::]:443so
+    sudo pihole-FTL --config webserver.port 8080o,443so,[::]:8080o,[::]:443so
     sudo systemctl restart pihole-FTL
     echo "Pi-hole Configuration applied"
   fi

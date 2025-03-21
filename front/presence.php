@@ -67,7 +67,7 @@ $Pia_Graph_Device_Arch = $graph_arrays[4];
               <div class="inner"> <h3 id="devicesConnected"> -- </h3>
                   <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_Connected'];?></p>
               </div>
-              <div class="icon"> <i class="fa fa-plug text-green-40"></i> </div>
+              <div class="icon"> <i class="mdi mdi-lan-connect text-green-40"></i> </div>
             </div>
           </a>
         </div>
@@ -103,7 +103,7 @@ $Pia_Graph_Device_Arch = $graph_arrays[4];
               <div class="inner"> <h3 id="devicesDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_DownAlerts'];?></p>
               </div>
-              <div class="icon"> <i class="fa fa-warning text-red-40"></i> </div>
+              <div class="icon"> <i class="mdi mdi-lan-disconnect text-red-40"></i> </div>
             </div>
           </a>
         </div>

@@ -36,6 +36,8 @@ require 'php/templates/language/' . $pia_lang_selected . '.php';
     <link rel="stylesheet" href="lib/AdminLTE/bower_components/font-awesome/css/font-awesome.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="lib/AdminLTE/bower_components/Ionicons/css/ionicons.min.css">
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="lib/AdminLTE/bower_components/material-design-icons/css/materialdesignicons.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="lib/AdminLTE/dist/css/AdminLTE.min.css">
     <!-- AdminLTE Skins. -->
@@ -84,7 +86,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 <?php
 insert_back_button();
 ?>
-      <a id="navbar-reload-button" href="" role="button" onclick="window.location.href=window.location.href"><i class="fa fa-repeat"></i></a>
+      <a id="navbar-reload-button" href="" role="button" onclick="window.location.reload(true)"><i class="fa fa-repeat"></i></a>
       <script>
           function toggle_systeminfobox() {
             $("#sidebar_systeminfobox").toggleClass("collapse");
@@ -98,6 +100,11 @@ insert_back_button();
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
+          <?php
+          if ($FRONTEND_PHBUTTON != '') {
+            echo '<li><a id="navbar-pihole-button" class="a navbar-servertime" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
+          }
+          ?>
           <li><a id="navbar-help-button" class="a navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" role="button" target="blank"><i class="fa-regular fa-circle-question"></i></a></li>
           <li><div class="a navbar-servertime"><?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span></div></li>
           <!-- Header right info -->
@@ -190,7 +197,7 @@ get_devices_filter_list();
 echo $sat_sub_menu[0];
 ?>
         <li class=" <?php if (in_array(basename($_SERVER['SCRIPT_NAME']), array('network.php', 'networkSettings.php'))) {echo 'active';}?>">
-          <a href="network.php"><i class="fa fa-server"></i> <span><?=$pia_lang['NAV_Network'];?></span></a>
+          <a href="network.php"><i class="bi bi-hdd-network-fill" style="margin-right: 5px;"></i> <span><?=$pia_lang['NAV_Network'];?></span></a>
         </li>
 <?php 
 toggle_webservices_menu('Main');
