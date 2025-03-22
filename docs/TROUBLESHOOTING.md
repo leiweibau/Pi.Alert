@@ -1,5 +1,7 @@
 ## Checking and troubleshooting 
 
+<hr>
+
 ### The browser shows a pop-up with an error when loading the page
 
 This can have several causes. One is an outdated browser cache. Delete this if necessary. 
@@ -9,6 +11,8 @@ JSONs must correspond to a specific schema and many parts in Pi.Alert exchange d
 lead to errors. The "Test Main JSON Calls" function is available for this purpose under Maintenance -> Settings -> Advanced. 
 If you report an issue in this regard, please include the output of this function.
 
+<hr>
+
 ### Repairing an installation after a failed update
 
 1. rename the still existing "pialert" directory e.g. to "pialert-old"
@@ -17,6 +21,8 @@ If you report an issue in this regard, please include the output of this functio
 4. copy "pialert.conf" from "pialert-old/config" to "pialert/config"
 5. execute the command "./pialert-cli set_permissions" in the "pialert/back" directory
 6. now everything should work again
+
+<hr>
 
 ### Broken Scan after Pi-hole update from 5.x to 6.x
 
@@ -45,7 +51,9 @@ This is a normal error under these circumstances. This is because Pi.Alert uses 
 The correct PiHole version must be specified in the Pi.Alert configuration. You can find out how to do this in the documentation of 
 the configuration file [pialert.conf](./PIALERT_CONF.md).
 
-### Broken Webinterface after Pi-hole update from 5.x to 6.x
+<hr>
+
+### Broken Pi.Alert Webinterface after Pi-hole update from 5.x to 6.x
 
 During the Pi-hole 6.x update, you were asked if you wanted to deactivate the web server that Pi-hole used before. 
 
@@ -55,5 +63,7 @@ If you confirmed this, you also deactivated the Pi.Alert web interface at that m
 interfaces can no longer run on one port (default 80). You can use this script for this.
 
 [pihole6_port_conflict.sh](https://raw.githubusercontent.com/leiweibau/Pi.Alert/refs/heads/main/install/pihole6_port_conflict.sh)
+
+<hr>
 
 [Back](https://github.com/leiweibau/Pi.Alert)
