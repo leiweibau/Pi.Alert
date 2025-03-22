@@ -64,6 +64,8 @@ interfaces can no longer run on one port (default 80). You can use this script f
 
 [pihole6_port_conflict.sh](https://raw.githubusercontent.com/leiweibau/Pi.Alert/refs/heads/main/install/pihole6_port_conflict.sh)
 
+You can also find the script in the directory “pialert/install/” in versions greater than Pi.Alert v2025-03-21
+
 <hr>
 
 [Back](https://github.com/leiweibau/Pi.Alert)
