@@ -20,7 +20,7 @@ fi
 PIALERT_HOME="$INSTALL_DIR/pialert"
 LOG="pialert_update_`date +"%Y-%m-%d_%H-%M"`.log"
 PYTHON_BIN=python3
-PIHOLE_MOVED=false
+#PIHOLE_MOVED=false
 
 
 # ------------------------------------------------------------------------------
@@ -57,10 +57,10 @@ main() {
   test_pialert
   
   print_header "Update process finished"
-  if $PIHOLE_MOVED ; then
-    print_msg ""
-    print_header "!! Pi-hole Webinterface moved from Port 80 to Port 8080 !!"
-  fi
+  # if $PIHOLE_MOVED ; then
+  #   print_msg ""
+  #   print_header "!! Pi-hole Webinterface moved from Port 80 to Port 8080 !!"
+  # fi
   print_msg ""
 
   move_logfile
@@ -120,19 +120,17 @@ check_pihole() {
     if systemctl is-active --quiet pihole-FTL; then
         VERSION_OUTPUT=$(sudo pihole -v)
 
-        # Extrahiere die Hauptversionsnummer
-        #CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+')
         CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+' || echo "")
 
-        #if [[ $CORE_VERSION -ge 6 ]]; then
         if [[ -n "$CORE_VERSION" && "$CORE_VERSION" -ge 6 ]]; then
-            print_header "Pi-hole 6.x detected. Webinterface moved to Port 8080..."
-            sudo systemctl stop lighttpd                                               2>&1 >> "$LOG"
-            sudo pihole-FTL --config webserver.port 8080o,443so,[::]:8080o,[::]:443so
-            sudo systemctl restart pihole-FTL                                          2>&1 >> "$LOG"
-            sudo systemctl enable lighttpd                                             2>&1 >> "$LOG"
-            sudo systemctl start lighttpd                                              2>&1 >> "$LOG"
-            PIHOLE_MOVED=true
+            # print_header "Pi-hole 6.x detected. Webinterface moved to Port 8080..."
+            print_header "Pi-hole 6.x detected."
+            #sudo systemctl stop lighttpd                                               2>&1 >> "$LOG"
+            #sudo pihole-FTL --config webserver.port 8080o,443so,[::]:8080o,[::]:443so
+            #sudo systemctl restart pihole-FTL                                          2>&1 >> "$LOG"
+            #sudo systemctl enable lighttpd                                             2>&1 >> "$LOG"
+            #sudo systemctl start lighttpd                                              2>&1 >> "$LOG"
+            #PIHOLE_MOVED=true
         fi
     fi
 }

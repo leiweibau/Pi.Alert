@@ -45,4 +45,15 @@ This is a normal error under these circumstances. This is because Pi.Alert uses 
 The correct PiHole version must be specified in the Pi.Alert configuration. You can find out how to do this in the documentation of 
 the configuration file [pialert.conf](./PIALERT_CONF.md).
 
+### Broken Webinterface after Pi-hole update from 5.x to 6.x
+
+During the Pi-hole 6.x update, you were asked if you wanted to deactivate the web server that Pi-hole used before. 
+
+<img width="570" alt="Image" src="https://github.com/user-attachments/assets/215cde72-6537-46df-b148-fd83da6b7b67" />
+
+If you confirmed this, you also deactivated the Pi.Alert web interface at that moment. To reactivate this, Pi-hole must be reconfigured, as both web 
+interfaces can no longer run on one port (default 80). You can use this script for this.
+
+[pihole6_port_conflict.sh](https://raw.githubusercontent.com/leiweibau/Pi.Alert/refs/heads/main/install/pihole6_port_conflict.sh)
+
 [Back](https://github.com/leiweibau/Pi.Alert)
