@@ -115,7 +115,8 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 :bulb: <ins>Additional components and information</ins>
 
  - [Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md) (will be updated if necessary)
- - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [tteck/Proxmox](https://github.com/tteck/Proxmox)
+ - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)
+ - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE)
  - An initial fork but now independent version of Pi.Alert named NetAlertX based on Docker can be found here: [jokob-sk/NetAlertX](https://github.com/jokob-sk/NetAlertX)
  - The original, but unmaintained, Pi.Alert can be found here [pucherot/Pi.Alert](https://github.com/pucherot/Pi.Alert/)
 
@@ -163,7 +164,7 @@ An archive of older versions can be found at [https://leiweibau.net/archive/pial
 
 ### Additionally used components and services
 [Animated GIF (Loading Animation)](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif), [Selfhosted Fonts](https://github.com/adobe-fonts/source-sans), 
-[Bootstrap Icons](https://github.com/twbs/icons), [For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
+[Bootstrap Icons](https://github.com/twbs/icons), [Material Design Icons](https://github.com/Pictogrammers), [For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
 [DeepL](https://www.deepl.com), [ChatGPT](https://chat.openai.com)
 
 
