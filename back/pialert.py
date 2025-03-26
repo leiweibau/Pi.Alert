@@ -1395,7 +1395,7 @@ def read_openwrt_clients():
             else:
                 hostname = device.hostname
 
-            sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, UF_Name, OWRT_Vendor) "+
+            sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, OWRT_Name, OWRT_Vendor) "+
                          "VALUES (?, ?, ?, ?) ", (device.mac.lower(), device.ip, hostname, '(unknown)') )
 
     except Exception as e:
