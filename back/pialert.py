@@ -1087,16 +1087,22 @@ def pihole_six_api_auth():
         return
 
     response_json = response.json()
-
-    if response_json['session']['valid'] == True :
-        PIHOLE6_SES_VALID = response_json['session']['valid']
-        PIHOLE6_SES_SID = response_json['session']['sid']
-        # to prevent key error if pihole has no password
-        if PIHOLE6_PASSWORD:
-            PIHOLE6_SES_CSRF = response_json['session']['csrf']
-    else:
-        print(f"        Auth required")
+    
+    try:
+        session_data = response_json.get('session', {})
+        if session_data.get('valid', False):  # Default False, if 'valid' is missing
+            PIHOLE6_SES_VALID = session_data['valid']
+            PIHOLE6_SES_SID = session_data['sid']
+            # to prevent key error if pihole has no password
+            if PIHOLE6_PASSWORD:
+                PIHOLE6_SES_CSRF = session_data['csrf']
+        else:
+            print("        Auth required")
+            return
+    except KeyError as e:
+        print(f"        Invalid response. Check Pi-hole URL")
         return
+
 
 #-------------------------------------------------------------------------------
 def pihole_six_api_deauth():
@@ -1395,7 +1401,7 @@ def read_openwrt_clients():
             else:
                 hostname = device.hostname
 
-            sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, UF_Name, OWRT_Vendor) "+
+            sql.execute ("INSERT INTO Openwrt_Network (OWRT_MAC, OWRT_IP, OWRT_Name, OWRT_Vendor) "+
                          "VALUES (?, ?, ?, ?) ", (device.mac.lower(), device.ip, hostname, '(unknown)') )
 
     except Exception as e:
