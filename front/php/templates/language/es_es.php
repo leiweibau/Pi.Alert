@@ -715,6 +715,7 @@ $pia_lang['SysInfo_Gen_execute_command'] = 'Ejecutando el comando';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Antes de poder utilizar el cliente de Speedtest de Ookla, debe ejecutar el comando "sudo ./speedtest" una vez en el directorio "$HOME/pialert/back/speedtest/." El botón de Speedtest se habilitará después de recargar la página, pero solo funcionará después de aceptar la licencia de Ookla.';
+$pia_lang['ookla_postinstall_note_lxc'] = 'Antes de poder utilizar el cliente de Speedtest de Ookla, debe ejecutar el comando "sudo ./speedtest" una vez en el directorio "/opt/pialert/back/speedtest/." El botón de Speedtest se habilitará después de recargar la página, pero solo funcionará después de aceptar la licencia de Ookla.';
 $pia_lang['ookla_devdetails_tab_title'] = 'Historial de Speedtest';
 $pia_lang['ookla_devdetails_required'] = 'Actualmente, el historial de los resultados de Speedtest solo es compatible con el Speedtest oficial de Ookla (<a href="https://www.speedtest.net/apps/cli" target="blank">speedtest.net</a>).';
 $pia_lang['ookla_devdetails_tab_headline'] = 'Historial de Speedtest';

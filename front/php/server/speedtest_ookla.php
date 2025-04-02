@@ -192,7 +192,14 @@ if (file_exists($speedtest_binary) && $mod == "test") {
 
 	echo '</pre>';
 	if ($show_hint == 1) {
-		echo '<span class="text-red" style="font-size: 18px;">' . $pia_lang['ookla_postinstall_note'] . '</span>';
+		if (!file_exists("/opt/pialert")) {
+			$post_message = $pia_lang['ookla_postinstall_note'];
+		} else {
+			$post_message = $pia_lang['ookla_postinstall_note_lxc'];
+		}
+
+
+		echo '<span class="text-red" style="font-size: 18px;">' . $post_message . '</span>';
 	}
 
 # Speedtest not installed
