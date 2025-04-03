@@ -51,42 +51,31 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
   - **Web service monitoring**. An HTTP request is sent and the web server's response is processed. If self signed certificates are used, no validation of the certificate is performed.
   - **ICMP monitoring**. A "ping" is sent to a manually specified IP/hostname/domain name and the response is evaluated
   - **DHCP Server Scan**. Nmap is used to send DHCP requests into the network to detect unknown (rogue) DHCP servers.
-  - **Satellite Scan** A companion script for Pi.Alert, which executes the Pi.Alert scan on an external host and sends the data as encrypted JSON to an existing Pi.Alert
+  - **Satellite Scan** A companion script for Pi.Alert, which executes the Pi.Alert scan and some of the import methodes on an external host/network and sends the data as encrypted JSON to an existing Pi.Alert
 
 ### Backend (back)
 
-The backend is started at regular intervals via cronjobs of the user who installed Pi.Alert.
-
-The system scans the network to detect connected devices using various scanning methods as described above. 
-It also verifies the accessibility of web services and notifies about any changes in SSL certificates. 
-The gathered information is stored in the database. Detected changes are reported via mail ([Guide](docs/NOTIFICATION_MAIL.md)) and/or other services 
-such as [Pushsafer](https://www.pushsafer.com/), [Pushover](https://pushover.net/), ntfy and Telegram through shoutrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md)), as well as to the Frontend. Automated 
-tasks for cleaning up and optionally backing up the database are also performed. Additionally, optional speed tests of the Internet 
-connection can be conducted. Users can utilize the [pialert-cli](docs/PIALERTCLI.md) tool to configure login, password, and other 
-settings conveniently.
+The backend is controlled via the operating system's own cron service and is executed at 5-minute intervals. The task of the backend is to execute the 
+various scans and imports, save the results in the database and send notifications according to the settings. In addition to host detection, it is also 
+possible to check the availability of manually entered hosts or websites for their reachability and to receive notifications in the event of status changes. 
+Various services are available for the notifications (Frontend, Mail ([Guide](docs/NOTIFICATION_MAIL.md)), [Pushsafer](https://www.pushsafer.com/), 
+[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md)). Additional functions such as automatic 
+database optimization, DB backups and Internet speed tests are also available via the backend. The CLI tool [pialert-cli](docs/PIALERTCLI.md) is available 
+to control selected functions of the backend.
 
 ### Frontend (front)
 
-A configurable login feature is available to prevent unauthorized access, with the default password set to "123456". By default, this feature is disabled. 
-To enable password protection, adjust the configuration settings either in the ~/pialert/config/pialert.conf file or via the pialert-cli tool.
-
-Moreover, the system offers extensive functionalities:
-
-It manages device inventory and characteristics, facilitating individual management or bulk edits. The collected data, including sessions, connected devices, 
-favorites, events, presence, and internet IP address changes, is visually represented. For enhanced device management, manual Nmap scans and Wake-on-LAN 
-(if supported) are available, alongside speed tests for the "Internet" device in the details view.
-
-Additionally, it provides insights into network relationships through a simple display. You can perform various maintenance tasks and customize settings, 
-including language selection (English, German, Spanish, French, Italian), AdminLTE-Skins/Theme/Favicons selection, API-key configuration, login management, 
-database maintenance tools, and config file editing.
-
-For support, a comprehensive Help/FAQ section is accessible. Notifications with download options keep you informed, while a journal tracks operations 
-performed via the frontend, pialert-cli, and cronjob. 
+The frontend is used to manage the host information determined and for general management. You can store additional information for each device, view the historical 
+history, perform manual nmap scans or send Wake-on-LAN commands. You also have the option of assigning individual devices to other network devices such as routers and 
+switches in order to maintain an overview of the relationships between the devices. A settings page allows you to configure individual parts of the frontend, while a 
+config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French and Italian, can be protected with a 
+login that uses the password “123456” by default. You can change this using the CLI tool [pialert-cli](docs/PIALERTCLI.md).
 
 New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
 iOS devices, icons can be directly linked from the repository, as iOS devices may not load homescreen icons from insecure sources (without SSL or self-signed SSL).
 
-It is possible to send various requests to the backend with the help of an [API](docs/API-USAGE.md). The API can also be used to create an integration in Home Assistant or [Homepage](https://github.com/gethomepage/homepage).
+It is possible to send various requests to the backend with the help of an [API](docs/API-USAGE.md). The API can also be used to create an integration in Home Assistant 
+or [Homepage](https://github.com/gethomepage/homepage).
 
 
 # Installation
