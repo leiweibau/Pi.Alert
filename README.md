@@ -9,7 +9,7 @@
 * Additional information
   * [Guide for the first start](docs/FIRST_START_GUIDE.md)
   * [FAQ](docs/HELP_FAQ.md), [Troubleshooting](docs/TROUBLESHOOTING.md)
-  * [Screenshots](docs/SCREENSHOTS.md)
+  * [Screenshots](docs/SCREENSHOTS.md), [Favicons/Homescreen icons](docs/ICONS.md)
   * [Device Management](docs/DEVICE_MANAGEMENT.md)
   * [Bulk Editor](docs/BULKEDITOR.md)
   * [pialert-cli](docs/PIALERTCLI.md), [pialert.conf](docs/PIALERT_CONF.md)
