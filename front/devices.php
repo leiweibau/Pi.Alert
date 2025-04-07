@@ -51,7 +51,6 @@ $Graph_Device_Down = $graph_arrays[1];
 $Graph_Device_All = $graph_arrays[2];
 $Graph_Device_Online = $graph_arrays[3];
 $Graph_Device_Arch = $graph_arrays[4];
-
 ?>
 
 <!-- Page ------------------------------------------------------------------ -->
@@ -472,54 +471,94 @@ if ($_REQUEST['mod'] == 'bulkedit') {
     <section class="content">
 <!-- top small boxes ------------------------------------------------------- -->
       <div class="row">
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesList('all');">
+<?php
+function header_devices_all($visibility, $header_all, $header_selected) {
+	global $pia_lang;
+	$layout = calc_header_size($header_all, $header_selected);
+	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesList(\'all\');">
           <div class="small-box bg-aqua">
-            <div class="inner"><h3 id="devicesAll"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_AllDevices'];?></p></div>
+            <div class="inner"><h3 id="devicesAll"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_AllDevices'].'</p></div>
             <div class="icon"><i class="fa fa-laptop text-aqua-40"></i></div>
           </div>
           </a>
-        </div>
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesList('connected');">
+        </div>';
+}
+function header_devices_con($visibility, $header_all, $header_selected) {
+	global $pia_lang;
+	$layout = calc_header_size($header_all, $header_selected);
+	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesList(\'connected\');">
           <div class="small-box bg-green">
-            <div class="inner"><h3 id="devicesConnected"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_Connected'];?></p></div>
+            <div class="inner"><h3 id="devicesConnected"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Connected'].'</p></div>
             <div class="icon"><i class="mdi mdi-lan-connect text-green-40"></i></div>
           </div>
           </a>
-        </div>
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesList('favorites');">
+        </div>';
+}
+function header_devices_fav($visibility, $header_all, $header_selected) {
+	global $pia_lang;
+	$layout = calc_header_size($header_all, $header_selected);
+	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesList(\'favorites\');">
           <div class="small-box bg-yellow">
-            <div class="inner"><h3 id="devicesFavorites"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_Favorites'];?></p></div>
+            <div class="inner"><h3 id="devicesFavorites"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Favorites'].'</p></div>
             <div class="icon"><i class="fa fa-star text-yellow-40"></i></div>
           </div>
           </a>
-        </div>
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesList('new');">
+        </div>';
+}
+function header_devices_new($visibility, $header_all, $header_selected) {
+	global $pia_lang;
+	$layout = calc_header_size($header_all, $header_selected);
+	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesList(\'new\');">
           <div class="small-box bg-yellow">
-            <div class="inner"><h3 id="devicesNew"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_NewDevices'];?></p></div>
+            <div class="inner"><h3 id="devicesNew"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_NewDevices'].'</p></div>
             <div class="icon"><i class="fa fa-plus text-yellow-40"></i></div>
           </div>
           </a>
-        </div>
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesList('down');">
+        </div>';
+}
+function header_devices_dnw($visibility, $header_all, $header_selected) {
+	global $pia_lang;
+	$layout = calc_header_size($header_all, $header_selected);
+	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesList(\'down\');">
           <div class="small-box bg-red">
-            <div class="inner"><h3 id="devicesDown"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></p></div>
+            <div class="inner"><h3 id="devicesDown"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_DownAlerts'].'</p></div>
             <div class="icon"><i class="mdi mdi-lan-disconnect text-red-40"></i></div>
           </div>
           </a>
-        </div>
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesList('archived');">
+        </div>';
+}
+function header_devices_arc($visibility, $header_all, $header_selected) {
+	global $pia_lang;
+	$layout = calc_header_size($header_all, $header_selected);
+	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesList(\'archived\');">
           <div class="small-box bg-gray top_small_box_gray_text">
-            <div class="inner"><h3 id="devicesArchived"> -- </h3><p class="infobox_label"><?=$pia_lang['Device_Shortcut_Archived'];?></p></div>
+            <div class="inner"><h3 id="devicesArchived"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Archived'].'</p></div>
             <div class="icon"><i class="fa fa-eye-slash text-gray-40"></i></div>
           </div>
           </a>
-        </div>
+        </div>';
+}
+
+header_devices_all('show', 6, 6);
+header_devices_con('show', 6, 6);
+header_devices_fav('show', 6, 6);
+header_devices_new('show', 6, 6);
+header_devices_dnw('show', 6, 6);
+header_devices_arc('show', 6, 6);
+?>
+
       </div>
 <!-- Activity Chart ------------------------------------------------------- -->
 <?php

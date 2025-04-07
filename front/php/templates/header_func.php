@@ -17,6 +17,31 @@ function get_local_system_tz() {
 	}
 	return $timezone;
 }
+// Headers for devices, icmp and presence page
+function calc_header_size($header_all, $header_selected) {
+	$layout = array();
+	if ($header_all >= 5) {
+		if ($header_selected >= 5) {
+			// 5-6
+			$layout['lg'] = "col-lg-2";
+			$layout['md'] = "col-sm-3";
+			$layout['sm'] = "col-xs-6";
+		}
+		if ($header_selected >= 3 && $header_selected <= 4) {
+			// 3-4
+			$layout['lg'] = "col-lg-3";
+			$layout['md'] = "col-sm-3";
+			$layout['sm'] = "col-xs-6";
+		}
+		if ($header_selected <= 2 && $header_selected > 0) {
+			//0-2
+			$layout['lg'] = "col-lg-3";
+			$layout['md'] = "col-sm-3";
+			$layout['sm'] = "col-xs-6";
+		}
+	}
+	return $layout;
+}
 // Maintenance Page - Pause Arp Scan Section
 function arpscanstatus() {
 	global $pia_lang;
@@ -424,5 +449,4 @@ if (file_exists('../config/setting_piholebutton')) {
 }
 // set ScanSource Defaults (Satellite Scans)
 if ($_REQUEST['scansource']) {$SCANSOURCE=$_REQUEST['scansource'];} else {$SCANSOURCE='local';}
-
 ?>
