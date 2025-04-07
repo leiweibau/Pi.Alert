@@ -104,8 +104,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 :bulb: <ins>Additional components and information</ins>
 
  - [Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md) (will be updated if necessary)
- - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)
- - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE)
+ - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox), [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE)
  - An initial fork but now independent version of Pi.Alert named NetAlertX based on Docker can be found here: [jokob-sk/NetAlertX](https://github.com/jokob-sk/NetAlertX)
  - The original, but unmaintained, Pi.Alert can be found here [pucherot/Pi.Alert](https://github.com/pucherot/Pi.Alert/)
 
@@ -127,6 +126,24 @@ I recommend uninstalling it first. If you backup the database, it may be possibl
 ```
 bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
 ```
+  </td></tr>
+  </tbody>
+</table>
+
+
+<table>
+  <thead>
+    <tr><th align="left">One-step Automated Update (LXC - Proxmox Helper Scripts)</th></tr>
+  </thead>
+  <tbody>
+  <tr><td>
+
+```
+bash -c "$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)" -s --lxc
+```
+
+To Update Pi.Alert, run the command below (or type update) in the LXC Console.
+
   </td></tr>
   </tbody>
 </table>
