@@ -46,7 +46,7 @@ if ($_SESSION["login"] != 1) {
             color: deepskyblue; 
         }
         .languages {
-            display: inline-block; width: 120px;
+            display: inline-block; width: 150px;
         }
         .topheader {
             width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
@@ -79,31 +79,49 @@ if ($_SESSION["login"] != 1) {
 <?php
 require '../templates/language/de_de.php';
 $dede = $pia_lang;
-echo '<div class="languages">German: </div>' .sizeof($pia_lang). ' entries';
-echo '<br>';
+$dede_journ = $pia_journ_lang;
+echo '<div class="languages">German: </div>' . sizeof($pia_lang) . ' entries<br>';
+echo '<div class="languages">German (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
+unset($pia_lang);
+unset($pia_journ_lang);
 
 require '../templates/language/en_us.php';
 $enus = $pia_lang;
-echo '<div class="languages">English: </div>' .sizeof($pia_lang). ' entries';
-echo '<br>';
+$enus_journ = $pia_journ_lang;
+echo '<div class="languages">English: </div>' . sizeof($pia_lang) . ' entries<br>';
+echo '<div class="languages">English (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
+unset($pia_lang);
+unset($pia_journ_lang);
 
 require '../templates/language/es_es.php';
 $eses = $pia_lang;
-echo '<div class="languages">Spanish: </div>' .sizeof($pia_lang). ' entries';
-echo '<br>';
+$eses_journ = $pia_journ_lang;
+echo '<div class="languages">Spanish: </div>' . sizeof($pia_lang) . ' entries<br>';
+echo '<div class="languages">Spanish (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
+unset($pia_lang);
+unset($pia_journ_lang);
 
 require '../templates/language/fr_fr.php';
 $frfr = $pia_lang;
-echo '<div class="languages">French: </div>' .sizeof($pia_lang). ' entries';
-echo '<br>';
+$frfr_journ = $pia_journ_lang;
+echo '<div class="languages">French: </div>' . sizeof($pia_lang) . ' entries<br>';
+echo '<div class="languages">French (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
+unset($pia_lang);
+unset($pia_journ_lang);
 
 require '../templates/language/it_it.php';
 $itit = $pia_lang;
-echo '<div class="languages">Italian: </div>' .sizeof($pia_lang). ' entries';
+$itit_journ = $pia_journ_lang;
+echo '<div class="languages">Italian: </div>' . sizeof($pia_lang) . ' entries<br>';
+echo '<div class="languages">Italian (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
+unset($pia_lang);
+unset($pia_journ_lang);
 
-$all_keys = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit)));
+$all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit)));
+$all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ)));
 
-$missing = [];
+$missing_lang = [];
+$missing_journ = [];
 
 foreach ([
     'de_de' => $dede,
@@ -112,9 +130,23 @@ foreach ([
     'fr_fr' => $frfr,
     'it_it' => $itit
 ] as $lang => $arr) {
-    foreach ($all_keys as $key) {
+    foreach ($all_keys_lang as $key) {
         if (!array_key_exists($key, $arr)) {
-            $missing[$lang][] = $key;
+            $missing_lang[$lang][] = $key;
+        }
+    }
+}
+
+foreach ([
+    'de_de' => $dede_journ,
+    'en_us' => $enus_journ,
+    'es_es' => $eses_journ,
+    'fr_fr' => $frfr_journ,
+    'it_it' => $itit_journ
+] as $lang => $arr) {
+    foreach ($all_keys_journ as $key) {
+        if (!array_key_exists($key, $arr)) {
+            $missing_journ[$lang][] = $key;
         }
     }
 }
@@ -122,8 +154,15 @@ foreach ([
 echo '</div>';
 
 echo '<div class="info_box">
-        <h2 class="heading">Missing Entries</h2>';
-foreach ($missing as $lang => $keys) {
+        <h2 class="heading">Missing Entries (pia_lang)</h2>';
+foreach ($missing_lang as $lang => $keys) {
+    echo '<div class="languages"><strong>' . $lang . ':</strong></div> ' . implode(', ', $keys) . '<br>';
+}
+echo '</div>';
+
+echo '<div class="info_box">
+        <h2 class="heading">Missing Entries (pia_journ_lang)</h2>';
+foreach ($missing_journ as $lang => $keys) {
     echo '<div class="languages"><strong>' . $lang . ':</strong></div> ' . implode(', ', $keys) . '<br>';
 }
 echo '</div>';
