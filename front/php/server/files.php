@@ -633,14 +633,14 @@ function setListHeaderConfig() {
 	    }
 	}
 
-	echo $pia_lang['BE_Dev_DevListCol_noti_text'];
+	echo $pia_lang['BE_Files_HeaderConfig_noti_text'];
 	$ListHeaderConfig_file = '../../../config/setting_listheaders';
 	$ListHeaderConfig_new = fopen($ListHeaderConfig_file, 'w');
 	fwrite($ListHeaderConfig_new, json_encode($list));
 	fclose($ListHeaderConfig_new);
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 	// Logging
-	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0052', '', '');
+	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0076', '', '');
 }
 
 //  Purge Backups

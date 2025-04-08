@@ -576,3 +576,7 @@ body.modal-open {
 .report_delete_btn {
   text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;
 }
+
+.mgleft-5{
+    margin-left: 5px
+}

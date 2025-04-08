@@ -719,7 +719,7 @@ function setDeviceListCol() {
 
 // Set Device, ICMP and Presence List Headers
 function askListHeaderConfig() {
-  showModalWarning('<?=$pia_lang['MT_Tool_DevListCol_noti'];?>', '<?=$pia_lang['MT_Tool_DevListCol_noti_text'];?>',
+  showModalWarning('<?=$pia_lang['MT_Tool_HeaderConf_noti'];?>', '<?=$pia_lang['MT_Tool_DevListCol_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'setListHeaderConfig');
 }
 function setListHeaderConfig() {
