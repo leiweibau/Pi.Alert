@@ -62,15 +62,6 @@ if ($_SESSION["login"] != 1) {
             font-size: 1.2em;
             margin: 0px;
         }
-        td:hover::after {
-            content: attr(data-column);
-            position: absolute;
-            background: #333;
-            color: #fff;
-            padding: 5px;
-            border-radius: 3px;
-            font-size: 12px;
-        }
         #tableSelector {
             background-color: #fff;
             display: inline-block;
@@ -93,6 +84,19 @@ if ($_SESSION["login"] != 1) {
         }
         .resultheader {
             width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.2s;
         }
     </style>
 </head>
@@ -189,6 +193,29 @@ $db->close();
     }
     document.getElementById("tableSelector").value = "devices";
     toggleTable();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip';
+        document.body.appendChild(tooltip);
+
+        document.querySelectorAll('td[data-column]').forEach(td => {
+            td.addEventListener('mouseenter', (e) => {
+                tooltip.textContent = td.getAttribute('data-column');
+                tooltip.style.opacity = '1';
+            });
+
+            td.addEventListener('mousemove', (e) => {
+                tooltip.style.left = (e.pageX + 10) + 'px';
+                tooltip.style.top = (e.pageY + 10) + 'px';
+            });
+
+            td.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+            });
+        });
+    });
+
 </script>
 </body>
 </html>
