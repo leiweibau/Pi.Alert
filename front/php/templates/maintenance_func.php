@@ -106,23 +106,6 @@ function read_DevListCol() {
 	}
 	return $output_array;
 }
-// Maintenance Page - Set preset checkboxes for Columnconfig
-function set_column_checkboxes($table_config) {
-	if ($table_config['ConnectionType'] == 1) {$col_checkbox['ConnectionType'] = "checked";}
-	if ($table_config['Favorites'] == 1) {$col_checkbox['Favorites'] = "checked";}
-	if ($table_config['Group'] == 1) {$col_checkbox['Group'] = "checked";}
-	if ($table_config['Owner'] == 1) {$col_checkbox['Owner'] = "checked";}
-	if ($table_config['Type'] == 1) {$col_checkbox['Type'] = "checked";}
-	if ($table_config['FirstSession'] == 1) {$col_checkbox['FirstSession'] = "checked";}
-	if ($table_config['LastSession'] == 1) {$col_checkbox['LastSession'] = "checked";}
-	if ($table_config['LastIP'] == 1) {$col_checkbox['LastIP'] = "checked";}
-	if ($table_config['MACType'] == 1) {$col_checkbox['MACType'] = "checked";}
-	if ($table_config['MACAddress'] == 1) {$col_checkbox['MACAddress'] = "checked";}
-	if ($table_config['MACVendor'] == 1) {$col_checkbox['MACVendor'] = "checked";}
-	if ($table_config['Location'] == 1) {$col_checkbox['Location'] = "checked";}
-	if ($table_config['WakeOnLAN'] == 1) {$col_checkbox['WakeOnLAN'] = "checked";}
-	return $col_checkbox;
-}
 // Maintenance Page - Top Modal Block
 function print_logviewer_modal_head($id, $title) {
 	echo '<div class="modal fade" id="modal-logviewer-' . $id . '">

@@ -475,7 +475,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 function header_devices_all($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'all\');">
           <div class="small-box bg-aqua">
@@ -488,7 +488,7 @@ function header_devices_all($visibility, $header_all, $header_selected) {
 function header_devices_con($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'connected\');">
           <div class="small-box bg-green">
@@ -501,7 +501,7 @@ function header_devices_con($visibility, $header_all, $header_selected) {
 function header_devices_fav($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'favorites\');">
           <div class="small-box bg-yellow">
@@ -514,7 +514,7 @@ function header_devices_fav($visibility, $header_all, $header_selected) {
 function header_devices_new($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'new\');">
           <div class="small-box bg-yellow">
@@ -527,7 +527,7 @@ function header_devices_new($visibility, $header_all, $header_selected) {
 function header_devices_dnw($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'down\');">
           <div class="small-box bg-red">
@@ -540,7 +540,7 @@ function header_devices_dnw($visibility, $header_all, $header_selected) {
 function header_devices_arc($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'archived\');">
           <div class="small-box bg-gray top_small_box_gray_text">
@@ -551,12 +551,17 @@ function header_devices_arc($visibility, $header_all, $header_selected) {
         </div>';
 }
 
-header_devices_all('show', 6, 6);
-header_devices_con('show', 6, 6);
-header_devices_fav('show', 6, 6);
-header_devices_new('show', 6, 6);
-header_devices_dnw('show', 6, 6);
-header_devices_arc('show', 6, 6);
+$header_page_config = read_HeaderConfig();
+$count_active_headers = count(array_filter($header_page_config['devices'], function($value) {
+    return $value == 1;
+}));
+header_devices_all($header_page_config['devices']['all'], sizeof($header_page_config['devices']), $count_active_headers);
+header_devices_con($header_page_config['devices']['con'], sizeof($header_page_config['devices']), $count_active_headers);
+header_devices_fav($header_page_config['devices']['fav'], sizeof($header_page_config['devices']), $count_active_headers);
+header_devices_new($header_page_config['devices']['new'], sizeof($header_page_config['devices']), $count_active_headers);
+header_devices_dnw($header_page_config['devices']['dnw'], sizeof($header_page_config['devices']), $count_active_headers);
+header_devices_arc($header_page_config['devices']['arc'], sizeof($header_page_config['devices']), $count_active_headers);
+
 ?>
 
       </div>

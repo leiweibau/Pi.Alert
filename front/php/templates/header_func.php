@@ -24,7 +24,7 @@ function calc_header_size($header_all, $header_selected) {
 		if ($header_selected >= 5) {
 			// 5-6
 			$layout['lg'] = "col-lg-2";
-			$layout['md'] = "col-sm-3";
+			$layout['md'] = "col-sm-4";
 			$layout['sm'] = "col-xs-6";
 		}
 		if ($header_selected >= 3 && $header_selected <= 4) {
@@ -35,8 +35,8 @@ function calc_header_size($header_all, $header_selected) {
 		}
 		if ($header_selected <= 2 && $header_selected > 0) {
 			//0-2
-			$layout['lg'] = "col-lg-3";
-			$layout['md'] = "col-sm-3";
+			$layout['lg'] = "col-lg-6";
+			$layout['md'] = "col-sm-6";
 			$layout['sm'] = "col-xs-6";
 		}
 	}
@@ -396,6 +396,17 @@ function get_filter_group_list() {
     natsort($filter_groups);
     $filter_groups = array_values($filter_groups);
     return $filter_groups;
+}
+// Maintenance Page, Devices, ICMP and Presence - Get Header Config
+function read_HeaderConfig() {
+	$file = '../config/setting_listheaders';
+	if (file_exists($file)) {
+		$get = file_get_contents($file, true);
+	} else {
+		$get = '{"devices":{"all":1,"con":1,"fav":1,"dnw":1,"arc":1,"new":1},"icmp":{"all":1,"con":1,"fav":1,"dnw":1,"arc":1},"presence":{"all":1,"con":1,"fav":1,"dnw":1,"arc":1,"new":1}}';
+	}
+	$output_array = json_decode($get, true);
+	return $output_array;
 }
 // Devicelist, ICMP Monitor - Enable Arp Histroy Graph
 if (file_exists('../config/setting_noonlinehistorygraph')) {$ENABLED_HISTOY_GRAPH = False;} else { $ENABLED_HISTOY_GRAPH = True;}

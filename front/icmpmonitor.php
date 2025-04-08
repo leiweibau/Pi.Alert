@@ -440,7 +440,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 function header_icmp_all($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
         	<a href="#" onclick="javascript: getDevicesList(\'all\');">
           <div class="small-box bg-aqua">
@@ -453,7 +453,7 @@ function header_icmp_all($visibility, $header_all, $header_selected) {
 function header_icmp_con($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'connected\');">
           <div class="small-box bg-green">
@@ -466,7 +466,7 @@ function header_icmp_con($visibility, $header_all, $header_selected) {
 function header_icmp_fav($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'favorites\');">
           <div class="small-box bg-yellow">
@@ -479,7 +479,7 @@ function header_icmp_fav($visibility, $header_all, $header_selected) {
 function header_icmp_dnw($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'down\');">
           <div class="small-box bg-red">
@@ -492,7 +492,7 @@ function header_icmp_dnw($visibility, $header_all, $header_selected) {
 function header_icmp_arc($visibility, $header_all, $header_selected) {
 	global $pia_lang;
 	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == "hide") {$hide = "hide_element";} else {$hide = "";}
+	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'archived\');">
           <div class="small-box bg-gray top_small_box_gray_text">
@@ -502,12 +502,15 @@ function header_icmp_arc($visibility, $header_all, $header_selected) {
           </a>
         </div>';
 }
-
-header_icmp_all('show', 5, 5);
-header_icmp_con('show', 5, 5);
-header_icmp_fav('show', 5, 5);
-header_icmp_dnw('show', 5, 5);
-header_icmp_arc('show', 5, 5);
+$header_page_config = read_HeaderConfig();
+$count_active_headers = count(array_filter($header_page_config['icmp'], function($value) {
+    return $value == 1;
+}));
+header_icmp_all($header_page_config['icmp']['all'], sizeof($header_page_config['icmp']), $count_active_headers);
+header_icmp_con($header_page_config['icmp']['con'], sizeof($header_page_config['icmp']), $count_active_headers);
+header_icmp_fav($header_page_config['icmp']['fav'], sizeof($header_page_config['icmp']), $count_active_headers);
+header_icmp_dnw($header_page_config['icmp']['dnw'], sizeof($header_page_config['icmp']), $count_active_headers);
+header_icmp_arc($header_page_config['icmp']['arc'], sizeof($header_page_config['icmp']), $count_active_headers);
 ?>
       </div>
 

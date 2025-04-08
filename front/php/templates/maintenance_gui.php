@@ -202,58 +202,58 @@
                 <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_b'];?></h4></td></tr>
                 <tr>
                     <td colspan="2" style="text-align: center;">
-                        <?php $col_checkbox = set_column_checkboxes(read_DevListCol());?>
+                        <?php $table_config = read_DevListCol();?>
                         <div class="form-group">
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkConnectionType" type="checkbox" <?=$col_checkbox['ConnectionType'];?>>
+                              <input class="checkbox blue" id="chkConnectionType" type="checkbox" <?= $table_config['ConnectionType'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_ConnectionType'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkOwner" type="checkbox" <?=$col_checkbox['Owner'];?>>
+                              <input class="checkbox blue" id="chkOwner" type="checkbox" <?= $table_config['Owner'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Owner'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkType" type="checkbox" <?=$col_checkbox['Type'];?>>
+                              <input class="checkbox blue" id="chkType" type="checkbox" <?= $table_config['Type'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Type'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkFavorite" type="checkbox" <?=$col_checkbox['Favorites'];?>>
+                              <input class="checkbox blue" id="chkFavorite" type="checkbox" <?= $table_config['Favorites'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Favorite'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkGroup" type="checkbox" <?=$col_checkbox['Group'];?>>
+                              <input class="checkbox blue" id="chkGroup" type="checkbox" <?= $table_config['Group'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Group'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkLocation" type="checkbox" <?=$col_checkbox['Location'];?>>
+                              <input class="checkbox blue" id="chkLocation" type="checkbox" <?= $table_config['Location'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Location'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkfirstSess" type="checkbox" <?=$col_checkbox['FirstSession'];?>>
+                              <input class="checkbox blue" id="chkfirstSess" type="checkbox" <?= $table_config['FirstSession'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_FirstSession'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chklastSess" type="checkbox" <?=$col_checkbox['LastSession'];?>>
+                              <input class="checkbox blue" id="chklastSess" type="checkbox" <?= $table_config['LastSession'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_LastSession'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chklastIP" type="checkbox" <?=$col_checkbox['LastIP'];?>>
+                              <input class="checkbox blue" id="chklastIP" type="checkbox" <?= $table_config['LastIP'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_LastIP'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkMACtype" type="checkbox" <?=$col_checkbox['MACType'];?>>
+                              <input class="checkbox blue" id="chkMACtype" type="checkbox" <?= $table_config['MACType'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_MAC'];?></label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkMACaddress" type="checkbox" <?=$col_checkbox['MACAddress'];?>>
+                              <input class="checkbox blue" id="chkMACaddress" type="checkbox" <?= $table_config['MACAddress'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_MAC'];?>-Address</label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkMACVendor" type="checkbox" <?=$col_checkbox['MACVendor'];?>>
+                              <input class="checkbox blue" id="chkMACVendor" type="checkbox" <?= $table_config['MACVendor'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px">Vendor</label>
                             </div>
                             <div class="table_settings_col_box">
-                              <input class="checkbox blue" id="chkWakeOnLAN" type="checkbox" <?=$col_checkbox['WakeOnLAN'];?>>
+                              <input class="checkbox blue" id="chkWakeOnLAN" type="checkbox" <?= $table_config['WakeOnLAN'] == 1 ? 'checked' : ''; ?>>
                               <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_WakeOnLAN'];?> (WakeOnLAN)</label>
                             </div>
                             <br>
@@ -261,6 +261,91 @@
                         </div>
                     </td>
                 </tr>
+<!-- Header Config -------------------------------------------------------- -->
+               <tr><td colspan="2"><h4 class="bottom-border-aqua">Header Config</h4></td></tr>
+                <tr>
+                    <td colspan="2" style="text-align: center;">
+                        <?php $header_config = read_HeaderConfig();?>
+                        <div class="form-group">
+                            <p style="text-align: left; font-size: 16px;">Device List Header</p>
+                            <div class="table_settings_col_box bg-aqua">
+                              <input class="checkbox blue" id="chk_dev_all" type="checkbox" <?= $header_config['devices']['all'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_AllDevices'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-green">
+                              <input class="checkbox blue" id="chk_dev_con" type="checkbox" <?= $header_config['devices']['con'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Connected'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-yellow">
+                              <input class="checkbox blue" id="chk_dev_fav" type="checkbox" <?= $header_config['devices']['fav'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Favorites'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-yellow">
+                              <input class="checkbox blue" id="chk_dev_new" type="checkbox" <?= $header_config['devices']['new'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_NewDevices'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-red">
+                              <input class="checkbox blue" id="chk_dev_dnw" type="checkbox" <?= $header_config['devices']['dnw'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-gray">
+                              <input class="checkbox blue" id="chk_dev_arc" type="checkbox" <?= $header_config['devices']['arc'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Archived'];?></label>
+                            </div>
+                            <div style="display: block; height: 20px;"></div>
+                            <p style="text-align: left; font-size: 16px;">ICMP List Header</p>
+                            <div class="table_settings_col_box bg-aqua">
+                              <input class="checkbox blue" id="chk_icmp_all" type="checkbox" <?= $header_config['icmp']['all'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_AllDevices'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-green">
+                              <input class="checkbox blue" id="chk_icmp_con" type="checkbox" <?= $header_config['icmp']['con'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Connected'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-yellow">
+                              <input class="checkbox blue" id="chk_icmp_fav" type="checkbox" <?= $header_config['icmp']['fav'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Favorites'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-red">
+                              <input class="checkbox blue" id="chk_icmp_dnw" type="checkbox" <?= $header_config['icmp']['dnw'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-gray">
+                              <input class="checkbox blue" id="chk_icmp_arc" type="checkbox" <?= $header_config['icmp']['arc'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Archived'];?></label>
+                            </div>
+                            <div style="display: block; height: 20px;"></div>
+                            <p style="text-align: left; font-size: 16px;">Presence List Header</p>
+                            <div class="table_settings_col_box bg-aqua">
+                              <input class="checkbox blue" id="chk_pres_all" type="checkbox" <?= $header_config['presence']['all'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_AllDevices'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-green">
+                              <input class="checkbox blue" id="chk_pres_con" type="checkbox" <?= $header_config['presence']['con'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Connected'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-yellow">
+                              <input class="checkbox blue" id="chk_pres_fav" type="checkbox" <?= $header_config['presence']['fav'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Favorites'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-yellow">
+                              <input class="checkbox blue" id="chk_pres_new" type="checkbox" <?= $header_config['presence']['new'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_NewDevices'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-red">
+                              <input class="checkbox blue" id="chk_pres_dnw" type="checkbox" <?= $header_config['presence']['dnw'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_DownAlerts'];?></label>
+                            </div>
+                            <div class="table_settings_col_box bg-gray">
+                              <input class="checkbox blue" id="chk_pres_arc" type="checkbox" <?= $header_config['presence']['arc'] == 1 ? 'checked' : ''; ?>>
+                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_Shortcut_Archived'];?></label>
+                            </div>
+                            <div style="display: block; height: 20px;"></div>
+                            <button type="button" class="btn btn-default" style="margin-top:10px; width:160px;" id="btnSaveDeviceListCol" onclick="askListHeaderConfig()" ><?=$pia_lang['Gen_Save'];?></button>
+                        </div>
+                    </td>
+                </tr>
+
                 <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_f'];?></h4></td></tr>
                 <tr>
                     <td colspan="2" style="text-align: center;">
