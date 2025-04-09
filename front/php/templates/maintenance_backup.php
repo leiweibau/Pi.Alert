@@ -37,19 +37,23 @@ if (!$block_restore_button_db) {
                     <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_backupcsv_text'];?></div>
                 </div>
             </div>
+            <p class="lead text-center" style="margin-top: 20px;">Downloads</p>
  <?php
 echo '<div class="row">';
 if (!$block_restore_button_db) {
-	echo '<div class="col-md-4" style="text-align: center;">
-			<a class="btn btn-default" href="./download/database.php" role="button" style="margin-top: 20px; margin-bottom: 20px;">' . $pia_lang['MT_Tool_latestdb_download'] . '</a>
+	echo '<div class="col-md-3" style="text-align: center;">
+			<a class="btn btn-default" href="./download/database.php" role="button" style="margin-top: 10px; margin-bottom: 20px;">' . $pia_lang['MT_Tool_latestdb_download'] . '</a>
 			</div>';}
 if (file_exists('../db/pialertcsv.zip')) {
-	echo '<div class="col-md-4" style="text-align: center;">
-			<a class="btn btn-default" href="./download/databasecsv.php" role="button" style="margin-top: 20px; margin-bottom: 20px;">' . $pia_lang['MT_Tool_CSVExport_download'] . '</a>
+	echo '<div class="col-md-3" style="text-align: center;">
+			<a class="btn btn-default" href="./download/databasecsv.php" role="button" style="margin-top: 10px; margin-bottom: 20px;">' . $pia_lang['MT_Tool_CSVExport_download'] . '</a>
 			</div>';}
-echo '<div class="col-md-4" style="text-align: center;">
-			<a class="btn btn-default" href="./download/config.php" role="button" style="margin-top: 20px; margin-bottom: 20px;">' . $pia_lang['MT_Tool_latestconf_download'] . '</a>
+echo '<div class="col-md-3" style="text-align: center;">
+			<a class="btn btn-default" href="./download/config.php" role="button" style="margin-top: 10px; margin-bottom: 20px;">' . $pia_lang['MT_Tool_latestconf_download'] . '</a>
 			</div>';
+echo '<div class="col-md-3" style="text-align: center;">
+            <a class="btn btn-default" href="./download/uisettings.php" role="button" style="margin-top: 10px; margin-bottom: 20px;">' . $pia_lang['MT_Tool_uisettings_download'] . '</a>
+            </div>';
 echo '</div>';
 ?>
         </div>
