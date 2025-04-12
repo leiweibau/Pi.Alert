@@ -458,8 +458,8 @@ body.modal-open {
 #configeditor {text-align: center; padding-top: 5px; padding-bottom: 5px; height: 45px;}
 .configeditor_help {text-align: left; margin-top: 10px;}
 .statusbox_ro_inputs {width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;}
-.sat_config_list_a {display: inline-block; width: 210px; padding-right: 80px;}
-.sat_config_list_meth {font-weight: 600;}
+.sat_config_list_a {display: inline-block; width: 170px; padding-right: 10px; border: solid 1px #ccc; margin-bottom: 5px;}
+.sat_config_list_meth {padding-left: 10px;font-weight: 600;}
 .sat_config_list_stat {float:right;}
 /* ----------------- Services ----------------------------------------------- */
 .servicelist_entry {display: flex; width: 100%; margin-bottom: 5px; margin-top: 5px;}
