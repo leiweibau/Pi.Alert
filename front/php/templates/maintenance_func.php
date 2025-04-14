@@ -143,23 +143,23 @@ function print_logviewer_modal_foot() {
 function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit, $sat_version, $scan_arp, $scan_fritzbox, $scan_mikrotik, $scan_unifi, $scan_openwrt, $scan_pihole_net, $scan_pihole_dhcp) {
 	global $pia_lang;
 	echo '      <div class="db_info_table_row">
-                    <div class="col-xs-12 col-md-2" style="padding: 5px;">
+                    <div class="col-xs-12 col-md-2 col-lg-2" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatCreate_FORM_Name'].': <br>
                         <input class="form-control col-xs-12" type="text" id="txtChangedSatelliteName_'.$sat_rowid.'"value="'.$sat_name.'">
                     </div>
-                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                    <div class="col-xs-12 col-md-3 col-lg-3" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Token'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_token.'" readonly>
                     </div>
-                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                    <div class="col-xs-12 col-md-2 col-lg-3" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Pass'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_password.'" readonly>
                     </div>
-                    <div class="col-xs-6 col-md-2" style="padding: 5px;">
+                    <div class="col-xs-6 col-md-2 col-lg-2" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_LastUpd'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_last_transmit.'" readonly>
                     </div>
-                    <div class="col-xs-6 col-md-2 text-center" style="padding: 5px;">
+                    <div class="col-xs-6 col-md-3 col-lg-2 text-center" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Action'].': <br>
                         <button type="button" class="btn btn-link" id="btnInstallSatellite" onclick="InstallSatellite(\'' . $sat_token . '\',\'' . $sat_password . '\')" ><i class="bi bi-info-circle text-aqua satlist_action_btn_content"></i></button>
                         <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>
@@ -167,8 +167,8 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                     </div>
                 </div>';
 	echo '      <div class="db_info_table_row">
-                    <div class="col-xs-12 col-md-2 text-muted">Version: '.$sat_version.'</div>
-                    <div class="col-xs-12 col-md-10 text-muted">
+                    <div class="col-xs-12 col-md-3 col-lg-2 text-muted">Version: '.$sat_version.'</div>
+                    <div class="col-xs-12 col-md-9 col-lg-10 text-muted">
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">arp Scan:</span><span class="sat_config_list_stat '.colorize_state($scan_arp,1).'"> '.convert_state($scan_arp,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Fritzbox:</span><span class="sat_config_list_stat '.colorize_state($scan_fritzbox,1).'"> '.convert_state($scan_fritzbox,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Mikrotik:</span><span class="sat_config_list_stat '.colorize_state($scan_mikrotik,1).'"> '.convert_state($scan_mikrotik,0).'</span></div>
