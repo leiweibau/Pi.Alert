@@ -34,15 +34,29 @@ The following fields are returned with the API call "system-status".
 "Scanning":"<String>",
 "Last_Scan":"<String>",
 "All_Devices":<Integer>,
-"Offline_Devices":<Integer>,
 "Online_Devices":<Integer>,
-"Archived_Devices":<Integer>,
 "New_Devices":<Integer>,
 "Down_Devices":<Integer>,
+"Offline_Devices":<Integer>,
+"Archived_Devices":<Integer>,
+"local":{"All_Devices":<Integer>,
+         "Online_Devices":<Integer>,
+         "New_Devices":<Integer>,
+         "Down_Devices":<Integer>,
+         "Offline_Devices":<Integer>,
+         "Archived_Devices":<Integer>},
+"<Satellite_Name>":{
+         "All_Devices":<Integer>,
+         "Online_Devices":<Integer>,
+         "New_Devices":<Integer>,
+         "Down_Devices":<Integer>,
+         "Offline_Devices":<Integer>,
+         "Archived_Devices":<Integer>},
 "All_Devices_ICMP":<Integer>,
 "Offline_Devices_ICMP":<Integer>,
 "Online_Devices_ICMP":<Integer>,
 "All_Services":<Integer>
+
 ```
 
 [Query with PHP](https://github.com/leiweibau/Pi.Alert/blob/main/docs/API-USAGE.md#example-of-a-query-with-php-system-status), 
@@ -281,10 +295,14 @@ command_line:
         - Online_Devices
         - Offline_Devices
         - New_Devices
-        - Down_Devices
         - Scanning
+        - Juliet
+        - Ophelia
+        - local
         - Offline_Devices_ICMP
         - Online_Devices_ICMP
+        - All_Devices_ICMP
+        - All_Services
       value_template: "{{ value_json.Last_Scan }}"
       unique_id: pialert.status
 
@@ -331,6 +349,34 @@ template:
       - name: "PiAlert - Online Devices ICMP"
         state: "{{ state_attr('sensor.pialert_status', 'Online_Devices_ICMP') }}"
         unique_id: pialert.status.onlinedevicesicmp
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Local All Devices"
+        state: >
+          {% set data = state_attr('sensor.pialert_status', 'local') %}
+          {{ data['All_Devices'] if data and 'All_Devices' in data else 'unavailable' }}
+        unique_id: pialert.status.local_alldevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Local Online Devices"
+        state: >
+          {% set data = state_attr('sensor.pialert_status', 'local') %}
+          {{ data['Online_Devices'] if data and 'Online_Devices' in data else 'unavailable' }}
+        unique_id: pialert.status.local_onlinedevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Local Offline Devices"
+        state: >
+          {% set data = state_attr('sensor.pialert_status', 'local') %}
+          {{ data['Offline_Devices'] if data and 'Offline_Devices' in data else 'unavailable' }}
+        unique_id: pialert.status.local_offlinedevices
+        unit_of_measurement: ""
+
+      - name: "PiAlert - Local New Devices"
+        state: >
+          {% set data = state_attr('sensor.pialert_status', 'local') %}
+          {{ data['New_Devices'] if data and 'New_Devices' in data else 'unavailable' }}
+        unique_id: pialert.status.local_newdevices
         unit_of_measurement: ""
 
 ```

@@ -61,7 +61,7 @@ function getSystemStatus() {
 	}
 	if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
 	$en_us = array("On", "Off");
-	$de_de = array("An", "Aus");
+	$de_de = array("Ein", "Aus");
 	$es_es = array("En", "Off");
 	$fr_fr = array("Allumé", "Éteint");
 	$it_it = array("Acceso", "Spento");
@@ -70,7 +70,7 @@ function getSystemStatus() {
 	if (file_exists("../../db/setting_stoparpscan")) {$temp_api_online_devices['Scanning'] = $$pia_lang_selected[1];} else { $temp_api_online_devices['Scanning'] = $$pia_lang_selected[0];}
 
 	global $db;
-	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="main_scan_local" ORDER BY Scan_Date DESC LIMIT 1');
+	$results = $db->query('SELECT * FROM Online_History WHERE data_source="main_scan_local" ORDER BY Scan_Date DESC LIMIT 1');
 	while ($row = $results->fetchArray()) {
 		$time_raw = explode(' ', $row['Scan_Date']);
 		$temp_api_online_devices['Last_Scan'] = $time_raw[1];
@@ -93,14 +93,56 @@ function getSystemStatus() {
 	$temp_api_online_devices['Offline_Devices'] = $row[4];
 	$temp_api_online_devices['Archived_Devices'] = $row[5];
 	unset($results);
-	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 1');
+
+	$result = $db->query(
+		"SELECT
+        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0) as All_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_PresentLastScan=1) as Online_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_NewDevice=1) as New_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0) as Down_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0) as Offline_Devices,
+        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=1) as Archived_Devices
+   ");
+	$subrow = $result->fetchArray(SQLITE3_NUM);
+	$temp_api_online_devices['local']['All_Devices'] = $subrow[0];
+	$temp_api_online_devices['local']['Online_Devices'] = $subrow[1];
+	$temp_api_online_devices['local']['New_Devices'] = $subrow[2];
+	$temp_api_online_devices['local']['Down_Devices'] = $subrow[3];
+	$temp_api_online_devices['local']['Offline_Devices'] = $subrow[4];
+	$temp_api_online_devices['local']['Archived_Devices'] = $subrow[5];
+	unset($result);
+	$results = $db->query('SELECT * FROM Satellites');
+	while ($row = $results->fetchArray()) {
+		$sat_token = $row['sat_token'];
+		$sat_name = $row['sat_name'];
+
+		$result = $db->query(
+			"SELECT
+	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0) as All_Devices,
+	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_PresentLastScan=1) as Online_Devices,
+	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_NewDevice=1) as New_Devices,
+	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0) as Down_Devices,
+	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0) as Offline_Devices,
+	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=1) as Archived_Devices
+	   ");
+		$subrow = $result->fetchArray(SQLITE3_NUM);
+		$temp_api_online_devices[$sat_name]['All_Devices'] = $subrow[0];
+		$temp_api_online_devices[$sat_name]['Online_Devices'] = $subrow[1];
+		$temp_api_online_devices[$sat_name]['New_Devices'] = $subrow[2];
+		$temp_api_online_devices[$sat_name]['Down_Devices'] = $subrow[3];
+		$temp_api_online_devices[$sat_name]['Offline_Devices'] = $subrow[4];
+		$temp_api_online_devices[$sat_name]['Archived_Devices'] = $subrow[5];
+		unset($result);
+	}
+	unset($results);
+	$results = $db->query('SELECT * FROM Online_History WHERE data_source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 1');
 	while ($row = $results->fetchArray()) {
 		$temp_api_online_devices['All_Devices_ICMP'] = $row['All_Devices'];
 		$temp_api_online_devices['Offline_Devices_ICMP'] = $row['Down_Devices'];
 		$temp_api_online_devices['Online_Devices_ICMP'] = $row['Online_Devices'];
 	}
 	unset($results);
-	$results = $db->query('SELECT * FROM Online_History WHERE Data_Source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 1');
+	$results = $db->query('SELECT * FROM Online_History WHERE data_source="icmp_scan" ORDER BY Scan_Date DESC LIMIT 1');
 	while ($row = $results->fetchArray()) {
 		$temp_api_online_devices['All_Devices_ICMP'] = $row['All_Devices'];
 		$temp_api_online_devices['Offline_Devices_ICMP'] = $row['Down_Devices'];

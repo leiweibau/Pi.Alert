@@ -1589,7 +1589,7 @@ def process_satellites(satellite_list):
                                                 DHCP_IP, DHCP_Name, DHCP_MAC2)
                                                     VALUES (?, ?, ?, ?, ?)
                                                  """, (result['cur_expires'], result['cur_hwaddr'], result['cur_ip'], result['cur_name'], result['cur_clientid']))
-
+                # Save Satellite Configuration
                 satUpdateTime = datetime.datetime.now()
                 satUpdateTime = satUpdateTime.replace(microsecond=0)
                 sql.execute("""UPDATE Satellites 
@@ -1601,8 +1601,10 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_mikrotik = ?,
                                     sat_conf_scan_unifi = ?,
                                     sat_conf_scan_openwrt = ?,
+                                    sat_conf_scan_pihole_net = ?,
+                                    sat_conf_scan_pihole_dhcp = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_pihole_net, scan_pihole_dhcp, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
