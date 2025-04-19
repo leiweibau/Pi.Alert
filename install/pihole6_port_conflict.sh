@@ -14,13 +14,13 @@ if systemctl is-active --quiet pihole-FTL; then
         echo "- Pi-hole 6.x detected."
         echo ""
 
-        read -p "Enter the new web interface port (default 8080): " WEB_PORT
-        read -p "Enter the new HTTPS port (default 443): " HTTPS_PORT
+        read -p "Enter the new Pi-hole web interface port (default 8080): " WEB_PORT
+        read -p "Enter the new Pi-hole HTTPS port (default 443): " HTTPS_PORT
 
         WEB_PORT=${WEB_PORT:-8080}
         HTTPS_PORT=${HTTPS_PORT:-443}
         
-        echo "Webinterface moved to Port $WEB_PORT/$HTTPS_PORT..."
+        echo " Pi-hole web interface moved to Port $WEB_PORT/$HTTPS_PORT..."
         sudo systemctl stop lighttpd
         sudo pihole-FTL --config webserver.port ${WEB_PORT}o,${HTTPS_PORT}so,[::]:${WEB_PORT}o,[::]:${HTTPS_PORT}so
         sudo systemctl restart pihole-FTL
