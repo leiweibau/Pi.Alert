@@ -377,6 +377,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Éditeur de filtres (barre latérale)
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importations';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Bouton Pi-hole (Barre de menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'En spécifiant l&apos;URL de l&apos;interface web de Pi-hole, vous pouvez créer un bouton Pi-hole dans la barre de menu. Si vous supprimez le champ de saisie, le bouton sera supprimé. Le bouton est marqué avec l&apos;icône <i class="mdi mdi-pi-hole"></i>.';
+$pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurer en-têtes des listes';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Changement d&apos;affichage';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Permet de passer de l&apos;affichage clair à l&apos;affichage foncé. Si la commutation ne fonctionne pas correctement, essayez d&apos;effacer le cache du navigateur.';
@@ -394,6 +395,7 @@ $pia_lang['MT_Tool_mainscan_noti'] = 'Numérisation Principale';
 $pia_lang['MT_Tool_mainscan_noti_text'] = 'Active ou désactive la méthode principale de numérisation pour Pi.Alert (numérisation ARP). La collecte de données à partir de sources externes configurées reste active.';
 $pia_lang['MT_Tool_DevListCol_noti'] = 'Configurer l&apos;aperçu des appareils';
 $pia_lang['MT_Tool_DevListCol_noti_text'] = 'Souhaitez-vous enregistrer les modifications que vous avez apportées ? Cette modification s&apos;applique à tous les appareils avec lesquels vous accédez à cette page.';
+$pia_lang['MT_Tool_HeaderConf_noti'] = 'Configurer en-têtes';
 $pia_lang['MT_Tool_setapikey_false'] = 'Pas de clé API définie';
 $pia_lang['MT_Tool_setapikey'] = 'Définir la clé API';
 $pia_lang['MT_Tool_setapikey_text'] = 'Avec la clé API, il est possible de faire des requêtes à la base de données sans devoir utiliser le site web. Cela peut être le cas lorsqu&apos;un autre service ou site web doit accéder aux données de cette base de données. Si une clé API existe déjà, elle est remplacée.';

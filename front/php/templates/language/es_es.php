@@ -380,6 +380,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Editor de filtros (barra lateral)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importaciones';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Botón de Pi-hole (Barra de menú)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Al especificar la URL de la interfaz web de Pi-hole, puedes crear un botón de Pi-hole en la barra de menú. Si borras el campo de entrada, el botón será eliminado. El botón está marcado con el icono <i class="mdi mdi-pi-hole"></i>.';
+$pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurar cabeceras de listas';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Cambiar Modo';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Después del cambio de tema, la página intenta volver a cargar para activar el cambio. Si es necesario, el caché debe ser eliminado.';
@@ -397,6 +398,7 @@ $pia_lang['MT_Tool_mainscan_noti_text'] = 'Activa o desactiva el método princip
 $pia_lang['MT_Tool_icmpmon_noti_text'] = 'Habilita o deshabilita el monitoreo ICMP para Pi.Alert. Al habilitarlo, se mostrarán elementos adicionales en la interfaz. Al deshabilitarlo, estos elementos desaparecerán.';
 $pia_lang['MT_Tool_DevListCol_noti'] = 'Configurar la vista general del dispositivo';
 $pia_lang['MT_Tool_DevListCol_noti_text'] = '¿Desea guardar los cambios realizados? Este cambio afectará a todos los dispositivos que utilices para acceder a esta página.';
+$pia_lang['MT_Tool_HeaderConf_noti'] = 'Configurar cabeceras';
 $pia_lang['MT_Tool_setapikey_false'] = 'No hay conjunto de claves API';
 $pia_lang['MT_Tool_setapikey'] = 'Establecer la clave API';
 $pia_lang['MT_Tool_setapikey_text'] = 'Con la clave API es posible realizar consultas a la base de datos sin utilizar la página web. Este puede ser el caso si otro servicio debe acceder a los datos de esta base de datos. Si ya existe una clave API, ésta será sustituida.';
