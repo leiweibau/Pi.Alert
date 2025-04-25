@@ -83,7 +83,7 @@ function NetworkInfrastructure_list() {
 
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtNetworkNodeMac\',\'' . $func_res['dev_Name'] . '\')">' . $func_res['dev_Name'] . '/' . $func_res['dev_DeviceType'] . '</a></li>';
+		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtNetworkDeviceName\',\'' . $func_res['dev_Name'] . '\')">' . $func_res['dev_Name'] . '/' . $func_res['dev_DeviceType'] . '</a></li>';
 	}
 }
 
