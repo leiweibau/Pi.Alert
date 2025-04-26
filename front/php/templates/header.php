@@ -43,7 +43,7 @@ require 'php/templates/language/' . $pia_lang_selected . '.php';
     <!-- AdminLTE Skins. -->
     <?=$skin_selected_head;?>
     <!-- Pi.Alert CSS -->
-    <link rel="stylesheet" href="css/pialert.css?<?=$conf_data['VERSION_DATE'];?>">
+    <link rel="stylesheet" href="css/pialert.css?v=<?=$conf_data['VERSION_DATE'];?>">
     <!-- Offline Font -->
     <link rel="stylesheet" href="css/offline-font.css">
     <!-- Fav / Homescreen Icon -->

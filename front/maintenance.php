@@ -77,10 +77,9 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
 
-if (get_config_parmeter('FRITZBOX_ACTIVE') == 1) {$_SESSION['FRITZBOX_ACTIVE'] = 1;} else { $_SESSION['FRITZBOX_ACTIVE'] = 0;}
-if (get_config_parmeter('MIKROTIK_ACTIVE') == 1) {$_SESSION['MIKROTIK_ACTIVE'] = 1;} else { $_SESSION['MIKROTIK_ACTIVE'] = 0;}
-if (get_config_parmeter('UNIFI_ACTIVE') == 1) {$_SESSION['UNIFI_ACTIVE'] = 1;} else { $_SESSION['UNIFI_ACTIVE'] = 0;}
-if (get_config_parmeter('OPENWRT_ACTIVE') == 1) {$_SESSION['OPENWRT_ACTIVE'] = 1;} else { $_SESSION['OPENWRT_ACTIVE'] = 0;}
+foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE'] as $key) {
+    $_SESSION[$key] = (get_config_parmeter($key) == 1) ? 1 : 0;
+}
 
 // Buffer active --------------------------------------------------------------
 	$file = '../db/pialert_journal_buffer';
@@ -716,6 +715,36 @@ function setDeviceListCol() {
     showMessage (msg);
   });
 }
+
+// Set Device, ICMP and Presence List Headers
+function askListHeaderConfig() {
+  showModalWarning('<?=$pia_lang['MT_Tool_HeaderConf_noti'];?>', '<?=$pia_lang['MT_Tool_DevListCol_noti_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'setListHeaderConfig');
+}
+function setListHeaderConfig() {
+    $.get('php/server/files.php?action=setListHeaderConfig&'
+    + '&hc_devall='    + ($('#chk_dev_all')[0].checked * 1)
+    + '&hc_devcon='    + ($('#chk_dev_con')[0].checked * 1)
+    + '&hc_devfav='    + ($('#chk_dev_fav')[0].checked * 1)
+    + '&hc_devdnw='    + ($('#chk_dev_dnw')[0].checked * 1)
+    + '&hc_devarc='    + ($('#chk_dev_arc')[0].checked * 1)
+    + '&hc_devnew='    + ($('#chk_dev_new')[0].checked * 1)
+    + '&hc_icmpall='   + ($('#chk_icmp_all')[0].checked * 1)
+    + '&hc_icmpcon='   + ($('#chk_icmp_con')[0].checked * 1)
+    + '&hc_icmpfav='   + ($('#chk_icmp_fav')[0].checked * 1)
+    + '&hc_icmpdnw='   + ($('#chk_icmp_dnw')[0].checked * 1)
+    + '&hc_icmparc='   + ($('#chk_icmp_arc')[0].checked * 1)
+    + '&hc_presall='   + ($('#chk_pres_all')[0].checked * 1)
+    + '&hc_prescon='   + ($('#chk_pres_con')[0].checked * 1)
+    + '&hc_presfav='   + ($('#chk_pres_fav')[0].checked * 1)
+    + '&hc_presdnw='   + ($('#chk_pres_dnw')[0].checked * 1)
+    + '&hc_presarc='   + ($('#chk_pres_arc')[0].checked * 1)
+    + '&hc_presnew='   + ($('#chk_pres_new')[0].checked * 1)
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+
 // Delete Inactive Hosts
 function askDeleteInactiveHosts() {
   showModalWarning('<?=$pia_lang['MT_Tool_del_Inactive_Hosts'];?>', '<?=$pia_lang['MT_Tool_del_Inactive_Hosts_text'];?>',

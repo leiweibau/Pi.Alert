@@ -5,7 +5,6 @@
 // 2 = file error
 // 3 = permission error
 
-# require '../php/server/timezone.php';
 // Get all configured Sat Tokens in direct mode
 function get_all_satellites() {
     $database = '../../db/pialert.db';
@@ -75,7 +74,7 @@ if ($_REQUEST['mode'] == "" || $_REQUEST['token'] == "") {
 	echo $http_response;
 	die();
 }
-// Check if payload is set when usingg direct or mropy mode, otherwise HTTP 404
+// Check if payload is set when usingg direct or proxy mode, otherwise HTTP 404
 if (($_REQUEST['mode'] == "direct" || $_REQUEST['mode'] == "proxy") && !isset($_FILES['encrypted_data'])) {
 	header('HTTP/1.0 404 Not Found', true, 404);
 	echo $http_response;

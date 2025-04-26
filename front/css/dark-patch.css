@@ -805,3 +805,4 @@ input[type="password"]::-webkit-caps-lock-indicator {
   background-color: #272c30 !important;
   line-height: 41px;
 }
+.sat_config_list_a {display: inline-block; width: 170px; padding-right: 10px; border: solid 1px #444; margin-bottom: 5px;}

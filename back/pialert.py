@@ -1087,16 +1087,22 @@ def pihole_six_api_auth():
         return
 
     response_json = response.json()
-
-    if response_json['session']['valid'] == True :
-        PIHOLE6_SES_VALID = response_json['session']['valid']
-        PIHOLE6_SES_SID = response_json['session']['sid']
-        # to prevent key error if pihole has no password
-        if PIHOLE6_PASSWORD:
-            PIHOLE6_SES_CSRF = response_json['session']['csrf']
-    else:
-        print(f"        Auth required")
+    
+    try:
+        session_data = response_json.get('session', {})
+        if session_data.get('valid', False):  # Default False, if 'valid' is missing
+            PIHOLE6_SES_VALID = session_data['valid']
+            PIHOLE6_SES_SID = session_data['sid']
+            # to prevent key error if pihole has no password
+            if PIHOLE6_PASSWORD:
+                PIHOLE6_SES_CSRF = session_data['csrf']
+        else:
+            print("        Auth required")
+            return
+    except KeyError as e:
+        print(f"        Invalid response. Check Pi-hole URL")
         return
+
 
 #-------------------------------------------------------------------------------
 def pihole_six_api_deauth():
@@ -1540,21 +1546,20 @@ def process_satellites(satellite_list):
                     satellite_meta_data_json = {}
 
                 try:
-                    satellite_scan_config = data['satellite_scan_config'][0]
-                    scan_arp = 1 if satellite_scan_config.get('scan_arp', False) else 0
-                    scan_fritzbox = 1 if satellite_scan_config.get('scan_fritzbox', False) else 0
-                    scan_mikrotik = 1 if satellite_scan_config.get('scan_mikrotik', False) else 0
-                    scan_unifi = 1 if satellite_scan_config.get('scan_unifi', False) else 0
-                    scan_openwrt = 1 if satellite_scan_config.get('scan_openwrt', False) else 0
+                    config = data['satellite_scan_config'][0]
                 except (KeyError, IndexError, TypeError):
-                    scan_arp = 0
-                    scan_fritzbox = 0
-                    scan_mikrotik = 0
-                    scan_unifi = 0
-                    scan_openwrt = 0
+                    config = {}
+
+                scan_arp         = 1 if config.get('scan_arp') else 0
+                scan_fritzbox    = 1 if config.get('scan_fritzbox') else 0
+                scan_mikrotik    = 1 if config.get('scan_mikrotik') else 0
+                scan_unifi       = 1 if config.get('scan_unifi') else 0
+                scan_openwrt     = 1 if config.get('scan_openwrt') else 0
+                scan_pihole_net  = 1 if config.get('scan_pihole_net') else 0
+                scan_pihole_dhcp = 1 if config.get('scan_pihole_dhcp') else 0
 
                 for result in data['scan_results']:
-                    if result['cur_ScanMethod'] != 'Internet Check':
+                    if result['cur_ScanMethod'] != 'Internet Check' and result['cur_ScanMethod'] != 'Pi-hole DHCP':
                         sat_MAC = result['cur_MAC'].lower()
                         sat_IP = result['cur_IP']
                         sat_hostname = result['cur_hostname']
@@ -1568,7 +1573,23 @@ def process_satellites(satellite_list):
                                               Sat_MAC, Sat_IP, Sat_Name, Sat_Vendor, Sat_ScanMethod, Sat_Token)
                                               VALUES (?, ?, ?, ?, ?, ?)""",
                                               (sat_MAC, sat_IP, sat_hostname, sat_Vendor, sat_ScanMethod, sat_ScanSource))
+                    # DHCP results are saved in another table
+                    if result['cur_ScanMethod'] == 'Pi-hole DHCP':
+                        # skip lo interface if present
+                        if result['cur_hwaddr'] == "00:00:00:00:00:00":
+                            continue
 
+                        sat_MAC = result['cur_hwaddr'].lower()
+                        sat_IP = result['cur_ip']
+                        sat_hostname = result['cur_name']
+
+                        sql.execute("""SELECT 1 FROM DHCP_Leases WHERE DHCP_MAC = ?""", (sat_MAC,))
+                        if sql.fetchone() is None:
+                            sql.execute("""INSERT INTO DHCP_Leases (DHCP_DateTime, DHCP_MAC,
+                                                DHCP_IP, DHCP_Name, DHCP_MAC2)
+                                                    VALUES (?, ?, ?, ?, ?)
+                                                 """, (result['cur_expires'], result['cur_hwaddr'], result['cur_ip'], result['cur_name'], result['cur_clientid']))
+                # Save Satellite Configuration
                 satUpdateTime = datetime.datetime.now()
                 satUpdateTime = satUpdateTime.replace(microsecond=0)
                 sql.execute("""UPDATE Satellites 
@@ -1580,8 +1601,10 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_mikrotik = ?,
                                     sat_conf_scan_unifi = ?,
                                     sat_conf_scan_openwrt = ?,
+                                    sat_conf_scan_pihole_net = ?,
+                                    sat_conf_scan_pihole_dhcp = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_pihole_net, scan_pihole_dhcp, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
@@ -1667,7 +1690,7 @@ def update_scan_validation():
     # 3. Add the devices to CurrentScan
     sql.executemany("""
         INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
-        VALUES (?, ?, ?, ?, NULL, ?)
+        VALUES (?, ?, ?, ?, '(Validation pending)', ?)
     """, devices_to_insert)
     
     # 4. increase dev_Scan_Validation_State by 1 for the devices saved in point 2
@@ -1887,7 +1910,8 @@ def print_scan_stats():
         "Fritzbox",
         "Mikrotik",
         "UniFi",
-        "OpenWRT"
+        "OpenWRT",
+        "Pi-hole DHCP"
     ]
 
     # Count devices for each method and output if count > 0
@@ -1999,7 +2023,7 @@ def create_new_devices():
     sql.execute ("""INSERT INTO Events (eve_MAC, eve_IP, eve_DateTime,
                         eve_EventType, eve_AdditionalInfo,
                         eve_PendingAlertEmail)
-                    SELECT cur_MAC, cur_IP, ?, 'New Device', cur_Vendor, 1
+                    SELECT cur_MAC, cur_IP, ?, 'New Device', '(' || cur_ScanMethod || ') ' || cur_Vendor, 1
                     FROM CurrentScan
                     WHERE cur_ScanCycle = ? 
                       AND NOT EXISTS (SELECT 1 FROM Devices
@@ -2027,7 +2051,7 @@ def create_new_devices():
                         eve_EventType, eve_AdditionalInfo,
                         eve_PendingAlertEmail)
                     SELECT PH_MAC, IFNULL (PH_IP,'-'), ?, 'New Device',
-                        '(Pi-Hole) ' || PH_Vendor, 1
+                        '(Pi-hole) ' || PH_Vendor, 1
                     FROM PiHole_Network
                     WHERE NOT EXISTS (SELECT 1 FROM Devices
                                       WHERE dev_MAC = PH_MAC) """,
@@ -2051,7 +2075,7 @@ def create_new_devices():
     sql.execute ("""INSERT INTO Events (eve_MAC, eve_IP, eve_DateTime,
                         eve_EventType, eve_AdditionalInfo,
                         eve_PendingAlertEmail)
-                    SELECT DHCP_MAC, DHCP_IP, ?, 'New Device', '(DHCP lease)',1
+                    SELECT DHCP_MAC, DHCP_IP, ?, 'New Device', '(Pi-hole DHCP)',1
                     FROM DHCP_Leases
                     WHERE NOT EXISTS (SELECT 1 FROM Devices
                                       WHERE dev_MAC = DHCP_MAC) """,

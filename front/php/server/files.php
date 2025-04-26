@@ -58,6 +58,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'setDeviceListCol':setDeviceListCol();
 		break;
+	case 'setListHeaderConfig':setListHeaderConfig();
+		break;
 	case 'RestoreConfigFile':RestoreConfigFile();
 		break;
 	case 'BackupConfigFile':BackupConfigFile();
@@ -577,28 +579,68 @@ function LoginDisable() {
 function setDeviceListCol() {
 	global $pia_lang;
 
-	if (($_REQUEST['connectiontype'] == 0) || ($_REQUEST['connectiontype'] == 1)) {$Set_ConnectionType = $_REQUEST['connectiontype'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['favorite'] == 0) || ($_REQUEST['favorite'] == 1)) {$Set_Favorites = $_REQUEST['favorite'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['group'] == 0) || ($_REQUEST['group'] == 1)) {$Set_Group = $_REQUEST['group'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['owner'] == 0) || ($_REQUEST['owner'] == 1)) {$Set_Owner = $_REQUEST['owner'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['type'] == 0) || ($_REQUEST['type'] == 1)) {$Set_Type = $_REQUEST['type'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['firstsess'] == 0) || ($_REQUEST['firstsess'] == 1)) {$Set_First_Session = $_REQUEST['firstsess'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['lastsess'] == 0) || ($_REQUEST['lastsess'] == 1)) {$Set_Last_Session = $_REQUEST['lastsess'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['lastip'] == 0) || ($_REQUEST['lastip'] == 1)) {$Set_LastIP = $_REQUEST['lastip'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['mactype'] == 0) || ($_REQUEST['mactype'] == 1)) {$Set_MACType = $_REQUEST['mactype'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['macaddress'] == 0) || ($_REQUEST['macaddress'] == 1)) {$Set_MACAddress = $_REQUEST['macaddress'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['macvendor'] == 0) || ($_REQUEST['macvendor'] == 1)) {$Set_MACVendor = $_REQUEST['macvendor'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['location'] == 0) || ($_REQUEST['location'] == 1)) {$Set_Location = $_REQUEST['location'];} else {echo "Error. Wrong variable value!";exit;}
-	if (($_REQUEST['wakeonlan'] == 0) || ($_REQUEST['wakeonlan'] == 1)) {$Set_WakeOnLAN = $_REQUEST['wakeonlan'];} else {echo "Error. Wrong variable value!";exit;}
+	$param_map = [
+	    'connectiontype' => 'Set_ConnectionType',
+	    'favorite'       => 'Set_Favorites',
+	    'group'          => 'Set_Group',
+	    'owner'          => 'Set_Owner',
+	    'type'           => 'Set_Type',
+	    'firstsess'      => 'Set_First_Session',
+	    'lastsess'       => 'Set_Last_Session',
+	    'lastip'         => 'Set_LastIP',
+	    'mactype'        => 'Set_MACType',
+	    'macaddress'     => 'Set_MACAddress',
+	    'macvendor'      => 'Set_MACVendor',
+	    'location'       => 'Set_Location',
+	    'wakeonlan'      => 'Set_WakeOnLAN'
+	];
+
+	foreach ($param_map as $request_key => $var_name) {
+	    if (!isset($_REQUEST[$request_key]) || !in_array($_REQUEST[$request_key], ['0', '1'], true)) {
+	        exit("Error. Wrong variable value for $request_key!");
+	    }
+	    $$var_name = $_REQUEST[$request_key]; // dynamische Variable
+	}
+
 	echo $pia_lang['BE_Dev_DevListCol_noti_text'];
 	$config_array = array('ConnectionType' => $Set_ConnectionType, 'Favorites' => $Set_Favorites, 'Group' => $Set_Group, 'Owner' => $Set_Owner, 'Type' => $Set_Type, 'FirstSession' => $Set_First_Session, 'LastSession' => $Set_Last_Session, 'LastIP' => $Set_LastIP, 'MACType' => $Set_MACType, 'MACAddress' => $Set_MACAddress, 'MACVendor' => $Set_MACVendor, 'Location' => $Set_Location, 'WakeOnLAN' => $Set_WakeOnLAN);
 	$DevListCol_file = '../../../config/setting_devicelist';
 	$DevListCol_new = fopen($DevListCol_file, 'w');
 	fwrite($DevListCol_new, json_encode($config_array));
 	fclose($DevListCol_new);
-	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 	// Logging
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0052', '', '');
+}
+
+//  Set Device List Columns
+function setListHeaderConfig() {
+	global $pia_lang;
+
+	$valid_keys = [
+	    'devices' => ['hc_devall' => 'all', 'hc_devcon' => 'con', 'hc_devfav' => 'fav', 'hc_devdnw' => 'dnw', 'hc_devarc' => 'arc', 'hc_devnew' => 'new'],
+	    'icmp' =>    ['hc_icmpall' => 'all', 'hc_icmpcon' => 'con', 'hc_icmpfav' => 'fav', 'hc_icmpdnw' => 'dnw', 'hc_icmparc' => 'arc'],
+	    'presence' => ['hc_presall' => 'all', 'hc_prescon' => 'con', 'hc_presfav' => 'fav', 'hc_presdnw' => 'dnw', 'hc_presarc' => 'arc', 'hc_presnew' => 'new']
+	];
+
+	$list = [];
+	foreach ($valid_keys as $category => $keys) {
+	    foreach ($keys as $request_key => $subkey) {
+	        if (!isset($_REQUEST[$request_key]) || !in_array($_REQUEST[$request_key], ['0', '1'], true)) {
+	            exit("Error. Wrong variable value for $request_key!");
+	        }
+	        $list[$category][$subkey] = (int) $_REQUEST[$request_key];
+	    }
+	}
+
+	echo $pia_lang['BE_Files_HeaderConfig_noti_text'];
+	$ListHeaderConfig_file = '../../../config/setting_listheaders';
+	$ListHeaderConfig_new = fopen($ListHeaderConfig_file, 'w');
+	fwrite($ListHeaderConfig_new, json_encode($list));
+	fclose($ListHeaderConfig_new);
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
+	// Logging
+	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0076', '', '');
 }
 
 //  Purge Backups
@@ -1053,6 +1095,8 @@ function ToggleImport() {
         'MT' => 'MIKROTIK_ACTIVE',
         'UF' => 'UNIFI_ACTIVE',
         'OW' => 'OPENWRT_ACTIVE',
+        'PiN' => 'PIHOLE_ACTIVE',
+        'PiD' => 'DHCP_ACTIVE',
     ];
 
     $deviceType = $_REQUEST['deviceType'];

@@ -18,7 +18,19 @@ function get_all_satellites_list() {
             	if ($i!=0) {echo '<hr>';}
             	$sat_hostdata = extract_hostdata($row['sat_host_data']);
             	if ($sat_hostdata === True) {$sat_version = $row['sat_remote_version'].' (<span class="text-red">R</span>)';} else {$sat_version = $row['sat_remote_version'];}
-                show_all_satellites_list($row['sat_id'],$row['sat_name'],$row['sat_token'],$row['sat_password'],$row['sat_lastupdate'],$sat_version,$row['sat_conf_scan_arp'],$row['sat_conf_scan_fritzbox'],$row['sat_conf_scan_mikrotik'],$row['sat_conf_scan_unifi'], $row['sat_conf_scan_openwrt']);
+                show_all_satellites_list($row['sat_id'],
+                	                     $row['sat_name'],
+                	                     $row['sat_token'],
+                	                     $row['sat_password'],
+                	                     $row['sat_lastupdate'],
+                	                     $sat_version,
+                	                     $row['sat_conf_scan_arp'],
+                	                     $row['sat_conf_scan_fritzbox'],
+                	                     $row['sat_conf_scan_mikrotik'],
+                	                     $row['sat_conf_scan_unifi'], 
+                	                     $row['sat_conf_scan_openwrt'],
+                	                     $row['sat_conf_scan_pihole_net'], 
+                	                     $row['sat_conf_scan_pihole_dhcp']);
                 $i++;
             }
         }
@@ -54,10 +66,8 @@ function get_all_satellites_list() {
 			    // Store the satellite name and row ID for later use
 			    window.SatelliteConfigToken = satToken;
 			    window.SatelliteConfigPassword = satPassword;
-
 			    // Generate the command immediately when opening the modal
 			    generateCommand();
-
 			    // Open the modal
 			    $(\'#modal_satellite_config\').modal(\'show\');
 			  }
@@ -106,23 +116,6 @@ function read_DevListCol() {
 	}
 	return $output_array;
 }
-// Maintenance Page - Set preset checkboxes for Columnconfig
-function set_column_checkboxes($table_config) {
-	if ($table_config['ConnectionType'] == 1) {$col_checkbox['ConnectionType'] = "checked";}
-	if ($table_config['Favorites'] == 1) {$col_checkbox['Favorites'] = "checked";}
-	if ($table_config['Group'] == 1) {$col_checkbox['Group'] = "checked";}
-	if ($table_config['Owner'] == 1) {$col_checkbox['Owner'] = "checked";}
-	if ($table_config['Type'] == 1) {$col_checkbox['Type'] = "checked";}
-	if ($table_config['FirstSession'] == 1) {$col_checkbox['FirstSession'] = "checked";}
-	if ($table_config['LastSession'] == 1) {$col_checkbox['LastSession'] = "checked";}
-	if ($table_config['LastIP'] == 1) {$col_checkbox['LastIP'] = "checked";}
-	if ($table_config['MACType'] == 1) {$col_checkbox['MACType'] = "checked";}
-	if ($table_config['MACAddress'] == 1) {$col_checkbox['MACAddress'] = "checked";}
-	if ($table_config['MACVendor'] == 1) {$col_checkbox['MACVendor'] = "checked";}
-	if ($table_config['Location'] == 1) {$col_checkbox['Location'] = "checked";}
-	if ($table_config['WakeOnLAN'] == 1) {$col_checkbox['WakeOnLAN'] = "checked";}
-	return $col_checkbox;
-}
 // Maintenance Page - Top Modal Block
 function print_logviewer_modal_head($id, $title) {
 	echo '<div class="modal fade" id="modal-logviewer-' . $id . '">
@@ -147,26 +140,26 @@ function print_logviewer_modal_foot() {
     </div>';
 }
 // Maintenance Page - Satellite List
-function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit, $sat_version, $scan_arp, $scan_fritzbox, $scan_mikrotik, $scan_unifi, $scan_openwrt) {
+function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_password, $sat_last_transmit, $sat_version, $scan_arp, $scan_fritzbox, $scan_mikrotik, $scan_unifi, $scan_openwrt, $scan_pihole_net, $scan_pihole_dhcp) {
 	global $pia_lang;
 	echo '      <div class="db_info_table_row">
-                    <div class="col-xs-12 col-md-2" style="padding: 5px;">
+                    <div class="col-xs-12 col-md-2 col-lg-2" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatCreate_FORM_Name'].': <br>
                         <input class="form-control col-xs-12" type="text" id="txtChangedSatelliteName_'.$sat_rowid.'"value="'.$sat_name.'">
                     </div>
-                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                    <div class="col-xs-12 col-md-3 col-lg-3" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Token'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_token.'" readonly>
                     </div>
-                    <div class="col-xs-12 col-md-3" style="padding: 5px;">
+                    <div class="col-xs-12 col-md-2 col-lg-3" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Pass'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_password.'" readonly>
                     </div>
-                    <div class="col-xs-6 col-md-2" style="padding: 5px;">
+                    <div class="col-xs-6 col-md-2 col-lg-2" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_LastUpd'].': <br>
                         <input class="form-control col-xs-12" type="text" value="'.$sat_last_transmit.'" readonly>
                     </div>
-                    <div class="col-xs-6 col-md-2 text-center" style="padding: 5px;">
+                    <div class="col-xs-6 col-md-3 col-lg-2 text-center" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Action'].': <br>
                         <button type="button" class="btn btn-link" id="btnInstallSatellite" onclick="InstallSatellite(\'' . $sat_token . '\',\'' . $sat_password . '\')" ><i class="bi bi-info-circle text-aqua satlist_action_btn_content"></i></button>
                         <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $sat_name . '\',\'' . $sat_rowid . '\')" ><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>
@@ -174,13 +167,15 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                     </div>
                 </div>';
 	echo '      <div class="db_info_table_row">
-                    <div class="col-xs-12 col-md-2 text-muted">Version: '.$sat_version.'</div>
-                    <div class="col-xs-12 col-md-8 text-muted">
+                    <div class="col-xs-12 col-md-3 col-lg-2 text-muted">Version: '.$sat_version.'</div>
+                    <div class="col-xs-12 col-md-9 col-lg-10 text-muted">
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">arp Scan:</span><span class="sat_config_list_stat '.colorize_state($scan_arp,1).'"> '.convert_state($scan_arp,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Fritzbox:</span><span class="sat_config_list_stat '.colorize_state($scan_fritzbox,1).'"> '.convert_state($scan_fritzbox,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Mikrotik:</span><span class="sat_config_list_stat '.colorize_state($scan_mikrotik,1).'"> '.convert_state($scan_mikrotik,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">UniFi:</span><span class="sat_config_list_stat '.colorize_state($scan_unifi,1).'"> '.convert_state($scan_unifi,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">OpenWRT:</span><span class="sat_config_list_stat '.colorize_state($scan_openwrt,1).'"> '.convert_state($scan_openwrt,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Pi-hole:</span><span class="sat_config_list_stat '.colorize_state($scan_pihole_net,1).'"> '.convert_state($scan_pihole_net,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Pi-hole DHCP:</span><span class="sat_config_list_stat '.colorize_state($scan_pihole_dhcp,1).'"> '.convert_state($scan_pihole_dhcp,0).'</span></div>
                     </div>
                 </div>';
 }

@@ -49,77 +49,96 @@ $Pia_Graph_Device_Arch = $graph_arrays[4];
 <!-- top small box 1 ------------------------------------------------------- -->
       <div class="row">
 
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('all');">
+<?php
+function header_presence_all($visibility, $header_all, $header_selected) {
+  global $pia_lang;
+  $layout = calc_header_size($header_all, $header_selected);
+  if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
+  echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesPresence(\'all\');">
           <div class="small-box bg-aqua">
-            <div class="inner"><h3 id="devicesAll"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_AllDevices'];?></p>
-            </div>
+            <div class="inner"><h3 id="devicesAll"> -- </h3><p class="infobox_label">'.$pia_lang['PRE_Shortcut_AllDevices'].'</p></div>
             <div class="icon"><i class="fa fa-laptop text-aqua-40"></i></div>
           </div>
           </a>
-        </div>
-
-<!-- top small box 2 ------------------------------------------------------- -->
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('connected');">
+        </div>';
+}
+function header_presence_con($visibility, $header_all, $header_selected) {
+  global $pia_lang;
+  $layout = calc_header_size($header_all, $header_selected);
+  if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
+  echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesPresence(\'connected\');">
             <div class="small-box bg-green">
-              <div class="inner"> <h3 id="devicesConnected"> -- </h3>
-                  <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_Connected'];?></p>
-              </div>
+              <div class="inner"> <h3 id="devicesConnected"> -- </h3><p class="infobox_label">'.$pia_lang['PRE_Shortcut_Connected'].'</p></div>
               <div class="icon"> <i class="mdi mdi-lan-connect text-green-40"></i> </div>
             </div>
           </a>
-        </div>
-
-<!-- top small box 3 ------------------------------------------------------- -->
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('favorites');">
+        </div>';
+}
+function header_presence_fav($visibility, $header_all, $header_selected) {
+  global $pia_lang;
+  $layout = calc_header_size($header_all, $header_selected);
+  if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
+  echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesPresence(\'favorites\');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="devicesFavorites"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_Favorites'];?></p>
-              </div>
+              <div class="inner"> <h3 id="devicesFavorites"> -- </h3><p class="infobox_label">'.$pia_lang['PRE_Shortcut_Favorites'].'</p></div>
               <div class="icon"> <i class="fa fa-star text-yellow-40"></i> </div>
             </div>
           </a>
-        </div>
-
-<!-- top small box 4 ------------------------------------------------------- -->
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('new');">
+        </div>';
+}
+function header_presence_new($visibility, $header_all, $header_selected) {
+  global $pia_lang;
+  $layout = calc_header_size($header_all, $header_selected);
+  if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
+  echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesPresence(\'new\');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="devicesNew"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_NewDevices'];?></p>
-              </div>
+              <div class="inner"> <h3 id="devicesNew"> -- </h3><p class="infobox_label">'.$pia_lang['PRE_Shortcut_NewDevices'].'</p></div>
               <div class="icon"> <i class="fa fa-plus text-yellow-40"></i> </div>
             </div>
           </a>
-        </div>
-
-<!-- top small box 5 ------------------------------------------------------- -->
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('down');">
+        </div>';
+}
+function header_presence_dnw($visibility, $header_all, $header_selected) {
+  global $pia_lang;
+  $layout = calc_header_size($header_all, $header_selected);
+  if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
+  echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesPresence(\'down\');">
             <div  class="small-box bg-red">
-              <div class="inner"> <h3 id="devicesDown"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_DownAlerts'];?></p>
-              </div>
+              <div class="inner"> <h3 id="devicesDown"> -- </h3><p class="infobox_label">'.$pia_lang['PRE_Shortcut_DownAlerts'].'</p></div>
               <div class="icon"> <i class="mdi mdi-lan-disconnect text-red-40"></i> </div>
             </div>
           </a>
-        </div>
-
-<!-- top small box 6 ------------------------------------------------------- -->
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('archived');">
+        </div>';
+}
+function header_presence_arc($visibility, $header_all, $header_selected) {
+  global $pia_lang;
+  $layout = calc_header_size($header_all, $header_selected);
+  if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
+  echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
+          <a href="#" onclick="javascript: getDevicesPresence(\'archived\');">
             <div  class="small-box bg-gray top_small_box_gray_text">
-              <div class="inner"> <h3 id="devicesHidden"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['PRE_Shortcut_Archived'];?></p>
-              </div>
+              <div class="inner"> <h3 id="devicesHidden"> -- </h3><p class="infobox_label">'.$pia_lang['PRE_Shortcut_Archived'].'</p></div>
               <div class="icon"> <i class="fa fa-eye-slash text-gray-40"></i> </div>
             </div>
           </a>
-        </div>
-
+        </div>';
+}
+$header_page_config = read_HeaderConfig();
+$count_active_headers = count(array_filter($header_page_config['presence'], function($value) {
+    return $value == 1;
+}));
+header_presence_all($header_page_config['presence']['all'], sizeof($header_page_config['presence']), $count_active_headers);
+header_presence_con($header_page_config['presence']['con'], sizeof($header_page_config['presence']), $count_active_headers);
+header_presence_fav($header_page_config['presence']['fav'], sizeof($header_page_config['presence']), $count_active_headers);
+header_presence_new($header_page_config['presence']['new'], sizeof($header_page_config['presence']), $count_active_headers);
+header_presence_dnw($header_page_config['presence']['dnw'], sizeof($header_page_config['presence']), $count_active_headers);
+header_presence_arc($header_page_config['presence']['arc'], sizeof($header_page_config['presence']), $count_active_headers);
+?>
       </div>
 
 <!-- Activity Chart ------------------------------------------------------- -->
