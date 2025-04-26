@@ -377,6 +377,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Puoi inserire l&apos;URL del FavIcon desiderato nel campo, o scegliere tra FavIcons locali o remoti (https://github.com/leiweibau/Pi.Alert). A seconda della configurazione, i FavIcons locali potrebbero non funzionare come icona della schermata principale.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Editor dei filtri (barra laterale)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importazioni';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'L&apos;attivazione delle singole importazioni richiede che siano preconfigurate nel file di configurazione. In caso contrario si verificheranno errori o interruzioni della scansione.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pulsante Pi-hole (Barra del menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Specificando l&apos;URL dell&apos;interfaccia web di Pi-hole, puoi creare un pulsante Pi-hole nella barra del menu. Se elimini il campo di input, il pulsante verrà rimosso. Il pulsante è contrassegnato con l&apos;icona <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configura intestazioni elenco';

@@ -375,6 +375,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Du kannst in dem Feld eine eigene URL zu deinem gewünschten FavIcon eintragen, oder zwischen lokalen oder remote (https://github.com/leiweibau/Pi.Alert) FavIcons wählen. Je nach Konfiguration kann es sein, dass lokale FavIcons nicht als HomeScreen Icon funktionieren.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Filter Editor (Seitenleiste)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Imports';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Die Aktivierung der einzelnen Importe setzt voraus, dass diese in der Konfigurationsdatei entsprechend vorkonfiguriert sind. Andernfalls wird es zu Fehlern oder Abbrüchen des Scans kommen.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pi-hole Button (Menüeleiste)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Mit der Angabe der URL für die Weboberfläche von Pi-hole, kannst du in der Menüleiste eine Schaltfläche für Pi-hole erzeugen. Wenn du das Eingabefeld wieder löschst, wird der Button wieder entfernt. Die Schaltfläche ist mit dem Icon <i class="mdi mdi-pi-hole"></i> gekennzeichnet.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Header der Gerätelisten konfigurieren';

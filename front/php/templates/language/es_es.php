@@ -378,6 +378,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Puedes ingresar la URL de tu FavIcon deseado en el campo, o elegir entre FavIcons locales o remotos (https://github.com/leiweibau/Pi.Alert). Dependiendo de la configuración, los FavIcons locales pueden no funcionar como un icono de pantalla principal.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Editor de filtros (barra lateral)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importaciones';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'La activación de las importaciones individuales requiere que estén preconfiguradas en el archivo de configuración. De lo contrario, se producirán errores o interrupciones del escaneo.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Botón de Pi-hole (Barra de menú)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Al especificar la URL de la interfaz web de Pi-hole, puedes crear un botón de Pi-hole en la barra de menú. Si borras el campo de entrada, el botón será eliminado. El botón está marcado con el icono <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurar cabeceras de listas';
