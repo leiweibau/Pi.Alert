@@ -1095,6 +1095,8 @@ function ToggleImport() {
         'MT' => 'MIKROTIK_ACTIVE',
         'UF' => 'UNIFI_ACTIVE',
         'OW' => 'OPENWRT_ACTIVE',
+        'PiN' => 'PIHOLE_ACTIVE',
+        'PiD' => 'DHCP_ACTIVE',
     ];
 
     $deviceType = $_REQUEST['deviceType'];

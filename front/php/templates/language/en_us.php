@@ -515,10 +515,6 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Here, the installation command can be 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'There are still journal entries in the cache';
 $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED events are not displayed in the attendance calendar. To reset all VOIDED events (Connected/Disconnected), execute this function.';
-$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
-$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
-$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
-$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
 $pia_lang['MT_Tggl_Import_head'] = 'Enable/Disable Source for Import';
 $pia_lang['MT_Tggl_Import_text'] = 'This enables or disables the desired source for importing data. Ongoing scans are not affected by the activation or deactivation. Data that has already been imported remains preserved after deactivation.';
 // Maintenance Page (Backend)

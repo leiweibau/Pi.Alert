@@ -517,10 +517,6 @@ $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Aquí se puede preparar el comando de 
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Todavía hay entradas de diario en la caché';
 $pia_lang['MT_Tool_reset_voided'] = 'Restablecer eventos ANULADOS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Los eventos ANULADOS no se muestran en el calendario de asistencia. Para restablecer todos los eventos ANULADOS (Conectado/Desconectado), ejecuta esta función.';
-$pia_lang['MT_Tggl_Import_FB'] = 'Fritz!Box';
-$pia_lang['MT_Tggl_Import_MT'] = 'Mikrotik';
-$pia_lang['MT_Tggl_Import_UF'] = 'UniFi';
-$pia_lang['MT_Tggl_Import_OW'] = 'OpenWRT';
 $pia_lang['MT_Tggl_Import_head'] = 'Habilitar/Deshabilitar fuente para importación';
 $pia_lang['MT_Tggl_Import_text'] = 'Esto habilita o deshabilita la fuente deseada para la importación de datos. Los análisis en curso no se ven afectados por la activación o desactivación. Los datos ya importados se conservarán tras la desactivación.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022

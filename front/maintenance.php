@@ -77,10 +77,9 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
 
-if (get_config_parmeter('FRITZBOX_ACTIVE') == 1) {$_SESSION['FRITZBOX_ACTIVE'] = 1;} else { $_SESSION['FRITZBOX_ACTIVE'] = 0;}
-if (get_config_parmeter('MIKROTIK_ACTIVE') == 1) {$_SESSION['MIKROTIK_ACTIVE'] = 1;} else { $_SESSION['MIKROTIK_ACTIVE'] = 0;}
-if (get_config_parmeter('UNIFI_ACTIVE') == 1) {$_SESSION['UNIFI_ACTIVE'] = 1;} else { $_SESSION['UNIFI_ACTIVE'] = 0;}
-if (get_config_parmeter('OPENWRT_ACTIVE') == 1) {$_SESSION['OPENWRT_ACTIVE'] = 1;} else { $_SESSION['OPENWRT_ACTIVE'] = 0;}
+foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE'] as $key) {
+    $_SESSION[$key] = (get_config_parmeter($key) == 1) ? 1 : 0;
+}
 
 // Buffer active --------------------------------------------------------------
 	$file = '../db/pialert_journal_buffer';
