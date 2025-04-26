@@ -49,6 +49,7 @@ if ($_SESSION["login"] != 1) {
             margin-left: 20px;
             margin-right: 20px;
             padding: 10px;
+            line-height: 30px;
         }
         .short {
             width: 300px;
@@ -62,13 +63,15 @@ if ($_SESSION["login"] != 1) {
             font-size: 1.2em;
             margin: 0px;
         }
-        #tableSelector {
+        #tableSelector, #searchInput {
             background-color: #fff;
             display: inline-block;
             border: solid 1px #999;
             padding: 5px 15px;
             font-size: 16px;
+            float: right;
         }
+        #searchInput { width: 150px; }
         a {
             color: dodgerblue;
             text-decoration: none;
@@ -116,6 +119,14 @@ if ($_SESSION["login"] != 1) {
             <option value="devices">Devices Table</option>
             <option value="icmp">ICMP Table</option>
         </select>
+    </div>
+
+    <div class="info_box short">
+        <span class="info_head">Search:</span>
+        <input type="text" id="searchInput" onkeyup="searchTable()">
+        <div style="width: 100%; height: 40px;">
+            <button onclick="resetSearch()" style="background-color: #fff; color: red; border: solid 1px #ccc; font-size: 16px; padding: 5px; margin-top: 10px; float: right;">Reset</button>
+        </div>
     </div>
 
     <div class="resultheader">
@@ -190,6 +201,7 @@ $db->close();
         document.getElementById("summary_box_icmp").style.display = selected === "icmp" ? "block" : "none";
         document.getElementById("heading_devices").style.display = selected === "devices" ? "block" : "none";
         document.getElementById("heading_icmp").style.display = selected === "icmp" ? "block" : "none";
+        resetSearch();
     }
     document.getElementById("tableSelector").value = "devices";
     toggleTable();
@@ -215,6 +227,35 @@ $db->close();
             });
         });
     });
+
+    function searchTable() {
+      var input = document.getElementById("searchInput");
+      var filter = input.value.toLowerCase();
+      var selected = document.getElementById("tableSelector").value;
+      var table = document.getElementById(selected);
+      var trs = table.getElementsByTagName("tr");
+
+      // Überspringe Kopfzeile
+      for (var i = 1; i < trs.length; i++) {
+        var tds = trs[i].getElementsByTagName("td");
+        var rowContainsFilter = false;
+
+        for (var j = 0; j < tds.length; j++) {
+          var td = tds[j];
+          if (td && td.textContent.toLowerCase().indexOf(filter) > -1) {
+            rowContainsFilter = true;
+            break;
+          }
+        }
+
+        trs[i].style.display = rowContainsFilter ? "" : "none";
+      }
+    }
+
+    function resetSearch() {
+      document.getElementById("searchInput").value = "";
+      searchTable();
+    }
 
 </script>
 </body>
