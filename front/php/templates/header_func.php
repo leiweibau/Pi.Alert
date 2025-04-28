@@ -19,29 +19,31 @@ function get_local_system_tz() {
 }
 // Headers for devices, icmp and presence page
 function calc_header_size($header_all, $header_selected) {
-	$layout = array();
-	if ($header_all >= 5) {
-		if ($header_selected >= 5) {
-			// 5-6
-			$layout['lg'] = "col-lg-2";
-			$layout['md'] = "col-sm-4";
-			$layout['sm'] = "col-xs-6";
-		}
-		if ($header_selected >= 3 && $header_selected <= 4) {
-			// 3-4
-			$layout['lg'] = "col-lg-3";
-			$layout['md'] = "col-sm-3";
-			$layout['sm'] = "col-xs-6";
-		}
-		if ($header_selected <= 2 && $header_selected > 0) {
-			//0-2
-			$layout['lg'] = "col-lg-6";
-			$layout['md'] = "col-sm-6";
-			$layout['sm'] = "col-xs-6";
-		}
+	if ($header_all < 5 || $header_selected <= 0) {
+		return [];
 	}
-	return $layout;
+
+	if ($header_selected >= 5) {
+		return [
+			'lg' => 'col-lg-2',
+			'md' => 'col-sm-4',
+			'sm' => 'col-xs-6',
+		];
+	} elseif ($header_selected >= 3) {
+		return [
+			'lg' => 'col-lg-3',
+			'md' => 'col-sm-3',
+			'sm' => 'col-xs-6',
+		];
+	} else { // 1 oder 2
+		return [
+			'lg' => 'col-lg-6',
+			'md' => 'col-sm-6',
+			'sm' => 'col-xs-6',
+		];
+	}
 }
+
 // Maintenance Page - Pause Arp Scan Section
 function arpscanstatus() {
 	global $pia_lang;
@@ -223,14 +225,26 @@ function get_config_parmeter($config_param) {
 	if (isset($configArray[$config_param])) {return $configArray[$config_param];} else {return False;}
 }
 // Set Session Vars
-if (get_config_parmeter('ICMPSCAN_ACTIVE') == 1) {$_SESSION['ICMPScan'] = True;} else { $_SESSION['ICMPScan'] = False;}
-if (get_config_parmeter('SATELLITES_ACTIVE') == 1) {$_SESSION['Scan_Satellite'] = True; $satellite_badges_list = array();} else { $_SESSION['Scan_Satellite'] = False;}
-if (get_config_parmeter('SCAN_WEBSERVICES') == 1) {$_SESSION['Scan_WebServices'] = True;} else { $_SESSION['Scan_WebServices'] = False;}
-if (get_config_parmeter('ARPSCAN_ACTIVE') == 1) {$_SESSION['Scan_MainScan'] = True;} else { $_SESSION['Scan_MainScan'] = False;}
-if (get_config_parmeter('AUTO_UPDATE_CHECK') == 1) {$_SESSION['Auto_Update_Check'] = True;} else { $_SESSION['Auto_Update_Check'] = False;}
-if (get_config_parmeter('AUTO_DB_BACKUP') == 1) {$_SESSION['AUTO_DB_BACKUP'] = True;} else { $_SESSION['AUTO_DB_BACKUP'] = False;}
-if (get_config_parmeter('SPEEDTEST_TASK_ACTIVE') == 1) {$_SESSION['SPEEDTEST_TASK_ACTIVE'] = True;} else { $_SESSION['SPEEDTEST_TASK_ACTIVE'] = False;}
-if (get_config_parmeter('SATELLITES_ACTIVE') == 1) {$_SESSION['SATELLITES_ACTIVE'] = True;} else { $_SESSION['SATELLITES_ACTIVE'] = False;}
+$config_mappings = [
+    'ICMPSCAN_ACTIVE'        => 'ICMPScan',
+    'SATELLITES_ACTIVE'      => 'Scan_Satellite',
+    'SCAN_WEBSERVICES'       => 'Scan_WebServices',
+    'ARPSCAN_ACTIVE'         => 'Scan_MainScan',
+    'AUTO_UPDATE_CHECK'      => 'Auto_Update_Check',
+    'AUTO_DB_BACKUP'         => 'AUTO_DB_BACKUP',
+    'SPEEDTEST_TASK_ACTIVE'  => 'SPEEDTEST_TASK_ACTIVE',
+    'SATELLITES_ACTIVE_copy' => 'SATELLITES_ACTIVE' // Spezialfall
+];
+
+foreach ($config_mappings as $config_key => $session_key) {
+    $config_value = get_config_parmeter(str_replace('_copy', '', $config_key)) == 1;
+    $_SESSION[$session_key] = $config_value;
+
+    // Spezialfall Satellites: Wenn aktiv, muss zusätzlich $satellite_badges_list erzeugt werden
+    if ($config_key == 'SATELLITES_ACTIVE' && $config_value) {
+        $satellite_badges_list = array();
+    }
+}
 
 $_SESSION['AUTO_UPDATE_CHECK_CRON'] = get_config_parmeter('AUTO_UPDATE_CHECK_CRON');
 $_SESSION['AUTO_DB_BACKUP_CRON'] = get_config_parmeter('AUTO_DB_BACKUP_CRON');
@@ -240,27 +254,17 @@ $_SESSION['REPORT_NEW_CONTINUOUS_CRON'] = get_config_parmeter('REPORT_NEW_CONTIN
 // State for Toggle Buttons
 function convert_state($state, $revert) {
 	global $pia_lang;
-	if ($revert == 1) {
-		if ($state == 1) {return $pia_lang['Gen_off'];} else {return $pia_lang['Gen_on'];}
-	} elseif ($revert == 0) {
-		if ($state != 1) {return $pia_lang['Gen_off'];} else {return $pia_lang['Gen_on'];}
-	}
+	$is_on = ($revert ? $state != 1 : $state == 1);
+	return $is_on ? $pia_lang['Gen_on'] : $pia_lang['Gen_off'];
 }
 function convert_state_action($state, $revert) {
 	global $pia_lang;
-	if ($revert == 1) {
-		if ($state == 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
-	} elseif ($revert == 0) {
-		if ($state != 1) {return $pia_lang['Gen_deactivate'];} else {return $pia_lang['Gen_activate'];}
-	}
+	$is_activate = ($revert ? $state != 1 : $state == 1);
+	return $is_activate ? $pia_lang['Gen_activate'] : $pia_lang['Gen_deactivate'];
 }
 function colorize_state($state, $revert) {
-	global $pia_lang;
-	if ($revert == 1) {
-		if ($state == 1) {return "text-green";} else {return "text-red";}
-	} elseif ($revert == 0) {
-		if ($state != 1) {return "text-green";} else {return "text-red";}
-	}
+	$is_green = ($revert ? $state == 1 : $state != 1);
+	return $is_green ? 'text-green' : 'text-red';
 }
 // Top Navbar - Back button for details pages
 function insert_back_button() {

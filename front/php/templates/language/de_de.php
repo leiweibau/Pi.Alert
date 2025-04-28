@@ -457,7 +457,7 @@ $pia_lang['MT_Tool_del_ActHistory_text'] = 'Der Graph für die Netz&shy;werkakti
 $pia_lang['MT_Tool_del_ActHistory_noti'] = 'Netzwerkaktivität löschen';
 $pia_lang['MT_Tool_del_ActHistory_noti_text'] = 'Sind Sie sicher, dass Sie die Netzwerkaktivität zurücksetzen möchten?';
 $pia_lang['MT_Tool_del_speedtest'] = 'Speedtest Resultate löschen';
-$pia_lang['MT_Tool_del_speedtest_text'] = 'Alle gespeicherten Speedtest Ergebnisse werden gelöscht. Bereits Konfigurierte automatische Speedtests werden weiterhin ausgeführt.';
+$pia_lang['MT_Tool_del_speedtest_text'] = 'Alle gespeicherten Speedtest Er&shy;gebnisse werden gelöscht. Bereits Konfigurierte auto&shy;matische Speed&shy;tests werden weiterhin ausgeführt.';
 $pia_lang['MT_Tool_del_nmapscans'] = 'Alle Nmap Scans löschen';
 $pia_lang['MT_Tool_del_nmapscans_text'] = 'Es werden alle Scan-Ergebnisse von allen Geräten gelöscht.';
 $pia_lang['MT_Tool_loginenable'] = 'Login aktivieren';
@@ -514,7 +514,7 @@ $pia_lang['MT_SET_SatEdit_Modal_head'] = 'Installationsbefehl mit Vorkonfigurati
 $pia_lang['MT_SET_SatEdit_Modal_info'] = 'Hier kann der Installationsbefehl soweit vorbereitet werden, dass die wichtigsten Parameter schon bei der Installation eingetragen werden. Die verschiedenen Scans bleiben alle deaktiviert und müssen explizit in der Konfigurationsdatei aktiviert werden.';
 $pia_lang['MT_Stats_ToolTip_Jrn'] = 'Es befinden sich noch Journaleinträge im Zwischenspeicher';
 $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
-$pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED Events werden im Anwesenheits-Kalender nicht dargestellt. Um alle VOIDED Events (Verbunden/Getrennt) zurückzusetzen, führe diese Funktion aus.';
+$pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED Events werden im An&shy;wesenheits-Kalender nicht dar&shy;ge&shy;stellt. Um alle VOIDED Events (Ver&shy;bunden/Getrennt) zurück&shy;zu&shy;setzen, führe diese Funktion aus.';
 $pia_lang['MT_Tggl_Import_head'] = 'Quelle für Import de-/aktivieren';
 $pia_lang['MT_Tggl_Import_text'] = 'Hiermit wird die gewünschte Quelle für den Import von Daten de- oder aktiviert. Noch laufende Scans sind von der De-/Aktivierung ausgenommen. Daten die bereits zuvor importiert wurden, bleiben bei der Deaktivierung erhalten';
 // Maintenance Page (Backend)

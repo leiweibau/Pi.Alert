@@ -170,7 +170,7 @@ function show_all_satellites_list($sat_rowid, $sat_name, $sat_token, $sat_passwo
                     <div class="col-xs-12 col-md-3 col-lg-2 text-muted">Version: '.$sat_version.'</div>
                     <div class="col-xs-12 col-md-9 col-lg-10 text-muted">
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">arp Scan:</span><span class="sat_config_list_stat '.colorize_state($scan_arp,1).'"> '.convert_state($scan_arp,0).'</span></div>
-	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Fritzbox:</span><span class="sat_config_list_stat '.colorize_state($scan_fritzbox,1).'"> '.convert_state($scan_fritzbox,0).'</span></div>
+	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Fritz!Box:</span><span class="sat_config_list_stat '.colorize_state($scan_fritzbox,1).'"> '.convert_state($scan_fritzbox,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">Mikrotik:</span><span class="sat_config_list_stat '.colorize_state($scan_mikrotik,1).'"> '.convert_state($scan_mikrotik,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">UniFi:</span><span class="sat_config_list_stat '.colorize_state($scan_unifi,1).'"> '.convert_state($scan_unifi,0).'</span></div>
 	                    <div class="sat_config_list_a"><span class="sat_config_list_meth">OpenWRT:</span><span class="sat_config_list_stat '.colorize_state($scan_openwrt,1).'"> '.convert_state($scan_openwrt,0).'</span></div>

@@ -124,8 +124,8 @@ if ($_SESSION["login"] != 1) {
     <div class="info_box short">
         <span class="info_head">Search:</span>
         <input type="text" id="searchInput" onkeyup="searchTable()">
-        <div style="width: 100%; height: 40px;">
-            <button onclick="resetSearch()" style="background-color: #fff; color: red; border: solid 1px #ccc; font-size: 16px; padding: 5px; margin-top: 10px; float: right;">Reset</button>
+        <div style="width: 100%; height: 30px; margin-top: 10px;">
+            <button onclick="resetSearch()" style="background-color: #fff; color: red; border: solid 1px #ccc; font-size: 16px; padding: 5px; float: right;">Reset</button>
         </div>
     </div>
 
