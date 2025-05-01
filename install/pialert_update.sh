@@ -449,6 +449,19 @@ OPENWRT_PASS              = ''
 EOF
 fi
 
+# 2025-05-01
+if ! grep -Fq "# AsusWRT Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# AsusWRT Configuration
+# ----------------------
+ASUSWRT_ACTIVE            = False
+ASUSWRT_IP                = '192.168.1.1'
+ASUSWRT_USER              = 'root'
+ASUSWRT_PASS              = ''
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

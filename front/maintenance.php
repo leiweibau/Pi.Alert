@@ -76,11 +76,10 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP = $LATEST_FILES[0];
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
-
-foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE'] as $key) {
+// Get Config Parameter
+foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE'] as $key) {
     $_SESSION[$key] = (get_config_parmeter($key) == 1) ? 1 : 0;
 }
-
 // Buffer active --------------------------------------------------------------
 	$file = '../db/pialert_journal_buffer';
 	if (file_exists($file)) {

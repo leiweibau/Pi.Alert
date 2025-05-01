@@ -70,6 +70,13 @@
                                     <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('OW',<?=$_SESSION['OPENWRT_ACTIVE'];?>)"><span class="<?= ($_SESSION['OPENWRT_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">OpenWRT</span><br><?=$state;?></button>
                                 </div>
                             </div>
+<!-- Toggle ASUS Router ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['ASUSWRT_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('AW',<?=$_SESSION['ASUSWRT_ACTIVE'];?>)"><span class="<?= ($_SESSION['ASUSWRT_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Asus Router</span><br><?=$state;?></button>
+                                </div>
+                            </div>
 <!-- Toggle Pi-hole Network ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">

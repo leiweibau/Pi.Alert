@@ -395,6 +395,13 @@ OPENWRT_IP                = '" . $configArray['OPENWRT_IP'] . "'
 OPENWRT_USER              = '" . $configArray['OPENWRT_USER'] . "'
 OPENWRT_PASS              = '" . $configArray['OPENWRT_PASS'] . "'
 
+# AsusWRT Configuration
+# ----------------------
+ASUSWRT_ACTIVE            = " . convert_bool($configArray['ASUSWRT_ACTIVE']) . "
+ASUSWRT_IP                = '" . $configArray['ASUSWRT_IP'] . "'
+ASUSWRT_USER              = '" . $configArray['ASUSWRT_USER'] . "'
+ASUSWRT_PASS              = '" . $configArray['ASUSWRT_PASS'] . "'
+
 # Satellite Configuration
 # -----------------------
 SATELLITE_PROXY_MODE       = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
@@ -1095,6 +1102,7 @@ function ToggleImport() {
         'MT' => 'MIKROTIK_ACTIVE',
         'UF' => 'UNIFI_ACTIVE',
         'OW' => 'OPENWRT_ACTIVE',
+        'AW' => 'ASUSWRT_ACTIVE',
         'PiN' => 'PIHOLE_ACTIVE',
         'PiD' => 'DHCP_ACTIVE',
     ];
