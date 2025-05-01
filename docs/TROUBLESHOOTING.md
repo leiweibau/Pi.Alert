@@ -68,4 +68,16 @@ You can also find the script in the directory “pialert/install/” in versions
 
 <hr>
 
+### I get a message like: RequestsDependencyWarning: urllib3 (2.4.0) or chardet (5.1.0)/charset_normalizer (3.0.1) doesn't match a supported version!
+
+In this case you should update the existing python package. You can do this with the following command.
+
+```
+pip3 install --upgrade
+```
+
+Depending on the distribution used, you may need to add the “--break-system-packages” parameter
+
+<hr>
+
 [Back](https://github.com/leiweibau/Pi.Alert)

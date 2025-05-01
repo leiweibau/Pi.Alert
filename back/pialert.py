@@ -26,7 +26,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta
-import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal
+import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -849,6 +849,10 @@ def scan_network():
     openDB()
     print_log ('OpenWRT copy starts...')
     read_openwrt_clients()
+    # AsusWRT
+    openDB()
+    print_log ('AsusWRT copy starts...')
+    read_asuswrt_clients()
     # Import Satellites Scans
     get_satellite_scans()
     # Load current scan data 1/2
@@ -1406,6 +1410,93 @@ def read_openwrt_clients():
 
     except Exception as e:
         print(f"Error")
+
+#-------------------------------------------------------------------------------
+def read_asuswrt_clients():
+    # create table if not exists
+    sql_create_table = """ CREATE TABLE IF NOT EXISTS Asuswrt_Network(
+                                "ASUS_MAC" STRING(50) NOT NULL COLLATE NOCASE,
+                                "ASUS_IP" STRING(50) COLLATE NOCASE,
+                                "ASUS_Name" STRING(50),
+                                "ASUS_Vendor" STRING(250),
+                                "ASUS_Method" STRING(50)
+                            ); """
+    sql.execute(sql_create_table)
+    sql_connection.commit()
+
+    # empty Fritzbox Network table
+    sql.execute ("DELETE FROM Asuswrt_Network")
+
+    if not ASUSWRT_ACTIVE:
+        return
+
+    print('    AsusWRT Method...')
+
+    try:
+        from asusrouter import AsusRouter
+        from asusrouter.modules.data import AsusData
+    except:
+        print('        Missing python package')
+        return
+
+    try:
+        result = asyncio.run(collect_asuswrt_data())
+
+        for client in result.values():
+            hostname = client["name"] or "(unknown)"
+            ip_address = client["ip_address"]
+            mac = client["mac"]
+            vendor = client["vendor"]
+            ip_method = client["ip_method"]
+
+            #sql.execute ("INSERT INTO Asuswrt_Network (ASUS_MAC, ASUS_IP, ASUS_Name, ASUS_Vendor, ASUS_Method) "+
+            #             "VALUES (?, ?, ?, ?) ", (mac.lower(), ip_address, hostname, vendor, ip_method) )
+
+    except Exception as e:
+        print(f"Error")
+
+#-------------------------------------------------------------------------------
+async def collect_asuswrt_data():
+    async with aiohttp.ClientSession() as session:
+        router = AsusRouter(
+            hostname=ASUSWRT_IP,
+            username=ASUSWRT_USER,
+            password=ASUSWRT_PASS,
+            use_ssl=False,
+            session=session,
+        )
+
+        connected = await router.async_connect()
+        # print(f"Verbindung erfolgreich: {connected}")
+        if not connected:
+            return
+
+        try:
+            # print("\n==== AKTIVE CLIENTS ====")
+            clients_data = await router.async_get_data(AsusData.CLIENTS)
+            
+            # Extrahiere nur die gewünschten Felder
+            filtered_clients = {
+                mac: {
+                    'name': client.description.name,
+                    'ip_address': client.connection.ip_address,
+                    'mac': mac,
+                    'vendor': client.description.vendor,
+                    'ip_method': client.connection.ip_method.name
+                }
+                for mac, client in clients_data.items() if client.connection.online
+            }
+
+            if filtered_clients:
+                return filtered_clients
+            else:
+                return {}
+        
+        except Exception as e:
+            print(f"        Connection error occurred: {e}")
+
+        await router.async_disconnect()
+        # print("\nVerbindung sauber getrennt.")
 
 #-------------------------------------------------------------------------------
 def read_DHCP_leases():
