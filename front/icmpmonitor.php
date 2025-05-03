@@ -778,8 +778,8 @@ function insertNewICMPHost(refreshCallback='') {
     + '&icmp_ip='         + $('#icmphost_ip').val()
     + '&icmp_hostname='   + $('#icmphost_name').val()
     + '&icmp_fav='        + ($('#insFavorite')[0].checked * 1)
-    + '&alertdown='       + ($('#insAlertEvents')[0].checked * 1)
-    + '&alertevents='     + ($('#insAlertDown')[0].checked * 1)
+    + '&alertdown='       + ($('#insAlertDown')[0].checked * 1)
+    + '&alertevents='     + ($('#insAlertEvents')[0].checked * 1)
     , function(msg) {
 
     // deactivate button
