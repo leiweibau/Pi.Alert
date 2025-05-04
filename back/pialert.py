@@ -1440,23 +1440,39 @@ def read_asuswrt_clients():
         return
 
     try:
-        result = asyncio.run(collect_asuswrt_data())
+        #result = asyncio.run(collect_asuswrt_data(AsusRouter,AsusData))
+        attempt = 0
+        max_attempts = 3  # oder beliebig
+
+        result = None
+        while not result and attempt < max_attempts:
+            result = asyncio.run(collect_asuswrt_data(AsusRouter, AsusData))
+            attempt += 1
+            if not result:
+                asyncio.run(asyncio.sleep(5))  # 5 Sekunden warten
+
+        if not result:
+            print(f"        No results received after {max_attempts} attempts")
 
         for client in result.values():
             hostname = client["name"] or "(unknown)"
             ip_address = client["ip_address"]
             mac = client["mac"]
             vendor = client["vendor"]
+            if vendor == "None" or vendor is None:
+                vendor = "(unknown)"
             ip_method = client["ip_method"]
+
+            print(f"{hostname} - {ip_address} - {mac} - {vendor}")
 
             #sql.execute ("INSERT INTO Asuswrt_Network (ASUS_MAC, ASUS_IP, ASUS_Name, ASUS_Vendor, ASUS_Method) "+
             #             "VALUES (?, ?, ?, ?) ", (mac.lower(), ip_address, hostname, vendor, ip_method) )
 
     except Exception as e:
-        print(f"Error")
+        print(f"Error {e}")
 
 #-------------------------------------------------------------------------------
-async def collect_asuswrt_data():
+async def collect_asuswrt_data(AsusRouter,AsusData):
     async with aiohttp.ClientSession() as session:
         router = AsusRouter(
             hostname=ASUSWRT_IP,
