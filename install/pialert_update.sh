@@ -459,6 +459,7 @@ ASUSWRT_ACTIVE            = False
 ASUSWRT_IP                = '192.168.1.1'
 ASUSWRT_USER              = 'root'
 ASUSWRT_PASS              = ''
+ASUSWRT_SSL               = False
 EOF
 fi
 

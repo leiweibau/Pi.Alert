@@ -401,6 +401,7 @@ ASUSWRT_ACTIVE            = " . convert_bool($configArray['ASUSWRT_ACTIVE']) . "
 ASUSWRT_IP                = '" . $configArray['ASUSWRT_IP'] . "'
 ASUSWRT_USER              = '" . $configArray['ASUSWRT_USER'] . "'
 ASUSWRT_PASS              = '" . $configArray['ASUSWRT_PASS'] . "'
+ASUSWRT_SSL               = " . convert_bool($configArray['ASUSWRT_SSL']) . "
 
 # Satellite Configuration
 # -----------------------

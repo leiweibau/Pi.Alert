@@ -1367,7 +1367,7 @@ def read_unifi_clients():
                          "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
 
     except Exception as e:
-        print('        Could not connect to UniFi Controller')
+        print('        ...Skipped. Could not connect to UniFi Controller')
 
 #-------------------------------------------------------------------------------
 def read_openwrt_clients():
@@ -1409,7 +1409,7 @@ def read_openwrt_clients():
                          "VALUES (?, ?, ?, ?) ", (device.mac.lower(), device.ip, hostname, '(unknown)') )
 
     except Exception as e:
-        print(f"Error")
+        print(f"        ...Skipped. Could not connect to OpenWRT device")
 
 #-------------------------------------------------------------------------------
 def read_asuswrt_clients():
@@ -1440,16 +1440,15 @@ def read_asuswrt_clients():
         return
 
     try:
-        #result = asyncio.run(collect_asuswrt_data(AsusRouter,AsusData))
         attempt = 0
-        max_attempts = 3  # oder beliebig
+        max_attempts = 3
 
         result = None
         while not result and attempt < max_attempts:
             result = asyncio.run(collect_asuswrt_data(AsusRouter, AsusData))
             attempt += 1
             if not result:
-                asyncio.run(asyncio.sleep(5))  # 5 Sekunden warten
+                asyncio.run(asyncio.sleep(5))  # 5 sec delay
 
         if not result:
             print(f"        No results received after {max_attempts} attempts")
@@ -1465,11 +1464,11 @@ def read_asuswrt_clients():
 
             print(f"{hostname} - {ip_address} - {mac} - {vendor}")
 
-            #sql.execute ("INSERT INTO Asuswrt_Network (ASUS_MAC, ASUS_IP, ASUS_Name, ASUS_Vendor, ASUS_Method) "+
-            #             "VALUES (?, ?, ?, ?) ", (mac.lower(), ip_address, hostname, vendor, ip_method) )
+            sql.execute ("INSERT INTO Asuswrt_Network (ASUS_MAC, ASUS_IP, ASUS_Name, ASUS_Vendor, ASUS_Method) "+
+                        "VALUES (?, ?, ?, ?, ?) ", (mac.lower(), ip_address, hostname, vendor, ip_method))
 
     except Exception as e:
-        print(f"Error {e}")
+        print(f"        ...Skipped. Could not connect to Asus Router")
 
 #-------------------------------------------------------------------------------
 async def collect_asuswrt_data(AsusRouter,AsusData):
@@ -1478,7 +1477,8 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
             hostname=ASUSWRT_IP,
             username=ASUSWRT_USER,
             password=ASUSWRT_PASS,
-            use_ssl=False,
+            use_ssl=ASUSWRT_SSL,
+            cache_time=5, 
             session=session,
         )
 
@@ -1488,10 +1488,8 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
             return
 
         try:
-            # print("\n==== AKTIVE CLIENTS ====")
             clients_data = await router.async_get_data(AsusData.CLIENTS)
             
-            # Extrahiere nur die gewünschten Felder
             filtered_clients = {
                 mac: {
                     'name': client.description.name,
