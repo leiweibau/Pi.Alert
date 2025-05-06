@@ -5,7 +5,7 @@
 //
 //  commands.php - Back module. Server side. FileSystem Operations
 //------------------------------------------------------------------------------
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2025+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -44,18 +44,22 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 //  PiAlert Reboot
 function PialertReboot() {
 	global $pia_lang;
+	global $pia_lang_selected;
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9993', '', '');
 	echo $pia_lang['SysInfo_Gen_execute_command'];
+	echo ("<meta http-equiv='refresh' content='2; URL=./lib/static/reboot_".$pia_lang_selected.".html'>");
 	exec('sleep 5 && sudo /usr/sbin/shutdown -r 0', $output);
 }
 
 //  PiAlert Shutdown
 function PialertShutdown() {
 	global $pia_lang;
+	global $pia_lang_selected;
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9994', '', '');
 	echo $pia_lang['SysInfo_Gen_execute_command'];
+	echo ("<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown_".$pia_lang_selected.".html'>");
 	exec('sleep 5 && sudo /usr/sbin/shutdown -h 0', $output);
 }
 
