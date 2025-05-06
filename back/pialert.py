@@ -1837,6 +1837,7 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     insert_ext_sources(sql, cycle, 'Mikrotik_Network', 'MT_MAC', 'MT_IP', 'MT_Vendor', 'Mikrotik')
     insert_ext_sources(sql, cycle, 'Unifi_Network', 'UF_MAC', 'UF_IP', 'UF_Vendor', 'UniFi')
     insert_ext_sources(sql, cycle, 'Openwrt_Network', 'OWRT_MAC', 'OWRT_IP', 'OWRT_Vendor', 'OpenWRT')
+    insert_ext_sources(sql, cycle, 'Asuswrt_Network', 'ASUS_MAC', 'ASUS_IP', 'ASUS_Vendor', 'AsusWRT')
 
     # Insert Satellite devices
     sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
@@ -1946,58 +1947,67 @@ def remove_entries_from_table():
     try:
         MAC_IGNORE_LIST
 
-        if len(MAC_IGNORE_LIST) > 0:
+        if MAC_IGNORE_LIST:
             print(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
-            # incomplete and complete MAC addresses
-            mac_addresses = ' OR '.join([f'cur_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
-            query = f'DELETE FROM CurrentScan WHERE {mac_addresses}'
-            sql.execute(query)
-            mac_addresses = ' OR '.join([f'PH_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
-            query = f'DELETE FROM PiHole_Network WHERE {mac_addresses}'
-            sql.execute(query)
-            mac_addresses = ' OR '.join([f'DHCP_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
-            query = f'DELETE FROM DHCP_Leases WHERE {mac_addresses}'
-            sql.execute(query)
-            mac_addresses = ' OR '.join([f'FB_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
-            query = f'DELETE FROM Fritzbox_Network WHERE {mac_addresses}'
-            sql.execute(query)
-            mac_addresses = ' OR '.join([f'MT_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
-            query = f'DELETE FROM Mikrotik_Network WHERE {mac_addresses}'
-            sql.execute(query)
-            mac_addresses = ' OR '.join([f'UF_MAC LIKE "{mac}%"' for mac in MAC_IGNORE_LIST])
-            query = f'DELETE FROM Unifi_Network WHERE {mac_addresses}'
-            sql.execute(query)
+
+            table_column_map = {
+                'CurrentScan': 'cur_MAC',
+                'PiHole_Network': 'PH_MAC',
+                'DHCP_Leases': 'DHCP_MAC',
+                'Fritzbox_Network': 'FB_MAC',
+                'Mikrotik_Network': 'MT_MAC',
+                'Unifi_Network': 'UF_MAC',
+                'Openwrt_Network': 'OWRT_MAC',
+                'Asuswrt_Network': 'ASUS_MAC'
+            }
+
+            for table, column in table_column_map.items():
+                if table not in table_column_map or column != table_column_map[table]:
+                    continue
+
+                # Bedingung als LIKE mit Platzhaltern
+                conditions = [f"{column} LIKE ?" for _ in MAC_IGNORE_LIST]
+                where_clause = ' OR '.join(conditions)
+                query = f'DELETE FROM {table} WHERE {where_clause}'
+
+                # Parameter vorbereiten
+                like_params = [f"{mac}%" for mac in MAC_IGNORE_LIST]
+                sql.execute(query, like_params)
         else:
-            print(f'        MAC-Ignore list is empty')
+            print('        MAC-Ignore list is empty')
+
     except NameError:
         print("        No MAC-Ignore list defined")
 
     try:
-        IP_IGNORE_LIST
 
-        if len(IP_IGNORE_LIST) > 0:
+        if IP_IGNORE_LIST:
             print(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
-            # incomplete and complete IP addresses
-            ip_addresses = ' OR '.join([f'cur_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
-            query = f'DELETE FROM CurrentScan WHERE {ip_addresses}'
-            sql.execute(query)
-            ip_addresses = ' OR '.join([f'PH_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
-            query = f'DELETE FROM PiHole_Network WHERE {ip_addresses}'
-            sql.execute(query)
-            ip_addresses = ' OR '.join([f'DHCP_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
-            query = f'DELETE FROM DHCP_Leases WHERE {ip_addresses}'
-            sql.execute(query)
-            ip_addresses = ' OR '.join([f'FB_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
-            query = f'DELETE FROM Fritzbox_Network WHERE {ip_addresses}'
-            sql.execute(query)
-            ip_addresses = ' OR '.join([f'MT_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
-            query = f'DELETE FROM Mikrotik_Network WHERE {ip_addresses}'
-            sql.execute(query)
-            ip_addresses = ' OR '.join([f'UF_IP LIKE "{ips}%"' for ips in IP_IGNORE_LIST])
-            query = f'DELETE FROM Unifi_Network WHERE {ip_addresses}'
-            sql.execute(query)
+
+            table_column_map = {
+                'CurrentScan': 'cur_IP',
+                'PiHole_Network': 'PH_IP',
+                'DHCP_Leases': 'DHCP_IP',
+                'Fritzbox_Network': 'FB_IP',
+                'Mikrotik_Network': 'MT_IP',
+                'Unifi_Network': 'UF_IP',
+                'Openwrt_Network': 'OWRT_IP',
+                'Asuswrt_Network': 'ASUS_IP'
+            }
+
+            for table, column in table_column_map.items():
+                if table not in table_column_map or column != table_column_map[table]:
+                    continue
+
+                conditions = [f"{column} LIKE ?" for _ in IP_IGNORE_LIST]
+                where_clause = ' OR '.join(conditions)
+                query = f'DELETE FROM {table} WHERE {where_clause}'
+
+                like_params = [f"{ip}%" for ip in IP_IGNORE_LIST]
+                sql.execute(query, like_params)
         else:
-            print(f'        IP-Ignore list is empty')
+            print('        IP-Ignore list is empty')
+
     except NameError:
         print("        No IP-Ignore list defined")
 
@@ -2016,6 +2026,7 @@ def print_scan_stats():
         "Mikrotik",
         "UniFi",
         "OpenWRT",
+        "AsusWRT",
         "Pi-hole DHCP"
     ]
 
@@ -2380,6 +2391,30 @@ def update_devices_data_from_scan():
                                     AND UF_Name IS NOT NULL
                                     AND UF_Name <> '') """)
 
+    # OpenWRT - Update (unknown) Name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = (SELECT OWRT_Name FROM Openwrt_Network
+                                    WHERE OWRT_MAC = dev_MAC)
+                    WHERE (dev_Name = "(unknown)"
+                           OR dev_Name = ""
+                           OR dev_Name IS NULL)
+                      AND EXISTS (SELECT 1 FROM Openwrt_Network
+                                  WHERE OWRT_MAC = dev_MAC
+                                    AND OWRT_Name IS NOT NULL
+                                    AND OWRT_Name <> '') """)
+
+    # AsusWRT - Update (unknown) Name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = (SELECT ASUS_Name FROM Asuswrt_Network
+                                    WHERE ASUS_MAC = dev_MAC)
+                    WHERE (dev_Name = "(unknown)"
+                           OR dev_Name = ""
+                           OR dev_Name IS NULL)
+                      AND EXISTS (SELECT 1 FROM Asuswrt_Network
+                                  WHERE ASUS_MAC = dev_MAC
+                                    AND ASUS_Name IS NOT NULL
+                                    AND ASUS_Name <> '') """)
+
     # Satellite - Update (unknown) Name
     sql.execute ("""UPDATE Devices
                     SET dev_Name = (SELECT Sat_Name FROM Satellites_Network
@@ -2397,9 +2432,13 @@ def update_devices_data_from_scan():
 
     recordsToUpdate = []
     query = """SELECT * FROM Devices
-               WHERE dev_Vendor = '(unknown)' OR dev_Vendor = ''
-                  OR dev_Vendor = '(Unknown: locally administered)'
-                  OR dev_Vendor IS NULL"""
+               WHERE (
+                   dev_Vendor = '(unknown)' OR
+                   dev_Vendor = '' OR
+                   dev_Vendor = '(Unknown: locally administered)' OR
+                   dev_Vendor IS NULL
+               )
+               AND dev_ScanSource = 'local'"""
 
     for device in sql.execute (query) :
         vendor = query_MAC_vendor (device['dev_MAC'])
