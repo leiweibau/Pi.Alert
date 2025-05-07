@@ -46,13 +46,18 @@ function PialertReboot() {
 	global $pia_lang_selected;
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9993', '', '');
-	echo $pia_lang['SysInfo_Gen_execute_command'];
-	echo ("<meta http-equiv='refresh' content='2; URL=./lib/static/reboot_".$pia_lang_selected.".html'>");
-	flush();
-
 	$php = '/usr/bin/php';
 	$script = __DIR__ . '/run_reboot.php';
-	exec("nohup $php $script > /dev/null 2>&1 &");
+	$hash_needed = "e40454515f0b9fe503b5f7ae1af3d221";
+	$hash_actual = md5_file($script);
+	if ($hash_actual == $hash_needed) {
+		echo $pia_lang['SysInfo_Gen_execute_command'];
+		echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot_".$pia_lang_selected.".html'>";
+		flush();
+		exec("nohup $php $script > /dev/null 2>&1 &");
+	} else {
+		echo 'MD5 hash mismatch';
+	}
 }
 
 //  PiAlert Shutdown
@@ -61,13 +66,18 @@ function PialertShutdown() {
 	global $pia_lang_selected;
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9994', '', '');
-	echo $pia_lang['SysInfo_Gen_execute_command'];
-	echo ("<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown_".$pia_lang_selected.".html'>");
-	flush();
-
 	$php = '/usr/bin/php';
 	$script = __DIR__ . '/run_shutdown.php';
-	exec("nohup $php $script > /dev/null 2>&1 &");
+	$hash_needed = "cfa6548081edf875120acd4b64d38572";
+	$hash_actual = md5_file($script);
+	if ($hash_actual == $hash_needed) {
+		echo $pia_lang['SysInfo_Gen_execute_command'];
+		echo "<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown_".$pia_lang_selected.".html'>";
+		flush();
+		exec("nohup $php $script > /dev/null 2>&1 &");
+	} else {
+		echo 'MD5 hash mismatch';
+	}
 }
 
 ?>

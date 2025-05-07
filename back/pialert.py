@@ -1441,7 +1441,7 @@ def read_asuswrt_clients():
 
     try:
         attempt = 0
-        max_attempts = 3
+        max_attempts = 5
 
         result = None
         while not result and attempt < max_attempts:
@@ -1462,7 +1462,7 @@ def read_asuswrt_clients():
                 vendor = "(unknown)"
             ip_method = client["ip_method"]
 
-            print(f"{hostname} - {ip_address} - {mac} - {vendor}")
+            # print(f"{hostname} - {ip_address} - {mac} - {vendor}")
 
             sql.execute ("INSERT INTO Asuswrt_Network (ASUS_MAC, ASUS_IP, ASUS_Name, ASUS_Vendor, ASUS_Method) "+
                         "VALUES (?, ?, ?, ?, ?) ", (mac.lower(), ip_address, hostname, vendor, ip_method))
@@ -1478,7 +1478,7 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
             username=ASUSWRT_USER,
             password=ASUSWRT_PASS,
             use_ssl=ASUSWRT_SSL,
-            cache_time=5, 
+            cache_time=2, 
             session=session,
         )
 
