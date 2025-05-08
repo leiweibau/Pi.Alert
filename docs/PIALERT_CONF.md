@@ -39,7 +39,7 @@ I would like to give a short explanation to the individual points.
 | Option               | Description |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | SCAN_ROGUE_DHCP     | Activates the search for foreign, also called "rogue", DHCP servers. This function is used to detect whether there is a foreign DHCP server in the network that could take control of IP management. |
-| DHCP_SERVER_ADDRESS | The IP of the known DHCP server is stored here. Only ONE DHCP server can be entered.                                                                                                                 |
+| DHCP_SERVER_ADDRESS | The IP of the known DHCP server is stored here. A list of DHCP servers is also supported                                                                                                                 |
 
 
 #### Custom Cronjobs
