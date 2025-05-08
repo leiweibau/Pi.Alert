@@ -1707,10 +1707,11 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_mikrotik = ?,
                                     sat_conf_scan_unifi = ?,
                                     sat_conf_scan_openwrt = ?,
+                                    sat_conf_scan_asuswrt = ?,
                                     sat_conf_scan_pihole_net = ?,
                                     sat_conf_scan_pihole_dhcp = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_pihole_net, scan_pihole_dhcp, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_asuswrt, scan_pihole_net, scan_pihole_dhcp, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):
