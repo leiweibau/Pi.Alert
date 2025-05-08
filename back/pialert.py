@@ -1660,6 +1660,7 @@ def process_satellites(satellite_list):
                 scan_mikrotik    = 1 if config.get('scan_mikrotik') else 0
                 scan_unifi       = 1 if config.get('scan_unifi') else 0
                 scan_openwrt     = 1 if config.get('scan_openwrt') else 0
+                scan_asuswrt     = 1 if config.get('scan_asuswrt') else 0
                 scan_pihole_net  = 1 if config.get('scan_pihole_net') else 0
                 scan_pihole_dhcp = 1 if config.get('scan_pihole_dhcp') else 0
 
