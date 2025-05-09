@@ -2638,9 +2638,11 @@ def rogue_dhcp_notification():
     if len(rows) == 1:
         print('    No DHCP Server detected.')
 
+    valid_dhcp_server_list = [DHCP_SERVER_ADDRESS] if not type(DHCP_SERVER_ADDRESS) is list else DHCP_SERVER_ADDRESS
+
     if len(rows) == 2:
         if validate_dhcp_address(rows[1][0]):
-            if rows[1][0] == DHCP_SERVER_ADDRESS :
+            if rows[1][0] in valid_dhcp_server_list :
                 print('    One DHCP Server detected......: ' + rows[1][0] + ' (valid)')
             else:
                 print('    One DHCP Server detected......: ' + rows[1][0] + ' (invalid)')
@@ -2652,7 +2654,7 @@ def rogue_dhcp_notification():
         print('    Multiple DHCP Servers detected:')
         for i in range(1,len(rows),1):
             if validate_dhcp_address(rows[i][0]):
-                if rows[i][0] == DHCP_SERVER_ADDRESS :
+                if rows[i][0] in valid_dhcp_server_list :
                     print('        ' + rows[i][0] + ' (valid)' )
                 else:
                     print('        ' + rows[i][0] + ' (rogue)' )
