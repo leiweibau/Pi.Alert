@@ -181,6 +181,7 @@ function SaveConfigFile() {
 	$ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
 	$ignorlist_replace = array("[", "]", ",", "','", "['", "']");
 	// Handle some special entries
+	$configArray['DHCP_SERVER_ADDRESS'] = str_replace($ignorlist_search, $ignorlist_replace, $configArray['DHCP_SERVER_ADDRESS']);
 	$Mail_Reort = str_replace(" ", "", $configArray['REPORT_FROM']);
 	if (stristr($Mail_Reort, "<+SMTP_USER+>")) {
 		$mail_parts = array();
@@ -249,6 +250,8 @@ SATELLITES_ACTIVE          = " . convert_bool($configArray['SATELLITES_ACTIVE'])
 # ----------------------
 SCAN_ROGUE_DHCP            = " . convert_bool($configArray['SCAN_ROGUE_DHCP']) . "
 DHCP_SERVER_ADDRESS        = '" . $configArray['DHCP_SERVER_ADDRESS'] . "'
+# DHCP_SERVER_ADDRESS        = '192.168.1.1'
+# DHCP_SERVER_ADDRESS        = ['192.168.1.1','10.0.0.1']
 
 # Custom Cronjobs
 # ----------------------
