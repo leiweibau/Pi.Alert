@@ -65,14 +65,14 @@
                             <div class="settings_button_wrapper" id="Darkmode_button_container">
                                 <div class="settings_button_box">
                                 	<?php $state = convert_state_action($ENABLED_DARKMODE, 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableDarkmode" onclick="askEnableDarkmode()"><?=$pia_lang['MT_Tool_darkmode'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableDarkmode" onclick="askEnableDarkmode()"><span class="<?= ($ENABLED_DARKMODE == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['MT_Tool_darkmode'] . '</span><br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle History Graph ------------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                 	<?php $state = convert_state_action($ENABLED_HISTOY_GRAPH, 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableOnlineHistoryGraph" onclick="askEnableOnlineHistoryGraph()"><?=$pia_lang['MT_Tool_onlinehistorygraph'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableOnlineHistoryGraph" onclick="askEnableOnlineHistoryGraph()"><span class="<?= ($ENABLED_HISTOY_GRAPH == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['MT_Tool_onlinehistorygraph'] . '</span><br>' . $state;?></button>
                                 </div>
                             </div>
                         </div>

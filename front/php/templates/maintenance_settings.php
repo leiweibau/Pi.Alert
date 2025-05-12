@@ -8,28 +8,28 @@
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                 	<?php $state = convert_state_action($_SESSION['Scan_MainScan'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableMainScanMon" onclick="askEnableMainScan()"><?=$pia_lang['MT_Tool_mainscan'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableMainScanMon" onclick="askEnableMainScan()"><span class="<?= ($_SESSION['Scan_MainScan'] == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['MT_Tool_mainscan'] . '</span><br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Web Service Monitoring ---------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                 	<?php $state = convert_state_action($_SESSION['Scan_WebServices'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableWebServiceMon" onclick="askEnableWebServiceMon()"><?=$pia_lang['MT_Tool_webservicemon'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableWebServiceMon" onclick="askEnableWebServiceMon()"><span class="<?= ($_SESSION['Scan_WebServices'] == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['MT_Tool_webservicemon'] . '</span><br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle ICMP Monitoring ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                 	<?php $state = convert_state_action($_SESSION['ICMPScan'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableICMPMon" onclick="askEnableICMPMon()"><?=$pia_lang['MT_Tool_icmpmon'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableICMPMon" onclick="askEnableICMPMon()"><span class="<?= ($_SESSION['ICMPScan'] == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['MT_Tool_icmpmon'] . '</span><br>' . $state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Satellites ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['Scan_Satellite'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableSatellites" onclick="askEnableSatelliteScan()"><?=$pia_lang['MT_Tool_satellites'] . '<br>' . $state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableSatellites" onclick="askEnableSatelliteScan()"><span class="<?= ($_SESSION['Scan_Satellite'] == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['MT_Tool_satellites'] . '</span><br>' . $state;?></button>
                                 </div>
                             </div>
                         </div>
@@ -46,42 +46,49 @@
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['FRITZBOX_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleFB" onclick="askToggleImport('FB',<?=$_SESSION['FRITZBOX_ACTIVE'];?>)">Fritz!Box<br><?=$state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleFB" onclick="askToggleImport('FB',<?=$_SESSION['FRITZBOX_ACTIVE'];?>)"><span class="<?= ($_SESSION['FRITZBOX_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Fritz!Box</span><br><?=$state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Mikrotik ---------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['MIKROTIK_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleMT" onclick="askToggleImport('MT',<?=$_SESSION['MIKROTIK_ACTIVE'];?>)">Mikrotik<br><?=$state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleMT" onclick="askToggleImport('MT',<?=$_SESSION['MIKROTIK_ACTIVE'];?>)"><span class="<?= ($_SESSION['MIKROTIK_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Mikrotik</span><br><?=$state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Unifi ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['UNIFI_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleUF" onclick="askToggleImport('UF',<?=$_SESSION['UNIFI_ACTIVE'];?>)">UniFi<br><?=$state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleUF" onclick="askToggleImport('UF',<?=$_SESSION['UNIFI_ACTIVE'];?>)"><span class="<?= ($_SESSION['UNIFI_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">UniFi</span><br><?=$state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Openwrt ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['OPENWRT_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('OW',<?=$_SESSION['OPENWRT_ACTIVE'];?>)">OpenWRT<br><?=$state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('OW',<?=$_SESSION['OPENWRT_ACTIVE'];?>)"><span class="<?= ($_SESSION['OPENWRT_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">OpenWRT</span><br><?=$state;?></button>
+                                </div>
+                            </div>
+<!-- Toggle ASUS Router ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['ASUSWRT_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('AW',<?=$_SESSION['ASUSWRT_ACTIVE'];?>)"><span class="<?= ($_SESSION['ASUSWRT_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Asus Router</span><br><?=$state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Pi-hole Network ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['PIHOLE_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleUF" onclick="askToggleImport('PiN',<?=$_SESSION['PIHOLE_ACTIVE'];?>)">Pi-hole Network<br><?=$state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleUF" onclick="askToggleImport('PiN',<?=$_SESSION['PIHOLE_ACTIVE'];?>)"><span class="<?= ($_SESSION['PIHOLE_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Pi-hole Network</span><br><?=$state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Pi-hole DHCP ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
                                     <?php $state = convert_state_action($_SESSION['DHCP_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('PiD',<?=$_SESSION['DHCP_ACTIVE'];?>)">Pi-hole DHCP<br><?=$state;?></button>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('PiD',<?=$_SESSION['DHCP_ACTIVE'];?>)"><span class="<?= ($_SESSION['DHCP_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Pi-hole DHCP</span><br><?=$state;?></button>
                                 </div>
                             </div>
                         </div>

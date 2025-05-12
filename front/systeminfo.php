@@ -20,7 +20,6 @@ if ($_SESSION["login"] != 1) {
 
 require 'php/templates/header.php';
 
-
 $prevVal = shell_exec("sudo ../back/pialert-cli show_usercron");
 $prevArr = explode("\n", trim($prevVal));
 function filterValues($value) {
@@ -177,11 +176,28 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 	                $tabs .=  '<li class=""><a href="#tab_'.$tab_id.'" data-toggle="tab" aria-expanded="false">'.$row['sat_name'].'</a></li>';
 
 	                $hostdata = json_decode($row['sat_host_data'], true);
+
+	                $satLastUpdate = $row['sat_lastupdate'] ?? null;
+	                $spanClass = 'text-green';
+					if ($satLastUpdate) {
+					    $now = new DateTime();
+					    $lastUpdate = DateTime::createFromFormat('Y-m-d H:i:s', $satLastUpdate);
+					    
+					    if ($lastUpdate) {
+					        $diff = $now->getTimestamp() - $lastUpdate->getTimestamp();
+					        $diffMinutes = abs($diff) / 60;
+					        
+					        if ($diffMinutes > 10) {
+					            $spanClass = 'text-red';
+					        }
+					    }
+					}
+
 	                $scan_time = explode(" ", $row['sat_lastupdate']);
 	                $tab_content .= '<div class="tab-pane" id="tab_'.$tab_id.'">
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . ' ('. $scan_time[0] . ' / '.substr($scan_time[1], 0, -3).')</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b"><span class="'.htmlspecialchars($spanClass).'">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . ' ('. $scan_time[0] . ' / '.substr($scan_time[1], 0, -3).')</span></div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>

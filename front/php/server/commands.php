@@ -5,7 +5,7 @@
 //
 //  commands.php - Back module. Server side. FileSystem Operations
 //------------------------------------------------------------------------------
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2025+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -41,22 +41,49 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 	}
 }
 
-//  PiAlert Reboot
 function PialertReboot() {
 	global $pia_lang;
+	global $pia_lang_selected;
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9993', '', '');
-	echo $pia_lang['SysInfo_Gen_execute_command'];
-	exec('sleep 5 && sudo /usr/sbin/shutdown -r 0', $output);
+	$php = '/usr/bin/php';
+	$script = __DIR__ . '/run_reboot.php';
+	$hash_needed = "a900a0b42cf922fd0027504cd03711fe";
+	$hash_actual = md5_file($script);
+	if ($hash_actual == $hash_needed) {
+		$token = bin2hex(random_bytes(16)); // Zufälliger Token
+		file_put_contents('/tmp/reboot_token', $token); // Token speichern
+
+		echo $pia_lang['SysInfo_Gen_execute_command'];
+		echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot_".$pia_lang_selected.".html'>";
+		flush();
+		exec("nohup $php $script $token > /dev/null 2>&1 &");
+	} else {
+		echo 'MD5 hash mismatch';
+	}
 }
 
 //  PiAlert Shutdown
 function PialertShutdown() {
 	global $pia_lang;
+	global $pia_lang_selected;
 
 	pialert_logging('a_025', $_SERVER['REMOTE_ADDR'], 'LogStr_9994', '', '');
-	echo $pia_lang['SysInfo_Gen_execute_command'];
-	exec('sleep 5 && sudo /usr/sbin/shutdown -h 0', $output);
+	$php = '/usr/bin/php';
+	$script = __DIR__ . '/run_shutdown.php';
+	$hash_needed = "9cac659a4a30b503a96cf652d09d9cb6";
+	$hash_actual = md5_file($script);
+	if ($hash_actual == $hash_needed) {
+		$token = bin2hex(random_bytes(16)); // Zufälliger Token
+		file_put_contents('/tmp/shutdown_token', $token); // Token speichern
+
+		echo $pia_lang['SysInfo_Gen_execute_command'];
+		echo "<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown_".$pia_lang_selected.".html'>";
+		flush();
+		exec("nohup $php $script $token > /dev/null 2>&1 &");
+	} else {
+		echo 'MD5 hash mismatch';
+	}
 }
 
 ?>

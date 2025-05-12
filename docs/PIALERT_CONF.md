@@ -227,10 +227,22 @@ I would like to give a short explanation to the individual points.
 
 | Option         | Description |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OPENWRT_ACTIVE | The package `luci-mod-rpc`need to be installed, on your OpenWrt router. If a OpenWRT is used in the network, it can be used as a data source. This can be activated or deactivated at this point. |
-| OPENWRT_IP     | IP address of the OpenWRT router.                                                                                                                                                                 |
+| OPENWRT_ACTIVE | The package `luci-mod-rpc`need to be installed, on your OpenWrt router. If a OpenWRT router is used in the network, it can be used as a data source. This can be activated or deactivated at this point. |
+| OPENWRT_IP     | IP address of the router.                                                                                                                                                                         |
 | OPENWRT_USER   | Username                                                                                                                                                                                          |
 | OPENWRT_PASS   | Password                                                                                                                                                                                          |
+
+
+#### Asus Router Configuration
+
+| Option         | Description |
+|----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ASUSWRT_ACTIVE | If a Asus router is used in the network, it can be used as a data source. This can be activated or deactivated at this point. The Python package “asusrouter” is used for communication with the router, which supports a large number of devices. You can check whether your router is supported at “https://pypi.org/project/asusrouter/”. |
+| ASUSWRT_IP     | IP address of the router.                                                                                                                                                                         |
+| ASUSWRT_USER   | Username                                                                                                                                                                                          |
+| ASUSWRT_PASS   | Password                                                                                                                                                                                          |
+| ASUSWRT_SSL    | Is https is True or False?                                                                                                                                                                        |
+
 
 #### Satellite Configuration
 

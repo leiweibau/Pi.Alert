@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.32'
+SCRIPTVERSION='v1.33'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -700,6 +700,20 @@ EOM
       sqlite3 $PIA_DB_FILE "ALTER TABLE 'Satellites' ADD COLUMN 'sat_conf_scan_pihole_dhcp' BOOLEAN NOT NULL DEFAULT 0;"
     else
       echo "        Column 'sat_conf_scan_pihole_dhcp' already exists in the 'Satellites' table."
+    fi
+    # Openwrt_Network
+    echo -e "...Insert new table 'Openwrt_Network' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Openwrt_Network' ('OWRT_MAC' STRING(50) NOT NULL COLLATE NOCASE, 'OWRT_IP' STRING(50) COLLATE NOCASE, 'OWRT_Name' STRING(50), 'OWRT_Vendor' STRING(250));"
+    # Asuswrt_Network
+    echo -e "...Insert new table 'Asuswrt_Network' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Asuswrt_Network' ('ASUS_MAC' STRING(50) NOT NULL COLLATE NOCASE, 'ASUS_IP' STRING(50) COLLATE NOCASE, 'ASUS_Name' STRING(50), 'ASUS_Vendor' STRING(250),  'ASUS_Method' STRING(50));"
+    # Satellites.sat_conf_scan_asuswrt
+    echo -e "...Insert new column 'sat_conf_scan_asuswrt' to table 'Satellites' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Satellites');" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_asuswrt")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Satellites' ADD COLUMN 'sat_conf_scan_asuswrt' BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'sat_conf_scan_asuswrt' already exists in the 'Satellites' table."
     fi
 
     echo -e "\nUpdate finished!\n"

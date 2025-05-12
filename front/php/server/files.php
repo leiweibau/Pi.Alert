@@ -251,7 +251,7 @@ SATELLITES_ACTIVE          = " . convert_bool($configArray['SATELLITES_ACTIVE'])
 SCAN_ROGUE_DHCP            = " . convert_bool($configArray['SCAN_ROGUE_DHCP']) . "
 DHCP_SERVER_ADDRESS        = '" . $configArray['DHCP_SERVER_ADDRESS'] . "'
 # DHCP_SERVER_ADDRESS        = '192.168.1.1'
-# DHCP_SERVER_ADDRESS        = ['192.168.1.1', '10.0.0.1']
+# DHCP_SERVER_ADDRESS        = ['192.168.1.1','10.0.0.1']
 
 # Custom Cronjobs
 # ----------------------
@@ -397,6 +397,14 @@ OPENWRT_ACTIVE            = " . convert_bool($configArray['OPENWRT_ACTIVE']) . "
 OPENWRT_IP                = '" . $configArray['OPENWRT_IP'] . "'
 OPENWRT_USER              = '" . $configArray['OPENWRT_USER'] . "'
 OPENWRT_PASS              = '" . $configArray['OPENWRT_PASS'] . "'
+
+# AsusWRT Configuration
+# ----------------------
+ASUSWRT_ACTIVE            = " . convert_bool($configArray['ASUSWRT_ACTIVE']) . "
+ASUSWRT_IP                = '" . $configArray['ASUSWRT_IP'] . "'
+ASUSWRT_USER              = '" . $configArray['ASUSWRT_USER'] . "'
+ASUSWRT_PASS              = '" . $configArray['ASUSWRT_PASS'] . "'
+ASUSWRT_SSL               = " . convert_bool($configArray['ASUSWRT_SSL']) . "
 
 # Satellite Configuration
 # -----------------------
@@ -1098,6 +1106,7 @@ function ToggleImport() {
         'MT' => 'MIKROTIK_ACTIVE',
         'UF' => 'UNIFI_ACTIVE',
         'OW' => 'OPENWRT_ACTIVE',
+        'AW' => 'ASUSWRT_ACTIVE',
         'PiN' => 'PIHOLE_ACTIVE',
         'PiD' => 'DHCP_ACTIVE',
     ];

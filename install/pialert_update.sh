@@ -449,6 +449,20 @@ OPENWRT_PASS              = ''
 EOF
 fi
 
+# 2025-05-01
+if ! grep -Fq "# AsusWRT Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# AsusWRT Configuration
+# ----------------------
+ASUSWRT_ACTIVE            = False
+ASUSWRT_IP                = '192.168.1.1'
+ASUSWRT_USER              = 'root'
+ASUSWRT_PASS              = ''
+ASUSWRT_SSL               = False
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------
@@ -587,6 +601,7 @@ check_python_version() {
     check_and_install_package "routeros_api"
     check_and_install_package "pyunifi"
     check_and_install_package "openwrt-luci-rpc"
+    check_and_install_package "asusrouter"
   else
     print_msg "Python 3 NOT installed"
     process_error "Python 3 is required for this application"

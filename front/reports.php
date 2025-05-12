@@ -184,7 +184,7 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 	          <div class="box-header">
 	            <h3 class="box-title" style="color: ' . $color . '"><i class="fa ' . $notification_icon . '"></i>&nbsp;&nbsp;' . $event_time . ' - ' . $class_name . '</h3>
 	        </div>
-	        <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
+	        <div class="box-body" style="height:250px;"><pre style="background-color: transparent; border: none; overflow: auto; height:240px">' . $webgui_report . '</pre></div>
             <div class="box-footer text-center">
                 '. report_footer_buttons($directory, $filename) .'
             </div>
@@ -232,7 +232,7 @@ function process_icmp_notifications($class_name, $event_time, $filename, $direct
 	          <div class="box-header">
 	            <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-laptop"></i>&nbsp;&nbsp;' . $event_time . ' - ' . $class_name . '</h3>
 	          </div>
-	        <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
+	        <div class="box-body" style="height:250px;"><pre style="background-color: transparent; border: none; overflow: auto; height:240px">' . $webgui_report . '</pre></div>
             <div class="box-footer text-center">
                 '. report_footer_buttons($directory, $filename) .'
             </div>
@@ -246,7 +246,7 @@ function process_test_notifications($class_name, $event_time, $filename, $direct
             <div class="box-header">
               <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . $event_time . ' - System Message</h3>
             </div>
-            <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre></div>
+            <div class="box-body" style="height:250px;"><pre style="background-color: transparent; border: none; overflow: auto; height:240px">' . $webgui_report . '</pre></div>
             <div class="box-footer text-center">
                 '. report_footer_buttons($directory, $filename) .'
             </div>
@@ -423,8 +423,16 @@ generate_report_button($_REQUEST['report_source']);
 for ($x = 0; $x < sizeof($special_notification); $x++) {
 	echo $special_notification[$x];
 }
-for ($x = 0; $x < sizeof($standard_notification); $x++) {
-	echo $standard_notification[$x];
+
+// for ($x = 0; $x < sizeof($standard_notification); $x++) {
+// 	echo $standard_notification[$x];
+// }
+
+for ($x = 0; $x < sizeof($standard_notification); $x=$x+2) {
+	echo '<div class="row">
+        	<div class="col-lg-6 col-xs-12">'.$standard_notification[$x].'</div>
+        	<div class="col-lg-6 col-xs-12">'.$standard_notification[$x+1].'</div>
+      	  </div>';
 }
 ?>
 

@@ -14,10 +14,15 @@ sudo reboot
 
 ## Ubuntu Server
 
+- Tested with Ubuntu Server 24.0x LTS and 25.0x
 - It may happen that during the installation, the installation pauses after the text output "Scanning linux images..." without any further notice. At this point, pressing the Enter key will continue the installation. This can be repeated several times.
   
   ![linuxdist1][linuxdist1] 
 
+- To set the time zone correctly, use the command:
+```
+tzselect
+```
 
 [Back](https://github.com/leiweibau/Pi.Alert#installation)
 

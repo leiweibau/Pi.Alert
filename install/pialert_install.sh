@@ -278,12 +278,14 @@ install_python() {
       pip3 -q install routeros_api --break-system-packages --no-warn-script-location            2>&1 >> "$LOG"
       pip3 -q install pyunifi --break-system-packages --no-warn-script-location                 2>&1 >> "$LOG"
       pip3 -q install openwrt-luci-rpc --break-system-packages --no-warn-script-location        2>&1 >> "$LOG"
+      pip3 -q install asusrouter --break-system-packages --no-warn-script-location              2>&1 >> "$LOG"
     else
       pip3 -q install mac-vendor-lookup  --no-warn-script-location                              2>&1 >> "$LOG"
       pip3 -q install fritzconnection --no-warn-script-location                                 2>&1 >> "$LOG"
       pip3 -q install routeros_api --no-warn-script-location                                    2>&1 >> "$LOG"
       pip3 -q install pyunifi --no-warn-script-location                                         2>&1 >> "$LOG"
       pip3 -q install openwrt-luci-rpc --no-warn-script-location                                2>&1 >> "$LOG"
+      pip3 -q install asusrouter --break-system-packages --no-warn-script-location              2>&1 >> "$LOG"
     fi
 
     PYTHON_BIN="python3"
@@ -511,6 +513,7 @@ publish_pialert() {
   sudo ln -s ../conf-available/pialert_front.conf  "$LIGHTTPD_CONF_DIR/conf-enabled/pialert_front.conf"         2>&1 >> "$LOG"
 
   print_msg "- Restarting lighttpd..."
+
   sudo service lighttpd restart                                                                                 2>&1 >> "$LOG"
   # sudo /etc/init.d/lighttpd restart                             2>&1 >> "$LOG"
 }
