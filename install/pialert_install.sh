@@ -513,7 +513,8 @@ publish_pialert() {
   sudo ln -s ../conf-available/pialert_front.conf  "$LIGHTTPD_CONF_DIR/conf-enabled/pialert_front.conf"         2>&1 >> "$LOG"
 
   print_msg "- Restarting lighttpd..."
-  sudo service lighttpd restart                                                                            2>&1 >> "$LOG"
+
+  sudo service lighttpd restart                                                                                 2>&1 >> "$LOG"
   # sudo /etc/init.d/lighttpd restart                             2>&1 >> "$LOG"
 }
 
