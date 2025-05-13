@@ -73,15 +73,10 @@ You can also find the script in the directory “pialert/install/” in versions
 In this case you should update the existing python package. You can do this with the following command.
 
 ```
-pip3 install <package> --upgrade
-```
-or
-
-```
-pip3 list --outdated --format=freeze | cut -d '=' -f 1 | xargs -n1 pip3 install -U
+python3 -m pip install "requests>=2.31.0" --break-system-packages
 ```
 
-Depending on the distribution used, you may need to add the “--break-system-packages” parameter
+Depending on the distribution used, you may not need the “--break-system-packages” parameter
 
 <hr>
 
