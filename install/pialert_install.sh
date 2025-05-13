@@ -288,6 +288,8 @@ install_python() {
       pip3 -q install asusrouter --break-system-packages --no-warn-script-location              2>&1 >> "$LOG"
     fi
 
+    python3 -m pip install "requests>=2.31.0" --break-system-packages                           2>&1 >> "$LOG"
+
     PYTHON_BIN="python3"
   else
     process_error "Unknown Python version to use: $USE_PYTHON_VERSION"
