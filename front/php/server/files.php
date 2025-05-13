@@ -168,6 +168,13 @@ function convert_bool($var) {
 	if ($var == 1) {return "True";} else {return "False";}
 }
 
+function serializeList($ListString) {
+	$ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
+	$ignorlist_replace = array("[", "]", ",", "','", "['", "']");
+	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
+	return $temp;
+}
+
 //  Save Config
 function SaveConfigFile() {
 	global $pia_lang;
@@ -178,10 +185,7 @@ function SaveConfigFile() {
 	$configContent = preg_replace('/^\s*#.*$/m', '', $_REQUEST['configfile']);
 	$configArray = parse_ini_string($configContent);
 
-	$ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
-	$ignorlist_replace = array("[", "]", ",", "','", "['", "']");
 	// Handle some special entries
-	$configArray['DHCP_SERVER_ADDRESS'] = str_replace($ignorlist_search, $ignorlist_replace, $configArray['DHCP_SERVER_ADDRESS']);
 	$Mail_Reort = str_replace(" ", "", $configArray['REPORT_FROM']);
 	if (stristr($Mail_Reort, "<+SMTP_USER+>")) {
 		$mail_parts = array();
@@ -191,19 +195,26 @@ function SaveConfigFile() {
 		$mail_parts[1] = str_replace("<+SMTP_USER+>", "<' + SMTP_USER + '>", $mail_parts[1]);
 		$configArray['REPORT_FROM'] = $mail_parts[0] . $mail_parts[1];
 	}
+	
+	if (strpos($configArray['DHCP_SERVER_ADDRESS'], '[') !== false || strpos($configArray['DHCP_SERVER_ADDRESS'], ']') !== false) {
+	    $configArray['DHCP_SERVER_ADDRESS'] = serializeList($configArray['DHCP_SERVER_ADDRESS']);
+	} else {
+	    $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
+	}
+
 	if ($configArray['MAC_IGNORE_LIST'] != "" && $configArray['MAC_IGNORE_LIST'] != "[]") {
-		$configArray['MAC_IGNORE_LIST'] = str_replace($ignorlist_search, $ignorlist_replace, $configArray['MAC_IGNORE_LIST']);
+		$configArray['MAC_IGNORE_LIST'] = serializeList($configArray['MAC_IGNORE_LIST']);
 	} else {
 		$configArray['MAC_IGNORE_LIST'] = "[]";
 	}
 	if ($configArray['IP_IGNORE_LIST'] != "" && $configArray['IP_IGNORE_LIST'] != "[]") {
-		$configArray['IP_IGNORE_LIST'] = str_replace($ignorlist_search, $ignorlist_replace, $configArray['IP_IGNORE_LIST']);
+		$configArray['IP_IGNORE_LIST'] = serializeList($configArray['IP_IGNORE_LIST']);
 	} else {
 		$configArray['IP_IGNORE_LIST'] = "[]";
 	}
 
 	if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
-		$configArray['SCAN_SUBNETS'] = str_replace($ignorlist_search, $ignorlist_replace, $configArray['SCAN_SUBNETS']);
+		$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
 	}
 	if ($configArray['PUSHSAFER_PRIO'] == "") {$configArray['PUSHSAFER_PRIO'] = 0;}
 	if ($configArray['PUSHOVER_PRIO'] == "") {$configArray['PUSHOVER_PRIO'] = 0;}
@@ -249,7 +260,7 @@ SATELLITES_ACTIVE          = " . convert_bool($configArray['SATELLITES_ACTIVE'])
 # Special Protocol Scanning
 # ----------------------
 SCAN_ROGUE_DHCP            = " . convert_bool($configArray['SCAN_ROGUE_DHCP']) . "
-DHCP_SERVER_ADDRESS        = '" . $configArray['DHCP_SERVER_ADDRESS'] . "'
+DHCP_SERVER_ADDRESS        = " . $configArray['DHCP_SERVER_ADDRESS'] . "
 # DHCP_SERVER_ADDRESS        = '192.168.1.1'
 # DHCP_SERVER_ADDRESS        = ['192.168.1.1','10.0.0.1']
 
