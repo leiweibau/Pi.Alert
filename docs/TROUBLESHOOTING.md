@@ -76,9 +76,10 @@ In this case you should update the existing python package. You can do this with
 pip3 install <package> --upgrade
 ```
 or
-ˋˋˋ
+
+```
 pip3 list --outdated --format=freeze | cut -d '=' -f 1 | xargs -n1 pip3 install -U
-ˋˋˋ
+```
 
 Depending on the distribution used, you may need to add the “--break-system-packages” parameter
 
