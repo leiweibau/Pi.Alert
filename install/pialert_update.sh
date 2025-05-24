@@ -603,6 +603,7 @@ check_python_version() {
     check_and_install_package "openwrt-luci-rpc"
     check_and_install_package "asusrouter"
 
+    print_msg "- Update 'requests' package to 2.31.0"
     if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
       pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location       2>&1 >> "$LOG"
     else
