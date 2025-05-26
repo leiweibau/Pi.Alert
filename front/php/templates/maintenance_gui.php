@@ -22,6 +22,10 @@
                                             <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','fr_fr');"><?=$pia_lang['MT_lang_fr_fr'];?></a></li>
                                             <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','es_es');"><?=$pia_lang['MT_lang_es_es'];?></a></li>
                                             <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','it_it');"><?=$pia_lang['MT_lang_it_it'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','pl_pl');"><?=$pia_lang['MT_lang_pl_pl'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','nl_nl');"><?=$pia_lang['MT_lang_nl_nl'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','dk_da');"><?=$pia_lang['MT_lang_dk_da'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','cz_cs');"><?=$pia_lang['MT_lang_cz_cs'];?></a></li>
                                           </ul>
                                         </div>
                                       </div>
