@@ -1947,8 +1947,6 @@ def dump_all_resulttables():
 #-------------------------------------------------------------------------------
 def remove_entries_from_table():
     try:
-        MAC_IGNORE_LIST
-
         if MAC_IGNORE_LIST:
             print(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
 
@@ -1982,7 +1980,6 @@ def remove_entries_from_table():
         print("        No MAC-Ignore list defined")
 
     try:
-
         if IP_IGNORE_LIST:
             print(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
 
@@ -2012,6 +2009,74 @@ def remove_entries_from_table():
 
     except NameError:
         print("        No IP-Ignore list defined")
+
+    try:
+        if HOSTNAME_IGNORE_LIST:
+            print(f'        {len(HOSTNAME_IGNORE_LIST)} Hostnames are ignored during the scan')
+            source_tables = [
+                ("PiHole_Network", "PH_MAC", "PH_Name"),
+                ("DHCP_Leases", "DHCP_MAC", "DHCP_Name"),
+                ("Fritzbox_Network", "FB_MAC", "FB_Name"),
+                ("Mikrotik_Network", "MT_MAC", "MT_Name"),
+                ("Unifi_Network", "UF_MAC", "UF_Name"),
+                ("Openwrt_Network", "OWRT_MAC", "OWRT_Name"),
+                ("Asuswrt_Network", "ASUS_MAC", "ASUS_Name"),
+            ]
+
+            matched_macs = set()
+
+            for map_tablename, map_mac, map_name in source_tables:
+                query = f"SELECT {map_mac}, {map_name} FROM {map_tablename}"
+                sql.execute(query)
+                for mac, name in sql.fetchall():
+                    if hostname_ignorelist_filter(name):
+                        matched_macs.add(mac)
+
+            # print("====================================")
+            # print(matched_macs)
+
+            work_tables = {
+                'CurrentScan': 'cur_MAC',
+                'PiHole_Network': 'PH_MAC',
+                'DHCP_Leases': 'DHCP_MAC',
+                'Fritzbox_Network': 'FB_MAC',
+                'Mikrotik_Network': 'MT_MAC',
+                'Unifi_Network': 'UF_MAC',
+                'Openwrt_Network': 'OWRT_MAC',
+                'Asuswrt_Network': 'ASUS_MAC'
+            }
+
+            for tabelle, mac_spalte in work_tables.items():
+                for mac in matched_macs:
+                    sql.execute(
+                        f"DELETE FROM {tabelle} WHERE {mac_spalte} = ? COLLATE NOCASE",
+                        (mac,)
+                    )
+
+        else:
+            print('        Hostname-Ignore list is empty')
+
+    except NameError:
+        print("        No Hostname-Ignore list defined")
+
+#-------------------------------------------------------------------------------
+def hostname_ignorelist_filter(hostname: str) -> bool:
+    hostname = hostname.lower()
+    for f in HOSTNAME_IGNORE_LIST:
+        f = f.lower()
+        if f.startswith("*") and f.endswith("*"):
+            if f.strip("*") in hostname:
+                return True
+        elif f.startswith("*"):
+            if hostname.endswith(f[1:]):
+                return True
+        elif f.endswith("*"):
+            if hostname.startswith(f[:-1]):
+                return True
+        else:
+            if hostname == f:
+                return True
+    return False
 
 #-------------------------------------------------------------------------------
 def print_scan_stats():

@@ -463,6 +463,14 @@ ASUSWRT_SSL               = False
 EOF
 fi
 
+# 2025-05-01
+if ! grep -Fq "HOSTNAME_IGNORE_LIST" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+HOSTNAME_IGNORE_LIST    = []
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

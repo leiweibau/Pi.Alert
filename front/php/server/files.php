@@ -201,7 +201,7 @@ function SaveConfigFile() {
 	} else {
 	    $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
 	}
-
+	// Ignore List Syntax handling start
 	if ($configArray['MAC_IGNORE_LIST'] != "" && $configArray['MAC_IGNORE_LIST'] != "[]") {
 		$configArray['MAC_IGNORE_LIST'] = serializeList($configArray['MAC_IGNORE_LIST']);
 	} else {
@@ -212,7 +212,12 @@ function SaveConfigFile() {
 	} else {
 		$configArray['IP_IGNORE_LIST'] = "[]";
 	}
-
+	if ($configArray['HOSTNAME_IGNORE_LIST'] != "" && $configArray['HOSTNAME_IGNORE_LIST'] != "[]") {
+		$configArray['HOSTNAME_IGNORE_LIST'] = serializeList($configArray['HOSTNAME_IGNORE_LIST']);
+	} else {
+		$configArray['HOSTNAME_IGNORE_LIST'] = "[]";
+	}
+    // Ignore List Syntax handling stop
 	if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
 		$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
 	}
@@ -357,6 +362,7 @@ SPEEDTEST_TASK_ACTIVE      = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIV
 ARPSCAN_ACTIVE             = " . convert_bool($configArray['ARPSCAN_ACTIVE']) . "
 MAC_IGNORE_LIST            = " . $configArray['MAC_IGNORE_LIST'] . "
 IP_IGNORE_LIST             = " . $configArray['IP_IGNORE_LIST'] . "
+HOSTNAME_IGNORE_LIST       = " . $configArray['HOSTNAME_IGNORE_LIST'] . "
 SCAN_SUBNETS               = " . $configArray['SCAN_SUBNETS'] . "
 # SCAN_SUBNETS               = '--localnet'
 # SCAN_SUBNETS               = '--localnet --interface=eth0'

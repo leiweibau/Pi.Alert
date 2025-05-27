@@ -53,6 +53,11 @@ if ($IP_IGNORE_LIST_LINE == "" || $IP_IGNORE_LIST_LINE == "[]") {$IP_IGNORE_LIST
     $IP_IGNORE_LIST = str_replace("[", "", str_replace("]", "", str_replace("'", "", trim($IP_IGNORE_LIST_LINE))));
     $IP_IGNORE_LIST = str_replace(",", ", ", trim($IP_IGNORE_LIST));
 }
+$NAME_IGNORE_LIST_LINE = get_config_parmeter('HOSTNAME_IGNORE_LIST');
+if ($NAME_IGNORE_LIST_LINE == "" || $NAME_IGNORE_LIST_LINE == "[]") {$NAME_IGNORE_LIST = $pia_lang['MT_Tool_ignorelist_false'];} else {
+    $NAME_IGNORE_LIST = str_replace("[", "", str_replace("]", "", str_replace("'", "", trim($NAME_IGNORE_LIST_LINE))));
+    $NAME_IGNORE_LIST = str_replace(",", ", ", trim($NAME_IGNORE_LIST));
+}
 // Get Notification Settings --------------------------------------------------
 $CONFIG_FILE_SOURCE = "../config/pialert.conf";
 $CONFIG_FILE_KEY_LINE = file($CONFIG_FILE_SOURCE);
@@ -179,6 +184,12 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
                     <div class="db_info_table_cell"><?=$pia_lang['MT_Tool_ignorelist'];?> (IP)</div>
                     <div class="db_info_table_cell">
                         <?=$IP_IGNORE_LIST;?>
+                    </div>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="db_info_table_cell"><?=$pia_lang['MT_Tool_ignorelist'];?> (Name)</div>
+                    <div class="db_info_table_cell">
+                        <?=$NAME_IGNORE_LIST;?>
                     </div>
                 </div>
             </div>
