@@ -80,6 +80,10 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'getLocations':getLocations();
 		break;
+	case 'getLinkSpeed':getLinkSpeed();
+		break;
+	case 'getConnectionType':getConnectionType();
+		break;
 	case 'EnableMainScan':EnableMainScan();
 		break;
 	case 'EnableSatelliteScan':EnableSatelliteScan();
@@ -653,17 +657,26 @@ function getDevicesListCalendar() {
 function getOwners() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Owner
+	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Owner AS DeviceOwner
           FROM Devices
           WHERE dev_Owner <> "(unknown)" AND dev_Owner <> ""
             AND dev_Favorite = 1
-        UNION
-          SELECT DISTINCT 2 as dev_Order, dev_Owner
+          
+          UNION
+          
+          SELECT DISTINCT 2 as dev_Order, dev_Owner AS DeviceOwner
           FROM Devices
           WHERE dev_Owner <> "(unknown)" AND dev_Owner <> ""
             AND dev_Favorite = 0
             AND dev_Owner NOT IN
                (SELECT dev_Owner FROM Devices WHERE dev_Favorite = 1)
+
+		UNION
+
+		SELECT DISTINCT 2 as dev_Order, icmp_owner AS DeviceOwner
+		FROM ICMP_Mon
+		WHERE icmp_owner NOT IN ("(unknown)") AND icmp_owner <> ""
+
         ORDER BY 1,2 ';
 	$result = $db->query($sql);
 
@@ -671,7 +684,7 @@ function getOwners() {
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_Owner']);
+			'name' => $row['DeviceOwner']);
 	}
 	// Return json
 	echo json_encode($tableData);
@@ -681,9 +694,20 @@ function getOwners() {
 function getDeviceTypes() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_DeviceType
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_DeviceType AS DeviceType
           FROM Devices
-          WHERE dev_DeviceType NOT IN ("",
+          WHERE dev_DeviceType <> "" AND dev_DeviceType NOT IN ("",
+                 "Smartphone", "Tablet",
+                 "Laptop", "PC", "Printer", "Server", "Singleboard Computer (SBC)",
+                 "Game Console", "SmartTV", "Virtual Assistance",
+                 "House Appliance", "Phone", "Radio",
+                 "AP", "NAS", "Router", "Hypervisor", "USB WIFI Adapter", "USB LAN Adapter")
+
+		UNION
+
+		SELECT DISTINCT 9 as dev_Order, icmp_type AS DeviceType
+		FROM ICMP_Mon
+		WHERE icmp_type <> "" AND icmp_type NOT IN ("",
                  "Smartphone", "Tablet",
                  "Laptop", "PC", "Printer", "Server", "Singleboard Computer (SBC)",
                  "Game Console", "SmartTV", "Virtual Assistance",
@@ -723,7 +747,7 @@ function getDeviceTypes() {
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_DeviceType']);
+			'name' => $row['DeviceType']);
 	}
 	// Return json
 	echo json_encode($tableData);
@@ -733,13 +757,50 @@ function getDeviceTypes() {
 function getGroups() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Group
+	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Group  AS GroupName
           FROM Devices
           WHERE dev_Group NOT IN ("(unknown)", "Others") AND dev_Group <> ""
+
+		UNION
+
+		SELECT DISTINCT 1 as dev_Order, icmp_group AS GroupName
+		FROM ICMP_Mon
+		WHERE icmp_group NOT IN ("(unknown)", "Others") AND icmp_group <> ""
+
           UNION SELECT 1 as dev_Order, "Always on"
           UNION SELECT 1 as dev_Order, "Friends"
           UNION SELECT 1 as dev_Order, "Personal"
           UNION SELECT 2 as dev_Order, "Others"
+          ORDER BY dev_Order, GroupName';
+	$result = $db->query($sql);
+
+	// arrays of rows
+	$tableData = array();
+	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$tableData[] = array('order' => $row['dev_Order'],
+			'name' => $row['GroupName']);
+	}
+
+	// Return json
+	echo json_encode($tableData);
+}
+
+//  Query the List of LinkSpeed
+function getLinkSpeed() {
+	global $db;
+
+	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_LinkSpeed
+          FROM Devices
+          WHERE dev_LinkSpeed NOT IN ("(unknown)", "Others") AND dev_LinkSpeed <> ""
+          UNION SELECT 1 as dev_Order, "10 Mbps"
+          UNION SELECT 1 as dev_Order, "100 Mbps"
+          UNION SELECT 2 as dev_Order, "1.0 Gbps"
+          UNION SELECT 2 as dev_Order, "2.5 Gbps"
+          UNION SELECT 2 as dev_Order, "5 Gbps"
+          UNION SELECT 3 as dev_Order, "10 Gbps"
+          UNION SELECT 3 as dev_Order, "20 Gbps"
+          UNION SELECT 3 as dev_Order, "25 Gbps"
+          UNION SELECT 3 as dev_Order, "40 Gbps"
           ORDER BY 1,2 ';
 	$result = $db->query($sql);
 
@@ -747,7 +808,34 @@ function getGroups() {
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_Group']);
+			'name' => $row['dev_LinkSpeed']);
+	}
+
+	// Return json
+	echo json_encode($tableData);
+}
+
+//  Query the List of ConnectionType
+function getConnectionType() {
+	global $db;
+
+	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_ConnectionType
+          FROM Devices
+          WHERE dev_ConnectionType NOT IN ("(unknown)", "Others") AND dev_ConnectionType <> ""
+          UNION SELECT 1 as dev_Order, "Ethernet"
+          UNION SELECT 1 as dev_Order, "Fibre"
+          UNION SELECT 2 as dev_Order, "WiFi"
+          UNION SELECT 2 as dev_Order, "Bluetooth"
+          UNION SELECT 3 as dev_Order, "Virtual Machine"
+          UNION SELECT 3 as dev_Order, "Container"
+          ORDER BY 1,2 ';
+	$result = $db->query($sql);
+
+	// arrays of rows
+	$tableData = array();
+	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$tableData[] = array('order' => $row['dev_Order'],
+			'name' => $row['dev_ConnectionType']);
 	}
 
 	// Return json
@@ -758,15 +846,24 @@ function getGroups() {
 function getLocations() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_Location
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_Location AS Location
           FROM Devices
           WHERE dev_Location <> ""
             AND dev_Location NOT IN (
                 "Bathroom", "Bedroom", "Dining room", "Hallway",
                 "Kitchen", "Laundry", "Living room", "Study",
-                "Attic", "Basement", "Garage",
-                "Back yard", "Garden", "Terrace",
                 "Other")
+
+		UNION
+
+		SELECT DISTINCT 9 as dev_Order, icmp_location AS Location
+		FROM ICMP_Mon
+		WHERE icmp_location <> ""
+            AND icmp_location NOT IN (
+                "Bathroom", "Bedroom", "Dining room", "Hallway",
+                "Kitchen", "Laundry", "Living room", "Study",
+                "Other")
+
 
           UNION SELECT 1 as dev_Order, "Bathroom"
           UNION SELECT 1 as dev_Order, "Bedroom"
@@ -777,23 +874,16 @@ function getLocations() {
           UNION SELECT 1 as dev_Order, "Living room"
           UNION SELECT 1 as dev_Order, "Study"
 
-          UNION SELECT 2 as dev_Order, "Attic"
-          UNION SELECT 2 as dev_Order, "Basement"
-          UNION SELECT 2 as dev_Order, "Garage"
-
-          UNION SELECT 3 as dev_Order, "Back yard"
-          UNION SELECT 3 as dev_Order, "Garden"
-          UNION SELECT 3 as dev_Order, "Terrace"
-
           UNION SELECT 10 as dev_Order, "Other"
           ORDER BY 1,2 ';
+
 
 	$result = $db->query($sql);
 	// arrays of rows
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_Location']);
+			'name' => $row['Location']);
 	}
 	// Return json
 	echo json_encode($tableData);

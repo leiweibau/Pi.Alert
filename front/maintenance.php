@@ -43,21 +43,18 @@ $APIKEY = get_config_parmeter('PIALERT_APIKEY');
 if ($APIKEY == "") {$APIKEY = $pia_lang['MT_Tool_setapikey_false'];}
 
 // Get Ignore List ------------------------------------------------------------
-$MAC_IGNORE_LIST_LINE = get_config_parmeter('MAC_IGNORE_LIST');
-if ($MAC_IGNORE_LIST_LINE == "" || $MAC_IGNORE_LIST_LINE == "[]") {$MAC_IGNORE_LIST = $pia_lang['MT_Tool_ignorelist_false'];} else {
-	$MAC_IGNORE_LIST = str_replace("[", "", str_replace("]", "", str_replace("'", "", trim($MAC_IGNORE_LIST_LINE))));
-	$MAC_IGNORE_LIST = str_replace(",", ", ", trim($MAC_IGNORE_LIST));
+function parse_ignore_list($line, $placeholder_text) {
+    if ($line === "" || $line === "[]") {
+        return $placeholder_text;
+    }
+    $line = str_replace(["[", "]", "'"], "", $line);
+    return str_replace(",", ", ", $line);
 }
-$IP_IGNORE_LIST_LINE = get_config_parmeter('IP_IGNORE_LIST');
-if ($IP_IGNORE_LIST_LINE == "" || $IP_IGNORE_LIST_LINE == "[]") {$IP_IGNORE_LIST = $pia_lang['MT_Tool_ignorelist_false'];} else {
-    $IP_IGNORE_LIST = str_replace("[", "", str_replace("]", "", str_replace("'", "", trim($IP_IGNORE_LIST_LINE))));
-    $IP_IGNORE_LIST = str_replace(",", ", ", trim($IP_IGNORE_LIST));
-}
-$NAME_IGNORE_LIST_LINE = get_config_parmeter('HOSTNAME_IGNORE_LIST');
-if ($NAME_IGNORE_LIST_LINE == "" || $NAME_IGNORE_LIST_LINE == "[]") {$NAME_IGNORE_LIST = $pia_lang['MT_Tool_ignorelist_false'];} else {
-    $NAME_IGNORE_LIST = str_replace("[", "", str_replace("]", "", str_replace("'", "", trim($NAME_IGNORE_LIST_LINE))));
-    $NAME_IGNORE_LIST = str_replace(",", ", ", trim($NAME_IGNORE_LIST));
-}
+
+$MAC_IGNORE_LIST = parse_ignore_list(get_config_parmeter('MAC_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+$IP_IGNORE_LIST = parse_ignore_list(get_config_parmeter('IP_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+$NAME_IGNORE_LIST = parse_ignore_list(get_config_parmeter('HOSTNAME_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+
 // Get Notification Settings --------------------------------------------------
 $CONFIG_FILE_SOURCE = "../config/pialert.conf";
 $CONFIG_FILE_KEY_LINE = file($CONFIG_FILE_SOURCE);

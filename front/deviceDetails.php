@@ -178,8 +178,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-caret-down"></span></button>
-                              <ul id="dropdownOwner" class="dropdown-menu dropdown-menu-right">
-                              </ul>
+                              <ul id="dropdownOwner" class="dropdown-menu dropdown-menu-right"></ul>
                             </div>
                           </div>
                         </div>
@@ -194,12 +193,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" >
                                 <span class="fa fa-caret-down"></span></button>
-                              <ul id="dropdownDeviceType" class="dropdown-menu dropdown-menu-right">
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtDeviceType','Smartphone')"> Smartphone </a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtDeviceType','Laptop')">     Laptop     </a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtDeviceType','PC')">         PC         </a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtDeviceType','Others')">     Others     </a></li>
-                              </ul>
+                              <ul id="dropdownDeviceType" class="dropdown-menu dropdown-menu-right"></ul>
                             </div>
                           </div>
                         </div>
@@ -232,13 +226,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-caret-down"></span></button>
-                              <ul id="dropdownGroup" class="dropdown-menu dropdown-menu-right">
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtGroup','Always On')"> Always On </a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtGroup','Friends')">   Friends   </a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtGroup','Personal')">  Personal  </a></li>
-                                <li class="divider"></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtGroup','Others')">    Others    </a></li>
-                              </ul>
+                              <ul id="dropdownGroup" class="dropdown-menu dropdown-menu-right"></ul>
                             </div>
                           </div>
                         </div>
@@ -359,14 +347,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-caret-down"></span></button>
-                              <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right">
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Ethernet')">        Ethernet</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Fibre')">           Fibre</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','WiFi')">            WiFi</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Bluetooth')">       Bluetooth</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Virtual Machine')"> Virtual Machine</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtConnectionType','Container')">       Container</a></li>
-                              </ul>
+                              <ul id="dropdownConnectionType" class="dropdown-menu dropdown-menu-right"></ul>
                             </div>
                           </div>
                         </div>
@@ -381,16 +362,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-caret-down"></span></button>
-                              <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right">
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','10 Mbps')">    10 Mbps</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','100 Mbps')">  100 Mbps</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','1.0 Gbps')">  1.0 Gbps</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','2.5 Gbps')">  2.5 Gbps</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','10 Gbps')">    10 Gbps</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','20 Gbps')">    20 Gbps</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','25 Gbps')">    25 Gbps</a></li>
-                                <li><a href="javascript:void(0)" onclick="setTextValue('txtLinkSpeed','40 Gbps')">    40 Gbps</a></li>
-                              </ul>
+                              <ul id="dropdownLinkSpeed" class="dropdown-menu dropdown-menu-right"></ul>
                             </div>
                           </div>
                         </div>
@@ -947,11 +919,13 @@ function initializeiCheck () {
 // -----------------------------------------------------------------------------
 function initializeCombos () {
   // Initialize combos with queries
-  initializeCombo ( $('#dropdownOwner')[0],                      'getOwners',       'txtOwner');
-  initializeCombo ( $('#dropdownDeviceType')[0],                 'getDeviceTypes',  'txtDeviceType');
-  initializeCombo ( $('#dropdownGroup')[0],                      'getGroups',       'txtGroup');
-  initializeCombo ( $('#dropdownLocation')[0],                   'getLocations',    'txtLocation');
-  initializeCombo ( $('#dropdownNetworkNodeMac')[0],             'getNetworkNodes', 'txtNetworkNodeMac');
+  initializeCombo ( $('#dropdownOwner')[0],                 'getOwners',         'txtOwner');
+  initializeCombo ( $('#dropdownDeviceType')[0],            'getDeviceTypes',    'txtDeviceType');
+  initializeCombo ( $('#dropdownGroup')[0],                 'getGroups',         'txtGroup');
+  initializeCombo ( $('#dropdownLocation')[0],              'getLocations',      'txtLocation');
+  initializeCombo ( $('#dropdownNetworkNodeMac')[0],        'getNetworkNodes',   'txtNetworkNodeMac');
+  initializeCombo ( $('#dropdownLinkSpeed')[0],             'getLinkSpeed',      'txtLinkSpeed');
+  initializeCombo ( $('#dropdownConnectionType')[0],        'getConnectionType', 'txtConnectionType');
 
   // Initialize static combos
   initializeComboSkipRepeated ();
