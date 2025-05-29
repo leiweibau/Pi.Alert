@@ -453,7 +453,6 @@ function askDeleteUnknown() {
 function deleteUnknownDevices() {
 	$.get('php/server/devices.php?action=deleteUnknownDevices', function(msg) {showMessage (msg);});
 }
-
 // Toggle Imports
 function askToggleImport(fdeviceType,ftoggleState) {
   window.global_fdeviceType = fdeviceType;
@@ -471,7 +470,6 @@ function ToggleImport() {
     showMessage (msg);
   });
 }
-
 // delete all Events
 function askDeleteEvents() {
   showModalWarning('<?=$pia_lang['MT_Tool_del_allevents_noti'];?>', '<?=$pia_lang['MT_Tool_del_allevents_noti_text'];?>',
@@ -637,6 +635,47 @@ function PiAlertLoginDisable() {
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
 }
+
+
+function handleMTSelection (value) {
+
+  const actionMap = {
+    'Group': 'getGroups',
+    'Owner': 'getOwners',
+    'Type': 'getDeviceTypes',
+    'Location': 'getLocations'
+  };
+
+  const queryAction = actionMap[value];
+
+  // get data from server
+  $.get('php/server/devices.php?action='+queryAction, function(data) {
+    var listData = JSON.parse(data);
+    var order = 1;
+
+    $('#dropdownMTColumnContent')[0].innerHTML = ''
+    // for each item
+    listData.forEach(function (item, index) {
+      // insert line divisor
+      if (order != item['order']) {
+        $('#dropdownMTColumnContent')[0].innerHTML += '<li class="divider"></li>';
+        order = item['order'];
+      }
+
+      id = item['name'];
+      // use explicitly specified id (value) if avaliable
+      if(item['id'])
+      {
+        id = item['id'];
+      }
+
+      // add dropdown item
+      $('#dropdownMTColumnContent')[0].innerHTML +=
+        '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtMTColumnContent\',\''+ id +'\')">'+ item['name'] + '</a></li>'
+    });
+  });
+}
+
 
 // Set Theme
 function setPiAlertTheme () {
@@ -909,6 +948,34 @@ function DeleteSatellite(func_sat_name, func_sat_id) {
     + '&changed_satellite_name=' + $('#txtChangedSatelliteName_' + func_sat_id).val()
     + '&satellite_name=' + func_sat_name
     + '&sat_id=' + func_sat_id
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+// Update Column Data
+function askMTUpdateColumnContent() {
+  showModalWarning('Dummy Headline', 'Dummy Text',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'MTUpdateColumnContent');
+}
+function MTUpdateColumnContent() {
+    $.get('php/server/devices.php?action=MTUpdateColumnContent'
+    + '&column='     + $('#txtMTTableColumn').val()
+    + '&ccontent='   + $('#txtMTColumnContent').val()
+    + '&nccontent='  + $('#txtMTNewColumnContent').val()
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+// delete Column Data
+function askMTXDeletColumnContent() {
+  showModalWarning('Dummy Headline', 'Dummy Text',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'MTXDeletColumnContent');
+}
+function MTXDeletColumnContent() {
+    $.get('php/server/devices.php?action=MTXDeletColumnContent'
+    + '&column='     + $('#txtMTTableColumn').val()
+    + '&ccontent='   + $('#txtMTColumnContent').val()
+    + '&nccontent='  + $('#txtMTNewColumnContent').val()
     , function(msg) {
     showMessage (msg);
   });

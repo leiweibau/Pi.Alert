@@ -65,4 +65,47 @@
                     </div>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <h4 class="bottom-border-aqua">Einträge verwalten</h4>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-md-3">
+                    <label>Column</label><br>
+                    <div class="input-group dropup">
+                        <input class="form-control" id="txtMTTableColumn" type="text" readonly>
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" ><span class="fa fa-caret-down"></span></button>
+                                <ul id="dropdownMTTableColumn" class="dropdown-menu dropdown-menu-right">
+                                    <li><a href="javascript:void(0)" onclick="setTextValue('txtMTTableColumn','Group'); handleMTSelection('Group');">         Group     </a></li>
+                                    <li><a href="javascript:void(0)" onclick="setTextValue('txtMTTableColumn','Owner'); handleMTSelection('Owner');">         Owner     </a></li>
+                                    <li><a href="javascript:void(0)" onclick="setTextValue('txtMTTableColumn','Type'); handleMTSelection('Type');">           Type      </a></li>
+                                    <li><a href="javascript:void(0)" onclick="setTextValue('txtMTTableColumn','Location'); handleMTSelection('Location');">   Location  </a></li>
+                                </ul>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-3">
+                    <label>Column Content</label><br>
+                    <div class="input-group dropup">
+                        <input class="form-control" id="txtMTColumnContent" type="text" readonly>
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" ><span class="fa fa-caret-down"></span></button>
+                                <ul id="dropdownMTColumnContent" class="dropdown-menu dropdown-menu-right"></ul>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-3">
+                    <label>New Content</label><br>
+                    <input class="form-control" type="text" placeholder="New Value" id="txtMTNewColumnContent">
+                </div>
+                <div class="col-xs-12 col-md-3">
+                    <label>Actions</label><br>
+                        <button type="button" class="btn btn-link" id="" onclick="askMTUpdateColumnContent()" ><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>
+                        <button type="button" class="btn btn-link" id="" onclick="askMTXDeletColumnContent()" ><i class="bi bi-trash text-red satlist_action_btn_content"></i></button>
+                </div>
+            </div>
         </div>

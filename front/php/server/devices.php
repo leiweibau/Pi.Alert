@@ -106,9 +106,36 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'resetVoidedEvents':resetVoidedEvents();
 		break;
+	case 'MTUpdateColumnContent':MTUpdateColumnContent();
+		break;
+	case 'MTXDeletColumnContent':MTXDeletColumnContent();
+		break;
      default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function MTXDeletColumnContent() {
+	global $db;
+	global $pia_lang;
+
+	$column = htmlspecialchars($_REQUEST['column']);
+	$column_content = htmlspecialchars($_REQUEST['ccontent']);
+	$new_column_content = htmlspecialchars($_REQUEST['nccontent']);
+
+	echo $column." - ".$column_content." - ".$new_column_content;	
+}
+
+
+function MTUpdateColumnContent() {
+	global $db;
+	global $pia_lang;
+
+	$column = htmlspecialchars($_REQUEST['column']);
+	$column_content = htmlspecialchars($_REQUEST['ccontent']);
+	$new_column_content = htmlspecialchars($_REQUEST['nccontent']);
+
+	echo $column." - ".$column_content." - ".$new_column_content;	
 }
 
 function SaveSatellite() {
