@@ -383,6 +383,8 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Die Aktivierung der einzelnen I
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pi-hole Button (Menüeleiste)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Mit der Angabe der URL für die Weboberfläche von Pi-hole, kannst du in der Menüleiste eine Schaltfläche für Pi-hole erzeugen. Wenn du das Eingabefeld wieder löschst, wird der Button wieder entfernt. Die Schaltfläche ist mit dem Icon <i class="mdi mdi-pi-hole"></i> gekennzeichnet.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Header der Gerätelisten konfigurieren';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Aufgaben';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Dropdown-Einträge verwalten';
 $pia_lang['MT_Tool_darkmode'] = 'Dunkel Modus';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Darstellungswechsel';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Wechselt zwischen der hellen und der dunklen Darstellung. Wenn die Umschaltung nicht ordentlich funktionieren sollte, versuchen Sie den Browsercache zu löschen.';
@@ -450,7 +452,7 @@ $pia_lang['MT_Tool_restore_noti'] = 'DB Wiederherstellung';
 $pia_lang['MT_Tool_restore_noti_text'] = 'Sind Sie sicher, dass Sie die Datenbank aus der neusten Sicherung wiederherstellen möchten? Prüfen Sie, dass gerade keine Scans stattfinden.';
 $pia_lang['MT_Tool_latestdb_download'] = 'Neuste DB Sicherung';
 $pia_lang['MT_Tool_latestconf_download'] = 'Aktuelle pialert.conf';
-$pia_lang['MT_Tool_CSVExport_download'] = 'CSV DB Export';
+$pia_lang['MT_Tool_CSVExport_download'] = 'CSV Export';
 $pia_lang['MT_Tool_uisettings_download'] = 'GUI Einstellungen';
 $pia_lang['MT_Tool_purgebackup'] = 'Sicherungen aufräumen';
 $pia_lang['MT_Tool_purgebackup_text'] = 'Es werden, bis auf die letzten 3 Backups, alle übrigen Backups ge&shy;löscht. Dies betrifft die Sicherungen der Daten&shy;bank und die der Kon&shy;fi&shy;gurationsdatei';
@@ -521,6 +523,11 @@ $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED Events werden im An&shy;wesenheits-Kalender nicht dar&shy;ge&shy;stellt. Um alle VOIDED Events (Ver&shy;bunden/Getrennt) zurück&shy;zu&shy;setzen, führe diese Funktion aus.';
 $pia_lang['MT_Tggl_Import_head'] = 'Quelle für Import de-/aktivieren';
 $pia_lang['MT_Tggl_Import_text'] = 'Hiermit wird die gewünschte Quelle für den Import von Daten de- oder aktiviert. Noch laufende Scans sind von der De-/Aktivierung ausgenommen. Daten die bereits zuvor importiert wurden, bleiben bei der Deaktivierung erhalten';
+
+$pia_lang['MT_ColumnEdit_a'] = 'Dropdown-Menü:';
+$pia_lang['MT_ColumnEdit_b'] = 'Eintrag:';
+$pia_lang['MT_ColumnEdit_c'] = 'Eintrag ändern in:';
+
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';

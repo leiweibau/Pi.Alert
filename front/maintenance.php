@@ -643,7 +643,9 @@ function handleMTSelection (value) {
     'Group': 'getGroups',
     'Owner': 'getOwners',
     'Type': 'getDeviceTypes',
-    'Location': 'getLocations'
+    'Location': 'getLocations',
+    'LinkSpeed': 'getLinkSpeed',
+    'ConnectType': 'getConnectionType'
   };
 
   const queryAction = actionMap[value];

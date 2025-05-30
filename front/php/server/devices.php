@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 //  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
 //  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2025+       https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -119,23 +119,142 @@ function MTXDeletColumnContent() {
 	global $db;
 	global $pia_lang;
 
-	$column = htmlspecialchars($_REQUEST['column']);
-	$column_content = htmlspecialchars($_REQUEST['ccontent']);
-	$new_column_content = htmlspecialchars($_REQUEST['nccontent']);
+	$column = htmlspecialchars($_REQUEST['column']) ?? '';
+	$column_content = htmlspecialchars($_REQUEST['ccontent']) ?? '';
+	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
 
-	echo $column." - ".$column_content." - ".$new_column_content;	
+	if ($new_column_content !== '') {
+	    die("Fehler: Der neue Spalteninhalt muss leer sein, damit gelöscht werden kann.");
+	}
+
+	$columnMap = [
+	    'Group'       => ['Devices' => 'dev_Group',        'ICMP_Mon' => 'icmp_group'],
+	    'Owner'       => ['Devices' => 'dev_Owner',        'ICMP_Mon' => 'icmp_owner'],
+	    'Type'        => ['Devices' => 'dev_DeviceType',   'ICMP_Mon' => 'icmp_type'],
+	    'Location'    => ['Devices' => 'dev_Location',     'ICMP_Mon' => 'icmp_location'],
+	    'LinkSpeed'   => ['Devices' => 'dev_LinkSpeed'],
+	    'ConnectType' => ['Devices' => 'dev_ConnectionType']
+	];
+
+	if (!isset($columnMap[$column])) {
+	    die("Ungültiger Spaltenname: [$column]<br>");
+	}
+
+	$ok_message = "";
+	$er_message = "";
+
+	// Devices-Spalte löschen
+	if (isset($columnMap[$column]['Devices'])) {
+	    $field = $columnMap[$column]['Devices'];
+	    $sql = "UPDATE Devices SET $field = '' WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= "Devices: $changed Eintrag/Einträge geleert<br>";
+	    } else {
+	        $er_message .= "Fehler beim Prepare für Devices: " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	// ICMP_Mon-Spalte löschen
+	if (isset($columnMap[$column]['ICMP_Mon'])) {
+	    $field = $columnMap[$column]['ICMP_Mon'];
+	    $sql = "UPDATE ICMP_Mon SET $field = '' WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= "ICMP_Mon: $changed Eintrag/Einträge geleert<br>";
+	    } else {
+	        $er_message .= "Fehler beim Prepare für ICMP_Mon: " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	// Ausgabe
+	if ($er_message == "") {
+		echo $column . '-Spalteninhalt erfolgreich gelöscht<br>' . $ok_message;
+		// Optionales Logging hier möglich
+		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+	} else {
+		echo $pia_lang['BE_Dev_SatUpdateError'] . $er_message;
+		// Optionales Logging hier möglich
+		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+	}
+
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=2'>";
 }
-
 
 function MTUpdateColumnContent() {
 	global $db;
 	global $pia_lang;
 
-	$column = htmlspecialchars($_REQUEST['column']);
-	$column_content = htmlspecialchars($_REQUEST['ccontent']);
-	$new_column_content = htmlspecialchars($_REQUEST['nccontent']);
+	$column = htmlspecialchars($_REQUEST['column']) ?? '';
+	$column_content = htmlspecialchars($_REQUEST['ccontent']) ?? '';
+	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
 
-	echo $column." - ".$column_content." - ".$new_column_content;	
+	//echo $column." - ".$column_content." - ".$new_column_content;
+
+	$columnMap = [
+	    'Group'       => ['Devices' => 'dev_Group',        'ICMP_Mon' => 'icmp_group'],
+	    'Owner'       => ['Devices' => 'dev_Owner',        'ICMP_Mon' => 'icmp_owner'],
+	    'Type'        => ['Devices' => 'dev_DeviceType',   'ICMP_Mon' => 'icmp_type'],
+	    'Location'    => ['Devices' => 'dev_Location',     'ICMP_Mon' => 'icmp_location'],
+	    'LinkSpeed'   => ['Devices' => 'dev_LinkSpeed'],
+	    'ConnectType' => ['Devices' => 'dev_ConnectionType']
+	];
+
+	if (!isset($columnMap[$column])) {
+	    die("Ungültiger Spaltenname: [$column]<br>");
+	}
+
+	$ok_message = "";
+	$er_message = "";
+
+	// Devices-Update vorbereiten
+	if (isset($columnMap[$column]['Devices'])) {
+	    $field = $columnMap[$column]['Devices'];
+	    $sql = "UPDATE Devices SET $field = :new_value WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':new_value', $new_column_content, SQLITE3_TEXT);
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= "Devices aktualisiert: $changed Zeile(n)<br>";
+	    } else {
+	        $er_message .= "Fehler beim Prepare für Devices: " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	// ICMP_Mon-Update (wenn vorhanden)
+	if (isset($columnMap[$column]['ICMP_Mon'])) {
+	    $field = $columnMap[$column]['ICMP_Mon'];
+	    $sql = "UPDATE ICMP_Mon SET $field = :new_value WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':new_value', $new_column_content, SQLITE3_TEXT);
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= "ICMP_Mon aktualisiert: $changed Zeile(n)<br>";
+	    } else {
+	        $er_message .= "Fehler beim Prepare für ICMP_Mon: " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	if ($er_message == "") {
+		echo $column . '-Spalte aktualisiert<br>'.$ok_message;
+		// Logging
+		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+	} else {
+		echo $pia_lang['BE_Dev_SatUpdateError'] . $er_message;
+		// Logging
+		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+	}
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=2'>";
 }
 
 function SaveSatellite() {
@@ -144,26 +263,43 @@ function SaveSatellite() {
 
 	$currentDateTime = date('Y-m-d H:i');
 
-	$satellite_name = htmlspecialchars($_REQUEST['satellite_name']);
-	$new_satellite_name = htmlspecialchars($_REQUEST['changed_satellite_name']);
-	$satellite_id = htmlspecialchars($_REQUEST['sat_id']);
+	$satellite_name        = $_REQUEST['satellite_name'] ?? '';
+	$new_satellite_name    = $_REQUEST['changed_satellite_name'] ?? '';
+	$satellite_id          = $_REQUEST['sat_id'] ?? '';
 
-	// sql
-	$sql_insert_data = 'UPDATE Satellites SET
-                 sat_name                 = "' . quotes($new_satellite_name) . '",
-                 sat_lastupdate           = "' . quotes($currentDateTime) . '"
-          WHERE sat_id="' . $satellite_id . '" AND sat_name="' . $satellite_name . '"';
-	$result = $db->query($sql_insert_data);
+	if ($satellite_name === '' || $new_satellite_name === '' || $satellite_id === '') {
+	    echo $pia_lang['BE_Dev_SatUpdateError'] . '<br>Ungültige Eingabedaten.';
+	    return;
+	}
 
-	if ($result == TRUE) {
-		echo $pia_lang['BE_Dev_SatUpdate'] . '<br>' . $satellite_name . ' &#8594; ' . $new_satellite_name;
-		// Logging
+	$sql = 'UPDATE Satellites SET
+		sat_name = :new_name,
+		sat_lastupdate = :last_update
+		WHERE sat_id = :sat_id AND sat_name = :old_name';
+
+	$stmt = $db->prepare($sql);
+	if (!$stmt) {
+		echo $pia_lang['BE_Dev_SatUpdateError'] . '<br>Prepare fehlgeschlagen: ' . $db->lastErrorMsg();
+		return;
+	}
+
+	$stmt->bindValue(':new_name', $new_satellite_name, SQLITE3_TEXT);
+	$stmt->bindValue(':last_update', $currentDateTime, SQLITE3_TEXT);
+	$stmt->bindValue(':sat_id', $satellite_id, SQLITE3_TEXT);
+	$stmt->bindValue(':old_name', $satellite_name, SQLITE3_TEXT);
+
+	$result = $stmt->execute();
+
+	if ($result) {
+		echo $pia_lang['BE_Dev_SatUpdate'] . '<br>' .
+		     htmlspecialchars($satellite_name) . ' &#8594; ' .
+		     htmlspecialchars($new_satellite_name);
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
 	} else {
-		echo $pia_lang['BE_Dev_SatUpdateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_Dev_SatUpdateError'] . '<br>' . $db->lastErrorMsg();
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
 	}
+
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
 
@@ -171,22 +307,42 @@ function DeleteSatellite() {
 	global $db;
 	global $pia_lang;
 
-	$satellite_name = htmlspecialchars($_REQUEST['satellite_name']);
-	$satellite_id = htmlspecialchars($_REQUEST['sat_id']);
+	$satellite_name = $_REQUEST['satellite_name'] ?? '';
+	$satellite_id   = $_REQUEST['sat_id'] ?? '';
 
-	$sql = 'DELETE FROM Devices WHERE dev_ScanSource IN (SELECT sat_token FROM Satellites WHERE sat_id="' . $satellite_id . '");';
-	$result = $db->query($sql);
+	// 1. Geräte löschen, deren ScanSource dem sat_token des Satelliten entspricht
+	$sql1 = 'DELETE FROM Devices
+	         WHERE dev_ScanSource IN (
+	             SELECT sat_token FROM Satellites WHERE sat_id = :sat_id
+	         )';
 
-	$sql = 'DELETE FROM Satellites WHERE sat_id="' . $satellite_id . '" AND sat_name="' . $satellite_name . '"';
-	$result = $db->query($sql);
+	$stmt1 = $db->prepare($sql1);
+	if ($stmt1) {
+		$stmt1->bindValue(':sat_id', $satellite_id, SQLITE3_TEXT);
+		$stmt1->execute();
+	} else {
+		echo $pia_lang['BE_Dev_SatDeleteError'] . '<br>Fehler beim Löschen aus Devices: ' . $db->lastErrorMsg();
+		return;
+	}
 
-	if ($result == TRUE) {
+	// 2. Satellit selbst löschen
+	$sql2 = 'DELETE FROM Satellites WHERE sat_id = :sat_id AND sat_name = :sat_name';
+
+	$stmt2 = $db->prepare($sql2);
+	if ($stmt2) {
+		$stmt2->bindValue(':sat_id', $satellite_id, SQLITE3_TEXT);
+		$stmt2->bindValue(':sat_name', $satellite_name, SQLITE3_TEXT);
+		$result = $stmt2->execute();
+	} else {
+		echo $pia_lang['BE_Dev_SatDeleteError'] . '<br>Fehler beim Löschen aus Satellites: ' . $db->lastErrorMsg();
+		return;
+	}
+
+	if ($result) {
 		echo $pia_lang['BE_Dev_SatDelete'];
-		// Logging
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
 	} else {
-		echo $pia_lang['BE_Dev_SatDeleteError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_Dev_SatDeleteError'] . '<br>' . $db->lastErrorMsg();
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
 	}
 
@@ -208,25 +364,43 @@ function CreateNewSatellite() {
 	global $pia_lang;
 
 	$currentDateTime = date('Y-m-d H:i');
-	if ($_REQUEST['new_satellite_name'] == "") {$satellite_name = "Satellite";} else {$satellite_name = htmlspecialchars($_REQUEST['new_satellite_name']);}
+
+	$satellite_name = ($_REQUEST['new_satellite_name'] === '') ? 'Satellite' : $_REQUEST['new_satellite_name'];
+
+	// Token und Passwort generieren
 	$satellite_token = generateRandomString(48);
 	$satellite_password = generateRandomString(96);
 
-	$sql_insert_data = 'INSERT INTO Satellites ("sat_name", "sat_token", "sat_password", "sat_lastupdate") 
-                          VALUES ("' . $satellite_name . '", "' . $satellite_token . '", "' . $satellite_password . '", "'.$currentDateTime.'")';
-	$result = $db->query($sql_insert_data);
+	// INSERT als Prepared Statement
+	$sql = 'INSERT INTO Satellites (sat_name, sat_token, sat_password, sat_lastupdate)
+	        VALUES (:name, :token, :password, :lastupdate)';
 
-	if ($result == TRUE) {
+	$stmt = $db->prepare($sql);
+	if (!$stmt) {
+		echo $pia_lang['BE_Dev_SatCreateError'] . '<br>Prepare fehlgeschlagen: ' . $db->lastErrorMsg();
+		return;
+	}
+
+	// Parameter binden
+	$stmt->bindValue(':name', $satellite_name, SQLITE3_TEXT);
+	$stmt->bindValue(':token', $satellite_token, SQLITE3_TEXT);
+	$stmt->bindValue(':password', $satellite_password, SQLITE3_TEXT);
+	$stmt->bindValue(':lastupdate', $currentDateTime, SQLITE3_TEXT);
+
+	// Ausführen
+	$result = $stmt->execute();
+
+	if ($result) {
 		echo $pia_lang['BE_Dev_SatCreate'];
-		// Logging
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', 'Name: '.$satellite_name);
 	} else {
-		echo $pia_lang['BE_Dev_SatCreateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_Dev_SatCreateError'] . '<br>' . $db->lastErrorMsg();
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0000', '', 'Name: '.$satellite_name);
 	}
+
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
+
 
 function SaveFilterID() {
 	global $db;
