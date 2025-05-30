@@ -958,20 +958,20 @@ function getDeviceTypes() {
 function getGroups() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Group  AS GroupName
+	$sql = 'SELECT DISTINCT 8 as dev_Order, dev_Group  AS GroupName
           FROM Devices
-          WHERE dev_Group NOT IN ("(unknown)", "Others") AND dev_Group <> ""
+          WHERE dev_Group NOT IN ("(unknown)", "Others", "Friends", "Personal", "Always on") AND dev_Group <> ""
 
 		UNION
 
-		SELECT DISTINCT 1 as dev_Order, icmp_group AS GroupName
+		SELECT DISTINCT 8 as dev_Order, icmp_group AS GroupName
 		FROM ICMP_Mon
-		WHERE icmp_group NOT IN ("(unknown)", "Others") AND icmp_group <> ""
+		WHERE icmp_group NOT IN ("(unknown)", "Others", "Friends", "Personal", "Always on") AND icmp_group <> ""
 
           UNION SELECT 1 as dev_Order, "Always on"
           UNION SELECT 1 as dev_Order, "Friends"
           UNION SELECT 1 as dev_Order, "Personal"
-          UNION SELECT 2 as dev_Order, "Others"
+          UNION SELECT 9 as dev_Order, "Others"
           ORDER BY dev_Order, GroupName';
 	$result = $db->query($sql);
 
