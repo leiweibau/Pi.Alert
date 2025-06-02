@@ -108,14 +108,14 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'MTUpdateColumnContent':MTUpdateColumnContent();
 		break;
-	case 'MTXDeletColumnContent':MTXDeletColumnContent();
+	case 'MTDeletColumnContent':MTDeletColumnContent();
 		break;
      default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
 
-function MTXDeletColumnContent() {
+function MTDeletColumnContent() {
 	global $db;
 	global $pia_lang;
 
@@ -990,9 +990,10 @@ function getGroups() {
 function getLinkSpeed() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_LinkSpeed
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_LinkSpeed
           FROM Devices
-          WHERE dev_LinkSpeed NOT IN ("(unknown)", "Others") AND dev_LinkSpeed <> ""
+          WHERE dev_LinkSpeed NOT IN ("", "10 Mbps", "100 Mbps", "1.0 Gbps",
+          	"2.5 Gbps", "5 Gbps", "10 Gbps", "20 Gbps", "25 Gbps", "40 Gbps") AND dev_LinkSpeed <> ""
           UNION SELECT 1 as dev_Order, "10 Mbps"
           UNION SELECT 1 as dev_Order, "100 Mbps"
           UNION SELECT 2 as dev_Order, "1.0 Gbps"
@@ -1020,9 +1021,10 @@ function getLinkSpeed() {
 function getConnectionType() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_ConnectionType
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_ConnectionType
           FROM Devices
-          WHERE dev_ConnectionType NOT IN ("(unknown)", "Others") AND dev_ConnectionType <> ""
+          WHERE dev_ConnectionType NOT IN ("", "Ethernet", "Fibre", "WiFi", "Bluetooth",
+          	"Virtual Machine", "Container") AND dev_ConnectionType <> ""
           UNION SELECT 1 as dev_Order, "Ethernet"
           UNION SELECT 1 as dev_Order, "Fibre"
           UNION SELECT 2 as dev_Order, "WiFi"

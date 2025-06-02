@@ -78,6 +78,12 @@
             </div>
 
             <div class="row">
+                <div class="col-xs-12">
+                    <p style="font-size: 16px;"><?=$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'];?></p>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-xs-12 col-md-3">
                     <label><?=$pia_lang['MT_ColumnEdit_a'];?></label><br>
                     <div class="input-group dropup">
@@ -102,19 +108,20 @@
                             <div class="input-group-btn">
                                 <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" ><span class="fa fa-caret-down"></span></button>
                                 <ul id="dropdownMTColumnContent" class="dropdown-menu dropdown-menu-right">
-                                    <li><a href="javascript:void(0)" onclick="setTextValue('txtMTColumnContent','');"> No Column selected </a></li>
+                                    <li><a href="javascript:void(0)" onclick="setTextValue('txtMTColumnContent','');"><?=$pia_lang['MT_ColumnEdit_b_empty'];?></a></li>
                                 </ul>
                             </div>
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-3">
                     <label><?=$pia_lang['MT_ColumnEdit_c'];?></label><br>
-                    <input class="form-control" type="text" placeholder="New Value" id="txtMTNewColumnContent">
+                    <input class="form-control" type="text" placeholder="<?=$pia_lang['MT_ColumnEdit_c_ph'];?>" id="txtMTNewColumnContent">
                 </div>
                 <div class="col-xs-12 col-md-3 text-center">
                     <label><?=$pia_lang['MT_SET_SatEdit_FORM_Action'];?></label><br>
+                        <button type="button" class="btn btn-link" id="btnMTResetColumnContent" onclick="MTResetColumnContent()" ><i class="bi bi-eraser text-green satlist_action_btn_content"></i></button>
                         <button type="button" class="btn btn-link" id="btnMTUpdateColumnContent" onclick="askMTUpdateColumnContent()" ><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>
-                        <button type="button" class="btn btn-link" id="btnMTXDeletColumnContent" onclick="askMTXDeletColumnContent()" ><i class="bi bi-trash text-red satlist_action_btn_content"></i></button>
+                        <button type="button" class="btn btn-link" id="btnMTDeletColumnContent" onclick="askMTDeletColumnContent()" ><i class="bi bi-trash text-red satlist_action_btn_content"></i></button>
                 </div>
             </div>
         </div>

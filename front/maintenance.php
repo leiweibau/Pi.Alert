@@ -638,6 +638,7 @@ function setTextValue (textElement, textValue) {
 
 
 function handleMTSelection (value) {
+  setTextValue('txtMTColumnContent','');
 
   const actionMap = {
     'Group': 'getGroups',
@@ -969,18 +970,34 @@ function MTUpdateColumnContent() {
   });
 }
 // delete Column Data
-function askMTXDeletColumnContent() {
+function askMTDeletColumnContent() {
   showModalWarning('Dummy Headline', 'Dummy Text',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'MTXDeletColumnContent');
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'MTDeletColumnContent');
 }
-function MTXDeletColumnContent() {
-    $.get('php/server/devices.php?action=MTXDeletColumnContent'
+function MTDeletColumnContent() {
+    $.get('php/server/devices.php?action=MTDeletColumnContent'
     + '&column='     + $('#txtMTTableColumn').val()
     + '&ccontent='   + $('#txtMTColumnContent').val()
     + '&nccontent='  + $('#txtMTNewColumnContent').val()
     , function(msg) {
     showMessage (msg);
   });
+}
+
+function MTDeletColumnContent() {
+    $.get('php/server/devices.php?action=MTDeletColumnContent'
+    + '&column='     + $('#txtMTTableColumn').val()
+    + '&ccontent='   + $('#txtMTColumnContent').val()
+    + '&nccontent='  + $('#txtMTNewColumnContent').val()
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+
+function MTResetColumnContent() {
+    setTextValue('txtMTTableColumn','');
+    setTextValue('txtMTColumnContent','');
+    setTextValue('txtMTNewColumnContent','');
 }
 
 setInterval(UpdateStatusBox, 15000);

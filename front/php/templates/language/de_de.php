@@ -385,6 +385,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Mit der Angabe der URL für die
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Header der Gerätelisten konfigurieren';
 $pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Aufgaben';
 $pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Dropdown-Einträge verwalten';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Es können zwar alle Dropdown-Einträge ausgewählt werden, jedoch die statischen Einträge (fest codierte Optionen) können weder gelöscht noch editiert werden. Es erfolgt in einem solchen Fall, keine Fehlermeldung, der selektierte Eintrag wird aber trotzdem aus der Deviceliste entfernt.';
 $pia_lang['MT_Tool_darkmode'] = 'Dunkel Modus';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Darstellungswechsel';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Wechselt zwischen der hellen und der dunklen Darstellung. Wenn die Umschaltung nicht ordentlich funktionieren sollte, versuchen Sie den Browsercache zu löschen.';
@@ -526,7 +527,9 @@ $pia_lang['MT_Tggl_Import_text'] = 'Hiermit wird die gewünschte Quelle für den
 
 $pia_lang['MT_ColumnEdit_a'] = 'Dropdown-Menü:';
 $pia_lang['MT_ColumnEdit_b'] = 'Eintrag:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' keine Spalte ausgewählt ';
 $pia_lang['MT_ColumnEdit_c'] = 'Eintrag ändern in:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Neuer Wert';
 
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
