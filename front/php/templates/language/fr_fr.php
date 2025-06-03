@@ -383,6 +383,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'L&apos;activation des importati
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Bouton Pi-hole (Barre de menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'En spécifiant l&apos;URL de l&apos;interface web de Pi-hole, vous pouvez créer un bouton Pi-hole dans la barre de menu. Si vous supprimez le champ de saisie, le bouton sera supprimé. Le bouton est marqué avec l&apos;icône <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurer en-têtes des listes';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Tâches';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Gérer les entrées du menu déroulant';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Bien que toutes les entrées du menu déroulant puissent être sélectionnées, les entrées statiques (c&apos;est-à-dire codées en dur) ne peuvent pas être supprimées ou modifiées dans le menu. Aucun message d&apos;erreur ne s&apos;affichera dans ces cas – cependant, l&apos;entrée sélectionnée sera tout de même supprimée ou renommée dans la liste des appareils ou le moniteur ICMP pour tous les appareils.';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Changement d&apos;affichage';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Permet de passer de l&apos;affichage clair à l&apos;affichage foncé. Si la commutation ne fonctionne pas correctement, essayez d&apos;effacer le cache du navigateur.';
@@ -521,6 +524,15 @@ $pia_lang['MT_Tool_reset_voided'] = 'Réinitialiser les événements ANNULÉS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Les événements ANNULÉS ne sont pas affichés dans le calendrier de présence. Pour réinitialiser tous les événements ANNULÉS (Connecté/Déconnecté), exécutez cette fonction.';
 $pia_lang['MT_Tggl_Import_head'] = 'Activer/Désactiver la source pour l&apos;importation';
 $pia_lang['MT_Tggl_Import_text'] = 'Cela active ou désactive la source souhaitée pour l&apos;importation de données. Les analyses en cours ne sont pas affectées par l&apos;activation ou la désactivation. Les données déjà importées restent conservées après la désactivation.';
+$pia_lang['MT_ColumnEdit_a'] = 'Menu déroulant:';
+$pia_lang['MT_ColumnEdit_b'] = 'Entrée:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' aucune colonne sélectionnée ';
+$pia_lang['MT_ColumnEdit_c'] = 'Changer l&apos;entrée en:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nouvelle valeur';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Supprimer l&apos;entrée du menu déroulant';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Les entrées codées en dur seront supprimées de chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées disparaîtront également du menu.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifier l&apos;entrée du menu déroulant';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifiées sur chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées seront remplacées par la nouvelle entrée.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';

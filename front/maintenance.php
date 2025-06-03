@@ -957,7 +957,7 @@ function DeleteSatellite(func_sat_name, func_sat_id) {
 }
 // Update Column Data
 function askMTUpdateColumnContent() {
-  showModalWarning('Dummy Headline', 'Dummy Text',
+  showModalWarning('<?=$pia_lang['MT_ColumnUpd_Mod_head'];?>', '<?=$pia_lang['MT_ColumnUpd_Mod_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'MTUpdateColumnContent');
 }
 function MTUpdateColumnContent() {
@@ -971,19 +971,9 @@ function MTUpdateColumnContent() {
 }
 // delete Column Data
 function askMTDeletColumnContent() {
-  showModalWarning('Dummy Headline', 'Dummy Text',
+  showModalWarning('<?=$pia_lang['MT_ColumnDel_Mod_head'];?>', '<?=$pia_lang['MT_ColumnDel_Mod_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'MTDeletColumnContent');
 }
-function MTDeletColumnContent() {
-    $.get('php/server/devices.php?action=MTDeletColumnContent'
-    + '&column='     + $('#txtMTTableColumn').val()
-    + '&ccontent='   + $('#txtMTColumnContent').val()
-    + '&nccontent='  + $('#txtMTNewColumnContent').val()
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-
 function MTDeletColumnContent() {
     $.get('php/server/devices.php?action=MTDeletColumnContent'
     + '&column='     + $('#txtMTTableColumn').val()

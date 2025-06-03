@@ -386,6 +386,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'La activación de las importaci
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Botón de Pi-hole (Barra de menú)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Al especificar la URL de la interfaz web de Pi-hole, puedes crear un botón de Pi-hole en la barra de menú. Si borras el campo de entrada, el botón será eliminado. El botón está marcado con el icono <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurar cabeceras de listas';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Tareas';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Gestionar entradas del menú desplegable';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Aunque se pueden seleccionar todas las entradas del menú desplegable, las entradas estáticas (es decir, opciones codificadas) no se pueden eliminar ni modificar en el menú. No se mostrará ningún mensaje de error en estos casos; sin embargo, la entrada seleccionada se eliminará o cambiará en la lista de dispositivos o en el monitor ICMP para todos los dispositivos.';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Cambiar Modo';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Después del cambio de tema, la página intenta volver a cargar para activar el cambio. Si es necesario, el caché debe ser eliminado.';
@@ -524,6 +527,15 @@ $pia_lang['MT_Tool_reset_voided'] = 'Restablecer eventos ANULADOS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Los eventos ANULADOS no se muestran en el calendario de asistencia. Para restablecer todos los eventos ANULADOS (Conectado/Desconectado), ejecuta esta función.';
 $pia_lang['MT_Tggl_Import_head'] = 'Habilitar/Deshabilitar fuente para importación';
 $pia_lang['MT_Tggl_Import_text'] = 'Esto habilita o deshabilita la fuente deseada para la importación de datos. Los análisis en curso no se ven afectados por la activación o desactivación. Los datos ya importados se conservarán tras la desactivación.';
+$pia_lang['MT_ColumnEdit_a'] = 'Menú desplegable:';
+$pia_lang['MT_ColumnEdit_b'] = 'Entrada:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' ninguna columna seleccionada ';
+$pia_lang['MT_ColumnEdit_c'] = 'Cambiar entrada a:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nuevo valor';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Eliminar entrada del menú desplegable';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Las entradas codificadas se eliminarán de cada dispositivo, pero permanecerán en el menú desplegable. Las entradas personalizadas también desaparecerán del menú.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Editar entrada del menú desplegable';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Las entradas codificadas se actualizarán en cada dispositivo, pero se mantendrán en el menú desplegable. Las entradas personalizadas se sustituirán por la nueva entrada.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';

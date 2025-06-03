@@ -385,7 +385,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Mit der Angabe der URL für die
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Header der Gerätelisten konfigurieren';
 $pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Aufgaben';
 $pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Dropdown-Einträge verwalten';
-$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Es können zwar alle Dropdown-Einträge ausgewählt werden, jedoch die statischen Einträge (fest codierte Optionen) können weder gelöscht noch editiert werden. Es erfolgt in einem solchen Fall, keine Fehlermeldung, der selektierte Eintrag wird aber trotzdem aus der Deviceliste entfernt.';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Zwar lassen sich alle Dropdown-Einträge auswählen, jedoch können die statischen Einträge (also fest codierte Optionen) weder aus dem Dropdown-Menü gelöscht noch geändert werden. Es wird in solchen Fällen keine Fehlermeldung angezeigt – dennoch wird der gewählte Eintrag in der Geräteliste bzw. im ICMP-Monitor bei allen Geräten entfernt oder umbenannt.';
 $pia_lang['MT_Tool_darkmode'] = 'Dunkel Modus';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Darstellungswechsel';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Wechselt zwischen der hellen und der dunklen Darstellung. Wenn die Umschaltung nicht ordentlich funktionieren sollte, versuchen Sie den Browsercache zu löschen.';
@@ -439,7 +439,7 @@ $pia_lang['MT_Tool_del_allserv_text'] = 'Alle WebServices wer&shy;den aus der Da
 $pia_lang['MT_Tool_del_allserv_noti'] = 'Alle WebServices löschen';
 $pia_lang['MT_Tool_del_allserv_noti_text'] = 'Sind Sie sich sicher, dass Sie alle WebServices löschen wollen?';
 $pia_lang['MT_Tool_backup'] = 'DB Sicherung';
-$pia_lang['MT_Tool_backup_text'] = 'Die Datenbank-Sicher&shy;ungen befinden sich im Datenbank-Ver&shy;zeich&shy;nis, gepackt als zip-Archive, benannt mit dem Er&shy;stell&shy;ungs&shy;datum. Es gibt keine maximale Anzahl von Backups.';
+$pia_lang['MT_Tool_backup_text'] = 'Die Datenbank-Sicher&shy;ungen befinden sich im Datenbank-Ver&shy;zeich&shy;nis, gepackt als zip-Archive, benannt mit dem Er&shy;stell&shy;ungs&shy;datum. Es gibt keine maxi&shy;male Anzahl von Back&shy;ups.';
 $pia_lang['MT_Tool_backup_noti'] = 'DB Sicherung';
 $pia_lang['MT_Tool_backup_noti_text'] = 'Sind Sie sicher, dass Sie die Datenbank jetzt sichern möchten. Prüfen Sie, dass gerade keine Scans stattfinden.';
 $pia_lang['MT_Tool_backupcsv'] = 'Geräte/Services in<br>CSV Datei sichern';
@@ -448,7 +448,7 @@ $pia_lang['MT_Tool_backupcsv_noti'] = 'Geräte/Services in CSV Datei sichern';
 $pia_lang['MT_Tool_backupcsv_noti_text'] = 'Sind Sie sicher, dass Sie jetzt die Geräte und Web Services Listen als CSV-Dateien exportieren möchten?.';
 $pia_lang['MT_Tool_restore'] = 'DB Wiederherstellung';
 $pia_lang['MT_Tool_restore_blocked'] = 'nicht verfügbar';
-$pia_lang['MT_Tool_restore_text'] = 'Das neuste Backup kann über diese Funk&shy;tion wie&shy;derhergestellt wer&shy;den. Ältere Sicher&shy;ungen müssen manuell wie&shy;der&shy;hergestellt wer&shy;den. Es empfiehlt sich eine Integritäts&shy;prüfung nach der Wieder&shy;her&shy;stellung zu machen, falls die Datenbank bei der Sicherung geöffnet war.';
+$pia_lang['MT_Tool_restore_text'] = 'Das neuste Backup kann über diese Funk&shy;tion wie&shy;der&shy;her&shy;gestellt wer&shy;den. Ältere Sicher&shy;ungen müssen manuell wie&shy;der&shy;hergestellt wer&shy;den. Es empfiehlt sich eine Inte&shy;gri&shy;täts&shy;prüfung nach der Wie&shy;der&shy;her&shy;stellung zu machen, falls die Datenbank bei der Sicherung geöffnet war.';
 $pia_lang['MT_Tool_restore_noti'] = 'DB Wiederherstellung';
 $pia_lang['MT_Tool_restore_noti_text'] = 'Sind Sie sicher, dass Sie die Datenbank aus der neusten Sicherung wiederherstellen möchten? Prüfen Sie, dass gerade keine Scans stattfinden.';
 $pia_lang['MT_Tool_latestdb_download'] = 'Neuste DB Sicherung';
@@ -486,7 +486,7 @@ $pia_lang['MT_ConfEditor_Backup_info'] = 'Neben der Datei "pialert-prev.bak" wir
 $pia_lang['MT_ConfEditor_Restore_info'] = 'Diese Funktion stellt die Kon&shy;fi&shy;gura&shy;tionsdatei aus der Datei "pialert-prev.bak" wieder her. Die Datei "pialert-prev.bak" wird beim Speichern und bei der Erstellung einer Sicherung er&shy;zeugt.';
 $pia_lang['MT_ConfEditor_Save_info'] = 'Der Inhalt des Textfeldes mit eventuellen Änderungen wird in die Datei "pialert.conf" ge&shy;spei&shy;chert. Die vorherige Kon&shy;figu&shy;ration wird als "pialert-prev.bak" gesichert. Mit jeder Speicherung wird die Datei "pialert-prev.bak" wieder mit der vorherigen Version der Kon&shy;figu&shy;rationsdatei überschrieben.';
 $pia_lang['MT_Tool_ConfBackup'] = 'Config-Backup anlegen';
-$pia_lang['MT_Tool_ConfBackup_text'] = 'Neben der Datei "pialert-prev.bak" wird eine weitere Sicherung mit dem aktuellen Da&shy;tum inkl. Uhrzeit an&shy;ge&shy;legt. Diese Sicherung muss im Bedarfsfall ma&shy;nuell wieder&shy;hergestellt werden (umbenennen in "pialert.conf").';
+$pia_lang['MT_Tool_ConfBackup_text'] = 'Neben der Datei "pialert-prev.bak" wird eine weitere Sicherung mit dem aktuellen Da&shy;tum inkl. Uhrzeit an&shy;ge&shy;legt. Diese Sicherung muss im Bedarfsfall ma&shy;nuell wieder&shy;hergestellt werden (um&shy;be&shy;nen&shy;nen in "pialert.conf").';
 $pia_lang['FavIcon_color_white'] = 'weiß';
 $pia_lang['FavIcon_color_black'] = 'schwarz';
 $pia_lang['FavIcon_color_red'] = 'rot';
@@ -524,13 +524,15 @@ $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED Events werden im An&shy;wesenheits-Kalender nicht dar&shy;ge&shy;stellt. Um alle VOIDED Events (Ver&shy;bunden/Getrennt) zurück&shy;zu&shy;setzen, führe diese Funktion aus.';
 $pia_lang['MT_Tggl_Import_head'] = 'Quelle für Import de-/aktivieren';
 $pia_lang['MT_Tggl_Import_text'] = 'Hiermit wird die gewünschte Quelle für den Import von Daten de- oder aktiviert. Noch laufende Scans sind von der De-/Aktivierung ausgenommen. Daten die bereits zuvor importiert wurden, bleiben bei der Deaktivierung erhalten';
-
 $pia_lang['MT_ColumnEdit_a'] = 'Dropdown-Menü:';
 $pia_lang['MT_ColumnEdit_b'] = 'Eintrag:';
 $pia_lang['MT_ColumnEdit_b_empty'] = ' keine Spalte ausgewählt ';
 $pia_lang['MT_ColumnEdit_c'] = 'Eintrag ändern in:';
 $pia_lang['MT_ColumnEdit_c_ph'] = 'Neuer Wert';
-
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Dropdown-Eintrag löschen';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Fest-codierte Einträge werden bei jedem Device entfernt, jedoch bleibt der Eintrag selbst in dem Dropdown-Menü erhalten. Individuelle Einträge verschwinden auch aus dem Dropdown-Menü.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Dropdown-Eintrag bearbeiten';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Fest-codierte Einträge werden bei jedem Device geändert, jedoch bleibt der Eintrag selbst in dem Dropdown-Menü erhalten. Individuelle Einträge werden im Dropdown-Menü durch den neuen Eintrag ersetzt.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';
@@ -624,6 +626,10 @@ $pia_lang['BE_Param_Colors'] = 'Farbe(n) gespeichert';
 $pia_lang['BE_Param_Colors_error'] = 'Farbe(n) wurde(n) nicht geändert oder nicht gespeichert (Datenbank durch Scan in Verwendung)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Die VOIDED Events wurden in "gültige" Events umgewandelt';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fehler aktualisieren der VOIDED Events';
+
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Fehler: Der neue Spalteninhalt muss leer sein, damit gelöscht werden kann.';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netzwerkübersicht';

@@ -4,42 +4,55 @@
                     <h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_j'];?></h4>
                 </div>
             </div>
-            <div class="db_info_table">
-				<div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
-                        <button type="button" class="btn btn-default dbtools-button" id="btnPiaBackupConfigFile" onclick="BackupConfigFile('yes')"><?=$pia_lang['MT_Tool_ConfBackup'];?></button>
-                    </div>
-                    <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_ConfBackup_text'];?></div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
-                        <button type="button" class="btn btn-default dbtools-button" id="btnBackupDBtoArchive" onclick="askBackupDBtoArchive()"><?=$pia_lang['MT_Tool_backup'];?></button>
-                    </div>
-                    <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_backup_text'];?></div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
+
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <div class="db_info_table">
+
+                        <div class="db_info_table_row">
+                            <div class="db_tools_table_cell_a" style="">
+                                <button type="button" class="btn btn-default dbtools-button" id="btnPiaBackupConfigFile" onclick="BackupConfigFile('yes')"><?=$pia_lang['MT_Tool_ConfBackup'];?></button>
+                            </div>
+                            <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_ConfBackup_text'];?></div>
+                        </div>
+                        <div class="db_info_table_row">
+                            <div class="db_tools_table_cell_a" style="">
+                                <button type="button" class="btn btn-default dbtools-button" id="btnBackupDBtoArchive" onclick="askBackupDBtoArchive()"><?=$pia_lang['MT_Tool_backup'];?></button>
+                            </div>
+                            <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_backup_text'];?></div>
+                        </div>
+                        <div class="db_info_table_row">
+                            <div class="db_tools_table_cell_a" style="">
 <?php
 if (!$block_restore_button_db) {
-	echo '<button type="button" class="btn btn-default dbtools-button" id="btnRestoreDBfromArchive" onclick="askRestoreDBfromArchive()">' . $pia_lang['MT_Tool_restore'] . '<br>' . $LATEST_BACKUP_DATE . '</button>';
+    echo '<button type="button" class="btn btn-default dbtools-button" id="btnRestoreDBfromArchive" onclick="askRestoreDBfromArchive()">' . $pia_lang['MT_Tool_restore'] . '<br>' . $LATEST_BACKUP_DATE . '</button>';
 } else {
-	echo '<button type="button" class="btn btn-default dbtools-button disabled" id="btnRestoreDBfromArchive">' . $pia_lang['MT_Tool_restore'] . '<br>' . $LATEST_BACKUP_DATE . '</button>';
+    echo '<button type="button" class="btn btn-default dbtools-button disabled" id="btnRestoreDBfromArchive">' . $pia_lang['MT_Tool_restore'] . '<br>' . $LATEST_BACKUP_DATE . '</button>';
 }
 ?>
+                            </div>
+                            <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_restore_text'];?></div>
+                        </div>
+
                     </div>
-                    <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_restore_text'];?></div>
                 </div>
-                <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
-                        <button type="button" class="btn btn-default dbtools-button" id="btnPurgeDBBackups" onclick="askPurgeDBBackups()"><?=$pia_lang['MT_Tool_purgebackup'];?></button>
+                <div class="col-xs-12 col-md-6">
+                    <div class="db_info_table">
+
+                        <div class="db_info_table_row">
+                            <div class="db_tools_table_cell_a" style="">
+                                <button type="button" class="btn btn-default dbtools-button" id="btnPurgeDBBackups" onclick="askPurgeDBBackups()"><?=$pia_lang['MT_Tool_purgebackup'];?></button>
+                            </div>
+                            <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_purgebackup_text'];?></div>
+                        </div>
+                        <div class="db_info_table_row">
+                            <div class="db_tools_table_cell_a" style="">
+                                <button type="button" class="btn btn-default dbtools-button" id="btnBackupDBtoCSV" onclick="askBackupDBtoCSV()"><?=$pia_lang['MT_Tool_backupcsv'];?></button>
+                            </div>
+                            <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_backupcsv_text'];?></div>
+                        </div>
+
                     </div>
-                    <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_purgebackup_text'];?></div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_tools_table_cell_a" style="">
-                        <button type="button" class="btn btn-default dbtools-button" id="btnBackupDBtoCSV" onclick="askBackupDBtoCSV()"><?=$pia_lang['MT_Tool_backupcsv'];?></button>
-                    </div>
-                    <div class="db_tools_table_cell_b"><?=$pia_lang['MT_Tool_backupcsv_text'];?></div>
                 </div>
             </div>
 

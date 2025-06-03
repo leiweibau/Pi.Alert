@@ -124,7 +124,7 @@ function MTDeletColumnContent() {
 	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
 
 	if ($new_column_content !== '') {
-	    die("Fehler: Der neue Spalteninhalt muss leer sein, damit gelöscht werden kann.");
+	    die($pia_lang['BE_Dev_ColumnErr_a']);
 	}
 
 	$columnMap = [

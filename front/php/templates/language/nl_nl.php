@@ -382,6 +382,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Het activeren van afzonderlijke
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pi-hole-knop (menubalk)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Door de URL van de Pi-hole webinterface op te geven, kun je een knop in de menubalk voor Pi-hole toevoegen. Als je het invoerveld weer verwijdert, verdwijnt de knop. De knop is gemarkeerd met het pictogram <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Koptekst van apparaatlijsten configureren';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Taken';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Dropdown-items beheren';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Hoewel alle dropdown-items kunnen worden geselecteerd, kunnen statische items (d.w.z. hardcoded opties) niet uit het menu worden verwijderd of gewijzigd. In dergelijke gevallen wordt geen foutmelding weergegeven – het geselecteerde item wordt echter nog steeds verwijderd of hernoemd in de apparatenlijst of ICMP-monitor voor alle apparaten.';
 $pia_lang['MT_Tool_darkmode'] = 'Donkere modus';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Weergave wijzigen';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Schakelt tussen lichte en donkere weergave. Als de omschakeling niet correct werkt, probeer dan de browsercache te wissen.';
@@ -520,6 +523,15 @@ $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED-events';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED-events worden niet weergegeven in de aanwezigheidskalender. Gebruik deze functie om alle VOIDED-events (verbonden/losgekoppeld) te resetten.';
 $pia_lang['MT_Tggl_Import_head'] = 'Importbron activeren/deactiveren';
 $pia_lang['MT_Tggl_Import_text'] = 'Schakelt de gewenste bron voor gegevensimport in of uit. Lopende scans worden hierdoor niet beïnvloed. Reeds geïmporteerde gegevens blijven behouden.';
+$pia_lang['MT_ColumnEdit_a'] = 'Dropdown-menu:';
+$pia_lang['MT_ColumnEdit_b'] = 'Invoer:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' geen kolom geselecteerd ';
+$pia_lang['MT_ColumnEdit_c'] = 'Wijzig invoer in:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nieuwe waarde';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Dropdown-invoer verwijderen';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Hardgecodeerde items worden verwijderd van elk apparaat, maar blijven zichtbaar in het menu. Aangepaste items verdwijnen ook uit het dropdown-menu.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Dropdown-invoer bewerken';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardgecodeerde items worden aangepast op elk apparaat, maar blijven in het dropdown-menu. Aangepaste items worden vervangen door de nieuwe invoer.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanmodules en imports zijn gedeactiveerd';

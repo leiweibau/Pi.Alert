@@ -382,6 +382,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktivace jednotlivých importů
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Tlačítko Pi-hole (nabídka)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Zadáním URL adresy k webovému rozhraní Pi-hole můžeš vytvořit tlačítko v hlavní nabídce. Pokud pole vymažeš, tlačítko se odstraní. Tlačítko je označeno ikonou <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Konfigurace záhlaví seznamů zařízení';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Úkoly';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Správa položek rozbalovací nabídky';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Ačkoli lze vybrat všechny položky nabídky, statické položky (tj. pevně zakódované možnosti) nelze z nabídky odstranit ani je upravit. V těchto případech se nezobrazí žádná chybová zpráva – vybraná položka však bude i přesto odstraněna nebo přejmenována v seznamu zařízení nebo monitoru ICMP u všech zařízení.';
 $pia_lang['MT_Tool_darkmode'] = 'Tmavý režim';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Přepnout zobrazení';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Přepíná mezi světlým a tmavým režimem. Pokud přepínání nefunguje správně, zkus vymazat mezipaměť prohlížeče.';
@@ -520,6 +523,15 @@ $pia_lang['MT_Tool_reset_voided'] = 'Resetovat VOIDED události';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED události nejsou zobrazeny v kalendáři přítomnosti. Pomocí této funkce je lze resetovat (připojeno/odpojeno).';
 $pia_lang['MT_Tggl_Import_head'] = 'Zapnout/vypnout zdroj importu';
 $pia_lang['MT_Tggl_Import_text'] = 'Zapne nebo vypne zvolený zdroj importu. Probíhající skeny nejsou ovlivněny. Již importovaná data zůstávají zachována.';
+$pia_lang['MT_ColumnEdit_a'] = 'Rozbalovací nabídka:';
+$pia_lang['MT_ColumnEdit_b'] = 'Položka:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' žádný sloupec nevybrán ';
+$pia_lang['MT_ColumnEdit_c'] = 'Změnit položku na:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nová hodnota';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Smazat položku rozbalovací nabídky';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Předdefinované položky budou odstraněny ze všech zařízení, ale zůstanou v nabídce. Vlastní položky zmizí i z rozbalovací nabídky.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Upravit položku rozbalovací nabídky';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Předdefinované položky budou změněny na všech zařízeních, ale zůstanou v nabídce. Vlastní položky budou nahrazeny novou položkou.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Všechny moduly skenování a importy jsou deaktivovány';

@@ -382,6 +382,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktywacja poszczególnych impor
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Przycisk Pi-hole (pasek menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Podając adres URL interfejsu webowego Pi-hole, możesz dodać przycisk w pasku menu. Usunięcie pola powoduje usunięcie przycisku. Przycisk oznaczony jest ikoną <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Konfiguracja nagłówków list urządzeń';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Zadania';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Zarządzaj wpisami w menu rozwijanym';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Chociaż wszystkie wpisy w menu rozwijanym mogą być wybrane, wpisy statyczne (czyli zakodowane na stałe) nie mogą zostać usunięte ani zmienione w menu. W takich przypadkach nie zostanie wyświetlony żaden komunikat o błędzie – jednak wybrany wpis zostanie mimo to usunięty lub zmieniony na liście urządzeń lub w monitorze ICMP dla wszystkich urządzeń.';
 $pia_lang['MT_Tool_darkmode'] = 'Tryb ciemny';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Zmiana wyglądu';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Przełącza między trybem jasnym i ciemnym. Jeśli przełączanie nie działa poprawnie, spróbuj wyczyścić pamięć podręczną przeglądarki.';
@@ -520,6 +523,15 @@ $pia_lang['MT_Tool_reset_voided'] = 'Resetuj zdarzenia VOIDED';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Zdarzenia VOIDED nie są widoczne w kalendarzu obecności. Wykonaj tę funkcję, aby zresetować wszystkie VOIDED (podłączone/odłączone) zdarzenia.';
 $pia_lang['MT_Tggl_Import_head'] = 'Włącz/wyłącz źródło importu';
 $pia_lang['MT_Tggl_Import_text'] = 'Włącza lub wyłącza wybrane źródło importu danych. Trwające skanowania nie są przerywane. Dane wcześniej zaimportowane pozostają w bazie.';
+$pia_lang['MT_ColumnEdit_a'] = 'Menu rozwijane:';
+$pia_lang['MT_ColumnEdit_b'] = 'Wpis:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' nie wybrano kolumny ';
+$pia_lang['MT_ColumnEdit_c'] = 'Zmień wpis na:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nowa wartość';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Usuń wpis z menu';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Wpisy zakodowane na stałe zostaną usunięte z urządzeń, ale pozostaną w menu. Wpisy indywidualne znikną również z menu.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Edytuj wpis z menu';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Wpisy zakodowane na stałe zostaną zmienione na wszystkich urządzeniach, ale pozostaną w menu. Indywidualne wpisy zostaną zastąpione nowym wpisem.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Wszystkie moduły skanowania i importy są wyłączone';

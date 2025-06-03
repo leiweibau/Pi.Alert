@@ -382,6 +382,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktivering af de enkelte import
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pi-hole-knap (menulinje)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Ved at angive URL&apos;en til Pi-hole-webgrænsefladen, kan du tilføje en knap i menulinjen. Hvis feltet slettes, fjernes knappen igen. Knappen vises med ikonet <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Konfigurer overskrifter i enhedslister';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Opgaver';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Administrer dropdown-poster';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Selvom alle dropdown-poster kan vælges, kan statiske poster (dvs. hardkodede muligheder) ikke slettes eller ændres i menuen. Der vises ingen fejlmeddelelse i sådanne tilfælde – den valgte post vil dog stadig blive fjernet eller omdøbt i enhedslisten eller ICMP-monitoren for alle enheder.';
 $pia_lang['MT_Tool_darkmode'] = 'Mørk tilstand';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Skift visning';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Skifter mellem lys og mørk visning. Hvis skiftet ikke fungerer korrekt, prøv at rydde browserens cache.';
@@ -520,6 +523,15 @@ $pia_lang['MT_Tool_reset_voided'] = 'Nulstil VOIDED-hændelser';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED-hændelser vises ikke i tilstedeværelseskalenderen. Brug denne funktion til at nulstille alle VOIDED-hændelser (tilkoblet/frakoblet).';
 $pia_lang['MT_Tggl_Import_head'] = 'Aktivér/deaktivér importkilde';
 $pia_lang['MT_Tggl_Import_text'] = 'Aktiverer eller deaktiverer den valgte kilde til dataimport. Kørende scanninger påvirkes ikke. Tidligere importerede data bevares.';
+$pia_lang['MT_ColumnEdit_a'] = 'Dropdown-menu:';
+$pia_lang['MT_ColumnEdit_b'] = 'Post:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' ingen kolonne valgt ';
+$pia_lang['MT_ColumnEdit_c'] = 'Skift post til:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Ny værdi';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Slet dropdown-post';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Hardkodede poster fjernes fra alle enheder, men bliver i menuen. Individuelle poster fjernes også fra dropdown-menuen.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Rediger dropdown-post';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardkodede poster ændres på alle enheder, men bliver i menuen. Individuelle poster erstattes med den nye post.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanningsmoduler og importer er deaktiveret';
