@@ -625,6 +625,10 @@ $pia_lang['BE_Param_Colors'] = 'Farver gemt';
 $pia_lang['BE_Param_Colors_error'] = 'Farver blev ikke ændret eller gemt (databasen er i brug pga. scanning)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'VOIDED-hændelser blev konverteret til gyldige hændelser';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fejl ved opdatering af VOIDED-hændelser';
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Fejl: Den nye kolonneværdi skal være tom for at kunne slettes.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Ugyldigt kolonnenavn: ';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netværksoversigt';

@@ -625,6 +625,10 @@ $pia_lang['BE_Param_Colors'] = 'Barvy byly uloženy';
 $pia_lang['BE_Param_Colors_error'] = 'Barvy nebyly změněny nebo uloženy (databáze je používána během skenování)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'VOIDED události byly převedeny na platné';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Chyba při aktualizaci VOIDED událostí';
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Chyba: Nový obsah sloupce musí být prázdný, aby jej bylo možné odstranit.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Neplatný název sloupce: ';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Přehled sítě';

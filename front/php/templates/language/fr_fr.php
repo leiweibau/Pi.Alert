@@ -626,6 +626,10 @@ $pia_lang['BE_Param_Colors'] = 'Couleur(s) enregistrée(s)';
 $pia_lang['BE_Param_Colors_error'] = 'La/les couleur(s) n&apos;ont pas été modifiées ou enregistrées (base de données utilisée par un scan)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Les événements ANNULÉS ont été convertis en événements "valides"';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Erreur lors de la mise à jour des événements ANNULÉS';
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Erreur&nbsp;: Le nouveau contenu de la colonne doit être vide pour pouvoir être supprimé.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Nom de colonne invalide&nbsp;: ';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';

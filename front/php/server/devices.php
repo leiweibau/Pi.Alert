@@ -137,7 +137,7 @@ function MTDeletColumnContent() {
 	];
 
 	if (!isset($columnMap[$column])) {
-	    die("Ungültiger Spaltenname: [$column]<br>");
+		die($pia_lang['BE_Dev_ColumnErr_b'].'&quot;'.$column.'&quot;');
 	}
 
 	$ok_message = "";
@@ -195,8 +195,6 @@ function MTUpdateColumnContent() {
 	$column_content = htmlspecialchars($_REQUEST['ccontent']) ?? '';
 	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
 
-	//echo $column." - ".$column_content." - ".$new_column_content;
-
 	$columnMap = [
 	    'Group'       => ['Devices' => 'dev_Group',        'ICMP_Mon' => 'icmp_group'],
 	    'Owner'       => ['Devices' => 'dev_Owner',        'ICMP_Mon' => 'icmp_owner'],
@@ -207,7 +205,7 @@ function MTUpdateColumnContent() {
 	];
 
 	if (!isset($columnMap[$column])) {
-	    die("Ungültiger Spaltenname: [$column]<br>");
+	    die($pia_lang['BE_Dev_ColumnErr_b'].'&quot;'.$column.'&quot;');
 	}
 
 	$ok_message = "";

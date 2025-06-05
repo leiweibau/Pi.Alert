@@ -629,6 +629,7 @@ $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fehler aktualisieren der VOIDED 
 
 
 $pia_lang['BE_Dev_ColumnErr_a'] = 'Fehler: Der neue Spalteninhalt muss leer sein, damit gelöscht werden kann.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Ungültiger Spaltenname: ';
 
 // Network Page
 //////////////////////////////////////////////////////////////////

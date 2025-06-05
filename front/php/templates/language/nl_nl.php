@@ -625,6 +625,10 @@ $pia_lang['BE_Param_Colors'] = 'Kleur(en) opgeslagen';
 $pia_lang['BE_Param_Colors_error'] = 'Kleur(en) niet gewijzigd of niet opgeslagen (database in gebruik door scan)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'VOIDED-events zijn omgezet naar geldige events';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fout bij bijwerken van VOIDED-events';
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Fout: De nieuwe kolominhoud moet leeg zijn om deze te kunnen verwijderen.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Ongeldige kolomnaam: ';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netwerkoverzicht';

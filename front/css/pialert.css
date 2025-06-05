@@ -450,6 +450,7 @@ body.modal-open {
 .db_info_table_cell { display: table-cell; padding: 3px; padding-left: 10px;}
 .db_tools_table_cell_a { display: table-cell; text-align: center; padding: 10px; min-width: 180px; width: 20%; vertical-align: top;}
 .db_tools_table_cell_b { display: table-cell; text-align: justify; font-size: 16px; vertical-align: middle; padding: 10px;}
+.db_info_table_cell_a { min-width: 175px; width: 35%;}
 .main_logviwer_text_layout {text-align: left;}
 .main_logviwer_log {border: none; overflow-y: scroll; white-space: nowrap;}
 .main_logviwer_buttonbox {text-align: center; padding-top: 5px; padding-bottom: 5px;}

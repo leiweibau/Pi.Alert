@@ -627,6 +627,10 @@ $pia_lang['BE_Param_Colors'] = 'Color(es) guardado(s)';
 $pia_lang['BE_Param_Colors_error'] = 'El/los color(es) no se cambiaron o guardaron (base de datos en uso por escaneo)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Los eventos ANULADOS se han convertido en eventos "válidos"';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error al actualizar los eventos ANULADOS';
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Error: El nuevo contenido de la columna debe estar vacío para poder eliminarlo.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Nombre de columna no válido: ';
+
 // Network Page - Update by @TeroRERO 01ago2022
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Descripción general de la red';

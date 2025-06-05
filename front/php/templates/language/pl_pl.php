@@ -625,6 +625,10 @@ $pia_lang['BE_Param_Colors'] = 'Kolory zostały zapisane';
 $pia_lang['BE_Param_Colors_error'] = 'Kolory nie zostały zmienione lub nie zapisane (baza używana przez skanowanie)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Zdarzenia VOIDED zostały przekonwertowane na ważne';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Błąd podczas aktualizacji zdarzeń VOIDED';
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Błąd: Nowa zawartość kolumny musi być pusta, aby można ją było usunąć.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Nieprawidłowa nazwa kolumny: ';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Przegląd sieci';

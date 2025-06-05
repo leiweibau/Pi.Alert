@@ -627,6 +627,10 @@ $pia_lang['BE_Dev_DBTools_resetVoided'] = 'The VOIDED events have been converted
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error updating the VOIDED events';
 $pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
 $pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
+
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Error: The new column content must be empty in order to delete it.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Invalid column name: ';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';
