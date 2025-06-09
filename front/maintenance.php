@@ -79,7 +79,7 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
 // Get Config Parameter
-foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE'] as $key) {
+foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE', 'PRINT_LOG'] as $key) {
     $_SESSION[$key] = (get_config_parmeter($key) == 1) ? 1 : 0;
 }
 // Buffer active --------------------------------------------------------------
@@ -213,11 +213,9 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
             <button type="button" id="wefwfwefewdf" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-iplog"><?=$pia_lang['MT_Tools_Logviewer_IPLog'];?></button>
             <button type="button" id="tzhrsreawefw" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-vendor"><?=$pia_lang['MT_Tools_Logviewer_Vendor'];?></button>
             <button type="button" id="arzuozhrsfga" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-cleanup"><?=$pia_lang['MT_Tools_Logviewer_Cleanup'];?></button>
-<?php
-if ($_SESSION['Scan_WebServices'] == True) {
-	echo '<button type="button" id="erftttwrdwqqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices">' . $pia_lang['MT_Tools_Logviewer_WebServices'] . '</button>';
-}
-?>
+            <button type="button" id="erftttwrdwqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices"><?=$pia_lang['MT_Tools_Logviewer_WebServices']?></button>
+            <?php $state = convert_state($_SESSION['PRINT_LOG'], 0);?>
+            <button type="button" id="btnextLogging" class="btn btn-danger main_logviwer_button_m" onclick="askToggleExtLogging(<?=$_SESSION['PRINT_LOG'];?>)">Extented Logging (<?=$state;?>)</button>
       	</div>
     </div>
 
@@ -989,11 +987,24 @@ function MTDeletColumnContent() {
     showMessage (msg);
   });
 }
-
 function MTResetColumnContent() {
     setTextValue('txtMTTableColumn','');
     setTextValue('txtMTColumnContent','');
     setTextValue('txtMTNewColumnContent','');
+}
+// Toggle extended Logging
+function askToggleExtLogging(ftoggleState) {
+    window.global_ftoggleState = ftoggleState;
+    showModalWarning('<?=$pia_lang['MT_Tool_reset_voided'];?>' + ftoggleState, '<?=$pia_lang['MT_Tool_reset_voided_text'];?>',
+        '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'ToggleExtLogging');
+}
+function ToggleExtLogging() {
+    var ftoggleState = window.global_ftoggleState;
+    $.get('php/server/files.php?action=ToggleExtLogging'
+        + '&toggleState='   + ftoggleState
+        , function(msg) {
+        showMessage (msg);
+    });
 }
 
 setInterval(UpdateStatusBox, 15000);

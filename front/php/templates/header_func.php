@@ -233,7 +233,7 @@ $config_mappings = [
     'AUTO_UPDATE_CHECK'      => 'Auto_Update_Check',
     'AUTO_DB_BACKUP'         => 'AUTO_DB_BACKUP',
     'SPEEDTEST_TASK_ACTIVE'  => 'SPEEDTEST_TASK_ACTIVE',
-    'SATELLITES_ACTIVE_copy' => 'SATELLITES_ACTIVE' // Spezialfall
+    'PRINT_LOG'              => 'PRINT_LOG'
 ];
 
 foreach ($config_mappings as $config_key => $session_key) {
