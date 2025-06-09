@@ -625,10 +625,15 @@ $pia_lang['BE_Param_Colors'] = 'Barvy byly uloženy';
 $pia_lang['BE_Param_Colors_error'] = 'Barvy nebyly změněny nebo uloženy (databáze je používána během skenování)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'VOIDED události byly převedeny na platné';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Chyba při aktualizaci VOIDED událostí';
-
-$pia_lang['BE_Dev_ColumnErr_a'] = 'Chyba: Nový obsah sloupce musí být prázdný, aby jej bylo možné odstranit.';
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Chyba: Nový obsah sloupce musí být prázdný, aby bylo možné jej smazat.';
 $pia_lang['BE_Dev_ColumnErr_b'] = 'Neplatný název sloupce: ';
-
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Chyba při přípravě pro';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Chyba při aktualizaci záznamu';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Chyba při mazání záznamu';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Záznam(y) vymazán(y)';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Záznam(y) aktualizován(y)';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Obsah sloupce úspěšně smazán';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Sloupec byl aktualizován';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Přehled sítě';

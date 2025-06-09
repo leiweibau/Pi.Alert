@@ -626,10 +626,15 @@ $pia_lang['BE_Param_Colors'] = 'Couleur(s) enregistrée(s)';
 $pia_lang['BE_Param_Colors_error'] = 'La/les couleur(s) n&apos;ont pas été modifiées ou enregistrées (base de données utilisée par un scan)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Les événements ANNULÉS ont été convertis en événements "valides"';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Erreur lors de la mise à jour des événements ANNULÉS';
-
-$pia_lang['BE_Dev_ColumnErr_a'] = 'Erreur&nbsp;: Le nouveau contenu de la colonne doit être vide pour pouvoir être supprimé.';
-$pia_lang['BE_Dev_ColumnErr_b'] = 'Nom de colonne invalide&nbsp;: ';
-
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Erreur: Le contenu de la colonne doit être vide pour pouvoir être supprimé.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Nom de colonne invalide: ';
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Erreur lors de la préparation de';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Erreur lors de la mise à jour de l&apos;entrée';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Erreur lors de la suppression de l&apos;entrée';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Entrée(s) effacée(s)';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Entrée(s) mise(s) à jour';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Contenu de la colonne supprimé avec succès';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Colonne mise à jour avec succès';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';

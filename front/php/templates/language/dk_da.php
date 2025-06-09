@@ -625,10 +625,15 @@ $pia_lang['BE_Param_Colors'] = 'Farver gemt';
 $pia_lang['BE_Param_Colors_error'] = 'Farver blev ikke ændret eller gemt (databasen er i brug pga. scanning)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'VOIDED-hændelser blev konverteret til gyldige hændelser';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fejl ved opdatering af VOIDED-hændelser';
-
 $pia_lang['BE_Dev_ColumnErr_a'] = 'Fejl: Den nye kolonneværdi skal være tom for at kunne slettes.';
 $pia_lang['BE_Dev_ColumnErr_b'] = 'Ugyldigt kolonnenavn: ';
-
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Fejl under forberedelse til';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Fejl under opdatering af posten';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Fejl under sletning af posten';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Post(er) ryddet';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Post(er) opdateret';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Kolonneindhold blev slettet';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Kolonne blev opdateret';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netværksoversigt';

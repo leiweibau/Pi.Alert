@@ -626,11 +626,15 @@ $pia_lang['BE_Param_Colors'] = 'Farbe(n) gespeichert';
 $pia_lang['BE_Param_Colors_error'] = 'Farbe(n) wurde(n) nicht geändert oder nicht gespeichert (Datenbank durch Scan in Verwendung)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Die VOIDED Events wurden in "gültige" Events umgewandelt';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fehler aktualisieren der VOIDED Events';
-
-
 $pia_lang['BE_Dev_ColumnErr_a'] = 'Fehler: Der neue Spalteninhalt muss leer sein, damit gelöscht werden kann.';
 $pia_lang['BE_Dev_ColumnErr_b'] = 'Ungültiger Spaltenname: ';
-
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Fehler beim Prepare für';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Fehler Aktualisieren des Eintrags';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Fehler Löschen des Eintrags';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Eintrag/Einträge geleert';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Eintrag/Einträge aktualisiert';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Spalteninhalt erfolgreich gelöscht';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Spalte aktualisiert';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netzwerkübersicht';

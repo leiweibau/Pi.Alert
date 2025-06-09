@@ -626,10 +626,15 @@ $pia_lang['BE_Param_Colors'] = 'Colore/i salvato/i';
 $pia_lang['BE_Param_Colors_error'] = 'Il/i colore/i non è/sono stato/i modificato/i o salvato/i (database in uso per la scansione)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Gli eventi ANNULLATI sono stati convertiti in eventi "validi"';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Errore durante l\'aggiornamento degli eventi ANNULLATI';
-
-$pia_lang['BE_Dev_ColumnErr_a'] = 'Errore: Il nuovo contenuto della colonna deve essere vuoto per poterlo eliminare.';
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Errore: Il contenuto della colonna deve essere vuoto per poter essere eliminato.';
 $pia_lang['BE_Dev_ColumnErr_b'] = 'Nome colonna non valido: ';
-
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Errore durante la preparazione per';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Errore durante l&apos;aggiornamento della voce';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Errore durante l&apos;eliminazione della voce';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Voce/i cancellata/e';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Voce/i aggiornata/e';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Contenuto della colonna eliminato correttamente';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Colonna aggiornata correttamente';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Panoramica della Rete';

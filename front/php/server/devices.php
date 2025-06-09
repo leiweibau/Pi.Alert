@@ -152,9 +152,9 @@ function MTDeletColumnContent() {
 	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
 	        $stmt->execute();
 	        $changed = $db->changes();
-	        $ok_message .= "Devices: $changed Eintrag/Einträge geleert<br>";
+	        $ok_message .= $pia_lang['NAV_Devices'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_a']."<br>";
 	    } else {
-	        $er_message .= "Fehler beim Prepare für Devices: " . $db->lastErrorMsg() . "<br>";
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_Devices'].": " . $db->lastErrorMsg() . "<br>";
 	    }
 	}
 
@@ -167,21 +167,21 @@ function MTDeletColumnContent() {
 	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
 	        $stmt->execute();
 	        $changed = $db->changes();
-	        $ok_message .= "ICMP_Mon: $changed Eintrag/Einträge geleert<br>";
+	        $ok_message .= $pia_lang['NAV_ICMPScan'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_a']."<br>";
 	    } else {
-	        $er_message .= "Fehler beim Prepare für ICMP_Mon: " . $db->lastErrorMsg() . "<br>";
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_ICMPScan'].": " . $db->lastErrorMsg() . "<br>";
 	    }
 	}
 
 	// Ausgabe
 	if ($er_message == "") {
-		echo $column . '-Spalteninhalt erfolgreich gelöscht<br>' . $ok_message;
-		// Optionales Logging hier möglich
-		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+		echo $column . $pia_lang['BE_Dev_ColumnOk_c'].'<br>' . $ok_message;
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $column.'/'.$column_content);
 	} else {
-		echo $pia_lang['BE_Dev_SatUpdateError'] . $er_message;
-		// Optionales Logging hier möglich
-		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+		echo $pia_lang['BE_Dev_ColumnErr_d'] . $er_message;
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $column.'/'.$column_content);
 	}
 
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=2'>";
@@ -221,9 +221,9 @@ function MTUpdateColumnContent() {
 	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
 	        $stmt->execute();
 	        $changed = $db->changes();
-	        $ok_message .= "Devices aktualisiert: $changed Zeile(n)<br>";
+	        $ok_message .= $pia_lang['NAV_Devices'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_b']."<br>";
 	    } else {
-	        $er_message .= "Fehler beim Prepare für Devices: " . $db->lastErrorMsg() . "<br>";
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_Devices'].": " . $db->lastErrorMsg() . "<br>";
 	    }
 	}
 
@@ -237,20 +237,20 @@ function MTUpdateColumnContent() {
 	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
 	        $stmt->execute();
 	        $changed = $db->changes();
-	        $ok_message .= "ICMP_Mon aktualisiert: $changed Zeile(n)<br>";
+	        $ok_message .= $pia_lang['NAV_ICMPScan'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_b']."<br>";
 	    } else {
-	        $er_message .= "Fehler beim Prepare für ICMP_Mon: " . $db->lastErrorMsg() . "<br>";
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_ICMPScan'].": " . $db->lastErrorMsg() . "<br>";
 	    }
 	}
 
 	if ($er_message == "") {
-		echo $column . '-Spalte aktualisiert<br>'.$ok_message;
+		echo $column . $pia_lang['BE_Dev_ColumnOk_d'].'<br>'.$ok_message;
 		// Logging
-		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $column.'/'.$column_content.' -- '.$new_column_content);
 	} else {
-		echo $pia_lang['BE_Dev_SatUpdateError'] . $er_message;
+		echo $pia_lang['BE_Dev_ColumnErr_e'] . $er_message;
 		// Logging
-		//pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $column.'/'.$column_content.' -- '.$new_column_content);
 	}
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=2'>";
 }

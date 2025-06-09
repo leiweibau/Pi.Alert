@@ -625,10 +625,15 @@ $pia_lang['BE_Param_Colors'] = 'Kleur(en) opgeslagen';
 $pia_lang['BE_Param_Colors_error'] = 'Kleur(en) niet gewijzigd of niet opgeslagen (database in gebruik door scan)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'VOIDED-events zijn omgezet naar geldige events';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Fout bij bijwerken van VOIDED-events';
-
-$pia_lang['BE_Dev_ColumnErr_a'] = 'Fout: De nieuwe kolominhoud moet leeg zijn om deze te kunnen verwijderen.';
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Fout: De nieuwe kolominhoud moet leeg zijn om te kunnen verwijderen.';
 $pia_lang['BE_Dev_ColumnErr_b'] = 'Ongeldige kolomnaam: ';
-
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Fout bij voorbereiden van';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Fout bij het bijwerken van de invoer';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Fout bij het verwijderen van de invoer';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Invoer/vermeldingen geleegd';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Invoer/vermeldingen bijgewerkt';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Kolominhoud succesvol verwijderd';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Kolom succesvol bijgewerkt';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netwerkoverzicht';
