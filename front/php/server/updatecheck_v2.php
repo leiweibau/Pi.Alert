@@ -150,9 +150,13 @@ if ($_SESSION['Scan_WebServices'] == True) {
 	            </style>
 	            <div class="col-sm-12" style="">
 	              <div style="height: 60px;">
-	                <div class="downloader" id="downloader" style="display: none;"></div>
-	                <button class="btn btn-default" id="updateDB-button">' . $pia_lang['GeoLiteDB_button_upd'] . '</button>
-	              </div>
+	                <div class="downloader" id="downloader" style="display: none;"></div>';
+	    if ($geolite_update_filesize > 0) {
+	        echo '<button class="btn btn-default" id="updateDB-button">' . $pia_lang['GeoLiteDB_button_upd'] . '</button>';
+	    } else {
+	    	echo '<span class="text-danger">Download not possible (Filsize ZERO)</span>';
+	    }
+	    echo ' </div>
 	            </div>
 	          </div>
 
