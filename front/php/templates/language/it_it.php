@@ -535,6 +535,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Elimina voce del menu a discesa';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Le voci codificate verranno rimosse da ogni dispositivo, ma rimarranno nel menu. Le voci personalizzate verranno rimosse anche dal menu.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifica voce del menu a discesa';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Le voci codificate verranno aggiornate su ogni dispositivo ma rimarranno nel menu. Le voci personalizzate verranno sostituite dalla nuova voce.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Log estesi';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Consente di passare tra log semplici ed estesi. I log estesi dovrebbero essere attivati solo in caso di errore, poiché le informazioni aggiuntive possono compromettere la chiarezza.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tutti i moduli di scansione e le importazioni disattivati';

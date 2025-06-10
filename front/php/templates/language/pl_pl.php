@@ -532,6 +532,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Usuń wpis z menu';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Wpisy zakodowane na stałe zostaną usunięte z urządzeń, ale pozostaną w menu. Wpisy indywidualne znikną również z menu.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Edytuj wpis z menu';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Wpisy zakodowane na stałe zostaną zmienione na wszystkich urządzeniach, ale pozostaną w menu. Indywidualne wpisy zostaną zastąpione nowym wpisem.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozszerzone logi';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Pozwala przełączać się między prostymi a rozszerzonymi logami. Rozszerzone logi powinny być włączane tylko w przypadku błędów, ponieważ dodatkowe dane mogą utrudnić czytelność.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Wszystkie moduły skanowania i importy są wyłączone';

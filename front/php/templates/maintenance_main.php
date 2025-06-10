@@ -84,7 +84,7 @@
             </div>
 
             <div class="row">
-                <div class="col-xs-12 col-md-3">
+                <div class="col-xs-12 col-md-3" style="margin-bottom: 15px;">
                     <label><?=$pia_lang['MT_ColumnEdit_a'];?></label><br>
                     <div class="input-group dropup">
                         <input class="form-control" id="txtMTTableColumn" type="text" readonly>
@@ -101,7 +101,7 @@
                             </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-md-3">
+                <div class="col-xs-12 col-md-3" style="margin-bottom: 15px;">
                     <label><?=$pia_lang['MT_ColumnEdit_b'];?></label><br>
                     <div class="input-group dropup">
                         <input class="form-control" id="txtMTColumnContent" type="text" readonly>
@@ -113,11 +113,11 @@
                             </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-md-3">
+                <div class="col-xs-12 col-md-3" style="margin-bottom: 15px;">
                     <label><?=$pia_lang['MT_ColumnEdit_c'];?></label><br>
                     <input class="form-control" type="text" placeholder="<?=$pia_lang['MT_ColumnEdit_c_ph'];?>" id="txtMTNewColumnContent">
                 </div>
-                <div class="col-xs-12 col-md-3 text-center">
+                <div class="col-xs-12 col-md-3 text-center" style="margin-bottom: 15px;">
                     <label><?=$pia_lang['MT_SET_SatEdit_FORM_Action'];?></label><br>
                         <button type="button" class="btn btn-link" id="btnMTResetColumnContent" onclick="MTResetColumnContent()" ><i class="bi bi-eraser text-green satlist_action_btn_content"></i></button>
                         <button type="button" class="btn btn-link" id="btnMTUpdateColumnContent" onclick="askMTUpdateColumnContent()" ><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>

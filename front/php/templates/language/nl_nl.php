@@ -532,6 +532,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Dropdown-invoer verwijderen';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Hardgecodeerde items worden verwijderd van elk apparaat, maar blijven zichtbaar in het menu. Aangepaste items verdwijnen ook uit het dropdown-menu.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Dropdown-invoer bewerken';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardgecodeerde items worden aangepast op elk apparaat, maar blijven in het dropdown-menu. Aangepaste items worden vervangen door de nieuwe invoer.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Uitgebreide logs';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermee kun je schakelen tussen eenvoudige en uitgebreide logs. Uitgebreide logs moeten alleen bij fouten worden ingeschakeld, omdat extra informatie het overzicht kan verstoren.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanmodules en imports zijn gedeactiveerd';

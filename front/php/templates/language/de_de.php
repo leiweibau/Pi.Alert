@@ -533,6 +533,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Dropdown-Eintrag löschen';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Fest-codierte Einträge werden bei jedem Device entfernt, jedoch bleibt der Eintrag selbst in dem Dropdown-Menü erhalten. Individuelle Einträge verschwinden auch aus dem Dropdown-Menü.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Dropdown-Eintrag bearbeiten';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Fest-codierte Einträge werden bei jedem Device geändert, jedoch bleibt der Eintrag selbst in dem Dropdown-Menü erhalten. Individuelle Einträge werden im Dropdown-Menü durch den neuen Eintrag ersetzt.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Erweiterte Logs';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermit kann zwischen einfachen und erweiterten Logs ungeschaltet werden. Die erweiterten Logs sollten nur im Fehlerfall aktiviert werden, da durch die zusätzlichen Ausgaben die Übersicht verloren geht.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';

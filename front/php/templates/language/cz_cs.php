@@ -532,6 +532,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Smazat položku rozbalovací nabídky';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Předdefinované položky budou odstraněny ze všech zařízení, ale zůstanou v nabídce. Vlastní položky zmizí i z rozbalovací nabídky.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Upravit položku rozbalovací nabídky';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Předdefinované položky budou změněny na všech zařízeních, ale zůstanou v nabídce. Vlastní položky budou nahrazeny novou položkou.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozšířené logy';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Tímto lze přepínat mezi jednoduchými a rozšířenými logy. Rozšířené logy by měly být aktivovány pouze při chybách, protože dodatečné výstupy mohou narušit přehlednost.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Všechny moduly skenování a importy jsou deaktivovány';

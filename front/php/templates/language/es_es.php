@@ -536,6 +536,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Eliminar entrada del menú desplegable';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Las entradas codificadas se eliminarán de cada dispositivo, pero permanecerán en el menú desplegable. Las entradas personalizadas también desaparecerán del menú.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Editar entrada del menú desplegable';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Las entradas codificadas se actualizarán en cada dispositivo, pero se mantendrán en el menú desplegable. Las entradas personalizadas se sustituirán por la nueva entrada.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Registros ampliados';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Esto permite alternar entre registros simples y ampliados. Los registros ampliados deben activarse solo en caso de errores, ya que la información adicional puede dificultar la visión general.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';

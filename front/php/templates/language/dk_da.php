@@ -532,6 +532,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Slet dropdown-post';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Hardkodede poster fjernes fra alle enheder, men bliver i menuen. Individuelle poster fjernes også fra dropdown-menuen.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Rediger dropdown-post';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardkodede poster ændres på alle enheder, men bliver i menuen. Individuelle poster erstattes med den nye post.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Udvidede logs';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Brug denne mulighed til at skifte mellem simple og udvidede logs. Udvidede logs bør kun aktiveres ved fejl, da de ekstra oplysninger kan skabe forvirring.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanningsmoduler og importer er deaktiveret';

@@ -533,6 +533,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Supprimer l&apos;entrée du menu déroulan
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Les entrées codées en dur seront supprimées de chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées disparaîtront également du menu.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifier l&apos;entrée du menu déroulant';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifiées sur chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées seront remplacées par la nouvelle entrée.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Journaux étendus';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Permet de basculer entre les journaux simples et étendus. Les journaux étendus ne doivent être activés qu&apos;en cas d&apos;erreur, car les informations supplémentaires peuvent nuire à la lisibilité.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';

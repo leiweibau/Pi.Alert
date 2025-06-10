@@ -534,6 +534,8 @@ $pia_lang['MT_ColumnDel_Mod_head'] = 'Delete dropdown entry';
 $pia_lang['MT_ColumnDel_Mod_text'] = 'Hard-coded entries will be removed from each device, but the entry itself will remain in the dropdown menu. Custom entries will also be removed from the dropdown menu.';
 $pia_lang['MT_ColumnUpd_Mod_head'] = 'Edit dropdown entry';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hard-coded entries will be changed on each device, but the entry itself will remain in the dropdown menu. Custom entries will be replaced in the dropdown menu by the new entry.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Extended logs';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Use this to switch between simple and extended logs. Extended logs should only be enabled in case of errors, as the additional output may reduce clarity.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';
