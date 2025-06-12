@@ -215,7 +215,7 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
             <button type="button" id="arzuozhrsfga" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-cleanup"><?=$pia_lang['MT_Tools_Logviewer_Cleanup'];?></button>
             <button type="button" id="erftttwrdwqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices"><?=$pia_lang['MT_Tools_Logviewer_WebServices']?></button>
             <?php $state = convert_state($_SESSION['PRINT_LOG'], 0);?>
-            <button type="button" id="btnextLogging" class="btn btn-danger main_logviwer_button_m" onclick="askToggleExtLogging(<?=$_SESSION['PRINT_LOG'];?>)">Extented Logging (<?=$state;?>)</button>
+            <button type="button" id="btnextLogging" class="btn btn-danger main_logviwer_button_m" onclick="askToggleExtLogging(<?=$_SESSION['PRINT_LOG'];?>)"><?=$pia_lang['MT_Tools_Logviewer_ext_a']?> (<?=$state;?>)</button>
       	</div>
     </div>
 
@@ -995,7 +995,7 @@ function MTResetColumnContent() {
 // Toggle extended Logging
 function askToggleExtLogging(ftoggleState) {
     window.global_ftoggleState = ftoggleState;
-    showModalWarning('<?=$pia_lang['MT_Tool_reset_voided'];?>' + ftoggleState, '<?=$pia_lang['MT_Tool_reset_voided_text'];?>',
+    showModalWarning('<?=$pia_lang['MT_Tools_Logviewer_ext_a'];?>', '<?=$pia_lang['MT_Tools_Logviewer_ext_b'];?>',
         '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'ToggleExtLogging');
 }
 function ToggleExtLogging() {

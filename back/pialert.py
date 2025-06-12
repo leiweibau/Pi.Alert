@@ -863,7 +863,7 @@ def scan_network():
     print_log ('Dump all results to Log')
     dump_all_resulttables()
     # Process Ignore list
-    print('    Processing ignore list...')
+    print('    Processing ignore list 1/2...')
     remove_entries_from_table()
         # Print stats
     print_log ('Print Stats')
@@ -883,6 +883,10 @@ def scan_network():
     # Resolve devices names
     print_log ('   Resolve devices names...')
     update_devices_names()
+    # Process Ignore list
+    print('    Processing ignore list 2/2...')
+    #### Remove Devices from devicelist and event
+    remove_entries_from_devicelist()
     # Void false connection - disconnections
     print('    Voiding false (ghost) disconnections...')
     void_ghost_disconnections()
@@ -1958,10 +1962,47 @@ def dump_all_resulttables():
             print('----------> Dump: End')
 
 #-------------------------------------------------------------------------------
+def remove_entries_from_devicelist():
+    try:
+        if HOSTNAME_IGNORE_LIST:
+            print_log(f'        {len(HOSTNAME_IGNORE_LIST)} Hostnames are ignored during the scan')
+
+            matched_macs = set()
+
+            query = f"SELECT dev_MAC, dev_Name FROM Devices"
+            sql.execute(query)
+            for mac, name in sql.fetchall():
+                if hostname_ignorelist_filter(name):
+                    matched_macs.add(mac)
+
+            print_log(f'        Matches after hostname resolving')
+            print_log('\n'.join(matched_macs))
+
+            work_tables = {
+                'CurrentScan': 'cur_MAC',
+                'Devices': 'dev_MAC',
+                'Events': 'eve_MAC'
+            }
+
+            for tabelle, mac_spalte in work_tables.items():
+                for mac in matched_macs:
+                    sql.execute(
+                        f"DELETE FROM {tabelle} WHERE {mac_spalte} = ? COLLATE NOCASE",
+                        (mac,)
+                    )
+
+        else:
+            print_log('        Hostname-Ignore list is empty')
+
+    except NameError:
+        print_log("        No Hostname-Ignore list defined")
+
+
+#-------------------------------------------------------------------------------
 def remove_entries_from_table():
     try:
         if MAC_IGNORE_LIST:
-            print(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
+            print_log(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
 
             table_column_map = {
                 'CurrentScan': 'cur_MAC',
@@ -1987,14 +2028,14 @@ def remove_entries_from_table():
                 like_params = [f"{mac}%" for mac in MAC_IGNORE_LIST]
                 sql.execute(query, like_params)
         else:
-            print('        MAC-Ignore list is empty')
+            print_log('        MAC-Ignore list is empty')
 
     except NameError:
-        print("        No MAC-Ignore list defined")
+        print_log("        No MAC-Ignore list defined")
 
     try:
         if IP_IGNORE_LIST:
-            print(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
+            print_log(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
 
             table_column_map = {
                 'CurrentScan': 'cur_IP',
@@ -2018,14 +2059,14 @@ def remove_entries_from_table():
                 like_params = [f"{ip}%" for ip in IP_IGNORE_LIST]
                 sql.execute(query, like_params)
         else:
-            print('        IP-Ignore list is empty')
+            print_log('        IP-Ignore list is empty')
 
     except NameError:
-        print("        No IP-Ignore list defined")
+        print_log("        No IP-Ignore list defined")
 
     try:
         if HOSTNAME_IGNORE_LIST:
-            print(f'        {len(HOSTNAME_IGNORE_LIST)} Hostnames are ignored during the scan')
+            print_log(f'        {len(HOSTNAME_IGNORE_LIST)} Hostnames are ignored during the scan')
             source_tables = [
                 ("PiHole_Network", "PH_MAC", "PH_Name"),
                 ("DHCP_Leases", "DHCP_MAC", "DHCP_Name"),
@@ -2067,10 +2108,10 @@ def remove_entries_from_table():
                     )
 
         else:
-            print('        Hostname-Ignore list is empty')
+            print_log('        Hostname-Ignore list is empty')
 
     except NameError:
-        print("        No Hostname-Ignore list defined")
+        print_log("        No Hostname-Ignore list defined")
 
 #-------------------------------------------------------------------------------
 def hostname_ignorelist_filter(hostname: str) -> bool:
