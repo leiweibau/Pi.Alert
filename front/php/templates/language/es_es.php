@@ -364,6 +364,10 @@ $pia_lang['MT_lang_de_de'] = 'Alemán (DE)';
 $pia_lang['MT_lang_es_es'] = 'Español (ES)';
 $pia_lang['MT_lang_fr_fr'] = 'Francés (FR)';
 $pia_lang['MT_lang_it_it'] = 'Italiano (IT)';
+$pia_lang['MT_lang_pl_pl'] = 'Polaco (PL)';
+$pia_lang['MT_lang_nl_nl'] = 'Neerlandés (NL)';
+$pia_lang['MT_lang_dk_da'] = 'Danés (DK)';
+$pia_lang['MT_lang_cz_cs'] = 'Checo (CZ)';
 $pia_lang['MT_lang_selector_apply'] = 'Aplicar';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Ajustes';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'Las opciones enumeradas aquí efectúan cambios en la configuración del servidor. Por lo tanto, estos cambios afectan a todos los dispositivos que accedan a esta página.';
@@ -382,6 +386,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'La activación de las importaci
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Botón de Pi-hole (Barra de menú)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Al especificar la URL de la interfaz web de Pi-hole, puedes crear un botón de Pi-hole en la barra de menú. Si borras el campo de entrada, el botón será eliminado. El botón está marcado con el icono <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurar cabeceras de listas';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Tareas';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Gestionar entradas del menú desplegable';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Aunque se pueden seleccionar todas las entradas del menú desplegable, las entradas estáticas (es decir, opciones codificadas) no se pueden eliminar ni modificar en el menú. No se mostrará ningún mensaje de error en estos casos; sin embargo, la entrada seleccionada se eliminará o cambiará en la lista de dispositivos o en el monitor ICMP para todos los dispositivos.';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Cambiar Modo';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Después del cambio de tema, la página intenta volver a cargar para activar el cambio. Si es necesario, el caché debe ser eliminado.';
@@ -520,6 +527,17 @@ $pia_lang['MT_Tool_reset_voided'] = 'Restablecer eventos ANULADOS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Los eventos ANULADOS no se muestran en el calendario de asistencia. Para restablecer todos los eventos ANULADOS (Conectado/Desconectado), ejecuta esta función.';
 $pia_lang['MT_Tggl_Import_head'] = 'Habilitar/Deshabilitar fuente para importación';
 $pia_lang['MT_Tggl_Import_text'] = 'Esto habilita o deshabilita la fuente deseada para la importación de datos. Los análisis en curso no se ven afectados por la activación o desactivación. Los datos ya importados se conservarán tras la desactivación.';
+$pia_lang['MT_ColumnEdit_a'] = 'Menú desplegable:';
+$pia_lang['MT_ColumnEdit_b'] = 'Entrada:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' ninguna columna seleccionada ';
+$pia_lang['MT_ColumnEdit_c'] = 'Cambiar entrada a:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nuevo valor';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Eliminar entrada del menú desplegable';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Las entradas codificadas se eliminarán de cada dispositivo, pero permanecerán en el menú desplegable. Las entradas personalizadas también desaparecerán del menú.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Editar entrada del menú desplegable';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Las entradas codificadas se actualizarán en cada dispositivo, pero se mantendrán en el menú desplegable. Las entradas personalizadas se sustituirán por la nueva entrada.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Registros ampliados';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Esto permite alternar entre registros simples y ampliados. Los registros ampliados deben activarse solo en caso de errores, ya que la información adicional puede dificultar la visión general.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';
@@ -611,6 +629,15 @@ $pia_lang['BE_Param_Colors'] = 'Color(es) guardado(s)';
 $pia_lang['BE_Param_Colors_error'] = 'El/los color(es) no se cambiaron o guardaron (base de datos en uso por escaneo)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Los eventos ANULADOS se han convertido en eventos "válidos"';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error al actualizar los eventos ANULADOS';
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Error: El nuevo contenido de la columna debe estar vacío para eliminar.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Nombre de columna no válido: ';
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Error al preparar para';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Error al actualizar la entrada';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Error al eliminar la entrada';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Entrada(s) borrada(s)';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Entrada(s) actualizada(s)';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Contenido de columna eliminado correctamente';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Columna actualizada correctamente';
 // Network Page - Update by @TeroRERO 01ago2022
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Descripción general de la red';

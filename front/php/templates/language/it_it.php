@@ -363,6 +363,10 @@ $pia_lang['MT_lang_de_de'] = 'Tedesco (DE)';
 $pia_lang['MT_lang_es_es'] = 'Spagnolo (ES)';
 $pia_lang['MT_lang_fr_fr'] = 'Francese (FR)';
 $pia_lang['MT_lang_it_it'] = 'Italiano (IT)';
+$pia_lang['MT_lang_pl_pl'] = 'Polacco (PL)';
+$pia_lang['MT_lang_nl_nl'] = 'Olandese (NL)';
+$pia_lang['MT_lang_dk_da'] = 'Danese (DK)';
+$pia_lang['MT_lang_cz_cs'] = 'Ceco (CZ)';
 $pia_lang['MT_lang_selector_apply'] = 'Applica';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Impostazioni';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'Le opzioni elencate qui apportano modifiche alla configurazione lato server. Queste modifiche influiscono su tutti i dispositivi che accedono a questa pagina.';
@@ -381,6 +385,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'L&apos;attivazione delle singol
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pulsante Pi-hole (Barra del menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Specificando l&apos;URL dell&apos;interfaccia web di Pi-hole, puoi creare un pulsante Pi-hole nella barra del menu. Se elimini il campo di input, il pulsante verrà rimosso. Il pulsante è contrassegnato con l&apos;icona <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configura intestazioni elenco';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Attività';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Gestisci le voci del menu a discesa';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Anche se è possibile selezionare tutte le voci del menu a discesa, le voci statiche (cioè le opzioni codificate) non possono essere eliminate o modificate nel menu. In questi casi non verrà mostrato alcun messaggio di errore – tuttavia, la voce selezionata verrà comunque rimossa o rinominata nell&apos;elenco dei dispositivi o nel monitor ICMP per tutti i dispositivi.';
 $pia_lang['MT_Tool_darkmode'] = 'Modalità Scuro';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Cambio Modalità';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Cambia tra la modalità chiara e quella scura. Se il cambio di modalità dovesse non funzionare correttamente, prova a cancellare la cache del browser.';
@@ -519,6 +526,17 @@ $pia_lang['MT_Tool_reset_voided'] = 'Reimposta eventi ANNULLATI';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Gli eventi ANNULLATI non vengono visualizzati nel calendario delle presenze. Per reimpostare tutti gli eventi ANNULLATI (Connesso/Disconnesso), esegui questa funzione.';
 $pia_lang['MT_Tggl_Import_head'] = 'Attiva/Disattiva fonte per l&apos;importazione';
 $pia_lang['MT_Tggl_Import_text'] = 'Questo attiva o disattiva la fonte desiderata per l&apos;importazione dei dati. Le scansioni in corso non sono influenzate dall&apos;attivazione o disattivazione. I dati già importati rimangono conservati dopo la disattivazione.';
+$pia_lang['MT_ColumnEdit_a'] = 'Menu a discesa:';
+$pia_lang['MT_ColumnEdit_b'] = 'Voce:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' nessuna colonna selezionata ';
+$pia_lang['MT_ColumnEdit_c'] = 'Modifica voce in:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nuovo valore';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Elimina voce del menu a discesa';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Le voci codificate verranno rimosse da ogni dispositivo, ma rimarranno nel menu. Le voci personalizzate verranno rimosse anche dal menu.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifica voce del menu a discesa';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Le voci codificate verranno aggiornate su ogni dispositivo ma rimarranno nel menu. Le voci personalizzate verranno sostituite dalla nuova voce.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Log estesi';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Consente di passare tra log semplici ed estesi. I log estesi dovrebbero essere attivati solo in caso di errore, poiché le informazioni aggiuntive possono compromettere la chiarezza.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tutti i moduli di scansione e le importazioni disattivati';
@@ -610,6 +628,15 @@ $pia_lang['BE_Param_Colors'] = 'Colore/i salvato/i';
 $pia_lang['BE_Param_Colors_error'] = 'Il/i colore/i non è/sono stato/i modificato/i o salvato/i (database in uso per la scansione)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Gli eventi ANNULLATI sono stati convertiti in eventi "validi"';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Errore durante l\'aggiornamento degli eventi ANNULLATI';
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Errore: Il contenuto della colonna deve essere vuoto per poter essere eliminato.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Nome colonna non valido: ';
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Errore durante la preparazione per';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Errore durante l&apos;aggiornamento della voce';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Errore durante l&apos;eliminazione della voce';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Voce/i cancellata/e';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Voce/i aggiornata/e';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Contenuto della colonna eliminato correttamente';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Colonna aggiornata correttamente';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Panoramica della Rete';

@@ -863,7 +863,7 @@ def scan_network():
     print_log ('Dump all results to Log')
     dump_all_resulttables()
     # Process Ignore list
-    print('    Processing ignore list...')
+    print('    Processing ignore list 1/2...')
     remove_entries_from_table()
         # Print stats
     print_log ('Print Stats')
@@ -883,6 +883,10 @@ def scan_network():
     # Resolve devices names
     print_log ('   Resolve devices names...')
     update_devices_names()
+    # Process Ignore list
+    print('    Processing ignore list 2/2...')
+    #### Remove Devices from devicelist and event
+    remove_entries_from_devicelist()
     # Void false connection - disconnections
     print('    Voiding false (ghost) disconnections...')
     void_ghost_disconnections()
@@ -1255,22 +1259,26 @@ def read_fritzbox_active_hosts():
         print('        Missing python package')
         return
 
-    # copy Fritzbox Network list
-    fh = FritzHosts(address=FRITZBOX_IP, user=FRITZBOX_USER, password=FRITZBOX_PASS)
-    hosts = fh.get_hosts_info()
-    for index, host in enumerate(hosts, start=1):
-        if host['status'] :
-            # status = 'active' if host['status'] else  '-'
-            ip = host['ip'] if host['ip'] else 'no IP'
-            mac = host['mac'].lower() if host['mac'] else '-'
-            hostname = host['name']
-            try:
-                vendor = MacLookup().lookup(host['mac'])
-            except:
-                vendor = "Prefix is not registered"
+    try:
+        # copy Fritzbox Network list
+        fh = FritzHosts(address=FRITZBOX_IP, user=FRITZBOX_USER, password=FRITZBOX_PASS)
+        hosts = fh.get_hosts_info()
+        for index, host in enumerate(hosts, start=1):
+            if host['status'] :
+                # status = 'active' if host['status'] else  '-'
+                ip = host['ip'] if host['ip'] else 'no IP'
+                mac = host['mac'].lower() if host['mac'] else '-'
+                hostname = host['name']
+                try:
+                    vendor = MacLookup().lookup(host['mac'])
+                except:
+                    vendor = "Prefix is not registered"
 
-            sql.execute ("INSERT INTO Fritzbox_Network (FB_MAC, FB_IP, FB_Name, FB_Vendor) "+
-                         "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
+                sql.execute ("INSERT INTO Fritzbox_Network (FB_MAC, FB_IP, FB_Name, FB_Vendor) "+
+                             "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
+    except Exception as e:
+        print('        ...Skipped. Could not connect to FritzBox')
+        print_log(f"{e}")
 
 #-------------------------------------------------------------------------------
 def read_mikrotik_leases():
@@ -1297,23 +1305,27 @@ def read_mikrotik_leases():
         print('        Missing python package')
         return
 
-    data = []
-    conn = routeros_api.RouterOsApiPool(MIKROTIK_IP, MIKROTIK_USER, MIKROTIK_PASS, plaintext_login=True)
-    api = conn.get_api()
-    ret = api.get_resource('/ip/dhcp-server/lease').get()
-    conn.disconnect()
-    for row in ret:
-        if 'active-mac-address' in row:
-            mac = row['active-mac-address'].lower()
-            ip = row['active-address']
-            hostname = row.get('host-name','')
-            try:
-                vendor = MacLookup().lookup(mac)
-            except:
-                vendor = "Prefix is not registered"
+    try:
+        data = []
+        conn = routeros_api.RouterOsApiPool(MIKROTIK_IP, MIKROTIK_USER, MIKROTIK_PASS, plaintext_login=True)
+        api = conn.get_api()
+        ret = api.get_resource('/ip/dhcp-server/lease').get()
+        conn.disconnect()
+        for row in ret:
+            if 'active-mac-address' in row:
+                mac = row['active-mac-address'].lower()
+                ip = row['active-address']
+                hostname = row.get('host-name','')
+                try:
+                    vendor = MacLookup().lookup(mac)
+                except:
+                    vendor = "Prefix is not registered"
 
-            sql.execute ("INSERT INTO Mikrotik_Network (MT_MAC, MT_IP, MT_Name, MT_Vendor) "+
-                         "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
+                sql.execute ("INSERT INTO Mikrotik_Network (MT_MAC, MT_IP, MT_Name, MT_Vendor) "+
+                             "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
+    except Exception as e:
+        print('        ...Skipped. Could not connect to Mikrotik Router')
+        print_log(f"{e}")
 
 #-------------------------------------------------------------------------------
 def read_unifi_clients():
@@ -1368,6 +1380,7 @@ def read_unifi_clients():
 
     except Exception as e:
         print('        ...Skipped. Could not connect to UniFi Controller')
+        print_log(f"{e}")
 
 #-------------------------------------------------------------------------------
 def read_openwrt_clients():
@@ -1410,6 +1423,7 @@ def read_openwrt_clients():
 
     except Exception as e:
         print(f"        ...Skipped. Could not connect to OpenWRT device")
+        print_log(f"{e}")
 
 #-------------------------------------------------------------------------------
 def read_asuswrt_clients():
@@ -1469,6 +1483,7 @@ def read_asuswrt_clients():
 
     except Exception as e:
         print(f"        ...Skipped. Could not connect to Asus Router")
+        print_log(f"{e}")
 
 #-------------------------------------------------------------------------------
 async def collect_asuswrt_data(AsusRouter,AsusData):
@@ -1508,6 +1523,7 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
         
         except Exception as e:
             print(f"        Connection error occurred: {e}")
+            print_log(f"{e}")
 
         await router.async_disconnect()
         # print("\nVerbindung sauber getrennt.")
@@ -1793,7 +1809,8 @@ def update_scan_validation():
         AND dev_MAC NOT IN (SELECT cur_MAC FROM CurrentScan)
     """)
     devices_to_insert = sql.fetchall()
-    
+    print_log(f"Scan Validation: \n{devices_to_insert}")
+
     # 3. Add the devices to CurrentScan
     sql.executemany("""
         INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
@@ -1945,12 +1962,47 @@ def dump_all_resulttables():
             print('----------> Dump: End')
 
 #-------------------------------------------------------------------------------
+def remove_entries_from_devicelist():
+    try:
+        if HOSTNAME_IGNORE_LIST:
+            print_log(f'        {len(HOSTNAME_IGNORE_LIST)} Hostnames are ignored during the scan')
+
+            matched_macs = set()
+
+            query = f"SELECT dev_MAC, dev_Name FROM Devices"
+            sql.execute(query)
+            for mac, name in sql.fetchall():
+                if hostname_ignorelist_filter(name):
+                    matched_macs.add(mac)
+
+            print_log(f'        Matches after hostname resolving')
+            print_log('\n'.join(matched_macs))
+
+            work_tables = {
+                'CurrentScan': 'cur_MAC',
+                'Devices': 'dev_MAC',
+                'Events': 'eve_MAC'
+            }
+
+            for tabelle, mac_spalte in work_tables.items():
+                for mac in matched_macs:
+                    sql.execute(
+                        f"DELETE FROM {tabelle} WHERE {mac_spalte} = ? COLLATE NOCASE",
+                        (mac,)
+                    )
+
+        else:
+            print_log('        Hostname-Ignore list is empty')
+
+    except NameError:
+        print_log("        No Hostname-Ignore list defined")
+
+
+#-------------------------------------------------------------------------------
 def remove_entries_from_table():
     try:
-        MAC_IGNORE_LIST
-
         if MAC_IGNORE_LIST:
-            print(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
+            print_log(f'        {len(MAC_IGNORE_LIST)} MACs/MAC ranges are ignored during the scan')
 
             table_column_map = {
                 'CurrentScan': 'cur_MAC',
@@ -1976,15 +2028,14 @@ def remove_entries_from_table():
                 like_params = [f"{mac}%" for mac in MAC_IGNORE_LIST]
                 sql.execute(query, like_params)
         else:
-            print('        MAC-Ignore list is empty')
+            print_log('        MAC-Ignore list is empty')
 
     except NameError:
-        print("        No MAC-Ignore list defined")
+        print_log("        No MAC-Ignore list defined")
 
     try:
-
         if IP_IGNORE_LIST:
-            print(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
+            print_log(f'        {len(IP_IGNORE_LIST)} IPs/IP ranges are ignored during the scan')
 
             table_column_map = {
                 'CurrentScan': 'cur_IP',
@@ -2008,10 +2059,78 @@ def remove_entries_from_table():
                 like_params = [f"{ip}%" for ip in IP_IGNORE_LIST]
                 sql.execute(query, like_params)
         else:
-            print('        IP-Ignore list is empty')
+            print_log('        IP-Ignore list is empty')
 
     except NameError:
-        print("        No IP-Ignore list defined")
+        print_log("        No IP-Ignore list defined")
+
+    try:
+        if HOSTNAME_IGNORE_LIST:
+            print_log(f'        {len(HOSTNAME_IGNORE_LIST)} Hostnames are ignored during the scan')
+            source_tables = [
+                ("PiHole_Network", "PH_MAC", "PH_Name"),
+                ("DHCP_Leases", "DHCP_MAC", "DHCP_Name"),
+                ("Fritzbox_Network", "FB_MAC", "FB_Name"),
+                ("Mikrotik_Network", "MT_MAC", "MT_Name"),
+                ("Unifi_Network", "UF_MAC", "UF_Name"),
+                ("Openwrt_Network", "OWRT_MAC", "OWRT_Name"),
+                ("Asuswrt_Network", "ASUS_MAC", "ASUS_Name"),
+            ]
+
+            matched_macs = set()
+
+            for map_tablename, map_mac, map_name in source_tables:
+                query = f"SELECT {map_mac}, {map_name} FROM {map_tablename}"
+                sql.execute(query)
+                for mac, name in sql.fetchall():
+                    if hostname_ignorelist_filter(name):
+                        matched_macs.add(mac)
+
+            # print("====================================")
+            # print(matched_macs)
+
+            work_tables = {
+                'CurrentScan': 'cur_MAC',
+                'PiHole_Network': 'PH_MAC',
+                'DHCP_Leases': 'DHCP_MAC',
+                'Fritzbox_Network': 'FB_MAC',
+                'Mikrotik_Network': 'MT_MAC',
+                'Unifi_Network': 'UF_MAC',
+                'Openwrt_Network': 'OWRT_MAC',
+                'Asuswrt_Network': 'ASUS_MAC'
+            }
+
+            for tabelle, mac_spalte in work_tables.items():
+                for mac in matched_macs:
+                    sql.execute(
+                        f"DELETE FROM {tabelle} WHERE {mac_spalte} = ? COLLATE NOCASE",
+                        (mac,)
+                    )
+
+        else:
+            print_log('        Hostname-Ignore list is empty')
+
+    except NameError:
+        print_log("        No Hostname-Ignore list defined")
+
+#-------------------------------------------------------------------------------
+def hostname_ignorelist_filter(hostname: str) -> bool:
+    hostname = hostname.lower()
+    for f in HOSTNAME_IGNORE_LIST:
+        f = f.lower()
+        if f.startswith("*") and f.endswith("*"):
+            if f.strip("*") in hostname:
+                return True
+        elif f.startswith("*"):
+            if hostname.endswith(f[1:]):
+                return True
+        elif f.endswith("*"):
+            if hostname.startswith(f[:-1]):
+                return True
+        else:
+            if hostname == f:
+                return True
+    return False
 
 #-------------------------------------------------------------------------------
 def print_scan_stats():
@@ -3186,6 +3305,7 @@ def service_monitoring():
     
     print("    Get Services List...")
     sites = get_services_list()
+    print_log('\n' + '\n'.join(sites))
 
     print("    Flush previous scan results...")
     flush_services_current_scan()
@@ -3290,6 +3410,7 @@ def icmp_monitoring():
     scantime = startTime.strftime("%Y-%m-%d %H:%M")
     icmp_scan_results = {}
     icmphosts_all = len(icmphosts)
+    print_log('\n' + '\n'.join(icmphosts))
 
     try:
         ping_retries = ICMP_ONLINE_TEST
@@ -3389,6 +3510,7 @@ def update_icmp_validation():
         )
     """)
     host_ips = [(row[0],) for row in sql.fetchall()]
+    print_log(f"Scan Validation: \n{host_ips}")
     # 3. Set the relevant devices as online
     sql.executemany("""
         UPDATE ICMP_Mon_CurrentScan 

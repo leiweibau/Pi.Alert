@@ -77,45 +77,31 @@ if ($_SESSION["login"] != 1) {
         <h2 class="heading">Entry Count</h2>
 
 <?php
-require '../templates/language/de_de.php';
-$dede = $pia_lang;
-$dede_journ = $pia_journ_lang;
-echo '<div class="languages">German: </div>' . sizeof($pia_lang) . ' entries<br>';
-echo '<div class="languages">German (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
-unset($pia_lang);
-unset($pia_journ_lang);
+$languages = [
+    'de_de' => 'German',
+    'en_us' => 'English',
+    'es_es' => 'Spanish',
+    'fr_fr' => 'French',
+    'it_it' => 'Italian',
+    'pl_pl' => 'Polish',
+    'nl_nl' => 'Dutch',
+    'cz_cs' => 'Czech',
+    'dk_da' => 'Danish'
+];
 
-require '../templates/language/en_us.php';
-$enus = $pia_lang;
-$enus_journ = $pia_journ_lang;
-echo '<div class="languages">English: </div>' . sizeof($pia_lang) . ' entries<br>';
-echo '<div class="languages">English (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
-unset($pia_lang);
-unset($pia_journ_lang);
+foreach ($languages as $code => $label) {
+    require "../templates/language/{$code}.php";
 
-require '../templates/language/es_es.php';
-$eses = $pia_lang;
-$eses_journ = $pia_journ_lang;
-echo '<div class="languages">Spanish: </div>' . sizeof($pia_lang) . ' entries<br>';
-echo '<div class="languages">Spanish (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
-unset($pia_lang);
-unset($pia_journ_lang);
+    // Optional: Spracharrays für später speichern (wie im Original)
+    ${str_replace('_', '', $code)} = $pia_lang;
+    ${str_replace('_', '', $code) . '_journ'} = $pia_journ_lang;
 
-require '../templates/language/fr_fr.php';
-$frfr = $pia_lang;
-$frfr_journ = $pia_journ_lang;
-echo '<div class="languages">French: </div>' . sizeof($pia_lang) . ' entries<br>';
-echo '<div class="languages">French (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
-unset($pia_lang);
-unset($pia_journ_lang);
+    echo "<div class=\"languages\">{$label}: </div>" . sizeof($pia_lang) . " entries<br>";
+    echo "<div class=\"languages\">{$label} (Journal): </div>" . sizeof($pia_journ_lang) . " entries<br>";
 
-require '../templates/language/it_it.php';
-$itit = $pia_lang;
-$itit_journ = $pia_journ_lang;
-echo '<div class="languages">Italian: </div>' . sizeof($pia_lang) . ' entries<br>';
-echo '<div class="languages">Italian (Journal): </div>' . sizeof($pia_journ_lang) . ' entries<br>';
-unset($pia_lang);
-unset($pia_journ_lang);
+    unset($pia_lang, $pia_journ_lang);
+}
+
 
 $all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit)));
 $all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ)));
@@ -128,7 +114,11 @@ foreach ([
     'en_us' => $enus,
     'es_es' => $eses,
     'fr_fr' => $frfr,
-    'it_it' => $itit
+    'it_it' => $itit,
+    'nl_nl' => $nlnl,
+    'pl_pl' => $plpl,
+    'cz_cs' => $czcs,
+    'dk_da' => $dkda
 ] as $lang => $arr) {
     foreach ($all_keys_lang as $key) {
         if (!array_key_exists($key, $arr)) {
@@ -142,7 +132,11 @@ foreach ([
     'en_us' => $enus_journ,
     'es_es' => $eses_journ,
     'fr_fr' => $frfr_journ,
-    'it_it' => $itit_journ
+    'it_it' => $itit_journ,
+    'nl_nl' => $nlnl_journ,
+    'pl_pl' => $plpl_journ,
+    'cz_cs' => $czcs_journ,
+    'dk_da' => $dkda_journ
 ] as $lang => $arr) {
     foreach ($all_keys_journ as $key) {
         if (!array_key_exists($key, $arr)) {

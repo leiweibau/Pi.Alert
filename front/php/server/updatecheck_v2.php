@@ -67,6 +67,19 @@ if ($_SESSION['Scan_WebServices'] == True) {
 	for ($x=0;$x<=2;$x++) {
 		if ($geolite_update['assets'][$x]['name'] == "GeoLite2-Country.mmdb") {$geolite_update_filesize = round(($geolite_update['assets'][$x]['size']/1024/1024), 2);}
 	}
+	if ($geolite_update_filesize == "") {
+		$curl_handle_fb = curl_init();
+		curl_setopt($curl_handle_fb, CURLOPT_URL, 'https://api.github.com/repos/P3TERX/GeoLite.mmdb/contents/GeoLite2-Country.mmdb?ref=download');
+		curl_setopt($curl_handle_fb, CURLOPT_CONNECTTIMEOUT, 2);
+		curl_setopt($curl_handle_fb, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl_handle_fb, CURLOPT_FRESH_CONNECT, TRUE);
+		curl_setopt($curl_handle_fb, CURLOPT_USERAGENT, 'PHP');
+		$query_fb = curl_exec($curl_handle_fb);
+		curl_close($curl_handle_fb);
+		// Generate JSON (GeoIP)
+		$geolite_update_fb = json_decode($query_fb, true);
+		if ($geolite_update_fb['name'] == "GeoLite2-Country.mmdb" && $geolite_update_fb['size'] != "" && $geolite_update_fb['size'] > 0) {$geolite_update_filesize = round(($geolite_update_fb['size']/1024/1024), 2);}
+	}
 	// DEBUG
 	// $geolite_cur_version = '2023-05-28';
 	// prepare dates for comparison
@@ -150,9 +163,13 @@ if ($_SESSION['Scan_WebServices'] == True) {
 	            </style>
 	            <div class="col-sm-12" style="">
 	              <div style="height: 60px;">
-	                <div class="downloader" id="downloader" style="display: none;"></div>
-	                <button class="btn btn-default" id="updateDB-button">' . $pia_lang['GeoLiteDB_button_upd'] . '</button>
-	              </div>
+	                <div class="downloader" id="downloader" style="display: none;"></div>';
+	    if ($geolite_update_filesize > 0) {
+	        echo '<button class="btn btn-default" id="updateDB-button">' . $pia_lang['GeoLiteDB_button_upd'] . '</button>';
+	    } else {
+	    	echo '<span class="text-danger">Download not possible (Filsize ZERO)</span>';
+	    }
+	    echo ' </div>
 	            </div>
 	          </div>
 

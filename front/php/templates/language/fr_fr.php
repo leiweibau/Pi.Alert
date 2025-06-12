@@ -361,6 +361,10 @@ $pia_lang['MT_lang_de_de'] = 'Allemand (DE)';
 $pia_lang['MT_lang_es_es'] = 'Espagnol (ES)';
 $pia_lang['MT_lang_fr_fr'] = 'Français (FR)';
 $pia_lang['MT_lang_it_it'] = 'Italien (IT)';
+$pia_lang['MT_lang_pl_pl'] = 'Polonais (PL)';
+$pia_lang['MT_lang_nl_nl'] = 'Néerlandais (NL)';
+$pia_lang['MT_lang_dk_da'] = 'Danois (DK)';
+$pia_lang['MT_lang_cz_cs'] = 'Tchèque (CZ)';
 $pia_lang['MT_lang_selector_apply'] = 'Appliquer';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Paramètres';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'Les options mentionnées ici entraînent des modifications de configuration côté serveur. Ces modifications concernent donc tous les appareils qui accèdent à cette page.';
@@ -379,6 +383,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'L&apos;activation des importati
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Bouton Pi-hole (Barre de menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'En spécifiant l&apos;URL de l&apos;interface web de Pi-hole, vous pouvez créer un bouton Pi-hole dans la barre de menu. Si vous supprimez le champ de saisie, le bouton sera supprimé. Le bouton est marqué avec l&apos;icône <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurer en-têtes des listes';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Tâches';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Gérer les entrées du menu déroulant';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Bien que toutes les entrées du menu déroulant puissent être sélectionnées, les entrées statiques (c&apos;est-à-dire codées en dur) ne peuvent pas être supprimées ou modifiées dans le menu. Aucun message d&apos;erreur ne s&apos;affichera dans ces cas – cependant, l&apos;entrée sélectionnée sera tout de même supprimée ou renommée dans la liste des appareils ou le moniteur ICMP pour tous les appareils.';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Changement d&apos;affichage';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'Permet de passer de l&apos;affichage clair à l&apos;affichage foncé. Si la commutation ne fonctionne pas correctement, essayez d&apos;effacer le cache du navigateur.';
@@ -517,6 +524,17 @@ $pia_lang['MT_Tool_reset_voided'] = 'Réinitialiser les événements ANNULÉS';
 $pia_lang['MT_Tool_reset_voided_text'] = 'Les événements ANNULÉS ne sont pas affichés dans le calendrier de présence. Pour réinitialiser tous les événements ANNULÉS (Connecté/Déconnecté), exécutez cette fonction.';
 $pia_lang['MT_Tggl_Import_head'] = 'Activer/Désactiver la source pour l&apos;importation';
 $pia_lang['MT_Tggl_Import_text'] = 'Cela active ou désactive la source souhaitée pour l&apos;importation de données. Les analyses en cours ne sont pas affectées par l&apos;activation ou la désactivation. Les données déjà importées restent conservées après la désactivation.';
+$pia_lang['MT_ColumnEdit_a'] = 'Menu déroulant:';
+$pia_lang['MT_ColumnEdit_b'] = 'Entrée:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' aucune colonne sélectionnée ';
+$pia_lang['MT_ColumnEdit_c'] = 'Changer l&apos;entrée en:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'Nouvelle valeur';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Supprimer l&apos;entrée du menu déroulant';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Les entrées codées en dur seront supprimées de chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées disparaîtront également du menu.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifier l&apos;entrée du menu déroulant';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifiées sur chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées seront remplacées par la nouvelle entrée.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Journaux étendus';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Permet de basculer entre les journaux simples et étendus. Les journaux étendus ne doivent être activés qu&apos;en cas d&apos;erreur, car les informations supplémentaires peuvent nuire à la lisibilité.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';
@@ -610,6 +628,15 @@ $pia_lang['BE_Param_Colors'] = 'Couleur(s) enregistrée(s)';
 $pia_lang['BE_Param_Colors_error'] = 'La/les couleur(s) n&apos;ont pas été modifiées ou enregistrées (base de données utilisée par un scan)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Les événements ANNULÉS ont été convertis en événements "valides"';
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Erreur lors de la mise à jour des événements ANNULÉS';
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Erreur: Le contenu de la colonne doit être vide pour pouvoir être supprimé.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Nom de colonne invalide: ';
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Erreur lors de la préparation de';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Erreur lors de la mise à jour de l&apos;entrée';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Erreur lors de la suppression de l&apos;entrée';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Entrée(s) effacée(s)';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Entrée(s) mise(s) à jour';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Contenu de la colonne supprimé avec succès';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Colonne mise à jour avec succès';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';

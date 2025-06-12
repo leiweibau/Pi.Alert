@@ -88,6 +88,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'ToggleImport':ToggleImport();
 		break;
+	case 'ToggleExtLogging':ToggleExtLogging();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
@@ -201,7 +203,7 @@ function SaveConfigFile() {
 	} else {
 	    $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
 	}
-
+	// Ignore List Syntax handling start
 	if ($configArray['MAC_IGNORE_LIST'] != "" && $configArray['MAC_IGNORE_LIST'] != "[]") {
 		$configArray['MAC_IGNORE_LIST'] = serializeList($configArray['MAC_IGNORE_LIST']);
 	} else {
@@ -212,7 +214,12 @@ function SaveConfigFile() {
 	} else {
 		$configArray['IP_IGNORE_LIST'] = "[]";
 	}
-
+	if ($configArray['HOSTNAME_IGNORE_LIST'] != "" && $configArray['HOSTNAME_IGNORE_LIST'] != "[]") {
+		$configArray['HOSTNAME_IGNORE_LIST'] = serializeList($configArray['HOSTNAME_IGNORE_LIST']);
+	} else {
+		$configArray['HOSTNAME_IGNORE_LIST'] = "[]";
+	}
+    // Ignore List Syntax handling stop
 	if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
 		$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
 	}
@@ -357,6 +364,7 @@ SPEEDTEST_TASK_ACTIVE      = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIV
 ARPSCAN_ACTIVE             = " . convert_bool($configArray['ARPSCAN_ACTIVE']) . "
 MAC_IGNORE_LIST            = " . $configArray['MAC_IGNORE_LIST'] . "
 IP_IGNORE_LIST             = " . $configArray['IP_IGNORE_LIST'] . "
+HOSTNAME_IGNORE_LIST       = " . $configArray['HOSTNAME_IGNORE_LIST'] . "
 SCAN_SUBNETS               = " . $configArray['SCAN_SUBNETS'] . "
 # SCAN_SUBNETS               = '--localnet'
 # SCAN_SUBNETS               = '--localnet --interface=eth0'
@@ -851,7 +859,11 @@ function setLanguage() {
 		'de_de',
 		'es_es',
 		'fr_fr',
-		'it_it');
+		'it_it',
+		'pl_pl',
+		'cz_cs',
+		'dk_da',
+		'nl_nl');
 
 	if (isset($_REQUEST['LangSelection'])) {
 		$pia_lang_set_dir = '../../../config/';
@@ -1131,6 +1143,42 @@ function ToggleImport() {
     }
 
     $configKey = $deviceMap[$deviceType];
+    $newValue = $toggleState ? 'False' : 'True';
+
+    if (!file_exists($file_path)) {
+        echo 'Configuration file not found';
+        exit;
+    }
+
+    $fileContents = file_get_contents($file_path);
+    if (strpos($fileContents, $configKey) === false) {
+        echo "Key '{$configKey}' not found in configuration";
+        exit;
+    }
+
+    $pattern = '/^(' . preg_quote($configKey, '/') . '\s*=\s*)(True|False)$/m';
+    $replacement = '${1}' . $newValue;
+
+    $newContents = preg_replace($pattern, $replacement, $fileContents);
+
+    if ($newContents !== null) {
+        file_put_contents($file_path, $newContents);
+        echo "{$configKey} set to {$newValue}";
+    } else {
+        echo 'Failed to update configuration';
+    }
+	// Logging
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $configKey.' set to '.$newValue);
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>";
+}
+
+function ToggleExtLogging() {
+
+    $file_path = '../../../config/pialert.conf';
+	$toggleState = filter_var($_REQUEST['toggleState'], FILTER_VALIDATE_BOOLEAN);
+
+
+    $configKey = 'PRINT_LOG';
     $newValue = $toggleState ? 'False' : 'True';
 
     if (!file_exists($file_path)) {

@@ -43,16 +43,18 @@ $APIKEY = get_config_parmeter('PIALERT_APIKEY');
 if ($APIKEY == "") {$APIKEY = $pia_lang['MT_Tool_setapikey_false'];}
 
 // Get Ignore List ------------------------------------------------------------
-$MAC_IGNORE_LIST_LINE = get_config_parmeter('MAC_IGNORE_LIST');
-if ($MAC_IGNORE_LIST_LINE == "" || $MAC_IGNORE_LIST_LINE == "[]") {$MAC_IGNORE_LIST = $pia_lang['MT_Tool_ignorelist_false'];} else {
-	$MAC_IGNORE_LIST = str_replace("[", "", str_replace("]", "", str_replace("'", "", trim($MAC_IGNORE_LIST_LINE))));
-	$MAC_IGNORE_LIST = str_replace(",", ", ", trim($MAC_IGNORE_LIST));
+function parse_ignore_list($line, $placeholder_text) {
+    if ($line === "" || $line === "[]") {
+        return $placeholder_text;
+    }
+    $line = str_replace(["[", "]", "'"], "", $line);
+    return str_replace(",", ", ", $line);
 }
-$IP_IGNORE_LIST_LINE = get_config_parmeter('IP_IGNORE_LIST');
-if ($IP_IGNORE_LIST_LINE == "" || $IP_IGNORE_LIST_LINE == "[]") {$IP_IGNORE_LIST = $pia_lang['MT_Tool_ignorelist_false'];} else {
-    $IP_IGNORE_LIST = str_replace("[", "", str_replace("]", "", str_replace("'", "", trim($IP_IGNORE_LIST_LINE))));
-    $IP_IGNORE_LIST = str_replace(",", ", ", trim($IP_IGNORE_LIST));
-}
+
+$MAC_IGNORE_LIST = parse_ignore_list(get_config_parmeter('MAC_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+$IP_IGNORE_LIST = parse_ignore_list(get_config_parmeter('IP_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+$NAME_IGNORE_LIST = parse_ignore_list(get_config_parmeter('HOSTNAME_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+
 // Get Notification Settings --------------------------------------------------
 $CONFIG_FILE_SOURCE = "../config/pialert.conf";
 $CONFIG_FILE_KEY_LINE = file($CONFIG_FILE_SOURCE);
@@ -77,7 +79,7 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
 // Get Config Parameter
-foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE'] as $key) {
+foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE', 'PRINT_LOG'] as $key) {
     $_SESSION[$key] = (get_config_parmeter($key) == 1) ? 1 : 0;
 }
 // Buffer active --------------------------------------------------------------
@@ -118,25 +120,25 @@ if ($_REQUEST['tab'] == '1') {
         <div class="box-body" style="padding-bottom: 5px;">
             <div class="db_info_table">
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_database_lastmod'];?></div>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_database_lastmod'];?></div>
                     <div class="db_info_table_cell">
                         <?=$DB_MOD_DATA.' '.$buffer_indicator;?> /  <?=$DB_SIZE_DATA;?>
                     </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_database_backup'];?></div>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_database_backup'];?></div>
                     <div class="db_info_table_cell"><span id="autobackupdbcount"></span>
                         <?=$ARCHIVE_COUNT . ' ' . $pia_lang['MT_database_backup_found'] . ' / ' . $pia_lang['MT_database_backup_total'];?>: <span id="autobackupdbsize"></span> 
                     </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_config_backup'];?></div>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_config_backup'];?></div>
                     <div class="db_info_table_cell"><span id="autobackupconfcount"></span>
                         <?=$CONFIG_FILE_COUNT . ' ' . $pia_lang['MT_database_backup_found'];?>
                     </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_arp_status'];?></div>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_arp_status'];?></div>
                     <div class="db_info_table_cell">
 <?php 
 echo $_SESSION['arpscan_result'];
@@ -144,7 +146,7 @@ read_arpscan_timer();
 ?>                  </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_Stats_autobkp'];?></div>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_Stats_autobkp'];?></div>
                     <div class="db_info_table_cell">
 <?php
 if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <span id="autobackupstatus"></span>';} else {echo $pia_lang['MT_Stats_autobkp_off'].' <span hidden id="autobackupstatus"></span>';}
@@ -152,35 +154,47 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
                     </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell">Api-Key</div>
+                    <div class="db_info_table_cell db_info_table_cell_a">Api-Key</div>
                     <div class="db_info_table_cell" style="overflow-wrap: anywhere;">
                         <input readonly value="<?=$APIKEY;?>" class="statusbox_ro_inputs">
                     </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_notification_config'];?></div>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_notification_config'];?></div>
                     <div class="db_info_table_cell">
                         <?=format_notifications($CONFIG_FILE_FILTER_VALUE_ARP);?>
                     </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_notification_config_webmon'];?></div>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_notification_config_webmon'];?></div>
                     <div class="db_info_table_cell">
                         <?=format_notifications($CONFIG_FILE_FILTER_VALUE_WEB);?>
                     </div>
                 </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_Tool_ignorelist'];?> (MAC)</div>
-                    <div class="db_info_table_cell">
-                        <?=$MAC_IGNORE_LIST;?>
+
+                <div class="db_info_table_row" id="ignorelist-toggle" style="cursor: pointer;">
+                    <div class="db_info_table_cell db_info_table_cell_a">
+                        <strong><?=$pia_lang['MT_Tool_ignorelist'];?></strong>
+                    </div>
+                    <div class="db_info_table_cell text-left">
+                        <i id="toggle-icon" class="bi bi-plus-circle text-aqua"></i>
                     </div>
                 </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell"><?=$pia_lang['MT_Tool_ignorelist'];?> (IP)</div>
-                    <div class="db_info_table_cell">
-                        <?=$IP_IGNORE_LIST;?>
-                    </div>
+
+                <!-- Versteckte Inhalte -->
+                <div class="db_info_table_row ignorelist-detail" style="display: none;">
+                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['Device_TableHead_MAC']?></div>
+                    <div class="db_info_table_cell"><?=$MAC_IGNORE_LIST;?></div>
                 </div>
+                <div class="db_info_table_row ignorelist-detail" style="display: none;">
+                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['ICMPMonitor_label_IP']?></div>
+                    <div class="db_info_table_cell"><?=$IP_IGNORE_LIST;?></div>
+                </div>
+                <div class="db_info_table_row ignorelist-detail" style="display: none;">
+                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['Device_TableHead_Name']?></div>
+                    <div class="db_info_table_cell"><?=$NAME_IGNORE_LIST;?></div>
+                </div>
+
             </div>
         </div>
           <!-- /.box-body -->
@@ -199,11 +213,9 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
             <button type="button" id="wefwfwefewdf" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-iplog"><?=$pia_lang['MT_Tools_Logviewer_IPLog'];?></button>
             <button type="button" id="tzhrsreawefw" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-vendor"><?=$pia_lang['MT_Tools_Logviewer_Vendor'];?></button>
             <button type="button" id="arzuozhrsfga" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-cleanup"><?=$pia_lang['MT_Tools_Logviewer_Cleanup'];?></button>
-<?php
-if ($_SESSION['Scan_WebServices'] == True) {
-	echo '<button type="button" id="erftttwrdwqqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices">' . $pia_lang['MT_Tools_Logviewer_WebServices'] . '</button>';
-}
-?>
+            <button type="button" id="erftttwrdwqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices"><?=$pia_lang['MT_Tools_Logviewer_WebServices']?></button>
+            <?php $state = convert_state($_SESSION['PRINT_LOG'], 0);?>
+            <button type="button" id="btnextLogging" class="btn btn-danger main_logviwer_button_m" onclick="askToggleExtLogging(<?=$_SESSION['PRINT_LOG'];?>)"><?=$pia_lang['MT_Tools_Logviewer_ext_a']?> (<?=$state;?>)</button>
       	</div>
     </div>
 
@@ -361,6 +373,17 @@ $(document).ready(function () {
         $(window).scrollTop(scrollPosition);
         $('#modal-config-editor').css('overflow-y', 'hidden');
     });
+
+    $('#ignorelist-toggle').click(function() {
+        $('.ignorelist-detail').slideToggle(200);
+        var icon = $('#toggle-icon');
+        if (icon.hasClass('bi-plus-circle')) {
+            icon.removeClass('bi-plus-circle').addClass('bi-dash-circle');
+        } else {
+            icon.removeClass('bi-dash-circle').addClass('bi-plus-circle');
+        }
+    });
+
     $(function () {
       $('[data-toggle="tooltip"]').tooltip()
     })
@@ -445,7 +468,6 @@ function askDeleteUnknown() {
 function deleteUnknownDevices() {
 	$.get('php/server/devices.php?action=deleteUnknownDevices', function(msg) {showMessage (msg);});
 }
-
 // Toggle Imports
 function askToggleImport(fdeviceType,ftoggleState) {
   window.global_fdeviceType = fdeviceType;
@@ -463,7 +485,6 @@ function ToggleImport() {
     showMessage (msg);
   });
 }
-
 // delete all Events
 function askDeleteEvents() {
   showModalWarning('<?=$pia_lang['MT_Tool_del_allevents_noti'];?>', '<?=$pia_lang['MT_Tool_del_allevents_noti_text'];?>',
@@ -630,26 +651,65 @@ function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
 }
 
+
+function handleMTSelection (value) {
+  setTextValue('txtMTColumnContent','');
+
+  const actionMap = {
+    'Group': 'getGroups',
+    'Owner': 'getOwners',
+    'Type': 'getDeviceTypes',
+    'Location': 'getLocations',
+    'LinkSpeed': 'getLinkSpeed',
+    'ConnectType': 'getConnectionType'
+  };
+
+  const queryAction = actionMap[value];
+
+  // get data from server
+  $.get('php/server/devices.php?action='+queryAction, function(data) {
+    var listData = JSON.parse(data);
+    var order = 1;
+
+    $('#dropdownMTColumnContent')[0].innerHTML = ''
+    // for each item
+    listData.forEach(function (item, index) {
+      // insert line divisor
+      if (order != item['order']) {
+        $('#dropdownMTColumnContent')[0].innerHTML += '<li class="divider"></li>';
+        order = item['order'];
+      }
+
+      id = item['name'];
+      // use explicitly specified id (value) if avaliable
+      if(item['id'])
+      {
+        id = item['id'];
+      }
+
+      // add dropdown item
+      $('#dropdownMTColumnContent')[0].innerHTML +=
+        '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtMTColumnContent\',\''+ id +'\')">'+ item['name'] + '</a></li>'
+    });
+  });
+}
+
 // Set Theme
 function setPiAlertTheme () {
 	$.get('php/server/files.php?action=setTheme&SkinSelection='+ $('#txtSkinSelection').val(), function(msg) {showMessage (msg);});
 }
-
 // Set Language
 function setPiAlertLanguage() {
 	$.get('php/server/files.php?action=setLanguage&LangSelection='+ $('#txtLangSelection').val(), function(msg) {showMessage (msg);});
 }
-
 // Set FavIcon
 function setFavIconURL() {
 	$.get('php/server/files.php?action=setFavIconURL&FavIconURL='+ $('#txtFavIconURL').val(), function(msg) {showMessage (msg);});
 }
-
 // Set FavIcon
 function setPiholeURL() {
     $.get('php/server/files.php?action=setPiholeURL&PiholeURL='+ $('#txtPiholeURL').val(), function(msg) {showMessage (msg);});
 }
-
 // Set ArpScanTimer
 function setPiAlertArpTimer() {
   $.ajax({
@@ -663,7 +723,6 @@ function setPiAlertArpTimer() {
         }
     })
 }
-
 // Backup Configfile
 function BackupConfigFile(reload)  {
 	if (reload == 'yes') {
@@ -672,7 +731,6 @@ function BackupConfigFile(reload)  {
 		$.get('php/server/files.php?action=BackupConfigFile&reload=no', function(msg) {showMessage (msg);});
 	}
 }
-
 // Restore Configfile
 function askRestoreConfigFile() {
   showModalWarning('<?=$pia_lang['MT_ConfEditor_Restore_noti'];?>', '<?=$pia_lang['MT_ConfEditor_Restore_noti_text'];?>',
@@ -681,7 +739,7 @@ function askRestoreConfigFile() {
 function RestoreConfigFile() {
 	$.get('php/server/files.php?action=RestoreConfigFile', function(msg) {showMessage (msg);});
 }
-
+// Save Configfile
 function SaveConfigFile() {
 	var postData = {
 		action: 'SaveConfigFile',
@@ -689,7 +747,6 @@ function SaveConfigFile() {
 	};
 	$.post('php/server/files.php', postData, function(msg) {showMessage(msg);});
 }
-
 // Set Device List Column
 function askDeviceListCol() {
   showModalWarning('<?=$pia_lang['MT_Tool_DevListCol_noti'];?>', '<?=$pia_lang['MT_Tool_DevListCol_noti_text'];?>',
@@ -714,7 +771,6 @@ function setDeviceListCol() {
     showMessage (msg);
   });
 }
-
 // Set Device, ICMP and Presence List Headers
 function askListHeaderConfig() {
   showModalWarning('<?=$pia_lang['MT_Tool_HeaderConf_noti'];?>', '<?=$pia_lang['MT_Tool_DevListCol_noti_text'];?>',
@@ -743,7 +799,6 @@ function setListHeaderConfig() {
     showMessage (msg);
   });
 }
-
 // Delete Inactive Hosts
 function askDeleteInactiveHosts() {
   showModalWarning('<?=$pia_lang['MT_Tool_del_Inactive_Hosts'];?>', '<?=$pia_lang['MT_Tool_del_Inactive_Hosts_text'];?>',
@@ -787,7 +842,6 @@ function initializeiCheck () {
      increaseArea:  '20%'
    });
 }
-
 // JS created by php while loop
 <?=create_filter_editor_js();?>
 
@@ -904,6 +958,53 @@ function DeleteSatellite(func_sat_name, func_sat_id) {
     , function(msg) {
     showMessage (msg);
   });
+}
+// Update Column Data
+function askMTUpdateColumnContent() {
+  showModalWarning('<?=$pia_lang['MT_ColumnUpd_Mod_head'];?>', '<?=$pia_lang['MT_ColumnUpd_Mod_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'MTUpdateColumnContent');
+}
+function MTUpdateColumnContent() {
+    $.get('php/server/devices.php?action=MTUpdateColumnContent'
+    + '&column='     + $('#txtMTTableColumn').val()
+    + '&ccontent='   + $('#txtMTColumnContent').val()
+    + '&nccontent='  + $('#txtMTNewColumnContent').val()
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+// delete Column Data
+function askMTDeletColumnContent() {
+  showModalWarning('<?=$pia_lang['MT_ColumnDel_Mod_head'];?>', '<?=$pia_lang['MT_ColumnDel_Mod_text'];?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'MTDeletColumnContent');
+}
+function MTDeletColumnContent() {
+    $.get('php/server/devices.php?action=MTDeletColumnContent'
+    + '&column='     + $('#txtMTTableColumn').val()
+    + '&ccontent='   + $('#txtMTColumnContent').val()
+    + '&nccontent='  + $('#txtMTNewColumnContent').val()
+    , function(msg) {
+    showMessage (msg);
+  });
+}
+function MTResetColumnContent() {
+    setTextValue('txtMTTableColumn','');
+    setTextValue('txtMTColumnContent','');
+    setTextValue('txtMTNewColumnContent','');
+}
+// Toggle extended Logging
+function askToggleExtLogging(ftoggleState) {
+    window.global_ftoggleState = ftoggleState;
+    showModalWarning('<?=$pia_lang['MT_Tools_Logviewer_ext_a'];?>', '<?=$pia_lang['MT_Tools_Logviewer_ext_b'];?>',
+        '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'ToggleExtLogging');
+}
+function ToggleExtLogging() {
+    var ftoggleState = window.global_ftoggleState;
+    $.get('php/server/files.php?action=ToggleExtLogging'
+        + '&toggleState='   + ftoggleState
+        , function(msg) {
+        showMessage (msg);
+    });
 }
 
 setInterval(UpdateStatusBox, 15000);

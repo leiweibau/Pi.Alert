@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 //  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
 //  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-//  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2025+       https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -80,6 +80,10 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'getLocations':getLocations();
 		break;
+	case 'getLinkSpeed':getLinkSpeed();
+		break;
+	case 'getConnectionType':getConnectionType();
+		break;
 	case 'EnableMainScan':EnableMainScan();
 		break;
 	case 'EnableSatelliteScan':EnableSatelliteScan();
@@ -102,9 +106,153 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'resetVoidedEvents':resetVoidedEvents();
 		break;
+	case 'MTUpdateColumnContent':MTUpdateColumnContent();
+		break;
+	case 'MTDeletColumnContent':MTDeletColumnContent();
+		break;
      default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function MTDeletColumnContent() {
+	global $db;
+	global $pia_lang;
+
+	$column = htmlspecialchars($_REQUEST['column']) ?? '';
+	$column_content = htmlspecialchars($_REQUEST['ccontent']) ?? '';
+	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
+
+	if ($new_column_content !== '') {
+	    die($pia_lang['BE_Dev_ColumnErr_a']);
+	}
+
+	$columnMap = [
+	    'Group'       => ['Devices' => 'dev_Group',        'ICMP_Mon' => 'icmp_group'],
+	    'Owner'       => ['Devices' => 'dev_Owner',        'ICMP_Mon' => 'icmp_owner'],
+	    'Type'        => ['Devices' => 'dev_DeviceType',   'ICMP_Mon' => 'icmp_type'],
+	    'Location'    => ['Devices' => 'dev_Location',     'ICMP_Mon' => 'icmp_location'],
+	    'LinkSpeed'   => ['Devices' => 'dev_LinkSpeed'],
+	    'ConnectType' => ['Devices' => 'dev_ConnectionType']
+	];
+
+	if (!isset($columnMap[$column])) {
+		die($pia_lang['BE_Dev_ColumnErr_b'].'&quot;'.$column.'&quot;');
+	}
+
+	$ok_message = "";
+	$er_message = "";
+
+	// Devices-Spalte löschen
+	if (isset($columnMap[$column]['Devices'])) {
+	    $field = $columnMap[$column]['Devices'];
+	    $sql = "UPDATE Devices SET $field = '' WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= $pia_lang['NAV_Devices'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_a']."<br>";
+	    } else {
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_Devices'].": " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	// ICMP_Mon-Spalte löschen
+	if (isset($columnMap[$column]['ICMP_Mon'])) {
+	    $field = $columnMap[$column]['ICMP_Mon'];
+	    $sql = "UPDATE ICMP_Mon SET $field = '' WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= $pia_lang['NAV_ICMPScan'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_a']."<br>";
+	    } else {
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_ICMPScan'].": " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	// Ausgabe
+	if ($er_message == "") {
+		echo $column . $pia_lang['BE_Dev_ColumnOk_c'].'<br>' . $ok_message;
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $column.'/'.$column_content);
+	} else {
+		echo $pia_lang['BE_Dev_ColumnErr_d'] . $er_message;
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $column.'/'.$column_content);
+	}
+
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=2'>";
+}
+
+function MTUpdateColumnContent() {
+	global $db;
+	global $pia_lang;
+
+	$column = htmlspecialchars($_REQUEST['column']) ?? '';
+	$column_content = htmlspecialchars($_REQUEST['ccontent']) ?? '';
+	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
+
+	$columnMap = [
+	    'Group'       => ['Devices' => 'dev_Group',        'ICMP_Mon' => 'icmp_group'],
+	    'Owner'       => ['Devices' => 'dev_Owner',        'ICMP_Mon' => 'icmp_owner'],
+	    'Type'        => ['Devices' => 'dev_DeviceType',   'ICMP_Mon' => 'icmp_type'],
+	    'Location'    => ['Devices' => 'dev_Location',     'ICMP_Mon' => 'icmp_location'],
+	    'LinkSpeed'   => ['Devices' => 'dev_LinkSpeed'],
+	    'ConnectType' => ['Devices' => 'dev_ConnectionType']
+	];
+
+	if (!isset($columnMap[$column])) {
+	    die($pia_lang['BE_Dev_ColumnErr_b'].'&quot;'.$column.'&quot;');
+	}
+
+	$ok_message = "";
+	$er_message = "";
+
+	// Devices-Update vorbereiten
+	if (isset($columnMap[$column]['Devices'])) {
+	    $field = $columnMap[$column]['Devices'];
+	    $sql = "UPDATE Devices SET $field = :new_value WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':new_value', $new_column_content, SQLITE3_TEXT);
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= $pia_lang['NAV_Devices'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_b']."<br>";
+	    } else {
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_Devices'].": " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	// ICMP_Mon-Update (wenn vorhanden)
+	if (isset($columnMap[$column]['ICMP_Mon'])) {
+	    $field = $columnMap[$column]['ICMP_Mon'];
+	    $sql = "UPDATE ICMP_Mon SET $field = :new_value WHERE $field = :old_value";
+	    $stmt = $db->prepare($sql);
+	    if ($stmt) {
+	        $stmt->bindValue(':new_value', $new_column_content, SQLITE3_TEXT);
+	        $stmt->bindValue(':old_value', $column_content, SQLITE3_TEXT);
+	        $stmt->execute();
+	        $changed = $db->changes();
+	        $ok_message .= $pia_lang['NAV_ICMPScan'].": ".$changed." ".$pia_lang['BE_Dev_ColumnOk_b']."<br>";
+	    } else {
+	        $er_message .= $pia_lang['BE_Dev_ColumnErr_c']." ".$pia_lang['NAV_ICMPScan'].": " . $db->lastErrorMsg() . "<br>";
+	    }
+	}
+
+	if ($er_message == "") {
+		echo $column . $pia_lang['BE_Dev_ColumnOk_d'].'<br>'.$ok_message;
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $column.'/'.$column_content.' -- '.$new_column_content);
+	} else {
+		echo $pia_lang['BE_Dev_ColumnErr_e'] . $er_message;
+		// Logging
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $column.'/'.$column_content.' -- '.$new_column_content);
+	}
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=2'>";
 }
 
 function SaveSatellite() {
@@ -113,26 +261,43 @@ function SaveSatellite() {
 
 	$currentDateTime = date('Y-m-d H:i');
 
-	$satellite_name = htmlspecialchars($_REQUEST['satellite_name']);
-	$new_satellite_name = htmlspecialchars($_REQUEST['changed_satellite_name']);
-	$satellite_id = htmlspecialchars($_REQUEST['sat_id']);
+	$satellite_name        = $_REQUEST['satellite_name'] ?? '';
+	$new_satellite_name    = $_REQUEST['changed_satellite_name'] ?? '';
+	$satellite_id          = $_REQUEST['sat_id'] ?? '';
 
-	// sql
-	$sql_insert_data = 'UPDATE Satellites SET
-                 sat_name                 = "' . quotes($new_satellite_name) . '",
-                 sat_lastupdate           = "' . quotes($currentDateTime) . '"
-          WHERE sat_id="' . $satellite_id . '" AND sat_name="' . $satellite_name . '"';
-	$result = $db->query($sql_insert_data);
+	if ($satellite_name === '' || $new_satellite_name === '' || $satellite_id === '') {
+	    echo $pia_lang['BE_Dev_SatUpdateError'] . '<br>Ungültige Eingabedaten.';
+	    return;
+	}
 
-	if ($result == TRUE) {
-		echo $pia_lang['BE_Dev_SatUpdate'] . '<br>' . $satellite_name . ' &#8594; ' . $new_satellite_name;
-		// Logging
+	$sql = 'UPDATE Satellites SET
+		sat_name = :new_name,
+		sat_lastupdate = :last_update
+		WHERE sat_id = :sat_id AND sat_name = :old_name';
+
+	$stmt = $db->prepare($sql);
+	if (!$stmt) {
+		echo $pia_lang['BE_Dev_SatUpdateError'] . '<br>Prepare fehlgeschlagen: ' . $db->lastErrorMsg();
+		return;
+	}
+
+	$stmt->bindValue(':new_name', $new_satellite_name, SQLITE3_TEXT);
+	$stmt->bindValue(':last_update', $currentDateTime, SQLITE3_TEXT);
+	$stmt->bindValue(':sat_id', $satellite_id, SQLITE3_TEXT);
+	$stmt->bindValue(':old_name', $satellite_name, SQLITE3_TEXT);
+
+	$result = $stmt->execute();
+
+	if ($result) {
+		echo $pia_lang['BE_Dev_SatUpdate'] . '<br>' .
+		     htmlspecialchars($satellite_name) . ' &#8594; ' .
+		     htmlspecialchars($new_satellite_name);
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
 	} else {
-		echo $pia_lang['BE_Dev_SatUpdateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_Dev_SatUpdateError'] . '<br>' . $db->lastErrorMsg();
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', 'ID: '.$satellite_id.' ('.$satellite_name.'/'.$new_satellite_name.')');
 	}
+
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
 
@@ -140,22 +305,42 @@ function DeleteSatellite() {
 	global $db;
 	global $pia_lang;
 
-	$satellite_name = htmlspecialchars($_REQUEST['satellite_name']);
-	$satellite_id = htmlspecialchars($_REQUEST['sat_id']);
+	$satellite_name = $_REQUEST['satellite_name'] ?? '';
+	$satellite_id   = $_REQUEST['sat_id'] ?? '';
 
-	$sql = 'DELETE FROM Devices WHERE dev_ScanSource IN (SELECT sat_token FROM Satellites WHERE sat_id="' . $satellite_id . '");';
-	$result = $db->query($sql);
+	// 1. Geräte löschen, deren ScanSource dem sat_token des Satelliten entspricht
+	$sql1 = 'DELETE FROM Devices
+	         WHERE dev_ScanSource IN (
+	             SELECT sat_token FROM Satellites WHERE sat_id = :sat_id
+	         )';
 
-	$sql = 'DELETE FROM Satellites WHERE sat_id="' . $satellite_id . '" AND sat_name="' . $satellite_name . '"';
-	$result = $db->query($sql);
+	$stmt1 = $db->prepare($sql1);
+	if ($stmt1) {
+		$stmt1->bindValue(':sat_id', $satellite_id, SQLITE3_TEXT);
+		$stmt1->execute();
+	} else {
+		echo $pia_lang['BE_Dev_SatDeleteError'] . '<br>Fehler beim Löschen aus Devices: ' . $db->lastErrorMsg();
+		return;
+	}
 
-	if ($result == TRUE) {
+	// 2. Satellit selbst löschen
+	$sql2 = 'DELETE FROM Satellites WHERE sat_id = :sat_id AND sat_name = :sat_name';
+
+	$stmt2 = $db->prepare($sql2);
+	if ($stmt2) {
+		$stmt2->bindValue(':sat_id', $satellite_id, SQLITE3_TEXT);
+		$stmt2->bindValue(':sat_name', $satellite_name, SQLITE3_TEXT);
+		$result = $stmt2->execute();
+	} else {
+		echo $pia_lang['BE_Dev_SatDeleteError'] . '<br>Fehler beim Löschen aus Satellites: ' . $db->lastErrorMsg();
+		return;
+	}
+
+	if ($result) {
 		echo $pia_lang['BE_Dev_SatDelete'];
-		// Logging
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
 	} else {
-		echo $pia_lang['BE_Dev_SatDeleteError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_Dev_SatDeleteError'] . '<br>' . $db->lastErrorMsg();
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', 'ID: '.$satellite_id.' ('.$satellite_name.')');
 	}
 
@@ -177,25 +362,43 @@ function CreateNewSatellite() {
 	global $pia_lang;
 
 	$currentDateTime = date('Y-m-d H:i');
-	if ($_REQUEST['new_satellite_name'] == "") {$satellite_name = "Satellite";} else {$satellite_name = htmlspecialchars($_REQUEST['new_satellite_name']);}
+
+	$satellite_name = ($_REQUEST['new_satellite_name'] === '') ? 'Satellite' : $_REQUEST['new_satellite_name'];
+
+	// Token und Passwort generieren
 	$satellite_token = generateRandomString(48);
 	$satellite_password = generateRandomString(96);
 
-	$sql_insert_data = 'INSERT INTO Satellites ("sat_name", "sat_token", "sat_password", "sat_lastupdate") 
-                          VALUES ("' . $satellite_name . '", "' . $satellite_token . '", "' . $satellite_password . '", "'.$currentDateTime.'")';
-	$result = $db->query($sql_insert_data);
+	// INSERT als Prepared Statement
+	$sql = 'INSERT INTO Satellites (sat_name, sat_token, sat_password, sat_lastupdate)
+	        VALUES (:name, :token, :password, :lastupdate)';
 
-	if ($result == TRUE) {
+	$stmt = $db->prepare($sql);
+	if (!$stmt) {
+		echo $pia_lang['BE_Dev_SatCreateError'] . '<br>Prepare fehlgeschlagen: ' . $db->lastErrorMsg();
+		return;
+	}
+
+	// Parameter binden
+	$stmt->bindValue(':name', $satellite_name, SQLITE3_TEXT);
+	$stmt->bindValue(':token', $satellite_token, SQLITE3_TEXT);
+	$stmt->bindValue(':password', $satellite_password, SQLITE3_TEXT);
+	$stmt->bindValue(':lastupdate', $currentDateTime, SQLITE3_TEXT);
+
+	// Ausführen
+	$result = $stmt->execute();
+
+	if ($result) {
 		echo $pia_lang['BE_Dev_SatCreate'];
-		// Logging
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', 'Name: '.$satellite_name);
 	} else {
-		echo $pia_lang['BE_Dev_SatCreateError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_Dev_SatCreateError'] . '<br>' . $db->lastErrorMsg();
 		pialert_logging('a_033', $_SERVER['REMOTE_ADDR'], 'LogStr_0000', '', 'Name: '.$satellite_name);
 	}
+
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=5'>");
 }
+
 
 function SaveFilterID() {
 	global $db;
@@ -653,17 +856,26 @@ function getDevicesListCalendar() {
 function getOwners() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Owner
+	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Owner AS DeviceOwner
           FROM Devices
           WHERE dev_Owner <> "(unknown)" AND dev_Owner <> ""
             AND dev_Favorite = 1
-        UNION
-          SELECT DISTINCT 2 as dev_Order, dev_Owner
+          
+          UNION
+          
+          SELECT DISTINCT 2 as dev_Order, dev_Owner AS DeviceOwner
           FROM Devices
           WHERE dev_Owner <> "(unknown)" AND dev_Owner <> ""
             AND dev_Favorite = 0
             AND dev_Owner NOT IN
                (SELECT dev_Owner FROM Devices WHERE dev_Favorite = 1)
+
+		UNION
+
+		SELECT DISTINCT 2 as dev_Order, icmp_owner AS DeviceOwner
+		FROM ICMP_Mon
+		WHERE icmp_owner NOT IN ("(unknown)") AND icmp_owner <> ""
+
         ORDER BY 1,2 ';
 	$result = $db->query($sql);
 
@@ -671,7 +883,7 @@ function getOwners() {
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_Owner']);
+			'name' => $row['DeviceOwner']);
 	}
 	// Return json
 	echo json_encode($tableData);
@@ -681,9 +893,20 @@ function getOwners() {
 function getDeviceTypes() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_DeviceType
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_DeviceType AS DeviceType
           FROM Devices
-          WHERE dev_DeviceType NOT IN ("",
+          WHERE dev_DeviceType <> "" AND dev_DeviceType NOT IN ("",
+                 "Smartphone", "Tablet",
+                 "Laptop", "PC", "Printer", "Server", "Singleboard Computer (SBC)",
+                 "Game Console", "SmartTV", "Virtual Assistance",
+                 "House Appliance", "Phone", "Radio",
+                 "AP", "NAS", "Router", "Hypervisor", "USB WIFI Adapter", "USB LAN Adapter")
+
+		UNION
+
+		SELECT DISTINCT 9 as dev_Order, icmp_type AS DeviceType
+		FROM ICMP_Mon
+		WHERE icmp_type <> "" AND icmp_type NOT IN ("",
                  "Smartphone", "Tablet",
                  "Laptop", "PC", "Printer", "Server", "Singleboard Computer (SBC)",
                  "Game Console", "SmartTV", "Virtual Assistance",
@@ -723,7 +946,7 @@ function getDeviceTypes() {
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_DeviceType']);
+			'name' => $row['DeviceType']);
 	}
 	// Return json
 	echo json_encode($tableData);
@@ -733,13 +956,51 @@ function getDeviceTypes() {
 function getGroups() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 1 as dev_Order, dev_Group
+	$sql = 'SELECT DISTINCT 8 as dev_Order, dev_Group  AS GroupName
           FROM Devices
-          WHERE dev_Group NOT IN ("(unknown)", "Others") AND dev_Group <> ""
+          WHERE dev_Group NOT IN ("(unknown)", "Others", "Friends", "Personal", "Always on") AND dev_Group <> ""
+
+		UNION
+
+		SELECT DISTINCT 8 as dev_Order, icmp_group AS GroupName
+		FROM ICMP_Mon
+		WHERE icmp_group NOT IN ("(unknown)", "Others", "Friends", "Personal", "Always on") AND icmp_group <> ""
+
           UNION SELECT 1 as dev_Order, "Always on"
           UNION SELECT 1 as dev_Order, "Friends"
           UNION SELECT 1 as dev_Order, "Personal"
-          UNION SELECT 2 as dev_Order, "Others"
+          UNION SELECT 9 as dev_Order, "Others"
+          ORDER BY dev_Order, GroupName';
+	$result = $db->query($sql);
+
+	// arrays of rows
+	$tableData = array();
+	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$tableData[] = array('order' => $row['dev_Order'],
+			'name' => $row['GroupName']);
+	}
+
+	// Return json
+	echo json_encode($tableData);
+}
+
+//  Query the List of LinkSpeed
+function getLinkSpeed() {
+	global $db;
+
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_LinkSpeed
+          FROM Devices
+          WHERE dev_LinkSpeed NOT IN ("", "10 Mbps", "100 Mbps", "1.0 Gbps",
+          	"2.5 Gbps", "5 Gbps", "10 Gbps", "20 Gbps", "25 Gbps", "40 Gbps") AND dev_LinkSpeed <> ""
+          UNION SELECT 1 as dev_Order, "10 Mbps"
+          UNION SELECT 1 as dev_Order, "100 Mbps"
+          UNION SELECT 2 as dev_Order, "1.0 Gbps"
+          UNION SELECT 2 as dev_Order, "2.5 Gbps"
+          UNION SELECT 2 as dev_Order, "5 Gbps"
+          UNION SELECT 3 as dev_Order, "10 Gbps"
+          UNION SELECT 3 as dev_Order, "20 Gbps"
+          UNION SELECT 3 as dev_Order, "25 Gbps"
+          UNION SELECT 3 as dev_Order, "40 Gbps"
           ORDER BY 1,2 ';
 	$result = $db->query($sql);
 
@@ -747,7 +1008,35 @@ function getGroups() {
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_Group']);
+			'name' => $row['dev_LinkSpeed']);
+	}
+
+	// Return json
+	echo json_encode($tableData);
+}
+
+//  Query the List of ConnectionType
+function getConnectionType() {
+	global $db;
+
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_ConnectionType
+          FROM Devices
+          WHERE dev_ConnectionType NOT IN ("", "Ethernet", "Fibre", "WiFi", "Bluetooth",
+          	"Virtual Machine", "Container") AND dev_ConnectionType <> ""
+          UNION SELECT 1 as dev_Order, "Ethernet"
+          UNION SELECT 1 as dev_Order, "Fibre"
+          UNION SELECT 2 as dev_Order, "WiFi"
+          UNION SELECT 2 as dev_Order, "Bluetooth"
+          UNION SELECT 3 as dev_Order, "Virtual Machine"
+          UNION SELECT 3 as dev_Order, "Container"
+          ORDER BY 1,2 ';
+	$result = $db->query($sql);
+
+	// arrays of rows
+	$tableData = array();
+	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$tableData[] = array('order' => $row['dev_Order'],
+			'name' => $row['dev_ConnectionType']);
 	}
 
 	// Return json
@@ -758,15 +1047,24 @@ function getGroups() {
 function getLocations() {
 	global $db;
 
-	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_Location
+	$sql = 'SELECT DISTINCT 9 as dev_Order, dev_Location AS Location
           FROM Devices
           WHERE dev_Location <> ""
             AND dev_Location NOT IN (
                 "Bathroom", "Bedroom", "Dining room", "Hallway",
                 "Kitchen", "Laundry", "Living room", "Study",
-                "Attic", "Basement", "Garage",
-                "Back yard", "Garden", "Terrace",
                 "Other")
+
+		UNION
+
+		SELECT DISTINCT 9 as dev_Order, icmp_location AS Location
+		FROM ICMP_Mon
+		WHERE icmp_location <> ""
+            AND icmp_location NOT IN (
+                "Bathroom", "Bedroom", "Dining room", "Hallway",
+                "Kitchen", "Laundry", "Living room", "Study",
+                "Other")
+
 
           UNION SELECT 1 as dev_Order, "Bathroom"
           UNION SELECT 1 as dev_Order, "Bedroom"
@@ -777,23 +1075,16 @@ function getLocations() {
           UNION SELECT 1 as dev_Order, "Living room"
           UNION SELECT 1 as dev_Order, "Study"
 
-          UNION SELECT 2 as dev_Order, "Attic"
-          UNION SELECT 2 as dev_Order, "Basement"
-          UNION SELECT 2 as dev_Order, "Garage"
-
-          UNION SELECT 3 as dev_Order, "Back yard"
-          UNION SELECT 3 as dev_Order, "Garden"
-          UNION SELECT 3 as dev_Order, "Terrace"
-
           UNION SELECT 10 as dev_Order, "Other"
           ORDER BY 1,2 ';
+
 
 	$result = $db->query($sql);
 	// arrays of rows
 	$tableData = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 		$tableData[] = array('order' => $row['dev_Order'],
-			'name' => $row['dev_Location']);
+			'name' => $row['Location']);
 	}
 	// Return json
 	echo json_encode($tableData);

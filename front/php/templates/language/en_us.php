@@ -362,6 +362,10 @@ $pia_lang['MT_lang_de_de'] = 'German (DE)';
 $pia_lang['MT_lang_es_es'] = 'Spanish (ES)';
 $pia_lang['MT_lang_fr_fr'] = 'French (FR)';
 $pia_lang['MT_lang_it_it'] = 'Italian (IT)';
+$pia_lang['MT_lang_pl_pl'] = 'Polish (PL)';
+$pia_lang['MT_lang_nl_nl'] = 'Dutch (NL)';
+$pia_lang['MT_lang_dk_da'] = 'Danish (DK)';
+$pia_lang['MT_lang_cz_cs'] = 'Czech (CZ)';
 $pia_lang['MT_lang_selector_apply'] = 'Apply';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Settings';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'The options listed here cause server-side configuration changes. These changes affect all devices that access this page.';
@@ -380,6 +384,9 @@ $pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'The activation of individual im
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pi-hole Button (Menu Bar)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'By specifying the URL for the Pi-hole web interface, you can create a Pi-hole button in the menu bar. If you delete the input field, the button will be removed. The button is marked with the icon <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configure device list headers';
+$pia_lang['MT_Tools_Tab_Subheadline_j'] = 'Tasks';
+$pia_lang['MT_Tools_Tab_Subheadline_k'] = 'Manage dropdown entries';
+$pia_lang['MT_Tools_Tab_Subheadline_k_Intro'] = 'Although all dropdown entries can be selected, static entries (i.e., hard-coded options) cannot be deleted or changed in the dropdown menu. No error message will be displayed in such cases – however, the selected entry will still be removed or renamed in the device list or ICMP monitor for all devices.';
 $pia_lang['MT_Tool_darkmode'] = 'Dark Mode';
 $pia_lang['MT_Tool_darkmode_noti'] = 'Toggle Modes';
 $pia_lang['MT_Tool_darkmode_noti_text'] = 'After the theme switch, the page tries to reload itself to activate the change. If necessary, the cache must be cleared.';
@@ -518,6 +525,17 @@ $pia_lang['MT_Tool_reset_voided'] = 'Reset VOIDED Events';
 $pia_lang['MT_Tool_reset_voided_text'] = 'VOIDED events are not displayed in the attendance calendar. To reset all VOIDED events (Connected/Disconnected), execute this function.';
 $pia_lang['MT_Tggl_Import_head'] = 'Enable/Disable Source for Import';
 $pia_lang['MT_Tggl_Import_text'] = 'This enables or disables the desired source for importing data. Ongoing scans are not affected by the activation or deactivation. Data that has already been imported remains preserved after deactivation.';
+$pia_lang['MT_ColumnEdit_a'] = 'Dropdown menu:';
+$pia_lang['MT_ColumnEdit_b'] = 'Entry:';
+$pia_lang['MT_ColumnEdit_b_empty'] = ' no column selected ';
+$pia_lang['MT_ColumnEdit_c'] = 'Change entry to:';
+$pia_lang['MT_ColumnEdit_c_ph'] = 'New value';
+$pia_lang['MT_ColumnDel_Mod_head'] = 'Delete dropdown entry';
+$pia_lang['MT_ColumnDel_Mod_text'] = 'Hard-coded entries will be removed from each device, but the entry itself will remain in the dropdown menu. Custom entries will also be removed from the dropdown menu.';
+$pia_lang['MT_ColumnUpd_Mod_head'] = 'Edit dropdown entry';
+$pia_lang['MT_ColumnUpd_Mod_text'] = 'Hard-coded entries will be changed on each device, but the entry itself will remain in the dropdown menu. Custom entries will be replaced in the dropdown menu by the new entry.';
+$pia_lang['MT_Tools_Logviewer_ext_a'] = 'Extended logs';
+$pia_lang['MT_Tools_Logviewer_ext_b'] = 'Use this to switch between simple and extended logs. Extended logs should only be enabled in case of errors, as the additional output may reduce clarity.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';
@@ -611,6 +629,15 @@ $pia_lang['BE_Dev_DBTools_resetVoided'] = 'The VOIDED events have been converted
 $pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Error updating the VOIDED events';
 $pia_lang['BackDevDetail_Tools_WOL_okay'] = 'The command was executed';
 $pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
+$pia_lang['BE_Dev_ColumnErr_a'] = 'Error: The new column content must be empty to delete.';
+$pia_lang['BE_Dev_ColumnErr_b'] = 'Invalid column name: ';
+$pia_lang['BE_Dev_ColumnErr_c'] = 'Error preparing for';
+$pia_lang['BE_Dev_ColumnErr_d'] = 'Error updating the entry';
+$pia_lang['BE_Dev_ColumnErr_e'] = 'Error deleting the entry';
+$pia_lang['BE_Dev_ColumnOk_a'] = 'Entry/Entries cleared';
+$pia_lang['BE_Dev_ColumnOk_b'] = 'Entry/Entries updated';
+$pia_lang['BE_Dev_ColumnOk_c'] = '-Column content successfully deleted';
+$pia_lang['BE_Dev_ColumnOk_d'] = '-Column successfully updated';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';
