@@ -330,6 +330,24 @@ function get_host_statistic($hostip) {
                         </div>
                       </div>
 
+                      <!-- Vendor -->
+                      <div class="form-group">
+                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Vendor'];?></label>
+                        <div class="col-sm-7"><input class="form-control" id="txtVendor" type="text" value="<?=$icmpmonitorDetails['icmp_vendor']?>"></div>
+                      </div>
+
+                      <!-- Model -->
+                      <div class="form-group">
+                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Model'];?></label>
+                        <div class="col-sm-7"><input class="form-control" id="txtModel" type="text" value="<?=$icmpmonitorDetails['icmp_model']?>"></div>
+                      </div>
+
+                      <!-- Serialnumber -->
+                      <div class="form-group">
+                        <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Serialnumber'];?></label>
+                        <div class="col-sm-7"><input class="form-control" id="txtSerialnumber" type="text" value="<?=$icmpmonitorDetails['icmp_serial']?>"></div>
+                      </div>
+
                       <!-- Group -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Group'];?></label>
@@ -777,6 +795,9 @@ function setICMPHostData(refreshCallback='') {
     + '&icmp_owner='      + $('#txtOwner').val()
     + '&icmp_notes='      + $('#txtNotes').val()
     + '&icmp_scanvalid='  + $('#txtScanValidation').val()
+    + '&icmp_vendor='     + $('#txtVendor').val()
+    + '&icmp_model='      + $('#txtModel').val()
+    + '&icmp_serial='     + $('#txtSerialnumber').val()
     + '&favorit='         + ($('#chkFavorit')[0].checked * 1)
     + '&archived='        + ($('#chkArchived')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
