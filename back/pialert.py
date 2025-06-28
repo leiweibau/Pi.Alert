@@ -3233,6 +3233,37 @@ def service_monitoring_notification():
     format_report_section_services (mail_section_services_down, 'SECTION_DEVICES_DOWN',
         'TABLE_DEVICES_DOWN', mail_text_services_down, mail_html_services_down)
 
+
+    # # Compose Devices Up Section
+    # mail_section_services_up = False
+    # mail_text_services_up = ''
+    # mail_html_services_up = ''
+    # text_line_template = '{}{}\n\t{}\t\t\t{}\n\t{}\t\t\t{}\n\t{}\t{}\n\n'
+    # html_line_template = '<tr bgcolor=#909090 style="color:#F0F0F0;"><td colspan="2" style="width:50%; font-size:1.2em;"><b>URL:</b> {} </td><td colspan="2" style="width:50%; font-size:1.2em;"><b>Tag:</b> {} </td></tr>\n'+ \
+    #                      '<tr><td colspan="2" style="width:50%"><b>ScanTime:</b> {} </td><td style="width:25%"><b>IP:</b>  {} </td></tr>\n'
+
+    # sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_tags
+    #                 FROM Services_CurrentScan
+    #                 JOIN Services ON Services_CurrentScan.cur_URL = Services.mon_URL
+    #                 WHERE Services_CurrentScan.cur_AlertUp = 1 
+    #                 AND Services_CurrentScan.cur_LatencyChanged = 1
+    #                 AND Services_CurrentScan.cur_StatusCode = 200
+    #                 ORDER BY Services_CurrentScan.cur_DateTime""")
+
+    # for eventAlert in sql :
+    #     mail_section_services_up = True
+    #     mail_text_services_up += text_line_template.format (
+    #         'Service: ', eventAlert['cur_URL'],
+    #         'Tag: ', eventAlert['mon_tags'], 
+    #         'Time: ', eventAlert['cur_DateTime'], 
+    #         'Destination IP: ', eventAlert['cur_TargetIP'])
+    #     mail_html_services_up += html_line_template.format (
+    #         eventAlert['cur_URL'], eventAlert['mon_tags'], eventAlert['cur_DateTime'], _func_cur_TargetIP)
+
+    # format_report_section_services (mail_section_services_down, 'SECTION_DEVICES_UP',
+    #     'TABLE_DEVICES_UP', mail_text_services_up, mail_html_services_up)
+
+
     # Compose Events Section (includes Down as an Event)
     mail_section_events = False
     mail_text_events   = ''
