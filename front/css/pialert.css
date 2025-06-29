@@ -441,14 +441,14 @@ body.modal-open {
 .dbtools-button-sm { display: inline-block; width: 140px; height: 73px; white-space: normal; word-wrap: break-word; font-size: 16px; padding: 4px;}
 .db_info_table_cell:nth-child(1) { background: white }
 .db_info_table_cell:nth-child(2) { background: white }
-.db_tools_table_cell_a:nth-child(1) { background: white }
-.db_tools_table_cell_a:nth-child(2) { background: white }
-.db_tools_table_cell_b:nth-child(1) { background: white }
-.db_tools_table_cell_b:nth-child(2) { background: white }
 .db_info_table { display: table; border-spacing: 0em; font-weight: 400; font-size: 15px; width: 100%; margin: auto;}
 .db_info_table_row { display: table-row; padding: 3px; }
 .db_info_table_cell { display: table-cell; padding: 3px; padding-left: 10px;}
 .db_tools_table_cell_a { display: table-cell; text-align: center; padding: 10px; min-width: 180px; width: 20%; vertical-align: top;}
+.db_tools_table_cell_a:nth-child(1) { background: white }
+.db_tools_table_cell_a:nth-child(2) { background: white }
+.db_tools_table_cell_b:nth-child(1) { background: white }
+.db_tools_table_cell_b:nth-child(2) { background: white }
 .db_tools_table_cell_b { display: table-cell; text-align: justify; font-size: 16px; vertical-align: middle; padding: 10px;}
 .db_info_table_cell_a { min-width: 175px; width: 35%;}
 .main_logviwer_text_layout {text-align: left;}
@@ -506,6 +506,10 @@ body.modal-open {
 .bulked_offline_border {border: 1px solid #888;}
 #bulked_checkall {display: block; margin-top: 20px; margin-bottom: 10px; min-width: 180px;}
 .bulk_editor_quit {position: absolute; display: inline-block; top: 5px; right: 15px;}
+.bulked_table_cell_b {display: table-cell; text-align: center; padding: 10px; width: 80px; vertical-align: middle; line-height: 60px;}
+.bulked_new_dev {background-color: #b1720c;}
+.bulked_arc_dev {background-color: #aaa;}
+.bulked_default_dev {background-color: transparent;}
 /* ----------------- Services ----------------------------------------------- */
 .icmplist_add_ip {display: inline-block; margin-top: -5px; margin-left: 15px;}
 .services_icon {position: relative; top: -58px; left: 0px; font-size: 58px; opacity: 0.2;}

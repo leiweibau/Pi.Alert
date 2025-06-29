@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'activeren';
 $pia_lang['Gen_deactivate'] = 'deactiveren';
 $pia_lang['Gen_error'] = 'Fout';
 $pia_lang['Gen_column'] = 'Kolom';
+$pia_lang['Gen_hide'] = 'verbergen';
+$pia_lang['Gen_show'] = 'tonen';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Voer wachtwoord in';

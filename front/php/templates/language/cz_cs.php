@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'aktivovat';
 $pia_lang['Gen_deactivate'] = 'deaktivovat';
 $pia_lang['Gen_error'] = 'Chyba';
 $pia_lang['Gen_column'] = 'Sloupec';
+$pia_lang['Gen_hide'] = 'skrýt';
+$pia_lang['Gen_show'] = 'zobrazit';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Zadejte heslo';

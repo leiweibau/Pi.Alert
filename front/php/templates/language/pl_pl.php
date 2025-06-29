@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'aktywuj';
 $pia_lang['Gen_deactivate'] = 'dezaktywuj';
 $pia_lang['Gen_error'] = 'Błąd';
 $pia_lang['Gen_column'] = 'Kolumna';
+$pia_lang['Gen_hide'] = 'ukryj';
+$pia_lang['Gen_show'] = 'pokaż';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Wprowadź hasło';

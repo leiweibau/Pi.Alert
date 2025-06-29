@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'aktiver';
 $pia_lang['Gen_deactivate'] = 'deaktiver';
 $pia_lang['Gen_error'] = 'Fejl';
 $pia_lang['Gen_column'] = 'Kolonne';
+$pia_lang['Gen_hide'] = 'skjul';
+$pia_lang['Gen_show'] = 'vis';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Indtast adgangskode';

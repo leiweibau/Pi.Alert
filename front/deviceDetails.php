@@ -166,7 +166,22 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                       <!-- Name -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Name'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtName" type="text" value="--"></div>
+                        <div class="col-sm-8">
+                          <!-- <input class="form-control" id="txtName" type="text" value="--"> -->
+
+
+                          <div class="input-group">
+                            <input class="form-control" id="txtName" type="text" value="--">
+
+                            <div class="input-group-btn">
+                              <button type="button" class="btn btn-danger" onclick="emptytxtfield('txtName')">
+                                <span class="fa fa-trash"></span>
+                              </button>
+                            </div>
+                          </div>
+
+
+                        </div>
                       </div>
 
                       <!-- Owner -->
@@ -1677,6 +1692,11 @@ function deactivateSaveRestoreData () {
 // -----------------------------------------------------------------------------
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
+  activateSaveRestoreData ();
+}
+
+function emptytxtfield(textElement) {
+  $('#'+textElement).val ('');
   activateSaveRestoreData ();
 }
 
