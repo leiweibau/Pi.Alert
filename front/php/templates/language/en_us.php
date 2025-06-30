@@ -1,6 +1,5 @@
 <?php
 unset($pia_lang);
-
 // About
 //////////////////////////////////////////////////////////////////
 $pia_lang['About_Title'] = 'Open Source Network Guard';
@@ -95,6 +94,8 @@ $pia_lang['Device_bulkEditor_mode'] = 'Bulk Editor';
 $pia_lang['Device_bulkEditor_mode_quit'] = 'Quit Editor';
 $pia_lang['Device_bulkEditor_selectall'] = 'Select all Host&apos;s';
 $pia_lang['Device_bulkEditor_selectnone'] = 'Deselect all Host&apos;s';
+$pia_lang['Device_bulkEditor_selectvisall'] = 'Select visible';
+$pia_lang['Device_bulkEditor_selectvisnone'] = 'Deselect visible';
 $pia_lang['Device_bulkEditor_savebox_title'] = 'Fields were saved';
 $pia_lang['Device_bulkEditor_savebox_noselection'] = 'No fields were selected for modification';
 $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Modified devices';

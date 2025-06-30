@@ -1,13 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  devices.php - Front module. Devices list page
-#-------------------------------------------------------------------------------
-#  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024+                                         GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 
@@ -30,13 +20,11 @@ function print_box_top_element($title) {
             <div class="box-header with-border">
               <h3 class="box-title">' . $title . '</h3>
             </div>
-            <div class="box-body">
-              <div>';
+            <div class="box-body">';
 }
 
 function print_box_bottom_element() {
-	echo '          </div>
-                </div>
+	echo '        </div>
                 <!-- /.box-body -->
               </div>
             </div>
@@ -62,8 +50,7 @@ $Graph_Device_Arch = $graph_arrays[4];
 // ################### Start Bulk-Editor #######################################
 if ($_REQUEST['mod'] == 'bulkedit') {
 
-	echo '
-					<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
+	echo '<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
           <a href="./devices.php" class="btn btn-success pull-right bulk_editor_quit" role="button">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
         </section>';
 
@@ -118,6 +105,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 		print_box_top_element($pia_lang['Device_bulkEditor_savebox_title']);
 		// Count changed fields
+		echo '<div>';
 		if (sizeof($sql_queue) < 1) {
 			// No fields were selected for modification
 			echo '<br>' . $pia_lang['Device_bulkEditor_savebox_noselection'] . '<br>&nbsp;';
@@ -141,134 +129,129 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			echo $modified_hosts;
 			// List modifications
 			echo '<h4>' . $pia_lang['Device_bulkEditor_savebox_mod_fields'] . ':</h4>';
-			if (isset($set_bulk_owner)) {echo $pia_lang['DevDetail_MainInfo_Owner'] . ': ' . $set_bulk_owner . '<br>';}
-			if (isset($set_bulk_type)) {echo $pia_lang['DevDetail_MainInfo_Type'] . ': ' . $set_bulk_type . '<br>';}
-			if (isset($set_bulk_group)) {echo $pia_lang['DevDetail_MainInfo_Group'] . ': ' . $set_bulk_group . '<br>';}
-			if (isset($set_bulk_location)) {echo $pia_lang['DevDetail_MainInfo_Location'] . ': ' . $set_bulk_location . '<br>';}
-			if (isset($set_bulk_comments)) {echo $pia_lang['DevDetail_MainInfo_Comments'] . ': ' . $set_bulk_comments . '<br>';}
-			if (isset($set_bulk_connectiontype)) {echo $pia_lang['DevDetail_MainInfo_Network_ConnectType'] . ': ' . $set_bulk_connectiontype . '<br>';}
-			if (isset($set_bulk_linkspeed)) {echo $pia_lang['DevDetail_MainInfo_Network_LinkSpeed'] . ': ' . $set_bulk_linkspeed . '<br>';}
-			if (isset($set_bulk_AlertAllEvents)) {echo $pia_lang['DevDetail_EveandAl_AlertAllEvents'] . ': ' . $set_bulk_AlertAllEvents . '<br>';}
-			if (isset($set_bulk_AlertDown)) {echo $pia_lang['DevDetail_EveandAl_AlertDown'] . ': ' . $set_bulk_AlertDown . '<br>';}
-			if (isset($set_bulk_NewDevice)) {echo $pia_lang['DevDetail_EveandAl_NewDevice'] . ': ' . $set_bulk_NewDevice . '<br>';}
-			if (isset($set_bulk_Archived)) {echo $pia_lang['DevDetail_EveandAl_Archived'] . ': ' . $set_bulk_Archived . '<br>';}
-			if (isset($set_bulk_PresencePage)) {echo $pia_lang['DevDetail_MainInfo_ShowPresence'] . ': ' . $set_bulk_PresencePage . '<br>';}
+			$bulk_fields = [
+			    'set_bulk_owner' => 'DevDetail_MainInfo_Owner',
+			    'set_bulk_type' => 'DevDetail_MainInfo_Type',
+			    'set_bulk_group' => 'DevDetail_MainInfo_Group',
+			    'set_bulk_location' => 'DevDetail_MainInfo_Location',
+			    'set_bulk_comments' => 'DevDetail_MainInfo_Comments',
+			    'set_bulk_connectiontype' => 'DevDetail_MainInfo_Network_ConnectType',
+			    'set_bulk_linkspeed' => 'DevDetail_MainInfo_Network_LinkSpeed',
+			    'set_bulk_AlertAllEvents' => 'DevDetail_EveandAl_AlertAllEvents',
+			    'set_bulk_AlertDown' => 'DevDetail_EveandAl_AlertDown',
+			    'set_bulk_NewDevice' => 'DevDetail_EveandAl_NewDevice',
+			    'set_bulk_Archived' => 'DevDetail_EveandAl_Archived',
+			    'set_bulk_PresencePage' => 'DevDetail_MainInfo_ShowPresence'
+			];
+
+			foreach ($bulk_fields as $varName => $langKey) {
+			    if (isset($$varName)) {
+			        echo $pia_lang[$langKey] . ': ' . $$varName . '<br>';
+			    }
+			}
 			// Update Segment stop
 			// Logging
 			pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $modified_hosts);
 		}
 		echo '<a href="./devices.php?mod=bulkedit&scansource='.$SCANSOURCE.'" class="btn btn-default pull-right" role="button" style="margin-bottom: 10px;">' . $pia_lang['Gen_Close'] . '</a>';
+		echo '</div>';
 		print_box_bottom_element();
 	}
 
 	print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
-	// Inputs
-?>
 
+?>
             <div class="row" style="padding-bottom: 20px;">
                 <div class="col-xs-12 col-md-6">
                     <div class="db_info_table">
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                               <input class="icheckbox_flat-blue" id="en_bulk_owner" name="en_bulk_owner" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_owner" name="en_bulk_owner" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-                              <label for="bulk_owner"><?=$pia_lang['DevDetail_MainInfo_Owner']?>:</label><br>
-															<div class="input-group" style="max-width: 400px;">
-							                  <input class="form-control" id="bulk_owner" name="bulk_owner" type="text" disabled>
-							                  <div class="input-group-btn">
-							                    <button type="button" id="bulk_owner_selector" name="bulk_owner_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-							                      <span class="fa fa-caret-down"></span></button>
-							                    <ul id="dropdownDeviceOwner" class="dropdown-menu dropdown-menu-right">
-							                    </ul>
-							                  </div>
-							                </div>
-							              </div>
+                            	<label for="bulk_owner"><?=$pia_lang['DevDetail_MainInfo_Owner']?>:</label><br>
+							  	<div class="input-group" style="max-width: 400px;">
+			                  		<input class="form-control" id="bulk_owner" name="bulk_owner" type="text" disabled>
+		                  			<div class="input-group-btn">
+			                    		<button type="button" id="bulk_owner_selector" name="bulk_owner_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+			                      			<span class="fa fa-caret-down"></span>
+			                      		</button>
+			                    		<ul id="dropdownDeviceOwner" class="dropdown-menu dropdown-menu-right"></ul>
+		                  			</div>
+			                	</div>
+			              	</div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                               <input class="icheckbox_flat-blue" id="en_bulk_type" name="en_bulk_type" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_type" name="en_bulk_type" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_type"><?=$pia_lang['DevDetail_MainInfo_Type']?>:</label><br>
-							                <div class="input-group" style="max-width: 400px;">
-							                  <input class="form-control" id="bulk_type" name="bulk_type" type="text" disabled>
-							                  <div class="input-group-btn">
-							                    <button type="button" id="bulk_type_selector" name="bulk_type_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-							                      <span class="fa fa-caret-down"></span></button>
-							                    <ul id="dropdownDeviceType" class="dropdown-menu dropdown-menu-right">
-							                    </ul>
-							                  </div>
-							                </div>
-							              </div>
+				                <label for="bulk_type"><?=$pia_lang['DevDetail_MainInfo_Type']?>:</label><br>
+				                <div class="input-group" style="max-width: 400px;">
+				                	<input class="form-control" id="bulk_type" name="bulk_type" type="text" disabled>
+				                 	<div class="input-group-btn">
+				                   		<button type="button" id="bulk_type_selector" name="bulk_type_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+				                   			<span class="fa fa-caret-down"></span>
+				                   		</button>
+				                   		<ul id="dropdownDeviceType" class="dropdown-menu dropdown-menu-right"></ul>
+									</div>
+				               	</div>
+				            </div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                               <input class="icheckbox_flat-blue" id="en_bulk_group" name="en_bulk_group" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_group" name="en_bulk_group" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_group"><?=$pia_lang['DevDetail_MainInfo_Group']?>:</label><br>
-							                <div class="input-group" style="max-width: 400px;">
-							                  <input class="form-control" id="bulk_group" name="bulk_group" type="text" disabled>
-							                  <div class="input-group-btn">
-							                    <button type="button" id="bulk_group_selector" name="bulk_group_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-							                      <span class="fa fa-caret-down"></span></button>
-							                    <ul id="dropdownGroup" class="dropdown-menu dropdown-menu-right">
-							                    </ul>
-							                  </div>
-							                </div>
-							              </div>
+				                <label for="bulk_group"><?=$pia_lang['DevDetail_MainInfo_Group']?>:</label><br>
+				                <div class="input-group" style="max-width: 400px;">
+				                	<input class="form-control" id="bulk_group" name="bulk_group" type="text" disabled>
+				                 	<div class="input-group-btn">
+				                   		<button type="button" id="bulk_group_selector" name="bulk_group_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+				                   			<span class="fa fa-caret-down"></span>
+				                   		</button>
+				                   		<ul id="dropdownGroup" class="dropdown-menu dropdown-menu-right"></ul>
+									</div>
+				               	</div>
+				            </div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_comments" name="en_bulk_comments" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_comments" name="en_bulk_comments" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-                							<label for="bulk_comments"><?=$pia_lang['DevDetail_MainInfo_Comments']?>:</label><br>
-                							<textarea class="form-control" rows="3" id="bulk_comments" name="bulk_comments" spellcheck="false" data-gramm="false" style="max-width: 400px;" disabled></textarea></td>
-							              </div>
+    							<label for="bulk_comments"><?=$pia_lang['DevDetail_MainInfo_Comments']?>:</label><br>
+    							<textarea class="form-control" rows="3" id="bulk_comments" name="bulk_comments" spellcheck="false" data-gramm="false" style="max-width: 400px;" disabled></textarea></td>
+				            </div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_connectiontype" name="en_bulk_connectiontype" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_connectiontype" name="en_bulk_connectiontype" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_connectiontype"><?=$pia_lang['DevDetail_MainInfo_Network_ConnectType']?>:</label><br>
-							                <div class="input-group" style="max-width: 400px;">
-							                  <input class="form-control" id="bulk_connectiontype" name="bulk_connectiontype" type="text" disabled>
-							                  <div class="input-group-btn">
-							                    <button type="button" id="bulk_connectiontype_selector" name="bulk_connectiontype_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-							                      <span class="fa fa-caret-down"></span></button>
-							                    <ul id="dropdownConType" class="dropdown-menu dropdown-menu-right">
-							                    </ul>
-							                  </div>
-							                </div>
-							              </div>
+				                <label for="bulk_connectiontype"><?=$pia_lang['DevDetail_MainInfo_Network_ConnectType']?>:</label><br>
+				                <div class="input-group" style="max-width: 400px;">
+				                	<input class="form-control" id="bulk_connectiontype" name="bulk_connectiontype" type="text" disabled>
+				                 	<div class="input-group-btn">
+				                    	<button type="button" id="bulk_connectiontype_selector" name="bulk_connectiontype_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+				                    		<span class="fa fa-caret-down"></span>
+				                    	</button>
+				                    	<ul id="dropdownConType" class="dropdown-menu dropdown-menu-right"></ul>
+				                  	</div>
+				                </div>
+				            </div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_linkspeed" name="en_bulk_linkspeed" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_linkspeed" name="en_bulk_linkspeed" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_linkspeed"><?=$pia_lang['DevDetail_MainInfo_Network_LinkSpeed']?>:</label><br>
-							                <div class="input-group" style="max-width: 400px;">
-							                  <input class="form-control" id="bulk_linkspeed" name="bulk_linkspeed" type="text" disabled>
-							                  <div class="input-group-btn">
-							                    <button type="button" id="bulk_linkspeed_selector" name="bulk_linkspeed_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-							                      <span class="fa fa-caret-down"></span></button>
-							                    <ul id="dropdownLinkSpeed" class="dropdown-menu dropdown-menu-right">
-							                    </ul>
-							                  </div>
-							                </div>
-							              </div>
+				                <label for="bulk_linkspeed"><?=$pia_lang['DevDetail_MainInfo_Network_LinkSpeed']?>:</label><br>
+				                <div class="input-group" style="max-width: 400px;">
+				                	<input class="form-control" id="bulk_linkspeed" name="bulk_linkspeed" type="text" disabled>
+				                	<div class="input-group-btn">
+				                		<button type="button" id="bulk_linkspeed_selector" name="bulk_linkspeed_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+				                      		<span class="fa fa-caret-down"></span>
+				                      	</button>
+				                    	<ul id="dropdownLinkSpeed" class="dropdown-menu dropdown-menu-right"></ul>
+				                	</div>
+				                </div>
+				            </div>
                         </div>
-
 
                     </div>
                 </div>
@@ -276,53 +259,43 @@ if ($_REQUEST['mod'] == 'bulkedit') {
                     <div class="db_info_table">
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_AlertAllEvents" name="en_bulk_AlertAllEvents" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_AlertAllEvents" name="en_bulk_AlertAllEvents" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_AlertAllEvents" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertAllEvents']?>:</label>
-							                <input class="icheckbox_flat-blue" id="bulk_AlertAllEvents" name="bulk_AlertAllEvents" type="checkbox" disabled></td>
-							              </div>
+				                <label for="bulk_AlertAllEvents" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertAllEvents']?>:</label>
+				                <input class="icheckbox_flat-blue" id="bulk_AlertAllEvents" name="bulk_AlertAllEvents" type="checkbox" disabled>
+				            </div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_AlertDown" name="en_bulk_AlertDown" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_AlertDown" name="en_bulk_AlertDown" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_AlertDown" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertDown']?>:</label>
-							                <input class="icheckbox_flat-blue" id="bulk_AlertDown" name="bulk_AlertDown" type="checkbox" disabled></td>
-							              </div>
+				                <label for="bulk_AlertDown" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertDown']?>:</label>
+				                <input class="icheckbox_flat-blue" id="bulk_AlertDown" name="bulk_AlertDown" type="checkbox" disabled>
+				            </div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_NewDevice" name="en_bulk_NewDevice" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_NewDevice" name="en_bulk_NewDevice" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_NewDevice" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_NewDevice']?>:</label>
-							                <input class="icheckbox_flat-blue" id="bulk_NewDevice" name="bulk_NewDevice" type="checkbox" disabled></td>
-							              </div>
+				                <label for="bulk_NewDevice" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_NewDevice']?>:</label>
+				                <input class="icheckbox_flat-blue" id="bulk_NewDevice" name="bulk_NewDevice" type="checkbox" disabled>
+				            </div>
                         </div>
 
                         <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_Archived" name="en_bulk_Archived" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_Archived" name="en_bulk_Archived" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_Archived" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_Archived']?>:</label>
-							                <input class="icheckbox_flat-blue" id="bulk_Archived" name="bulk_Archived" type="checkbox" disabled></td>
-							              </div>
+				                <label for="bulk_Archived" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_Archived']?>:</label>
+				                <input class="icheckbox_flat-blue" id="bulk_Archived" name="bulk_Archived" type="checkbox" disabled>
+				            </div>
                         </div>
 
                          <div class="db_info_table_row">
-                            <div class="bulked_table_cell_b">
-                              <input class="icheckbox_flat-blue" id="en_bulk_PresencePage" name="en_bulk_PresencePage" type="checkbox">
-                            </div>
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_PresencePage" name="en_bulk_PresencePage" type="checkbox"></div>
                             <div class="db_tools_table_cell_b">
-							                <label for="bulk_PresencePage" style="width: 240px;"><?=$pia_lang['DevDetail_MainInfo_ShowPresence']?>:</label>
-							                <input class="icheckbox_flat-blue" id="bulk_PresencePage" name="bulk_PresencePage" type="checkbox" disabled></td>
-							              </div>
+				                <label for="bulk_PresencePage" style="width: 240px;"><?=$pia_lang['DevDetail_MainInfo_ShowPresence']?>:</label>
+				                <input class="icheckbox_flat-blue" id="bulk_PresencePage" name="bulk_PresencePage" type="checkbox" disabled>
+				            </div>
                         </div>
 
                     </div>
@@ -332,7 +305,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
         <button type="button" class="btn btn-danger" id="btnBulkDeletion" onclick="askBulkDeletion()" style="min-width: 180px;"><?=$pia_lang['Device_bulkDel_button']?></button>
         <input class="btn btn-warning pull-right" type="submit" value="<?=$pia_lang['Gen_Save']?>" style="margin-bottom: 10px; min-width: 180px;">
 
-<!-- JS to enable/disable inputs. Inputs are delete, when disabled -->
 <script>
     var bulk_owner = true;
     $("#en_bulk_owner").on("click", function() {
@@ -433,14 +405,11 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		}
 		function initializeCombos () {
 		  // Initialize combos with queries
-		  initializeCombo ( $('#dropdownDeviceOwner')[0],           'getOwners',         'bulk_owner');
-		  initializeCombo ( $('#dropdownDeviceType')[0],            'getDeviceTypes',    'bulk_type');
-		  initializeCombo ( $('#dropdownGroup')[0],                 'getGroups',         'bulk_group');
-		  initializeCombo ( $('#dropdownConType')[0],              'getConnectionType',  'bulk_connectiontype');
-		  initializeCombo ( $('#dropdownLinkSpeed')[0],             'getLinkSpeed',      'bulk_linkspeed');
-
-		  // Initialize static combos
-		  // initializeComboSkipRepeated ();
+		  initializeCombo ( $('#dropdownDeviceOwner')[0], 'getOwners',         'bulk_owner');
+		  initializeCombo ( $('#dropdownDeviceType')[0],  'getDeviceTypes',    'bulk_type');
+		  initializeCombo ( $('#dropdownGroup')[0],       'getGroups',         'bulk_group');
+		  initializeCombo ( $('#dropdownConType')[0],     'getConnectionType', 'bulk_connectiontype');
+		  initializeCombo ( $('#dropdownLinkSpeed')[0],   'getLinkSpeed',      'bulk_linkspeed');
 		}
 
 		function initializeCombo (HTMLelement, queryAction, txtDataField) {
@@ -478,36 +447,26 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		    });
 		  });
 		}
-
-		function initializeComboSkipRepeated () {
-		  // find dropdown menu element
-		  HTMLelement = $('#dropdownSkipRepeated')[0];
-		  HTMLelement.innerHTML = ''
-
-		  // for each item
-		  skipRepeatedItems.forEach(function (item, index) {
-		    // add dropdown item
-		    HTMLelement.innerHTML += ' <li><a href="javascript:void(0)" ' +
-		      'onclick="setTextValue(\'txtSkipRepeated\',\'' + item + '\');">'+
-		      item +'</a></li>';
-		  });
-		}
-
 		initializeCombos();
 </script>
 
 <?php
 	print_box_bottom_element();
-
 	print_box_top_element($pia_lang['Device_bulkEditor_hostbox_title']);
 ?>
 <div class="row text-center" style="padding-bottom: 10px;">
 	<div class="col-xs-12">
-		<button type="button" class="btn btn-info" style="margin: 10px 10px" onclick="toggleVisibility('bulked_offline_border')" id="toggleOfflineBtn"><?=$pia_lang['NAV_Devices']?> (<?=$pia_lang['WEBS_Page_down']?>) <?=$pia_lang['Gen_show']?>/<?=$pia_lang['Gen_hide']?></button>
-		<button type="button" class="btn btn-info" style="margin: 10px 10px" onclick="toggleVisibility('bulked_online_border')" id="toggleOnlineBtn"><?=$pia_lang['NAV_Devices']?> (<?=$pia_lang['ICMPMonitor_Shortcut_Online']?>) <?=$pia_lang['Gen_show']?>/<?=$pia_lang['Gen_hide']?></button>
-		<button type="button" class="btn btn-info" style="margin: 10px 10px" onclick="toggleOnlyNewDevices(this)"><?=$pia_lang['Device_Shortcut_NewDevices']?></button>
+		<button type="button" class="btn bg-green" style="margin: 10px 10px; color: #fff !important;" onclick="toggleVisibility('bulked_offline_border')" id="toggleOfflineBtn"><?=$pia_lang['WEBS_Page_down']?>-<?=$pia_lang['NAV_Devices']?> <?=$pia_lang['Gen_show']?>/<?=$pia_lang['Gen_hide']?></button>
+		<button type="button" class="btn bg-gray" style="margin: 10px 10px; color: #fff !important;" onclick="toggleVisibility('bulked_online_border')" id="toggleOnlineBtn"><?=$pia_lang['ICMPMonitor_Shortcut_Online']?>-<?=$pia_lang['NAV_Devices']?> <?=$pia_lang['Gen_show']?>/<?=$pia_lang['Gen_hide']?></button>
+		<button type="button" class="btn bg-yellow" style="margin: 10px 10px; color: #fff !important;" onclick="toggleOnlyNewDevices(this)"><?=$pia_lang['Device_Shortcut_NewDevices']?></button>
 	</div>
-<!-- JavaScript -->
+</div>
+<div class="row" style="padding-bottom: 20px;">
+	<div class="col-12 text-center">
+		<input type="text" class="form-control mx-auto" id="deviceSearch" style="max-width: 400px; margin: 0 auto;" placeholder="<?=$pia_lang['EVE_Searchbox']?>..." oninput="filterDevicesByLabel(this.value)">
+	</div>
+
+
 <script>
 function toggleVisibility(className) {
     const elements = document.querySelectorAll('.' + className);
@@ -519,7 +478,6 @@ function toggleVisibility(className) {
             isCurrentlyVisible = true;
         }
     });
-
     // Sichtbarkeit umschalten
     elements.forEach(el => {
         el.style.display = isCurrentlyVisible ? 'none' : '';
@@ -554,15 +512,6 @@ function toggleOnlyNewDevices(button) {
         button.textContent = "<?=$pia_lang['Device_Shortcut_NewDevices']?>";
     }
 }
-</script>
-</div>
-<div class="row" style="padding-bottom: 20px;">
-	<div class="col-12 text-center">
-		<input type="text" class="form-control mx-auto" id="deviceSearch" style="max-width: 400px; margin: 0 auto;" placeholder="Gerät suchen..." oninput="filterDevicesByLabel(this.value)" />
-	</div>
-
-
-<script>
 function filterDevicesByLabel(searchTerm) {
     const allDevBoxes = document.querySelectorAll('.bulked_dev_box');
     const lowerSearch = searchTerm.trim().toLowerCase();
@@ -581,7 +530,6 @@ function filterDevicesByLabel(searchTerm) {
     });
 }
 </script>
-
 </div>
 
 <?php
@@ -599,31 +547,53 @@ function filterDevicesByLabel(searchTerm) {
              <label class="control-label ' . $status_text_color . ' ' . $underline . '" for="' . $row[1] . '">' . $row[0] . '</label>
           </div>';
 	}
-	// Check/Uncheck All Button
-	echo '<button type="button" class="btn btn-warning pull-right" id="bulked_checkall">' . $pia_lang['Device_bulkEditor_selectall'] . '</button>';
-	echo '<script>
-            var clicked = false;
-            $("#bulked_checkall").on("click", function() {
-              $(".hostselection").prop("checked", !clicked);
-              clicked = !clicked;
-              this.innerHTML = clicked ? \'' . $pia_lang['Device_bulkEditor_selectnone'] . '\' : \'' . $pia_lang['Device_bulkEditor_selectall'] . '\';
-            });
-        </script>';
+?>
+  <div class="row" style="padding-bottom: 20px; padding-top: 10px;">
+      <div class="col-xs-12">
+        <button type="button" class="btn btn-warning pull-right bulked_checkallbtn" id="bulked_checkall"><?=$pia_lang['Device_bulkEditor_selectall']?></button>
+        <button type="button" class="btn btn-warning pull-right bulked_checkallbtn" onclick="toggleVisibleCheckboxes(this)"><?=$pia_lang['Device_bulkEditor_selectvisall']?></button>
+		<script>
+		    var clicked = false;
+		    $("#bulked_checkall").on("click", function() {
+		      $(".hostselection").prop("checked", !clicked);
+		      clicked = !clicked;
+		      this.innerHTML = clicked ? '<?=$pia_lang['Device_bulkEditor_selectnone']?>' : '<?=$pia_lang['Device_bulkEditor_selectall']?>';
+		    });
+
+			function toggleVisibleCheckboxes(buttonElement) {
+			    const visibleCheckboxes = document.querySelectorAll('.bulked_dev_box:not([style*="display: none"]) input[type="checkbox"]');
+
+			    let shouldCheck = false;
+			    for (const checkbox of visibleCheckboxes) {
+			        if (!checkbox.checked) {
+			            shouldCheck = true;
+			            break;
+			        }
+			    }
+
+			    visibleCheckboxes.forEach(cb => cb.checked = shouldCheck);
+			    buttonElement.textContent = shouldCheck ? '<?=$pia_lang['Device_bulkEditor_selectvisnone']?>' : '<?=$pia_lang['Device_bulkEditor_selectvisall']?>';
+			}
+		</script>
+      </div>
+  </div>
+<?php
 	print_box_bottom_element();
+?>
 
-	echo '</form>';
-
-	echo '</section>
+		</form>
+	</section>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->';
 
+<?php
 	require 'php/templates/footer.php';
 // ################### End Bulk-Editor #########################################
 } else {
 // ################### Start Device List #######################################
 	?>
-<!-- Content header--------------------------------------------------------- -->
+<!-- Content header -->
       <h1 id="pageTitle">
            <?php
            echo $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE];
@@ -633,9 +603,9 @@ function filterDevicesByLabel(searchTerm) {
            ?>
       </h1>
     </section>
-<!-- Main content ---------------------------------------------------------- -->
+<!-- Main content -->
     <section class="content">
-<!-- top small boxes ------------------------------------------------------- -->
+<!-- top small boxes -->
       <div class="row">
 <?php
 function header_devices_all($visibility, $header_all, $header_selected) {
@@ -731,7 +701,7 @@ header_devices_arc($header_page_config['devices']['arc'], sizeof($header_page_co
 ?>
 
       </div>
-<!-- Activity Chart ------------------------------------------------------- -->
+<!-- Activity Chart -->
 <?php
 If ($ENABLED_HISTOY_GRAPH !== False) {
 		?>
@@ -770,7 +740,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 
             <!-- box-header -->
             <div class="box-header">
-              <h3 id="tableDevicesTitle" class="box-title text-gray"><?=$pia_lang['NAV_Devices']?></h3>
+            	<h3 id="tableDevicesTitle" class="box-title text-gray"><?=$pia_lang['NAV_Devices']?></h3>
               <?php
               # Create or remove custom filters
               if (!$_REQUEST['predefined_filter']) {
@@ -782,122 +752,124 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
               	echo '<a href="#" class="btn btn-xs btn-link" role="button" onclick="askDeleteDeviceFilter()" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter-circle-xmark text-red" style="font-size:1.5rem"></i></a>';
               	echo '
               	<style>
-									.dataTables_wrapper .dataTables_filter {
-									float: right;
-									text-align: right;
-									visibility: hidden;
-									}
+					.dataTables_wrapper .dataTables_filter {
+					float: right;
+					text-align: right;
+					visibility: hidden;
+					}
               	</style>';
               }
-							echo '<div class="modal fade" id="modal-set-predefined-filter">
-							        <div class="modal-dialog modal-dialog-centered">
-							            <div class="modal-content">
-							                <div class="modal-header">
-							                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-							                    <h4 class="modal-title">'.$pia_lang['Device_predef_table_filter'].'</h4>
-							                </div>
-							                <div class="modal-body main_logviwer_text_layout">
-							                    <div class="main_logviwer_log" style="max-height: 70vh;" id="modal-set-filter-content">
-								                    <div style="height: 150px;">
-								                      <div class="form-group col-xs-12">
-								                        <label class="col-xs-3 control-label">'.$pia_lang['Device_del_table_filtername'].'</label>
-								                        <div class="col-xs-9">
-								                          <input type="text" class="form-control" id="txtFilterName" placeholder="'.$pia_lang['Device_del_table_filtername_help'].'">
-								                        </div>
-								                      </div>
-								                      <div class="form-group col-xs-12">
-								                        <label class="col-xs-3 control-label">'.$pia_lang['Device_del_table_filterstring'].'</label>
-								                        <div class="col-xs-9">
-								                          <input type="text" class="form-control" id="txtFilterString" placeholder="'.$pia_lang['Device_del_table_filterstring_help'].'">
-								                        </div>
-								                      </div>
-								                      <div class="form-group col-xs-12">
-								                        <label class="col-xs-3 control-label">'.$pia_lang['Device_del_table_filtergroup'].'</label>
-								                        <div class="col-xs-9">
-								                          <input type="text" class="form-control" id="txtFilterGroup" placeholder="'.$pia_lang['Device_del_table_filtergroup_help'].'">
-								                        </div>
-								                      </div>
-								                      <div class="form-group col-xs-12">
-								                        <label class="col-xs-12 control-label">'.$pia_lang['Device_del_table_columns'].'</label>
-								                        <div class="col-xs-12" style="display: flex;flex-wrap: wrap;">
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterName" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Name'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterOwner" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Owner'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterGroup" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Group'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterLocation" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Location'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterType" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_Type'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterIP" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_LastIP'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterMac" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_MACaddress'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterVendor" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['DevDetail_MainInfo_Vendor'] .'</label>
-							                            </div>
-							                            <div class="table_settings_col_box" style="width:180px;">
-							                              <input class="checkbox blue" id="chkFilterConnectionType" type="checkbox">
-							                              <label class="control-label" style="margin-left: 5px">' . $pia_lang['Device_TableHead_ConnectionType'] .'</label>
-							                            </div>
-								                        </div>
-								                      </div>
-								                    </div>
-								                    <br>
-							                    </div>
-							                </div>
-					                    <div class="modal-footer">
-					                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">'.$pia_lang['Gen_Close'].'</button>
-					                        <button type="button" class="btn btn-primary" id="btnFilterSave" onclick="SetDeviceFilter()">'.$pia_lang['Gen_Save'].'</button>
-					                    </div>
-									        </div>
-									    </div>
-									 </div>';
               ?>
+            	<!-- Filter Modal -->
+			    <div class="modal fade" id="modal-set-predefined-filter">
+			        <div class="modal-dialog modal-dialog-centered">
+			            <div class="modal-content">
+			                <div class="modal-header">
+			                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+			                    <h4 class="modal-title"><?=$pia_lang['Device_predef_table_filter']?></h4>
+			                </div>
+			                <div class="modal-body main_logviwer_text_layout">
+			                    <div class="main_logviwer_log" style="max-height: 70vh;" id="modal-set-filter-content">
+				                    <div style="height: 150px;">
+				                      <div class="form-group col-xs-12">
+				                        <label class="col-xs-3 control-label"><?=$pia_lang['Device_del_table_filtername']?></label>
+				                        <div class="col-xs-9">
+				                          <input type="text" class="form-control" id="txtFilterName" placeholder="'.$pia_lang['Device_del_table_filtername_help'].'">
+				                        </div>
+				                      </div>
+				                      <div class="form-group col-xs-12">
+				                        <label class="col-xs-3 control-label"><?=$pia_lang['Device_del_table_filterstring']?></label>
+				                        <div class="col-xs-9">
+				                          <input type="text" class="form-control" id="txtFilterString" placeholder="'.$pia_lang['Device_del_table_filterstring_help'].'">
+				                        </div>
+				                      </div>
+				                      <div class="form-group col-xs-12">
+				                        <label class="col-xs-3 control-label"><?=$pia_lang['Device_del_table_filtergroup']?></label>
+				                        <div class="col-xs-9">
+				                          <input type="text" class="form-control" id="txtFilterGroup" placeholder="'.$pia_lang['Device_del_table_filtergroup_help'].'">
+				                        </div>
+				                      </div>
+				                      <div class="form-group col-xs-12">
+				                        <label class="col-xs-12 control-label"><?=$pia_lang['Device_del_table_columns']?></label>
+				                        <div class="col-xs-12" style="display: flex;flex-wrap: wrap;">
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterName" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Name']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterOwner" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Owner']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterGroup" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Group']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterLocation" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Location']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterType" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_Type']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterIP" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_LastIP']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterMac" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_MACaddress']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterVendor" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['DevDetail_MainInfo_Vendor']?></label>
+			                            </div>
+			                            <div class="table_settings_col_box" style="width:180px;">
+			                              <input class="checkbox blue" id="chkFilterConnectionType" type="checkbox">
+			                              <label class="control-label" style="margin-left: 5px"><?=$pia_lang['Device_TableHead_ConnectionType']?></label>
+			                            </div>
+				                        </div>
+				                      </div>
+				                    </div>
+				                    <br>
+			                    </div>
+			                </div>
+		                <div class="modal-footer">
+		                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?=$pia_lang['Gen_Close']?></button>
+		                    <button type="button" class="btn btn-primary" id="btnFilterSave" onclick="SetDeviceFilter()"><?=$pia_lang['Gen_Save']?></button>
+		                </div>
+					        </div>
+					    </div>
+					 </div>
+
             </div>
             <div class="box-body table-responsive">
               <table id="tableDevices" class="table table-bordered table-hover table-striped">
                 <thead>
                 <tr>
 <?php
-									$file = '../config/setting_devicelist';
-										if (file_exists($file)) {
-											$get = file_get_contents($file, true);
-											$table_config = json_decode($get, true);
-										} else {
-											$table_config = array('Favorites' => 1, 'Group' => 1, 'Owner' => 1, 'Type' => 1, 'FirstSession' => 1, 'LastSession' => 1, 'LastIP' => 1, 'MACType' => 1, 'MACAddress' => 0, 'Location' => 0, 'ConnectionType' => 0, 'WakeOnLAN' => 0);
-										}
+$file = '../config/setting_devicelist';
+	if (file_exists($file)) {
+		$get = file_get_contents($file, true);
+		$table_config = json_decode($get, true);
+	} else {
+		$table_config = array('Favorites' => 1, 'Group' => 1, 'Owner' => 1, 'Type' => 1, 'FirstSession' => 1, 'LastSession' => 1, 'LastIP' => 1, 'MACType' => 1, 'MACAddress' => 0, 'Location' => 0, 'ConnectionType' => 0, 'WakeOnLAN' => 0);
+	}
 
-									$devlistcol_hide = '';
-									if ($table_config['ConnectionType'] == 0) {$devlistcol_hide .= '1, ';}
-									if ($table_config['Owner'] == 0) {$devlistcol_hide .= '2, ';}
-									if ($table_config['Type'] == 0) {$devlistcol_hide .= '3, ';}
-									if ($table_config['Favorites'] == 0) {$devlistcol_hide .= '4, ';}
-									if ($table_config['Group'] == 0) {$devlistcol_hide .= '5, ';}
-									if ($table_config['Location'] == 0) {$devlistcol_hide .= '6, ';}
-									if ($table_config['FirstSession'] == 0) {$devlistcol_hide .= '7, ';}
-									if ($table_config['LastSession'] == 0) {$devlistcol_hide .= '8, ';}
-									if ($table_config['LastIP'] == 0) {$devlistcol_hide .= '9, ';}
-									if ($table_config['MACType'] == 0) {$devlistcol_hide .= '10, ';}
-									if ($table_config['MACAddress'] == 0) {$devlistcol_hide .= '11, ';}
-									if ($table_config['MACVendor'] == 0) {$devlistcol_hide .= '12, ';}
-									if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide .= '17, ';}
+$devlistcol_hide = '';
+if ($table_config['ConnectionType'] == 0) {$devlistcol_hide .= '1, ';}
+if ($table_config['Owner'] == 0) {$devlistcol_hide .= '2, ';}
+if ($table_config['Type'] == 0) {$devlistcol_hide .= '3, ';}
+if ($table_config['Favorites'] == 0) {$devlistcol_hide .= '4, ';}
+if ($table_config['Group'] == 0) {$devlistcol_hide .= '5, ';}
+if ($table_config['Location'] == 0) {$devlistcol_hide .= '6, ';}
+if ($table_config['FirstSession'] == 0) {$devlistcol_hide .= '7, ';}
+if ($table_config['LastSession'] == 0) {$devlistcol_hide .= '8, ';}
+if ($table_config['LastIP'] == 0) {$devlistcol_hide .= '9, ';}
+if ($table_config['MACType'] == 0) {$devlistcol_hide .= '10, ';}
+if ($table_config['MACAddress'] == 0) {$devlistcol_hide .= '11, ';}
+if ($table_config['MACVendor'] == 0) {$devlistcol_hide .= '12, ';}
+if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide .= '17, ';}
 ?>
                   <th><?=$pia_lang['Device_TableHead_Name'];?></th> 
                   <th><?=$pia_lang['Device_TableHead_ConnectionType'];?></th>
