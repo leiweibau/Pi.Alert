@@ -1,12 +1,4 @@
 <?php
-//------------------------------------------------------------------------------
-//  Pi.Alert
-//  Open Source Network Guard / WIFI & LAN intrusion detector
-//
-//  icmpmonitor.php - Front module. Ping polling
-//------------------------------------------------------------------------------
-//  leiweibau  2024+        https://github.com/leiweibau     GNU GPLv3
-//------------------------------------------------------------------------------
 session_start();
 error_reporting(0);
 

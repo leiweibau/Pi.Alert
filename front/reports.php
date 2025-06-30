@@ -1,12 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  reports.php - Front module. WebGUI Notification page
-#-------------------------------------------------------------------------------
-#  leiweibau 2024+                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 error_reporting(0);

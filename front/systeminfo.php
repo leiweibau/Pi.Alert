@@ -1,12 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  systeminfo.php - Front module. SystemInfo page
-#-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 

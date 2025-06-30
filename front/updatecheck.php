@@ -1,12 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  updatecheck.php - Front module. network relationship
-#-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 error_reporting(0);

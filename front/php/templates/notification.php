@@ -1,13 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector 
-#
-#  notificacion.php - Front module. Common notification & modal window
-#-------------------------------------------------------------------------------
-#  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
-
 <!-- Modal Default -->
 <div class="modal fade" id="modal-default" style="display: none;">
   <div class="modal-dialog">
