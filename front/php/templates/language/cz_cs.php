@@ -300,6 +300,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Umístění';
 $pia_lang['WEBS_Stats_IP'] = 'Aktuální IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Země původu';
 $pia_lang['WEBS_Stats_comment_a'] = '(Vypočteno ze všech skenů této služby)';
+$pia_lang['WEBS_label_AlertUp'] = 'Aktivní';
+$pia_lang['WEBS_EVE_up'] = 'Aktivní';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'Webová služba byla aktualizována';

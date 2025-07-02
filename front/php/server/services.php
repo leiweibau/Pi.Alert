@@ -294,6 +294,7 @@ function setServiceData() {
                  mon_Tags           = "' . quotes($_REQUEST['tags']) . '",
                  mon_MAC            = "' . quotes($_REQUEST['mac']) . '",
                  mon_AlertDown      = "' . quotes($_REQUEST['alertdown']) . '",
+                 mon_AlertUp        = "' . quotes($_REQUEST['alertup']) . '",
                  mon_AlertEvents    = "' . quotes($_REQUEST['alertevents']) . '"
           WHERE mon_URL="' . $_REQUEST['url'] . '"';
 	// update Data

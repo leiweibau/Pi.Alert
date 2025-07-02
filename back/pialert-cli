@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.34'
+SCRIPTVERSION='v1.35'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -739,6 +739,24 @@ EOM
     else
       echo "        Column 'icmp_serial' already exists in the 'ICMP_Mon' table."
     fi
+    # Services.mon_AlertUp
+    echo -e "...Insert new column 'mon_AlertUp' to table 'Services' to DB"
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Services');" | awk -F\| '{print $2}' | grep -wci "mon_AlertUp")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Services' ADD COLUMN 'mon_AlertUp' INTEGER DEFAULT 0;"
+    else
+      echo "        Column 'mon_AlertUp' already exists in the 'Services' table."
+    fi
+    # Services_CurrentScan.cur_AlertUp
+    echo -e "...Insert new column 'cur_AlertUp' to table 'Services_CurrentScan' to DB"
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Services_CurrentScan');" | awk -F\| '{print $2}' | grep -wci "cur_AlertUp")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Services_CurrentScan' ADD COLUMN 'cur_AlertUp' INTEGER DEFAULT 0;"
+    else
+      echo "        Column 'cur_AlertUp' already exists in the 'Services_CurrentScan' table."
+    fi
+
+
 
 
     echo -e "\nUpdate finished!\n"

@@ -300,6 +300,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Placering';
 $pia_lang['WEBS_Stats_IP'] = 'Aktuel IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Lokalitet';
 $pia_lang['WEBS_Stats_comment_a'] = '(Beregnet ud fra alle scanninger af denne service)';
+$pia_lang['WEBS_label_AlertUp'] = 'Aktiv';
+$pia_lang['WEBS_EVE_up'] = 'Aktiv';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'Webtjenesten blev opdateret';

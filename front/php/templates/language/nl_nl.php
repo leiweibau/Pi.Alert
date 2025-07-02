@@ -300,6 +300,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Locatie';
 $pia_lang['WEBS_Stats_IP'] = 'Huidig IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Landtoewijzing';
 $pia_lang['WEBS_Stats_comment_a'] = '(Berekend uit alle scans van deze service)';
+$pia_lang['WEBS_label_AlertUp'] = 'Actief';
+$pia_lang['WEBS_EVE_up'] = 'Actief';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'De webservice is bijgewerkt';

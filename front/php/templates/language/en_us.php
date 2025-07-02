@@ -301,6 +301,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Location';
 $pia_lang['WEBS_Stats_IP'] = 'Current IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Country Mapping';
 $pia_lang['WEBS_Stats_comment_a'] = '(Calculated from all scans of this service.)';
+$pia_lang['WEBS_label_AlertUp'] = 'Up';
+$pia_lang['WEBS_EVE_up'] = 'Up';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'The web service was updated';

@@ -303,6 +303,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Posizione';
 $pia_lang['WEBS_Stats_IP'] = 'IP attuale';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Assegnazione del paese';
 $pia_lang['WEBS_Stats_comment_a'] = '(Calcolato da tutti gli scansione di questo servizio)';
+$pia_lang['WEBS_label_AlertUp'] = 'Attivo';
+$pia_lang['WEBS_EVE_up'] = 'Attivo';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'Il servizio web è stato aggiornato';

@@ -300,6 +300,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Lokalizacja';
 $pia_lang['WEBS_Stats_IP'] = 'Aktualny IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Kraj pochodzenia';
 $pia_lang['WEBS_Stats_comment_a'] = '(Obliczono na podstawie wszystkich skanów tej usługi)';
+$pia_lang['WEBS_label_AlertUp'] = 'Aktywny';
+$pia_lang['WEBS_EVE_up'] = 'Aktywny';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'Usługa sieciowa została zaktualizowana';
