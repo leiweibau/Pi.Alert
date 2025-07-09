@@ -261,6 +261,7 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Výsledek předchozího skenu Nma
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Automatický test rychlosti začne v ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' a v ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' hodin';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' bude přidáno na seznam ignorovaných. Zjištěné zařízení zůstane v databázi a bude v budoucnu označeno jako OFFLINE. Pokud bude zařízení odstraněno, záznam v seznamu ignorovaných zůstane, aby se zabránilo jeho opětovnému přidání.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Webové služby';
@@ -540,6 +541,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Upravit položku rozbalovací nabídky';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Předdefinované položky budou změněny na všech zařízeních, ale zůstanou v nabídce. Vlastní položky budou nahrazeny novou položkou.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozšířené logy';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Tímto lze přepínat mezi jednoduchými a rozšířenými logy. Rozšířené logy by měly být aktivovány pouze při chybách, protože dodatečné výstupy mohou narušit přehlednost.';
+$pia_lang['MT_del_ignore_noti_text'] = ' bude odstraněno ze seznamu ignorovaných. V důsledku toho může dojít k opětovnému rozpoznání zařízení odpovídajících odstraněnému záznamu.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Všechny moduly skenování a importy jsou deaktivovány';

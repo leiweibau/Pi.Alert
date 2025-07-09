@@ -147,12 +147,6 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                     <h4 class="bottom-border-aqua"><?=$pia_lang['DevDetail_MainInfo_Title'];?></h4>
                     <div class="box-body form-horizontal">
 
-                      <!-- MAC -->
-<!--                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtMAC_old" type="text" readonly value="--"></div>
-                      </div> -->
-
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
                         <div class="col-sm-8">
@@ -313,11 +307,6 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                       </div>
 
                       <!-- Last IP -->
-<!--                       <div class="form-group">
-                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?></label>
-                        <div class="col-sm-7"><input class="form-control" id="txtLastIP" type="text" readonly value="--"></div>
-                      </div> -->
-
                       <div class="form-group">
                         <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?></label>
                         <div class="col-sm-7">
@@ -1834,8 +1823,13 @@ function generateIPDropdownList() {
 
 function askBlockDeviceMAC(macStep) {
   window.selectedMACStep = macStep;
-  showModalWarning('Block Device MAC', 'demo '+ macStep,
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'BlockDeviceMAC');
+  showModalWarning(
+    '<?=$pia_lang['MT_Tool_ignorelist']?> MAC',
+    macStep + '<?=$pia_lang['DevDetail_add_ignore_noti_text']?>',
+    '<?=$pia_lang['Gen_Cancel'];?>',
+    '<?=$pia_lang['Gen_Okay'];?>',
+    'BlockDeviceMAC'
+    );
 }
 function BlockDeviceMAC() {
   if (!window.selectedMACStep) return;
@@ -1846,8 +1840,13 @@ function BlockDeviceMAC() {
 
 function askBlockDeviceIP(ipStep) {
   window.selectedipStep = ipStep;
-  showModalWarning('Block Device IP', 'demo '+ ipStep,
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'BlockDeviceIP');
+  showModalWarning(
+    '<?=$pia_lang['MT_Tool_ignorelist']?> IP',
+    ipStep + '<?=$pia_lang['DevDetail_add_ignore_noti_text']?>',
+    '<?=$pia_lang['Gen_Cancel'];?>',
+    '<?=$pia_lang['Gen_Okay'];?>',
+    'BlockDeviceIP')
+  ;
 }
 function BlockDeviceIP() {
   if (!window.selectedipStep) return;

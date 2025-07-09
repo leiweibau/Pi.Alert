@@ -265,6 +265,7 @@ $pia_lang['BackDevDetail_Tools_WOL_error'] = 'The command was not executed';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'La prueba de velocidad automática comienza a las ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' y ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' horas';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' se añadirá a la lista de ignorados. El dispositivo detectado permanecerá en la base de datos y se marcará como OFFLINE en el futuro. Si se elimina el dispositivo, la entrada permanecerá en la lista para evitar que se vuelva a añadir.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Servicios web';
@@ -544,6 +545,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Editar entrada del menú desplegable';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Las entradas codificadas se actualizarán en cada dispositivo, pero se mantendrán en el menú desplegable. Las entradas personalizadas se sustituirán por la nueva entrada.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Registros ampliados';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Esto permite alternar entre registros simples y ampliados. Los registros ampliados deben activarse solo en caso de errores, ya que la información adicional puede dificultar la visión general.';
+$pia_lang['MT_del_ignore_noti_text'] = ' se eliminará de la lista de ignorados. Como resultado, es posible que se detecten nuevamente dispositivos que coincidan con la entrada eliminada.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';

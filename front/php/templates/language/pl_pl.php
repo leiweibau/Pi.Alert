@@ -261,6 +261,8 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Wynik poprzedniego skanowania Nma
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Automatyczny test prędkości uruchamia się o ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' i o ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' godzinie';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' zostanie dodane do listy ignorowanych. Wykryte urządzenie pozostanie w bazie danych i w przyszłości będzie oznaczone jako OFFLINE. Jeśli urządzenie zostanie usunięte, wpis w liście ignorowanych pozostanie, aby zapobiec ponownemu dodaniu.';
+
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Usługi WWW';
@@ -540,6 +542,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Edytuj wpis z menu';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Wpisy zakodowane na stałe zostaną zmienione na wszystkich urządzeniach, ale pozostaną w menu. Indywidualne wpisy zostaną zastąpione nowym wpisem.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozszerzone logi';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Pozwala przełączać się między prostymi a rozszerzonymi logami. Rozszerzone logi powinny być włączane tylko w przypadku błędów, ponieważ dodatkowe dane mogą utrudnić czytelność.';
+$pia_lang['MT_del_ignore_noti_text'] = ' zostanie usunięte z listy ignorowanych. W rezultacie mogą zostać ponownie wykryte urządzenia pasujące do usuniętego wpisu.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Wszystkie moduły skanowania i importy są wyłączone';

@@ -262,6 +262,7 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Result of the previous Nmap Scan'
 $pia_lang['DevDetail_Speedtest_note_a'] = 'The automatic speed test starts at ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' and ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' o&apos;clock';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' will be added to the ignore list. The detected device itself will remain in the database and will be marked as OFFLINE in the future. If the device is deleted, the entry in the ignore list will remain to prevent re-adding it.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Web Services';
@@ -541,6 +542,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Edit dropdown entry';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hard-coded entries will be changed on each device, but the entry itself will remain in the dropdown menu. Custom entries will be replaced in the dropdown menu by the new entry.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Extended logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Use this to switch between simple and extended logs. Extended logs should only be enabled in case of errors, as the additional output may reduce clarity.';
+$pia_lang['MT_del_ignore_noti_text'] = ' will be removed from the ignore list. As a result, devices matching the entry to be removed may be detected again.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';

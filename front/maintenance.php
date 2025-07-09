@@ -72,7 +72,7 @@ function add_action_ipignore($func_ipignorelist, $placeholder_text) {
 }
 
 $MAC_IGNORE_LIST = add_action_macignore(get_config_parmeter('MAC_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
-$IP_IGNORE_LIST = add_action_macignore(get_config_parmeter('IP_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+$IP_IGNORE_LIST = add_action_ipignore(get_config_parmeter('IP_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
 $NAME_IGNORE_LIST = parse_ignore_list(get_config_parmeter('HOSTNAME_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
 
 // Get Notification Settings --------------------------------------------------
@@ -1029,7 +1029,7 @@ function ToggleExtLogging() {
 // Remove Mac Ignorelist
 function askDeleteBlockDeviceMAC(macStep) {
   window.selectedMACStep = macStep;
-  showModalWarning('Remove Ignored MAC', 'demo '+ macStep,
+  showModalWarning('<?=$pia_lang['MT_Tool_ignorelist']?> MAC', macStep + '<?=$pia_lang['MT_del_ignore_noti_text']?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'DeleteBlockDeviceMAC');
 }
 function DeleteBlockDeviceMAC() {
@@ -1040,7 +1040,7 @@ function DeleteBlockDeviceMAC() {
 // Remove IP Ignorelist
 function askDeleteBlockDeviceIP(ipStep) {
   window.selectedIPStep = ipStep;
-  showModalWarning('Remove Ignored IP', 'demo '+ ipStep,
+  showModalWarning('<?=$pia_lang['MT_Tool_ignorelist']?> IP', ipStep + '<?=$pia_lang['MT_del_ignore_noti_text']?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'DeleteBlockDeviceIP');
 }
 function DeleteBlockDeviceIP() {

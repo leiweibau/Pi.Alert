@@ -262,6 +262,7 @@ $pia_lang['DevDetail_Speedtest_note_c'] = ' heures';
 $pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Résultat du dernier Scan Nmap';
 $pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Résultat du Scan Nmap actuel';
 $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Résultat du Scan Nmap précédent';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' sera ajouté à la liste d&apos;ignorés. Le périphérique détecté restera dans la base de données et sera marqué comme OFFLINE à l&apos;avenir. Si le périphérique est supprimé, l&apos;entrée restera dans la liste d&apos;ignorés pour éviter qu&apos;il ne soit à nouveau ajouté.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Web Services';
@@ -541,6 +542,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifier l&apos;entrée du menu déroulant
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifiées sur chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées seront remplacées par la nouvelle entrée.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Journaux étendus';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Permet de basculer entre les journaux simples et étendus. Les journaux étendus ne doivent être activés qu&apos;en cas d&apos;erreur, car les informations supplémentaires peuvent nuire à la lisibilité.';
+$pia_lang['MT_del_ignore_noti_text'] = ' sera supprimé de la liste d&apos;ignorés. Par conséquent, des appareils correspondant à cette entrée pourraient à nouveau être détectés.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';

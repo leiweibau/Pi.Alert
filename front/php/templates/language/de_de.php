@@ -262,6 +262,7 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Ergebnis des vorherigen Nmap Scan
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Der automatische Speedtest startet ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' und ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' Uhr';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' wird zur Ignorierliste hinzugefügt. Das erkannte Gerät selbst bleibt weiterhin in der Datenbank erhalten und wird in Zukunft als OFFLINE markiert. Wenn das Gerät gelöscht wird, bleibt der Eintrag in der Ignorierliste bestehen, um ein erneutes Hinzufügen zu verhindern.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Web Services';
@@ -541,6 +542,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Dropdown-Eintrag bearbeiten';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Fest-codierte Einträge werden bei jedem Device geändert, jedoch bleibt der Eintrag selbst in dem Dropdown-Menü erhalten. Individuelle Einträge werden im Dropdown-Menü durch den neuen Eintrag ersetzt.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Erweiterte Logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermit kann zwischen einfachen und erweiterten Logs ungeschaltet werden. Die erweiterten Logs sollten nur im Fehlerfall aktiviert werden, da durch die zusätzlichen Ausgaben die Übersicht verloren geht.';
+$pia_lang['MT_del_ignore_noti_text'] = ' wird von der Ignorierliste entfernt. Infolgedessen, kann es zur erneuten Erkennung von Geräten kommen, die mit dem zu entfernenden Eintrag übereinstimmen.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';
@@ -643,6 +645,16 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Eintrag/Einträge geleert';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Eintrag/Einträge aktualisiert';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Spalteninhalt erfolgreich gelöscht';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Spalte aktualisiert';
+
+
+$pia_lang['BE_Dev_Ignore_a'] = 'Fehler: Kein IP-Wert übergeben.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Fehler: Leerer IP-Wert.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Fehler: IP_IGNORE_LIST nicht gefunden.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP erfolgreich entfernt.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP erfolgreich hinzugefügt.';
+
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netzwerkübersicht';

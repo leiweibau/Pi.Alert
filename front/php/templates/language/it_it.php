@@ -264,6 +264,7 @@ $pia_lang['DevDetail_Speedtest_note_c'] = '';
 $pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Risultato dell&apos;ultimo Scansione Nmap';
 $pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Risultato della Scansione Nmap attuale';
 $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Risultato della Scansione Nmap precedente';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' verrà aggiunto alla lista degli ignorati. Il dispositivo rilevato resterà nel database e sarà contrassegnato come OFFLINE in futuro. Se il dispositivo viene eliminato, la voce rimarrà nella lista per impedirne una nuova aggiunta.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Servizi Web';
@@ -543,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifica voce del menu a discesa';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Le voci codificate verranno aggiornate su ogni dispositivo ma rimarranno nel menu. Le voci personalizzate verranno sostituite dalla nuova voce.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Log estesi';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Consente di passare tra log semplici ed estesi. I log estesi dovrebbero essere attivati solo in caso di errore, poiché le informazioni aggiuntive possono compromettere la chiarezza.';
+$pia_lang['MT_del_ignore_noti_text'] = ' verrà rimosso dalla lista degli ignorati. Di conseguenza, i dispositivi corrispondenti alla voce rimossa potrebbero essere rilevati nuovamente.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tutti i moduli di scansione e le importazioni disattivati';

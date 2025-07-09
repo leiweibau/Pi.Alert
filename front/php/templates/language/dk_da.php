@@ -261,6 +261,7 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Resultat af forrige Nmap-scanning
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Den automatiske hastighedstest starter kl. ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' og kl. ';
 $pia_lang['DevDetail_Speedtest_note_c'] = '';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' føjes til ignoreringslisten. Den registrerede enhed forbliver i databasen og vil fremover blive markeret som OFFLINE. Hvis enheden slettes, forbliver posten på ignoreringslisten for at forhindre, at den tilføjes igen.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Webtjenester';
@@ -540,6 +541,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Rediger dropdown-post';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardkodede poster ændres på alle enheder, men bliver i menuen. Individuelle poster erstattes med den nye post.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Udvidede logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Brug denne mulighed til at skifte mellem simple og udvidede logs. Udvidede logs bør kun aktiveres ved fejl, da de ekstra oplysninger kan skabe forvirring.';
+$pia_lang['MT_del_ignore_noti_text'] = ' fjernes fra ignoreringslisten. Som følge heraf kan enheder, der matcher den fjernede post, blive genkendt igen.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanningsmoduler og importer er deaktiveret';
