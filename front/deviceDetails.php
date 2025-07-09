@@ -148,29 +148,37 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                     <div class="box-body form-horizontal">
 
                       <!-- MAC -->
+<!--                       <div class="form-group">
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
+                        <div class="col-sm-8"><input class="form-control" id="txtMAC_old" type="text" readonly value="--"></div>
+                      </div> -->
+
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtMAC" type="text" readonly value="--"></div>
+                        <div class="col-sm-8">
+                          <div class="input-group">
+                            <div class="input-group-btn">
+                              <button type="button" class="btn btn-danger dropdown-toggle" id="txthideMAC" data-toggle="dropdown" aria-expanded="false">
+                                <span class="fa fa-ban"></span></button>
+                              <ul class="dropdown-menu"></ul>
+                            </div>
+                            <input type="text" id="txtMAC" class="form-control" readonly value="--">
+                          </div>
+                        </div>
                       </div>
 
                       <!-- Name -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_Name'];?></label>
                         <div class="col-sm-8">
-                          <!-- <input class="form-control" id="txtName" type="text" value="--"> -->
-
-
                           <div class="input-group">
                             <input class="form-control" id="txtName" type="text" value="--">
-
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-danger" onclick="emptytxtfield('txtName')">
                                 <span class="fa fa-trash"></span>
                               </button>
                             </div>
                           </div>
-
-
                         </div>
                       </div>
 
@@ -305,9 +313,23 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                       </div>
 
                       <!-- Last IP -->
-                      <div class="form-group">
+<!--                       <div class="form-group">
                         <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?></label>
                         <div class="col-sm-7"><input class="form-control" id="txtLastIP" type="text" readonly value="--"></div>
+                      </div> -->
+
+                      <div class="form-group">
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?></label>
+                        <div class="col-sm-7">
+                          <div class="input-group">
+                            <div class="input-group-btn">
+                              <button type="button" class="btn btn-danger dropdown-toggle" id="txthideIP" data-toggle="dropdown" aria-expanded="false">
+                                <span class="fa fa-ban"></span></button>
+                              <ul class="dropdown-menu"></ul>
+                            </div>
+                            <input type="text" id="txtLastIP" class="form-control" readonly value="--">
+                          </div>
+                        </div>
                       </div>
 
                       <!-- Static IP -->
@@ -1392,6 +1414,8 @@ function getDeviceData (readAllData=false) {
 
         deactivateSaveRestoreData ();
         initToolsSection();
+        generateMACDropdownList();
+        generateIPDropdownList();
 
         if (deviceData['dev_ScanSource'] !== 'local') {
             var navbarBackButton = $('#navbar-back-button');
@@ -1727,4 +1751,109 @@ setTimeout(function(){
    showmanualnmapscan(document.getElementById('txtLastIP').value);
 }, 1000);
 }
+
+function generateMACDropdownList() {
+  const macInput = document.getElementById('txtMAC');
+  const dropdownMenu = document.querySelector('#txthideMAC + .dropdown-menu');
+
+  if (!macInput || !dropdownMenu) return;
+
+  const macValue = macInput.value.trim();
+  const macParts = macValue.split(':');
+
+  if (macParts.length !== 6) {
+    console.warn('Ungültige MAC-Adresse:', macValue);
+    return;
+  }
+
+  // Liste erzeugen: "xx", "xx:xx", ..., "xx:xx:xx:xx:xx:xx"
+  const macSteps = [];
+  for (let i = 1; i <= macParts.length; i++) {
+    macSteps.push(macParts.slice(0, i).join(':'));
+  }
+
+  // Dropdown leeren
+  dropdownMenu.innerHTML = '';
+
+  // Neue <li>-Einträge einfügen
+  macSteps.forEach(step => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#';
+    a.textContent = step;
+
+    a.onclick = function(e) {
+      e.preventDefault();
+      askBlockDeviceMAC(step);
+    };
+
+    li.appendChild(a);
+    dropdownMenu.appendChild(li);
+  });
+}
+
+function generateIPDropdownList() {
+  const ipInput = document.getElementById('txtLastIP');
+  const dropdownMenu = document.querySelector('#txthideIP + .dropdown-menu');
+
+  if (!ipInput || !dropdownMenu) return;
+
+  const ipValue = ipInput.value.trim();
+  const ipParts = ipValue.split('.');
+
+  if (ipParts.length !== 4) {
+    console.warn('Ungültige IP-Adresse:', ipValue);
+    return;
+  }
+
+  // Liste erzeugen: "xxx", "xxx.xxx", ..., "xxx.xxx.xxx.xxx"
+  const ipSteps = [];
+  for (let i = 1; i <= ipParts.length; i++) {
+    ipSteps.push(ipParts.slice(0, i).join('.'));
+  }
+
+  // Dropdown leeren
+  dropdownMenu.innerHTML = '';
+
+  // Neue <li>-Einträge einfügen
+  ipSteps.forEach(step => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#';
+    a.textContent = step;
+
+    a.onclick = function(e) {
+      e.preventDefault();
+      askBlockDeviceIP(step);
+    };
+
+    li.appendChild(a);
+    dropdownMenu.appendChild(li);
+  });
+}
+
+function askBlockDeviceMAC(macStep) {
+  window.selectedMACStep = macStep;
+  showModalWarning('Block Device MAC', 'demo '+ macStep,
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'BlockDeviceMAC');
+}
+function BlockDeviceMAC() {
+  if (!window.selectedMACStep) return;
+  macStep = window.selectedMACStep;
+  $.get('php/server/files.php?action=BlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
+  delete window.selectedMACStep;
+}
+
+function askBlockDeviceIP(ipStep) {
+  window.selectedipStep = ipStep;
+  showModalWarning('Block Device IP', 'demo '+ ipStep,
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'BlockDeviceIP');
+}
+function BlockDeviceIP() {
+  if (!window.selectedipStep) return;
+  ipStep = window.selectedipStep;
+  $.get('php/server/files.php?action=BlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
+  delete window.selectedipStep;
+}
+
 </script>

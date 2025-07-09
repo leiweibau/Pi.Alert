@@ -56,7 +56,7 @@ if ($Pia_Password == hash('sha256', $_POST["loginpassword"])) {
 }
 
 // active Session or valid cookie (cookie not extends)
-if (($_SESSION["login"] == 1) || ($Pia_Password == $_COOKIE["PiAlert_SaveLogin"])) {
+if (($_SESSION["login"] == 1) || ($Pia_Password === $_COOKIE["PiAlert_SaveLogin"])) {
 	if ($_SESSION["login"] != 1) {
 		pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9004', '', '');
 	}

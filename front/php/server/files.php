@@ -90,9 +90,270 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'ToggleExtLogging':ToggleExtLogging();
 		break;
+	case 'BlockDeviceMAC':BlockDeviceMAC();
+		break;
+	case 'DeleteBlockDeviceMAC':DeleteBlockDeviceMAC();
+		break;
+	case 'BlockDeviceIP':BlockDeviceIP();
+		break;
+	case 'DeleteBlockDeviceIP':DeleteBlockDeviceIP();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function DeleteBlockDeviceIP() {
+	global $pia_lang;
+    $configfile = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['ip'])) {
+        echo 'Fehler: Kein IP-Wert übergeben.';
+        return;
+    }
+
+    $removeIP = trim($_REQUEST['ip']);
+
+    if ($removeIP === '') {
+        echo 'Fehler: Leerer IP-Wert.';
+        return;
+    }
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    if (!preg_match('/^(\s*IP_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo 'Fehler: IP_IGNORE_LIST nicht gefunden.';
+        return;
+    }
+
+    $ipListRaw = $matches[3];
+    $ipArray = array_filter(array_map(function($item) {
+        return trim(str_replace("'", '', $item));
+    }, explode(',', $ipListRaw)));
+
+    $updatedArray = array_filter($ipArray, function($ip) use ($removeIP) {
+        return $ip !== $removeIP;
+    });
+
+    $newListLine = $matches[1] . $matches[2] .
+        (empty($updatedArray) ? '[]' : "['" . implode("','", $updatedArray) . "']");
+
+    $newConfigContent = preg_replace(
+        '/^\s*IP_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    if (!is_writable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo 'IP erfolgreich entfernt.';
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
+}
+
+
+function BlockDeviceIP() {
+	global $pia_lang;
+    $configfile = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['ip'])) {
+        echo 'Fehler: Kein IP-Wert übergeben.';
+        return;
+    }
+
+    $newIP = trim($_REQUEST['ip']);
+
+    if ($newIP === '') {
+        echo 'Fehler: Leerer IP-Wert.';
+        return;
+    }
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    if (!preg_match('/^(\s*IP_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo 'Fehler: IP_IGNORE_LIST nicht gefunden.';
+        return;
+    }
+
+    $ipListRaw = $matches[3];
+    $ipArray = array_filter(array_map(function($item) {
+        return trim(str_replace("'", '', $item));
+    }, explode(',', $ipListRaw)));
+
+    if (!in_array($newIP, $ipArray)) {
+        $ipArray[] = $newIP;
+    }
+
+    $newListLine = $matches[1] . $matches[2] . "['" . implode("','", $ipArray) . "']";
+
+    $newConfigContent = preg_replace(
+        '/^\s*IP_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    if (!is_writable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo 'IP erfolgreich hinzugefügt.';
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
+}
+
+
+function DeleteBlockDeviceMAC() {
+	global $pia_lang;
+    $configfile = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['mac'])) {
+        echo 'Fehler: Kein MAC-Wert übergeben.';
+        return;
+    }
+
+    $removeMac = strtolower(trim($_REQUEST['mac']));
+
+    // if (!preg_match('/^([0-9a-f]{2}:){1,5}[0-9a-f]{2}$/', $removeMac)) {
+    //     echo 'Fehler: Ungültiges MAC-Format.';
+    //     return;
+    // }
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    // Zeile mit MAC_IGNORE_LIST extrahieren
+    if (!preg_match('/^(\s*MAC_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo 'Fehler: MAC_IGNORE_LIST nicht gefunden.';
+        return;
+    }
+
+    $macListRaw = $matches[3]; // Inhalt zwischen den Klammern
+
+    // Liste bereinigen und als Array aufbereiten
+    $macArray = array_filter(array_map(function($item) {
+        return strtolower(trim(str_replace("'", '', $item)));
+    }, explode(',', $macListRaw)));
+
+    // MAC entfernen, wenn vorhanden
+    $updatedArray = array_filter($macArray, function($mac) use ($removeMac) {
+        return $mac !== $removeMac;
+    });
+
+    // Neue Zeile erzeugen
+    $newListLine = $matches[1] . $matches[2] .
+        (empty($updatedArray) ? '[]' : "['" . implode("','", $updatedArray) . "']");
+
+    // Alte Zeile ersetzen
+    $newConfigContent = preg_replace(
+        '/^\s*MAC_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    // Datei schreiben
+    if (!is_writable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo 'MAC erfolgreich entfernt.';
+
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
+}
+
+
+
+function BlockDeviceMAC() {
+	global $pia_lang;
+	$laststate = '../../../config/pialert-prev.bak';
+	$configfile = '../../../config/pialert.conf';
+
+	copy($configfile, $laststate);
+
+    if (!isset($_REQUEST['mac'])) {
+        echo 'Fehler: Kein MAC-Wert übergeben.';
+        return;
+    }
+
+    $newMac = strtolower(trim($_REQUEST['mac']));
+
+    // if (!preg_match('/^([0-9a-f]{2}:){1,5}[0-9a-f]{2}$/', $newMac)) {
+    //     echo 'Fehler: Ungültiges MAC-Format.';
+    //     return;
+    // }
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    // Original-Zeile parsen: Key, Gleichheitszeichen mit Leerzeichen, Inhalt
+    if (!preg_match('/^(\s*MAC_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo 'Fehler: MAC_IGNORE_LIST nicht gefunden.';
+        return;
+    }
+
+    $macListRaw = $matches[3]; // Inhalt zwischen den Klammern
+
+    // In Array umwandeln
+    $macArray = array_filter(array_map(function($item) {
+        return strtolower(trim(str_replace("'", '', $item)));
+    }, explode(',', $macListRaw)));
+
+    // Neuen MAC hinzufügen, falls nicht vorhanden
+    if (!in_array($newMac, $macArray)) {
+        $macArray[] = $newMac;
+    }
+
+    // Neue MAC_IGNORE_LIST-Zeile im ursprünglichen Format bauen
+    $newListLine = $matches[1] . $matches[2] . "['" . implode("','", $macArray) . "']";
+
+    // Ersetzen der alten Zeile im Dateitext
+    $newConfigContent = preg_replace(
+        '/^\s*MAC_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    // Schreiben in Datei
+    if (!is_writable($configfile)) {
+        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo 'MAC erfolgreich hinzugefügt.';
+
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	//echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php#'>";
 }
 
 function GetAutoBackupStatus() {
