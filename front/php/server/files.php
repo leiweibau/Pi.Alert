@@ -108,26 +108,26 @@ function DeleteBlockDeviceIP() {
     $configfile = '../../../config/pialert.conf';
 
     if (!isset($_REQUEST['ip'])) {
-        echo 'Fehler: Kein IP-Wert übergeben.';
+        echo $pia_lang['BE_Dev_Ignore_a'];
         return;
     }
 
     $removeIP = trim($_REQUEST['ip']);
 
     if ($removeIP === '') {
-        echo 'Fehler: Leerer IP-Wert.';
+        echo $pia_lang['BE_Dev_Ignore_b'];
         return;
     }
 
     if (!file_exists($configfile) || !is_readable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        echo $pia_lang['BE_Dev_Ignore_c'];
         return;
     }
 
     $configContent = file_get_contents($configfile);
 
     if (!preg_match('/^(\s*IP_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
-        echo 'Fehler: IP_IGNORE_LIST nicht gefunden.';
+        echo $pia_lang['BE_Dev_Ignore_d'];
         return;
     }
 
@@ -150,12 +150,12 @@ function DeleteBlockDeviceIP() {
     );
 
     if (!is_writable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        echo $pia_lang['BE_Dev_Ignore_e'];
         return;
     }
 
     file_put_contents($configfile, $newConfigContent);
-    echo 'IP erfolgreich entfernt.';
+    echo $pia_lang['BE_Dev_Ignore_f'];
 	// Logging
 	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
@@ -167,26 +167,26 @@ function BlockDeviceIP() {
     $configfile = '../../../config/pialert.conf';
 
     if (!isset($_REQUEST['ip'])) {
-        echo 'Fehler: Kein IP-Wert übergeben.';
+        echo $pia_lang['BE_Dev_Ignore_a'] ;
         return;
     }
 
     $newIP = trim($_REQUEST['ip']);
 
     if ($newIP === '') {
-        echo 'Fehler: Leerer IP-Wert.';
+        echo $pia_lang['BE_Dev_Ignore_b'];
         return;
     }
 
     if (!file_exists($configfile) || !is_readable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        echo $pia_lang['BE_Dev_Ignore_c'];
         return;
     }
 
     $configContent = file_get_contents($configfile);
 
     if (!preg_match('/^(\s*IP_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
-        echo 'Fehler: IP_IGNORE_LIST nicht gefunden.';
+        echo $pia_lang['BE_Dev_Ignore_d'];
         return;
     }
 
@@ -208,15 +208,14 @@ function BlockDeviceIP() {
     );
 
     if (!is_writable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        echo $pia_lang['BE_Dev_Ignore_e'];
         return;
     }
 
     file_put_contents($configfile, $newConfigContent);
-    echo 'IP erfolgreich hinzugefügt.';
+    echo $pia_lang['BE_Dev_Ignore_g'];
 	// Logging
 	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
-	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 }
 
 
@@ -231,13 +230,8 @@ function DeleteBlockDeviceMAC() {
 
     $removeMac = strtolower(trim($_REQUEST['mac']));
 
-    // if (!preg_match('/^([0-9a-f]{2}:){1,5}[0-9a-f]{2}$/', $removeMac)) {
-    //     echo 'Fehler: Ungültiges MAC-Format.';
-    //     return;
-    // }
-
     if (!file_exists($configfile) || !is_readable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        echo $pia_lang['BE_Dev_Ignore_c'];
         return;
     }
 
@@ -274,7 +268,7 @@ function DeleteBlockDeviceMAC() {
 
     // Datei schreiben
     if (!is_writable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        echo $pia_lang['BE_Dev_Ignore_e'];
         return;
     }
 
@@ -308,7 +302,7 @@ function BlockDeviceMAC() {
     // }
 
     if (!file_exists($configfile) || !is_readable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
+        echo $pia_lang['BE_Dev_Ignore_c'];
         return;
     }
 
@@ -344,7 +338,7 @@ function BlockDeviceMAC() {
 
     // Schreiben in Datei
     if (!is_writable($configfile)) {
-        echo 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
+        echo $pia_lang['BE_Dev_Ignore_e'];
         return;
     }
 
@@ -353,7 +347,6 @@ function BlockDeviceMAC() {
 
 	// Logging
 	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
-	//echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php#'>";
 }
 
 function GetAutoBackupStatus() {
