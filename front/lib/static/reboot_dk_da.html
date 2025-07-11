@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Genstart af Pi.Alert</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fff;
+      color: #ffffff;
+    }
+
+    header {
+      background-color: #297aa5;
+/*      padding: 10px 10px;*/
+      padding-left: 80px;
+      padding-right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 50px;
+    }
+
+    header h1 {
+      font-weight: 100;
+      margin: 0;
+      font-size: 20px;
+      color: #ffffff;
+    }
+
+    header h1 .bold {
+      font-weight: bold;
+    }
+
+    .status-section {
+      text-align: center;
+      margin-top: 8%;
+    }
+
+    .status-box {
+      display: inline-block;
+      background-color: #f2f2f2;
+      padding: 2rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-box h2 {
+      color: #444;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      font-weight: 100;
+    }
+
+    .status-box h2 .bold {
+      font-weight: bold;
+    }
+
+    .status-box p {
+      font-size: 1.2rem;
+      color: #888;
+    }
+
+    .spinner {
+      margin-top: 2rem;
+      border: 8px solid #fff;
+      border-top: 8px solid #297aa5;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1.5s linear infinite;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1rem;
+      width: 100%;
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+  <script>
+    function checkPiAlertAvailability() {
+      fetch('../../')
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '../../';
+          }
+        })
+        .catch(error => {
+          //
+        });
+    }
+
+    // check every 20 seconds
+    setInterval(checkPiAlertAvailability, 20000);
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Pi.<span class="bold">Alert</span></h1>
+    <span>Genstarter...</span>
+  </header>
+
+  <div class="status-section">
+    <div class="status-box">
+      <h2>Pi.<span class="bold">Alert</span> genstarter nu</h2>
+      <p>Vent venligst et øjeblik, indtil systemet er tilgængeligt igen.</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Pi.<span class="bold">Alert</span> – Statusside
+  </footer>
+</body>
+</html>
