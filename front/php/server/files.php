@@ -1323,6 +1323,10 @@ function setFavIconURL() {
 
 		if ($iconlist[$url] != "") {
 			$newfavicon_url = $iconlist[$url];
+			$file_path = '../../../config/setting_favicon';
+			file_put_contents($file_path, $newfavicon_url);
+			echo $pia_lang['BE_Files_FavIcon_okay'];
+			echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 		} else {
 			$temp_favicon_url = filter_var($url, FILTER_SANITIZE_URL);
 			if (filter_var($temp_favicon_url, FILTER_VALIDATE_URL) && strtolower(substr($temp_favicon_url, 0, 4)) == "http") {
