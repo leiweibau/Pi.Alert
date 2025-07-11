@@ -644,6 +644,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Post(er) ryddet';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Post(er) opdateret';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Kolonneindhold blev slettet';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Kolonne blev opdateret';
+$pia_lang['BE_Dev_Ignore_a'] = 'Fejl: Ingen IP-værdi angivet.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Fejl: Tom IP-værdi.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Fejl: Konfigurationsfil ikke fundet eller ikke læsbar.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Fejl: IP_IGNORE_LIST ikke fundet.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Fejl: Konfigurationsfilen kan ikke skrives til.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP blev fjernet.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP blev tilføjet.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Fejl: Ingen MAC-værdi angivet.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Fejl: MAC_IGNORE_LIST ikke fundet.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC blev fjernet.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC blev tilføjet.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netværksoversigt';

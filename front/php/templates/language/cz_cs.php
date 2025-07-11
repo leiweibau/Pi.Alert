@@ -644,6 +644,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Záznam(y) vymazán(y)';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Záznam(y) aktualizován(y)';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Obsah sloupce úspěšně smazán';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Sloupec byl aktualizován';
+$pia_lang['BE_Dev_Ignore_a'] = 'Chyba: Nebyla předána žádná IP hodnota.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Chyba: Prázdná IP hodnota.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Chyba: Konfigurační soubor nebyl nalezen nebo nelze načíst.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Chyba: IP_IGNORE_LIST nenalezena.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Chyba: Konfigurační soubor není zapisovatelný.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP byla úspěšně odstraněna.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP byla úspěšně přidána.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Chyba: Nebyla předána žádná MAC hodnota.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Chyba: MAC_IGNORE_LIST nenalezena.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC byla úspěšně odstraněna.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC byla úspěšně přidána.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Přehled sítě';

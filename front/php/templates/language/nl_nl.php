@@ -644,6 +644,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Invoer/vermeldingen geleegd';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Invoer/vermeldingen bijgewerkt';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Kolominhoud succesvol verwijderd';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Kolom succesvol bijgewerkt';
+$pia_lang['BE_Dev_Ignore_a'] = 'Fout: Geen IP-waarde opgegeven.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Fout: Lege IP-waarde.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Fout: Configuratiebestand niet gevonden of onleesbaar.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Fout: IP_IGNORE_LIST niet gevonden.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Fout: Configuratiebestand is niet beschrijfbaar.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP succesvol verwijderd.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP succesvol toegevoegd.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Fout: Geen MAC-waarde opgegeven.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Fout: MAC_IGNORE_LIST niet gevonden.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC succesvol verwijderd.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC succesvol toegevoegd.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netwerkoverzicht';

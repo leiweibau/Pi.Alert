@@ -645,6 +645,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Entrée(s) effacée(s)';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Entrée(s) mise(s) à jour';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Contenu de la colonne supprimé avec succès';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Colonne mise à jour avec succès';
+$pia_lang['BE_Dev_Ignore_a'] = 'Erreur : aucune valeur IP transmise.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Erreur : valeur IP vide.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Erreur : fichier de configuration introuvable ou illisible.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Erreur : IP_IGNORE_LIST introuvable.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Erreur : le fichier de configuration n&apos;est pas modifiable.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP supprimée avec succès.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP ajoutée avec succès.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Erreur : aucune valeur MAC transmise.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Erreur : MAC_IGNORE_LIST introuvable.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC supprimée avec succès.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC ajoutée avec succès.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';

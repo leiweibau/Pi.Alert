@@ -646,6 +646,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Entrada(s) borrada(s)';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Entrada(s) actualizada(s)';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Contenido de columna eliminado correctamente';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Columna actualizada correctamente';
+$pia_lang['BE_Dev_Ignore_a'] = 'Error: No se proporcionó valor IP.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Error: Valor IP vacío.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Error: Archivo de configuración no encontrado o ilegible.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Error: IP_IGNORE_LIST no encontrado.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Error: El archivo de configuración no se puede escribir.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP eliminada correctamente.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP añadida correctamente.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Error: No se proporcionó valor MAC.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Error: MAC_IGNORE_LIST no encontrado.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC eliminada correctamente.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC añadida correctamente.';
 // Network Page - Update by @TeroRERO 01ago2022
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Descripción general de la red';

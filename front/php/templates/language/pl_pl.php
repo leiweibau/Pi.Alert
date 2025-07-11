@@ -645,6 +645,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Wpis(y) wyczyszczone';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Wpis(y) zaktualizowane';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Zawartość kolumny pomyślnie usunięta';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Kolumna została zaktualizowana';
+$pia_lang['BE_Dev_Ignore_a'] = 'Błąd: Nie podano wartości IP.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Błąd: Pusta wartość IP.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Błąd: Plik konfiguracyjny nie został znaleziony lub jest nieczytelny.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Błąd: IP_IGNORE_LIST nie znaleziono.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Błąd: Plik konfiguracyjny nie jest zapisywalny.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP zostało usunięte.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP zostało dodane.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Błąd: Nie podano wartości MAC.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Błąd: MAC_IGNORE_LIST nie znaleziono.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC zostało usunięte.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC zostało dodane.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Przegląd sieci';

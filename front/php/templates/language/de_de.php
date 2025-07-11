@@ -645,8 +645,6 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Eintrag/Einträge geleert';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Eintrag/Einträge aktualisiert';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Spalteninhalt erfolgreich gelöscht';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Spalte aktualisiert';
-
-
 $pia_lang['BE_Dev_Ignore_a'] = 'Fehler: Kein IP-Wert übergeben.';
 $pia_lang['BE_Dev_Ignore_b'] = 'Fehler: Leerer IP-Wert.';
 $pia_lang['BE_Dev_Ignore_c'] = 'Fehler: Konfigurationsdatei nicht gefunden oder nicht lesbar.';
@@ -654,7 +652,10 @@ $pia_lang['BE_Dev_Ignore_d'] = 'Fehler: IP_IGNORE_LIST nicht gefunden.';
 $pia_lang['BE_Dev_Ignore_e'] = 'Fehler: Konfigurationsdatei ist nicht beschreibbar.';
 $pia_lang['BE_Dev_Ignore_f'] = 'IP erfolgreich entfernt.';
 $pia_lang['BE_Dev_Ignore_g'] = 'IP erfolgreich hinzugefügt.';
-
+$pia_lang['BE_Dev_Ignore_h'] = 'Fehler: Kein MAC-Wert übergeben.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Fehler: MAC_IGNORE_LIST nicht gefunden.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC erfolgreich entfernt.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC erfolgreich hinzugefügt.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netzwerkübersicht';

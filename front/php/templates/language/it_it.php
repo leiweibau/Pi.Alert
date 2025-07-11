@@ -645,6 +645,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Voce/i cancellata/e';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Voce/i aggiornata/e';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Contenuto della colonna eliminato correttamente';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Colonna aggiornata correttamente';
+$pia_lang['BE_Dev_Ignore_a'] = 'Errore: nessun valore IP fornito.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Errore: valore IP vuoto.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Errore: file di configurazione non trovato o illeggibile.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Errore: IP_IGNORE_LIST non trovato.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Errore: il file di configurazione non è scrivibile.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP rimosso con successo.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP aggiunto con successo.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Errore: nessun valore MAC fornito.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Errore: MAC_IGNORE_LIST non trovato.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC rimosso con successo.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC aggiunto con successo.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Panoramica della Rete';

@@ -224,7 +224,7 @@ function DeleteBlockDeviceMAC() {
     $configfile = '../../../config/pialert.conf';
 
     if (!isset($_REQUEST['mac'])) {
-        echo 'Fehler: Kein MAC-Wert übergeben.';
+        echo $pia_lang['BE_Dev_Ignore_h'];
         return;
     }
 
@@ -239,7 +239,7 @@ function DeleteBlockDeviceMAC() {
 
     // Zeile mit MAC_IGNORE_LIST extrahieren
     if (!preg_match('/^(\s*MAC_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
-        echo 'Fehler: MAC_IGNORE_LIST nicht gefunden.';
+        echo $pia_lang['BE_Dev_Ignore_i'];
         return;
     }
 
@@ -273,7 +273,7 @@ function DeleteBlockDeviceMAC() {
     }
 
     file_put_contents($configfile, $newConfigContent);
-    echo 'MAC erfolgreich entfernt.';
+    echo $pia_lang['BE_Dev_Ignore_j'];
 
 	// Logging
 	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
@@ -290,7 +290,7 @@ function BlockDeviceMAC() {
 	copy($configfile, $laststate);
 
     if (!isset($_REQUEST['mac'])) {
-        echo 'Fehler: Kein MAC-Wert übergeben.';
+        echo $pia_lang['BE_Dev_Ignore_h'];
         return;
     }
 
@@ -310,7 +310,7 @@ function BlockDeviceMAC() {
 
     // Original-Zeile parsen: Key, Gleichheitszeichen mit Leerzeichen, Inhalt
     if (!preg_match('/^(\s*MAC_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
-        echo 'Fehler: MAC_IGNORE_LIST nicht gefunden.';
+        echo $pia_lang['BE_Dev_Ignore_i'];
         return;
     }
 
@@ -343,7 +343,7 @@ function BlockDeviceMAC() {
     }
 
     file_put_contents($configfile, $newConfigContent);
-    echo 'MAC erfolgreich hinzugefügt.';
+    echo $pia_lang['BE_Dev_Ignore_k'];
 
 	// Logging
 	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
