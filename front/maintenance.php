@@ -1,14 +1,3 @@
-<!-- --------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  maintenance.php - Front module. Server side. Manage Devices
-#------------------------------------------------------------------------------
-#  Puche      2021        pi.alert.application@gmail.com   GNU GPLv3
-#  jokob-sk   2022        jokob.sk@gmail.com               GNU GPLv3
-#  leiweibau  2024+       https://github.com/leiweibau     GNU GPLv3
-#-------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 error_reporting(0);
@@ -50,9 +39,40 @@ function parse_ignore_list($line, $placeholder_text) {
     $line = str_replace(["[", "]", "'"], "", $line);
     return str_replace(",", ", ", $line);
 }
+// Create Links to remove entries from list (MAC) ------------------------------
+function add_action_macignore($func_macignorelist, $placeholder_text) {
+    if ($func_macignorelist === "" || $func_macignorelist === "[]") {
+        return $placeholder_text;
+    }
+    $func_macignorelist = str_replace(["[", "]", "'"], "", $func_macignorelist);
 
-$MAC_IGNORE_LIST = parse_ignore_list(get_config_parmeter('MAC_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
-$IP_IGNORE_LIST = parse_ignore_list(get_config_parmeter('IP_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+    $rawlist = explode(",", $func_macignorelist);
+    $actionlist = array();
+    foreach ($rawlist as $key => $value) {
+        $value = trim($value);
+        array_push($actionlist, '<a href="#" onclick="askDeleteBlockDeviceMAC(\''.$value.'\')">'.$value.'</a>');
+    }
+    $ignorlist = implode(', ', $actionlist);
+    return $ignorlist;
+}
+// Create Links to remove entries from list (IP) -------------------------------
+function add_action_ipignore($func_ipignorelist, $placeholder_text) {
+    if ($func_ipignorelist === "" || $func_ipignorelist === "[]") {
+        return $placeholder_text;
+    }
+    $func_ipignorelist = str_replace(["[", "]", "'"], "", $func_ipignorelist);
+    $rawlist = explode(",", $func_ipignorelist);
+    $actionlist = array();
+    foreach ($rawlist as $key => $value) {
+        $value = trim($value);
+        array_push($actionlist, '<a href="#" onclick="askDeleteBlockDeviceIP(\''.$value.'\')">'.$value.'</a>');
+    }
+    $ignorlist = implode(',', $actionlist);
+    return $ignorlist;
+}
+
+$MAC_IGNORE_LIST = add_action_macignore(get_config_parmeter('MAC_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
+$IP_IGNORE_LIST = add_action_ipignore(get_config_parmeter('IP_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
 $NAME_IGNORE_LIST = parse_ignore_list(get_config_parmeter('HOSTNAME_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
 
 // Get Notification Settings --------------------------------------------------
@@ -1005,6 +1025,29 @@ function ToggleExtLogging() {
         , function(msg) {
         showMessage (msg);
     });
+}
+// Remove Mac Ignorelist
+function askDeleteBlockDeviceMAC(macStep) {
+  window.selectedMACStep = macStep;
+  showModalWarning('<?=$pia_lang['MT_Tool_ignorelist']?> MAC', macStep + '<?=$pia_lang['MT_del_ignore_noti_text']?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'DeleteBlockDeviceMAC');
+}
+function DeleteBlockDeviceMAC() {
+  if (!window.selectedMACStep) return;
+  var macStep = window.selectedMACStep;
+  $.get('php/server/files.php?action=DeleteBlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
+}
+// Remove IP Ignorelist
+function askDeleteBlockDeviceIP(ipStep) {
+  window.selectedIPStep = ipStep;
+  showModalWarning('<?=$pia_lang['MT_Tool_ignorelist']?> IP', ipStep + '<?=$pia_lang['MT_del_ignore_noti_text']?>',
+    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'DeleteBlockDeviceIP');
+}
+function DeleteBlockDeviceIP() {
+  if (!window.selectedIPStep) return;
+  var ipStep = window.selectedIPStep;
+  $.get('php/server/files.php?action=DeleteBlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
+  delete window.selectedIPStep;
 }
 
 setInterval(UpdateStatusBox, 15000);

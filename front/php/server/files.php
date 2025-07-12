@@ -90,9 +90,263 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'ToggleExtLogging':ToggleExtLogging();
 		break;
+	case 'BlockDeviceMAC':BlockDeviceMAC();
+		break;
+	case 'DeleteBlockDeviceMAC':DeleteBlockDeviceMAC();
+		break;
+	case 'BlockDeviceIP':BlockDeviceIP();
+		break;
+	case 'DeleteBlockDeviceIP':DeleteBlockDeviceIP();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function DeleteBlockDeviceIP() {
+	global $pia_lang;
+    $configfile = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['ip'])) {
+        echo $pia_lang['BE_Dev_Ignore_a'];
+        return;
+    }
+
+    $removeIP = trim($_REQUEST['ip']);
+
+    if ($removeIP === '') {
+        echo $pia_lang['BE_Dev_Ignore_b'];
+        return;
+    }
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_c'];
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    if (!preg_match('/^(\s*IP_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo $pia_lang['BE_Dev_Ignore_d'];
+        return;
+    }
+
+    $ipListRaw = $matches[3];
+    $ipArray = array_filter(array_map(function($item) {
+        return trim(str_replace("'", '', $item));
+    }, explode(',', $ipListRaw)));
+
+    $updatedArray = array_filter($ipArray, function($ip) use ($removeIP) {
+        return $ip !== $removeIP;
+    });
+
+    $newListLine = $matches[1] . $matches[2] .
+        (empty($updatedArray) ? '[]' : "['" . implode("','", $updatedArray) . "']");
+
+    $newConfigContent = preg_replace(
+        '/^\s*IP_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    if (!is_writable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_e'];
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo $pia_lang['BE_Dev_Ignore_f'];
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
+}
+
+
+function BlockDeviceIP() {
+	global $pia_lang;
+    $configfile = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['ip'])) {
+        echo $pia_lang['BE_Dev_Ignore_a'] ;
+        return;
+    }
+
+    $newIP = trim($_REQUEST['ip']);
+
+    if ($newIP === '') {
+        echo $pia_lang['BE_Dev_Ignore_b'];
+        return;
+    }
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_c'];
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    if (!preg_match('/^(\s*IP_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo $pia_lang['BE_Dev_Ignore_d'];
+        return;
+    }
+
+    $ipListRaw = $matches[3];
+    $ipArray = array_filter(array_map(function($item) {
+        return trim(str_replace("'", '', $item));
+    }, explode(',', $ipListRaw)));
+
+    if (!in_array($newIP, $ipArray)) {
+        $ipArray[] = $newIP;
+    }
+
+    $newListLine = $matches[1] . $matches[2] . "['" . implode("','", $ipArray) . "']";
+
+    $newConfigContent = preg_replace(
+        '/^\s*IP_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    if (!is_writable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_e'];
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo $pia_lang['BE_Dev_Ignore_g'];
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+}
+
+
+function DeleteBlockDeviceMAC() {
+	global $pia_lang;
+    $configfile = '../../../config/pialert.conf';
+
+    if (!isset($_REQUEST['mac'])) {
+        echo $pia_lang['BE_Dev_Ignore_h'];
+        return;
+    }
+
+    $removeMac = strtolower(trim($_REQUEST['mac']));
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_c'];
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    // Zeile mit MAC_IGNORE_LIST extrahieren
+    if (!preg_match('/^(\s*MAC_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo $pia_lang['BE_Dev_Ignore_i'];
+        return;
+    }
+
+    $macListRaw = $matches[3]; // Inhalt zwischen den Klammern
+
+    // Liste bereinigen und als Array aufbereiten
+    $macArray = array_filter(array_map(function($item) {
+        return strtolower(trim(str_replace("'", '', $item)));
+    }, explode(',', $macListRaw)));
+
+    // MAC entfernen, wenn vorhanden
+    $updatedArray = array_filter($macArray, function($mac) use ($removeMac) {
+        return $mac !== $removeMac;
+    });
+
+    // Neue Zeile erzeugen
+    $newListLine = $matches[1] . $matches[2] .
+        (empty($updatedArray) ? '[]' : "['" . implode("','", $updatedArray) . "']");
+
+    // Alte Zeile ersetzen
+    $newConfigContent = preg_replace(
+        '/^\s*MAC_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    // Datei schreiben
+    if (!is_writable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_e'];
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo $pia_lang['BE_Dev_Ignore_j'];
+
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
+}
+
+
+
+function BlockDeviceMAC() {
+	global $pia_lang;
+	$laststate = '../../../config/pialert-prev.bak';
+	$configfile = '../../../config/pialert.conf';
+
+	copy($configfile, $laststate);
+
+    if (!isset($_REQUEST['mac'])) {
+        echo $pia_lang['BE_Dev_Ignore_h'];
+        return;
+    }
+
+    $newMac = strtolower(trim($_REQUEST['mac']));
+
+    // if (!preg_match('/^([0-9a-f]{2}:){1,5}[0-9a-f]{2}$/', $newMac)) {
+    //     echo 'Fehler: Ungültiges MAC-Format.';
+    //     return;
+    // }
+
+    if (!file_exists($configfile) || !is_readable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_c'];
+        return;
+    }
+
+    $configContent = file_get_contents($configfile);
+
+    // Original-Zeile parsen: Key, Gleichheitszeichen mit Leerzeichen, Inhalt
+    if (!preg_match('/^(\s*MAC_IGNORE_LIST)(\s*=\s*)\[(.*?)\]\s*$/m', $configContent, $matches)) {
+        echo $pia_lang['BE_Dev_Ignore_i'];
+        return;
+    }
+
+    $macListRaw = $matches[3]; // Inhalt zwischen den Klammern
+
+    // In Array umwandeln
+    $macArray = array_filter(array_map(function($item) {
+        return strtolower(trim(str_replace("'", '', $item)));
+    }, explode(',', $macListRaw)));
+
+    // Neuen MAC hinzufügen, falls nicht vorhanden
+    if (!in_array($newMac, $macArray)) {
+        $macArray[] = $newMac;
+    }
+
+    // Neue MAC_IGNORE_LIST-Zeile im ursprünglichen Format bauen
+    $newListLine = $matches[1] . $matches[2] . "['" . implode("','", $macArray) . "']";
+
+    // Ersetzen der alten Zeile im Dateitext
+    $newConfigContent = preg_replace(
+        '/^\s*MAC_IGNORE_LIST\s*=\s*\[.*?\]\s*$/m',
+        $newListLine,
+        $configContent
+    );
+
+    // Schreiben in Datei
+    if (!is_writable($configfile)) {
+        echo $pia_lang['BE_Dev_Ignore_e'];
+        return;
+    }
+
+    file_put_contents($configfile, $newConfigContent);
+    echo $pia_lang['BE_Dev_Ignore_k'];
+
+	// Logging
+	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
 }
 
 function GetAutoBackupStatus() {
@@ -1069,6 +1323,10 @@ function setFavIconURL() {
 
 		if ($iconlist[$url] != "") {
 			$newfavicon_url = $iconlist[$url];
+			$file_path = '../../../config/setting_favicon';
+			file_put_contents($file_path, $newfavicon_url);
+			echo $pia_lang['BE_Files_FavIcon_okay'];
+			echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 		} else {
 			$temp_favicon_url = filter_var($url, FILTER_SANITIZE_URL);
 			if (filter_var($temp_favicon_url, FILTER_VALIDATE_URL) && strtolower(substr($temp_favicon_url, 0, 4)) == "http") {

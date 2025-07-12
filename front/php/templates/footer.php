@@ -1,13 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  footer.php - Front module. Common footer to all the web pages
-#-------------------------------------------------------------------------------
-#  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024+                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
   <!-- Main Footer -->
   <footer class="main-footer">
     <!-- Default to the left -->

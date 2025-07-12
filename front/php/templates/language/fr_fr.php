@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'enable';
 $pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
 $pia_lang['Gen_column'] = 'Colonne';
+$pia_lang['Gen_hide'] = 'masquer';
+$pia_lang['Gen_show'] = 'afficher';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Entrez votre mot de passe';
@@ -92,6 +94,8 @@ $pia_lang['Device_bulkEditor_mode'] = 'Bulk Editor';
 $pia_lang['Device_bulkEditor_mode_quit'] = 'Quit Editor';
 $pia_lang['Device_bulkEditor_selectall'] = 'Select all Host&apos;s';
 $pia_lang['Device_bulkEditor_selectnone'] = 'Deselect all Host&apos;s';
+$pia_lang['Device_bulkEditor_selectvisall'] = 'Sélectionner visibles';
+$pia_lang['Device_bulkEditor_selectvisnone'] = 'Désélectionner visibles';
 $pia_lang['Device_bulkEditor_savebox_title'] = 'Fields were saved';
 $pia_lang['Device_bulkEditor_savebox_noselection'] = 'No fields were selected for modification';
 $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Modified devices';
@@ -258,6 +262,7 @@ $pia_lang['DevDetail_Speedtest_note_c'] = ' heures';
 $pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Résultat du dernier Scan Nmap';
 $pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Résultat du Scan Nmap actuel';
 $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Résultat du Scan Nmap précédent';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' sera ajouté à la liste d&apos;ignorés. Le périphérique détecté restera dans la base de données et sera marqué comme OFFLINE à l&apos;avenir. Si le périphérique est supprimé, l&apos;entrée restera dans la liste d&apos;ignorés pour éviter qu&apos;il ne soit à nouveau ajouté.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Web Services';
@@ -297,6 +302,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Emplacement';
 $pia_lang['WEBS_Stats_IP'] = 'IP actuelle';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Mapping des pays';
 $pia_lang['WEBS_Stats_comment_a'] = '(Calculé à partir de toutes les analyses de ce service)';
+$pia_lang['WEBS_label_AlertUp'] = 'Actif';
+$pia_lang['WEBS_EVE_up'] = 'Actif';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'The web service was updated';
@@ -535,6 +542,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifier l&apos;entrée du menu déroulant
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifiées sur chaque appareil, mais resteront dans le menu déroulant. Les entrées personnalisées seront remplacées par la nouvelle entrée.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Journaux étendus';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Permet de basculer entre les journaux simples et étendus. Les journaux étendus ne doivent être activés qu&apos;en cas d&apos;erreur, car les informations supplémentaires peuvent nuire à la lisibilité.';
+$pia_lang['MT_del_ignore_noti_text'] = ' sera supprimé de la liste d&apos;ignorés. Par conséquent, des appareils correspondant à cette entrée pourraient à nouveau être détectés.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';
@@ -637,6 +645,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Entrée(s) effacée(s)';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Entrée(s) mise(s) à jour';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Contenu de la colonne supprimé avec succès';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Colonne mise à jour avec succès';
+$pia_lang['BE_Dev_Ignore_a'] = 'Erreur : aucune valeur IP transmise.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Erreur : valeur IP vide.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Erreur : fichier de configuration introuvable ou illisible.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Erreur : IP_IGNORE_LIST introuvable.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Erreur : le fichier de configuration n&apos;est pas modifiable.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP supprimée avec succès.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP ajoutée avec succès.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Erreur : aucune valeur MAC transmise.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Erreur : MAC_IGNORE_LIST introuvable.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC supprimée avec succès.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC ajoutée avec succès.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';

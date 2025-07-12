@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'aktiver';
 $pia_lang['Gen_deactivate'] = 'deaktiver';
 $pia_lang['Gen_error'] = 'Fejl';
 $pia_lang['Gen_column'] = 'Kolonne';
+$pia_lang['Gen_hide'] = 'skjul';
+$pia_lang['Gen_show'] = 'vis';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Indtast adgangskode';
@@ -92,6 +94,8 @@ $pia_lang['Device_bulkEditor_mode'] = 'Multi-editor';
 $pia_lang['Device_bulkEditor_mode_quit'] = 'Afslut editor';
 $pia_lang['Device_bulkEditor_selectall'] = 'Vælg alle';
 $pia_lang['Device_bulkEditor_selectnone'] = 'Fravælg alle';
+$pia_lang['Device_bulkEditor_selectvisall'] = 'Vælg synlige';
+$pia_lang['Device_bulkEditor_selectvisnone'] = 'Fravælg synlige';
 $pia_lang['Device_bulkEditor_savebox_title'] = 'Felter gemt';
 $pia_lang['Device_bulkEditor_savebox_noselection'] = 'Ingen felter valgt til ændring';
 $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Ændrede enheder';
@@ -257,6 +261,7 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Resultat af forrige Nmap-scanning
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Den automatiske hastighedstest starter kl. ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' og kl. ';
 $pia_lang['DevDetail_Speedtest_note_c'] = '';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' føjes til ignoreringslisten. Den registrerede enhed forbliver i databasen og vil fremover blive markeret som OFFLINE. Hvis enheden slettes, forbliver posten på ignoreringslisten for at forhindre, at den tilføjes igen.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Webtjenester';
@@ -296,6 +301,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Placering';
 $pia_lang['WEBS_Stats_IP'] = 'Aktuel IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Lokalitet';
 $pia_lang['WEBS_Stats_comment_a'] = '(Beregnet ud fra alle scanninger af denne service)';
+$pia_lang['WEBS_label_AlertUp'] = 'Aktiv';
+$pia_lang['WEBS_EVE_up'] = 'Aktiv';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'Webtjenesten blev opdateret';
@@ -534,6 +541,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Rediger dropdown-post';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardkodede poster ændres på alle enheder, men bliver i menuen. Individuelle poster erstattes med den nye post.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Udvidede logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Brug denne mulighed til at skifte mellem simple og udvidede logs. Udvidede logs bør kun aktiveres ved fejl, da de ekstra oplysninger kan skabe forvirring.';
+$pia_lang['MT_del_ignore_noti_text'] = ' fjernes fra ignoreringslisten. Som følge heraf kan enheder, der matcher den fjernede post, blive genkendt igen.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanningsmoduler og importer er deaktiveret';
@@ -636,6 +644,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Post(er) ryddet';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Post(er) opdateret';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Kolonneindhold blev slettet';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Kolonne blev opdateret';
+$pia_lang['BE_Dev_Ignore_a'] = 'Fejl: Ingen IP-værdi angivet.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Fejl: Tom IP-værdi.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Fejl: Konfigurationsfil ikke fundet eller ikke læsbar.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Fejl: IP_IGNORE_LIST ikke fundet.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Fejl: Konfigurationsfilen kan ikke skrives til.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP blev fjernet.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP blev tilføjet.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Fejl: Ingen MAC-værdi angivet.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Fejl: MAC_IGNORE_LIST ikke fundet.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC blev fjernet.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC blev tilføjet.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netværksoversigt';

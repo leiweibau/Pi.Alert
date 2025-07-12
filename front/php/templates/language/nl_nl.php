@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'activeren';
 $pia_lang['Gen_deactivate'] = 'deactiveren';
 $pia_lang['Gen_error'] = 'Fout';
 $pia_lang['Gen_column'] = 'Kolom';
+$pia_lang['Gen_hide'] = 'verbergen';
+$pia_lang['Gen_show'] = 'tonen';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Voer wachtwoord in';
@@ -92,6 +94,8 @@ $pia_lang['Device_bulkEditor_mode'] = 'Multi-editor';
 $pia_lang['Device_bulkEditor_mode_quit'] = 'Editor afsluiten';
 $pia_lang['Device_bulkEditor_selectall'] = 'Alles selecteren';
 $pia_lang['Device_bulkEditor_selectnone'] = 'Alles deselecteren';
+$pia_lang['Device_bulkEditor_selectvisall'] = 'Selecteer zichtbare';
+$pia_lang['Device_bulkEditor_selectvisnone'] = 'Deselecteer zichtbare';
 $pia_lang['Device_bulkEditor_savebox_title'] = 'Velden opgeslagen';
 $pia_lang['Device_bulkEditor_savebox_noselection'] = 'Geen velden geselecteerd voor wijziging';
 $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Gewijzigde apparaten';
@@ -257,6 +261,7 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Resultaat van vorige Nmap-scan';
 $pia_lang['DevDetail_Speedtest_note_a'] = 'De automatische snelheidstest start om ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' en om ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' uur';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' wordt toegevoegd aan de negeerlijst. Het gedetecteerde apparaat blijft in de database en zal in de toekomst als OFFLINE worden gemarkeerd. Als het apparaat wordt verwijderd, blijft de invoer in de lijst staan om hernieuwde toevoeging te voorkomen.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Webservices';
@@ -296,6 +301,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Locatie';
 $pia_lang['WEBS_Stats_IP'] = 'Huidig IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Landtoewijzing';
 $pia_lang['WEBS_Stats_comment_a'] = '(Berekend uit alle scans van deze service)';
+$pia_lang['WEBS_label_AlertUp'] = 'Actief';
+$pia_lang['WEBS_EVE_up'] = 'Actief';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'De webservice is bijgewerkt';
@@ -534,6 +541,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Dropdown-invoer bewerken';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardgecodeerde items worden aangepast op elk apparaat, maar blijven in het dropdown-menu. Aangepaste items worden vervangen door de nieuwe invoer.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Uitgebreide logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermee kun je schakelen tussen eenvoudige en uitgebreide logs. Uitgebreide logs moeten alleen bij fouten worden ingeschakeld, omdat extra informatie het overzicht kan verstoren.';
+$pia_lang['MT_del_ignore_noti_text'] = ' wordt verwijderd uit de negeerlijst. Hierdoor kunnen apparaten die overeenkomen met de te verwijderen invoer opnieuw worden gedetecteerd.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanmodules en imports zijn gedeactiveerd';
@@ -636,6 +644,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Invoer/vermeldingen geleegd';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Invoer/vermeldingen bijgewerkt';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Kolominhoud succesvol verwijderd';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Kolom succesvol bijgewerkt';
+$pia_lang['BE_Dev_Ignore_a'] = 'Fout: Geen IP-waarde opgegeven.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Fout: Lege IP-waarde.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Fout: Configuratiebestand niet gevonden of onleesbaar.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Fout: IP_IGNORE_LIST niet gevonden.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Fout: Configuratiebestand is niet beschrijfbaar.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP succesvol verwijderd.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP succesvol toegevoegd.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Fout: Geen MAC-waarde opgegeven.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Fout: MAC_IGNORE_LIST niet gevonden.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC succesvol verwijderd.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC succesvol toegevoegd.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netwerkoverzicht';

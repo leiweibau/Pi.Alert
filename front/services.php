@@ -1,12 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  services.php - Front module. Server side. Manage Devices
-#-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 error_reporting(0);
@@ -99,9 +90,26 @@ function get_count_standalone_services() {
 
 // -----------------------------------------------------------------------------
 // get String with the selected notifications
-function get_notifications($alertDown, $alertEvent) {
+function get_notifications($alertDown, $alertup, $alertEvent) {
 	global $pia_lang;
-	if ($alertEvent == "1" && $alertDown == "1") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WEBS_EVE_all'] . ", " . $pia_lang['WEBS_EVE_down'];} elseif ($alertEvent == "0" && $alertDown == "1") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WEBS_EVE_down'];} elseif ($alertEvent == "1" && $alertDown == "0") {$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . $pia_lang['WEBS_EVE_all'];} else { $notification_type = '<i class="fa fa-fw fa-bell-slash-o"></i>';}
+	$texts = [];
+
+	if ($alertEvent == "1") {
+		$texts[] = $pia_lang['WEBS_EVE_all'];
+	}
+	if ($alertDown == "1") {
+		$texts[] = $pia_lang['WEBS_EVE_down'];
+	}
+	if ($alertup == "1") {
+		$texts[] = $pia_lang['WEBS_EVE_up'];
+	}
+
+	if (!empty($texts)) {
+		$notification_type = '<i class="fa fa-fw fa-bell-o"></i> ' . implode(', ', $texts);
+	} else {
+		$notification_type = '<i class="fa fa-fw fa-bell-slash-o"></i>';
+	}
+
 	return $notification_type;
 }
 
@@ -137,7 +145,7 @@ function list_standalone_services() {
 		if ($row['mon_MAC'] == "") {
 			if (substr($row['mon_LastStatus'], 0, 1) == "2") {$code_icon_color = "bg-green";}
 
-			$notification_type = get_notifications($row['mon_AlertDown'], $row['mon_AlertEvents']);
+			$notification_type = get_notifications($row['mon_AlertDown'], $row['mon_AlertUp'], $row['mon_AlertEvents']);
 			$code_icon_color = get_icon_color($row['mon_LastStatus']);
 			$url_array = explode('://', $row['mon_URL']);
 
@@ -177,7 +185,6 @@ function list_standalone_services() {
 				if ($func_latency[$x] == '99999999') {$loop_latency = 'offline';} else { $loop_latency = $func_latency[$x] . 's';}
 
 				echo '       <div class="single_scan ' . $codecolor . '" title="' . $func_scans[$x] . ' / HTTP: ' . $for_httpcode . ' / Latency: ' . $loop_latency . '"></div>';
-
 			}
 
 			echo '         </div>';
@@ -219,7 +226,7 @@ function get_service_from_unique_device($func_unique_device) {
 		if ($row['mon_MAC'] == $func_unique_device) {
 			unset($func_httpcodes);
 
-			$notification_type = get_notifications($row['mon_AlertDown'], $row['mon_AlertEvents']);
+			$notification_type = get_notifications($row['mon_AlertDown'], $row['mon_AlertUp'], $row['mon_AlertEvents']);
 			$code_icon_color = get_icon_color($row['mon_LastStatus']);
 			$url_array = explode('://', $row['mon_URL']);
 
@@ -297,7 +304,7 @@ function get_service_from_unique_device($func_unique_device) {
                             <h4 class="modal-title"><?=$pia_lang['WEBS_headline_NewService'];?></h4>
                         </div>
                         <div class="modal-body">
-                            <div style="height: 230px;">
+                            <div style="height: 260px;">
                             <div class="form-group col-xs-12">
                               <label class="col-xs-3 control-label"><?=$pia_lang['WEBS_label_URL'];?></label>
                               <div class="col-xs-9">
@@ -330,6 +337,12 @@ function get_service_from_unique_device($func_unique_device) {
                                 <label class="col-xs-3 control-label"><?=$pia_lang['WEBS_label_AlertEvents'];?></label>
                                 <div class="col-xs-9" style="margin-top: 0px;">
                                   <input class="checkbox blue" id="insAlertEvents" type="checkbox">
+                                </div>
+                            </div>
+                            <div class="form-group col-xs-12">
+                                <label class="col-xs-3 control-label"><?=$pia_lang['WEBS_label_AlertUp'];?></label>
+                                <div class="col-xs-9" style="margin-top: 0px;">
+                                  <input class="checkbox green" id="insAlertUp" type="checkbox">
                                 </div>
                             </div>
                             <div class="form-group col-xs-12">
@@ -444,6 +457,12 @@ function initializeiCheck () {
     radioClass:    'iradio_flat-orange',
     increaseArea:  '20%'
   });
+  // Green
+  $('input[type="checkbox"].green').iCheck({
+    checkboxClass: 'icheckbox_flat-green',
+    radioClass:    'iradio_flat-green',
+    increaseArea:  '20%'
+  });
   // Red
   $('input[type="checkbox"].red').iCheck({
     checkboxClass: 'icheckbox_flat-red',
@@ -465,6 +484,7 @@ function insertNewService(refreshCallback='') {
     + '&tags='            + $('#serviceTag').val()
     + '&mac='             + $('#serviceMAC').val()
     + '&alertdown='       + ($('#insAlertDown')[0].checked * 1)
+    + '&alertup='         + ($('#insAlertUp')[0].checked * 1)
     + '&alertevents='     + ($('#insAlertEvents')[0].checked * 1)
     , function(msg) {
     showMessage (msg);

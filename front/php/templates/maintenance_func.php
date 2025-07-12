@@ -1,7 +1,21 @@
 <?php
-function extract_hostdata($tableinput) {
+function check_error_reporting($tableinput) {
     $data = json_decode($tableinput, true);
     return isset($data['error_reporting']) ? $data['error_reporting'] : null;
+}
+
+function add_sat_metadata($tableinput) {
+    $data = json_decode($tableinput, true);
+
+    return [
+        'satellite_proxymode' => isset($data['satellite_proxymode'])
+            ? (is_bool($data['satellite_proxymode']) 
+                ? ($data['satellite_proxymode'] ? 'True' : 'False') 
+                : $data['satellite_proxymode']) 
+            : 'unknown',
+
+        'satellite_url' => $data['satellite_url'] ?? 'unknown',
+    ];
 }
 
 function get_all_satellites_list() {
@@ -16,7 +30,9 @@ function get_all_satellites_list() {
         	$i = 0;
             while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             	if ($i!=0) {echo '<hr>';}
-            	$sat_hostdata = extract_hostdata($row['sat_host_data']);
+            	$sat_hostdata = check_error_reporting($row['sat_host_data']);
+            	$sat_meta = add_sat_metadata($row['sat_host_data']);
+
             	if ($sat_hostdata === True) {$sat_version = $row['sat_remote_version'].' (<span class="text-red">R</span>)';} else {$sat_version = $row['sat_remote_version'];}
 				show_all_satellites_list([
 				    'rowid' => $row['sat_id'],
@@ -32,7 +48,9 @@ function get_all_satellites_list() {
 				    'scan_openwrt' => $row['sat_conf_scan_openwrt'],
 				    'scan_asuswrt' => $row['sat_conf_scan_asuswrt'],
 				    'scan_pihole_net' => $row['sat_conf_scan_pihole_net'],
-				    'scan_pihole_dhcp' => $row['sat_conf_scan_pihole_dhcp']
+				    'scan_pihole_dhcp' => $row['sat_conf_scan_pihole_dhcp'],
+				    'satellite_proxymode' => $sat_meta['satellite_proxymode'],
+				    'satellite_url' => $sat_meta['satellite_url'],
 				]);
                 $i++;
             }

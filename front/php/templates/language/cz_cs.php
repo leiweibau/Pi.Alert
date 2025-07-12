@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'aktivovat';
 $pia_lang['Gen_deactivate'] = 'deaktivovat';
 $pia_lang['Gen_error'] = 'Chyba';
 $pia_lang['Gen_column'] = 'Sloupec';
+$pia_lang['Gen_hide'] = 'skrýt';
+$pia_lang['Gen_show'] = 'zobrazit';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Zadejte heslo';
@@ -92,6 +94,8 @@ $pia_lang['Device_bulkEditor_mode'] = 'Multi-Edytor';
 $pia_lang['Device_bulkEditor_mode_quit'] = 'Zamknij edytor';
 $pia_lang['Device_bulkEditor_selectall'] = 'Zaznacz wszystko';
 $pia_lang['Device_bulkEditor_selectnone'] = 'Odznacz wszystko';
+$pia_lang['Device_bulkEditor_selectvisall'] = 'Vybrat viditelné';
+$pia_lang['Device_bulkEditor_selectvisnone'] = 'Zrušit výběr viditelných';
 $pia_lang['Device_bulkEditor_savebox_title'] = 'Pola zapisane';
 $pia_lang['Device_bulkEditor_savebox_noselection'] = 'Nie wybrano pól do zmiany';
 $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Zmodyfikowane urządzenia';
@@ -257,6 +261,7 @@ $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Výsledek předchozího skenu Nma
 $pia_lang['DevDetail_Speedtest_note_a'] = 'Automatický test rychlosti začne v ';
 $pia_lang['DevDetail_Speedtest_note_b'] = ' a v ';
 $pia_lang['DevDetail_Speedtest_note_c'] = ' hodin';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' bude přidáno na seznam ignorovaných. Zjištěné zařízení zůstane v databázi a bude v budoucnu označeno jako OFFLINE. Pokud bude zařízení odstraněno, záznam v seznamu ignorovaných zůstane, aby se zabránilo jeho opětovnému přidání.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Webové služby';
@@ -296,6 +301,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Umístění';
 $pia_lang['WEBS_Stats_IP'] = 'Aktuální IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Země původu';
 $pia_lang['WEBS_Stats_comment_a'] = '(Vypočteno ze všech skenů této služby)';
+$pia_lang['WEBS_label_AlertUp'] = 'Aktivní';
+$pia_lang['WEBS_EVE_up'] = 'Aktivní';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'Webová služba byla aktualizována';
@@ -534,6 +541,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Upravit položku rozbalovací nabídky';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Předdefinované položky budou změněny na všech zařízeních, ale zůstanou v nabídce. Vlastní položky budou nahrazeny novou položkou.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozšířené logy';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Tímto lze přepínat mezi jednoduchými a rozšířenými logy. Rozšířené logy by měly být aktivovány pouze při chybách, protože dodatečné výstupy mohou narušit přehlednost.';
+$pia_lang['MT_del_ignore_noti_text'] = ' bude odstraněno ze seznamu ignorovaných. V důsledku toho může dojít k opětovnému rozpoznání zařízení odpovídajících odstraněnému záznamu.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Všechny moduly skenování a importy jsou deaktivovány';
@@ -636,6 +644,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Záznam(y) vymazán(y)';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Záznam(y) aktualizován(y)';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Obsah sloupce úspěšně smazán';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Sloupec byl aktualizován';
+$pia_lang['BE_Dev_Ignore_a'] = 'Chyba: Nebyla předána žádná IP hodnota.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Chyba: Prázdná IP hodnota.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Chyba: Konfigurační soubor nebyl nalezen nebo nelze načíst.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Chyba: IP_IGNORE_LIST nenalezena.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Chyba: Konfigurační soubor není zapisovatelný.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP byla úspěšně odstraněna.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP byla úspěšně přidána.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Chyba: Nebyla předána žádná MAC hodnota.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Chyba: MAC_IGNORE_LIST nenalezena.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC byla úspěšně odstraněna.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC byla úspěšně přidána.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Přehled sítě';

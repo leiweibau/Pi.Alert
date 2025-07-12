@@ -1,13 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  devicesEvents.php - Front module. Events page
-#-------------------------------------------------------------------------------
-#  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
-#  leiweibau 2024+                                         GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 

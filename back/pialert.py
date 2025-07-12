@@ -2985,16 +2985,17 @@ def set_services_current_scan(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Lat
     sql.execute("SELECT * FROM Services WHERE mon_URL = ?", [_cur_URL])
     rows = sql.fetchall()
     for row in rows:
-        _mon_AlertEvents = row[6]
-        _mon_AlertDown = row[7]
-        _mon_StatusCode = row[2]
-        _mon_Latency = row[3]
-        _mon_TargetIP = row[8]
-        _mon_ssl_subject = row[10] # FC value 8
-        _mon_ssl_issuer = row[11] # FC value 4
-        _mon_ssl_valid_from = row[12] # FC value 2
-        _mon_ssl_valid_to = row[13] # FC value 1
-        _mon_ssl_fc = row[14] # FC value between 0 and 15
+        _mon_AlertEvents     = row["mon_AlertEvents"]
+        _mon_AlertDown       = row["mon_AlertDown"]
+        _mon_AlertUp         = row["mon_AlertUp"]
+        _mon_StatusCode      = row["mon_LastStatus"]
+        _mon_Latency         = row["mon_LastLatency"]
+        _mon_TargetIP        = row["mon_TargetIP"]
+        _mon_ssl_subject     = row["mon_ssl_subject"]
+        _mon_ssl_issuer      = row["mon_ssl_issuer"]
+        _mon_ssl_valid_from  = row["mon_ssl_valid_from"]
+        _mon_ssl_valid_to    = row["mon_ssl_valid_to"]
+        _mon_ssl_fc          = row["mon_ssl_fc"]
 
     # SSL Info change - Calc FC
     if len(_cur_ssl_info) == 4:
@@ -3039,10 +3040,10 @@ def set_services_current_scan(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Lat
     StatusChanged = 1 if _cur_StatusChanged > 0 else 0
 
     sqlite_insert = """INSERT INTO Services_CurrentScan
-                     (cur_URL, cur_DateTime, cur_StatusCode, cur_Latency, cur_AlertEvents, cur_AlertDown, cur_StatusChanged, cur_LatencyChanged, cur_TargetIP, cur_StatusCode_prev, cur_TargetIP_prev, cur_ssl_subject, cur_ssl_issuer, cur_ssl_valid_from, cur_ssl_valid_to, cur_ssl_fc) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+                     (cur_URL, cur_DateTime, cur_StatusCode, cur_Latency, cur_AlertEvents, cur_AlertDown, cur_AlertUp, cur_StatusChanged, cur_LatencyChanged, cur_TargetIP, cur_StatusCode_prev, cur_TargetIP_prev, cur_ssl_subject, cur_ssl_issuer, cur_ssl_valid_from, cur_ssl_valid_to, cur_ssl_fc) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
 
-    table_data = (_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _mon_AlertEvents, _mon_AlertDown, StatusChanged, _cur_LatencyChanged, _cur_TargetIP, _mon_StatusCode, _mon_TargetIP, _cur_ssl_subject, _cur_ssl_issuer, _cur_ssl_valid_from, _cur_ssl_valid_to, _cur_ssl_fc)
+    table_data = (_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _mon_AlertEvents, _mon_AlertDown, _mon_AlertUp, StatusChanged, _cur_LatencyChanged, _cur_TargetIP, _mon_StatusCode, _mon_TargetIP, _cur_ssl_subject, _cur_ssl_issuer, _cur_ssl_valid_from, _cur_ssl_valid_to, _cur_ssl_fc)
     sql.execute(sqlite_insert, table_data)
     sql_connection.commit()
 
@@ -3162,14 +3163,17 @@ def flush_services_current_scan():
 def print_service_monitoring_changes():
 
     print("    Services Monitoring Changes...")
-    changedStatusCode = sql.execute("SELECT COUNT() FROM Services_CurrentScan WHERE cur_StatusChanged = 1").fetchone()[0]
-    print("        Changed StatusCodes.....:", str(changedStatusCode))
-    changedLatency = sql.execute("SELECT COUNT() FROM Services_CurrentScan WHERE cur_LatencyChanged = 1").fetchone()[0]
-    print("        Changed Reachability....:", str(changedLatency))
+    changedStatusCode = sql.execute("SELECT COUNT() FROM Services_CurrentScan WHERE cur_StatusChanged = 1 AND cur_Latency != 99999999").fetchone()[0]
+    print("        StatusCodes...:", str(changedStatusCode))
+    changeddown = sql.execute("SELECT COUNT() FROM Services_CurrentScan WHERE cur_LatencyChanged = 1").fetchone()[0]
+    print("        Down..........:", str(changeddown))
+    changedup = sql.execute("SELECT COUNT() FROM Services_CurrentScan WHERE cur_StatusChanged = 1 AND cur_StatusCode_prev = 0 AND cur_StatusCode = 200").fetchone()[0]
+    print("        Up............:", str(changedup))
     with open(PIALERT_WEBSERVICES_LOG, 'a') as monitor_logfile:
         monitor_logfile.write("\nServices Monitoring Changes:\n")
-        monitor_logfile.write("    Changed StatusCodes.....: " + str(changedStatusCode))
-        monitor_logfile.write("\n    Changed Reachability....: " + str(changedLatency))
+        monitor_logfile.write("    StatusCodes...: " + str(changedStatusCode))
+        monitor_logfile.write("\n    Down..........: " + str(changeddown))
+        monitor_logfile.write("\n    Up............: " + str(changedup))
         monitor_logfile.write("\n")
         monitor_logfile.close()
 
@@ -3203,7 +3207,7 @@ def service_monitoring_notification():
     html_line_template = '<tr bgcolor=#909090 style="color:#F0F0F0;"><td colspan="2" style="width:50%; font-size:1.2em;"><b>URL:</b> {} </td><td colspan="2" style="width:50%; font-size:1.2em;"><b>Tag:</b> {} </td></tr>\n'+ \
                          '<tr><td colspan="2" style="width:50%"><b>ScanTime:</b> {} </td><td style="width:25%"><b>IP:</b>  {} </td><td style="width:25%"><b>prev. IP:</b> {} </td></tr>\n'
 
-    sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_tags
+    sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_Tags
                     FROM Services_CurrentScan
                     JOIN Services ON Services_CurrentScan.cur_URL = Services.mon_URL
                     WHERE Services_CurrentScan.cur_AlertDown = 1 
@@ -3223,15 +3227,49 @@ def service_monitoring_notification():
         mail_section_services_down = True
         mail_text_services_down += text_line_template.format (
             'Service: ', eventAlert['cur_URL'],
-            'Tag: ', eventAlert['mon_tags'], 
+            'Tag: ', eventAlert['mon_Tags'], 
             'Time: ', eventAlert['cur_DateTime'], 
             'Destination IP: ', _func_cur_TargetIP,
             'prev. Destination IP: ', _func_cur_TargetIP_prev)
         mail_html_services_down += html_line_template.format (
-            eventAlert['cur_URL'], eventAlert['mon_tags'], eventAlert['cur_DateTime'], _func_cur_TargetIP, _func_cur_TargetIP_prev)
+            eventAlert['cur_URL'], eventAlert['mon_Tags'], eventAlert['cur_DateTime'], _func_cur_TargetIP, _func_cur_TargetIP_prev)
 
     format_report_section_services (mail_section_services_down, 'SECTION_DEVICES_DOWN',
         'TABLE_DEVICES_DOWN', mail_text_services_down, mail_html_services_down)
+
+
+    # # Compose Devices Up Section
+    mail_section_services_up = False
+    mail_text_services_up = ''
+    mail_html_services_up = ''
+    text_line_template = '{}{}\n\t{}\t\t\t{}\n\t{}\t\t\t{}\n\t{}\t{}\n\n'
+    html_line_template = '<tr bgcolor=#909090 style="color:#F0F0F0;"><td colspan="2" style="width:50%; font-size:1.2em;"><b>URL:</b> {} </td><td colspan="2" style="width:50%; font-size:1.2em;"><b>Tag:</b> {} </td></tr>\n'+ \
+                         '<tr><td colspan="2" style="width:50%"><b>ScanTime:</b> {} </td><td style="width:25%"><b>IP:</b>  {} </td></tr>\n'
+
+    sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_Tags
+                    FROM Services_CurrentScan
+                    JOIN Services ON Services_CurrentScan.cur_URL = Services.mon_URL
+                    WHERE Services_CurrentScan.cur_AlertUp = 1 
+                    AND Services_CurrentScan.cur_StatusChanged = 1
+                    AND Services_CurrentScan.cur_StatusCode = 200
+                    AND Services_CurrentScan.cur_StatusCode_prev = 0
+                    ORDER BY Services_CurrentScan.cur_DateTime""")
+
+    for eventAlert in sql :
+        mail_section_services_up = True
+        mail_text_services_up += text_line_template.format (
+            'Service: ', eventAlert['cur_URL'],
+            'Tag: ', eventAlert['mon_Tags'], 
+            'Time: ', eventAlert['cur_DateTime'], 
+            'Destination IP: ', eventAlert['cur_TargetIP'])
+        mail_html_services_up += html_line_template.format (
+            eventAlert['cur_URL'], eventAlert['mon_Tags'], eventAlert['cur_DateTime'], eventAlert['cur_TargetIP'])
+
+        print(mail_text_services_up)
+
+    format_report_section_services (mail_section_services_up, 'SECTION_DEVICES_UP',
+        'TABLE_DEVICES_UP', mail_text_services_up, mail_html_services_up)
+
 
     # Compose Events Section (includes Down as an Event)
     mail_section_events = False
@@ -3242,7 +3280,7 @@ def service_monitoring_notification():
                          '<tr><td style="width:25%"><b>ScanTime:</b> {} </td>  <td style="width:25%"><b>IP:</b> {} </td>          <td style="width:25%"><b>prev. IP:</b> {} </td>          <td style="width:25%"><b>Latency:</b> {} </td>    <tr>\n'+ \
                          '<tr><td style="width:25%">&nbsp;</td>                <td style="width:25%"><b>StatusCode:</b> {} </td>  <td style="width:25%"><b>prev. StatusCode:</b> {} </td>  <td style="width:25%"><b>SSL Code:</b> {} </td>  </tr>\n'
 
-    sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_tags
+    sql.execute ("""SELECT Services_CurrentScan.*, Services.mon_Tags
                     FROM Services_CurrentScan
                     JOIN Services ON Services_CurrentScan.cur_URL = Services.mon_URL
                     WHERE Services_CurrentScan.cur_AlertEvents = 1 
@@ -3262,7 +3300,7 @@ def service_monitoring_notification():
         mail_section_events = True
         mail_text_events += text_line_template.format (
             'Service: ', eventAlert['cur_URL'],
-            'Tag: ', eventAlert['mon_tags'],
+            'Tag: ', eventAlert['mon_Tags'],
             'Time: ', eventAlert['cur_DateTime'],
             'Destination IP: ', _func_cur_TargetIP,
             'prev. Destination IP: ', _func_cur_TargetIP_prev,
@@ -3270,7 +3308,7 @@ def service_monitoring_notification():
             'prev. HTTP Status Code: ', eventAlert['cur_StatusCode_prev'],
             'SSL Status: ', eventAlert['cur_ssl_fc'])
         mail_html_events += html_line_template.format (
-            eventAlert['cur_URL'], eventAlert['mon_tags'], 
+            eventAlert['cur_URL'], eventAlert['mon_Tags'], 
             eventAlert['cur_DateTime'], _func_cur_TargetIP, _func_cur_TargetIP_prev, eventAlert['cur_Latency'], 
             eventAlert['cur_StatusCode'], eventAlert['cur_StatusCode_prev'], eventAlert['cur_ssl_fc'])
 
@@ -3278,7 +3316,7 @@ def service_monitoring_notification():
         'TABLE_EVENTS', mail_text_events, mail_html_events)
 
     # # Send Mail
-    if mail_section_services_down == True or mail_section_events == True :
+    if mail_section_services_down == True or mail_section_events == True or mail_section_services_up == True:
         sending_notifications ('webservice', mail_html_webservice, mail_text_webservice)
     else :
         print('    No changes to report...')

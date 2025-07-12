@@ -23,6 +23,8 @@ $pia_lang['Gen_activate'] = 'enable';
 $pia_lang['Gen_deactivate'] = 'disable';
 $pia_lang['Gen_error'] = 'Error';
 $pia_lang['Gen_column'] = 'Colonna';
+$pia_lang['Gen_hide'] = 'nascondi';
+$pia_lang['Gen_show'] = 'mostra';
 // Login Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Login_Box'] = 'Inserisci la password';
@@ -64,7 +66,7 @@ $pia_lang['Device_Shortcut_NewDevices'] = 'Nuovi Dispositivi';
 $pia_lang['Device_Shortcut_DownAlerts'] = 'Allarmi Disconnessione';
 $pia_lang['Device_Shortcut_Archived'] = 'Archiviati';
 $pia_lang['Device_Shortcut_Devices'] = 'Dispositivi';
-$pia_lang['Device_Shortcut_OnlineChart_a'] = 'Attività di rete nell\'ultime ';
+$pia_lang['Device_Shortcut_OnlineChart_a'] = 'Attività di rete nell&apos;ultime ';
 $pia_lang['Device_Shortcut_OnlineChart_b'] = ' ore';
 $pia_lang['Device_TableHead_Name'] = 'Nome';
 $pia_lang['Device_TableHead_Owner'] = 'Proprietario';
@@ -89,9 +91,11 @@ $pia_lang['Device_Table_info'] = 'Visualizzazione _START_ a _END_ di _TOTAL_ voc
 $pia_lang['Device_Table_nav_next'] = 'Successivo';
 $pia_lang['Device_Table_nav_prev'] = 'Precedente';
 $pia_lang['Device_bulkEditor_mode'] = 'Editor Multipli';
-$pia_lang['Device_bulkEditor_mode_quit'] = 'Esci dall\'Editor';
+$pia_lang['Device_bulkEditor_mode_quit'] = 'Esci dall&apos;Editor';
 $pia_lang['Device_bulkEditor_selectall'] = 'Seleziona Tutti';
 $pia_lang['Device_bulkEditor_selectnone'] = 'Deseleziona Tutti';
+$pia_lang['Device_bulkEditor_selectvisall'] = 'Seleziona visibili';
+$pia_lang['Device_bulkEditor_selectvisnone'] = 'Deseleziona visibili';
 $pia_lang['Device_bulkEditor_savebox_title'] = 'I campi sono stati salvati';
 $pia_lang['Device_bulkEditor_savebox_noselection'] = 'Nessun campo è stato selezionato per la modifica';
 $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Dispositivi Modificati';
@@ -260,6 +264,7 @@ $pia_lang['DevDetail_Speedtest_note_c'] = '';
 $pia_lang['DevDetail_Tools_nmap_head_latest'] = 'Risultato dell&apos;ultimo Scansione Nmap';
 $pia_lang['DevDetail_Tools_nmap_head_cur'] = 'Risultato della Scansione Nmap attuale';
 $pia_lang['DevDetail_Tools_nmap_head_prev'] = 'Risultato della Scansione Nmap precedente';
+$pia_lang['DevDetail_add_ignore_noti_text'] = ' verrà aggiunto alla lista degli ignorati. Il dispositivo rilevato resterà nel database e sarà contrassegnato come OFFLINE in futuro. Se il dispositivo viene eliminato, la voce rimarrà nella lista per impedirne una nuova aggiunta.';
 // WebServices Details Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['WEBS_Title'] = 'Servizi Web';
@@ -299,6 +304,8 @@ $pia_lang['WEBS_Stats_Location'] = 'Posizione';
 $pia_lang['WEBS_Stats_IP'] = 'IP attuale';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Assegnazione del paese';
 $pia_lang['WEBS_Stats_comment_a'] = '(Calcolato da tutti gli scansione di questo servizio)';
+$pia_lang['WEBS_label_AlertUp'] = 'Attivo';
+$pia_lang['WEBS_EVE_up'] = 'Attivo';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Webs_UpdServ'] = 'Il servizio web è stato aggiornato';
@@ -537,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_head'] = 'Modifica voce del menu a discesa';
 $pia_lang['MT_ColumnUpd_Mod_text'] = 'Le voci codificate verranno aggiornate su ogni dispositivo ma rimarranno nel menu. Le voci personalizzate verranno sostituite dalla nuova voce.';
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Log estesi';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Consente di passare tra log semplici ed estesi. I log estesi dovrebbero essere attivati solo in caso di errore, poiché le informazioni aggiuntive possono compromettere la chiarezza.';
+$pia_lang['MT_del_ignore_noti_text'] = ' verrà rimosso dalla lista degli ignorati. Di conseguenza, i dispositivi corrispondenti alla voce rimossa potrebbero essere rilevati nuovamente.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tutti i moduli di scansione e le importazioni disattivati';
@@ -565,7 +573,7 @@ $pia_lang['BE_Dev_BackupCSV_okay'] = 'L&apos;archivio con i file CSV è stato cr
 $pia_lang['BE_Dev_DBTools_DelDev_a'] = 'Dispositivo eliminato con successo';
 $pia_lang['BE_Dev_DBTools_DelDev_b'] = 'Dispositivi eliminati con successo';
 $pia_lang['BE_Dev_DBTools_DelServ'] = 'Servizi web eliminati con successo';
-$pia_lang['BE_Dev_DBTools_DelServError'] = 'Errore durante l\'eliminazione di tutti i servizi web.';
+$pia_lang['BE_Dev_DBTools_DelServError'] = 'Errore durante l&apos;eliminazione di tutti i servizi web.';
 $pia_lang['BE_Dev_DBTools_DelEvents'] = 'Eventi eliminati con successo';
 $pia_lang['BE_Dev_DBTools_DelEventsError'] = 'Errore nell&apos;eliminazione degli eventi.';
 $pia_lang['BE_Dev_DBTools_DelDevError_a'] = 'Errore nell&apos;eliminazione del dispositivo.';
@@ -627,7 +635,7 @@ $pia_lang['BE_Param_error_create'] = 'Errore durante la creazione del parametro'
 $pia_lang['BE_Param_Colors'] = 'Colore/i salvato/i';
 $pia_lang['BE_Param_Colors_error'] = 'Il/i colore/i non è/sono stato/i modificato/i o salvato/i (database in uso per la scansione)';
 $pia_lang['BE_Dev_DBTools_resetVoided'] = 'Gli eventi ANNULLATI sono stati convertiti in eventi "validi"';
-$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Errore durante l\'aggiornamento degli eventi ANNULLATI';
+$pia_lang['BE_Dev_DBTools_resetVoidedError'] = 'Errore durante l&apos;aggiornamento degli eventi ANNULLATI';
 $pia_lang['BE_Dev_ColumnErr_a'] = 'Errore: Il contenuto della colonna deve essere vuoto per poter essere eliminato.';
 $pia_lang['BE_Dev_ColumnErr_b'] = 'Nome colonna non valido: ';
 $pia_lang['BE_Dev_ColumnErr_c'] = 'Errore durante la preparazione per';
@@ -637,6 +645,17 @@ $pia_lang['BE_Dev_ColumnOk_a'] = 'Voce/i cancellata/e';
 $pia_lang['BE_Dev_ColumnOk_b'] = 'Voce/i aggiornata/e';
 $pia_lang['BE_Dev_ColumnOk_c'] = '-Contenuto della colonna eliminato correttamente';
 $pia_lang['BE_Dev_ColumnOk_d'] = '-Colonna aggiornata correttamente';
+$pia_lang['BE_Dev_Ignore_a'] = 'Errore: nessun valore IP fornito.';
+$pia_lang['BE_Dev_Ignore_b'] = 'Errore: valore IP vuoto.';
+$pia_lang['BE_Dev_Ignore_c'] = 'Errore: file di configurazione non trovato o illeggibile.';
+$pia_lang['BE_Dev_Ignore_d'] = 'Errore: IP_IGNORE_LIST non trovato.';
+$pia_lang['BE_Dev_Ignore_e'] = 'Errore: il file di configurazione non è scrivibile.';
+$pia_lang['BE_Dev_Ignore_f'] = 'IP rimosso con successo.';
+$pia_lang['BE_Dev_Ignore_g'] = 'IP aggiunto con successo.';
+$pia_lang['BE_Dev_Ignore_h'] = 'Errore: nessun valore MAC fornito.';
+$pia_lang['BE_Dev_Ignore_i'] = 'Errore: MAC_IGNORE_LIST non trovato.';
+$pia_lang['BE_Dev_Ignore_j'] = 'MAC rimosso con successo.';
+$pia_lang['BE_Dev_Ignore_k'] = 'MAC aggiunto con successo.';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Panoramica della Rete';
@@ -842,8 +861,8 @@ $pia_journ_lang['LogStr_0035'] = 'Eliminato dispositivo non scansionabile (hub, 
 $pia_journ_lang['LogStr_0036'] = 'Dispositivi, servizi web e host ICMP esportati in formato CSV.';
 $pia_journ_lang['LogStr_0037'] = 'Elimina risultati Nmap';
 $pia_journ_lang['LogStr_0038'] = 'Elimina risultati Nmap (con errore)';
-$pia_journ_lang['LogStr_0039'] = 'Tutti i servizi web eliminati dall\'elenco dei servizi';
-$pia_journ_lang['LogStr_0040'] = 'Elimina tutti i servizi web dall\'elenco dei servizi (con errore)';
+$pia_journ_lang['LogStr_0039'] = 'Tutti i servizi web eliminati dall&apos;elenco dei servizi';
+$pia_journ_lang['LogStr_0040'] = 'Elimina tutti i servizi web dall&apos;elenco dei servizi (con errore)';
 $pia_journ_lang['LogStr_0041'] = 'Errore durante il salvataggio del filtro predefinito';
 $pia_journ_lang['LogStr_0042'] = 'Il filtro predefinito è stato salvato';
 $pia_journ_lang['LogStr_0043'] = 'Il filtro predefinito era incompleto e non è stato salvato';

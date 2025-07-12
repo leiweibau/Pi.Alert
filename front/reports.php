@@ -1,12 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  reports.php - Front module. WebGUI Notification page
-#-------------------------------------------------------------------------------
-#  leiweibau 2024+                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 error_reporting(0);
@@ -113,7 +104,7 @@ function get_notification_class($filename) {
 		$temp_class[2] = substr($headtitle[0], 6, 2) . '.' . substr($headtitle[0], 4, 2) . '.' . substr($headtitle[0], 2, 2) . '/' . substr($headtitle[1], 0, 2) . ':' . substr($headtitle[1], 2, 2);
 		return $temp_class;
 	}
-	if ($temp_class[0] == "Services Events" || $temp_class[0] == "Services Down") {
+	if ($temp_class[0] == "Services Events" || $temp_class[0] == "Services Down" || $temp_class[0] == "Services Up") {
 		$temp_class[1] = 'webmon';
 		$temp_class[2] = substr($headtitle[0], 6, 2) . '.' . substr($headtitle[0], 4, 2) . '.' . substr($headtitle[0], 2, 2) . '/' . substr($headtitle[1], 0, 2) . ':' . substr($headtitle[1], 2, 2);
 		return $temp_class;

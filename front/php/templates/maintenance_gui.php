@@ -85,7 +85,7 @@
                 <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_e'];?></h4></td></tr>
 <!-- FavIcon -------------------------------------------------------------- -->
                 <tr class="table_settings">
-                    <td class="db_info_table_cell" colspan="2" style="text-align: justify;"><?=$pia_lang['MT_Tools_Tab_Subheadline_e_Intro'];?></td>
+                    <td class="db_info_table_cell" colspan="2" style="text-align: justify;"><?=$pia_lang['MT_Tools_Tab_Subheadline_e_Intro'];?> (<a href="https://github.com/leiweibau/Pi.Alert/blob/main/docs/ICONS.md" target="_blank">View on Github</a>)</td>
                 </tr>
                 <tr><td class="db_info_table_cell" colspan="2" style="padding: 10px;">
 					<div class="row">

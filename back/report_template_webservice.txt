@@ -5,7 +5,12 @@ Server:      <SERVER_NAME>
 Services Down
 ------------------------------
 <TABLE_DEVICES_DOWN>
-</SECTION_DEVICES_DOWN><SECTION_EVENTS>Services Events
+</SECTION_DEVICES_DOWN><SECTION_DEVICES_UP>
+Services Up
+------------------------------
+<TABLE_DEVICES_UP>
+</SECTION_DEVICES_UP><SECTION_EVENTS>
+Services Events
 ------------------------------
 <TABLE_EVENTS>
 </SECTION_EVENTS>

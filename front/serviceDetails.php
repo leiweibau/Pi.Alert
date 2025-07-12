@@ -1,12 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  serviceDetails.php - Front module. Service management page
-#-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 
@@ -471,8 +462,11 @@ while ($row = $dev_res->fetchArray()) {
 
                       <!-- Alert Down -->
                       <div class="form-group">
-                        <label class="col-xs-4 control-label"><?=$pia_lang['WEBS_label_AlertDown'];?></label>
-                        <div class="col-xs-4" style="padding-top:6px;"><input class="checkbox red" id="chkAlertDown" <?php if ($servicedetails['mon_AlertDown'] == 1) {echo 'checked';}?> type="checkbox"></div>
+                        <label class="col-xs-4 control-label"><?=$pia_lang['WEBS_label_AlertDown'];?> / <?=$pia_lang['WEBS_label_AlertUp'];?></label>
+                        <div class="col-xs-4" style="padding-top:6px;">
+                        	 <input class="checkbox red" id="chkAlertDown" <?php if ($servicedetails['mon_AlertDown'] == 1) {echo 'checked';}?> type="checkbox"> <span style="font-weight: bolder;">/</span> 
+                        	 <input class="checkbox green" id="chkAlertUp" <?php if ($servicedetails['mon_AlertUp'] == 1) {echo 'checked';}?> type="checkbox">
+                        </div>
                       </div>
 
                     </div>
@@ -796,6 +790,13 @@ function initializeiCheck () {
     increaseArea:  '20%'
   });
 
+  // Green
+  $('input[type="checkbox"].green').iCheck({
+    checkboxClass: 'icheckbox_flat-green',
+    radioClass:    'iradio_flat-green',
+    increaseArea:  '20%'
+  });
+
 }
 
 // -----------------------------------------------------------------------------
@@ -879,6 +880,7 @@ function setServiceData(refreshCallback='') {
     + '&tags='            + $('#txtTags').val()
     + '&mac='             + $('#txtMAC').val()
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
+    + '&alertup='         + ($('#chkAlertUp')[0].checked * 1)
     + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
     , function(msg) {
 

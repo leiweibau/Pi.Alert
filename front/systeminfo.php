@@ -1,12 +1,3 @@
-<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  systeminfo.php - Front module. SystemInfo page
-#-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
-
 <?php
 session_start();
 
@@ -193,6 +184,12 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 					    }
 					}
 
+					if (is_bool($hostdata['satellite_proxymode'])) {
+						if ($hostdata['satellite_proxymode'] == True) {$proxymode = "True";} else {$proxymode = "False";}
+					} else {$proxymode = "Unknown";}
+
+					if (!isset($hostdata['satellite_url'])) {$hostdata['satellite_url'] = "Unknown";}
+
 	                $scan_time = explode(" ", $row['sat_lastupdate']);
 	                $tab_content .= '<div class="tab-pane" id="tab_'.$tab_id.'">
 											<div class="row">
@@ -230,6 +227,14 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Timezone (System):</div>
 											  <div class="col-sm-9 sysinfo_gerneral_b">"' . $hostdata['os_timezone'] . '"</div>
+											</div>
+											<div class="row">
+											  <div class="col-sm-3 sysinfo_gerneral_a">Proxy Mode:</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . $proxymode . '</div>
+											</div>
+											<div class="row">
+											  <div class="col-sm-3 sysinfo_gerneral_a">API Url:</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['satellite_url'] . '</div>
 											</div>
 							            </div>';
 	            }
