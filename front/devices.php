@@ -774,19 +774,19 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 				                      <div class="form-group col-xs-12">
 				                        <label class="col-xs-3 control-label"><?=$pia_lang['Device_del_table_filtername']?></label>
 				                        <div class="col-xs-9">
-				                          <input type="text" class="form-control" id="txtFilterName" placeholder="'.$pia_lang['Device_del_table_filtername_help'].'">
+				                          <input type="text" class="form-control" id="txtFilterName" placeholder="<?=$pia_lang['Device_del_table_filtername_help']?>">
 				                        </div>
 				                      </div>
 				                      <div class="form-group col-xs-12">
 				                        <label class="col-xs-3 control-label"><?=$pia_lang['Device_del_table_filterstring']?></label>
 				                        <div class="col-xs-9">
-				                          <input type="text" class="form-control" id="txtFilterString" placeholder="'.$pia_lang['Device_del_table_filterstring_help'].'">
+				                          <input type="text" class="form-control" id="txtFilterString" placeholder="<?=$pia_lang['Device_del_table_filterstring_help']?>">
 				                        </div>
 				                      </div>
 				                      <div class="form-group col-xs-12">
 				                        <label class="col-xs-3 control-label"><?=$pia_lang['Device_del_table_filtergroup']?></label>
 				                        <div class="col-xs-9">
-				                          <input type="text" class="form-control" id="txtFilterGroup" placeholder="'.$pia_lang['Device_del_table_filtergroup_help'].'">
+				                          <input type="text" class="form-control" id="txtFilterGroup" placeholder="<?=$pia_lang['Device_del_table_filtergroup_help']?>">
 				                        </div>
 				                      </div>
 				                      <div class="form-group col-xs-12">
@@ -1068,7 +1068,7 @@ function initializeDatatable () {
          orderable: false,
          "render": function (data, type, row, meta) {
          	 // Deactivation of WoL buttons for devices where it probably makes no sense
-         	 var includeValues = ["Mini PC", "Server", "Laptop", "NAS", "PC", "Hypervisor"];
+         	 var includeValues = ['Mini PC', 'Server', 'Laptop', 'NAS', 'PC', 'Hypervisor', 'VM Guest'];
 
          	 if (includeValues.indexOf(row[3]) !== -1 && row[11] !== "Internet") {
               return '<a href="#" onclick="askwakeonlan(\'' + row[11] + '\',\'' + row[9] + '\', \'' + row[0] + '\')"><i class="fa-solid fa-power-off text-red"></i></a>';
