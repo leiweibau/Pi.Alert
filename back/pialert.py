@@ -3117,13 +3117,23 @@ def get_ssl_cert_info(url, timeout=10):
                 cert_data = ssock.getpeercert(binary_form=True)
                 cert = x509.load_der_x509_certificate(cert_data, default_backend())
 
-                ssl_info = dict();
+                ssl_info = dict()
                 ssl_info['Subject'] = f"""{cert.subject}"""
                 ssl_info['Issuer'] = f"""{cert.issuer}"""
-                ssl_info['Valid_from'] = f"""{cert.not_valid_before}"""
-                ssl_info['Valid_to'] = f"""{cert.not_valid_after}"""
+
+                # Compatibility with new and old cryptography versions
+                if hasattr(cert, 'not_valid_before_utc'):
+                    ssl_info['Valid_from'] = f"""{cert.not_valid_before_utc} (UTC)"""
+                else:
+                    ssl_info['Valid_from'] = f"""{cert.not_valid_before}"""
+
+                if hasattr(cert, 'not_valid_after_utc'):
+                    ssl_info['Valid_to'] = f"""{cert.not_valid_after_utc} (UTC)"""
+                else:
+                    ssl_info['Valid_to'] = f"""{cert.not_valid_after}"""
 
                 return ssl_info
+
 
     except socket.timeout:
         return "SSL certificate could not be found (Timeout)"
