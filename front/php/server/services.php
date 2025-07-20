@@ -366,8 +366,8 @@ function insertNewService() {
 	$http_code = curl_getinfo($checkURL, CURLINFO_HTTP_CODE);
 	curl_close($checkURL);
 
-	$sql = 'INSERT INTO Services ("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_TargetIP")
-                         VALUES("' . $url . '", "' . $_REQUEST['mac'] . '", "' . $http_code . '", "' . $httpstats['total_time'] . '", "' . $check_timestamp . '", "' . $_REQUEST['tags'] . '", "' . $_REQUEST['alertevents'] . '", "' . $_REQUEST['alertdown'] . '", "' . $httpstats['primary_ip'] . '")';
+	$sql = 'INSERT INTO Services ("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_AlertUp", "mon_TargetIP")
+                         VALUES("' . $url . '", "' . $_REQUEST['mac'] . '", "' . $http_code . '", "' . $httpstats['total_time'] . '", "' . $check_timestamp . '", "' . $_REQUEST['tags'] . '", "' . $_REQUEST['alertevents'] . '", "' . $_REQUEST['alertdown'] . '", "' . $_REQUEST['alertup'] . '", "' . $httpstats['primary_ip'] . '")';
 	$result = $db->query($sql);
 	// check result
 	if ($result == TRUE) {
