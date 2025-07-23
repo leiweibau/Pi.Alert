@@ -312,6 +312,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Il servizio web è stato aggiornato';
 $pia_lang['BE_Webs_UpdServError'] = 'Il servizio web non è stato aggiornato';
 $pia_lang['BE_Webs_InsServ'] = 'Il servizio web è stato salvato';
 $pia_lang['BE_Webs_InsServError'] = 'Il servizio web non è stato salvato';
+$pia_lang['BE_Webs_InsServError_a'] = '. URL non valida';
 $pia_lang['BE_Webs_DelServ'] = 'Il servizio web è stato rimosso dal database';
 $pia_lang['BE_Webs_DelServError'] = 'Il servizio web non è stato rimosso o è stato rimosso parzialmente';
 // ICMP Monitoring Page

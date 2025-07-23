@@ -310,6 +310,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'The web service was updated';
 $pia_lang['BE_Webs_UpdServError'] = 'The web service was not updated';
 $pia_lang['BE_Webs_InsServ'] = 'The web service was saved';
 $pia_lang['BE_Webs_InsServError'] = 'The web service was not saved';
+$pia_lang['BE_Webs_InsServError_a'] = '. URL invalide';
 $pia_lang['BE_Webs_DelServ'] = 'The web service was deleted from the database';
 $pia_lang['BE_Webs_DelServError'] = 'The web service could not be deleted, or could not be deleted completely';
 // Page de Surveillance ICMP

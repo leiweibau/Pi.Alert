@@ -309,6 +309,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Webtjenesten blev opdateret';
 $pia_lang['BE_Webs_UpdServError'] = 'Webtjenesten kunne ikke opdateres';
 $pia_lang['BE_Webs_InsServ'] = 'Webtjenesten blev gemt';
 $pia_lang['BE_Webs_InsServError'] = 'Webtjenesten kunne ikke gemmes';
+$pia_lang['BE_Webs_InsServError_a'] = '. Ugyldig URL';
 $pia_lang['BE_Webs_DelServ'] = 'Webtjenesten blev slettet fra databasen';
 $pia_lang['BE_Webs_DelServError'] = 'Webtjenesten kunne ikke slettes eller blev ikke helt slettet';
 // ICMP Monitoring Page

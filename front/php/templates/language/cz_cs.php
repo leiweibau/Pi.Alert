@@ -309,6 +309,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Webová služba byla aktualizována';
 $pia_lang['BE_Webs_UpdServError'] = 'Webovou službu se nepodařilo aktualizovat';
 $pia_lang['BE_Webs_InsServ'] = 'Webová služba byla uložena';
 $pia_lang['BE_Webs_InsServError'] = 'Webovou službu se nepodařilo uložit';
+$pia_lang['BE_Webs_InsServError_a'] = '. Neplatná adresa URL';
 $pia_lang['BE_Webs_DelServ'] = 'Webová služba byla odstraněna z databáze';
 $pia_lang['BE_Webs_DelServError'] = 'Webovou službu se nepodařilo odstranit nebo byla odstraněna pouze částečně';
 // ICMP Monitoring Page

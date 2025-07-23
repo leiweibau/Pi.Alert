@@ -310,6 +310,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Usługa sieciowa została zaktualizowana';
 $pia_lang['BE_Webs_UpdServError'] = 'Nie udało się zaktualizować usługi sieciowej';
 $pia_lang['BE_Webs_InsServ'] = 'Usługa sieciowa została zapisana';
 $pia_lang['BE_Webs_InsServError'] = 'Nie udało się zapisać usługi sieciowej';
+$pia_lang['BE_Webs_InsServError_a'] = '. Nieprawidłowy adres URL';
 $pia_lang['BE_Webs_DelServ'] = 'Usługa sieciowa została usunięta z bazy danych';
 $pia_lang['BE_Webs_DelServError'] = 'Nie udało się usunąć usługi sieciowej lub została usunięta tylko częściowo';
 // ICMP Monitoring Page

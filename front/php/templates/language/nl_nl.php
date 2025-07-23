@@ -309,6 +309,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'De webservice is bijgewerkt';
 $pia_lang['BE_Webs_UpdServError'] = 'De webservice kon niet worden bijgewerkt';
 $pia_lang['BE_Webs_InsServ'] = 'De webservice is opgeslagen';
 $pia_lang['BE_Webs_InsServError'] = 'De webservice kon niet worden opgeslagen';
+$pia_lang['BE_Webs_InsServError_a'] = '. Ongeldige URL';
 $pia_lang['BE_Webs_DelServ'] = 'De webservice is uit de database verwijderd';
 $pia_lang['BE_Webs_DelServError'] = 'De webservice kon niet of niet volledig worden verwijderd';
 // ICMP Monitoring Page

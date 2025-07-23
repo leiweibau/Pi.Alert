@@ -350,6 +350,7 @@ function insertNewService() {
 	$url = $_REQUEST['url'];
 
 	if (!$url || !is_string($url) || !preg_match('/^http(s)?:\/\/[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(\/.*)?$/i', $url)) {
+		echo $pia_lang['BE_Webs_InsServError'].$pia_lang['BE_Webs_InsServError_a'];
 		return false;
 	}
 

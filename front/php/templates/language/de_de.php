@@ -310,6 +310,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Der Web Service wurde aktualisiert';
 $pia_lang['BE_Webs_UpdServError'] = 'Der Web Service wurde nicht aktualisiert';
 $pia_lang['BE_Webs_InsServ'] = 'Der Web Service wurde gespeichert';
 $pia_lang['BE_Webs_InsServError'] = 'Der Web Service wurde nicht gespeichert';
+$pia_lang['BE_Webs_InsServError_a'] = '. Ungültige URL';
 $pia_lang['BE_Webs_DelServ'] = 'Der Web Service wurde aus der Datenbank gelöscht';
 $pia_lang['BE_Webs_DelServError'] = 'Der Web Service konnte nicht, oder nicht vollständig gelöscht werden';
 // ICMP Monitoring Page
