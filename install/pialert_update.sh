@@ -471,6 +471,22 @@ HOSTNAME_IGNORE_LIST    = []
 EOF
 fi
 
+# 2025-07-23
+if ! grep -Fq "# MQTT Reporting" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# MQTT Reporting
+# ----------------------
+REPORT_TO_MQTT             = False
+REPORT_MQTT_BROKER         = 'mqtt.example.com'
+REPORT_MQTT_PORT           = 1883
+REPORT_MQTT_USERNAME       = 'yourusername'
+REPORT_MQTT_PASSWORD       = 'yourpassword'
+REPORT_MQTT_TLS            = False
+PUBLISH_MQTT_STATUS        = False
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

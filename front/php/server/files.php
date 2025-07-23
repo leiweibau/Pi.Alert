@@ -549,6 +549,16 @@ REPORT_WEBGUI_WEBMON       = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON
 REPORT_TO_ARCHIVE          = " . $configArray['REPORT_TO_ARCHIVE'] . "
 # Number of hours after which a report is moved to the archive. The value 0 disables the feature
 
+# MQTT Reporting
+# ----------------------
+REPORT_TO_MQTT             = " . convert_bool($configArray['REPORT_TO_MQTT']) . "
+REPORT_MQTT_BROKER         = '" . $configArray['REPORT_MQTT_BROKER'] . "'
+REPORT_MQTT_PORT           = " . $configArray['REPORT_MQTT_PORT'] . "
+REPORT_MQTT_USERNAME       = '" . $configArray['REPORT_MQTT_USERNAME'] . "'
+REPORT_MQTT_PASSWORD       = '" . $configArray['REPORT_MQTT_PASSWORD'] . "'
+REPORT_MQTT_TLS            = " . convert_bool($configArray['REPORT_MQTT_TLS']) . "
+PUBLISH_MQTT_STATUS        = " . convert_bool($configArray['PUBLISH_MQTT_STATUS']) . "
+
 # Mail Reporting
 # ----------------------
 REPORT_MAIL                = " . convert_bool($configArray['REPORT_MAIL']) . "

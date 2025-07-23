@@ -25,8 +25,9 @@ from urllib.parse import urlparse
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
-from datetime import datetime, timedelta
-import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp
+from datetime import datetime, timedelta, timezone
+from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion, MQTT_ERR_SUCCESS
+import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -917,7 +918,224 @@ def scan_network():
         print('\nLooking for Rogue DHCP Servers...')
         rogue_dhcp_detection()
 
+    # Publish MQTT
+    if REPORT_TO_MQTT:
+        print('\nSending MQTT...')
+        report_to_mqtt()
+
     return 0
+
+#-------------------------------------------------------------------------------
+def send_mqtt_message(topic: str, value, retain: bool = False):
+    """Sendet eine einfache MQTT-Nachricht mit retain-Unterstützung."""
+    client = mqtt.Client(protocol=mqtt.MQTTv311)
+
+    if REPORT_MQTT_USERNAME and REPORT_MQTT_PASSWORD:
+        client.username_pw_set(REPORT_MQTT_USERNAME, REPORT_MQTT_PASSWORD)
+
+    if REPORT_MQTT_TLS:
+        client.tls_set()
+
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            result = client.publish(topic, str(value), retain=retain)
+            if result[0] != mqtt.MQTT_ERR_SUCCESS:
+                print(f"❌ Fehler beim Senden an {topic}")
+            client.disconnect()
+        else:
+            print(f"❌ Verbindungsfehler (Code {rc})")
+
+    client.on_connect = on_connect
+
+    try:
+        client.connect(REPORT_MQTT_BROKER, REPORT_MQTT_PORT, 60)
+        client.loop_forever()
+    except Exception as e:
+        print(f"❌ MQTT-Verbindungsfehler: {e}")
+
+#-------------------------------------------------------------------------------
+def publish_sensor_group(device_id: str, device_name: str, base_topic: str, values: dict):
+
+    for key, value in values.items():
+        topic = f"{base_topic}/{key}"
+        object_id = key.lower()
+
+        # Automatische Zuordnung von Einheit und device_class
+        unit = "" if isinstance(value, int) else None
+        device_class = "timestamp" if "time" in key.lower() else None
+
+        # Discovery senden
+        publish_discovery_sensor(
+            device_id=device_id,
+            device_name=device_name,
+            object_id=object_id,
+            name=f"{device_name}: {key.capitalize()}",
+            topic=topic,
+            unit=unit,
+            device_class=device_class
+        )
+
+        # Wert senden
+        send_mqtt_message(topic, value, retain=True)
+
+#-------------------------------------------------------------------------------
+def publish_discovery_sensor(device_id, device_name, object_id, name, topic, unit=None, device_class=None):
+    is_binary = object_id.lower() == "status"  # automatisch erkennen
+
+    sensor_type = "binary_sensor" if is_binary else "sensor"
+    discovery_topic = f"homeassistant/{sensor_type}/{device_id}_{object_id}/config"
+
+    payload = {
+        "name": name,
+        "state_topic": topic,
+        "unique_id": f"{device_id}_{object_id}",
+        "device": {
+            "identifiers": [device_id],
+            "name": device_name,
+            "manufacturer": "Pi.Alert",
+            "model": "MQTT Export"
+        }
+    }
+
+    # Zusätzliche Felder je nach Typ
+    if is_binary:
+        payload["payload_on"] = "on"
+        payload["payload_off"] = "off"
+        payload["device_class"] = device_class or "None"
+    else:
+        if unit:
+            payload["unit_of_measurement"] = unit
+        if device_class:
+            payload["device_class"] = device_class
+
+    send_mqtt_message(discovery_topic, payload, retain=True)
+
+#-------------------------------------------------------------------------------
+def mqtt_get_system_status():
+    openDB()
+
+    mqttstartTime = datetime.datetime.now(timezone.utc).replace(second=0, microsecond=0)
+    formatted_time = mqttstartTime.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    data = {}
+    status_data = {}
+    local_data = {}
+    status_data["status"] = "off" if os.path.exists("../../db/setting_stoparpscan") else "on"
+    status_data["time"] = formatted_time
+
+    # General stats
+    sql.execute('''
+        SELECT
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_PresentLastScan=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_NewDevice=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=1)
+    ''')
+    row = sql.fetchone()
+    keys = ["all", "online", "new", "down", "offline", "archive"]
+    if row:
+        status_data.update(dict(zip(keys, row)))
+
+    data["status"] = status_data
+
+    # local section
+    sql.execute('''
+        SELECT
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_PresentLastScan=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_NewDevice=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=1)
+    ''')
+    row = sql.fetchone()
+    keys = ["all", "online", "new", "down", "offline", "archive"]
+    if row:
+        local_data.update(dict(zip(keys, row)))
+
+    sql.execute("SELECT All_Devices, Down_Devices, Online_Devices FROM Online_History WHERE data_source='icmp_scan' ORDER BY Scan_Date DESC LIMIT 1")
+    row = sql.fetchone()
+    if row:
+        local_data["icmp_all"] = row[0]
+        local_data["icmp_offline"] = row[1]
+        local_data["icmp_online"] = row[2]
+
+    data["local"] = local_data
+
+    # Satellites
+    sql.execute("SELECT sat_token, sat_name FROM Satellites")
+    satellites = sql.fetchall()
+    for sat_token, sat_name in satellites:
+        sql.execute('''
+            SELECT
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_PresentLastScan=1),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_NewDevice=1),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=1)
+        ''', (sat_token,) * 6)
+        row = sql.fetchone()
+        keys = ["all", "online", "new", "down", "offline", "archive"]
+        if row:
+            data[sat_name] = dict(zip(keys, row))
+
+    closeDB()
+
+    return data
+
+#-------------------------------------------------------------------------------
+def report_to_mqtt():
+
+    if PUBLISH_MQTT_STATUS:
+        print('        Pi.Alert Status')
+        daten = mqtt_get_system_status()
+
+        for group, values in daten.items():
+            device_id = f"pialert_{group}"
+            device_name = f"Pi.Alert {group.capitalize()}"
+            base_topic = f"pi_alert/{group}"
+
+            publish_sensor_group(device_id, device_name, base_topic, values)
+
+#-------------------------------------------------------------------------------
+def send_mqtt_message(topic: str, value, retain: bool = False):
+    client = Client(protocol=MQTTv311, callback_api_version=CallbackAPIVersion.VERSION2)
+
+    if REPORT_MQTT_USERNAME and REPORT_MQTT_PASSWORD:
+        client.username_pw_set(REPORT_MQTT_USERNAME, REPORT_MQTT_PASSWORD)
+
+    if REPORT_MQTT_TLS:
+        client.tls_set()
+
+    done = threading.Event()
+
+    def on_connect(client, userdata, flags, reason_code, properties):
+        print_log(f"✅ Verbunden mit MQTT – sende an {topic}")
+        payload = value if isinstance(value, str) else json.dumps(value)
+        result = client.publish(topic, payload, retain=retain)
+        if result.rc != MQTT_ERR_SUCCESS:
+            print_log(f"   ❌ Fehler beim Senden ({result.rc})")
+        client.disconnect()
+
+    def on_disconnect(client, userdata, reason_code, properties, reason_string=None):
+        print_log("🔌 MQTT-Verbindung getrennt")
+        done.set()
+
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+
+    try:
+        client.connect(REPORT_MQTT_BROKER, REPORT_MQTT_PORT, 60)
+        client.loop_start()
+        done.wait(timeout=5)
+        client.loop_stop()
+    except Exception as e:
+        print_log(f"❌ MQTT-Verbindungsfehler: {e}")
+
+
 
 #-------------------------------------------------------------------------------
 def get_local_sys_timezone():
