@@ -940,10 +940,10 @@ def send_mqtt_message(topic: str, value, retain: bool = False):
         if rc == 0:
             result = client.publish(topic, str(value), retain=retain)
             if result[0] != mqtt.MQTT_ERR_SUCCESS:
-                print(f"❌ Fehler beim Senden an {topic}")
+                print_log(f"❌ Error sending to {topic}")
             client.disconnect()
         else:
-            print(f"❌ Verbindungsfehler (Code {rc})")
+            print_log(f"❌ Connection error (Code {rc})")
 
     client.on_connect = on_connect
 
@@ -951,7 +951,7 @@ def send_mqtt_message(topic: str, value, retain: bool = False):
         client.connect(REPORT_MQTT_BROKER, REPORT_MQTT_PORT, 60)
         client.loop_forever()
     except Exception as e:
-        print(f"❌ MQTT-Verbindungsfehler: {e}")
+        print_log(f"❌ MQTT-Connection error: {e}")
 
 #-------------------------------------------------------------------------------
 def publish_sensor_group(device_id: str, device_name: str, base_topic: str, values: dict):
@@ -960,11 +960,11 @@ def publish_sensor_group(device_id: str, device_name: str, base_topic: str, valu
         topic = f"{base_topic}/{key}"
         object_id = key.lower()
 
-        # Automatische Zuordnung von Einheit und device_class
+        # Automatic assignment of unit and device_class
         unit = "" if isinstance(value, int) else None
         device_class = "timestamp" if "time" in key.lower() else None
 
-        # Discovery senden
+        # Send Discovery
         publish_discovery_sensor(
             device_id=device_id,
             device_name=device_name,
@@ -980,7 +980,7 @@ def publish_sensor_group(device_id: str, device_name: str, base_topic: str, valu
 
 #-------------------------------------------------------------------------------
 def publish_discovery_sensor(device_id, device_name, object_id, name, topic, unit=None, device_class=None):
-    is_binary = object_id.lower() == "status"  # automatisch erkennen
+    is_binary = object_id.lower() == "status"  # automatically detect
 
     sensor_type = "binary_sensor" if is_binary else "sensor"
     discovery_topic = f"homeassistant/{sensor_type}/{device_id}_{object_id}/config"
@@ -997,11 +997,11 @@ def publish_discovery_sensor(device_id, device_name, object_id, name, topic, uni
         }
     }
 
-    # Zusätzliche Felder je nach Typ
+    # Additional fields depending on type
     if is_binary:
         payload["payload_on"] = "on"
         payload["payload_off"] = "off"
-        payload["device_class"] = device_class or "None"
+        #payload["device_class"] = device_class or "connectivity"
     else:
         if unit:
             payload["unit_of_measurement"] = unit
@@ -3074,8 +3074,8 @@ def rogue_dhcp_detection():
     sql_connection.commit()
     closeDB()
 
-    # Execute 15 probes and insert in list
-    dhcp_probes = 15
+    # Execute 10 probes and insert in list
+    dhcp_probes = 10
     dhcp_server_list = []
     dhcp_server_list.append(strftime("%Y-%m-%d %H:%M:%S"))
     for _ in range(dhcp_probes):
@@ -3705,6 +3705,8 @@ def icmp_monitoring():
                 "icmp_rtt": icmp_rtt
             }
 
+            print_log(current_data)
+
             icmp_scan_results[host_ip] = current_data
             sys.stdout.flush()
 
@@ -3863,30 +3865,42 @@ def get_icmphost_list():
 
 # -----------------------------------------------------------------------------
 def ping(host):
-    command = ['ping', '-c', '1', host]
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    output = result.stdout.decode('utf8')
-    if "Request timed out." in output or "100% packet loss" in output:
-        return "0"
-    return "1"
+    print_log(f"Check {host}")
+    command = ['fping', '-c', '1', host]
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = result.stdout.decode('utf-8').strip()
+
+    # Search for statistics line at the end
+    match = re.search(r'xmt/rcv/%loss\s*=\s*(\d+)/(\d+)/(\d+)%', output)
+    if match:
+        rcv = int(match.group(2))
+        status = "1" if rcv > 0 else "0"
+    else:
+        status = "0"  # failsafe
+
+    return status
 
 # -----------------------------------------------------------------------------
 def ping_avg(host):
     try:
         ping_count = str(ICMP_GET_AVG_RTT)
-    except NameError: # variable not defined, use a default
-        ping_count = str(2) # 1
+    except NameError:
+        ping_count = str(2)
 
-    command = ['ping', '-c', ping_count, host]
-    ping_process = subprocess.Popen(command, stdout=subprocess.PIPE)
-    tail_process = subprocess.Popen(['tail', '-1'], stdin=ping_process.stdout, stdout=subprocess.PIPE)
-    awk_process = subprocess.Popen(['awk', '-F/', '{print $5}'], stdin=tail_process.stdout, stdout=subprocess.PIPE)
-    output, error = awk_process.communicate()
-    return output.decode('utf-8').strip()
+    command = ['fping', '-c', ping_count, host]
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = result.stdout.decode('utf-8')
+
+    # Suche nach avg mit Regex
+    match = re.search(r'min/avg/max\s*=\s*[\d.]+/([\d.]+)/[\d.]+', output)
+    if match:
+        return match.group(1)
+    else:
+        return ""
 
 # -----------------------------------------------------------------------------
 def set_icmphost_events(_icmpeve_ip, _icmpeve_DateTime, _icmpeve_Present, _icmpeve_avgrtt):
-    #print(_icmpeve_ip, _icmpeve_DateTime, _icmpeve_Present, _icmpeve_avgrtt)
+    #print_log(_icmpeve_ip, _icmpeve_DateTime, _icmpeve_Present, _icmpeve_avgrtt)
     sqlite_insert = """INSERT INTO ICMP_Mon_Events
                      (icmpeve_ip, icmpeve_DateTime, icmpeve_Present, icmpeve_avgrtt) 
                      VALUES (?, ?, ?, ?);"""
