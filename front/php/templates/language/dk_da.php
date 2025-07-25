@@ -656,6 +656,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Fejl: Ingen MAC-værdi angivet.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Fejl: MAC_IGNORE_LIST ikke fundet.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC blev fjernet.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC blev tilføjet.';
+$pia_lang['BE_Files_Ignore_a'] = 'fjernet fra blokeringslisten';
+$pia_lang['BE_Files_Ignore_b'] = 'føjet til blokeringslisten';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netværksoversigt';

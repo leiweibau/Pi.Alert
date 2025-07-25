@@ -657,6 +657,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Error: No MAC value provided.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Error: MAC_IGNORE_LIST not found.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC successfully removed.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC successfully added.';
+$pia_lang['BE_Files_Ignore_a'] = 'removed from blocklist';
+$pia_lang['BE_Files_Ignore_b'] = 'added to blocklist';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';

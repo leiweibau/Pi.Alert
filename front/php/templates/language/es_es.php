@@ -658,6 +658,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Error: No se proporcionó valor MAC.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Error: MAC_IGNORE_LIST no encontrado.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC eliminada correctamente.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC añadida correctamente.';
+$pia_lang['BE_Files_Ignore_a'] = 'eliminada de la lista de bloqueo';
+$pia_lang['BE_Files_Ignore_b'] = 'añadida a la lista de bloqueo';
 // Network Page - Update by @TeroRERO 01ago2022
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Descripción general de la red';

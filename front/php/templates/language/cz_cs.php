@@ -656,6 +656,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Chyba: Nebyla předána žádná MAC hodnota.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Chyba: MAC_IGNORE_LIST nenalezena.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC byla úspěšně odstraněna.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC byla úspěšně přidána.';
+$pia_lang['BE_Files_Ignore_a'] = 'byla odstraněna ze seznamu blokací';
+$pia_lang['BE_Files_Ignore_b'] = 'byla přidána na seznam blokací';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Přehled sítě';

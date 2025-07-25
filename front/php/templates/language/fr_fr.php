@@ -657,6 +657,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Erreur : aucune valeur MAC transmise.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Erreur : MAC_IGNORE_LIST introuvable.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC supprimée avec succès.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC ajoutée avec succès.';
+$pia_lang['BE_Files_Ignore_a'] = 'supprimée de la liste de blocage';
+$pia_lang['BE_Files_Ignore_b'] = 'ajoutée à la liste de blocage';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';
