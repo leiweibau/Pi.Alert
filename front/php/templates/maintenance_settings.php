@@ -114,7 +114,7 @@
                                   <div class="input-group">
                                     <input class="form-control" id="txtPiaArpTimer" type="text" value="<?=$pia_lang['MT_arpscantimer_empty'];?>" readonly >
                                     <div class="input-group-btn">
-                                      <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="dropdownButtonPiaArpTimer">
+                                      <button type="button" class="btn btn-info dropdown-toggle btn-warning" data-toggle="dropdown" aria-expanded="false" id="dropdownButtonPiaArpTimer">
                                         <span class="fa fa-caret-down"></span></button>
                                       <ul id="dropdownPiaArpTimer" class="dropdown-menu dropdown-menu-right">
                                         <li><a href="javascript:void(0)" onclick="setTextValue('txtPiaArpTimer','15');">15min</a></li>
