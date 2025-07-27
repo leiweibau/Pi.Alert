@@ -543,6 +543,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardgecodeerde items worden aangepast op e
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Uitgebreide logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermee kun je schakelen tussen eenvoudige en uitgebreide logs. Uitgebreide logs moeten alleen bij fouten worden ingeschakeld, omdat extra informatie het overzicht kan verstoren.';
 $pia_lang['MT_del_ignore_noti_text'] = ' wordt verwijderd uit de negeerlijst. Hierdoor kunnen apparaten die overeenkomen met de te verwijderen invoer opnieuw worden gedetecteerd.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Hiermee kan de zoekfunctie naar ongeautoriseerde DHCP-servers worden in- of uitgeschakeld. Dit zijn DHCP-servers die naast de ingestelde server actief zijn in het netwerk.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanmodules en imports zijn gedeactiveerd';

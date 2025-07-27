@@ -163,7 +163,6 @@ function DeleteBlockDeviceIP() {
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 }
 
-
 function BlockDeviceIP() {
 	global $pia_lang;
     $configfile = '../../../config/pialert.conf';
@@ -219,7 +218,6 @@ function BlockDeviceIP() {
 	// Logging
 	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $newIP.' '.$pia_lang['BE_Files_Ignore_b']);
 }
-
 
 function DeleteBlockDeviceMAC() {
 	global $pia_lang;
@@ -281,8 +279,6 @@ function DeleteBlockDeviceMAC() {
 	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $removeMac.' '.$pia_lang['BE_Files_Ignore_a']);
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 }
-
-
 
 function BlockDeviceMAC() {
 	global $pia_lang;

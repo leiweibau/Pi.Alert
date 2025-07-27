@@ -32,6 +32,14 @@
                                     <button type="button" class="btn btn-default dbtools-button" id="btnEnableSatellites" onclick="askEnableSatelliteScan()"><span class="<?= ($_SESSION['Scan_Satellite'] == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['MT_Tool_satellites'] . '</span><br>' . $state;?></button>
                                 </div>
                             </div>
+<!-- Toggle RogueDHCP ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['SCAN_ROGUE_DHCP'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button" id="btnEnableRogueDHCP" onclick="askEnableRogueDHCPScan(<?=$_SESSION['SCAN_ROGUE_DHCP']?>)"><span class="<?= ($_SESSION['SCAN_ROGUE_DHCP'] == 0) ? 'text-red' : 'text-green' ?>"><?=$pia_lang['Device_Searchbox']?> RogueDHCP</span><br><?=$state;?></button>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
 				</tr>

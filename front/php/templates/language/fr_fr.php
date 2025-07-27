@@ -544,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifi�
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Journaux étendus';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Permet de basculer entre les journaux simples et étendus. Les journaux étendus ne doivent être activés qu&apos;en cas d&apos;erreur, car les informations supplémentaires peuvent nuire à la lisibilité.';
 $pia_lang['MT_del_ignore_noti_text'] = ' sera supprimé de la liste d&apos;ignorés. Par conséquent, des appareils correspondant à cette entrée pourraient à nouveau être détectés.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Active ou désactive la recherche de serveurs DHCP indésirables. Il s’agit de serveurs DHCP actifs en parallèle du serveur configuré sur le réseau.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';

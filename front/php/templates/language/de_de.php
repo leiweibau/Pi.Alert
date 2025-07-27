@@ -544,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Fest-codierte Einträge werden bei jedem D
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Erweiterte Logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermit kann zwischen einfachen und erweiterten Logs ungeschaltet werden. Die erweiterten Logs sollten nur im Fehlerfall aktiviert werden, da durch die zusätzlichen Ausgaben die Übersicht verloren geht.';
 $pia_lang['MT_del_ignore_noti_text'] = ' wird von der Ignorierliste entfernt. Infolgedessen, kann es zur erneuten Erkennung von Geräten kommen, die mit dem zu entfernenden Eintrag übereinstimmen.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Hiermit kann die Suche nach RogueDHCP Servern aktiviert oder deaktiviert werden. Damit bezeichnet man DHCP Server, die parallel zum eingestellten Server im Netzwerk aktiv sind.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';

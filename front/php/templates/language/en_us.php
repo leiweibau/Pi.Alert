@@ -544,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hard-coded entries will be changed on each
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Extended logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Use this to switch between simple and extended logs. Extended logs should only be enabled in case of errors, as the additional output may reduce clarity.';
 $pia_lang['MT_del_ignore_noti_text'] = ' will be removed from the ignore list. As a result, devices matching the entry to be removed may be detected again.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'This enables or disables the search for rogue DHCP servers. These are DHCP servers that operate in the network alongside the configured one.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';

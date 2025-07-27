@@ -234,7 +234,8 @@ $config_mappings = [
     'AUTO_DB_BACKUP'         => 'AUTO_DB_BACKUP',
     'SPEEDTEST_TASK_ACTIVE'  => 'SPEEDTEST_TASK_ACTIVE',
     'SATELLITES_ACTIVE_copy' => 'SATELLITES_ACTIVE', // Spezialfall
-    'PRINT_LOG'              => 'PRINT_LOG'
+    'PRINT_LOG'              => 'PRINT_LOG',
+    'SCAN_ROGUE_DHCP'        => 'SCAN_ROGUE_DHCP'
 ];
 
 foreach ($config_mappings as $config_key => $session_key) {
