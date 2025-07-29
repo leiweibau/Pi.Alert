@@ -73,6 +73,19 @@ I would like to give a short explanation to the individual points.
 | REPORT_TO_ARCHIVE    | Number of hours after which a report is moved to the archive. The value 0 disables the feature       |
 
 
+#### MQTT Reporting
+
+| Option               | Description |
+|----------------------|---------------------------------------------------------------------------------------------------|
+| REPORT_TO_MQTT       | General activation/deactivation of the MQTT function.                                             |
+| REPORT_MQTT_BROKER   | The IP or host name of the MQTT server/broker.                                                    |
+| REPORT_MQTT_PORT     | The port under which the MQTT server can be accessed. The standard MQTT port is 1883. If SSL/TLS is used, 8883 is usually used. |
+| REPORT_MQTT_USERNAME | Username for logging in to the MQTT server. If no authentication is used, leave this field blank. |
+| REPORT_MQTT_PASSWORD | Password for logging in to the MQTT server. If no authentication is used, leave this field blank. |
+| REPORT_MQTT_TLS      | Enable or disable SSL/TLS.            |
+| PUBLISH_MQTT_STATUS  | Activation or deactivation of general information about the Pi.Alert installation. The following sensors are created: “Pi.Alert Status”, “Pi.Alert local”, “Pi.Alert \<Satellite Name\>”           |
+
+
 #### Mail Reporting
 
 | Option               | Description |
@@ -248,14 +261,14 @@ I would like to give a short explanation to the individual points.
 #### Satellite Configuration
 
 | Option               | Description |
-|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+|----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | SATELLITE_PROXY_MODE | Activates/deactivates the support of an external API to which the satellites send their data. If this function is deactivated, Pi.Alert only uses scan events that were sent directly to this instance. |
 | SATELLITE_PROXY_URL  | The URL of the Pi.Alert Satellite Poxy API                                                  |
 
 
 #### Maintenance Tasks
 
-| Option               | Description |
+| Option                     | Description |
 |----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | DAYS_TO_KEEP_ONLINEHISTORY | Number of days for which the online history (activity graph) is to be stored in the database. One day generates 288 such records. |
 | DAYS_TO_KEEP_EVENTS        | Number of days for which the events of the individual devices are to be stored.                                                   |
