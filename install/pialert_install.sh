@@ -266,10 +266,10 @@ install_python() {
   if [ $USE_PYTHON_VERSION -eq 3 ] ; then
     if $PYTHON3 ; then
       print_msg "- Using Python 3"
-      sudo apt-get install python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp python3-paho-mqtt -y                 2>&1 >> "$LOG"
+      sudo apt-get install python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y                 2>&1 >> "$LOG"
     else
       print_msg "- Installing Python 3..."
-      sudo apt-get install python3 python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp python3-paho-mqtt -y         2>&1 >> "$LOG"
+      sudo apt-get install python3 python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y         2>&1 >> "$LOG"
     fi
     print_msg "    - Install additional packages"
     if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
@@ -279,13 +279,15 @@ install_python() {
       pip3 -q install pyunifi --break-system-packages --no-warn-script-location                 2>&1 >> "$LOG"
       pip3 -q install openwrt-luci-rpc --break-system-packages --no-warn-script-location        2>&1 >> "$LOG"
       pip3 -q install asusrouter --break-system-packages --no-warn-script-location              2>&1 >> "$LOG"
+      pip3 -q install paho-mqtt --break-system-packages --no-warn-script-location               2>&1 >> "$LOG"
     else
       pip3 -q install mac-vendor-lookup  --no-warn-script-location                              2>&1 >> "$LOG"
       pip3 -q install fritzconnection --no-warn-script-location                                 2>&1 >> "$LOG"
       pip3 -q install routeros_api --no-warn-script-location                                    2>&1 >> "$LOG"
       pip3 -q install pyunifi --no-warn-script-location                                         2>&1 >> "$LOG"
       pip3 -q install openwrt-luci-rpc --no-warn-script-location                                2>&1 >> "$LOG"
-      pip3 -q install asusrouter --break-system-packages --no-warn-script-location              2>&1 >> "$LOG"
+      pip3 -q install asusrouter --no-warn-script-location                                      2>&1 >> "$LOG"
+      pip3 -q install paho-mqtt --no-warn-script-location                                       2>&1 >> "$LOG"
     fi
 
     print_msg "    - Update 'requests' package to 2.31.0"
