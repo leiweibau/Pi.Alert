@@ -153,7 +153,7 @@ h4 {
 .comment-text,
 .comment-text .username {
   color: #4A4B50;
-  background-color: #272c30;
+  /*background-color: #272c30;*/
 }
 .box-solid,
 .box {
@@ -732,4 +732,14 @@ input[type="password"]::-webkit-caps-lock-indicator {
 }
 #btnInstallSatellite, #btnSaveSatellite, #btnDeleteSatellite {
     padding: 6px 10px;
+}
+.box-footer {
+  background-color: transparent !important;
+}
+.leiweibau-hp-link,
+.leiweibau-hp-link:visited,
+.leiweibau-hp-link:focus,
+.leiweibau-hp-link:active,
+.leiweibau-hp-link:hover{
+    color: red;
 }

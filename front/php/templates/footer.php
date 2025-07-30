@@ -1,7 +1,7 @@
   <!-- Main Footer -->
   <footer class="main-footer">
     <!-- Default to the left -->
-    <a href="https://leiweibau.net/" target="_blank">leiweibau</a>
+    <a class="leiweibau-hp-link" href="https://leiweibau.net/" target="_blank">leiweibau</a>
     <!-- To the right -->
     <div class="pull-right no-hidden-xs">
 <?php
