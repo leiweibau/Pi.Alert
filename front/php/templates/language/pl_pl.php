@@ -310,6 +310,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Usługa sieciowa została zaktualizowana';
 $pia_lang['BE_Webs_UpdServError'] = 'Nie udało się zaktualizować usługi sieciowej';
 $pia_lang['BE_Webs_InsServ'] = 'Usługa sieciowa została zapisana';
 $pia_lang['BE_Webs_InsServError'] = 'Nie udało się zapisać usługi sieciowej';
+$pia_lang['BE_Webs_InsServError_a'] = '. Nieprawidłowy adres URL';
 $pia_lang['BE_Webs_DelServ'] = 'Usługa sieciowa została usunięta z bazy danych';
 $pia_lang['BE_Webs_DelServError'] = 'Nie udało się usunąć usługi sieciowej lub została usunięta tylko częściowo';
 // ICMP Monitoring Page
@@ -543,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Wpisy zakodowane na stałe zostaną zmieni
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozszerzone logi';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Pozwala przełączać się między prostymi a rozszerzonymi logami. Rozszerzone logi powinny być włączane tylko w przypadku błędów, ponieważ dodatkowe dane mogą utrudnić czytelność.';
 $pia_lang['MT_del_ignore_noti_text'] = ' zostanie usunięte z listy ignorowanych. W rezultacie mogą zostać ponownie wykryte urządzenia pasujące do usuniętego wpisu.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'To umożliwia włączenie lub wyłączenie wyszukiwania nieautoryzowanych serwerów DHCP. Są to serwery DHCP działające równolegle z tym skonfigurowanym w sieci.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Wszystkie moduły skanowania i importy są wyłączone';
@@ -656,6 +658,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Błąd: Nie podano wartości MAC.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Błąd: MAC_IGNORE_LIST nie znaleziono.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC zostało usunięte.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC zostało dodane.';
+$pia_lang['BE_Files_Ignore_a'] = 'usunięty z listy blokowanych';
+$pia_lang['BE_Files_Ignore_b'] = 'dodano do listy blokowanych';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Przegląd sieci';

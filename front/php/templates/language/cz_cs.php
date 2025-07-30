@@ -309,6 +309,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Webová služba byla aktualizována';
 $pia_lang['BE_Webs_UpdServError'] = 'Webovou službu se nepodařilo aktualizovat';
 $pia_lang['BE_Webs_InsServ'] = 'Webová služba byla uložena';
 $pia_lang['BE_Webs_InsServError'] = 'Webovou službu se nepodařilo uložit';
+$pia_lang['BE_Webs_InsServError_a'] = '. Neplatná adresa URL';
 $pia_lang['BE_Webs_DelServ'] = 'Webová služba byla odstraněna z databáze';
 $pia_lang['BE_Webs_DelServError'] = 'Webovou službu se nepodařilo odstranit nebo byla odstraněna pouze částečně';
 // ICMP Monitoring Page
@@ -542,6 +543,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Předdefinované položky budou změněny 
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozšířené logy';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Tímto lze přepínat mezi jednoduchými a rozšířenými logy. Rozšířené logy by měly být aktivovány pouze při chybách, protože dodatečné výstupy mohou narušit přehlednost.';
 $pia_lang['MT_del_ignore_noti_text'] = ' bude odstraněno ze seznamu ignorovaných. V důsledku toho může dojít k opětovnému rozpoznání zařízení odpovídajících odstraněnému záznamu.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Tímto lze povolit nebo zakázat vyhledávání neautorizovaných DHCP serverů. Jedná se o servery DHCP, které jsou aktivní v síti paralelně s nastaveným serverem.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Všechny moduly skenování a importy jsou deaktivovány';
@@ -655,6 +657,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Chyba: Nebyla předána žádná MAC hodnota.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Chyba: MAC_IGNORE_LIST nenalezena.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC byla úspěšně odstraněna.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC byla úspěšně přidána.';
+$pia_lang['BE_Files_Ignore_a'] = 'byla odstraněna ze seznamu blokací';
+$pia_lang['BE_Files_Ignore_b'] = 'byla přidána na seznam blokací';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Přehled sítě';

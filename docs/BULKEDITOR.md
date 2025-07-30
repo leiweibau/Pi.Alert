@@ -20,9 +20,14 @@ To be able to edit a value, the input field must be activated via the respective
 
 With the Save button, the changes are saved in the database without further questions. A summary of the changed devices with the changed values is displayed. With the "DELETE DEVICES" button all selected devices are deleted from the database.
 
+To simplify selection when there are a large number of hosts, various filter buttons and a search field are available. Devices that were selected before using a filter or search remain selected.
+
+![Filter Buttons][Filter_Buttons]
+
 [Back](https://github.com/leiweibau/Pi.Alert#front)
 
 [open_bulkeditor]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_open.png           "Open bulkeditor"
 [bulkeditor_list]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_list.png           "Bulkeditor list"
 [Enable_field]:       https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_enable_field.png   "Bulkeditor enable field"
 [show_PresencePage]:  https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_001.png            "Show on Presence Page"
+[Filter_Buttons]:  https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/bulkeditor_002.png               "Filter Buttons"

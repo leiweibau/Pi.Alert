@@ -309,6 +309,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'Webtjenesten blev opdateret';
 $pia_lang['BE_Webs_UpdServError'] = 'Webtjenesten kunne ikke opdateres';
 $pia_lang['BE_Webs_InsServ'] = 'Webtjenesten blev gemt';
 $pia_lang['BE_Webs_InsServError'] = 'Webtjenesten kunne ikke gemmes';
+$pia_lang['BE_Webs_InsServError_a'] = '. Ugyldig URL';
 $pia_lang['BE_Webs_DelServ'] = 'Webtjenesten blev slettet fra databasen';
 $pia_lang['BE_Webs_DelServError'] = 'Webtjenesten kunne ikke slettes eller blev ikke helt slettet';
 // ICMP Monitoring Page
@@ -542,6 +543,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardkodede poster ændres på alle enheder
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Udvidede logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Brug denne mulighed til at skifte mellem simple og udvidede logs. Udvidede logs bør kun aktiveres ved fejl, da de ekstra oplysninger kan skabe forvirring.';
 $pia_lang['MT_del_ignore_noti_text'] = ' fjernes fra ignoreringslisten. Som følge heraf kan enheder, der matcher den fjernede post, blive genkendt igen.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Dette aktiverer eller deaktiverer søgning efter uautoriserede DHCP-servere. Det drejer sig om DHCP-servere, der kører parallelt med den konfigurerede server i netværket.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanningsmoduler og importer er deaktiveret';
@@ -655,6 +657,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Fejl: Ingen MAC-værdi angivet.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Fejl: MAC_IGNORE_LIST ikke fundet.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC blev fjernet.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC blev tilføjet.';
+$pia_lang['BE_Files_Ignore_a'] = 'fjernet fra blokeringslisten';
+$pia_lang['BE_Files_Ignore_b'] = 'føjet til blokeringslisten';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Netværksoversigt';

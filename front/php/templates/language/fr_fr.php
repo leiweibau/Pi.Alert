@@ -310,6 +310,7 @@ $pia_lang['BE_Webs_UpdServ'] = 'The web service was updated';
 $pia_lang['BE_Webs_UpdServError'] = 'The web service was not updated';
 $pia_lang['BE_Webs_InsServ'] = 'The web service was saved';
 $pia_lang['BE_Webs_InsServError'] = 'The web service was not saved';
+$pia_lang['BE_Webs_InsServError_a'] = '. URL invalide';
 $pia_lang['BE_Webs_DelServ'] = 'The web service was deleted from the database';
 $pia_lang['BE_Webs_DelServError'] = 'The web service could not be deleted, or could not be deleted completely';
 // Page de Surveillance ICMP
@@ -543,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifi�
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Journaux étendus';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Permet de basculer entre les journaux simples et étendus. Les journaux étendus ne doivent être activés qu&apos;en cas d&apos;erreur, car les informations supplémentaires peuvent nuire à la lisibilité.';
 $pia_lang['MT_del_ignore_noti_text'] = ' sera supprimé de la liste d&apos;ignorés. Par conséquent, des appareils correspondant à cette entrée pourraient à nouveau être détectés.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Active ou désactive la recherche de serveurs DHCP indésirables. Il s’agit de serveurs DHCP actifs en parallèle du serveur configuré sur le réseau.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';
@@ -656,6 +658,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Erreur : aucune valeur MAC transmise.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Erreur : MAC_IGNORE_LIST introuvable.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC supprimée avec succès.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC ajoutée avec succès.';
+$pia_lang['BE_Files_Ignore_a'] = 'supprimée de la liste de blocage';
+$pia_lang['BE_Files_Ignore_b'] = 'ajoutée à la liste de blocage';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Aperçu du réseau';

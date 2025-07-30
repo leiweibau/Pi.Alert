@@ -90,6 +90,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'ToggleExtLogging':ToggleExtLogging();
 		break;
+	case 'ToggleRogueDHCP':ToggleRogueDHCP();
+		break;
 	case 'BlockDeviceMAC':BlockDeviceMAC();
 		break;
 	case 'DeleteBlockDeviceMAC':DeleteBlockDeviceMAC();
@@ -157,10 +159,9 @@ function DeleteBlockDeviceIP() {
     file_put_contents($configfile, $newConfigContent);
     echo $pia_lang['BE_Dev_Ignore_f'];
 	// Logging
-	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $removeIP.' '.$pia_lang['BE_Files_Ignore_a']);
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 }
-
 
 function BlockDeviceIP() {
 	global $pia_lang;
@@ -215,9 +216,8 @@ function BlockDeviceIP() {
     file_put_contents($configfile, $newConfigContent);
     echo $pia_lang['BE_Dev_Ignore_g'];
 	// Logging
-	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $newIP.' '.$pia_lang['BE_Files_Ignore_b']);
 }
-
 
 function DeleteBlockDeviceMAC() {
 	global $pia_lang;
@@ -276,11 +276,9 @@ function DeleteBlockDeviceMAC() {
     echo $pia_lang['BE_Dev_Ignore_j'];
 
 	// Logging
-	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $removeMac.' '.$pia_lang['BE_Files_Ignore_a']);
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 }
-
-
 
 function BlockDeviceMAC() {
 	global $pia_lang;
@@ -295,11 +293,6 @@ function BlockDeviceMAC() {
     }
 
     $newMac = strtolower(trim($_REQUEST['mac']));
-
-    // if (!preg_match('/^([0-9a-f]{2}:){1,5}[0-9a-f]{2}$/', $newMac)) {
-    //     echo 'Fehler: Ungültiges MAC-Format.';
-    //     return;
-    // }
 
     if (!file_exists($configfile) || !is_readable($configfile)) {
         echo $pia_lang['BE_Dev_Ignore_c'];
@@ -346,7 +339,7 @@ function BlockDeviceMAC() {
     echo $pia_lang['BE_Dev_Ignore_k'];
 
 	// Logging
-	//pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $newMac.' '.$pia_lang['BE_Files_Ignore_b']);
 }
 
 function GetAutoBackupStatus() {
@@ -548,6 +541,16 @@ REPORT_WEBGUI              = " . convert_bool($configArray['REPORT_WEBGUI']) . "
 REPORT_WEBGUI_WEBMON       = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON']) . "
 REPORT_TO_ARCHIVE          = " . $configArray['REPORT_TO_ARCHIVE'] . "
 # Number of hours after which a report is moved to the archive. The value 0 disables the feature
+
+# MQTT Reporting
+# ----------------------
+REPORT_TO_MQTT             = " . convert_bool($configArray['REPORT_TO_MQTT']) . "
+REPORT_MQTT_BROKER         = '" . $configArray['REPORT_MQTT_BROKER'] . "'
+REPORT_MQTT_PORT           = " . $configArray['REPORT_MQTT_PORT'] . "
+REPORT_MQTT_USERNAME       = '" . $configArray['REPORT_MQTT_USERNAME'] . "'
+REPORT_MQTT_PASSWORD       = '" . $configArray['REPORT_MQTT_PASSWORD'] . "'
+REPORT_MQTT_TLS            = " . convert_bool($configArray['REPORT_MQTT_TLS']) . "
+PUBLISH_MQTT_STATUS        = " . convert_bool($configArray['PUBLISH_MQTT_STATUS']) . "
 
 # Mail Reporting
 # ----------------------
@@ -1437,6 +1440,42 @@ function ToggleExtLogging() {
 
 
     $configKey = 'PRINT_LOG';
+    $newValue = $toggleState ? 'False' : 'True';
+
+    if (!file_exists($file_path)) {
+        echo 'Configuration file not found';
+        exit;
+    }
+
+    $fileContents = file_get_contents($file_path);
+    if (strpos($fileContents, $configKey) === false) {
+        echo "Key '{$configKey}' not found in configuration";
+        exit;
+    }
+
+    $pattern = '/^(' . preg_quote($configKey, '/') . '\s*=\s*)(True|False)$/m';
+    $replacement = '${1}' . $newValue;
+
+    $newContents = preg_replace($pattern, $replacement, $fileContents);
+
+    if ($newContents !== null) {
+        file_put_contents($file_path, $newContents);
+        echo "{$configKey} set to {$newValue}";
+    } else {
+        echo 'Failed to update configuration';
+    }
+	// Logging
+	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $configKey.' set to '.$newValue);
+	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>";
+}
+
+function ToggleRogueDHCP() {
+
+    $file_path = '../../../config/pialert.conf';
+	$toggleState = filter_var($_REQUEST['toggleState'], FILTER_VALIDATE_BOOLEAN);
+
+
+    $configKey = 'SCAN_ROGUE_DHCP';
     $newValue = $toggleState ? 'False' : 'True';
 
     if (!file_exists($file_path)) {

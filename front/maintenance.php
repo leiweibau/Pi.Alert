@@ -631,6 +631,21 @@ function EnableSatelliteScan() {
     $.get('php/server/devices.php?action=EnableSatelliteScan', function(msg) {showMessage (msg);});
 }
 
+// Toggle RogueDHCP
+function askEnableRogueDHCPScan(ftoggleState) {
+    window.global_ftoggleState = ftoggleState;
+    showModalWarning('<?=$pia_lang['Device_Searchbox'];?> RogueDHCP', '<?=$pia_lang['MT_Tools_RogueDHCP_a'];?>',
+        '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableRogueDHCPScan');
+}
+function EnableRogueDHCPScan() {
+    var ftoggleState = window.global_ftoggleState;
+    $.get('php/server/files.php?action=ToggleRogueDHCP'
+        + '&toggleState='   + ftoggleState
+        , function(msg) {
+        showMessage (msg);
+    });
+}
+
 // Toggle Graph
 function askEnableOnlineHistoryGraph() {
   showModalWarning('<?=$pia_lang['MT_Tool_onlinehistorygraph_noti'];?>', '<?=$pia_lang['MT_Tool_onlinehistorygraph_noti_text'];?>',

@@ -309,6 +309,7 @@ $pia_lang['WEBS_EVE_up'] = 'Up';
 $pia_lang['BE_Webs_UpdServ'] = 'The web service was updated';
 $pia_lang['BE_Webs_UpdServError'] = 'The web service was not updated';
 $pia_lang['BE_Webs_InsServ'] = 'The web service was saved';
+$pia_lang['BE_Webs_InsServError_a'] = '. Invalid URL';
 $pia_lang['BE_Webs_InsServError'] = 'The web service was not saved';
 $pia_lang['BE_Webs_DelServ'] = 'The web service was deleted from the database';
 $pia_lang['BE_Webs_DelServError'] = 'The web service could not be deleted, or could not be deleted completely';
@@ -543,6 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hard-coded entries will be changed on each
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Extended logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Use this to switch between simple and extended logs. Extended logs should only be enabled in case of errors, as the additional output may reduce clarity.';
 $pia_lang['MT_del_ignore_noti_text'] = ' will be removed from the ignore list. As a result, devices matching the entry to be removed may be detected again.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'This enables or disables the search for rogue DHCP servers. These are DHCP servers that operate in the network alongside the configured one.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';
@@ -656,6 +658,8 @@ $pia_lang['BE_Dev_Ignore_h'] = 'Error: No MAC value provided.';
 $pia_lang['BE_Dev_Ignore_i'] = 'Error: MAC_IGNORE_LIST not found.';
 $pia_lang['BE_Dev_Ignore_j'] = 'MAC successfully removed.';
 $pia_lang['BE_Dev_Ignore_k'] = 'MAC successfully added.';
+$pia_lang['BE_Files_Ignore_a'] = 'removed from blocklist';
+$pia_lang['BE_Files_Ignore_b'] = 'added to blocklist';
 // Network Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['Network_Title'] = 'Network Overview';
