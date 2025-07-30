@@ -47,8 +47,7 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
   - **Fritzbox**. If you use a Fritzbox (a router from the company "AVM"), it is possible to perform a query of the active hosts. This also includes hosts of the guest WLAN and Powerline devices from "AVM".
   - **Mikrotik**. If you use Mikrotik Router as DHCP server, it is possible to read DHCP leases.
   - **UniFi**. If you use UniFi controller, it is possible to read clients (Client Devices)
-  - **OpenWRT**. If you are using a router based on OpenWRT, you can import the active devices.
-  - **AsusWRT**. If you are using a Asus router, you can import the active devices.
+  - **OpenWRT**, **AsusWRT**. If you are using one of these routers, you can import the active hosts.
   - **Web service monitoring**. An HTTP request is sent and the web server's response is processed. If self signed certificates are used, no validation of the certificate is performed.
   - **ICMP monitoring**. A "ping" is sent to a manually specified IP/hostname/domain name and the response is evaluated
   - **DHCP Server Scan**. Nmap is used to send DHCP requests into the network to detect unknown (rogue) DHCP servers.
@@ -60,7 +59,7 @@ The backend is controlled via the operating system's own cron service and is exe
 various scans and imports, save the results in the database and send notifications according to the settings. In addition to host detection, it is also 
 possible to check the availability of manually entered hosts or websites for their reachability and to receive notifications in the event of status changes. 
 Various services are available for the notifications (Frontend, Mail ([Guide](docs/NOTIFICATION_MAIL.md)), [Pushsafer](https://www.pushsafer.com/), 
-[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md)). Additional functions such as automatic 
+[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md))). Additional functions such as automatic 
 database optimization, DB backups and Internet speed tests are also available via the backend. The CLI tool [pialert-cli](docs/PIALERTCLI.md) is available 
 to control selected functions of the backend.
 
@@ -69,7 +68,7 @@ to control selected functions of the backend.
 The frontend is used to manage the host information determined and for general management. You can store additional information for each device, view the historical 
 history, perform manual nmap scans or send Wake-on-LAN commands. You also have the option of assigning individual devices to other network devices such as routers and 
 switches in order to maintain an overview of the relationships between the devices. A settings page allows you to configure individual parts of the frontend, while a 
-config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French and Italian, can be protected with a 
+config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch and Czech, can be protected with a 
 login that uses the password “123456” by default. You can change this using the CLI tool [pialert-cli](docs/PIALERTCLI.md).
 
 New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
@@ -101,11 +100,11 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 
 - [Installation Guide (step by step)](docs/INSTALL.md)
 - [Guide for the first start](docs/FIRST_START_GUIDE.md)
+- If you want to use my version of **Pi.Alert as LXC container**, feel free to check out the [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE) (originally [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)). I also support this version, as this Pi.Alert version is used with the exception of initial container creation. Updates to the LXC version are also installed from this repository. A separate update command is used for this purpose.
 
 :bulb: <ins>Additional components and information</ins>
 
  - [Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md) (will be updated if necessary)
- - If you want to use my version of Pi.Alert as LXC container, feel free to check out the awesome Helper scripts from [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox), [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE)
  - An initial fork but now independent version of Pi.Alert named NetAlertX based on Docker can be found here: [jokob-sk/NetAlertX](https://github.com/jokob-sk/NetAlertX)
  - The original, but unmaintained, Pi.Alert can be found here [pucherot/Pi.Alert](https://github.com/pucherot/Pi.Alert/)
 
