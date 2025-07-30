@@ -100,7 +100,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 
 - [Installation Guide (step by step)](docs/INSTALL.md)
 - [Guide for the first start](docs/FIRST_START_GUIDE.md)
-- If you want to use my version of **Pi.Alert as LXC container**, feel free to check out the [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE) (originally [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)). I also support this version, as this Pi.Alert version is used with the exception of initial container creation. Updates to the LXC version are also installed from this repository. A separate update command is used for this purpose.
+- If you want to use **Pi.Alert as LXC container**, feel free to check out the [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE) (originally [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)). I also support this version, as this Pi.Alert version is used with the exception of initial container creation. Updates to the LXC version are also installed from this repository. A separate update command is used for this purpose.
 
 :bulb: <ins>Additional components and information</ins>
 
