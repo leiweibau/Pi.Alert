@@ -224,7 +224,7 @@ check_packages() {
   sudo apt-get update 2>&1 >>"$LOG"
   packages=("apt-utils" "sqlite3" "dnsutils" "net-tools" "wakeonlan" "nbtscan" "avahi-utils" "php-curl" "php-xml"  \
   "python3-requests" "python3-cryptography" "libwww-perl" "mmdb-bin" "libtext-csv-perl" "aria2" "python3-tz"  \
-  "python3-tzlocal" "fping" "python3-paho-mqtt")
+  "python3-tzlocal" "fping")
   print_msg "- Checking packages..."
   missing_packages=()
   for package in "${packages[@]}"; do
@@ -628,6 +628,7 @@ check_python_version() {
     check_and_install_package "pyunifi"
     check_and_install_package "openwrt-luci-rpc"
     check_and_install_package "asusrouter"
+    check_and_install_package "paho-mqtt"
 
     print_msg "- Update 'requests' package to 2.31.0"
     if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
