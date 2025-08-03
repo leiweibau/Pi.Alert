@@ -65,18 +65,33 @@ $net_interfaces_rx = explode("\n", trim($network_result));
 $network_result = shell_exec("cat /proc/net/dev | tail -n +3 | awk '{print $10}'");
 $net_interfaces_tx = explode("\n", trim($network_result));
 //hdd stat
-$hdd_result = shell_exec("sudo df | awk '{print $1}'");
-$hdd_devices = explode("\n", trim($hdd_result));
-$hdd_result = shell_exec("sudo df | awk '{print $2}'");
-$hdd_devices_total = explode("\n", trim($hdd_result));
-$hdd_result = shell_exec("sudo df | awk '{print $3}'");
-$hdd_devices_used = explode("\n", trim($hdd_result));
-$hdd_result = shell_exec("sudo df | awk '{print $4}'");
-$hdd_devices_free = explode("\n", trim($hdd_result));
-$hdd_result = shell_exec("sudo df | awk '{print $5}'");
-$hdd_devices_percent = explode("\n", trim($hdd_result));
-$hdd_result = shell_exec("sudo df | awk '{print $6}'");
-$hdd_devices_mount = explode("\n", trim($hdd_result));
+$hdd_result = shell_exec("sudo df -P"); // -P: POSIX format, easier to parse
+$lines = explode("\n", trim($hdd_result));
+array_shift($lines); // First line is the header
+
+// Initialize arrays
+$hdd_devices = [];
+$hdd_devices_total = [];
+$hdd_devices_used = [];
+$hdd_devices_free = [];
+$hdd_devices_percent = [];
+$hdd_devices_mount = [];
+
+foreach ($lines as $line) {
+    // Split columns cleanly with regular expressions
+    preg_match_all('/\S+/', $line, $matches);
+    $fields = $matches[0];
+
+    if (count($fields) >= 6) {
+        $hdd_devices[] = $fields[0];
+        $hdd_devices_total[] = $fields[1];
+        $hdd_devices_used[] = $fields[2];
+        $hdd_devices_free[] = $fields[3];
+        $hdd_devices_percent[] = $fields[4];
+        $hdd_devices_mount[] = $fields[5];
+    }
+}
+
 //usb devices
 $usb_result = shell_exec("lsusb");
 $usb_devices_mount = explode("\n", trim($usb_result));
