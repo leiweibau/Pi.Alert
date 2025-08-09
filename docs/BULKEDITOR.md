@@ -18,6 +18,10 @@ To be able to edit a value, the input field must be activated via the respective
 
 ![Bulkeditor enable field][Enable_field]
 
+If, on the other hand, you want to disable notifications for the selected hosts, you need to check the left checkbox of the notifications you want disabled, and leave the right checkbox empty.
+
+<img width="395" height="418" alt="image" src="https://github.com/user-attachments/assets/bdd1f062-b0dc-4805-a694-9330c6b647da" />
+
 With the Save button, the changes are saved in the database without further questions. A summary of the changed devices with the changed values is displayed. With the "DELETE DEVICES" button all selected devices are deleted from the database.
 
 To simplify selection when there are a large number of hosts, various filter buttons and a search field are available. Devices that were selected before using a filter or search remain selected.
