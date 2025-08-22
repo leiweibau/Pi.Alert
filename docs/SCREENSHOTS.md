@@ -62,7 +62,7 @@
 
   | ![Screen Misc 01][Screen_Misc_01]   | ![Screen Misc 02][Screen_Misc_02] | ![Screen Misc 03][Screen_Misc_03]  | 
   | ----------------------------------- | --------------------------------- | ---------------------------------- |
-  | ![Screen Misc 04][Screen_Misc_04]   | ![Screen Misc 05][Screen_Misc_05] | ![Screen Misc 06][Screen_Misc_06]  |
+  | ![Screen Misc 06][Screen_Misc_06]   | ![Screen Misc 05][Screen_Misc_05] |  |
 
 
 [Back](https://github.com/leiweibau/Pi.Alert)
@@ -119,7 +119,6 @@
 [Screen_Misc_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_sysinfo.png         "Screen Misc 01"
 [Screen_Misc_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_updatecheck_01.png  "Screen Misc 02"
 [Screen_Misc_03]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_notify.png          "Screen Misc 03"
-[Screen_Misc_04]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_help.png            "Screen Misc 04"
 [Screen_Misc_05]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dropdownmenu.png    "Screen Misc 05"
 [Screen_Misc_06]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_loginwindow.png     "Screen Misc 06"
 
