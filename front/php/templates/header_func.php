@@ -235,7 +235,8 @@ $config_mappings = [
     'SPEEDTEST_TASK_ACTIVE'  => 'SPEEDTEST_TASK_ACTIVE',
     'SATELLITES_ACTIVE_copy' => 'SATELLITES_ACTIVE', // Spezialfall
     'PRINT_LOG'              => 'PRINT_LOG',
-    'SCAN_ROGUE_DHCP'        => 'SCAN_ROGUE_DHCP'
+    'SCAN_ROGUE_DHCP'        => 'SCAN_ROGUE_DHCP',
+    'REPORT_NEW_CONTINUOUS'  => 'REPORT_NEW_CONTINUOUS'
 ];
 
 foreach ($config_mappings as $config_key => $session_key) {

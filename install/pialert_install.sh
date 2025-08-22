@@ -232,10 +232,10 @@ install_arpscan() {
   sudo apt-get install dnsutils curl net-tools libwww-perl libtext-csv-perl -y   2>&1 >> "$LOG"
 
   print_msg "- Installation of tools for hostname detection..."
-  sudo apt-get install avahi-utils nbtscan -y                               2>&1 >> "$LOG"
+  sudo apt-get install avahi-utils nbtscan -y                                    2>&1 >> "$LOG"
 
-  print_msg "- Installing nmap, zip, aria2 and wakeonlan"
-  sudo apt-get install nmap zip wakeonlan aria2 fping -y                          2>&1 >> "$LOG"
+  print_msg "- Installing additional tools"
+  sudo apt-get install nmap zip wakeonlan aria2 fping usbutils -y                2>&1 >> "$LOG"
 }
   
 # ------------------------------------------------------------------------------

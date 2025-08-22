@@ -926,34 +926,6 @@ def scan_network():
     return 0
 
 #-------------------------------------------------------------------------------
-def send_mqtt_message(topic: str, value, retain: bool = False):
-    """Sendet eine einfache MQTT-Nachricht mit retain-Unterstützung."""
-    client = mqtt.Client(protocol=mqtt.MQTTv311)
-
-    if REPORT_MQTT_USERNAME and REPORT_MQTT_PASSWORD:
-        client.username_pw_set(REPORT_MQTT_USERNAME, REPORT_MQTT_PASSWORD)
-
-    if REPORT_MQTT_TLS:
-        client.tls_set()
-
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            result = client.publish(topic, str(value), retain=retain)
-            if result[0] != mqtt.MQTT_ERR_SUCCESS:
-                print_log(f"❌ Error sending to {topic}")
-            client.disconnect()
-        else:
-            print_log(f"❌ Connection error (Code {rc})")
-
-    client.on_connect = on_connect
-
-    try:
-        client.connect(REPORT_MQTT_BROKER, REPORT_MQTT_PORT, 60)
-        client.loop_forever()
-    except Exception as e:
-        print_log(f"❌ MQTT-Connection error: {e}")
-
-#-------------------------------------------------------------------------------
 def publish_sensor_group(device_id: str, device_name: str, base_topic: str, values: dict):
 
     for key, value in values.items():
@@ -1113,15 +1085,15 @@ def send_mqtt_message(topic: str, value, retain: bool = False):
     done = threading.Event()
 
     def on_connect(client, userdata, flags, reason_code, properties):
-        print_log(f"✅ Verbunden mit MQTT – sende an {topic}")
+        print_log(f"✅ Connected to MQTT – send to {topic}")
         payload = value if isinstance(value, str) else json.dumps(value)
         result = client.publish(topic, payload, retain=retain)
         if result.rc != MQTT_ERR_SUCCESS:
-            print_log(f"   ❌ Fehler beim Senden ({result.rc})")
+            print_log(f"   ❌ Error during transmission ({result.rc})")
         client.disconnect()
 
     def on_disconnect(client, userdata, reason_code, properties, reason_string=None):
-        print_log("🔌 MQTT-Verbindung getrennt")
+        print_log("🔌 MQTT-Connection closed")
         done.set()
 
     client.on_connect = on_connect
@@ -1133,9 +1105,7 @@ def send_mqtt_message(topic: str, value, retain: bool = False):
         done.wait(timeout=5)
         client.loop_stop()
     except Exception as e:
-        print_log(f"❌ MQTT-Verbindungsfehler: {e}")
-
-
+        print_log(f"❌ MQTT-Connection: {e}")
 
 #-------------------------------------------------------------------------------
 def get_local_sys_timezone():
@@ -3294,7 +3264,9 @@ def check_services_health(site):
             format_latency_str = format_latency_str[1:]
         return resp.status_code, format_latency_str
     except requests.exceptions.SSLError:
-        pass
+        # Fallback for SSL-errors - necessary after Debian 13 update
+        latency = "99999999"
+        return 0, latency
     except:
         # Latency for offline services
         latency = "99999999"
