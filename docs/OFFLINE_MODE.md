@@ -13,4 +13,6 @@ without causing runtime errors in the scans. As a consequence, the following thi
 
 Other functions are not deactivated, but will not work. Examples of this would be the manual update check, the manual speed test or the download function of the GeoDB database.
 
+Since this mode is only used in special cases, I don't check its functionality with every release. If you run into any issues, please report them.
+
 [Back](https://github.com/leiweibau/Pi.Alert)

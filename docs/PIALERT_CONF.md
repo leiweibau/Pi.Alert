@@ -3,7 +3,7 @@
 In this configuration file many functions of Pi.Alert can be set according to the personal wishes. Since the possibilities are various, 
 I would like to give a short explanation to the individual points.
 
-#### General Settings
+#### :eight_spoked_asterisk: General Settings
 
 | Option               | Description |
 |--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -26,7 +26,7 @@ I would like to give a short explanation to the individual points.
 | OFFLINE_MODE             | After the installation and the initial test of all script components, the offline mode can be configured to prevent any communication with the Internet                                                                                            |
 
 
-#### Other Modules
+#### :eight_spoked_asterisk: Other Modules
 
 | Option            | Description |
 |-------------------|----------------------------------------------------------------------------------------|
@@ -34,7 +34,7 @@ I would like to give a short explanation to the individual points.
 | ICMPSCAN_ACTIVE   | ICMP Monitoring on/off                                                                 |
 | SATELLITES_ACTIVE | Enable the Satellite management and import function. One or more companion scripts can perform remote scans and send them to the central Pi.Alert instance. |
 
-#### Special Protocol Scanning
+#### :eight_spoked_asterisk: Special Protocol Scanning
 
 | Option               | Description |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -42,7 +42,7 @@ I would like to give a short explanation to the individual points.
 | DHCP_SERVER_ADDRESS | The IP of the known DHCP server is stored here. A list of DHCP servers is also supported                                                                                                                 |
 
 
-#### Custom Cronjobs
+#### :eight_spoked_asterisk: Custom Cronjobs
 
 | Option               | Description |
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -52,7 +52,7 @@ I would like to give a short explanation to the individual points.
 | SPEEDTEST_TASK_CRON        | Full hour, or comma-separated hours, at which the speed test is to be started. The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes (15, 30, 36, etc).    |
 
 
-#### Mail-Account Settings
+#### :eight_spoked_asterisk: Mail-Account Settings
 
 | Option               | Description |
 |-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -64,7 +64,7 @@ I would like to give a short explanation to the individual points.
 | SMTP_SKIP_LOGIN | There are SMTP servers which do not require a login. In such a case, this value can be set to True.                                               |
 
 
-#### WebGUI Reporting
+#### :eight_spoked_asterisk: WebGUI Reporting
 
 | Option               | Description |
 |----------------------|------------------------------------------------------------------------------------------------------|
@@ -73,12 +73,12 @@ I would like to give a short explanation to the individual points.
 | REPORT_TO_ARCHIVE    | Number of hours after which a report is moved to the archive. The value 0 disables the feature       |
 
 
-#### MQTT Reporting
+#### :eight_spoked_asterisk: MQTT Reporting
 
 | Option               | Description |
 |----------------------|---------------------------------------------------------------------------------------------------|
 | REPORT_TO_MQTT       | General activation/deactivation of the MQTT function.                                             |
-| REPORT_MQTT_BROKER   | The IP or host name of the MQTT server/broker.                                                    |
+| REPORT_MQTT_BROKER   | The IP or host name of the MQTT server/broker. The URL scheme "mqtt://" is not supported as input and must be removed. |
 | REPORT_MQTT_PORT     | The port under which the MQTT server can be accessed. The standard MQTT port is 1883. If SSL/TLS is used, 8883 is usually used. |
 | REPORT_MQTT_USERNAME | Username for logging in to the MQTT server. If no authentication is used, leave this field blank. |
 | REPORT_MQTT_PASSWORD | Password for logging in to the MQTT server. If no authentication is used, leave this field blank. |
@@ -86,7 +86,7 @@ I would like to give a short explanation to the individual points.
 | PUBLISH_MQTT_STATUS  | Activation or deactivation of general information about the Pi.Alert installation. The following sensors are created: “Pi.Alert Status”, “Pi.Alert local”, “Pi.Alert \<Satellite Name\>”           |
 
 
-#### Mail Reporting
+#### :eight_spoked_asterisk: Mail Reporting
 
 | Option               | Description |
 |----------------------|---------------------------------------------------------------------------------------------------|
@@ -98,7 +98,7 @@ I would like to give a short explanation to the individual points.
 | REPORT_DASHBOARD_URL | URL of the Pi.Alert installation, to be able to create a clickable link in the e-mail.            |
 
 
-#### Pushsafer
+#### :eight_spoked_asterisk: Pushsafer
 
 | Option               | Description |
 |-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -110,7 +110,7 @@ I would like to give a short explanation to the individual points.
 | PUSHSAFER_SOUND         | Notification sound (integer).                                                                                                                                                    |
 
 
-#### Pushover
+#### :eight_spoked_asterisk: Pushover
 
 | Option               | Description |
 |------------------------|----------------------------------------------------------------------------------------------|
@@ -122,7 +122,7 @@ I would like to give a short explanation to the individual points.
 | PUSHOVER_SOUND         | Notification sound.                                                                          |
 
 
-#### NTFY
+#### :eight_spoked_asterisk: NTFY
 
 | Option               | Description |
 |--------------------|---------------------------------------------------------------------------------|
@@ -138,14 +138,14 @@ I would like to give a short explanation to the individual points.
 :exclamation: If you want to use a token instead of username and password, leave the username blank and use the token as the password.
 
 
-#### Shoutrrr
+#### :eight_spoked_asterisk: Shoutrrr
 
 | Option               | Description |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------|
 | SHOUTRRR_BINARY | Here you have to configure which binary of shoutrrr has to be used. This depends on the hardware Pi.Alert was installed on. |
 
 
-#### Telegram via Shoutrrr
+#### :eight_spoked_asterisk: Telegram via Shoutrrr
 
 | Option               | Description |
 |------------------------|---------------------------------------------------------------------------------------------|
@@ -154,7 +154,7 @@ I would like to give a short explanation to the individual points.
 | TELEGRAM_BOT_TOKEN_URL | Here the URL created by the shoutrrr setup wizard is entered.                               |
 
 
-#### DynDNS and IP
+#### :eight_spoked_asterisk: DynDNS and IP
 
 | Option               | Description |
 |-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -166,14 +166,14 @@ I would like to give a short explanation to the individual points.
 | DDNS_UPDATE_URL   | URL to update the current IP with the DDNS service                                                                                                                                                            |
 
 
-#### Automatic Speedtest
+#### :eight_spoked_asterisk: Automatic Speedtest
 
 | Option               | Description |
 |-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | SPEEDTEST_TASK_ACTIVE | Activate/deactivate the automatic speed test. This requires the installation of the Ookla speed test in the "Tools" tab of the "Internet" device. Follow the instructions during installation. |
 
 
-#### Arp-scan Options & Samples
+#### :eight_spoked_asterisk: Arp-scan Options & Samples
 
 | Option                | Description |
 |-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -183,7 +183,7 @@ I would like to give a short explanation to the individual points.
 | SCAN_SUBNETS          | &lsquo;--localnet&rsquo;<br>							   Normally this option is already the correct settings. This setting is selected when Pi.Alert is installed on a device with a network card and no other networks are configured.<br> &lsquo;--localnet --interface=eth0&rsquo;<br>	This configuration is selected if Pi.Alert is installed on a system with at least 2 network cards and a configured network. However, the interface designation may differ and must be adapted to the conditions of the system.<br> [&apos;192.168.1.0/24 --interface=eth0&apos;,&apos;192.168.2.0/24 --interface=eth1&apos;]<br> The last configuration is necessary if several networks are to be monitored. For each network to be monitored, a corresponding network card must be configured. This is necessary because the "arp-scan" used is not routed, i.e. it only works within its own subnet. Each interface is entered here with the corresponding network. The interface designation must be adapted to the conditions of the system.<br>  |
 
 
-#### ICMP Monitoring Options
+#### :eight_spoked_asterisk: ICMP Monitoring Options
 
 | Option               | Description |
 |------------------|-----------------------------------------------------------------------------|
@@ -191,7 +191,7 @@ I would like to give a short explanation to the individual points.
 | ICMP_GET_AVG_RTT | Number of "ping&apos;s" to calculate the average response time (Default 2). |
 
 
-#### Pi-hole Configuration
+#### :eight_spoked_asterisk: Pi-hole Configuration
 
 | Option                   | Description |
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -206,7 +206,7 @@ I would like to give a short explanation to the individual points.
 | DHCP_INCL_SELF_TO_LEASES | Adds the Mac addresses of Pi-hole itself to the DHCP leases to import Pi-hole itself into the database if it is not in the local network of Pi.Alert                        |
 
 
-#### Fritzbox Configuration
+#### :eight_spoked_asterisk: Fritzbox Configuration
 
 | Option          | Description |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -216,7 +216,7 @@ I would like to give a short explanation to the individual points.
 | FRITZBOX_PASS   | Password                                                                                                                                                    |
 
 
-#### Mikrotik Configuration
+#### :eight_spoked_asterisk: Mikrotik Configuration
 
 | Option          | Description |
 |-----------------|------------------------------------------------------------------------------------------------------------------------------|
@@ -226,7 +226,7 @@ I would like to give a short explanation to the individual points.
 | MIKROTIK_PASS   | Password                                                                                                                     |
 
 
-#### UniFi Configuration
+#### :eight_spoked_asterisk: UniFi Configuration
 
 | Option       | Description |
 |--------------|---------------------------------------------------------------------------------------------------------------------------|
@@ -237,7 +237,7 @@ I would like to give a short explanation to the individual points.
 | UNIFI_PASS   | Password                                                                                                                  |
 
 
-#### OpenWRT Configuration
+#### :eight_spoked_asterisk: OpenWRT Configuration
 
 | Option         | Description |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -247,7 +247,7 @@ I would like to give a short explanation to the individual points.
 | OPENWRT_PASS   | Password                                                                                                                                                                                          |
 
 
-#### Asus Router Configuration
+#### :eight_spoked_asterisk: Asus Router Configuration
 
 | Option         | Description |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -258,7 +258,7 @@ I would like to give a short explanation to the individual points.
 | ASUSWRT_SSL    | Is https is True or False?                                                                                                                                                                        |
 
 
-#### Satellite Configuration
+#### :eight_spoked_asterisk: Satellite Configuration
 
 | Option               | Description |
 |----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
@@ -266,7 +266,7 @@ I would like to give a short explanation to the individual points.
 | SATELLITE_PROXY_URL  | The URL of the Pi.Alert Satellite Poxy API                                                  |
 
 
-#### Maintenance Tasks
+#### :eight_spoked_asterisk: Maintenance Tasks
 
 | Option                     | Description |
 |----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
