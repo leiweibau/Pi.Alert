@@ -854,6 +854,9 @@ def scan_network():
     openDB()
     print_log ('AsusWRT copy starts...')
     read_asuswrt_clients()
+    openDB()
+    print_log ('pfsense copy starts...')
+    read_pfsense_clients()
     # Import Satellites Scans
     get_satellite_scans()
     # Load current scan data 1/2
@@ -1535,6 +1538,53 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
 
         await router.async_disconnect()
         # print("\nVerbindung sauber getrennt.")
+
+#-------------------------------------------------------------------------------
+def pfsense_connect(endpoint,topic):
+    protocol = "https" if PFSENSE_SSL else "http"
+    port = 443 if PFSENSE_SSL else 80
+
+    url = f"{protocol}://{PFSENSE_IP}:{port}{endpoint}"
+    headers = {
+        "X-API-Key": PFSENSE_APIKEY,
+        "Accept": "application/json"
+    }
+
+    try:
+        response = requests.get(url, headers=headers, verify=False, timeout=10)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"        ...❌ Error {response.status_code}: {response.text}")
+            return None
+
+    except requests.Timeout:
+        print(f"        ...{topic} Request canceled: Timeout reached.")
+        return None
+
+    except requests.RequestException as e:
+        print(f"        ...{topic} Skipped - Connection error")
+        return None
+
+#-------------------------------------------------------------------------------
+def read_pfsense_clients():
+
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+    if PFSENSE_ACTIVE:
+        print(f"    pfSense Method...")
+        endpoint = "/api/v2/status/dhcp_server/leases?limit=0&offset=0&sort_order=SORT_ASC&sort_flags=SORT_STRING"
+        result = pfsense_connect(endpoint,"DHCP")
+        if result:
+            print(json.dumps(result, indent=4))
+
+        endpoint = "/api/v2/diagnostics/arp_table?limit=0&offset=0"
+        result = pfsense_connect(endpoint,"ARP")
+        if result:
+            print(json.dumps(result, indent=4))
+    else:
+        return
 
 #-------------------------------------------------------------------------------
 def read_DHCP_leases():

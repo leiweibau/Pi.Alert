@@ -99,7 +99,7 @@ if (sizeof($LATEST_FILES) == 0) {
 	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
 }
 // Get Config Parameter
-foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE', 'PRINT_LOG'] as $key) {
+foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE', 'PRINT_LOG', 'PFSENSE_ACTIVE'] as $key) {
     $_SESSION[$key] = (get_config_parmeter($key) == 1) ? 1 : 0;
 }
 // Buffer active --------------------------------------------------------------

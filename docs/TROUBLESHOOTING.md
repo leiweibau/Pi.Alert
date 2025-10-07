@@ -24,6 +24,14 @@ If you report an issue in this regard, please include the output of this functio
 
 <hr>
 
+### Repairing an installation after a system (os) update
+
+After an operating system update, there is a high probability that Pi.Alert will no longer function, 
+as essential components of the system have changed. Most problems can usually be resolved by running the update script again. 
+In some cases, however, incompatibilities may arise, which I would address if possible.
+
+<hr>
+
 ### Broken Scan after Pi-hole update from 5.x to 6.x
 
 ```

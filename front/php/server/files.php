@@ -682,6 +682,13 @@ ASUSWRT_USER              = '" . $configArray['ASUSWRT_USER'] . "'
 ASUSWRT_PASS              = '" . $configArray['ASUSWRT_PASS'] . "'
 ASUSWRT_SSL               = " . convert_bool($configArray['ASUSWRT_SSL']) . "
 
+# pfsense Configuration
+# ----------------------
+PFSENSE_ACTIVE            = " . convert_bool($configArray['PFSENSE_ACTIVE']) . "
+PFSENSE_IP                = '" . $configArray['PFSENSE_IP'] . "'
+PFSENSE_APIKEY            = '" . $configArray['PFSENSE_APIKEY'] . "'
+PFSENSE_SSL               = " . convert_bool($configArray['PFSENSE_SSL']) . "
+
 # Satellite Configuration
 # -----------------------
 SATELLITE_PROXY_MODE       = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
@@ -1391,6 +1398,7 @@ function ToggleImport() {
         'UF' => 'UNIFI_ACTIVE',
         'OW' => 'OPENWRT_ACTIVE',
         'AW' => 'ASUSWRT_ACTIVE',
+        'PF' => 'PFSENSE_ACTIVE',
         'PiN' => 'PIHOLE_ACTIVE',
         'PiD' => 'DHCP_ACTIVE',
     ];
