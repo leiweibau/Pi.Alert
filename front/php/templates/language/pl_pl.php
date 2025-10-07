@@ -387,7 +387,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Możesz wprowadzić własny adres URL do wybranego FavIcon lub wybrać spośród lokalnych albo zdalnych (https://github.com/leiweibau/Pi.Alert) ikon. W zależności od konfiguracji, lokalne FavIcony mogą nie działać jako ikona na ekranie głównym.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Edytor filtrów (pasek boczny)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importy';
-$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktywacja poszczególnych importów wymaga ich wcześniejszej konfiguracji w pliku konfiguracyjnym. W przeciwnym razie mogą wystąpić błędy lub przerwania skanowania.';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktywacja poszczególnych importów wymaga, aby były one odpowiednio wstępnie skonfigurowane w pliku konfiguracyjnym. W przeciwnym razie mogą wystąpić błędy lub przerwanie skanowania. W przypadku korzystania z importów z urządzeń OpenWRT i pfSense może być konieczna instalacja dodatkowego oprogramowania (interfejsy API) na tych urządzeniach.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Przycisk Pi-hole (pasek menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Podając adres URL interfejsu webowego Pi-hole, możesz dodać przycisk w pasku menu. Usunięcie pola powoduje usunięcie przycisku. Przycisk oznaczony jest ikoną <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Konfiguracja nagłówków list urządzeń';

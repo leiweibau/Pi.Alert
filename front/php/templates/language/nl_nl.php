@@ -386,7 +386,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Je kunt in het veld een eigen URL voor je gewenste FavIcon invoeren of kiezen tussen lokale of externe (https://github.com/leiweibau/Pi.Alert) FavIcons. Afhankelijk van de configuratie kunnen lokale FavIcons mogelijk niet functioneren als HomeScreen-icon.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Filtereditor (zijbalk)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importeren';
-$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Het activeren van afzonderlijke imports vereist dat deze vooraf zijn geconfigureerd in het configuratiebestand. Anders kunnen fouten of onderbrekingen bij de scan optreden.';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Het activeren van de afzonderlijke imports vereist dat deze correct zijn voorafgeconfigureerd in het configuratiebestand. Anders kunnen fouten optreden of kan de scan worden afgebroken. Voor het gebruik van imports van OpenWRT- en pfSense-apparaten kan het nodig zijn extra software (API-koppelingen) op deze apparaten te installeren.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pi-hole-knop (menubalk)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Door de URL van de Pi-hole webinterface op te geven, kun je een knop in de menubalk voor Pi-hole toevoegen. Als je het invoerveld weer verwijdert, verdwijnt de knop. De knop is gemarkeerd met het pictogram <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Koptekst van apparaatlijsten configureren';

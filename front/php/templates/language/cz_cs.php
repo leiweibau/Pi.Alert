@@ -386,7 +386,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Do pole můžeš zadat vlastní URL ke zvolenému FavIconu nebo si vybrat mezi lokálními a vzdálenými (https://github.com/leiweibau/Pi.Alert) ikonami. V závislosti na konfiguraci nemusí lokální FavIcon fungovat jako ikona na domovské obrazovce.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Editor filtrů (postranní panel)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importy';
-$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktivace jednotlivých importů vyžaduje, aby byly správně nakonfigurovány v konfiguračním souboru. Jinak může dojít k chybám nebo přerušení skenování.';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktivace jednotlivých importů vyžaduje, aby byly správně předkonfigurovány v konfiguračním souboru. Jinak mohou nastat chyby nebo přerušení skenování. Pro použití importů z zařízení OpenWRT a pfSense může být nutná instalace dalšího softwaru (API rozhraní) na těchto zařízeních.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Tlačítko Pi-hole (nabídka)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Zadáním URL adresy k webovému rozhraní Pi-hole můžeš vytvořit tlačítko v hlavní nabídce. Pokud pole vymažeš, tlačítko se odstraní. Tlačítko je označeno ikonou <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Konfigurace záhlaví seznamů zařízení';
