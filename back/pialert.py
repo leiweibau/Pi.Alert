@@ -1565,26 +1565,132 @@ def pfsense_connect(endpoint,topic):
 
     except requests.RequestException as e:
         print(f"        ...{topic} Skipped - Connection error")
+        #DEBUG
+        # if topic == "DHCP":
+        #     with open("dhcp.json", "r", encoding="utf-8") as f:
+        #         response = f.read()
+        # if topic == "ARP":
+        #     with open("arp.json", "r", encoding="utf-8") as f:
+        #         response = f.read()
+        # return json.loads(response)
         return None
 
 #-------------------------------------------------------------------------------
 def read_pfsense_clients():
 
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    pfsense_dhcpleases = ""
+    pfsense_arptable = ""
 
     if PFSENSE_ACTIVE:
         print(f"    pfSense Method...")
         endpoint = "/api/v2/status/dhcp_server/leases?limit=0&offset=0&sort_order=SORT_ASC&sort_flags=SORT_STRING"
         result = pfsense_connect(endpoint,"DHCP")
         if result:
-            print(json.dumps(result, indent=4))
+            pfsense_dhcpleases_raw = result
+            pfsense_dhcpleases = json.dumps(result, indent=4)
 
         endpoint = "/api/v2/diagnostics/arp_table?limit=0&offset=0"
         result = pfsense_connect(endpoint,"ARP")
         if result:
-            print(json.dumps(result, indent=4))
+            pfsense_arptable_raw = result
+            pfsense_arptable = json.dumps(result, indent=4)
+
+        pfsense_save_dhcp_data(pfsense_dhcpleases)
+        pfsense_save_arp_data(pfsense_arptable)
     else:
         return
+
+#-------------------------------------------------------------------------------
+def pfsense_save_dhcp_data(pfsense_dhcpleases):
+
+    if isinstance(pfsense_dhcpleases, str):
+        try:
+            pfsense_dhcpleases = json.loads(pfsense_dhcpleases)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (pfsense_dhcpleases)")
+            return [], []
+
+    pfsense_dhcp_active_hosts = []
+    pfsense_dhcp_list_all = []
+
+    # Check if "data" exists
+    if not pfsense_dhcpleases or "data" not in pfsense_dhcpleases:
+        print_log("⚠️ no DHCP-Leases were found")
+        return pfsense_dhcp_active_hosts, pfsense_dhcp_list_all
+
+    # Iteration über alle DHCP-Einträge
+    for entry in pfsense_dhcpleases["data"]:
+        mac = entry.get("mac", "").strip().lower()
+        ip = entry.get("ip", "").strip()
+        hostname = entry.get("hostname") or "(unknown)"
+        ends_str = entry.get("ends")
+
+        # convert "ends" in UNIX-Timestamp
+        try:
+            ends_ts = int(datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
+        except (ValueError, TypeError):
+            ends_ts = 0
+
+        # All hosts für dhcp table
+        pfsense_dhcp_list_all.append({
+            "MAC": mac,
+            "IP": ip,
+            "hostname": hostname,
+            "expires": ends_ts
+        })
+
+        # Only active hosts for current scann
+        if entry.get("online_status") == "active/online":
+            pfsense_dhcp_active_hosts.append({
+                "MAC": mac,
+                "IP": ip,
+                "hostname": hostname
+            })
+
+    print_log(pfsense_dhcp_active_hosts)
+    print_log(pfsense_dhcp_list_all)
+
+#-------------------------------------------------------------------------------
+def pfsense_save_arp_data(pfsense_arptable):
+
+    if isinstance(pfsense_arptable, str):
+        try:
+            pfsense_arptable = json.loads(pfsense_arptable)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (pfsense_arptable)")
+            return [], []
+
+    pfsense_arp_list = []
+
+    # Check if "data" exists
+    if not pfsense_arptable or "data" not in pfsense_arptable:
+        print_log("⚠️ no valid ARP-data found.")
+        return pfsense_arp_list
+
+    for entry in pfsense_arptable["data"]:
+        mac = entry.get("mac_address", "").strip().lower()
+        ip = entry.get("ip_address", "").strip()
+        hostname = entry.get("hostname", "").strip()
+        dnsresolve = entry.get("dnsresolve", "").strip()
+        interface = entry.get("interface", "").strip()
+
+        # Hostname-Regeln
+        if hostname == "" or hostname == "?":
+            if dnsresolve != "" and dnsresolve != "?":
+                hostname = dnsresolve
+            else:
+                hostname = "(unknown)"
+
+        # Eintrag zur Liste hinzufügen
+        pfsense_arp_list.append({
+            "MAC": mac,
+            "IP": ip,
+            "hostname": hostname,
+            "interface": interface
+        })
+
+    print_log(pfsense_arp_list)
 
 #-------------------------------------------------------------------------------
 def read_DHCP_leases():
