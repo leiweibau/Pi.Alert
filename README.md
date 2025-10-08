@@ -41,17 +41,10 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
 
 ### Scan Methods and Imports
 
-  - **arp-scan**. The arp-scan system utility is used to search for devices on the network using arp frames.
-  - **Pi-hole DNS**. If the Pi-hole (v5 or v6) DNS server is active, Pi.Alert examines its activity looking for active devices using DNS that have not been detected by other methods.
-  - **Pi-hole DHCP**. If the Pi-hole (v5 or v6) DHCP server is active, Pi.Alert examines the DHCP leases (addresses assigned) to find active devices that were not discovered by the other methods.
-  - **Fritzbox**. If you use a Fritzbox (a router from the company "AVM"), it is possible to perform a query of the active hosts. This also includes hosts of the guest WLAN and Powerline devices from "AVM".
-  - **Mikrotik**. If you use Mikrotik Router as DHCP server, it is possible to read DHCP leases.
-  - **UniFi**. If you use UniFi controller, it is possible to read clients (Client Devices)
-  - **OpenWRT**, **AsusWRT**. If you are using one of these routers, you can import the active hosts.
-  - **Web service monitoring**. An HTTP request is sent and the web server's response is processed. If self signed certificates are used, no validation of the certificate is performed.
-  - **ICMP monitoring**. A "ping" is sent to a manually specified IP/hostname/domain name and the response is evaluated
-  - **DHCP Server Scan**. Nmap is used to send DHCP requests into the network to detect unknown (rogue) DHCP servers.
-  - **Satellite Scan** A companion script for Pi.Alert, which executes the Pi.Alert scan and some of the import methodes on an external host/network and sends the data as encrypted JSON to an existing Pi.Alert
+<ins>**arp-scan**</ins> (system utility to search for devices using arp frames), 
+<ins>**Pi-hole DNS**</ins> (v5 or v6), <ins>**Pi-hole DHCP**</ins>. (v5 or v6),
+<ins>**Fritzbox**</ins>, <ins>**Mikrotik**</ins> (DHCP leases), <ins>**UniFi**</ins> (Client Devices), <ins>**OpenWRT**</ins> (active hosts), 
+<ins>**AsusWRT**</ins> (active hosts), <ins>**pfSense**</ins> (active hosts, DHCP leases, ARP Table), <ins>**Satellite Scan**</ins>
 
 ### Backend (back)
 
