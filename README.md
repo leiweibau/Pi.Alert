@@ -43,8 +43,9 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
 
 <ins>**arp-scan**</ins> (system utility to search for devices using arp frames), 
 <ins>**Pi-hole DNS**</ins> (v5 or v6), <ins>**Pi-hole DHCP**</ins>. (v5 or v6),
-<ins>**Fritzbox**</ins>, <ins>**Mikrotik**</ins> (DHCP leases), <ins>**UniFi**</ins> (Client Devices), <ins>**OpenWRT**</ins> (active hosts), 
-<ins>**AsusWRT**</ins> (active hosts), <ins>**pfSense**</ins> (active hosts, DHCP leases, ARP Table), <ins>**Satellite Scan**</ins>
+<ins>**Fritzbox**</ins> (active Hosts), <ins>**Mikrotik**</ins> (DHCP leases), <ins>**UniFi**</ins> (Client Devices), <ins>**OpenWRT**</ins> (active hosts), 
+<ins>**AsusWRT**</ins> (active hosts), <ins>**pfSense**</ins> (active hosts, DHCP leases, ARP Table), 
+<ins>**Satellite Scan**</ins> (arp-scan, Pi-hole DNS, Pi-hole DHCP, Mikrotik, UniFi, OpenWRT, AsusWRT)
 
 ### Backend (back)
 
