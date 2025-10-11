@@ -1583,15 +1583,32 @@ def read_pfsense_clients():
     pfsense_arptable = ""
 
     if PFSENSE_ACTIVE:
+        # create table if not exists
+        sql_create_table = """ CREATE TABLE IF NOT EXISTS pfsense_Network(
+                                    "PF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
+                                    "PF_IP" STRING(50) COLLATE NOCASE,
+                                    "PF_Name" STRING(50),
+                                    "PF_Vendor" STRING(250),
+                                    "PF_Method" STRING(50),
+                                    "PF_Interface" STRING(20),
+                                    "PF_Custom_a" STRING(100),
+                                    "PF_Custom_b" STRING(100)
+                                ); """
+        sql.execute(sql_create_table)
+        sql_connection.commit()
+
+
         print(f"    pfSense Method...")
         endpoint = "/api/v2/status/dhcp_server/leases?limit=0&offset=0&sort_order=SORT_ASC&sort_flags=SORT_STRING"
         result = pfsense_connect(endpoint,"DHCP")
+        print_log(result)
         if result:
             pfsense_dhcpleases_raw = result
             pfsense_dhcpleases = json.dumps(result, indent=4)
 
         endpoint = "/api/v2/diagnostics/arp_table?limit=0&offset=0"
         result = pfsense_connect(endpoint,"ARP")
+        print_log(result)
         if result:
             pfsense_arptable_raw = result
             pfsense_arptable = json.dumps(result, indent=4)
@@ -1619,7 +1636,6 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
         print_log("⚠️ no DHCP-Leases were found")
         return pfsense_dhcp_active_hosts, pfsense_dhcp_list_all
 
-    # Iteration über alle DHCP-Einträge
     for entry in pfsense_dhcpleases["data"]:
         mac = entry.get("mac", "").strip().lower()
         ip = entry.get("ip", "").strip()
@@ -1647,6 +1663,8 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
                 "IP": ip,
                 "hostname": hostname
             })
+
+        
 
     print_log(pfsense_dhcp_active_hosts)
     print_log(pfsense_dhcp_list_all)
