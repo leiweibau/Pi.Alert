@@ -1245,17 +1245,7 @@ def get_pihole_interface_data():
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
-    # create table if not exists
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Fritzbox_Network(
-                                "FB_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "FB_IP" STRING(50) COLLATE NOCASE,
-                                "FB_Name" STRING(50),
-                                "FB_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # empty Fritzbox Network table
     sql.execute ("DELETE FROM Fritzbox_Network")
 
     # check if Pi-hole is active
@@ -1294,15 +1284,6 @@ def read_fritzbox_active_hosts():
 #-------------------------------------------------------------------------------
 def read_mikrotik_leases():
 
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Mikrotik_Network(
-                                "MT_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "MT_IP" STRING(50) COLLATE NOCASE,
-                                "MT_Name" STRING(50),
-                                "MT_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
-
     sql.execute ("DELETE FROM Mikrotik_Network")
 
     if not MIKROTIK_ACTIVE:
@@ -1340,15 +1321,6 @@ def read_mikrotik_leases():
 
 #-------------------------------------------------------------------------------
 def read_unifi_clients():
-
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Unifi_Network(
-                                "UF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "UF_IP" STRING(50) COLLATE NOCASE,
-                                "UF_Name" STRING(50),
-                                "UF_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
     sql.execute ("DELETE FROM Unifi_Network")
 
@@ -1395,17 +1367,7 @@ def read_unifi_clients():
 
 #-------------------------------------------------------------------------------
 def read_openwrt_clients():
-    # create table if not exists
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Openwrt_Network(
-                                "OWRT_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "OWRT_IP" STRING(50) COLLATE NOCASE,
-                                "OWRT_Name" STRING(50),
-                                "OWRT_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # empty Fritzbox Network table
     sql.execute ("DELETE FROM Openwrt_Network")
 
     if not OPENWRT_ACTIVE:
@@ -1438,18 +1400,7 @@ def read_openwrt_clients():
 
 #-------------------------------------------------------------------------------
 def read_asuswrt_clients():
-    # create table if not exists
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Asuswrt_Network(
-                                "ASUS_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "ASUS_IP" STRING(50) COLLATE NOCASE,
-                                "ASUS_Name" STRING(50),
-                                "ASUS_Vendor" STRING(250),
-                                "ASUS_Method" STRING(50)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # empty Fritzbox Network table
     sql.execute ("DELETE FROM Asuswrt_Network")
 
     if not ASUSWRT_ACTIVE:
@@ -1584,19 +1535,20 @@ def read_pfsense_clients():
 
     if PFSENSE_ACTIVE:
         # create table if not exists
-        sql_create_table = """ CREATE TABLE IF NOT EXISTS pfsense_Network(
-                                    "PF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                    "PF_IP" STRING(50) COLLATE NOCASE,
-                                    "PF_Name" STRING(50),
-                                    "PF_Vendor" STRING(250),
-                                    "PF_Method" STRING(50),
-                                    "PF_Interface" STRING(20),
-                                    "PF_Custom_a" STRING(100),
-                                    "PF_Custom_b" STRING(100)
-                                ); """
-        sql.execute(sql_create_table)
-        sql_connection.commit()
-
+        # sql_create_table = """ CREATE TABLE IF NOT EXISTS pfsense_Network(
+        #                             "PF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
+        #                             "PF_IP" STRING(50) COLLATE NOCASE,
+        #                             "PF_Name" STRING(50),
+        #                             "PF_Vendor" STRING(250),
+        #                             "PF_Method" STRING(50),
+        #                             "PF_Interface" STRING(20),
+        #                             "PF_Custom_a" STRING(100),
+        #                             "PF_Custom_b" STRING(100),
+        #                             "PF_Connected" BOOLEAN,
+        #                             "PF_Datetime" DATETIME
+        #                         ); """
+        # sql.execute(sql_create_table)
+        # sql_connection.commit()
 
         print(f"    pfSense Method...")
         endpoint = "/api/v2/status/dhcp_server/leases?limit=0&offset=0&sort_order=SORT_ASC&sort_flags=SORT_STRING"
@@ -1628,13 +1580,12 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
             print_log("        ...❌ Error: invalid JSON-format (pfsense_dhcpleases)")
             return [], []
 
-    pfsense_dhcp_active_hosts = []
-    pfsense_dhcp_list_all = []
+    pfsense_network_dhcp = []
 
     # Check if "data" exists
     if not pfsense_dhcpleases or "data" not in pfsense_dhcpleases:
         print_log("⚠️ no DHCP-Leases were found")
-        return pfsense_dhcp_active_hosts, pfsense_dhcp_list_all
+        return pfsense_network_dhcp
 
     for entry in pfsense_dhcpleases["data"]:
         mac = entry.get("mac", "").strip().lower()
@@ -1648,26 +1599,25 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
         except (ValueError, TypeError):
             ends_ts = 0
 
-        # All hosts für dhcp table
-        pfsense_dhcp_list_all.append({
-            "MAC": mac,
-            "IP": ip,
-            "hostname": hostname,
-            "expires": ends_ts
-        })
-
+        pf_connected = False
         # Only active hosts for current scann
         if entry.get("online_status") == "active/online":
-            pfsense_dhcp_active_hosts.append({
-                "MAC": mac,
-                "IP": ip,
-                "hostname": hostname
-            })
+            pf_connected = True
 
+        # All hosts für dhcp table
+        pfsense_network_dhcp.append({
+            "MAC": mac,
+            "IP": ip,
+            "Name": hostname,
+            "Vendor": "",
+            "Interface": "",
+            "Custom_a": "",
+            "Custom_b": "",
+            "Connected": pf_connected,
+            "Datetime": ends_ts
+        })
         
-
-    print_log(pfsense_dhcp_active_hosts)
-    print_log(pfsense_dhcp_list_all)
+    print_log(pfsense_network_dhcp)
 
 #-------------------------------------------------------------------------------
 def pfsense_save_arp_data(pfsense_arptable):
@@ -1704,8 +1654,13 @@ def pfsense_save_arp_data(pfsense_arptable):
         pfsense_arp_list.append({
             "MAC": mac,
             "IP": ip,
-            "hostname": hostname,
-            "interface": interface
+            "Name": hostname,
+            "Vendor": "",
+            "Interface": interface,
+            "Custom_a": "",
+            "Custom_b": "",
+            "Connected": True,
+            "Datetime": ""
         })
 
     print_log(pfsense_arp_list)
@@ -2040,6 +1995,12 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     insert_ext_sources(sql, cycle, 'Openwrt_Network', 'OWRT_MAC', 'OWRT_IP', 'OWRT_Vendor', 'OpenWRT')
     insert_ext_sources(sql, cycle, 'Asuswrt_Network', 'ASUS_MAC', 'ASUS_IP', 'ASUS_Vendor', 'AsusWRT')
 
+
+    # ###############################
+    # Add pfSense Tag during import
+    # ###############################
+
+
     # Insert Satellite devices
     sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
                         cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
@@ -2133,6 +2094,33 @@ def dump_all_resulttables():
             for row in rows:
                 print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
             print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Asuswrt_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT ASUS_MAC, ASUS_IP, ASUS_Name FROM Asuswrt_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (AsusWRT Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Openwrt_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT OWRT_MAC, OWRT_IP, OWRT_Name FROM Openwrt_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (OpenWRT Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pfsense_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT PF_MAC, PF_IP, PF_Name FROM pfsense_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (pfSense Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
         sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Satellites_Network';")
         table_exists = sql.fetchone()
         if table_exists:
@@ -2194,7 +2182,8 @@ def remove_entries_from_table():
                 'Mikrotik_Network': 'MT_MAC',
                 'Unifi_Network': 'UF_MAC',
                 'Openwrt_Network': 'OWRT_MAC',
-                'Asuswrt_Network': 'ASUS_MAC'
+                'Asuswrt_Network': 'ASUS_MAC',
+                'pfsense_Network': 'PF_MAC'
             }
 
             for table, column in table_column_map.items():
@@ -2227,7 +2216,8 @@ def remove_entries_from_table():
                 'Mikrotik_Network': 'MT_IP',
                 'Unifi_Network': 'UF_IP',
                 'Openwrt_Network': 'OWRT_IP',
-                'Asuswrt_Network': 'ASUS_IP'
+                'Asuswrt_Network': 'ASUS_IP',
+                'pfsense_Network': 'PF_IP'
             }
 
             for table, column in table_column_map.items():
@@ -2257,6 +2247,7 @@ def remove_entries_from_table():
                 ("Unifi_Network", "UF_MAC", "UF_Name"),
                 ("Openwrt_Network", "OWRT_MAC", "OWRT_Name"),
                 ("Asuswrt_Network", "ASUS_MAC", "ASUS_Name"),
+                ("pfsense_Network", "PF_MAC", "PF_Name"),
             ]
 
             matched_macs = set()
@@ -2279,7 +2270,8 @@ def remove_entries_from_table():
                 'Mikrotik_Network': 'MT_MAC',
                 'Unifi_Network': 'UF_MAC',
                 'Openwrt_Network': 'OWRT_MAC',
-                'Asuswrt_Network': 'ASUS_MAC'
+                'Asuswrt_Network': 'ASUS_MAC',
+                'pfsense_Network': 'PF_MAC'
             }
 
             for tabelle, mac_spalte in work_tables.items():
@@ -2330,6 +2322,7 @@ def print_scan_stats():
         "UniFi",
         "OpenWRT",
         "AsusWRT",
+        "pfSense",
         "Pi-hole DHCP"
     ]
 
@@ -3025,15 +3018,7 @@ def validate_dhcp_address(ip_string):
 # -----------------------------------------------------------------------------------
 def rogue_dhcp_detection():
     openDB()
-    # Create Table is not exist
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Nmap_DHCP_Server(
-                                scan_num INTEGER NOT NULL,
-                                dhcp_server TEXT NOT NULL
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # Flush Table
     sql.execute("DELETE FROM Nmap_DHCP_Server")
     sql_connection.commit()
     closeDB()

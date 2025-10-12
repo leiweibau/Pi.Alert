@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.35'
+SCRIPTVERSION='v1.36'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -393,6 +393,18 @@ EOM
     rm ${PIA_DB_FILE_PATH}/pialert.db.bak
     echo -e "...Create backup before insert new table"
     sqlite3 "$PIA_DB_FILE" ".backup '${PIA_DB_FILE_PATH}/pialert.db.bak'"
+    # Fritzbox_Network
+    echo -e "...Insert new table 'Fritzbox_Network' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Fritzbox_Network' ('FB_MAC' STRING(50) NOT NULL COLLATE NOCASE, 'FB_IP' STRING(50) COLLATE NOCASE, 'FB_Name' STRING(50), 'FB_Vendor' STRING(250));"
+    # Mikrotik_Network
+    echo -e "...Insert new table 'Mikrotik_Network' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Mikrotik_Network' ('MT_MAC' STRING(50) NOT NULL COLLATE NOCASE, 'MT_IP' STRING(50) COLLATE NOCASE, 'MT_Name' STRING(50), 'MT_Vendor' STRING(250));"
+    # Unifi_Network
+    echo -e "...Insert new table 'Unifi_Network' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Unifi_Network' ('UF_MAC' STRING(50) NOT NULL COLLATE NOCASE, 'UF_IP' STRING(50) COLLATE NOCASE, 'UF_Name' STRING(50), 'UF_Vendor' STRING(250));"
+    # Nmap_DHCP_Server
+    echo -e "...Insert new table 'Nmap_DHCP_Server' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'Nmap_DHCP_Server' ('scan_num' INTEGER NOT NULL, 'dhcp_server' TEXT NOT NULL);"
     # Pi.Alert Journal
     echo -e "...Insert new table 'pialert_journal' to DB"
     sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'pialert_journal' ('journal_id' INTEGER, 'Journal_DateTime' TEXT NOT NULL, 'LogClass' NUMERIC NOT NULL, 'Trigger' TEXT NOT NULL, 'LogString' TEXT NOT NULL, 'Hash' TEXT, 'Additional_Info' TEXT, PRIMARY KEY(\"journal_id\" AUTOINCREMENT));"
@@ -755,9 +767,9 @@ EOM
     else
       echo "        Column 'cur_AlertUp' already exists in the 'Services_CurrentScan' table."
     fi
-
-
-
+    # pfsense_Network
+    echo -e "...Insert new table 'pfsense_Network' to DB"
+    sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'pfsense_Network' ('PF_MAC' STRING(50) NOT NULL COLLATE NOCASE, 'PF_IP' STRING(50) COLLATE NOCASE, 'PF_Name' STRING(50), 'PF_Vendor' STRING(250), 'PF_Method' STRING(50), 'PF_Interface' STRING(20), 'PF_Custom_a' STRING(100), 'PF_Custom_b' STRING(100), 'PF_Connected' BOOLEAN, 'PF_Datetime' DATETIME);"
 
     echo -e "\nUpdate finished!\n"
 
