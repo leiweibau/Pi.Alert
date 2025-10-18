@@ -386,7 +386,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Du kan angive en brugerdefineret URL til dit ønskede FavIcon eller vælge mellem lokale og eksterne (https://github.com/leiweibau/Pi.Alert) FavIcons. Afhængigt af konfigurationen kan lokale FavIcons muligvis ikke bruges som HomeScreen-ikon.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Filtereditor (sidepanel)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Import';
-$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktivering af de enkelte importer kræver, at de er korrekt konfigureret i konfigurationsfilen. Ellers kan der opstå fejl eller afbrydelser i scanningen.';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'Aktivering af de enkelte importer forudsætter, at de er korrekt forudkonfigureret i konfigurationsfilen. Ellers kan der opstå fejl eller afbrydelser af scanningen. For at bruge importer fra OpenWRT- og pfSense-enheder kan det være nødvendigt at installere yderligere software (API-grænseflader) på disse enheder.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Pi-hole-knap (menulinje)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'Ved at angive URL&apos;en til Pi-hole-webgrænsefladen, kan du tilføje en knap i menulinjen. Hvis feltet slettes, fjernes knappen igen. Knappen vises med ikonet <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Konfigurer overskrifter i enhedslister';

@@ -387,7 +387,7 @@ $pia_lang['MT_Tools_Tab_Subheadline_e'] = 'FavIcon';
 $pia_lang['MT_Tools_Tab_Subheadline_e_Intro'] = 'Vous pouvez entrer l&apos;URL de votre FavIcon souhaité dans le champ, ou choisir entre des FavIcons locaux ou distants (https://github.com/leiweibau/Pi.Alert). Selon la configuration, les FavIcons locaux peuvent ne pas fonctionner comme une icône d&apos;écran principal.';
 $pia_lang['MT_Tools_Tab_Subheadline_f'] = 'Éditeur de filtres (barre latérale)';
 $pia_lang['MT_Tools_Tab_Subheadline_g'] = 'Importations';
-$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'L&apos;activation des importations individuelles nécessite qu&apos;elles soient préconfigurées dans le fichier de configuration. Sinon, des erreurs ou des interruptions de scan se produiront.';
+$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'] = 'L&apos;activation des importations individuelles nécessite qu&apos;elles soient correctement préconfigurées dans le fichier de configuration. Sinon, des erreurs ou des interruptions de l&apos;analyse peuvent survenir. L&apos;utilisation des imports depuis des appareils OpenWRT et pfSense peut nécessiter l&apos;installation de logiciels supplémentaires (interfaces API) sur ces appareils.';
 $pia_lang['MT_Tools_Tab_Subheadline_h'] = 'Bouton Pi-hole (Barre de menu)';
 $pia_lang['MT_Tools_Tab_Subheadline_h_Intro'] = 'En spécifiant l&apos;URL de l&apos;interface web de Pi-hole, vous pouvez créer un bouton Pi-hole dans la barre de menu. Si vous supprimez le champ de saisie, le bouton sera supprimé. Le bouton est marqué avec l&apos;icône <i class="mdi mdi-pi-hole"></i>.';
 $pia_lang['MT_Tools_Tab_Subheadline_i'] = 'Configurer en-têtes des listes';

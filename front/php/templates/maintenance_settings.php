@@ -85,6 +85,13 @@
                                     <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('AW',<?=$_SESSION['ASUSWRT_ACTIVE'];?>)"><span class="<?= ($_SESSION['ASUSWRT_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Asus Router</span><br><?=$state;?></button>
                                 </div>
                             </div>
+<!-- Toggle pfSense ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['PFSENSE_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('PF',<?=$_SESSION['PFSENSE_ACTIVE'];?>)"><span class="<?= ($_SESSION['PFSENSE_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">pfSense (off)</span><br><?=$state;?></button>
+                                </div>
+                            </div>
 <!-- Toggle Pi-hole Network ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">

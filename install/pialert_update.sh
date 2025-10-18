@@ -489,6 +489,19 @@ PUBLISH_MQTT_STATUS        = False
 EOF
 fi
 
+# 2025-10-30
+if ! grep -Fq "# pfsense Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# pfsense Configuration
+# ----------------------
+PFSENSE_ACTIVE            = False
+PFSENSE_IP                = '192.168.1.1'
+PFSENSE_APIKEY            = ''
+PFSENSE_SSL               = False
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

@@ -595,6 +595,9 @@ require 'php/templates/footer.php';
 
 <script>
 	var deviceStatus = 'all';
+  var parTableRows    = 'Front_Devices_Rows';
+  var parTableOrder   = 'Front_Devices_Order';
+  var tableRows       = 10;
 	main();
 
 // -----------------------------------------------------------------------------
@@ -620,11 +623,36 @@ function initializeiCheck () {
 }
 
 // -----------------------------------------------------------------------------
+// function main () {
+//     initializeiCheck();
+//     initializeDatatable();
+//     getDevicesList (deviceStatus);
+//     getICMPHostTotals();
+// }
+
 function main () {
-    initializeiCheck();
-    initializeDatatable();
-    getDevicesList (deviceStatus);
-    getICMPHostTotals();
+  // get parameter value
+  $.get('php/server/parameters.php?action=get&parameter='+ parTableRows, function(data) {
+    var result = JSON.parse(data);
+    if (Number.isInteger (result) ) {
+        tableRows = result;
+    }
+
+    // get parameter value
+    $.get('php/server/parameters.php?action=get&parameter='+ parTableOrder, function(data) {
+      var result = JSON.parse(data);
+      result = JSON.parse(result);
+      if (Array.isArray (result) ) {
+        tableOrder = result;
+      }
+      // Initialize components with parameters
+      initializeDatatable();
+      // query data
+      getICMPHostTotals()
+      getDevicesList (deviceStatus);
+     });
+   });
+  initializeiCheck();
 }
 
 // -----------------------------------------------------------------------------
@@ -639,6 +667,9 @@ function initializeDatatable () {
     'info'         : true,
     'autoWidth'    : false,
     'order'       : [[0,'asc']],
+
+    // Parameters
+    'pageLength'   : tableRows,
 
     'columnDefs'   : [
       {visible:   false,         targets: [6,7,8] },

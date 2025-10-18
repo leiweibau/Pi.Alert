@@ -854,6 +854,9 @@ def scan_network():
     openDB()
     print_log ('AsusWRT copy starts...')
     read_asuswrt_clients()
+    openDB()
+    print_log ('pfsense copy starts...')
+    read_pfsense_clients()
     # Import Satellites Scans
     get_satellite_scans()
     # Load current scan data 1/2
@@ -925,187 +928,7 @@ def scan_network():
 
     return 0
 
-#-------------------------------------------------------------------------------
-def publish_sensor_group(device_id: str, device_name: str, base_topic: str, values: dict):
 
-    for key, value in values.items():
-        topic = f"{base_topic}/{key}"
-        object_id = key.lower()
-
-        # Automatic assignment of unit and device_class
-        unit = "" if isinstance(value, int) else None
-        device_class = "timestamp" if "time" in key.lower() else None
-
-        # Send Discovery
-        publish_discovery_sensor(
-            device_id=device_id,
-            device_name=device_name,
-            object_id=object_id,
-            name=f"{device_name}: {key.capitalize()}",
-            topic=topic,
-            unit=unit,
-            device_class=device_class
-        )
-
-        # Wert senden
-        send_mqtt_message(topic, value, retain=True)
-
-#-------------------------------------------------------------------------------
-def publish_discovery_sensor(device_id, device_name, object_id, name, topic, unit=None, device_class=None):
-    is_binary = object_id.lower() == "status"  # automatically detect
-
-    sensor_type = "binary_sensor" if is_binary else "sensor"
-    discovery_topic = f"homeassistant/{sensor_type}/{device_id}_{object_id}/config"
-
-    payload = {
-        "name": name,
-        "state_topic": topic,
-        "unique_id": f"{device_id}_{object_id}",
-        "device": {
-            "identifiers": [device_id],
-            "name": device_name,
-            "manufacturer": "Pi.Alert",
-            "model": "MQTT Export"
-        }
-    }
-
-    # Additional fields depending on type
-    if is_binary:
-        payload["payload_on"] = "on"
-        payload["payload_off"] = "off"
-        #payload["device_class"] = device_class or "connectivity"
-    else:
-        if unit:
-            payload["unit_of_measurement"] = unit
-        if device_class:
-            payload["device_class"] = device_class
-
-    send_mqtt_message(discovery_topic, payload, retain=True)
-
-#-------------------------------------------------------------------------------
-def mqtt_get_system_status():
-    openDB()
-
-    mqttstartTime = datetime.datetime.now(timezone.utc).replace(second=0, microsecond=0)
-    formatted_time = mqttstartTime.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    data = {}
-    status_data = {}
-    local_data = {}
-    status_data["status"] = "off" if os.path.exists("../../db/setting_stoparpscan") else "on"
-    status_data["time"] = formatted_time
-
-    # General stats
-    sql.execute('''
-        SELECT
-            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0),
-            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_PresentLastScan=1),
-            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_NewDevice=1),
-            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
-            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
-            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=1)
-    ''')
-    row = sql.fetchone()
-    keys = ["all", "online", "new", "down", "offline", "archive"]
-    if row:
-        status_data.update(dict(zip(keys, row)))
-
-    data["status"] = status_data
-
-    # local section
-    sql.execute('''
-        SELECT
-            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0),
-            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_PresentLastScan=1),
-            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_NewDevice=1),
-            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
-            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
-            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=1)
-    ''')
-    row = sql.fetchone()
-    keys = ["all", "online", "new", "down", "offline", "archive"]
-    if row:
-        local_data.update(dict(zip(keys, row)))
-
-    sql.execute("SELECT All_Devices, Down_Devices, Online_Devices FROM Online_History WHERE data_source='icmp_scan' ORDER BY Scan_Date DESC LIMIT 1")
-    row = sql.fetchone()
-    if row:
-        local_data["icmp_all"] = row[0]
-        local_data["icmp_offline"] = row[1]
-        local_data["icmp_online"] = row[2]
-
-    data["local"] = local_data
-
-    # Satellites
-    sql.execute("SELECT sat_token, sat_name FROM Satellites")
-    satellites = sql.fetchall()
-    for sat_token, sat_name in satellites:
-        sql.execute('''
-            SELECT
-                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0),
-                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_PresentLastScan=1),
-                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_NewDevice=1),
-                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
-                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
-                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=1)
-        ''', (sat_token,) * 6)
-        row = sql.fetchone()
-        keys = ["all", "online", "new", "down", "offline", "archive"]
-        if row:
-            data[sat_name] = dict(zip(keys, row))
-
-    closeDB()
-
-    return data
-
-#-------------------------------------------------------------------------------
-def report_to_mqtt():
-
-    if PUBLISH_MQTT_STATUS:
-        print('        Pi.Alert Status')
-        daten = mqtt_get_system_status()
-
-        for group, values in daten.items():
-            device_id = f"pialert_{group}"
-            device_name = f"Pi.Alert {group.capitalize()}"
-            base_topic = f"pi_alert/{group}"
-
-            publish_sensor_group(device_id, device_name, base_topic, values)
-
-#-------------------------------------------------------------------------------
-def send_mqtt_message(topic: str, value, retain: bool = False):
-    client = Client(protocol=MQTTv311, callback_api_version=CallbackAPIVersion.VERSION2)
-
-    if REPORT_MQTT_USERNAME and REPORT_MQTT_PASSWORD:
-        client.username_pw_set(REPORT_MQTT_USERNAME, REPORT_MQTT_PASSWORD)
-
-    if REPORT_MQTT_TLS:
-        client.tls_set()
-
-    done = threading.Event()
-
-    def on_connect(client, userdata, flags, reason_code, properties):
-        print_log(f"✅ Connected to MQTT – send to {topic}")
-        payload = value if isinstance(value, str) else json.dumps(value)
-        result = client.publish(topic, payload, retain=retain)
-        if result.rc != MQTT_ERR_SUCCESS:
-            print_log(f"   ❌ Error during transmission ({result.rc})")
-        client.disconnect()
-
-    def on_disconnect(client, userdata, reason_code, properties, reason_string=None):
-        print_log("🔌 MQTT-Connection closed")
-        done.set()
-
-    client.on_connect = on_connect
-    client.on_disconnect = on_disconnect
-
-    try:
-        client.connect(REPORT_MQTT_BROKER, REPORT_MQTT_PORT, 60)
-        client.loop_start()
-        done.wait(timeout=5)
-        client.loop_stop()
-    except Exception as e:
-        print_log(f"❌ MQTT-Connection: {e}")
 
 #-------------------------------------------------------------------------------
 def get_local_sys_timezone():
@@ -1422,17 +1245,7 @@ def get_pihole_interface_data():
 
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
-    # create table if not exists
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Fritzbox_Network(
-                                "FB_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "FB_IP" STRING(50) COLLATE NOCASE,
-                                "FB_Name" STRING(50),
-                                "FB_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # empty Fritzbox Network table
     sql.execute ("DELETE FROM Fritzbox_Network")
 
     # check if Pi-hole is active
@@ -1471,15 +1284,6 @@ def read_fritzbox_active_hosts():
 #-------------------------------------------------------------------------------
 def read_mikrotik_leases():
 
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Mikrotik_Network(
-                                "MT_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "MT_IP" STRING(50) COLLATE NOCASE,
-                                "MT_Name" STRING(50),
-                                "MT_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
-
     sql.execute ("DELETE FROM Mikrotik_Network")
 
     if not MIKROTIK_ACTIVE:
@@ -1517,15 +1321,6 @@ def read_mikrotik_leases():
 
 #-------------------------------------------------------------------------------
 def read_unifi_clients():
-
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Unifi_Network(
-                                "UF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "UF_IP" STRING(50) COLLATE NOCASE,
-                                "UF_Name" STRING(50),
-                                "UF_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
     sql.execute ("DELETE FROM Unifi_Network")
 
@@ -1572,17 +1367,7 @@ def read_unifi_clients():
 
 #-------------------------------------------------------------------------------
 def read_openwrt_clients():
-    # create table if not exists
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Openwrt_Network(
-                                "OWRT_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "OWRT_IP" STRING(50) COLLATE NOCASE,
-                                "OWRT_Name" STRING(50),
-                                "OWRT_Vendor" STRING(250)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # empty Fritzbox Network table
     sql.execute ("DELETE FROM Openwrt_Network")
 
     if not OPENWRT_ACTIVE:
@@ -1615,18 +1400,7 @@ def read_openwrt_clients():
 
 #-------------------------------------------------------------------------------
 def read_asuswrt_clients():
-    # create table if not exists
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Asuswrt_Network(
-                                "ASUS_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-                                "ASUS_IP" STRING(50) COLLATE NOCASE,
-                                "ASUS_Name" STRING(50),
-                                "ASUS_Vendor" STRING(250),
-                                "ASUS_Method" STRING(50)
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # empty Fritzbox Network table
     sql.execute ("DELETE FROM Asuswrt_Network")
 
     if not ASUSWRT_ACTIVE:
@@ -1715,6 +1489,181 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
 
         await router.async_disconnect()
         # print("\nVerbindung sauber getrennt.")
+
+#-------------------------------------------------------------------------------
+def pfsense_connect(endpoint,topic):
+    protocol = "https" if PFSENSE_SSL else "http"
+    port = 443 if PFSENSE_SSL else 80
+
+    url = f"{protocol}://{PFSENSE_IP}:{port}{endpoint}"
+    headers = {
+        "X-API-Key": PFSENSE_APIKEY,
+        "Accept": "application/json"
+    }
+
+    try:
+        response = requests.get(url, headers=headers, verify=False, timeout=10)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"        ...❌ Error {response.status_code}: {response.text}")
+            return None
+
+    except requests.Timeout:
+        print(f"        ...{topic} Request canceled: Timeout reached.")
+        return None
+
+    except requests.RequestException as e:
+        print(f"        ...{topic} Skipped - Connection error")
+        #DEBUG
+        # if topic == "DHCP":
+        #     with open("dhcp.json", "r", encoding="utf-8") as f:
+        #         response = f.read()
+        # if topic == "ARP":
+        #     with open("arp.json", "r", encoding="utf-8") as f:
+        #         response = f.read()
+        # return json.loads(response)
+        return None
+
+#-------------------------------------------------------------------------------
+def read_pfsense_clients():
+
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    pfsense_dhcpleases = ""
+    pfsense_arptable = ""
+
+    if PFSENSE_ACTIVE:
+        # create table if not exists
+        # sql_create_table = """ CREATE TABLE IF NOT EXISTS pfsense_Network(
+        #                             "PF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
+        #                             "PF_IP" STRING(50) COLLATE NOCASE,
+        #                             "PF_Name" STRING(50),
+        #                             "PF_Vendor" STRING(250),
+        #                             "PF_Method" STRING(50),
+        #                             "PF_Interface" STRING(20),
+        #                             "PF_Custom_a" STRING(100),
+        #                             "PF_Custom_b" STRING(100),
+        #                             "PF_Connected" BOOLEAN,
+        #                             "PF_Datetime" DATETIME
+        #                         ); """
+        # sql.execute(sql_create_table)
+        # sql_connection.commit()
+
+        print(f"    pfSense Method...")
+        endpoint = "/api/v2/status/dhcp_server/leases?limit=0&offset=0&sort_order=SORT_ASC&sort_flags=SORT_STRING"
+        result = pfsense_connect(endpoint,"DHCP")
+        print_log(result)
+        if result:
+            pfsense_dhcpleases_raw = result
+            pfsense_dhcpleases = json.dumps(result, indent=4)
+
+        endpoint = "/api/v2/diagnostics/arp_table?limit=0&offset=0"
+        result = pfsense_connect(endpoint,"ARP")
+        print_log(result)
+        if result:
+            pfsense_arptable_raw = result
+            pfsense_arptable = json.dumps(result, indent=4)
+
+        pfsense_save_dhcp_data(pfsense_dhcpleases)
+        pfsense_save_arp_data(pfsense_arptable)
+    else:
+        return
+
+#-------------------------------------------------------------------------------
+def pfsense_save_dhcp_data(pfsense_dhcpleases):
+
+    if isinstance(pfsense_dhcpleases, str):
+        try:
+            pfsense_dhcpleases = json.loads(pfsense_dhcpleases)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (pfsense_dhcpleases)")
+            return [], []
+
+    pfsense_network_dhcp = []
+
+    # Check if "data" exists
+    if not pfsense_dhcpleases or "data" not in pfsense_dhcpleases:
+        print_log("⚠️ no DHCP-Leases were found")
+        return pfsense_network_dhcp
+
+    for entry in pfsense_dhcpleases["data"]:
+        mac = entry.get("mac", "").strip().lower()
+        ip = entry.get("ip", "").strip()
+        hostname = entry.get("hostname") or "(unknown)"
+        ends_str = entry.get("ends")
+
+        # convert "ends" in UNIX-Timestamp
+        try:
+            ends_ts = int(datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
+        except (ValueError, TypeError):
+            ends_ts = 0
+
+        pf_connected = False
+        # Only active hosts for current scann
+        if entry.get("online_status") == "active/online":
+            pf_connected = True
+
+        # All hosts für dhcp table
+        pfsense_network_dhcp.append({
+            "MAC": mac,
+            "IP": ip,
+            "Name": hostname,
+            "Vendor": "",
+            "Interface": "",
+            "Custom_a": "",
+            "Custom_b": "",
+            "Connected": pf_connected,
+            "Datetime": ends_ts
+        })
+        
+    print_log(pfsense_network_dhcp)
+
+#-------------------------------------------------------------------------------
+def pfsense_save_arp_data(pfsense_arptable):
+
+    if isinstance(pfsense_arptable, str):
+        try:
+            pfsense_arptable = json.loads(pfsense_arptable)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (pfsense_arptable)")
+            return [], []
+
+    pfsense_arp_list = []
+
+    # Check if "data" exists
+    if not pfsense_arptable or "data" not in pfsense_arptable:
+        print_log("⚠️ no valid ARP-data found.")
+        return pfsense_arp_list
+
+    for entry in pfsense_arptable["data"]:
+        mac = entry.get("mac_address", "").strip().lower()
+        ip = entry.get("ip_address", "").strip()
+        hostname = entry.get("hostname", "").strip()
+        dnsresolve = entry.get("dnsresolve", "").strip()
+        interface = entry.get("interface", "").strip()
+
+        # Hostname-Regeln
+        if hostname == "" or hostname == "?":
+            if dnsresolve != "" and dnsresolve != "?":
+                hostname = dnsresolve
+            else:
+                hostname = "(unknown)"
+
+        # Eintrag zur Liste hinzufügen
+        pfsense_arp_list.append({
+            "MAC": mac,
+            "IP": ip,
+            "Name": hostname,
+            "Vendor": "",
+            "Interface": interface,
+            "Custom_a": "",
+            "Custom_b": "",
+            "Connected": True,
+            "Datetime": ""
+        })
+
+    print_log(pfsense_arp_list)
 
 #-------------------------------------------------------------------------------
 def read_DHCP_leases():
@@ -2046,6 +1995,12 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     insert_ext_sources(sql, cycle, 'Openwrt_Network', 'OWRT_MAC', 'OWRT_IP', 'OWRT_Vendor', 'OpenWRT')
     insert_ext_sources(sql, cycle, 'Asuswrt_Network', 'ASUS_MAC', 'ASUS_IP', 'ASUS_Vendor', 'AsusWRT')
 
+
+    # ###############################
+    # Add pfSense Tag during import
+    # ###############################
+
+
     # Insert Satellite devices
     sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
                         cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
@@ -2139,6 +2094,33 @@ def dump_all_resulttables():
             for row in rows:
                 print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
             print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Asuswrt_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT ASUS_MAC, ASUS_IP, ASUS_Name FROM Asuswrt_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (AsusWRT Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Openwrt_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT OWRT_MAC, OWRT_IP, OWRT_Name FROM Openwrt_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (OpenWRT Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pfsense_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT PF_MAC, PF_IP, PF_Name FROM pfsense_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (pfSense Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
         sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Satellites_Network';")
         table_exists = sql.fetchone()
         if table_exists:
@@ -2200,7 +2182,8 @@ def remove_entries_from_table():
                 'Mikrotik_Network': 'MT_MAC',
                 'Unifi_Network': 'UF_MAC',
                 'Openwrt_Network': 'OWRT_MAC',
-                'Asuswrt_Network': 'ASUS_MAC'
+                'Asuswrt_Network': 'ASUS_MAC',
+                'pfsense_Network': 'PF_MAC'
             }
 
             for table, column in table_column_map.items():
@@ -2233,7 +2216,8 @@ def remove_entries_from_table():
                 'Mikrotik_Network': 'MT_IP',
                 'Unifi_Network': 'UF_IP',
                 'Openwrt_Network': 'OWRT_IP',
-                'Asuswrt_Network': 'ASUS_IP'
+                'Asuswrt_Network': 'ASUS_IP',
+                'pfsense_Network': 'PF_IP'
             }
 
             for table, column in table_column_map.items():
@@ -2263,6 +2247,7 @@ def remove_entries_from_table():
                 ("Unifi_Network", "UF_MAC", "UF_Name"),
                 ("Openwrt_Network", "OWRT_MAC", "OWRT_Name"),
                 ("Asuswrt_Network", "ASUS_MAC", "ASUS_Name"),
+                ("pfsense_Network", "PF_MAC", "PF_Name"),
             ]
 
             matched_macs = set()
@@ -2285,7 +2270,8 @@ def remove_entries_from_table():
                 'Mikrotik_Network': 'MT_MAC',
                 'Unifi_Network': 'UF_MAC',
                 'Openwrt_Network': 'OWRT_MAC',
-                'Asuswrt_Network': 'ASUS_MAC'
+                'Asuswrt_Network': 'ASUS_MAC',
+                'pfsense_Network': 'PF_MAC'
             }
 
             for tabelle, mac_spalte in work_tables.items():
@@ -2336,6 +2322,7 @@ def print_scan_stats():
         "UniFi",
         "OpenWRT",
         "AsusWRT",
+        "pfSense",
         "Pi-hole DHCP"
     ]
 
@@ -3031,15 +3018,7 @@ def validate_dhcp_address(ip_string):
 # -----------------------------------------------------------------------------------
 def rogue_dhcp_detection():
     openDB()
-    # Create Table is not exist
-    sql_create_table = """ CREATE TABLE IF NOT EXISTS Nmap_DHCP_Server(
-                                scan_num INTEGER NOT NULL,
-                                dhcp_server TEXT NOT NULL
-                            ); """
-    sql.execute(sql_create_table)
-    sql_connection.commit()
 
-    # Flush Table
     sql.execute("DELETE FROM Nmap_DHCP_Server")
     sql_connection.commit()
     closeDB()
@@ -4034,6 +4013,190 @@ def icmphost_monitoring_notification():
         print('    No changes to report...')
 
     sql_connection.commit()
+
+
+#===============================================================================
+# Publish to MQTT
+#===============================================================================
+def report_to_mqtt():
+    if PUBLISH_MQTT_STATUS:
+        print('        Pi.Alert Status')
+        daten = mqtt_get_system_status()
+
+        for group, values in daten.items():
+            device_id = f"pialert_{group}"
+            device_name = f"Pi.Alert {group.capitalize()}"
+            base_topic = f"pi_alert/{group}"
+
+            publish_sensor_group(device_id, device_name, base_topic, values)
+
+#-------------------------------------------------------------------------------
+def publish_sensor_group(device_id: str, device_name: str, base_topic: str, values: dict):
+
+    for key, value in values.items():
+        topic = f"{base_topic}/{key}"
+        object_id = key.lower()
+
+        # Automatic assignment of unit and device_class
+        unit = "" if isinstance(value, int) else None
+        device_class = "timestamp" if "time" in key.lower() else None
+
+        # Send Discovery
+        publish_discovery_sensor(
+            device_id=device_id,
+            device_name=device_name,
+            object_id=object_id,
+            name=f"{device_name}: {key.capitalize()}",
+            topic=topic,
+            unit=unit,
+            device_class=device_class
+        )
+
+        # Wert senden
+        send_mqtt_message(topic, value, retain=True)
+
+#-------------------------------------------------------------------------------
+def publish_discovery_sensor(device_id, device_name, object_id, name, topic, unit=None, device_class=None):
+    is_binary = object_id.lower() == "status"  # automatically detect
+
+    sensor_type = "binary_sensor" if is_binary else "sensor"
+    discovery_topic = f"homeassistant/{sensor_type}/{device_id}_{object_id}/config"
+
+    payload = {
+        "name": name,
+        "state_topic": topic,
+        "unique_id": f"{device_id}_{object_id}",
+        "device": {
+            "identifiers": [device_id],
+            "name": device_name,
+            "manufacturer": "Pi.Alert",
+            "model": "MQTT Export"
+        }
+    }
+
+    # Additional fields depending on type
+    if is_binary:
+        payload["payload_on"] = "on"
+        payload["payload_off"] = "off"
+        #payload["device_class"] = device_class or "connectivity"
+    else:
+        if unit:
+            payload["unit_of_measurement"] = unit
+        if device_class:
+            payload["device_class"] = device_class
+
+    send_mqtt_message(discovery_topic, payload, retain=True)
+
+#-------------------------------------------------------------------------------
+def mqtt_get_system_status():
+    openDB()
+
+    mqttstartTime = datetime.datetime.now(timezone.utc).replace(second=0, microsecond=0)
+    formatted_time = mqttstartTime.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    data = {}
+    status_data = {}
+    local_data = {}
+    status_data["status"] = "off" if os.path.exists("../../db/setting_stoparpscan") else "on"
+    status_data["time"] = formatted_time
+
+    # General stats
+    sql.execute('''
+        SELECT
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_PresentLastScan=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_NewDevice=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_Archived=1)
+    ''')
+    row = sql.fetchone()
+    keys = ["all", "online", "new", "down", "offline", "archive"]
+    if row:
+        status_data.update(dict(zip(keys, row)))
+
+    data["status"] = status_data
+
+    # local section
+    sql.execute('''
+        SELECT
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_PresentLastScan=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_NewDevice=1),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
+            (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='local' AND dev_Archived=1)
+    ''')
+    row = sql.fetchone()
+    keys = ["all", "online", "new", "down", "offline", "archive"]
+    if row:
+        local_data.update(dict(zip(keys, row)))
+
+    sql.execute("SELECT All_Devices, Down_Devices, Online_Devices FROM Online_History WHERE data_source='icmp_scan' ORDER BY Scan_Date DESC LIMIT 1")
+    row = sql.fetchone()
+    if row:
+        local_data["icmp_all"] = row[0]
+        local_data["icmp_offline"] = row[1]
+        local_data["icmp_online"] = row[2]
+
+    data["local"] = local_data
+
+    # Satellites
+    sql.execute("SELECT sat_token, sat_name FROM Satellites")
+    satellites = sql.fetchall()
+    for sat_token, sat_name in satellites:
+        sql.execute('''
+            SELECT
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_PresentLastScan=1),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_NewDevice=1),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0),
+                (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource=? AND dev_Archived=1)
+        ''', (sat_token,) * 6)
+        row = sql.fetchone()
+        keys = ["all", "online", "new", "down", "offline", "archive"]
+        if row:
+            data[sat_name] = dict(zip(keys, row))
+
+    closeDB()
+
+    return data
+
+#-------------------------------------------------------------------------------
+def send_mqtt_message(topic: str, value, retain: bool = False):
+    client = Client(protocol=MQTTv311, callback_api_version=CallbackAPIVersion.VERSION2)
+
+    if REPORT_MQTT_USERNAME and REPORT_MQTT_PASSWORD:
+        client.username_pw_set(REPORT_MQTT_USERNAME, REPORT_MQTT_PASSWORD)
+
+    if REPORT_MQTT_TLS:
+        client.tls_set()
+
+    done = threading.Event()
+
+    def on_connect(client, userdata, flags, reason_code, properties):
+        print_log(f"✅ Connected to MQTT – send to {topic}")
+        payload = value if isinstance(value, str) else json.dumps(value)
+        result = client.publish(topic, payload, retain=retain)
+        if result.rc != MQTT_ERR_SUCCESS:
+            print_log(f"   ❌ Error during transmission ({result.rc})")
+        client.disconnect()
+
+    def on_disconnect(client, userdata, reason_code, properties, reason_string=None):
+        print_log("🔌 MQTT-Connection closed")
+        done.set()
+
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+
+    try:
+        client.connect(REPORT_MQTT_BROKER, REPORT_MQTT_PORT, 60)
+        client.loop_start()
+        done.wait(timeout=5)
+        client.loop_stop()
+    except Exception as e:
+        print_log(f"❌ MQTT-Connection: {e}")
 
 #===============================================================================
 # REPORTING
