@@ -1538,22 +1538,6 @@ def read_pfsense_clients():
         # empty Table
         sql.execute ("DELETE FROM pfsense_Network")
 
-        # create table if not exists
-        # sql_create_table = """ CREATE TABLE IF NOT EXISTS pfsense_Network(
-        #                             "PF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-        #                             "PF_IP" STRING(50) COLLATE NOCASE,
-        #                             "PF_Name" STRING(50),
-        #                             "PF_Vendor" STRING(250),
-        #                             "PF_Method" STRING(50),
-        #                             "PF_Interface" STRING(20),
-        #                             "PF_Custom_a" STRING(100),
-        #                             "PF_Custom_b" STRING(100),
-        #                             "PF_Connected" BOOLEAN,
-        #                             "PF_Datetime" DATETIME
-        #                         ); """
-        # sql.execute(sql_create_table)
-        # sql_connection.commit()
-
         print(f"    pfSense Method...")
         endpoint = "/api/v2/status/dhcp_server/leases?limit=0&offset=0&sort_order=SORT_ASC&sort_flags=SORT_STRING"
         result = pfsense_connect(endpoint,"DHCP")
@@ -1616,7 +1600,7 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
             "IP": ip,
             "Name": hostname,
             "Vendor": "",
-            "Method": "dhcp",
+            "Method": "dhcp_pfsense",
             "Interface": "",
             "Custom_a": "",
             "Custom_b": "",
@@ -1684,7 +1668,7 @@ def pfsense_save_arp_data(pfsense_arptable):
             "IP": ip,
             "Name": hostname,
             "Vendor": "",
-            "Method": "arp",
+            "Method": "arp_pfsense",
             "Interface": interface,
             "Custom_a": "",
             "Custom_b": "",
@@ -2043,8 +2027,7 @@ def update_scan_validation():
 #-------------------------------------------------------------------------------
 def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     # Delete previous scan data
-    sql.execute ("DELETE FROM CurrentScan WHERE cur_ScanCycle = ?",
-                (cycle,))
+    sql.execute ("DELETE FROM CurrentScan WHERE cur_ScanCycle = ?", (cycle,))
 
     # Insert new arp-scan devices
     sql.executemany ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, "+
@@ -2053,17 +2036,15 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                      p_arpscan_devices) 
 
     # Insert Pi-hole devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, PH_MAC, PH_IP, PH_Vendor, 'Pi-hole'
-                    FROM PiHole_Network
-                    WHERE PH_LastQuery >= ?
-                      AND NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = PH_MAC
-                                        AND cur_ScanCycle = ? )""",
-                    (cycle,
-                     (int(startTime.strftime('%s')) - 60 * p_cycle_interval),
-                     cycle) )
+    sql.execute ("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+        SELECT ?, PH_MAC, PH_IP, PH_Vendor, 'Pi-hole'
+        FROM PiHole_Network
+        WHERE PH_LastQuery >= ?
+          AND NOT EXISTS (SELECT 'X' FROM CurrentScan
+                          WHERE cur_MAC = PH_MAC
+                            AND cur_ScanCycle = ? )""",
+        (cycle, (int(startTime.strftime('%s')) - 60 * p_cycle_interval), cycle) )
     
     # External source import
     insert_ext_sources(sql, cycle, 'Fritzbox_Network', 'FB_MAC', 'FB_IP', 'FB_Vendor', 'Fritzbox')
@@ -2072,20 +2053,25 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     insert_ext_sources(sql, cycle, 'Openwrt_Network', 'OWRT_MAC', 'OWRT_IP', 'OWRT_Vendor', 'OpenWRT')
     insert_ext_sources(sql, cycle, 'Asuswrt_Network', 'ASUS_MAC', 'ASUS_IP', 'ASUS_Vendor', 'AsusWRT')
 
-
-    # ###############################
-    # Add pfSense Tag during import
-    # ###############################
-
+    # Insert pfSense import
+    sql.execute("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+        SELECT ?, PF_MAC, PF_IP, PF_Vendor, PF_Method
+        FROM pfsense_Network
+        WHERE PF_Connected = 1
+          AND NOT EXISTS (
+              SELECT 1 FROM CurrentScan
+              WHERE cur_MAC = PF_MAC COLLATE NOCASE)""",
+        (cycle) )
 
     # Insert Satellite devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
-                    SELECT ?, Sat_MAC, Sat_IP, Sat_Vendor, Sat_ScanMethod, Sat_Token
-                    FROM Satellites_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = Sat_MAC )""",
-                    (cycle) )
+    sql.execute ("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
+        SELECT ?, Sat_MAC, Sat_IP, Sat_Vendor, Sat_ScanMethod, Sat_Token
+        FROM Satellites_Network
+        WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
+                          WHERE cur_MAC = Sat_MAC )""",
+        (cycle) )
 
     # Scan Validation
     update_scan_validation()
