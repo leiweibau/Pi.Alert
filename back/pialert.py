@@ -1608,26 +1608,26 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
             "Datetime": ends_ts
         })
 
-        sql_insert = """INSERT INTO pfsense_Network
-                        (PF_MAC, PF_IP, PF_Name, PF_Vendor, PF_Method, PF_Interface,
-                         PF_Custom_a, PF_Custom_b, PF_Connected, PF_Datetime)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+    sql_insert = """INSERT INTO pfsense_Network
+                    (PF_MAC, PF_IP, PF_Name, PF_Vendor, PF_Method, PF_Interface,
+                     PF_Custom_a, PF_Custom_b, PF_Connected, PF_Datetime)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
 
-        for entry in pfsense_network_dhcp:
-            sql.execute(sql_insert, (
-                entry["MAC"],
-                entry["IP"],
-                entry["Name"],
-                entry["Vendor"],
-                entry["Method"],
-                entry["Interface"],
-                entry["Custom_a"],
-                entry["Custom_b"],
-                entry["Connected"],
-                entry["Datetime"]
-            ))
+    for entry in pfsense_network_dhcp:
+        sql.execute(sql_insert, (
+            entry["MAC"],
+            entry["IP"],
+            entry["Name"],
+            entry["Vendor"],
+            entry["Method"],
+            entry["Interface"],
+            entry["Custom_a"],
+            entry["Custom_b"],
+            entry["Connected"],
+            entry["Datetime"]
+        ))
 
-        sql_connection.commit()
+    sql_connection.commit()
 
     print_log(pfsense_network_dhcp)
 
@@ -1654,6 +1654,23 @@ def pfsense_save_arp_data(pfsense_arptable):
         hostname = entry.get("hostname", "").strip()
         dnsresolve = entry.get("dnsresolve", "").strip()
         interface = entry.get("interface", "").strip()
+        arpexpires = entry.get("expires", "").strip()
+
+        # Get Arp exp. seconds
+        match = re.search(r"Expires\s+in\s+(\d+)\s+seconds", arpexpires, flags=re.I)
+
+        if match:
+            seconds = match.group(1)
+        else:
+            seconds = ""
+
+        # Since the “Arp countdown” in pfSense can take up to 20 minutes before a device is marked as “offline,” 
+        # I set a threshold of 10 minutes after which a device is considered “offline,” regardless of pfSense.
+        # set Connected-Status
+        if arpexpires.lower() == "permanent" or (seconds != "" and int(seconds) > 600):
+            connected = True
+        else:
+            connected = False
 
         # Hostname-Regeln
         if hostname == "" or hostname == "?":
@@ -1670,57 +1687,57 @@ def pfsense_save_arp_data(pfsense_arptable):
             "Vendor": "",
             "Method": "pfSense",
             "Interface": interface,
-            "Custom_a": "",
+            "Custom_a": seconds,
             "Custom_b": "",
-            "Connected": True,
+            "Connected": connected,
             "Datetime": ""
         })
 
-        # SQL-queries
-        sql_select = "SELECT PF_Name, PF_Interface, PF_Connected FROM pfsense_Network WHERE PF_MAC = ? COLLATE NOCASE;"
-        sql_insert = """INSERT INTO pfsense_Network
-                        (PF_MAC, PF_IP, PF_Name, PF_Vendor, PF_Method, PF_Interface,
-                         PF_Custom_a, PF_Custom_b, PF_Connected, PF_Datetime)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
-        sql_update_name = "UPDATE pfsense_Network SET PF_Name = ? WHERE PF_MAC = ? COLLATE NOCASE;"
-        sql_update_interface = "UPDATE pfsense_Network SET PF_Interface = ? WHERE PF_MAC = ? COLLATE NOCASE;"
-        sql_update_connected = "UPDATE pfsense_Network SET PF_Connected = ? WHERE PF_MAC = ? COLLATE NOCASE;"
+    # SQL-queries
+    sql_select = "SELECT PF_Name, PF_Interface, PF_Connected FROM pfsense_Network WHERE PF_MAC = ? COLLATE NOCASE;"
+    sql_insert = """INSERT INTO pfsense_Network
+                    (PF_MAC, PF_IP, PF_Name, PF_Vendor, PF_Method, PF_Interface,
+                     PF_Custom_a, PF_Custom_b, PF_Connected, PF_Datetime)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+    sql_update_name = "UPDATE pfsense_Network SET PF_Name = ? WHERE PF_MAC = ? COLLATE NOCASE;"
+    sql_update_interface = "UPDATE pfsense_Network SET PF_Interface = ? WHERE PF_MAC = ? COLLATE NOCASE;"
+    sql_update_connected = "UPDATE pfsense_Network SET PF_Connected = ? WHERE PF_MAC = ? COLLATE NOCASE;"
 
-        for entry in pfsense_arp_list:
-            mac = entry["MAC"]
-            sql.execute(sql_select, (mac,))
-            row = sql.fetchone()
+    for entry in pfsense_arp_list:
+        mac = entry["MAC"]
+        sql.execute(sql_select, (mac,))
+        row = sql.fetchone()
 
-            if row:
-                # Record exists → update selectively
-                db_name, db_interface, db_connected = row
+        if row:
+            # Record exists → update selectively
+            db_name, db_interface, db_connected = row
 
-                # update Interface, if empty in table and set in dict
-                if (not db_interface or db_interface.strip() == "") and entry["Interface"]:
-                    sql.execute(sql_update_interface, (entry["Interface"], mac))
+            # update Interface, if empty in table and set in dict
+            if (not db_interface or db_interface.strip() == "") and entry["Interface"]:
+                sql.execute(sql_update_interface, (entry["Interface"], mac))
 
-                # update Name, if empty in table and set in dict
-                if (not db_name or db_name.strip() == "") and entry["Name"]:
-                    sql.execute(sql_update_name, (entry["Name"], mac))
+            # update Name, if empty in table and set in dict
+            if (not db_name or db_name.strip() == "") and entry["Name"]:
+                sql.execute(sql_update_name, (entry["Name"], mac))
 
-                # update Connected, if empty in table and set in dict
-                if (not db_connected) and entry["Connected"]:
-                    sql.execute(sql_update_connected, (1, mac))
+            # update Connected, if empty in table and set in dict
+            if (not db_connected) and entry["Connected"]:
+                sql.execute(sql_update_connected, (1, mac))
 
-            else:
-                # arp Device not in table
-                sql.execute(sql_insert, (
-                    entry["MAC"],
-                    entry["IP"],
-                    entry["Name"],
-                    entry["Vendor"],
-                    entry["Method"],
-                    entry["Interface"],
-                    entry["Custom_a"],
-                    entry["Custom_b"],
-                    entry["Connected"],
-                    entry["Datetime"]
-                ))
+        else:
+            # arp Device not in table
+            sql.execute(sql_insert, (
+                entry["MAC"],
+                entry["IP"],
+                entry["Name"],
+                entry["Vendor"],
+                entry["Method"],
+                entry["Interface"],
+                entry["Custom_a"],
+                entry["Custom_b"],
+                entry["Connected"],
+                entry["Datetime"]
+            ))
 
         sql_connection.commit()
 
@@ -2054,15 +2071,6 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     insert_ext_sources(sql, cycle, 'Asuswrt_Network', 'ASUS_MAC', 'ASUS_IP', 'ASUS_Vendor', 'AsusWRT')
 
     # Insert pfSense import
-    # sql.execute("""
-    #     INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
-    #     SELECT ?, PF_MAC, PF_IP, PF_Vendor, PF_Method
-    #     FROM pfsense_Network
-    #     WHERE PF_Connected = 1
-    #       AND NOT EXISTS (
-    #           SELECT 1 FROM CurrentScan
-    #           WHERE cur_MAC = PF_MAC COLLATE NOCASE)""",
-    #     (cycle) )
     sql.execute("""
         INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
         SELECT ?, PF_MAC, PF_IP, PF_Vendor, PF_Method
