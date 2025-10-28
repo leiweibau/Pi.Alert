@@ -241,6 +241,21 @@ install_arpscan() {
 # ------------------------------------------------------------------------------
 # Install Python
 # ------------------------------------------------------------------------------
+check_and_install_package() {
+  package_name="$1"
+  if pip3 show "$package_name" > /dev/null 2>&1; then
+    print_msg "    - $package_name is already installed"
+  else
+    print_msg "    - Installing $package_name..."
+    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+      pip3 -q install "$package_name" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
+    else
+      pip3 -q install "$package_name" --no-warn-script-location                                 2>&1 >> "$LOG"
+    fi
+    print_msg "    - $package_name is now installed"
+  fi
+}
+
 install_python() {
   print_header "Python"
 
@@ -272,23 +287,13 @@ install_python() {
       sudo apt-get install python3 python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y         2>&1 >> "$LOG"
     fi
     print_msg "    - Install additional packages"
-    if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
-      pip3 -q install mac-vendor-lookup --break-system-packages --no-warn-script-location       2>&1 >> "$LOG"
-      pip3 -q install fritzconnection --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
-      pip3 -q install routeros_api --break-system-packages --no-warn-script-location            2>&1 >> "$LOG"
-      pip3 -q install pyunifi --break-system-packages --no-warn-script-location                 2>&1 >> "$LOG"
-      pip3 -q install openwrt-luci-rpc --break-system-packages --no-warn-script-location        2>&1 >> "$LOG"
-      pip3 -q install asusrouter --break-system-packages --no-warn-script-location              2>&1 >> "$LOG"
-      pip3 -q install paho-mqtt --break-system-packages --no-warn-script-location               2>&1 >> "$LOG"
-    else
-      pip3 -q install mac-vendor-lookup  --no-warn-script-location                              2>&1 >> "$LOG"
-      pip3 -q install fritzconnection --no-warn-script-location                                 2>&1 >> "$LOG"
-      pip3 -q install routeros_api --no-warn-script-location                                    2>&1 >> "$LOG"
-      pip3 -q install pyunifi --no-warn-script-location                                         2>&1 >> "$LOG"
-      pip3 -q install openwrt-luci-rpc --no-warn-script-location                                2>&1 >> "$LOG"
-      pip3 -q install asusrouter --no-warn-script-location                                      2>&1 >> "$LOG"
-      pip3 -q install paho-mqtt --no-warn-script-location                                       2>&1 >> "$LOG"
-    fi
+    check_and_install_package "mac-vendor-lookup"
+    check_and_install_package "fritzconnection"
+    check_and_install_package "routeros_api"
+    check_and_install_package "pyunifi"
+    check_and_install_package "openwrt-luci-rpc"
+    check_and_install_package "asusrouter"
+    check_and_install_package "paho-mqtt"
 
     print_msg "    - Update 'requests' package to 2.31.0"
     if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then

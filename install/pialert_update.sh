@@ -618,15 +618,15 @@ check_pialert_home() {
 check_and_install_package() {
   package_name="$1"
   if pip3 show "$package_name" > /dev/null 2>&1; then
-    print_msg "$package_name is already installed"
+    print_msg "    - $package_name is already installed"
   else
-    print_msg "Installing $package_name..."
-    if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
-      pip3 -q install "$package_name" --break-system-packages --no-warn-script-location       2>&1 >> "$LOG"
+    print_msg "    - Installing $package_name..."
+    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+      pip3 -q install "$package_name" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
     else
-      pip3 -q install "$package_name" --no-warn-script-location                               2>&1 >> "$LOG"
+      pip3 -q install "$package_name" --no-warn-script-location                                 2>&1 >> "$LOG"
     fi
-    print_msg "$package_name is now installed"
+    print_msg "    - $package_name is now installed"
   fi
 }
 check_python_version() {

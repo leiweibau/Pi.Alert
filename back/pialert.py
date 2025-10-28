@@ -1585,7 +1585,7 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
 
         # convert "ends" in UNIX-Timestamp
         try:
-            ends_ts = int(datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
+            ends_ts = int(datetime.datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
         except (ValueError, TypeError):
             ends_ts = 0
 
@@ -1600,7 +1600,7 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
             "IP": ip,
             "Name": hostname,
             "Vendor": "",
-            "Method": "dhcp_pfsense",
+            "Method": "pfSense",
             "Interface": "",
             "Custom_a": "",
             "Custom_b": "",
@@ -1668,7 +1668,7 @@ def pfsense_save_arp_data(pfsense_arptable):
             "IP": ip,
             "Name": hostname,
             "Vendor": "",
-            "Method": "arp_pfsense",
+            "Method": "pfSense",
             "Interface": interface,
             "Custom_a": "",
             "Custom_b": "",
@@ -2054,6 +2054,15 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     insert_ext_sources(sql, cycle, 'Asuswrt_Network', 'ASUS_MAC', 'ASUS_IP', 'ASUS_Vendor', 'AsusWRT')
 
     # Insert pfSense import
+    # sql.execute("""
+    #     INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+    #     SELECT ?, PF_MAC, PF_IP, PF_Vendor, PF_Method
+    #     FROM pfsense_Network
+    #     WHERE PF_Connected = 1
+    #       AND NOT EXISTS (
+    #           SELECT 1 FROM CurrentScan
+    #           WHERE cur_MAC = PF_MAC COLLATE NOCASE)""",
+    #     (cycle) )
     sql.execute("""
         INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
         SELECT ?, PF_MAC, PF_IP, PF_Vendor, PF_Method
@@ -2061,8 +2070,11 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
         WHERE PF_Connected = 1
           AND NOT EXISTS (
               SELECT 1 FROM CurrentScan
-              WHERE cur_MAC = PF_MAC COLLATE NOCASE)""",
-        (cycle) )
+              WHERE cur_MAC = PF_MAC COLLATE NOCASE
+                AND cur_ScanCycle = ?
+          )
+    """, (cycle, cycle))
+
 
     # Insert Satellite devices
     sql.execute ("""
