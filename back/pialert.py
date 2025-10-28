@@ -1533,6 +1533,7 @@ def read_pfsense_clients():
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     pfsense_dhcpleases = ""
     pfsense_arptable = ""
+    pfsense_local_interfaces = ""
 
     if PFSENSE_ACTIVE:
         # empty Table
@@ -1553,12 +1554,59 @@ def read_pfsense_clients():
             pfsense_arptable_raw = result
             pfsense_arptable = json.dumps(result, indent=4)
 
+        endpoint = "/api/v2/interface/available_interfaces"
+        result = pfsense_connect(endpoint,"Interfaces")
+        print_log(result)
+        if result:
+            pfsense_local_interfaces_raw = result
+            pfsense_local_interfaces = json.dumps(result, indent=4)
+
         pfsense_save_dhcp_data(pfsense_dhcpleases)
         pfsense_save_arp_data(pfsense_arptable)
+        pfsense_mark_local_interfaces(pfsense_local_interfaces)
 
         closeDB()
     else:
         return
+
+#-------------------------------------------------------------------------------
+def pfsense_mark_local_interfaces(interfaces):
+
+    if isinstance(interfaces, str):
+        try:
+            interfaces = json.loads(interfaces)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            return [], []
+
+    local_interfaces = []
+    if not interfaces or "data" not in interfaces:
+        print_log("⚠️ no DHCP-Leases were found")
+        return local_interfaces
+
+    for entry in interfaces["data"]:
+        mac = entry.get("mac", "").strip().lower()
+        in_use_by = entry.get("in_use_by", "").strip()
+
+        local_interfaces.append({
+            "MAC": mac,
+            "in_use_by": in_use_by
+        })
+
+    for entry in local_interfaces:
+        mac = entry['MAC']
+        in_use_by = entry['in_use_by']
+
+        # Update pfsense inferfaces
+        sql_update = """
+            UPDATE pfsense_Network
+            SET PF_Name = ?
+            WHERE PF_MAC = ? AND PF_Name = '(unknown)';
+        """
+        new_name = f"pfSense {in_use_by}"
+        sql.execute(sql_update, (new_name, mac))
+
+    print_log(local_interfaces)
 
 #-------------------------------------------------------------------------------
 def pfsense_save_dhcp_data(pfsense_dhcpleases):
@@ -2342,9 +2390,6 @@ def remove_entries_from_table():
                     if hostname_ignorelist_filter(name):
                         matched_macs.add(mac)
 
-            # print("====================================")
-            # print(matched_macs)
-
             work_tables = {
                 'CurrentScan': 'cur_MAC',
                 'PiHole_Network': 'PH_MAC',
@@ -2474,6 +2519,12 @@ def print_scan_stats():
                       AND dev_LastIP <> cur_IP """,
                     (cycle,))
     print('        IP Changes.........: ' + str ( sql.fetchone()[0]) )
+    # Inter-Satellite Movments
+    sql.execute ("""SELECT COUNT(*) FROM Devices, CurrentScan
+                    WHERE dev_MAC = cur_MAC AND dev_ScanSource <> cur_ScanSource
+                      AND dev_ScanCycle = ?""",
+                    (cycle,))
+    print('        Relocating.........: ' + str ( sql.fetchone()[0]) )
 
 #------------------------------------------------------------------------------
 def calc_activity_history_main_scan():
@@ -2793,6 +2844,18 @@ def update_devices_data_from_scan():
                                   WHERE ASUS_MAC = dev_MAC
                                     AND ASUS_Name IS NOT NULL
                                     AND ASUS_Name <> '') """)
+
+    # pfSense - Update (unknown) Name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = (SELECT PF_Name FROM pfsense_Network
+                                    WHERE PF_MAC = dev_MAC)
+                    WHERE (dev_Name = "(unknown)"
+                           OR dev_Name = ""
+                           OR dev_Name IS NULL)
+                      AND EXISTS (SELECT 1 FROM pfsense_Network
+                                  WHERE PF_MAC = dev_MAC
+                                    AND PF_Name IS NOT NULL
+                                    AND PF_Name <> '') """)
 
     # Satellite - Update (unknown) Name
     sql.execute ("""UPDATE Devices
