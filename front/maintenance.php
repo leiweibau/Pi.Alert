@@ -191,7 +191,7 @@ read_arpscan_timer();
                 <div class="db_info_table_row backuplist-detail" style="display: none;">
                     <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['MT_database_backup']?></div>
                     <div class="db_info_table_cell"><span id="autobackupdbcount"></span>
-                        <?=$ARCHIVE_COUNT . ' ' . $pia_lang['MT_database_backup_found'] . ' / ' . $pia_lang['MT_database_backup_total'];?>: <span id="autobackupdbsize"></span>
+                        <?=$ARCHIVE_COUNT . ' ' . $pia_lang['MT_database_backup_found'] . '<br>' . $pia_lang['MT_database_backup_total'];?>: <span id="autobackupdbsize"></span>
                     </div>
                 </div>
                 <div class="db_info_table_row backuplist-detail" style="display: none;">
@@ -259,21 +259,21 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
 // Scan
 print_logviewer_modal_head('scan', 'pialert.1.log');
 print_logviewer_modal_foot();
-// // Internet IP
+// Internet IP
 print_logviewer_modal_head('iplog', 'pialert.IP.log');
 print_logviewer_modal_foot();
-// // Vendor Update
+// Vendor Update
 print_logviewer_modal_head('vendor', 'pialert.vendors.log');
 print_logviewer_modal_foot();
-// // Cleanup
+// Cleanup
 print_logviewer_modal_head('cleanup', 'pialert.cleanup.log');
 print_logviewer_modal_foot();
-// // WebServices
+// WebServices
 if ($_SESSION['Scan_WebServices'] == True) {
  	print_logviewer_modal_head('webservices', 'pialert.webservices.log');
  	print_logviewer_modal_foot();
 }
-// // Inactive Hosts
+// Inactive Hosts
 print_logviewer_modal_head('inactivehosts', 'Inactive Hosts');
 print_logviewer_modal_foot();
 ?>
