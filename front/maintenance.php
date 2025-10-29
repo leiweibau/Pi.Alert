@@ -184,7 +184,7 @@ read_arpscan_timer();
                         <strong>Backups</strong>
                     </div>
                     <div class="db_info_table_cell text-left">
-                        <i id="toggle-icon" class="bi bi-plus-circle text-aqua"></i>
+                        <i id="backuplist-icon" class="bi bi-plus-circle text-aqua"></i>
                     </div>
                 </div>
                 <!-- Versteckte Inhalte -->
@@ -214,7 +214,7 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
                         <strong><?=$pia_lang['MT_Tool_ignorelist'];?></strong>
                     </div>
                     <div class="db_info_table_cell text-left">
-                        <i id="toggle-icon" class="bi bi-plus-circle text-aqua"></i>
+                        <i id="ignorelist-icon" class="bi bi-plus-circle text-aqua"></i>
                     </div>
                 </div>
                 <!-- Versteckte Inhalte -->
@@ -413,6 +413,7 @@ $(document).ready(function () {
         const icon = $(`#${idPrefix}-icon`);
 
         $(detailSelector).animate({ height: "toggle", opacity: "toggle" }, 400);
+        
         if (icon.hasClass('bi-plus-circle')) {
             icon.removeClass('bi-plus-circle').addClass('bi-dash-circle');
         } else {
