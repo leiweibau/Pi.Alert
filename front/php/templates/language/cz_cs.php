@@ -335,6 +335,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Dostupnost';
 $pia_lang['MT_arpscancout_norun'] = 'Žádné';
 $pia_lang['MT_Title'] = 'Nastavení a údržba';
 $pia_lang['MT_database_lastmod'] = 'Poslední změna / Velikost (DB)';
+$pia_lang['MT_config_lastmod'] = 'Poslední změna (Config)';
 $pia_lang['MT_database_backup'] = 'Záloha: DB';
 $pia_lang['MT_config_backup'] = 'Záloha: Konfigurace';
 $pia_lang['MT_database_backup_found'] = 'Zálohy k dispozici';

@@ -80,6 +80,7 @@ $CONFIG_FILE_SOURCE = "../config/pialert.conf";
 $CONFIG_FILE_KEY_LINE = file($CONFIG_FILE_SOURCE);
 $CONFIG_FILE_FILTER_VALUE_ARP = array_values(preg_grep("/(REPORT_MAIL|REPORT_NTFY|REPORT_WEBGUI|REPORT_PUSHSAFER|REPORT_PUSHOVER|REPORT_TELEGRAM)(?!_)/i", $CONFIG_FILE_KEY_LINE));
 $CONFIG_FILE_FILTER_VALUE_WEB = array_values(preg_grep("/(REPORT_MAIL_WEBMON|REPORT_NTFY_WEBMON|REPORT_WEBGUI_WEBMON|REPORT_PUSHSAFER_WEBMON|REPORT_PUSHOVER_WEBMON |REPORT_TELEGRAM_WEBMON)/i", $CONFIG_FILE_KEY_LINE));
+$CONFIG_FILE_MOD_DATA = date("d.m.Y, H:i:s", filemtime($CONFIG_FILE_SOURCE)) . '';
 
 // Size and last mod of DB ----------------------------------------------------
 $DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
@@ -146,15 +147,9 @@ if ($_REQUEST['tab'] == '1') {
                     </div>
                 </div>
                 <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_database_backup'];?></div>
-                    <div class="db_info_table_cell"><span id="autobackupdbcount"></span>
-                        <?=$ARCHIVE_COUNT . ' ' . $pia_lang['MT_database_backup_found'] . ' / ' . $pia_lang['MT_database_backup_total'];?>: <span id="autobackupdbsize"></span> 
-                    </div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_config_backup'];?></div>
-                    <div class="db_info_table_cell"><span id="autobackupconfcount"></span>
-                        <?=$CONFIG_FILE_COUNT . ' ' . $pia_lang['MT_database_backup_found'];?>
+                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_config_lastmod'];?></div>
+                    <div class="db_info_table_cell">
+                        <?=$CONFIG_FILE_MOD_DATA;?>
                     </div>
                 </div>
                 <div class="db_info_table_row">
@@ -164,14 +159,6 @@ if ($_REQUEST['tab'] == '1') {
 echo $_SESSION['arpscan_result'];
 read_arpscan_timer();
 ?>                  </div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_Stats_autobkp'];?></div>
-                    <div class="db_info_table_cell">
-<?php
-if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <span id="autobackupstatus"></span>';} else {echo $pia_lang['MT_Stats_autobkp_off'].' <span hidden id="autobackupstatus"></span>';}
-?> 
-                    </div>
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell db_info_table_cell_a">Api-Key</div>
@@ -191,7 +178,37 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
                         <?=format_notifications($CONFIG_FILE_FILTER_VALUE_WEB);?>
                     </div>
                 </div>
-
+                <!-- Toggle -->
+                <div class="db_info_table_row" id="backuplist-toggle" style="cursor: pointer;">
+                    <div class="db_info_table_cell db_info_table_cell_a">
+                        <strong>Backups</strong>
+                    </div>
+                    <div class="db_info_table_cell text-left">
+                        <i id="toggle-icon" class="bi bi-plus-circle text-aqua"></i>
+                    </div>
+                </div>
+                <!-- Versteckte Inhalte -->
+                <div class="db_info_table_row backuplist-detail" style="display: none;">
+                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['MT_database_backup']?></div>
+                    <div class="db_info_table_cell"><span id="autobackupdbcount"></span>
+                        <?=$ARCHIVE_COUNT . ' ' . $pia_lang['MT_database_backup_found'] . ' / ' . $pia_lang['MT_database_backup_total'];?>: <span id="autobackupdbsize"></span>
+                    </div>
+                </div>
+                <div class="db_info_table_row backuplist-detail" style="display: none;">
+                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['MT_config_backup']?></div>
+                    <div class="db_info_table_cell"><span id="autobackupconfcount"></span>
+                        <?=$CONFIG_FILE_COUNT . ' ' . $pia_lang['MT_database_backup_found'];?>
+                    </div>
+                </div>
+                <div class="db_info_table_row backuplist-detail" style="display: none;">
+                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['MT_Stats_autobkp']?></div>
+                    <div class="db_info_table_cell">
+<?php
+if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <span id="autobackupstatus"></span>';} else {echo $pia_lang['MT_Stats_autobkp_off'].' <span hidden id="autobackupstatus"></span>';}
+?> 
+                    </div>
+                </div>
+                <!-- Toggle -->
                 <div class="db_info_table_row" id="ignorelist-toggle" style="cursor: pointer;">
                     <div class="db_info_table_cell db_info_table_cell_a">
                         <strong><?=$pia_lang['MT_Tool_ignorelist'];?></strong>
@@ -200,7 +217,6 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
                         <i id="toggle-icon" class="bi bi-plus-circle text-aqua"></i>
                     </div>
                 </div>
-
                 <!-- Versteckte Inhalte -->
                 <div class="db_info_table_row ignorelist-detail" style="display: none;">
                     <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['Device_TableHead_MAC']?></div>
@@ -214,7 +230,6 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
                     <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['Device_TableHead_Name']?></div>
                     <div class="db_info_table_cell"><?=$NAME_IGNORE_LIST;?></div>
                 </div>
-
             </div>
         </div>
           <!-- /.box-body -->
@@ -275,7 +290,6 @@ print_logviewer_modal_foot();
 if ($_SESSION['SATELLITES_ACTIVE'] == True) {
     echo '<li class="'.$pia_tab_satellites.'"><a href="#tab_satellites" data-toggle="tab" onclick="update_tabURL(window.location.href,\'5\')">'.$pia_lang['MT_Tool_satellites'].'</a></li>';
 }
-
 ?>
 
     </ul>
@@ -307,22 +321,22 @@ require 'php/templates/maintenance_sat.php';
         </div>
     </div>
     <div class="box-body">
-           <table class="table configeditor_help">
-              <tbody>
-                <tr>
-                  <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['MT_ConfEditor_Restore'];?></th>
-                  <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Restore_info'];?></td>
-                </tr>
-                <tr>
-                  <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['MT_ConfEditor_Backup'];?></th>
-                  <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Backup_info'];?></td>
-                </tr>
-                <tr>
-                  <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['Gen_Save'];?></th>
-                  <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Save_info'];?></td>
-                </tr>
-              </tbody>
-            </table>
+       <table class="table configeditor_help">
+          <tbody>
+            <tr>
+              <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['MT_ConfEditor_Restore'];?></th>
+              <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Restore_info'];?></td>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['MT_ConfEditor_Backup'];?></th>
+              <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Backup_info'];?></td>
+            </tr>
+            <tr>
+              <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['Gen_Save'];?></th>
+              <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Save_info'];?></td>
+            </tr>
+          </tbody>
+        </table>
     </div>
     <!-- /.box-body -->
 </div>
@@ -368,7 +382,6 @@ require 'php/templates/footer.php';
 <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
 <script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
 
-<!-- Autoscroll-fix for Modals -->
 <script>
 $(document).ready(function () {
     $('#modal-config-editor').on('show.bs.modal', function () {
@@ -394,9 +407,12 @@ $(document).ready(function () {
         $('#modal-config-editor').css('overflow-y', 'hidden');
     });
 
-    $('#ignorelist-toggle').click(function() {
-        $('.ignorelist-detail').slideToggle(200);
-        var icon = $('#toggle-icon');
+    $('[id$="-toggle"]').click(function() {
+        const idPrefix = this.id.replace('-toggle', ''); // z. B. 'ignorelist' oder 'backuplist'
+        const detailSelector = `.${idPrefix}-detail`;
+        const icon = $(`#${idPrefix}-icon`);
+
+        $(detailSelector).animate({ height: "toggle", opacity: "toggle" }, 400);
         if (icon.hasClass('bi-plus-circle')) {
             icon.removeClass('bi-plus-circle').addClass('bi-dash-circle');
         } else {
@@ -409,16 +425,13 @@ $(document).ready(function () {
     })
 
     let searchIndex = 0;
-
     document.getElementById('searchInput').addEventListener('input', function () {
         searchIndex = 0;
         highlightNextMatch(false);
     });
-
     document.getElementById('nextButton').addEventListener('click', function () {
         highlightNextMatch(false);
     });
-
     function highlightNextMatch() {
         const searchText = document.getElementById('searchInput').value.toLowerCase();
         const textarea = document.getElementById('ConfigFileEditor');
@@ -439,6 +452,12 @@ $(document).ready(function () {
         }
     }
 
+    setInterval(UpdateStatusBox, 15000);
+    GetModalLogContent();
+    GetARPStatus();
+    GetAutoBackupStatus();
+    GetModalInactiveHosts();
+    startCountdown();    
 });
 </script>
 
@@ -1064,12 +1083,5 @@ function DeleteBlockDeviceIP() {
   $.get('php/server/files.php?action=DeleteBlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
   delete window.selectedIPStep;
 }
-
-setInterval(UpdateStatusBox, 15000);
-GetModalLogContent();
-GetARPStatus();
-GetAutoBackupStatus();
-GetModalInactiveHosts();
-startCountdown();
 </script>
 

@@ -336,6 +336,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Availability';
 $pia_lang['MT_arpscancout_norun'] = 'No';
 $pia_lang['MT_Title'] = 'Réglages et maintenance';
 $pia_lang['MT_database_lastmod'] = 'Dernière mise à jour / Taille (DB)';
+$pia_lang['MT_config_lastmod'] = 'Dernière mise à jour (Config)';
 $pia_lang['MT_database_backup'] = 'Sauvegarde des bases de données';
 $pia_lang['MT_config_backup'] = 'Config Backups';
 $pia_lang['MT_database_backup_found'] = 'sauvegardes ont été trouvées';
