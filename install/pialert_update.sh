@@ -489,6 +489,13 @@ PFSENSE_SSL               = False
 EOF
 fi
 
+# 2025-10-31
+if ! grep -Fq "PFSENSE_EXCLUDE_INT" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+PFSENSE_EXCLUDE_INT       = ['WAN']
+EOF
+fi
 }
 
 # ------------------------------------------------------------------------------

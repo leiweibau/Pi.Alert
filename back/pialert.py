@@ -1562,7 +1562,7 @@ def read_pfsense_clients():
             pfsense_local_interfaces = json.dumps(result, indent=4)
 
         pfsense_save_dhcp_data(pfsense_dhcpleases)
-        pfsense_save_arp_data(pfsense_arptable)
+        pfsense_save_arp_data(pfsense_arptable, pfsense_local_interfaces)
         pfsense_mark_local_interfaces(pfsense_local_interfaces)
 
         closeDB()
@@ -1581,7 +1581,7 @@ def pfsense_mark_local_interfaces(interfaces):
 
     local_interfaces = []
     if not interfaces or "data" not in interfaces:
-        print_log("⚠️ no DHCP-Leases were found")
+        print_log("⚠️ no local interfaces were found")
         return local_interfaces
 
     for entry in interfaces["data"]:
@@ -1680,7 +1680,7 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
     print_log(pfsense_network_dhcp)
 
 #-------------------------------------------------------------------------------
-def pfsense_save_arp_data(pfsense_arptable):
+def pfsense_save_arp_data(pfsense_arptable, interfaces):
 
     if isinstance(pfsense_arptable, str):
         try:
@@ -1689,12 +1689,30 @@ def pfsense_save_arp_data(pfsense_arptable):
             print_log("        ...❌ Error: invalid JSON-format (pfsense_arptable)")
             return [], []
 
-    pfsense_arp_list = []
+    if isinstance(interfaces, str):
+        try:
+            interfaces = json.loads(interfaces)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            return [], []
 
+    pfsense_arp_list = []
     # Check if "data" exists
     if not pfsense_arptable or "data" not in pfsense_arptable:
         print_log("⚠️ no valid ARP-data found.")
         return pfsense_arp_list
+
+    local_interfaces = []
+    if not interfaces or "data" not in interfaces:
+        return local_interfaces
+
+    for entry in interfaces["data"]:
+        mac = entry.get("mac", "").strip().lower()
+        in_use_by = entry.get("in_use_by", "").strip()
+
+        local_interfaces.append({
+            "MAC": mac
+        })
 
     for entry in pfsense_arptable["data"]:
         mac = entry.get("mac_address", "").strip().lower()
@@ -1703,6 +1721,9 @@ def pfsense_save_arp_data(pfsense_arptable):
         dnsresolve = entry.get("dnsresolve", "").strip()
         interface = entry.get("interface", "").strip()
         arpexpires = entry.get("expires", "").strip()
+
+        if interface in PFSENSE_EXCLUDE_INT and all(mac != entry["MAC"] for entry in local_interfaces):
+            continue
 
         # Get Arp exp. seconds
         match = re.search(r"Expires\s+in\s+(\d+)\s+seconds", arpexpires, flags=re.I)

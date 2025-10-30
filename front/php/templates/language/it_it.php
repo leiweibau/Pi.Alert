@@ -547,7 +547,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Le voci codificate verranno aggiornate su 
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Log estesi';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Consente di passare tra log semplici ed estesi. I log estesi dovrebbero essere attivati solo in caso di errore, poiché le informazioni aggiuntive possono compromettere la chiarezza.';
 $pia_lang['MT_del_ignore_noti_text'] = ' verrà rimosso dalla lista degli ignorati. Di conseguenza, i dispositivi corrispondenti alla voce rimossa potrebbero essere rilevati nuovamente.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'Consente di attivare o disattivare la ricerca di server DHCP non autorizzati. Si tratta di server DHCP attivi in rete parallelamente a quello configurato.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Questo consente di attivare o disattivare la ricerca dei server RogueDHCP. Si tratta di server DHCP che operano in parallelo al server configurato nella rete. Per utilizzare questa funzione, è necessario specificare i server DHCP corretti nel file di configurazione.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tutti i moduli di scansione e le importazioni disattivati';

@@ -545,7 +545,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Wpisy zakodowane na stałe zostaną zmieni
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozszerzone logi';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Pozwala przełączać się między prostymi a rozszerzonymi logami. Rozszerzone logi powinny być włączane tylko w przypadku błędów, ponieważ dodatkowe dane mogą utrudnić czytelność.';
 $pia_lang['MT_del_ignore_noti_text'] = ' zostanie usunięte z listy ignorowanych. W rezultacie mogą zostać ponownie wykryte urządzenia pasujące do usuniętego wpisu.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'To umożliwia włączenie lub wyłączenie wyszukiwania nieautoryzowanych serwerów DHCP. Są to serwery DHCP działające równolegle z tym skonfigurowanym w sieci.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Ta opcja umożliwia włączenie lub wyłączenie wyszukiwania serwerów RogueDHCP. Są to serwery DHCP, które działają równolegle z serwerem skonfigurowanym w sieci. Aby skorzystać z tej funkcji, należy w pliku konfiguracyjnym wprowadzić prawidłowe serwery DHCP.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Wszystkie moduły skanowania i importy są wyłączone';

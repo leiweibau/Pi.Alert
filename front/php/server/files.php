@@ -456,16 +456,25 @@ function SaveConfigFile() {
 	} else {
 		$configArray['MAC_IGNORE_LIST'] = "[]";
 	}
+
 	if ($configArray['IP_IGNORE_LIST'] != "" && $configArray['IP_IGNORE_LIST'] != "[]") {
 		$configArray['IP_IGNORE_LIST'] = serializeList($configArray['IP_IGNORE_LIST']);
 	} else {
 		$configArray['IP_IGNORE_LIST'] = "[]";
 	}
+
 	if ($configArray['HOSTNAME_IGNORE_LIST'] != "" && $configArray['HOSTNAME_IGNORE_LIST'] != "[]") {
 		$configArray['HOSTNAME_IGNORE_LIST'] = serializeList($configArray['HOSTNAME_IGNORE_LIST']);
 	} else {
 		$configArray['HOSTNAME_IGNORE_LIST'] = "[]";
 	}
+
+	if ($configArray['PFSENSE_EXCLUDE_INT'] != "" && $configArray['PFSENSE_EXCLUDE_INT'] != "[]") {
+		$configArray['PFSENSE_EXCLUDE_INT'] = serializeList($configArray['PFSENSE_EXCLUDE_INT']);
+	} else {
+		$configArray['PFSENSE_EXCLUDE_INT'] = "[]";
+	}
+	
     // Ignore List Syntax handling stop
 	if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
 		$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
@@ -688,6 +697,7 @@ PFSENSE_ACTIVE            = " . convert_bool($configArray['PFSENSE_ACTIVE']) . "
 PFSENSE_IP                = '" . $configArray['PFSENSE_IP'] . "'
 PFSENSE_APIKEY            = '" . $configArray['PFSENSE_APIKEY'] . "'
 PFSENSE_SSL               = " . convert_bool($configArray['PFSENSE_SSL']) . "
+PFSENSE_EXCLUDE_INT       = " . $configArray['PFSENSE_EXCLUDE_INT'] . "
 
 # Satellite Configuration
 # -----------------------

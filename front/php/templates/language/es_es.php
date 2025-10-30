@@ -548,7 +548,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Las entradas codificadas se actualizarán 
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Registros ampliados';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Esto permite alternar entre registros simples y ampliados. Los registros ampliados deben activarse solo en caso de errores, ya que la información adicional puede dificultar la visión general.';
 $pia_lang['MT_del_ignore_noti_text'] = ' se eliminará de la lista de ignorados. Como resultado, es posible que se detecten nuevamente dispositivos que coincidan con la entrada eliminada.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'Esto activa o desactiva la búsqueda de servidores DHCP no autorizados. Se refiere a servidores DHCP que están activos en la red junto al servidor configurado.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Esto permite activar o desactivar la búsqueda de servidores RogueDHCP. Se trata de servidores DHCP que funcionan en paralelo con el servidor configurado en la red. Para utilizar esta función, es necesario especificar los servidores DHCP correctos en el archivo de configuración.';
 // Maintenance Page - Update by @TeroRERO 25jul2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Todos los módulos de escaneo e importaciones desactivados';
