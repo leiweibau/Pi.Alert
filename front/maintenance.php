@@ -972,13 +972,25 @@ function GetModalLogContent() {
     $('#modal_webservices_content').html(logcollection[4].toLocaleString());
   } );
 }
+// function GetModalInactiveHosts() {
+//   $.get('php/server/devices.php?action=ListInactiveHosts', function(data) {
+//     var logcollection = JSON.parse(data);
+
+//     $('#modal_inactivehosts_content').html(logcollection[0].toLocaleString());
+//   } );
+// }
 function GetModalInactiveHosts() {
   $.get('php/server/devices.php?action=ListInactiveHosts', function(data) {
     var logcollection = JSON.parse(data);
 
-    $('#modal_inactivehosts_content').html(logcollection[0].toLocaleString());
-  } );
+    if (Array.isArray(logcollection) && logcollection.length > 0) {
+      $('#modal_inactivehosts_content').html(logcollection[0].toLocaleString());
+    } else {
+      $('#modal_inactivehosts_content').empty();
+    }
+  });
 }
+
 function UpdateStatusBox() {
 	GetModalLogContent();
 	GetARPStatus();

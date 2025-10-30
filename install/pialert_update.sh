@@ -8,7 +8,7 @@
 #  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
 #  leiweibau 2024                                          GNU GPLv3
 # ------------------------------------------------------------------------------
-
+#
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
@@ -21,7 +21,6 @@ PIALERT_HOME="$INSTALL_DIR/pialert"
 LOG="pialert_update_`date +"%Y-%m-%d_%H-%M"`.log"
 PYTHON_BIN=python3
 #PIHOLE_MOVED=false
-
 
 # ------------------------------------------------------------------------------
 # Main
@@ -115,22 +114,12 @@ update_warning() {
 # ------------------------------------------------------------------------------
 # Check Pihole
 # ------------------------------------------------------------------------------
-
 check_pihole() {
     if systemctl is-active --quiet pihole-FTL; then
         VERSION_OUTPUT=$(sudo pihole -v)
-
         CORE_VERSION=$(echo "$VERSION_OUTPUT" | grep -oP 'Core version is v\K[0-9]+' || echo "")
-
         if [[ -n "$CORE_VERSION" && "$CORE_VERSION" -ge 6 ]]; then
-            # print_header "Pi-hole 6.x detected. Webinterface moved to Port 8080..."
             print_header "Pi-hole 6.x detected."
-            #sudo systemctl stop lighttpd                                               2>&1 >> "$LOG"
-            #sudo pihole-FTL --config webserver.port 8080o,443so,[::]:8080o,[::]:443so
-            #sudo systemctl restart pihole-FTL                                          2>&1 >> "$LOG"
-            #sudo systemctl enable lighttpd                                             2>&1 >> "$LOG"
-            #sudo systemctl start lighttpd                                              2>&1 >> "$LOG"
-            #PIHOLE_MOVED=true
         fi
     fi
 }
@@ -188,8 +177,6 @@ move_files() {
     echo "- Moving setting-files to new directory..."
     mv -f "$PIALERT_HOME/db/setting_"* "$PIALERT_HOME/config/"
   fi
-
-
 }
 
 # ------------------------------------------------------------------------------
@@ -618,9 +605,9 @@ check_pialert_home() {
 check_and_install_package() {
   package_name="$1"
   if pip3 show "$package_name" > /dev/null 2>&1; then
-    print_msg "    - $package_name is already installed"
+    print_msg "  - $package_name is already installed"
   else
-    print_msg "    - Installing $package_name..."
+    print_msg "  - Installing $package_name..."
     if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
       pip3 -q install "$package_name" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
     else
@@ -643,7 +630,7 @@ check_python_version() {
     check_and_install_package "asusrouter"
     check_and_install_package "paho-mqtt"
 
-    print_msg "- Update 'requests' package to 2.31.0"
+    print_msg "  - Update 'requests' package to 2.31.0"
     if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
       pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location       2>&1 >> "$LOG"
     else
