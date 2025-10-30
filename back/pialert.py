@@ -1638,7 +1638,7 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
             ends_ts = 0
 
         pf_connected = False
-        # Only active hosts for current scann
+        # Only active hosts for current scan
         if entry.get("online_status") == "active/online":
             pf_connected = True
 
@@ -1733,10 +1733,15 @@ def pfsense_save_arp_data(pfsense_arptable, interfaces):
         else:
             seconds = ""
 
-        # Since the “Arp countdown” in pfSense can take up to 20 minutes before a device is marked as “offline,” 
-        # I set a threshold of 10 minutes after which a device is considered “offline,” regardless of pfSense.
+        # "Arp countdown" in pfSense can take up to 20 minutes (1200) before a device is marked as "offline" 
+        # In pfSense: System → Advanced → System Tunables
+        # Click on "Add"
+        #   Insert:
+        #       Tunable: net.link.ether.inet.max_age
+        #       Value: e.g. 600
+
         # set Connected-Status
-        if arpexpires.lower() == "permanent" or (seconds != "" and int(seconds) > 600):
+        if arpexpires.lower() == "permanent" or (seconds != "" and int(seconds) > 0):
             connected = True
         else:
             connected = False
