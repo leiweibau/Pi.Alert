@@ -336,6 +336,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Availability';
 $pia_lang['MT_arpscancout_norun'] = 'No';
 $pia_lang['MT_Title'] = 'Réglages et maintenance';
 $pia_lang['MT_database_lastmod'] = 'Dernière mise à jour / Taille (DB)';
+$pia_lang['MT_config_lastmod'] = 'Dernière mise à jour (Config)';
 $pia_lang['MT_database_backup'] = 'Sauvegarde des bases de données';
 $pia_lang['MT_config_backup'] = 'Config Backups';
 $pia_lang['MT_database_backup_found'] = 'sauvegardes ont été trouvées';
@@ -544,7 +545,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Les entrées codées en dur seront modifi�
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Journaux étendus';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Permet de basculer entre les journaux simples et étendus. Les journaux étendus ne doivent être activés qu&apos;en cas d&apos;erreur, car les informations supplémentaires peuvent nuire à la lisibilité.';
 $pia_lang['MT_del_ignore_noti_text'] = ' sera supprimé de la liste d&apos;ignorés. Par conséquent, des appareils correspondant à cette entrée pourraient à nouveau être détectés.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'Active ou désactive la recherche de serveurs DHCP indésirables. Il s’agit de serveurs DHCP actifs en parallèle du serveur configuré sur le réseau.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Cela permet d&apos;activer ou de désactiver la recherche de serveurs RogueDHCP. Il s&apos;agit de serveurs DHCP qui fonctionnent en parallèle avec le serveur configuré sur le réseau. Pour utiliser cette fonction, les serveurs DHCP corrects doivent être spécifiés dans le fichier de configuration.';
 // Maintenance Page (Backend)
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Tous les modules de scan et les importations désactivés';

@@ -247,7 +247,7 @@ I would like to give a short explanation to the individual points.
 | OPENWRT_PASS   | Password                                                                                                                                                                                          |
 
 
-#### :eight_spoked_asterisk: Asus Router Configuration
+#### :eight_spoked_asterisk: Asus Configuration
 
 | Option         | Description |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -257,6 +257,16 @@ I would like to give a short explanation to the individual points.
 | ASUSWRT_PASS   | Password                                                                                                                                                                                          |
 | ASUSWRT_SSL    | Is https is True or False?                                                                                                                                                                        |
 
+
+#### :eight_spoked_asterisk: pfsense Configuration
+
+| Option              | Description |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PFSENSE_ACTIVE      | Enables the import of pfSense. To do this, the REST API must be installed in pfSense. You can find more details here: [pfSense REST API](https://pfrest.org/). The API is used to import the DHCP leases and the ARP table from pfSense. |
+| PFSENSE_IP          | IP address of the pfSense Firewall.                                                                                                                                                                                                      |
+| PFSENSE_APIKEY      | The API key that was created after installing the API in pfSense under ‘System’ -> ‘REST API’ -> 'Keys'                                                                                                                                  |
+| PFSENSE_SSL         | Is https is True or False?                                                                                                                                                                                                               |
+| PFSENSE_EXCLUDE_INT | Interfaces that should be ignored during import                                                                                                                                                                                          |
 
 #### :eight_spoked_asterisk: Satellite Configuration
 

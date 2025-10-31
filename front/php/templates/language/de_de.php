@@ -336,6 +336,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Verfügbarkeit';
 $pia_lang['MT_arpscancout_norun'] = 'Keine';
 $pia_lang['MT_Title'] = 'Einstellungen und Wartung';
 $pia_lang['MT_database_lastmod'] = 'Letzte Änderung / Größe (DB)';
+$pia_lang['MT_config_lastmod'] = 'Letzte Änderung (Config)';
 $pia_lang['MT_database_backup'] = 'Sicherung: DB';
 $pia_lang['MT_config_backup'] = 'Sicherung: Config';
 $pia_lang['MT_database_backup_found'] = 'Sicherungen vorhanden';
@@ -544,7 +545,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Fest-codierte Einträge werden bei jedem D
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Erweiterte Logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermit kann zwischen einfachen und erweiterten Logs ungeschaltet werden. Die erweiterten Logs sollten nur im Fehlerfall aktiviert werden, da durch die zusätzlichen Ausgaben die Übersicht verloren geht.';
 $pia_lang['MT_del_ignore_noti_text'] = ' wird von der Ignorierliste entfernt. Infolgedessen, kann es zur erneuten Erkennung von Geräten kommen, die mit dem zu entfernenden Eintrag übereinstimmen.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'Hiermit kann die Suche nach RogueDHCP Servern aktiviert oder deaktiviert werden. Damit bezeichnet man DHCP Server, die parallel zum eingestellten Server im Netzwerk aktiv sind.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Hiermit kann die Suche nach RogueDHCP Servern aktiviert oder deaktiviert werden. Damit bezeichnet man DHCP Server, die parallel zum eingestellten Server im Netzwerk aktiv sind. Um diese Funktion zu nutzen, muss in der Konfigurationsdatei der oder die korrekten DHCP-Server eingetragen werden. ';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle Scan-Module und Importe deaktiviert';

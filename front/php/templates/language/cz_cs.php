@@ -335,6 +335,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Dostupnost';
 $pia_lang['MT_arpscancout_norun'] = 'Žádné';
 $pia_lang['MT_Title'] = 'Nastavení a údržba';
 $pia_lang['MT_database_lastmod'] = 'Poslední změna / Velikost (DB)';
+$pia_lang['MT_config_lastmod'] = 'Poslední změna (Config)';
 $pia_lang['MT_database_backup'] = 'Záloha: DB';
 $pia_lang['MT_config_backup'] = 'Záloha: Konfigurace';
 $pia_lang['MT_database_backup_found'] = 'Zálohy k dispozici';
@@ -543,7 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Předdefinované položky budou změněny 
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Rozšířené logy';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Tímto lze přepínat mezi jednoduchými a rozšířenými logy. Rozšířené logy by měly být aktivovány pouze při chybách, protože dodatečné výstupy mohou narušit přehlednost.';
 $pia_lang['MT_del_ignore_noti_text'] = ' bude odstraněno ze seznamu ignorovaných. V důsledku toho může dojít k opětovnému rozpoznání zařízení odpovídajících odstraněnému záznamu.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'Tímto lze povolit nebo zakázat vyhledávání neautorizovaných DHCP serverů. Jedná se o servery DHCP, které jsou aktivní v síti paralelně s nastaveným serverem.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Tato funkce umožňuje povolit nebo zakázat vyhledávání serverů RogueDHCP. Jedná se o DHCP servery, které běží paralelně s nakonfigurovaným serverem v síti. Pro použití této funkce je nutné zadat správné DHCP servery v konfiguračním souboru.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Všechny moduly skenování a importy jsou deaktivovány';

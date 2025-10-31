@@ -44,7 +44,7 @@ sends the results to a previously configured Pi.Alert instance. These satellites
 The "**4**" (🟪) is a link to the “docs” path in this repository
 
 
-[Next - Discreet buttons and menus](./guide/001.md)
+[Next (2) - Discreet buttons and menus](./guide/001.md)
 
 [Back to Readme](https://github.com/leiweibau/Pi.Alert)
 

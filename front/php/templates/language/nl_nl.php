@@ -335,6 +335,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Beschikbaarheid';
 $pia_lang['MT_arpscancout_norun'] = 'Geen';
 $pia_lang['MT_Title'] = 'Instellingen en Onderhoud';
 $pia_lang['MT_database_lastmod'] = 'Laatste wijziging / Grootte (DB)';
+$pia_lang['MT_config_lastmod'] = 'Laatste wijziging (Config)';
 $pia_lang['MT_database_backup'] = 'Back-up: DB';
 $pia_lang['MT_config_backup'] = 'Back-up: Configuratie';
 $pia_lang['MT_database_backup_found'] = 'Back-ups beschikbaar';
@@ -543,7 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardgecodeerde items worden aangepast op e
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Uitgebreide logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Hiermee kun je schakelen tussen eenvoudige en uitgebreide logs. Uitgebreide logs moeten alleen bij fouten worden ingeschakeld, omdat extra informatie het overzicht kan verstoren.';
 $pia_lang['MT_del_ignore_noti_text'] = ' wordt verwijderd uit de negeerlijst. Hierdoor kunnen apparaten die overeenkomen met de te verwijderen invoer opnieuw worden gedetecteerd.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'Hiermee kan de zoekfunctie naar ongeautoriseerde DHCP-servers worden in- of uitgeschakeld. Dit zijn DHCP-servers die naast de ingestelde server actief zijn in het netwerk.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Hiermee kan de zoekfunctie naar RogueDHCP-servers worden in- of uitgeschakeld. Dit verwijst naar DHCP-servers die actief zijn naast de ingestelde server in het netwerk. Om deze functie te gebruiken, moeten de juiste DHCP-servers in het configuratiebestand worden opgegeven.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanmodules en imports zijn gedeactiveerd';

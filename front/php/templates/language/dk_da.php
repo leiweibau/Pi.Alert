@@ -335,6 +335,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Tilgængelighed';
 $pia_lang['MT_arpscancout_norun'] = 'Ingen';
 $pia_lang['MT_Title'] = 'Indstillinger og vedligeholdelse';
 $pia_lang['MT_database_lastmod'] = 'Sidste ændring / Størrelse (DB)';
+$pia_lang['MT_config_lastmod'] = 'Sidste ændring (Config)';
 $pia_lang['MT_database_backup'] = 'Backup: DB';
 $pia_lang['MT_config_backup'] = 'Backup: Konfiguration';
 $pia_lang['MT_database_backup_found'] = 'Tilgængelige sikkerhedskopier';
@@ -543,7 +544,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hardkodede poster ændres på alle enheder
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Udvidede logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Brug denne mulighed til at skifte mellem simple og udvidede logs. Udvidede logs bør kun aktiveres ved fejl, da de ekstra oplysninger kan skabe forvirring.';
 $pia_lang['MT_del_ignore_noti_text'] = ' fjernes fra ignoreringslisten. Som følge heraf kan enheder, der matcher den fjernede post, blive genkendt igen.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'Dette aktiverer eller deaktiverer søgning efter uautoriserede DHCP-servere. Det drejer sig om DHCP-servere, der kører parallelt med den konfigurerede server i netværket.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'Dette gør det muligt at aktivere eller deaktivere søgningen efter RogueDHCP-servere. Det henviser til DHCP-servere, der kører parallelt med den konfigurerede server på netværket. For at bruge denne funktion skal de korrekte DHCP-servere angives i konfigurationsfilen.';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'Alle scanningsmoduler og importer er deaktiveret';

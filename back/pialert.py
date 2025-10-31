@@ -858,6 +858,7 @@ def scan_network():
     print_log ('pfsense copy starts...')
     read_pfsense_clients()
     # Import Satellites Scans
+    openDB()
     get_satellite_scans()
     # Load current scan data 1/2
     print('\nProcessing scan results...')
@@ -1532,23 +1533,11 @@ def read_pfsense_clients():
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     pfsense_dhcpleases = ""
     pfsense_arptable = ""
+    pfsense_local_interfaces = ""
 
     if PFSENSE_ACTIVE:
-        # create table if not exists
-        # sql_create_table = """ CREATE TABLE IF NOT EXISTS pfsense_Network(
-        #                             "PF_MAC" STRING(50) NOT NULL COLLATE NOCASE,
-        #                             "PF_IP" STRING(50) COLLATE NOCASE,
-        #                             "PF_Name" STRING(50),
-        #                             "PF_Vendor" STRING(250),
-        #                             "PF_Method" STRING(50),
-        #                             "PF_Interface" STRING(20),
-        #                             "PF_Custom_a" STRING(100),
-        #                             "PF_Custom_b" STRING(100),
-        #                             "PF_Connected" BOOLEAN,
-        #                             "PF_Datetime" DATETIME
-        #                         ); """
-        # sql.execute(sql_create_table)
-        # sql_connection.commit()
+        # empty Table
+        sql.execute ("DELETE FROM pfsense_Network")
 
         print(f"    pfSense Method...")
         endpoint = "/api/v2/status/dhcp_server/leases?limit=0&offset=0&sort_order=SORT_ASC&sort_flags=SORT_STRING"
@@ -1565,10 +1554,59 @@ def read_pfsense_clients():
             pfsense_arptable_raw = result
             pfsense_arptable = json.dumps(result, indent=4)
 
+        endpoint = "/api/v2/interface/available_interfaces"
+        result = pfsense_connect(endpoint,"Interfaces")
+        print_log(result)
+        if result:
+            pfsense_local_interfaces_raw = result
+            pfsense_local_interfaces = json.dumps(result, indent=4)
+
         pfsense_save_dhcp_data(pfsense_dhcpleases)
-        pfsense_save_arp_data(pfsense_arptable)
+        pfsense_save_arp_data(pfsense_arptable, pfsense_local_interfaces)
+        pfsense_mark_local_interfaces(pfsense_local_interfaces)
+
+        closeDB()
     else:
         return
+
+#-------------------------------------------------------------------------------
+def pfsense_mark_local_interfaces(interfaces):
+
+    if isinstance(interfaces, str):
+        try:
+            interfaces = json.loads(interfaces)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            return [], []
+
+    local_interfaces = []
+    if not interfaces or "data" not in interfaces:
+        print_log("⚠️ no local interfaces were found")
+        return local_interfaces
+
+    for entry in interfaces["data"]:
+        mac = entry.get("mac", "").strip().lower()
+        in_use_by = entry.get("in_use_by", "").strip()
+
+        local_interfaces.append({
+            "MAC": mac,
+            "in_use_by": in_use_by
+        })
+
+    for entry in local_interfaces:
+        mac = entry['MAC']
+        in_use_by = entry['in_use_by']
+
+        # Update pfsense inferfaces
+        sql_update = """
+            UPDATE pfsense_Network
+            SET PF_Name = ?
+            WHERE PF_MAC = ? AND PF_Name = '(unknown)';
+        """
+        new_name = f"pfSense {in_use_by}"
+        sql.execute(sql_update, (new_name, mac))
+
+    print_log(local_interfaces)
 
 #-------------------------------------------------------------------------------
 def pfsense_save_dhcp_data(pfsense_dhcpleases):
@@ -1595,32 +1633,54 @@ def pfsense_save_dhcp_data(pfsense_dhcpleases):
 
         # convert "ends" in UNIX-Timestamp
         try:
-            ends_ts = int(datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
+            ends_ts = int(datetime.datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
         except (ValueError, TypeError):
             ends_ts = 0
 
         pf_connected = False
-        # Only active hosts for current scann
+        # Only active hosts for current scan
         if entry.get("online_status") == "active/online":
             pf_connected = True
 
-        # All hosts für dhcp table
+        # All hosts für dhcp list
         pfsense_network_dhcp.append({
             "MAC": mac,
             "IP": ip,
             "Name": hostname,
             "Vendor": "",
+            "Method": "pfSense",
             "Interface": "",
             "Custom_a": "",
             "Custom_b": "",
             "Connected": pf_connected,
             "Datetime": ends_ts
         })
-        
+
+    sql_insert = """INSERT INTO pfsense_Network
+                    (PF_MAC, PF_IP, PF_Name, PF_Vendor, PF_Method, PF_Interface,
+                     PF_Custom_a, PF_Custom_b, PF_Connected, PF_Datetime)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+
+    for entry in pfsense_network_dhcp:
+        sql.execute(sql_insert, (
+            entry["MAC"],
+            entry["IP"],
+            entry["Name"],
+            entry["Vendor"],
+            entry["Method"],
+            entry["Interface"],
+            entry["Custom_a"],
+            entry["Custom_b"],
+            entry["Connected"],
+            entry["Datetime"]
+        ))
+
+    sql_connection.commit()
+
     print_log(pfsense_network_dhcp)
 
 #-------------------------------------------------------------------------------
-def pfsense_save_arp_data(pfsense_arptable):
+def pfsense_save_arp_data(pfsense_arptable, interfaces):
 
     if isinstance(pfsense_arptable, str):
         try:
@@ -1629,12 +1689,30 @@ def pfsense_save_arp_data(pfsense_arptable):
             print_log("        ...❌ Error: invalid JSON-format (pfsense_arptable)")
             return [], []
 
-    pfsense_arp_list = []
+    if isinstance(interfaces, str):
+        try:
+            interfaces = json.loads(interfaces)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            return [], []
 
+    pfsense_arp_list = []
     # Check if "data" exists
     if not pfsense_arptable or "data" not in pfsense_arptable:
         print_log("⚠️ no valid ARP-data found.")
         return pfsense_arp_list
+
+    local_interfaces = []
+    if not interfaces or "data" not in interfaces:
+        return local_interfaces
+
+    for entry in interfaces["data"]:
+        mac = entry.get("mac", "").strip().lower()
+        in_use_by = entry.get("in_use_by", "").strip()
+
+        local_interfaces.append({
+            "MAC": mac
+        })
 
     for entry in pfsense_arptable["data"]:
         mac = entry.get("mac_address", "").strip().lower()
@@ -1642,6 +1720,31 @@ def pfsense_save_arp_data(pfsense_arptable):
         hostname = entry.get("hostname", "").strip()
         dnsresolve = entry.get("dnsresolve", "").strip()
         interface = entry.get("interface", "").strip()
+        arpexpires = entry.get("expires", "").strip()
+
+        if interface in PFSENSE_EXCLUDE_INT and all(mac != entry["MAC"] for entry in local_interfaces):
+            continue
+
+        # Get Arp exp. seconds
+        match = re.search(r"Expires\s+in\s+(\d+)\s+seconds", arpexpires, flags=re.I)
+
+        if match:
+            seconds = match.group(1)
+        else:
+            seconds = ""
+
+        # "Arp countdown" in pfSense can take up to 20 minutes (1200) before a device is marked as "offline" 
+        # In pfSense: System → Advanced → System Tunables
+        # Click on "Add"
+        #   Insert:
+        #       Tunable: net.link.ether.inet.max_age
+        #       Value: e.g. 600
+
+        # set Connected-Status
+        if arpexpires.lower() == "permanent" or (seconds != "" and int(seconds) > 0):
+            connected = True
+        else:
+            connected = False
 
         # Hostname-Regeln
         if hostname == "" or hostname == "?":
@@ -1650,18 +1753,67 @@ def pfsense_save_arp_data(pfsense_arptable):
             else:
                 hostname = "(unknown)"
 
-        # Eintrag zur Liste hinzufügen
+        # All hosts für arp list
         pfsense_arp_list.append({
             "MAC": mac,
             "IP": ip,
             "Name": hostname,
             "Vendor": "",
+            "Method": "pfSense",
             "Interface": interface,
-            "Custom_a": "",
+            "Custom_a": seconds,
             "Custom_b": "",
-            "Connected": True,
+            "Connected": connected,
             "Datetime": ""
         })
+
+    # SQL-queries
+    sql_select = "SELECT PF_Name, PF_Interface, PF_Connected FROM pfsense_Network WHERE PF_MAC = ? COLLATE NOCASE;"
+    sql_insert = """INSERT INTO pfsense_Network
+                    (PF_MAC, PF_IP, PF_Name, PF_Vendor, PF_Method, PF_Interface,
+                     PF_Custom_a, PF_Custom_b, PF_Connected, PF_Datetime)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+    sql_update_name = "UPDATE pfsense_Network SET PF_Name = ? WHERE PF_MAC = ? COLLATE NOCASE;"
+    sql_update_interface = "UPDATE pfsense_Network SET PF_Interface = ? WHERE PF_MAC = ? COLLATE NOCASE;"
+    sql_update_connected = "UPDATE pfsense_Network SET PF_Connected = ? WHERE PF_MAC = ? COLLATE NOCASE;"
+
+    for entry in pfsense_arp_list:
+        mac = entry["MAC"]
+        sql.execute(sql_select, (mac,))
+        row = sql.fetchone()
+
+        if row:
+            # Record exists → update selectively
+            db_name, db_interface, db_connected = row
+
+            # update Interface, if empty in table and set in dict
+            if (not db_interface or db_interface.strip() == "") and entry["Interface"]:
+                sql.execute(sql_update_interface, (entry["Interface"], mac))
+
+            # update Name, if empty in table and set in dict
+            if (not db_name or db_name.strip() == "") and entry["Name"]:
+                sql.execute(sql_update_name, (entry["Name"], mac))
+
+            # update Connected, if empty in table and set in dict
+            if (not db_connected) and entry["Connected"]:
+                sql.execute(sql_update_connected, (1, mac))
+
+        else:
+            # arp Device not in table
+            sql.execute(sql_insert, (
+                entry["MAC"],
+                entry["IP"],
+                entry["Name"],
+                entry["Vendor"],
+                entry["Method"],
+                entry["Interface"],
+                entry["Custom_a"],
+                entry["Custom_b"],
+                entry["Connected"],
+                entry["Datetime"]
+            ))
+
+        sql_connection.commit()
 
     print_log(pfsense_arp_list)
 
@@ -1966,8 +2118,7 @@ def update_scan_validation():
 #-------------------------------------------------------------------------------
 def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     # Delete previous scan data
-    sql.execute ("DELETE FROM CurrentScan WHERE cur_ScanCycle = ?",
-                (cycle,))
+    sql.execute ("DELETE FROM CurrentScan WHERE cur_ScanCycle = ?", (cycle,))
 
     # Insert new arp-scan devices
     sql.executemany ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, "+
@@ -1976,17 +2127,15 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
                      p_arpscan_devices) 
 
     # Insert Pi-hole devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, PH_MAC, PH_IP, PH_Vendor, 'Pi-hole'
-                    FROM PiHole_Network
-                    WHERE PH_LastQuery >= ?
-                      AND NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = PH_MAC
-                                        AND cur_ScanCycle = ? )""",
-                    (cycle,
-                     (int(startTime.strftime('%s')) - 60 * p_cycle_interval),
-                     cycle) )
+    sql.execute ("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+        SELECT ?, PH_MAC, PH_IP, PH_Vendor, 'Pi-hole'
+        FROM PiHole_Network
+        WHERE PH_LastQuery >= ?
+          AND NOT EXISTS (SELECT 'X' FROM CurrentScan
+                          WHERE cur_MAC = PH_MAC
+                            AND cur_ScanCycle = ? )""",
+        (cycle, (int(startTime.strftime('%s')) - 60 * p_cycle_interval), cycle) )
     
     # External source import
     insert_ext_sources(sql, cycle, 'Fritzbox_Network', 'FB_MAC', 'FB_IP', 'FB_Vendor', 'Fritzbox')
@@ -1995,20 +2144,28 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     insert_ext_sources(sql, cycle, 'Openwrt_Network', 'OWRT_MAC', 'OWRT_IP', 'OWRT_Vendor', 'OpenWRT')
     insert_ext_sources(sql, cycle, 'Asuswrt_Network', 'ASUS_MAC', 'ASUS_IP', 'ASUS_Vendor', 'AsusWRT')
 
-
-    # ###############################
-    # Add pfSense Tag during import
-    # ###############################
+    # Insert pfSense import
+    sql.execute("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+        SELECT ?, PF_MAC, PF_IP, PF_Vendor, PF_Method
+        FROM pfsense_Network
+        WHERE PF_Connected = 1
+          AND NOT EXISTS (
+              SELECT 1 FROM CurrentScan
+              WHERE cur_MAC = PF_MAC COLLATE NOCASE
+                AND cur_ScanCycle = ?
+          )
+    """, (cycle, cycle))
 
 
     # Insert Satellite devices
-    sql.execute ("""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
-                    SELECT ?, Sat_MAC, Sat_IP, Sat_Vendor, Sat_ScanMethod, Sat_Token
-                    FROM Satellites_Network
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = Sat_MAC )""",
-                    (cycle) )
+    sql.execute ("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod, cur_ScanSource)
+        SELECT ?, Sat_MAC, Sat_IP, Sat_Vendor, Sat_ScanMethod, Sat_Token
+        FROM Satellites_Network
+        WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
+                          WHERE cur_MAC = Sat_MAC )""",
+        (cycle) )
 
     # Scan Validation
     update_scan_validation()
@@ -2259,9 +2416,6 @@ def remove_entries_from_table():
                     if hostname_ignorelist_filter(name):
                         matched_macs.add(mac)
 
-            # print("====================================")
-            # print(matched_macs)
-
             work_tables = {
                 'CurrentScan': 'cur_MAC',
                 'PiHole_Network': 'PH_MAC',
@@ -2391,6 +2545,12 @@ def print_scan_stats():
                       AND dev_LastIP <> cur_IP """,
                     (cycle,))
     print('        IP Changes.........: ' + str ( sql.fetchone()[0]) )
+    # Inter-Satellite Movments
+    sql.execute ("""SELECT COUNT(*) FROM Devices, CurrentScan
+                    WHERE dev_MAC = cur_MAC AND dev_ScanSource <> cur_ScanSource
+                      AND dev_ScanCycle = ?""",
+                    (cycle,))
+    print('        Relocating.........: ' + str ( sql.fetchone()[0]) )
 
 #------------------------------------------------------------------------------
 def calc_activity_history_main_scan():
@@ -2710,6 +2870,18 @@ def update_devices_data_from_scan():
                                   WHERE ASUS_MAC = dev_MAC
                                     AND ASUS_Name IS NOT NULL
                                     AND ASUS_Name <> '') """)
+
+    # pfSense - Update (unknown) Name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = (SELECT PF_Name FROM pfsense_Network
+                                    WHERE PF_MAC = dev_MAC)
+                    WHERE (dev_Name = "(unknown)"
+                           OR dev_Name = ""
+                           OR dev_Name IS NULL)
+                      AND EXISTS (SELECT 1 FROM pfsense_Network
+                                  WHERE PF_MAC = dev_MAC
+                                    AND PF_Name IS NOT NULL
+                                    AND PF_Name <> '') """)
 
     # Satellite - Update (unknown) Name
     sql.execute ("""UPDATE Devices

@@ -336,6 +336,7 @@ $pia_lang['ICMPMonitor_Availability'] = 'Availability';
 $pia_lang['MT_arpscancout_norun'] = 'No';
 $pia_lang['MT_Title'] = 'Settings and Maintenance';
 $pia_lang['MT_database_lastmod'] = 'Last Update / Size (DB)';
+$pia_lang['MT_config_lastmod'] = 'Last Update (Config)';
 $pia_lang['MT_database_backup'] = 'DB Backups';
 $pia_lang['MT_config_backup'] = 'Config Backups';
 $pia_lang['MT_database_backup_found'] = 'backups were found';
@@ -544,7 +545,7 @@ $pia_lang['MT_ColumnUpd_Mod_text'] = 'Hard-coded entries will be changed on each
 $pia_lang['MT_Tools_Logviewer_ext_a'] = 'Extended logs';
 $pia_lang['MT_Tools_Logviewer_ext_b'] = 'Use this to switch between simple and extended logs. Extended logs should only be enabled in case of errors, as the additional output may reduce clarity.';
 $pia_lang['MT_del_ignore_noti_text'] = ' will be removed from the ignore list. As a result, devices matching the entry to be removed may be detected again.';
-$pia_lang['MT_Tools_RogueDHCP_a'] = 'This enables or disables the search for rogue DHCP servers. These are DHCP servers that operate in the network alongside the configured one.';
+$pia_lang['MT_Tools_RogueDHCP_a'] = 'This enables or disables the search for rogue DHCP servers. These are DHCP servers that operate in the network alongside the configured one. To use this function, the correct DHCP server(s) must be entered in the configuration file. ';
 // Maintenance Page (Backend)
 //////////////////////////////////////////////////////////////////
 $pia_lang['BE_Dev_Arpscan_disabled'] = 'All scan modules and imports disabled';
