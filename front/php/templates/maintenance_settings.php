@@ -45,7 +45,7 @@
 				</tr>
                 <tr><td colspan="2"><h4 class="bottom-border-aqua"><?=$pia_lang['MT_Tools_Tab_Subheadline_g'];?></h4></td></tr>
                 <tr class="table_settings">
-                    <td class="db_info_table_cell" colspan="2" style="text-align: justify;"><?=$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'];?></td>
+                    <td class="db_info_table_cell" colspan="2" style="text-align: justify;"><?=$pia_lang['MT_Tools_Tab_Subheadline_g_Intro'];?> (Guide <a href="https://github.com/leiweibau/Pi.Alert/blob/main/docs/guide/003.md" target="blank"><i class="bi bi-box-arrow-up-right"></i></a>)</td>
                 </tr>
                 <tr class="table_settings_row">
                     <td class="db_info_table_cell" colspan="2" style="padding-bottom: 20px;">
