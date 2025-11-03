@@ -638,11 +638,23 @@ check_python_version() {
     check_and_install_package "paho-mqtt"
 
     print_msg "  - Update 'requests' package to 2.31.0"
-    if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
-      pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location       2>&1 >> "$LOG"
+
+    # if pip3 show "$package_name" > /dev/null 2>&1; then
+    #   print_msg "  - $package_name is already installed"
+    # else
+      # print_msg "  - Installing $package_name..."
+    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+      pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
     else
-      pip3 -q install "requests>=2.31.0" --no-warn-script-location                               2>&1 >> "$LOG"
+      pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
     fi
+    # print_msg "    - $package_name is now installed"
+    # fi
+    # if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
+    #   pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location       2>&1 >> "$LOG"
+    # else
+    #   pip3 -q install "requests>=2.31.0" --no-warn-script-location                               2>&1 >> "$LOG"
+    # fi
 
   else
     print_msg "Python 3 NOT installed"

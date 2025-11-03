@@ -1494,7 +1494,7 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
 #-------------------------------------------------------------------------------
 def pfsense_connect(endpoint,topic):
     protocol = "https" if PFSENSE_SSL else "http"
-    port = 443 if PFSENSE_SSL else 80
+    port = str(PFSENSE_PORT)
 
     url = f"{protocol}://{PFSENSE_IP}:{port}{endpoint}"
     headers = {
@@ -1536,6 +1536,8 @@ def read_pfsense_clients():
     pfsense_local_interfaces = ""
 
     if PFSENSE_ACTIVE:
+
+        #print(f"DEBUG: {str(PFSENSE_PORT)}")
         # empty Table
         sql.execute ("DELETE FROM pfsense_Network")
 
@@ -1585,8 +1587,11 @@ def pfsense_mark_local_interfaces(interfaces):
         return local_interfaces
 
     for entry in interfaces["data"]:
-        mac = entry.get("mac", "").strip().lower()
-        in_use_by = entry.get("in_use_by", "").strip()
+        mac = (entry.get("mac") or "").strip().lower()
+        in_use_by = (entry.get("in_use_by") or "").strip()
+
+        if not mac:
+            continue
 
         local_interfaces.append({
             "MAC": mac,
@@ -1707,8 +1712,11 @@ def pfsense_save_arp_data(pfsense_arptable, interfaces):
         return local_interfaces
 
     for entry in interfaces["data"]:
-        mac = entry.get("mac", "").strip().lower()
-        in_use_by = entry.get("in_use_by", "").strip()
+        mac = (entry.get("mac") or "").strip().lower()
+        in_use_by = (entry.get("in_use_by") or "").strip()
+
+        if not mac:
+            continue
 
         local_interfaces.append({
             "MAC": mac
