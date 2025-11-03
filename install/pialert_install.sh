@@ -297,10 +297,10 @@ install_python() {
     check_and_install_package "paho-mqtt"
 
     print_msg "  - Update 'requests' package to 2.31.0"
-    if [ -f /usr/lib/python3.*/EXTERNALLY-MANAGED ]; then
-      pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location       2>&1 >> "$LOG"
+    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+      pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
     else
-      pip3 -q install "requests>=2.31.0" --no-warn-script-location                               2>&1 >> "$LOG"
+      pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
     fi
 
     PYTHON_BIN="python3"

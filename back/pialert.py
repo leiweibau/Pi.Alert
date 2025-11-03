@@ -1608,11 +1608,10 @@ def pfsense_mark_local_interfaces(interfaces):
         in_use_by = entry['in_use_by']
 
         # Update pfsense inferfaces
-        sql_update = """
-            UPDATE pfsense_Network
-            SET PF_Name = ?
-            WHERE PF_MAC = ? AND PF_Name = '(unknown)';
-        """
+        sql_update = """UPDATE pfsense_Network
+                        SET PF_Name = ?
+                        WHERE PF_MAC = ? AND PF_Name = '(unknown)';"""
+
         new_name = f"pfSense {in_use_by}"
         sql.execute(sql_update, (new_name, mac))
 
