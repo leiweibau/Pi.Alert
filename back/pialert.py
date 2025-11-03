@@ -1493,6 +1493,14 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
 
 #-------------------------------------------------------------------------------
 def pfsense_connect(endpoint,topic):
+    global PFSENSE_PORT
+
+    try:
+        PFSENSE_PORT = int(PFSENSE_PORT)
+    except (TypeError, ValueError):
+        print(f"        ...{topic} Request canceled: Incorrect Port.")
+        return None
+
     protocol = "https" if PFSENSE_SSL else "http"
     port = str(PFSENSE_PORT)
 
@@ -1504,7 +1512,6 @@ def pfsense_connect(endpoint,topic):
 
     try:
         response = requests.get(url, headers=headers, verify=False, timeout=10)
-
         if response.status_code == 200:
             return response.json()
         else:
@@ -1536,8 +1543,6 @@ def read_pfsense_clients():
     pfsense_local_interfaces = ""
 
     if PFSENSE_ACTIVE:
-
-        #print(f"DEBUG: {str(PFSENSE_PORT)}")
         # empty Table
         sql.execute ("DELETE FROM pfsense_Network")
 
@@ -1730,7 +1735,7 @@ def pfsense_save_arp_data(pfsense_arptable, interfaces):
         interface = entry.get("interface", "").strip()
         arpexpires = entry.get("expires", "").strip()
 
-        if interface in PFSENSE_EXCLUDE_INT and all(mac != entry["MAC"] for entry in local_interfaces):
+        if interface.lower() in (i.lower() for i in PFSENSE_EXCLUDE_INT) and all(mac != entry["MAC"] for entry in local_interfaces):
             continue
 
         # Get Arp exp. seconds
@@ -1740,13 +1745,6 @@ def pfsense_save_arp_data(pfsense_arptable, interfaces):
             seconds = match.group(1)
         else:
             seconds = ""
-
-        # "Arp countdown" in pfSense can take up to 20 minutes (1200) before a device is marked as "offline" 
-        # In pfSense: System → Advanced → System Tunables
-        # Click on "Add"
-        #   Insert:
-        #       Tunable: net.link.ether.inet.max_age
-        #       Value: e.g. 600
 
         # set Connected-Status
         if arpexpires.lower() == "permanent" or (seconds != "" and int(seconds) > 0):
