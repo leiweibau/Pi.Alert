@@ -260,7 +260,8 @@ function initializeCalendar () {
     header: {
       left            : 'prev,next today',
       center          : 'title',
-      right           : 'timelineYear,timelineMonth,timelineWeek,timelineDay'
+      // right           : 'timelineYear,timelineMonth,timelineWeek,timelineDay'
+      right           : 'timelineMonth,timelineWeek,timelineDay'
     },
     defaultView       : 'timelineMonth',
     height            : 'auto',

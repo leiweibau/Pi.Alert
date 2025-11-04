@@ -1126,7 +1126,8 @@ function initializeCalendar () {
     header: {
       left            : 'prev,next today',
       center          : 'title',
-      right           : 'agendaYear,agendaMonth,agendaWeek,agendaDay'
+      // right           : 'agendaYear,agendaMonth,agendaWeek,agendaDay'
+      right           : 'agendaMonth,agendaWeek,agendaDay'
     },
 
     views: {
