@@ -423,7 +423,7 @@ function getEventsCalendar() {
 
 	          FROM Sessions AS SES1
 	          JOIN Devices AS DEV ON LOWER(SES1.ses_MAC) = LOWER(DEV.dev_MAC)
-	          WHERE DEV.dev_ScanSource = "' . $scansource . '" 
+	          WHERE DEV.dev_PresencePage=1 AND DEV.dev_ScanSource = "' . $scansource . '" 
 	            AND (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
 	                 AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
 
