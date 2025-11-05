@@ -1165,7 +1165,7 @@ function ListInactiveHosts() {
 	global $pia_lang;
 	global $db;
 
-	$inactive_hosts = array();
+	$inactive_hosts[0] = "";
 
 	$i=1;
 	$sql = 'SELECT * FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day") ORDER BY dev_LastConnection DESC';

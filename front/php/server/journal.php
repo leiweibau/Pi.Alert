@@ -1,12 +1,12 @@
 <?php
-#<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  journal.php - Front module. Application logging
-#-------------------------------------------------------------------------------
-#  leiweibau 2023                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
+//------------------------------------------------------------------------------
+//  Pi.Alert
+//  Open Source Network Guard / WIFI & LAN intrusion detector
+//
+//  journal.php - Front module. Application logging
+//------------------------------------------------------------------------------
+//  leiweibau  2025+       https://github.com/leiweibau     GNU GPLv3
+//------------------------------------------------------------------------------
 
 // detect file changes
 function calc_configfile_hash() {

@@ -1,5 +1,5 @@
 <?php
-error_reporting(0);
+// error_reporting(0);
 $conf_file = '../config/version.conf';
 $conf_data = parse_ini_file($conf_file);
 require 'php/server/timezone.php';

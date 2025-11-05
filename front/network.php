@@ -1,6 +1,9 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 session_start();
-error_reporting(0);
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -13,7 +16,6 @@ require 'php/server/journal.php';
 
 $DBFILE = '../db/pialert.db';
 OpenDB();
-
 ?>
 
 <div class="content-wrapper">

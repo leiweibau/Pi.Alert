@@ -7,6 +7,8 @@
 //------------------------------------------------------------------------------
 //  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
 //------------------------------------------------------------------------------
+ini_set('memory_limit', '512M');
+ini_set('max_execution_time', '60');
 
 session_start();
 
@@ -19,8 +21,6 @@ require 'db.php';
 require 'util.php';
 
 // Action selector
-// Set maximum execution time to 1 minute
-ini_set('max_execution_time', '60');
 
 // Open DB
 OpenDB();

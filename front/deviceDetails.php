@@ -1,9 +1,13 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 session_start();
 
 if ($_SESSION["login"] != 1) {
-	header('Location: ./index.php');
-	exit;
+  header('Location: ./index.php');
+  exit;
 }
 
 require 'php/templates/header.php';
