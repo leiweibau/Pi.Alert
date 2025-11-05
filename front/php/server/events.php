@@ -7,6 +7,8 @@
 //------------------------------------------------------------------------------
 //  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3
 //------------------------------------------------------------------------------
+ini_set('memory_limit', '512M');
+ini_set('max_execution_time', '60');
 
 session_start();
 
@@ -19,8 +21,6 @@ require 'db.php';
 require 'util.php';
 
 // Action selector
-// Set maximum execution time to 1 minute
-ini_set('max_execution_time', '60');
 
 // Open DB
 OpenDB();
@@ -380,25 +380,6 @@ function getEventsCalendar() {
 	$endDate = '"' . $_REQUEST['end'] . '"';
 
 	// SQL
-	// $SQL = 'SELECT ses_MAC, ses_EventTypeConnection, ses_DateTimeConnection,
-  //                ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
-
-  //                CASE
-  //                  WHEN ses_EventTypeConnection = "<missing event>" THEN
-  //                       IFNULL ((SELECT MAX(ses_DateTimeDisconnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),  DATETIME(ses_DateTimeDisconnection, "-1 hour"))
-  //                  ELSE ses_DateTimeConnection
-  //                END AS ses_DateTimeConnectionCorrected,
-
-  //                CASE
-  //                  WHEN ses_EventTypeDisconnection = "<missing event>" THEN
-  //                       (SELECT MIN(ses_DateTimeConnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
-  //                  ELSE ses_DateTimeDisconnection
-  //                END AS ses_DateTimeDisconnectionCorrected
-
-  //         FROM Sessions AS SES1
-  //         WHERE (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
-  //                AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
-
 	$SQL = 'SELECT ses_MAC, ses_EventTypeConnection, ses_DateTimeConnection,
 	                 ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
 
@@ -423,7 +404,7 @@ function getEventsCalendar() {
 
 	          FROM Sessions AS SES1
 	          JOIN Devices AS DEV ON LOWER(SES1.ses_MAC) = LOWER(DEV.dev_MAC)
-	          WHERE DEV.dev_ScanSource = "' . $scansource . '" 
+	          WHERE DEV.dev_PresencePage=1 AND DEV.dev_ScanSource = "' . $scansource . '" 
 	            AND (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
 	                 AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
 

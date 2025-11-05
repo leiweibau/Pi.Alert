@@ -1,13 +1,17 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 session_start();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
 	exit;
 }
+
 require 'php/templates/header.php';
 require 'php/server/journal.php';
-
 ?>
 
   <div class="content-wrapper">
@@ -241,9 +245,6 @@ function initializeDatatable () {
                   // Standardfall, keine Hervorhebung nötig
                   $(td).html('<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' + cellData + '</a></b>');
               }
-
-
-
           }
       } },
 

@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 session_start();
 
 require 'php/server/db.php';
@@ -8,7 +12,7 @@ $DBFILE = '../db/pialert.db';
 OpenDB();
 
 // Processing Logout
-if ($_REQUEST['action'] == 'logout') {
+if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'logout') {
 	// Logging
 	pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9002', '', '');
 

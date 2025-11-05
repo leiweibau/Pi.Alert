@@ -695,6 +695,7 @@ ASUSWRT_SSL               = " . convert_bool($configArray['ASUSWRT_SSL']) . "
 # ----------------------
 PFSENSE_ACTIVE            = " . convert_bool($configArray['PFSENSE_ACTIVE']) . "
 PFSENSE_IP                = '" . $configArray['PFSENSE_IP'] . "'
+PFSENSE_PORT              = " . $configArray['PFSENSE_PORT'] . "
 PFSENSE_APIKEY            = '" . $configArray['PFSENSE_APIKEY'] . "'
 PFSENSE_SSL               = " . convert_bool($configArray['PFSENSE_SSL']) . "
 PFSENSE_EXCLUDE_INT       = " . $configArray['PFSENSE_EXCLUDE_INT'] . "

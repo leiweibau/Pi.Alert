@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 session_start();
 
 if ($_SESSION["login"] != 1) {

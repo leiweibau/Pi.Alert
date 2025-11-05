@@ -1,12 +1,12 @@
 <?php
-#<!-- ---------------------------------------------------------------------------
-#  Pi.Alert
-#  Open Source Network Guard / WIFI & LAN intrusion detector
-#
-#  graph.php - Front module. Activity graph
-#-------------------------------------------------------------------------------
-#  leiweibau 2024                                          GNU GPLv3
-#--------------------------------------------------------------------------- -->
+//------------------------------------------------------------------------------
+//  Pi.Alert
+//  Open Source Network Guard / WIFI & LAN intrusion detector
+//
+//  graph.php - Front module. Activity graph
+//------------------------------------------------------------------------------
+//  leiweibau  2025+       https://github.com/leiweibau     GNU GPLv3
+//------------------------------------------------------------------------------
 
 // History Graph Online/Offline/Archive Devices
 function prepare_graph_arrays_history($data_source) {
