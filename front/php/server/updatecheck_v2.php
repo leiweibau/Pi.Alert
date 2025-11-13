@@ -254,7 +254,7 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 		$updatecommand = 'bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)&quot;';
 		$updateenv = '';
 	} else {
-		$updatecommand = 'bash -c &quot;$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/ct/pialert.sh)&quot;';
+		$updatecommand = 'bash -c &quot;$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)&quot; -s --lxc';
 		$updateenv = ' (LXC Container Env.)';
 	}
 
