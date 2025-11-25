@@ -81,7 +81,7 @@ update_warning() {
   print_msg "############################################################################"
   print_msg ""
   print_msg ""
-  printf "%s " "Press enter to continue or press 'F' to force the update"
+  printf "%s " "Press enter to retry or press 'F' to force the update"
   read -n 1 ans
 
   # Check if the user pressed "F" to force the update
@@ -494,6 +494,14 @@ if ! grep -Fq "PFSENSE_EXCLUDE_INT" "$PIALERT_HOME/config/pialert.conf" ; then
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
 
 PFSENSE_EXCLUDE_INT       = ['WAN']
+EOF
+fi
+
+# 2025-10-31
+if ! grep -Fq "PFSENSE_PORT" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+PFSENSE_PORT              = 80
 EOF
 fi
 }

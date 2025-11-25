@@ -1551,21 +1551,18 @@ def read_pfsense_clients():
         result = pfsense_connect(endpoint,"DHCP")
         print_log(result)
         if result:
-            pfsense_dhcpleases_raw = result
             pfsense_dhcpleases = json.dumps(result, indent=4)
 
         endpoint = "/api/v2/diagnostics/arp_table?limit=0&offset=0"
         result = pfsense_connect(endpoint,"ARP")
         print_log(result)
         if result:
-            pfsense_arptable_raw = result
             pfsense_arptable = json.dumps(result, indent=4)
 
         endpoint = "/api/v2/interface/available_interfaces"
         result = pfsense_connect(endpoint,"Interfaces")
         print_log(result)
         if result:
-            pfsense_local_interfaces_raw = result
             pfsense_local_interfaces = json.dumps(result, indent=4)
 
         pfsense_save_dhcp_data(pfsense_dhcpleases)
@@ -1973,6 +1970,7 @@ def process_satellites(satellite_list):
                 scan_asuswrt     = 1 if config.get('scan_asuswrt') else 0
                 scan_pihole_net  = 1 if config.get('scan_pihole_net') else 0
                 scan_pihole_dhcp = 1 if config.get('scan_pihole_dhcp') else 0
+                scan_pfsense     = 1 if config.get('scan_pfsense') else 0
 
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check' and result['cur_ScanMethod'] != 'Pi-hole DHCP':
@@ -2020,8 +2018,9 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_asuswrt = ?,
                                     sat_conf_scan_pihole_net = ?,
                                     sat_conf_scan_pihole_dhcp = ?,
+                                    sat_conf_scan_pfsense = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_asuswrt, scan_pihole_net, scan_pihole_dhcp, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_asuswrt, scan_pihole_net, scan_pihole_dhcp, scan_pfsense, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):

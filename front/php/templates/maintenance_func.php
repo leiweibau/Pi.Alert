@@ -49,6 +49,7 @@ function get_all_satellites_list() {
 				    'scan_asuswrt' => $row['sat_conf_scan_asuswrt'],
 				    'scan_pihole_net' => $row['sat_conf_scan_pihole_net'],
 				    'scan_pihole_dhcp' => $row['sat_conf_scan_pihole_dhcp'],
+				    'scan_pfsense' => $row['sat_conf_scan_pfsense'],
 				    'satellite_proxymode' => $sat_meta['satellite_proxymode'],
 				    'satellite_url' => $sat_meta['satellite_url'],
 				]);
@@ -200,6 +201,7 @@ function show_all_satellites_list($satellite) {
                         <div class="sat_config_list_a"><span class="sat_config_list_meth">AsusWRT:</span><span class="sat_config_list_stat '.colorize_state($satellite['scan_asuswrt'],1).'"> '.convert_state($satellite['scan_asuswrt'],0).'</span></div>
                         <div class="sat_config_list_a"><span class="sat_config_list_meth">Pi-hole:</span><span class="sat_config_list_stat '.colorize_state($satellite['scan_pihole_net'],1).'"> '.convert_state($satellite['scan_pihole_net'],0).'</span></div>
                         <div class="sat_config_list_a"><span class="sat_config_list_meth">Pi-hole DHCP:</span><span class="sat_config_list_stat '.colorize_state($satellite['scan_pihole_dhcp'],1).'"> '.convert_state($satellite['scan_pihole_dhcp'],0).'</span></div>
+                        <div class="sat_config_list_a"><span class="sat_config_list_meth">pfSense:</span><span class="sat_config_list_stat '.colorize_state($satellite['scan_pfsense'],1).'"> '.convert_state($satellite['scan_pfsense'],0).'</span></div>
                     </div>
                 </div>';
 }

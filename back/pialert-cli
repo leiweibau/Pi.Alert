@@ -770,6 +770,14 @@ EOM
     # pfsense_Network
     echo -e "...Insert new table 'pfsense_Network' to DB"
     sqlite3 $PIA_DB_FILE "CREATE TABLE IF NOT EXISTS 'pfsense_Network' ('PF_MAC' STRING(50) NOT NULL COLLATE NOCASE, 'PF_IP' STRING(50) COLLATE NOCASE, 'PF_Name' STRING(50), 'PF_Vendor' STRING(250), 'PF_Method' STRING(50), 'PF_Interface' STRING(20), 'PF_Custom_a' STRING(100), 'PF_Custom_b' STRING(100), 'PF_Connected' BOOLEAN, 'PF_Datetime' DATETIME);"
+    # Satellites.sat_conf_scan_pfsense
+    echo -e "...Insert new column 'sat_conf_scan_pfsense' to table 'Satellites' to DB"    
+    existing=$(sqlite3 $PIA_DB_FILE "PRAGMA table_info('Satellites');" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_pfsense")
+    if [ $existing -eq 0 ]; then
+      sqlite3 $PIA_DB_FILE "ALTER TABLE 'Satellites' ADD COLUMN 'sat_conf_scan_pfsense' BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'sat_conf_scan_pfsense' already exists in the 'Satellites' table."
+    fi
 
     echo -e "\nUpdate finished!\n"
 
