@@ -16,12 +16,14 @@ require 'php/server/journal.php';
 require 'php/server/graph.php';
 
 $DBFILE = '../db/pialert.db';
+$DBFILE_TOOLS = '../db/pialert_tools.db';
 OpenDB();
+OpenDB_Tools();
 
 function get_speedtestresults_table() {
-	global $db;
+	global $db_tools;
 
-	$res = $db->query('SELECT * FROM Tools_Speedtest_History');
+	$res = $db_tools->query('SELECT * FROM Tools_Speedtest_History');
 	while ($row = $res->fetchArray()) {
 		echo '<tr>
             <td>' . $row['speed_date'] . '</td>

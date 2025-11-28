@@ -5,7 +5,7 @@
 //
 //  speedtest_ookla.php - Front module. Server side. Manage Devices
 //------------------------------------------------------------------------------
-//  leiweibau  2024+        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2025+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -22,7 +22,8 @@ require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
 // Open DB
-$DBFILE = '../../../db/pialert.db';
+//$DBFILE = '../../../db/pialert.db';
+OpenDB_Tools();
 OpenDB();
 
 $speedtest_binary = '../../../back/speedtest/speedtest';
@@ -127,7 +128,7 @@ if (file_exists($speedtest_binary) && $mod == "test") {
 	$test_time = date('Y-m-d H:i:s');
 
 	$sql = 'INSERT INTO "Tools_Speedtest_History" ("speed_date", "speed_isp", "speed_server", "speed_ping", "speed_down", "speed_up") VALUES("' . $test_time . '", "' . $isp . '", "' . $server . '", "' . $ping . '", "' . $download_mbps . '", "' . $upload_mbps . '")';
-	$result = $db->query($sql);
+	$result = $db_tools->query($sql);
 
 	$cli_output = str_replace("\n", "<br>", $cli_output);
 	// Logging

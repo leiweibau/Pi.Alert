@@ -312,7 +312,7 @@ echo '<div class="nav-tabs-custom">
 echo '<div class="box box-solid">
         <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert Database Details</h3></div>
         <div class="box-body">
-        	<div style="height: 300px; overflow-y: scroll; overflow-x: hidden;">';
+        	<div style="height: 250px; overflow-y: scroll; overflow-x: hidden;">';
 
 $DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
 echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
@@ -329,7 +329,54 @@ echo '<thead>
 	  </thead>';
 while ($table = $tablesQuery->fetchArray()) {
     $tableName = $table['name'];
+    $ignore_tables = ['Tools_Speedtest_History', 'Tools_Nmap_ManScan', 'sqlite_sequence', 'sqlite_stat1'];
+
+    if (in_array($tableName, $ignore_tables)) {
+    	continue;
+    }
+
+    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
+    $rowCount = $rowCountQuery->fetchArray()['count'];
+
+    echo '<tr>
+    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
+    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
+    	</tr>';
+}
+echo '</table>';
+
+$db->close();
+
+echo '		</div>
+        </div>
+      </div>';
+
+// DB-Tools Info ----------------------------------------------------------
+echo '<div class="box box-solid">
+        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert-Tools Database Details</h3></div>
+        <div class="box-body">
+        	<div style="height: 200px; overflow-y: scroll; overflow-x: hidden;">';
+
+$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert_tools.db';
+echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+
+
+$db = new SQLite3('../db/pialert_tools.db');
+$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
+echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
+echo '<thead>
+		<tr role="row">
+			<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
+			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
+		</tr>
+	  </thead>';
+while ($table = $tablesQuery->fetchArray()) {
+    $tableName = $table['name'];
     
+    if ($tableName == "sqlite_sequence" || $tableName == "sqlite_stat1") {
+    	continue;
+    }
+
     $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
     $rowCount = $rowCountQuery->fetchArray()['count'];
 

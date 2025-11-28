@@ -13,13 +13,15 @@ require 'journal.php';
 require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
-$DBFILE = '../../../db/pialert.db';
+// $DBFILE = '../../../db/pialert.db';
+// $DBFILE_TOOLS = '../../../db/pialert_tools.db';
 $PIA_HOST_IP = $_REQUEST['scan'];
 $PIA_SCAN_MODE = $_REQUEST['mode'];
 $PIA_SCAN_TIME = date('Y-m-d H:i:s');
 
 // Open DB
 OpenDB();
+OpenDB_Tools();
 
 // functions -------------------------------------------------------
 // Check given host/mac
@@ -153,7 +155,7 @@ if ($_REQUEST['mode'] != "view") {
 
 	echo '<div class="row">';
 	// Show prev. results
-	$res = $db->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC LIMIT 1');
+	$res = $db_tools->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC LIMIT 1');
 	$row = $res->fetchArray();
 	if ($row != "") {
 		create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'previous');
@@ -178,7 +180,7 @@ if ($_REQUEST['mode'] != "view") {
 
 			// Save to db, only if results available
 			$sql = 'INSERT INTO "Tools_Nmap_ManScan" ("scan_date", "scan_target", "scan_type", "scan_result", "reserve_a", "reserve_b", "reserve_c", "reserve_d") VALUES("' . $PIA_SCAN_TIME . '", "' . $PIA_HOST_IP . '", "' . $PIA_SCAN_MODE . '", "' . $PIA_SCAN_RESULT . '", "", "", "", "")';
-			$result = $db->exec($sql);
+			$result = $db_tools->exec($sql);
 		} else {
 			echo '<div class="col-md-6">'.$pia_lang['nmap_no_scan_results'].'</div>';
 		}
@@ -190,18 +192,18 @@ if ($_REQUEST['mode'] != "view") {
 	}
 
     $query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
-	$scancounter = $db->querySingle($query);
+	$scancounter = $db_tools->querySingle($query);
 	echo $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'];
 
 } elseif ($_REQUEST['mode'] == "view") {
 // Main action (View Mode)-------------------------------------------------------
 	if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
-		$res = $db->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC LIMIT 1');
+		$res = $db_tools->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC LIMIT 1');
 		$row = $res->fetchArray();
 
 		if ($row != "") {
 	    	$query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
-	    	$scancounter = $db->querySingle($query);
+	    	$scancounter = $db_tools->querySingle($query);
 
 			echo '<div class="row">';
 			create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'latest');

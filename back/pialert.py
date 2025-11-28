@@ -262,6 +262,7 @@ def check_internet_IP():
             if os.path.exists(speedtest_binary):
                 print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
                 run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
+                # run_speedtest_task(startTime, "*/1 * * * *")
             else:
                 print('    Skipping Speedtest... Not installed!')
         else :
@@ -497,44 +498,13 @@ def run_speedtest_task(start_time, crontab_string):
     day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Define the command and arguments
-    command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
     # Compare cron
     if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
        (start_time.month in month) and (start_time.weekday() in day_of_week):
-        openDB()
-        try:
-            output = subprocess.check_output(command, text=True)
-            # Parse the JSON output
-            result = json.loads(output)
-            # Access the speed test results
-            speedtest_isp = result['isp']
-            speedtest_server = result['server']['name'] + ' (' + result['server']['location'] + ') (' + result['server']['host'] + ')'
-            speedtest_ping = result['ping']['latency']
-            speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
-            speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
-            # Build output
-            speedtest_output = ""
-            speedtest_output += f"    ISP:            {speedtest_isp}\n"
-            speedtest_output += f"    Server:         {speedtest_server}\n\n"
-            speedtest_output += f"    Ping:           {speedtest_ping} ms\n"
-            speedtest_output += f"    Download Speed: {speedtest_down} Mbps\n"
-            speedtest_output += f"    Upload Speed:   {speedtest_up} Mbps\n"
-            print(speedtest_output)
-            # Prepare db string
-            speedtest_db_output = speedtest_output.replace("\n", "<br>")
-            # Insert in db
-            sql.execute ("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
-                            VALUES (?, ?, ?, ?, ?, ?) """, (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
-            # Logging
-            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                            VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """, (startTime, speedtest_db_output))
-            sql_connection.commit()
-        except subprocess.CalledProcessError as e:
-            print(f"Error running 'speedtest': {e}")
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON output: {e}")
 
-        closeDB()
+        command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "speedtest"]
+        subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
     else:
         print("    Speedtest function was NOT executed.")
     return 0
@@ -631,14 +601,9 @@ def cleanup_database():
                     (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
                 )
 
-    print('    Nmap Scan Results')
-    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
-
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_ONLINEHISTORY) + ' days:')
     print('    Online_History')
     sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
-    print('    Speedtest_History')
-    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
 
     print('\nCleanup tables, up to the lastest hard-coded days:')
     print('    Services_Events (30)')
@@ -654,6 +619,11 @@ def cleanup_database():
     sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                     VALUES (?, 'c_010', 'cronjob', 'LogStr_0101', '', 'Cleanup') """, (startTime,))
     closeDB()
+
+    print('\nCleanup DB_Tools...')
+    command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "cleanup"]
+    output = subprocess.check_output(command, text=True)
+
     return 0
 
 #===============================================================================
