@@ -307,91 +307,85 @@ echo '<div class="nav-tabs-custom">
             </div>
           </div>';
 
-
 // DB Info ----------------------------------------------------------
-echo '<div class="box box-solid">
-        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert Database Details</h3></div>
-        <div class="box-body">
-        	<div style="height: 250px; overflow-y: scroll; overflow-x: hidden;">';
+echo '<div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="pull-left header text-aqua" id="sys_info_gen_head"><i class="bi bi-database"></i> Databases</li>
+              <li class="active"><a href="#tab_db_a" data-toggle="tab" aria-expanded="true">Main</a></li>
+              <li class=""><a href="#tab_db_b" data-toggle="tab" aria-expanded="true">Tools</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab_db_a">
+				<div style="height: 250px; overflow-y: scroll; overflow-x: hidden;">';
 
-$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
-echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+				$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
+				echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+				$db = new SQLite3('../db/pialert.db');
+				$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
+				echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
+				echo '<thead>
+						<tr role="row">
+							<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
+							<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
+						</tr>
+					  </thead>';
+				while ($table = $tablesQuery->fetchArray()) {
+				    $tableName = $table['name'];
+				    $ignore_tables = ['Tools_Speedtest_History', 'Tools_Nmap_ManScan', 'sqlite_sequence', 'sqlite_stat1'];
 
+				    if (in_array($tableName, $ignore_tables)) {
+				    	continue;
+				    }
 
-$db = new SQLite3('../db/pialert.db');
-$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
-echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
-echo '<thead>
-		<tr role="row">
-			<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
-			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
-		</tr>
-	  </thead>';
-while ($table = $tablesQuery->fetchArray()) {
-    $tableName = $table['name'];
-    $ignore_tables = ['Tools_Speedtest_History', 'Tools_Nmap_ManScan', 'sqlite_sequence', 'sqlite_stat1'];
+				    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
+				    $rowCount = $rowCountQuery->fetchArray()['count'];
 
-    if (in_array($tableName, $ignore_tables)) {
-    	continue;
-    }
+				    echo '<tr>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
+				    	</tr>';
+				}
+				echo '</table>';
 
-    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
-    $rowCount = $rowCountQuery->fetchArray()['count'];
+				$db->close();
+				echo '</div>
+              </div>
+              <div class="tab-pane" id="tab_db_b">
+				<div style="height: 250px; overflow-y: scroll; overflow-x: hidden;">';
 
-    echo '<tr>
-    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
-    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
-    	</tr>';
-}
-echo '</table>';
+				$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert_tools.db';
+				echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+				$db = new SQLite3('../db/pialert_tools.db');
+				$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
+				echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
+				echo '<thead>
+						<tr role="row">
+							<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
+							<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
+						</tr>
+					  </thead>';
+				while ($table = $tablesQuery->fetchArray()) {
+				    $tableName = $table['name'];
+				    
+				    if ($tableName == "sqlite_sequence" || $tableName == "sqlite_stat1") {
+				    	continue;
+				    }
 
-$db->close();
+				    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
+				    $rowCount = $rowCountQuery->fetchArray()['count'];
 
-echo '		</div>
-        </div>
-      </div>';
+				    echo '<tr>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
+				    	</tr>';
+				}
+				echo '</table>';
 
-// DB-Tools Info ----------------------------------------------------------
-echo '<div class="box box-solid">
-        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert-Tools Database Details</h3></div>
-        <div class="box-body">
-        	<div style="height: 200px; overflow-y: scroll; overflow-x: hidden;">';
-
-$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert_tools.db';
-echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
-
-
-$db = new SQLite3('../db/pialert_tools.db');
-$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
-echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
-echo '<thead>
-		<tr role="row">
-			<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
-			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
-		</tr>
-	  </thead>';
-while ($table = $tablesQuery->fetchArray()) {
-    $tableName = $table['name'];
-    
-    if ($tableName == "sqlite_sequence" || $tableName == "sqlite_stat1") {
-    	continue;
-    }
-
-    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
-    $rowCount = $rowCountQuery->fetchArray()['count'];
-
-    echo '<tr>
-    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
-    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
-    	</tr>';
-}
-echo '</table>';
-
-$db->close();
-
-echo '		</div>
-        </div>
-      </div>';
+				$db->close();
+				echo '</div>
+              </div>
+            </div>
+          </div>';
 
 // User Crontab -----------------------------------------------------
 echo '<div class="box box-solid">
@@ -581,10 +575,7 @@ echo '<br>';
 
 ?>
     </section>
-
-    <!-- /.content -->
 </div>
-  <!-- /.content-wrapper -->
 
 <!-- ----------------------------------------------------------------------- -->
 <?php
@@ -592,7 +583,6 @@ require 'php/templates/footer.php';
 ?>
 
 <script type="text/javascript">
-
 // Pialert Reboot
 function askPialertReboot() {
   showModalWarning('<?=$pia_lang['SysInfo_Reboot_noti_head'];?>', '<?=$pia_lang['SysInfo_Reboot_noti_text'];?>',
@@ -601,8 +591,6 @@ function askPialertReboot() {
 function PialertReboot() {
 	$.get('php/server/commands.php?action=PialertReboot', function(msg) {showMessage (msg);});
 }
-
-
 // Pialert Shutdown
 function askPialertShutdown() {
   showModalWarning('<?=$pia_lang['SysInfo_Shutdown_noti_head'];?>', '<?=$pia_lang['SysInfo_Shutdown_noti_text'];?>',

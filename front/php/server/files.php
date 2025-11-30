@@ -388,7 +388,7 @@ function GetServerTime() {
 function GetLogfiles() {
 	global $pia_lang;
 
-	$logfiles = ["pialert.1.log", "pialert.IP.log", "pialert.vendors.log", "pialert.cleanup.log", "pialert.webservices.log"];
+	$logfiles = ["pialert.1.log", "pialert.IP.log", "pialert.vendors.log", "pialert.cleanup.log", "pialert.webservices.log", "pialert.speedtest.log"];
 	$logmessage = [$pia_lang['MT_Tools_Logviewer_Scan_empty'], $pia_lang['MT_Tools_Logviewer_IPLog_empty'], '', $pia_lang['MT_Tools_Logviewer_Cleanup_empty'], $pia_lang['MT_Tools_Logviewer_WebServices_empty']];
 
 	$i = 0;

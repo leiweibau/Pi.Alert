@@ -252,6 +252,7 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
             <button type="button" id="tzhrsreawefw" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-vendor"><?=$pia_lang['MT_Tools_Logviewer_Vendor'];?></button>
             <button type="button" id="arzuozhrsfga" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-cleanup"><?=$pia_lang['MT_Tools_Logviewer_Cleanup'];?></button>
             <button type="button" id="erftttwrdwqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices"><?=$pia_lang['MT_Tools_Logviewer_WebServices']?></button>
+            <button type="button" id="trivziitsubd" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-speedtest">Speedtest (Cron)</button>
             <?php $state = convert_state($_SESSION['PRINT_LOG'], 0);?>
             <button type="button" id="btnextLogging" class="btn btn-danger main_logviwer_button_m" onclick="askToggleExtLogging(<?=$_SESSION['PRINT_LOG'];?>)"><?=$pia_lang['MT_Tools_Logviewer_ext_a']?> (<?=$state;?>)</button>
       	</div>
@@ -276,6 +277,9 @@ if ($_SESSION['Scan_WebServices'] == True) {
  	print_logviewer_modal_head('webservices', 'pialert.webservices.log');
  	print_logviewer_modal_foot();
 }
+// Speedtest
+print_logviewer_modal_head('speedtest', 'pialert.speedtest.log');
+print_logviewer_modal_foot();
 // Inactive Hosts
 print_logviewer_modal_head('inactivehosts', 'Inactive Hosts');
 print_logviewer_modal_foot();
@@ -973,6 +977,7 @@ function GetModalLogContent() {
     $('#modal_vendor_content').html(logcollection[2].toLocaleString());
     $('#modal_cleanup_content').html(logcollection[3].toLocaleString());
     $('#modal_webservices_content').html(logcollection[4].toLocaleString());
+    $('#modal_speedtest_content').html(logcollection[5].toLocaleString());
   } );
 }
 // function GetModalInactiveHosts() {
