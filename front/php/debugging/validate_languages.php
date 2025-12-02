@@ -86,7 +86,13 @@ $languages = [
     'pl_pl' => 'Polish',
     'nl_nl' => 'Dutch',
     'cz_cs' => 'Czech',
-    'dk_da' => 'Danish'
+    'fi_fi' => 'Finnish',
+    'lt_lt' => 'Lithuanian',
+    'dk_da' => 'Danish',
+    'no_no' => 'Norwegian',
+    'ru_ru' => 'Danish',
+    'se_sv' => 'Swedish',
+    'ua_uk' => 'Ukrainian'
 ];
 
 foreach ($languages as $code => $label) {
@@ -103,8 +109,8 @@ foreach ($languages as $code => $label) {
 }
 
 
-$all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit)));
-$all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ)));
+$all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit), array_keys($nlnl), array_keys($plpl), array_keys($czcs), array_keys($dkda), array_keys($nono), array_keys($sesv), array_keys($fifi), array_keys($ltlt), array_keys($ruru), array_keys($uauk)));
+$all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ), array_keys($nlnl_journ), array_keys($plpl_journ), array_keys($czcs_journ), array_keys($dkda_journ), array_keys($nono_journ), array_keys($sesv_journ), array_keys($fifi_journ), array_keys($ltlt_journ), array_keys($ruru_journ), array_keys($uauk_journ)));
 
 $missing_lang = [];
 $missing_journ = [];
@@ -118,7 +124,13 @@ foreach ([
     'nl_nl' => $nlnl,
     'pl_pl' => $plpl,
     'cz_cs' => $czcs,
-    'dk_da' => $dkda
+    'dk_da' => $dkda,
+    'no_no' => $nono,
+    'se_sv' => $sesv,
+    'fi_fi' => $fifi,
+    'lt_lt' => $ltlt,
+    'ru_ru' => $ruru,
+    'ua_uk' => $uauk
 ] as $lang => $arr) {
     foreach ($all_keys_lang as $key) {
         if (!array_key_exists($key, $arr)) {
@@ -136,7 +148,13 @@ foreach ([
     'nl_nl' => $nlnl_journ,
     'pl_pl' => $plpl_journ,
     'cz_cs' => $czcs_journ,
-    'dk_da' => $dkda_journ
+    'dk_da' => $dkda_journ,
+    'no_no' => $nono_journ,
+    'se_sv' => $sesv_journ,
+    'fi_fi' => $fifi_journ,
+    'lt_lt' => $ltlt_journ,
+    'ru_ru' => $ruru_journ,
+    'ua_uk' => $uauk_journ
 ] as $lang => $arr) {
     foreach ($all_keys_journ as $key) {
         if (!array_key_exists($key, $arr)) {

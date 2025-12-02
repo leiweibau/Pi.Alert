@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Apagando Pi.Alert</title>
+  <title>Перезапуск Pi.Alert</title>
   <style>
     body {
       margin: 0;
@@ -88,17 +88,33 @@
       font-size: 0.9rem;
     }
   </style>
+  <script>
+    function checkPiAlertAvailability() {
+      fetch('../../')
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '../../';
+          }
+        })
+        .catch(error => {
+          //
+        });
+    }
+
+    // check every 20 seconds
+    setInterval(checkPiAlertAvailability, 20000);
+  </script>
 </head>
 <body>
   <header>
     <h1>Pi.<span class="bold">Alert</span></h1>
-    <span>Apagando...</span>
+    <span>Перезапуск выполняется...</span>
   </header>
 
   <div class="status-section">
     <div class="status-box">
-      <h2>Pi.<span class="bold">Alert</span> se está apagando</h2>
-      <p>Este sistema ya no realizará supervisión de red.</p>
+      <h2>Pi.<span class="bold">Alert</span> сейчас перезапускается</h2>
+      <p>Пожалуйста, подождите немного — система скоро будет доступна.</p>
       <div class="spinner"></div>
     </div>
   </div>
