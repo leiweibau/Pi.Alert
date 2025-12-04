@@ -108,9 +108,28 @@ foreach ($languages as $code => $label) {
     unset($pia_lang, $pia_journ_lang);
 }
 
+$all_keys_lang = [];
+$all_keys_journ = [];
 
-$all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit), array_keys($nlnl), array_keys($plpl), array_keys($czcs), array_keys($dkda), array_keys($nono), array_keys($sesv), array_keys($fifi), array_keys($ltlt), array_keys($ruru), array_keys($uauk)));
-$all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ), array_keys($nlnl_journ), array_keys($plpl_journ), array_keys($czcs_journ), array_keys($dkda_journ), array_keys($nono_journ), array_keys($sesv_journ), array_keys($fifi_journ), array_keys($ltlt_journ), array_keys($ruru_journ), array_keys($uauk_journ)));
+foreach ($languages as $code => $label) {
+
+    $varName = str_replace('_', '', $code);
+    $varNameJ = $varName . '_journ';
+
+    if (isset($$varName) && is_array($$varName)) {
+        $all_keys_lang = array_merge($all_keys_lang, array_keys($$varName));
+    }
+
+    if (isset($$varNameJ) && is_array($$varNameJ)) {
+        $all_keys_journ = array_merge($all_keys_journ, array_keys($$varNameJ));
+    }
+}
+
+$all_keys_lang = array_unique($all_keys_lang);
+$all_keys_journ = array_unique($all_keys_journ);
+
+// $all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit), array_keys($nlnl), array_keys($plpl), array_keys($czcs), array_keys($dkda), array_keys($nono), array_keys($sesv), array_keys($fifi), array_keys($ltlt), array_keys($ruru), array_keys($uauk)));
+// $all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ), array_keys($nlnl_journ), array_keys($plpl_journ), array_keys($czcs_journ), array_keys($dkda_journ), array_keys($nono_journ), array_keys($sesv_journ), array_keys($fifi_journ), array_keys($ltlt_journ), array_keys($ruru_journ), array_keys($uauk_journ)));
 
 $missing_lang = [];
 $missing_journ = [];

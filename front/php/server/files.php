@@ -1138,7 +1138,13 @@ function setLanguage() {
 		'pl_pl',
 		'cz_cs',
 		'dk_da',
-		'nl_nl');
+		'nl_nl',
+	    'fi_fi',
+	    'lt_lt',
+	    'no_no',
+	    'ru_ru',
+	    'se_sv',
+	    'ua_uk');
 
 	if (isset($_REQUEST['LangSelection'])) {
 		$pia_lang_set_dir = '../../../config/';
