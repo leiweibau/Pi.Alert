@@ -114,6 +114,11 @@ if (file_exists($speedtest_binary) && $mod == "test") {
 	echo '<h4>Speedtest (Ookla) Results</h4>';
 	echo '<pre style="border: none;">';
 
+	if (empty($output_json) || !is_array($output_json)) {
+	    echo "<pre>Fehler: Speedtest-Output is empty or invalid.</pre>";
+	    return;
+	}
+
 	$output_json = json_decode($output[0], true);
 	$isp = $output_json['isp'];
 	$server = $output_json['server']['name'] . ' (' . $output_json['server']['location'] . ') (' . $output_json['server']['host'] . ')';

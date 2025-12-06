@@ -264,13 +264,13 @@ download_pialert() {
   #   --checkpoint=100 --checkpoint-action="ttyout=."               2>&1 >> "$LOG"
 
   EXCLUDES=(
-    "--exclude='pialert/config/pialert.conf'"
-    "--exclude='pialert/db/pialert.db'"
-    "--exclude='pialert/log/*'"
+    --exclude=pialert/config/pialert.conf
+    --exclude=pialert/db/pialert.db
+    --exclude=pialert/log/*
   )
 
   if [ -f "$INSTALL_DIR/pialert/db/pialert_tools.db" ]; then
-      EXCLUDES+=("--exclude='pialert/db/pialert_tools.db'")
+      EXCLUDES+=( --exclude=pialert/db/pialert_tools.db )
   fi
 
   tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" \
