@@ -5,13 +5,14 @@
 #===============================================================================
 from __future__ import print_function
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from mac_vendor_lookup import MacLookup
 from time import sleep, time, strftime
 from base64 import b64encode
 from urllib.parse import urlparse
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 import sys, subprocess, os, re, datetime, sqlite3, socket, io, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
+import logging
+from logging.handlers import RotatingFileHandler
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -85,18 +86,17 @@ def get_username():
 
 # ------------------------------------------------------------------------------
 def set_db_file_permissions():
+    global PIALERT_DBTOOLS_FILE
+
     print_log(f"\nPrepare Scan...")
     print_log(f"    Force file permissions on Pi.Alert db...")
-    # Set permissions
-    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
-    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
 
     # Set permissions Experimental
     os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DBTOOLS_FILE + "*")
     os.system("sudo /usr/bin/chmod 775 " + PIALERT_DBTOOLS_FILE + "*")
 
     # Get permissions
-    fileinfo = Path(PIALERT_DB_FILE)
+    fileinfo = Path(PIALERT_DBTOOLS_FILE)
     file_stat = fileinfo.stat()
     print_log(f"        DB permission mask: {oct(file_stat.st_mode)[-3:]}")
     print_log(f"        DB Owner and Group: {fileinfo.owner()}:{fileinfo.group()}")
@@ -107,48 +107,124 @@ def set_reports_file_permissions():
     os.system("sudo chmod -R 775 " + REPORTPATH_WEBGUI)
 
 #-------------------------------------------------------------------------------
-def speedtest():
-    # Define the command and arguments
-    command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
+
+def speedtest(retries=3):
+    import logging
+    import subprocess
+    import json
+
+    LOG_FILE = LOG_PATH + "/pialert.speedtest.log"
+
+    header = (
+        "\nPi.Alert v" + VERSION_DATE + " (Speedtest)\n"
+        "---------------------------------------------------------\n"
+        "\n"
+    )
+
+    with open(LOG_FILE, "w") as f:
+        f.write(header)
+
+    logger = logging.getLogger("pialert_speedtest")
+    logger.setLevel(logging.INFO)
+
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    handler = logging.FileHandler(LOG_FILE, mode='a')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    def logprint(msg):
+        print(msg)
+        logger.info(msg)
+
+    command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest",
+               "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
+
+    logger.info("Speedtest Launched")
+    logger.info(f"Retries left: {retries}")
+
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    output_lines = []
+    error_lines = []
+
+    for line in process.stdout:
+        line = line.rstrip()
+        if line:
+            logprint(f"[STDOUT] {line}")
+            output_lines.append(line)
+
+    process.wait()
+
+    for line in process.stderr:
+        line = line.rstrip()
+        if line:
+            logprint(f"[STDERR] {line}")
+            error_lines.append(line)
+
+    # Prüfen, ob Binary fehlgeschlagen ist
+    if process.returncode != 0:
+        logprint(f"Speedtest Binary returned error code: {process.returncode}")
+        if retries > 0:
+            logprint(f"Try again. Remaining attempts: {retries}")
+            return speedtest(retries=retries-1)
+        else:
+            logprint("Maximum number of attempts reached. Abort.")
+            return 1
+
+    # JSON aus stdout zusammensetzen
+    json_text = "\n".join(output_lines)
 
     try:
-        print("    Launched")
-        output = subprocess.check_output(command, text=True)
-        # Parse the JSON output
-        result = json.loads(output)
-        # Access the speed test results
-        speedtest_isp = result['isp']
-        speedtest_server = result['server']['name'] + ' (' + result['server']['location'] + ') (' + result['server']['host'] + ')'
-        speedtest_ping = result['ping']['latency']
-        speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
-        speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
-        # Build output
-        speedtest_output = ""
-        speedtest_output += f"    ISP:            {speedtest_isp}\n"
-        speedtest_output += f"    Server:         {speedtest_server}\n\n"
-        speedtest_output += f"    Ping:           {speedtest_ping} ms\n"
-        speedtest_output += f"    Download Speed: {speedtest_down} Mbps\n"
-        speedtest_output += f"    Upload Speed:   {speedtest_up} Mbps\n"
-        print(speedtest_output)
-        # Prepare db string
-        speedtest_db_output = speedtest_output.replace("\n", "<br>")
-        
-        # Insert in db
-        openDB_tools()
-        sql_tools.execute ("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
-                        VALUES (?, ?, ?, ?, ?, ?) """, (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
-        closeDB_tools()
-
-        openDB()
-        # Logging
-        sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                        VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """, (startTime, speedtest_db_output))
-        closeDB()
-
-    except subprocess.CalledProcessError as e:
-        print(f"Error running 'speedtest': {e}")
+        result = json.loads(json_text)
     except json.JSONDecodeError as e:
-        print(f"Error parsing JSON output: {e}")
+        logprint(f"JSON parsing error: {e}")
+        return 1
+
+    speedtest_isp = result['isp']
+    speedtest_server = f"{result['server']['name']} ({result['server']['location']}) ({result['server']['host']})"
+    speedtest_ping = result['ping']['latency']
+    speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
+    speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
+
+    speedtest_output = (
+        f"    ISP:            {speedtest_isp}\n"
+        f"    Server:         {speedtest_server}\n\n"
+        f"    Ping:           {speedtest_ping} ms\n"
+        f"    Download Speed: {speedtest_down} Mbps\n"
+        f"    Upload Speed:   {speedtest_up} Mbps\n"
+    )
+
+    for line in speedtest_output.split("\n"):
+        if line.strip():
+            logprint(line)
+
+    logger.info("Speedtest successfully completed.")
+
+    # Insert in db
+    speedtest_db_output = speedtest_output.replace("\n", "<br>")
+
+    openDB_tools()
+    sql_tools.execute("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
+                         VALUES (?, ?, ?, ?, ?, ?) """,
+                      (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
+    closeDB_tools()
+
+    openDB()
+    sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
+                   VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """,
+                (startTime, speedtest_db_output))
+    closeDB()
 
     return 0
 
@@ -157,13 +233,13 @@ def speedtest():
 #===============================================================================
 def cleanup_database_tools():
     openDB_tools()
-    print('\nCleanup tables, up to the lastest ' + str("100") + ' days:')
+    print('\nCleanup tables, up to the lastest ' + str("180") + ' days:')
 
     print('    Nmap Scan Results')
-    sql_tools.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str("100") + " day')")
+    sql_tools.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str("180") + " day')")
 
     print('    Speedtest_History')
-    sql_tools.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str("100") + " day')")
+    sql_tools.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str("180") + " day')")
 
     print('\nShrink Database...')
     sql_tools.execute("VACUUM;")
