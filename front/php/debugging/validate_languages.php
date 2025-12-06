@@ -46,7 +46,10 @@ if ($_SESSION["login"] != 1) {
             color: deepskyblue; 
         }
         .languages {
-            display: inline-block; width: 150px;
+            display: inline-block; width: 200px; padding-left: 5px;
+        }
+        .language_container {
+            display: inline-block; width: 320px; min-width: 50%; padding: 10px 0px;
         }
         .topheader {
             width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
@@ -95,15 +98,18 @@ $languages = [
     'ua_uk' => 'Ukrainian'
 ];
 
+$row_color = "f0f0f0";
+
 foreach ($languages as $code => $label) {
     require "../templates/language/{$code}.php";
 
-    // Optional: Spracharrays für später speichern (wie im Original)
+    if ($row_color == "#f0f0f0") {$row_color = "white";} else {$row_color = "#f0f0f0";}
+
     ${str_replace('_', '', $code)} = $pia_lang;
     ${str_replace('_', '', $code) . '_journ'} = $pia_journ_lang;
 
-    echo "<div class=\"languages\">{$label}: </div>" . sizeof($pia_lang) . " entries<br>";
-    echo "<div class=\"languages\">{$label} (Journal): </div>" . sizeof($pia_journ_lang) . " entries<br>";
+    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">{$label}: </div>" . sizeof($pia_lang) . " entries</div>";
+    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">{$label} (Journal): </div>" . sizeof($pia_journ_lang) . " entries</div>";
 
     unset($pia_lang, $pia_journ_lang);
 }
@@ -112,14 +118,11 @@ $all_keys_lang = [];
 $all_keys_journ = [];
 
 foreach ($languages as $code => $label) {
-
     $varName = str_replace('_', '', $code);
     $varNameJ = $varName . '_journ';
-
     if (isset($$varName) && is_array($$varName)) {
         $all_keys_lang = array_merge($all_keys_lang, array_keys($$varName));
     }
-
     if (isset($$varNameJ) && is_array($$varNameJ)) {
         $all_keys_journ = array_merge($all_keys_journ, array_keys($$varNameJ));
     }
@@ -127,10 +130,6 @@ foreach ($languages as $code => $label) {
 
 $all_keys_lang = array_unique($all_keys_lang);
 $all_keys_journ = array_unique($all_keys_journ);
-
-// $all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit), array_keys($nlnl), array_keys($plpl), array_keys($czcs), array_keys($dkda), array_keys($nono), array_keys($sesv), array_keys($fifi), array_keys($ltlt), array_keys($ruru), array_keys($uauk)));
-// $all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ), array_keys($nlnl_journ), array_keys($plpl_journ), array_keys($czcs_journ), array_keys($dkda_journ), array_keys($nono_journ), array_keys($sesv_journ), array_keys($fifi_journ), array_keys($ltlt_journ), array_keys($ruru_journ), array_keys($uauk_journ)));
-
 $missing_lang = [];
 $missing_journ = [];
 
@@ -183,14 +182,12 @@ foreach ([
 }
 
 echo '</div>';
-
 echo '<div class="info_box">
         <h2 class="heading">Missing Entries (pia_lang)</h2>';
 foreach ($missing_lang as $lang => $keys) {
     echo '<div class="languages"><strong>' . $lang . ':</strong></div> ' . implode(', ', $keys) . '<br>';
 }
 echo '</div>';
-
 echo '<div class="info_box">
         <h2 class="heading">Missing Entries (pia_journ_lang)</h2>';
 foreach ($missing_journ as $lang => $keys) {
@@ -204,14 +201,11 @@ echo '</div>';
             const protocol = window.location.protocol;
             const host = window.location.host;
             const path = window.location.pathname;
-
             const scriptDir = path.substring(0, path.lastIndexOf('/') + 1).replace('php/debugging/', '');
-
             return `${protocol}//${host}${scriptDir}`;
         }
 
         const baseUrl = getBaseUrl();
-
         const pialertDiv = document.getElementById("pialert_url");
         if (pialertDiv) {
             const baseUrlLink = document.createElement("a");
