@@ -302,6 +302,10 @@ echo '<div class="nav-tabs-custom">
 				  <div class="col-sm-3 sysinfo_gerneral_a">Timezone (PHP / System):</div>
 				  <div class="col-sm-9 sysinfo_gerneral_b">"'. date_default_timezone_get() .'" / "'. get_local_system_tz() .'"</div>
 				</div>
+				<div class="row">
+				  <div class="col-sm-3 sysinfo_gerneral_a">PHP Version:</div>
+				  <div class="col-sm-9 sysinfo_gerneral_b">'. phpversion() .'</div>
+				</div>
               </div>
               '.$tab_content.'
             </div>

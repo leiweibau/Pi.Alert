@@ -394,7 +394,6 @@ configure_pialert() {
   print_msg "- Setting Pi.Alert config file"
 
   set_pialert_parameter PIALERT_PATH    "'$PIALERT_HOME'"
-  
   set_pialert_parameter DDNS_ACTIVE     "$DDNS_ACTIVE"
   set_pialert_parameter DDNS_DOMAIN     "'$DDNS_DOMAIN'"
   set_pialert_parameter DDNS_USER       "'$DDNS_USER'"
@@ -502,11 +501,12 @@ publish_pialert() {
   touch "$PIALERT_HOME/log/pialert.1.log"                                                                       2>&1 >> "$LOG"
   touch "$PIALERT_HOME/log/pialert.cleanup.log"                                                                 2>&1 >> "$LOG"
   touch "$PIALERT_HOME/log/pialert.webservices.log"                                                             2>&1 >> "$LOG"
-  ln -s "$PIALERT_HOME/log/pialert.vendors.log" "$PIALERT_HOME/front/php/server/pialert.vendors.log"            2>&1 >> "$LOG"
-  ln -s "$PIALERT_HOME/log/pialert.IP.log" "$PIALERT_HOME/front/php/server/pialert.IP.log"                      2>&1 >> "$LOG"
-  ln -s "$PIALERT_HOME/log/pialert.1.log" "$PIALERT_HOME/front/php/server/pialert.1.log"                        2>&1 >> "$LOG"
-  ln -s "$PIALERT_HOME/log/pialert.cleanup.log" "$PIALERT_HOME/front/php/server/pialert.cleanup.log"            2>&1 >> "$LOG"
-  ln -s "$PIALERT_HOME/log/pialert.webservices.log" "$PIALERT_HOME/front/php/server/pialert.webservices.log"    2>&1 >> "$LOG"
+  touch "$PIALERT_HOME/log/pialert.speedtest.log"                                                               2>&1 >> "$LOG"
+  src_dir="$INSTALL_DIR/pialert/log"
+  dest_dir="$INSTALL_DIR/pialert/front/php/server"
+  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log; do
+      ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
+  done
 
   print_msg "- Set sudoers..."
   sudo $PIALERT_HOME/back/pialert-cli set_sudoers                                                               2>&1 >> "$LOG"

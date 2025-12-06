@@ -257,11 +257,26 @@ download_pialert() {
   wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
 
   print_msg "- Uncompressing tar file"
+  # tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" \
+  #   --exclude='pialert/config/pialert.conf' \
+  #   --exclude='pialert/db/pialert.db' \
+  #   --exclude='pialert/log/*'  \
+  #   --checkpoint=100 --checkpoint-action="ttyout=."               2>&1 >> "$LOG"
+
+  EXCLUDES=(
+    "--exclude='pialert/config/pialert.conf'"
+    "--exclude='pialert/db/pialert.db'"
+    "--exclude='pialert/log/*'"
+  )
+
+  if [ -f "$INSTALL_DIR/pialert/db/pialert_tools.db" ]; then
+      EXCLUDES+=("--exclude='pialert/db/pialert_tools.db'")
+  fi
+
   tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" \
-    --exclude='pialert/config/pialert.conf' \
-    --exclude='pialert/db/pialert.db' \
-    --exclude='pialert/log/*'  \
-    --checkpoint=100 --checkpoint-action="ttyout=."               2>&1 >> "$LOG"
+      "${EXCLUDES[@]}" \
+      --checkpoint=100 --checkpoint-action="ttyout=."                2>&1 >> "$LOG"
+
   echo ""
 
   print_msg "- Deleting downloaded tar file..."
@@ -574,9 +589,10 @@ update_permissions() {
   touch "$PIALERT_HOME/log/pialert.1.log"                           2>&1 >> "$LOG"
   touch "$PIALERT_HOME/log/pialert.cleanup.log"                     2>&1 >> "$LOG"
   touch "$PIALERT_HOME/log/pialert.webservices.log"                 2>&1 >> "$LOG"
+  touch "$PIALERT_HOME/log/pialert.speedtest.log"                   2>&1 >> "$LOG"
   src_dir="$INSTALL_DIR/pialert/log"
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
-  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log; do
+  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log; do
       ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
   done
   print_msg "- Set sudoers..."
