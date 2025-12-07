@@ -253,11 +253,6 @@ download_pialert() {
   wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
 
   print_msg "- Uncompressing tar file"
-  # tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" \
-  #   --exclude='pialert/config/pialert.conf' \
-  #   --exclude='pialert/db/pialert.db' \
-  #   --exclude='pialert/log/*'  \
-  #   --checkpoint=100 --checkpoint-action="ttyout=."               2>&1 >> "$LOG"
 
   EXCLUDES=(
     --exclude=pialert/config/pialert.conf

@@ -30,8 +30,7 @@
   PIHOLESIX_CHECK=false
   PIHOLESIX_CONFIG=false
 
-  USE_PYTHON_VERSION=0
-  PYTHON_BIN=python
+  PYTHON_BIN=python3
 
   FIRST_SCAN_KNOWN=true
 
@@ -125,17 +124,6 @@ ask_config() {
     if $ANSWER ; then
       PIALERT_DEFAULT_PAGE=true
     fi
-  fi
-
-  # Ask Python version
-  ask_option "Is Python 3 already installed in the system ?" \
-              2 \
-              0 " - Yes it is (DEFAULT)" \
-              3 " - Install Python 3"
-  if [ "$ANSWER" = "" ] ; then
-    USE_PYTHON_VERSION=0
-  else
-    USE_PYTHON_VERSION=$ANSWER
   fi
 
   # Ask first scan options
@@ -262,63 +250,35 @@ install_python() {
 
   check_python_versions
 
-  if [ $USE_PYTHON_VERSION -eq 0 ] ; then
-    print_msg "- Using the available Python version installed"
-    if $PYTHON3 ; then
-      print_msg "  - Python 3 is available"
-      USE_PYTHON_VERSION=3
-    elif $PYTHON2 ; then
-      print_msg "  - Python 2 is available but no longer compatible with Pi.Alert"
-      print_msg "    - Python 3 will be installed"
-      USE_PYTHON_VERSION=3
-    else
-      print_msg "  - Python is not available in this system"
-      print_msg "    - Python 3 will be installed"
-      USE_PYTHON_VERSION=3
-    fi
-    echo ""
-  fi
-
-  if [ $USE_PYTHON_VERSION -eq 3 ] ; then
-    if $PYTHON3 ; then
-      print_msg "- Using Python 3"
-      sudo apt-get install python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y                 2>&1 >> "$LOG"
-    else
-      print_msg "- Installing Python 3..."
-      sudo apt-get install python3 python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y         2>&1 >> "$LOG"
-    fi
-    print_msg "  - Install additional packages"
-    check_and_install_package "mac-vendor-lookup"
-    check_and_install_package "fritzconnection"
-    check_and_install_package "routeros_api"
-    check_and_install_package "pyunifi"
-    check_and_install_package "openwrt-luci-rpc"
-    check_and_install_package "asusrouter"
-    check_and_install_package "paho-mqtt"
-
-    # print_msg "  - Update 'requests' package to 2.31.0"
-    # if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-    #   pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
-    # else
-    #   pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
-    # fi
-
-    PYTHON_BIN="python3"
+  if $PYTHON3 ; then
+    print_msg "- Using Python 3"
+    sudo apt-get install python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y                 2>&1 >> "$LOG"
   else
-    process_error "Unknown Python version to use: $USE_PYTHON_VERSION"
+    print_msg "- Installing Python 3..."
+    sudo apt-get install python3 python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y         2>&1 >> "$LOG"
   fi
+  print_msg "  - Install additional packages"
+  check_and_install_package "mac-vendor-lookup"
+  check_and_install_package "fritzconnection"
+  check_and_install_package "routeros_api"
+  check_and_install_package "pyunifi"
+  check_and_install_package "openwrt-luci-rpc"
+  check_and_install_package "asusrouter"
+  check_and_install_package "paho-mqtt"
+
+  # print_msg "  - Update 'requests' package to 2.31.0"
+  # if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+  #   pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
+  # else
+  #   pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
+  # fi
+
 }
 
 # ------------------------------------------------------------------------------
 # Check Python versions available
 # ------------------------------------------------------------------------------
 check_python_versions() {
-  if [ -f /usr/bin/python ] ; then
-    PYTHON2=true
-  else
-    PYTHON2=false
-  fi
-
   print_msg "- Checking Python 3..."
   if [ -f /usr/bin/python3 ] ; then
     print_msg "  - Python 3 is installed"
@@ -358,7 +318,7 @@ download_pialert() {
   URL="https://github.com/leiweibau/Pi.Alert/raw/main/tar/pialert_latest.tar"
   # Testing
   # ----------------------------------
-  #URL=""
+  #URL="https://github.com/leiweibau/Pi.Alert/raw/next_update/tar/pialert_latest.tar"
   sudo wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
   echo ""
 
@@ -459,11 +419,8 @@ add_jobs_to_crontab() {
   fi
 
   print_msg "- Adding jobs to the crontab..."
-  # if [ $USE_PYTHON_VERSION -eq 3 ] ; then
-  #   sed -i "s/\<python\>/$PYTHON_BIN/g" $PIALERT_HOME/install/pialert.cron
-  # fi
 
-  (crontab -l 2>/dev/null || : ; cat $PIALERT_HOME/install/pialert.cron) | crontab -
+  (crontab -l 2>/dev/null || : ; cat $PIALERT_HOME/install/pialert_debian13.cron) | crontab -
 }
 
 # ------------------------------------------------------------------------------
