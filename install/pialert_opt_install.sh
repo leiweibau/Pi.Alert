@@ -420,7 +420,7 @@ add_jobs_to_crontab() {
 
   print_msg "- Adding jobs to the crontab..."
 
-  (crontab -l 2>/dev/null || : ; cat $PIALERT_HOME/install/pialert_debian13.cron) | crontab -
+  (crontab -l 2>/dev/null || : ; cat $PIALERT_HOME/install/pialert.opt.cron) | crontab -
 }
 
 # ------------------------------------------------------------------------------
