@@ -12,6 +12,7 @@
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
+BRANCH="main"
 if [ "$1" = "--lxc" ]; then
   INSTALL_DIR="/opt"
 else
@@ -253,15 +254,10 @@ download_pialert() {
   fi
 
   print_msg "- Downloading update file..."
-  URL="https://github.com/leiweibau/Pi.Alert/raw/main/tar/pialert_latest.tar"
+  URL="https://github.com/leiweibau/Pi.Alert/raw/$BRANCH/tar/pialert_latest.tar"
   wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
 
   print_msg "- Uncompressing tar file"
-  # tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" \
-  #   --exclude='pialert/config/pialert.conf' \
-  #   --exclude='pialert/db/pialert.db' \
-  #   --exclude='pialert/log/*'  \
-  #   --checkpoint=100 --checkpoint-action="ttyout=."               2>&1 >> "$LOG"
 
   EXCLUDES=(
     --exclude=pialert/config/pialert.conf

@@ -15,6 +15,8 @@
   COLS=70
   ROWS=12
 
+  BRANCH="main"
+
   INSTALL_DIR="/opt"
   PIALERT_HOME="$INSTALL_DIR/pialert"
 
@@ -266,13 +268,6 @@ install_python() {
   check_and_install_package "asusrouter"
   check_and_install_package "paho-mqtt"
 
-  # print_msg "  - Update 'requests' package to 2.31.0"
-  # if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-  #   pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
-  # else
-  #   pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
-  # fi
-
 }
 
 # ------------------------------------------------------------------------------
@@ -315,10 +310,7 @@ download_pialert() {
   fi
   
   print_msg "- Downloading installation tar file..."
-  URL="https://github.com/leiweibau/Pi.Alert/raw/main/tar/pialert_latest.tar"
-  # Testing
-  # ----------------------------------
-  #URL="https://github.com/leiweibau/Pi.Alert/raw/next_update/tar/pialert_latest.tar"
+  URL="https://github.com/leiweibau/Pi.Alert/raw/$BRANCH/tar/pialert_latest.tar"
   sudo wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
   echo ""
 

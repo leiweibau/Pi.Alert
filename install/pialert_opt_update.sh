@@ -12,6 +12,7 @@
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
+BRANCH="main"
 INSTALL_DIR="/opt"
 PIALERT_HOME="$INSTALL_DIR/pialert"
 LOG="pialert_update_`date +"%Y-%m-%d_%H-%M"`.log"
@@ -249,7 +250,7 @@ download_pialert() {
   fi
 
   print_msg "- Downloading update file..."
-  URL="https://github.com/leiweibau/Pi.Alert/raw/main/tar/pialert_latest.tar"
+  URL="https://github.com/leiweibau/Pi.Alert/raw/$BRANCH/tar/pialert_latest.tar"
   wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
 
   print_msg "- Uncompressing tar file"
@@ -651,14 +652,6 @@ check_python_version() {
     check_and_install_package "openwrt-luci-rpc"
     check_and_install_package "asusrouter"
     check_and_install_package "paho-mqtt"
-
-    # print_msg "  - Update 'requests' package to 2.31.0"
-    # if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-    #   pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
-    # else
-    #   pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
-    # fi
-
   else
     print_msg "Python 3 NOT installed"
     process_error "Python 3 is required for this application"

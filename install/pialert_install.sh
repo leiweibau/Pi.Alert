@@ -15,6 +15,8 @@
   COLS=70
   ROWS=12
 
+  BRANCH="main"
+
   INSTALL_DIR=~
   PIALERT_HOME="$INSTALL_DIR/pialert"
 
@@ -360,10 +362,7 @@ download_pialert() {
   fi
   
   print_msg "- Downloading installation tar file..."
-  URL="https://github.com/leiweibau/Pi.Alert/raw/main/tar/pialert_latest.tar"
-  # Testing
-  # ----------------------------------
-  #URL=""
+  URL="https://github.com/leiweibau/Pi.Alert/raw/$BRANCH/tar/pialert_latest.tar"
   wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
   echo ""
 
