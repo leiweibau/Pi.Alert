@@ -589,6 +589,8 @@ def save_new_internet_IP(pNewIP):
     
 #-------------------------------------------------------------------------------
 def check_IP_format(pIP):
+    if pIP is None:
+        return ""
     # Check IP format
     IPv4SEG  = r'(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])'
     IPv4ADDR = r'(?:(?:' + IPv4SEG + r'\.){3,3}' + IPv4SEG + r')'
