@@ -513,6 +513,8 @@ def run_speedtest_task(start_time, crontab_string):
 def get_internet_IP():
     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
+    
+    curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
     try:
         cmd_output = subprocess.check_output(
             curl_args,
