@@ -53,16 +53,15 @@ The backend is controlled via the operating system's own cron service and is exe
 various scans and imports, save the results in the database and send notifications according to the settings. In addition to host detection, it is also 
 possible to check the availability of manually entered hosts or websites for their reachability and to receive notifications in the event of status changes. 
 Various services are available for the notifications (Frontend, Mail ([Guide](docs/NOTIFICATION_MAIL.md)), [Pushsafer](https://www.pushsafer.com/), 
-[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md))). Additional functions such as automatic 
-database optimization, DB backups and Internet speed tests are also available via the backend. The CLI tool [pialert-cli](docs/PIALERTCLI.md) is available 
-to control selected functions of the backend.
+[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md))).
 
 ### Frontend (front)
 
 The frontend is used to manage the host information determined and for general management. You can store additional information for each device, view the historical 
 history, perform manual nmap scans or send Wake-on-LAN commands. You also have the option of assigning individual devices to other network devices such as routers and 
 switches in order to maintain an overview of the relationships between the devices. A settings page allows you to configure individual parts of the frontend, while a 
-config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch and Czech, can be protected with a 
+config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch, Czech, 
+Finnish, Swedish, Norwegian, Lithuanian, Ukrainian and Russian can be protected with a 
 login that uses the password “123456” by default. You can change this using the CLI tool [pialert-cli](docs/PIALERTCLI.md).
 
 New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
@@ -79,7 +78,21 @@ Linux distributions which use the "apt" package manager. Check "[Things to keep 
 
 <table>
   <thead>
-    <tr><th align="left">One-step Automated Install</th></tr>
+    <tr><th align="left">One-step automated installation</th></tr>
+  </thead>
+  <tbody>
+  <tr><td>
+
+```
+bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_opt_install.sh)"
+```
+  </td></tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr><th align="left">(Outdated) One-step automated installation up to Debian 12 and its derivatives</th></tr>
   </thead>
   <tbody>
   <tr><td>
@@ -91,8 +104,8 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
   </tbody>
 </table>
 
+‼️ “Outdated” refers to the installer. Both the old and new installers use the same installation package.
 
-- [Installation Guide (step by step)](docs/INSTALL.md)
 - [Guide for the first start](docs/FIRST_START_GUIDE.md)
 - If you want to use **Pi.Alert as LXC container**, feel free to check out the [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE) (originally [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)). I also support this version, as this Pi.Alert version is used with the exception of initial container creation. Updates to the LXC version are also installed from this repository. A separate update command is used for this purpose.
 
@@ -113,6 +126,21 @@ I recommend uninstalling it first. If you backup the database, it may be possibl
 <table>
   <thead>
     <tr><th align="left">One-step Automated Update</th></tr>
+  </thead>
+  <tbody>
+  <tr><td>
+
+```
+bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_opt_update.sh)"
+```
+  </td></tr>
+  </tbody>
+</table>
+
+
+<table>
+  <thead>
+    <tr><th align="left">(Outdated) One-step Automated Update up to Debian 12 and its derivatives</th></tr>
   </thead>
   <tbody>
   <tr><td>
