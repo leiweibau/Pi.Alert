@@ -513,9 +513,34 @@ def run_speedtest_task(start_time, crontab_string):
 def get_internet_IP():
     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
-    curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
-    cmd_output = subprocess.check_output (curl_args, universal_newlines=True)
-    return check_IP_format (cmd_output)
+    try:
+        cmd_output = subprocess.check_output(
+            curl_args,
+            universal_newlines=True,
+            stderr=subprocess.STDOUT,
+            timeout=10
+        ).strip()
+
+        # Check empty response
+        if not cmd_output:
+            return check_IP_format(None)
+
+        return check_IP_format(cmd_output)
+
+    except subprocess.CalledProcessError as e:
+        # curl was executed but returned an error status
+        print(f"curl error: exit {e.returncode}, output: {e.output}")
+        return check_IP_format(None)
+
+    except subprocess.TimeoutExpired:
+        # curl took too long
+        print("curl timeout")
+        return check_IP_format(None)
+
+    except Exception as e:
+        # generic errors (e.g., OSError if curl does not exist)
+        print(f"unexpected error: {e}")
+        return check_IP_format(None)
 
 #-------------------------------------------------------------------------------
 def get_dynamic_DNS_IP():

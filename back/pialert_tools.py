@@ -39,6 +39,7 @@ def main():
     global sql_connection
     global sql
     global cycle
+    global log_timestamp
 
     # Initialize global variables
     log_timestamp  = datetime.datetime.now()
