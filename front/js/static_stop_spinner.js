@@ -4,4 +4,4 @@ setTimeout(() => {
   if (spinner) {
     spinner.style.animationPlayState = 'paused';
   }
-}, 300000);
+}, 200000);

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ------------------------------------------------------------------------------
-#  Pi.Alert
+#  Pi.Alert (Debian 13)
 #  Open Source Network Guard / WIFI & LAN intrusion detector 
 #
 #  pialert_install.sh - Installation script
@@ -17,7 +17,7 @@
 
   BRANCH="main"
 
-  INSTALL_DIR=~
+  INSTALL_DIR="/opt"
   PIALERT_HOME="$INSTALL_DIR/pialert"
 
   LIGHTTPD_CONF_DIR="/etc/lighttpd"
@@ -32,8 +32,7 @@
   PIHOLESIX_CHECK=false
   PIHOLESIX_CONFIG=false
 
-  USE_PYTHON_VERSION=0
-  PYTHON_BIN=python
+  PYTHON_BIN=python3
 
   FIRST_SCAN_KNOWN=true
 
@@ -127,17 +126,6 @@ ask_config() {
     if $ANSWER ; then
       PIALERT_DEFAULT_PAGE=true
     fi
-  fi
-
-  # Ask Python version
-  ask_option "Is Python 3 already installed in the system ?" \
-              2 \
-              0 " - Yes it is (DEFAULT)" \
-              3 " - Install Python 3"
-  if [ "$ANSWER" = "" ] ; then
-    USE_PYTHON_VERSION=0
-  else
-    USE_PYTHON_VERSION=$ANSWER
   fi
 
   # Ask first scan options
@@ -246,86 +234,62 @@ install_arpscan() {
 # ------------------------------------------------------------------------------
 check_and_install_package() {
   package_name="$1"
+
+  # get pip version
+  pip_version="$(pip3 --version 2>/dev/null | awk '{print $2}')"
+
+  # Compare versions
+  version_ge() {
+      [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$2" ]
+  }
+
+  # Option if pip >= 22.1
+  extra_pip_option=""
+  if version_ge "$pip_version" "22.1"; then
+     extra_pip_option="--root-user-action=ignore"
+  fi
+
   if pip3 show "$package_name" > /dev/null 2>&1; then
     print_msg "  - $package_name is already installed"
   else
     print_msg "  - Installing $package_name..."
     if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-      pip3 -q install "$package_name" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
+      pip3 -q install "$package_name" --break-system-packages --no-warn-script-location $extra_pip_option  2>&1 >> "$LOG"
     else
-      pip3 -q install "$package_name" --no-warn-script-location                                 2>&1 >> "$LOG"
+      pip3 -q install "$package_name" --no-warn-script-location $extra_pip_option                          2>&1 >> "$LOG"
     fi
     print_msg "    - $package_name is now installed"
   fi
 }
+
 
 install_python() {
   print_header "Python"
 
   check_python_versions
 
-  if [ $USE_PYTHON_VERSION -eq 0 ] ; then
-    print_msg "- Using the available Python version installed"
-    if $PYTHON3 ; then
-      print_msg "  - Python 3 is available"
-      USE_PYTHON_VERSION=3
-    elif $PYTHON2 ; then
-      print_msg "  - Python 2 is available but no longer compatible with Pi.Alert"
-      print_msg "    - Python 3 will be installed"
-      USE_PYTHON_VERSION=3
-    else
-      print_msg "  - Python is not available in this system"
-      print_msg "    - Python 3 will be installed"
-      USE_PYTHON_VERSION=3
-    fi
-    echo ""
-  fi
-
-  if [ $USE_PYTHON_VERSION -eq 3 ] ; then
-    if $PYTHON3 ; then
-      print_msg "- Using Python 3"
-      sudo apt-get install python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y                 2>&1 >> "$LOG"
-    else
-      print_msg "- Installing Python 3..."
-      sudo apt-get install python3 python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y         2>&1 >> "$LOG"
-    fi
-    print_msg "  - Install additional packages"
-    check_and_install_package "mac-vendor-lookup"
-    check_and_install_package "fritzconnection"
-    check_and_install_package "routeros_api"
-    check_and_install_package "pyunifi"
-    check_and_install_package "openwrt-luci-rpc"
-    check_and_install_package "asusrouter"
-    check_and_install_package "paho-mqtt"
-
-    print_msg "  - Update 'requests' package to 2.31.0"
-    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-      pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
-    else
-      pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
-    fi
-
-    PYTHON_BIN="python3"
+  if $PYTHON3 ; then
+    print_msg "- Using Python 3"
+    sudo apt-get install python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y                 2>&1 >> "$LOG"
   else
-    process_error "Unknown Python version to use: $USE_PYTHON_VERSION"
+    print_msg "- Installing Python 3..."
+    sudo apt-get install python3 python3-pip python3-cryptography python3-requests python3-tz python3-tzlocal python3-aiohttp -y         2>&1 >> "$LOG"
   fi
+  print_msg "  - Install additional packages"
+  check_and_install_package "mac-vendor-lookup"
+  check_and_install_package "fritzconnection"
+  check_and_install_package "routeros_api"
+  check_and_install_package "pyunifi"
+  check_and_install_package "openwrt-luci-rpc"
+  check_and_install_package "asusrouter"
+  check_and_install_package "paho-mqtt"
+
 }
 
 # ------------------------------------------------------------------------------
 # Check Python versions available
 # ------------------------------------------------------------------------------
 check_python_versions() {
-  #print_msg "- Checking Python 2..."
-  if [ -f /usr/bin/python ] ; then
-    #print_msg "  - Python 2 is installed"
-    #print_msg "    - `python -V 2>&1`"
-    PYTHON2=true
-  else
-    #print_msg "  - Python 2 is NOT installed"
-    PYTHON2=false
-  fi
-  #echo ""
-
   print_msg "- Checking Python 3..."
   if [ -f /usr/bin/python3 ] ; then
     print_msg "  - Python 3 is installed"
@@ -358,24 +322,24 @@ install_pialert() {
 download_pialert() {
   if [ -f "$INSTALL_DIR/pialert_latest.tar" ] ; then
     print_msg "- Deleting previous downloaded tar file"
-    rm -r "$INSTALL_DIR/pialert_latest.tar"
+    sudo rm -r "$INSTALL_DIR/pialert_latest.tar"
   fi
   
   print_msg "- Downloading installation tar file..."
   URL="https://github.com/leiweibau/Pi.Alert/raw/$BRANCH/tar/pialert_latest.tar"
-  wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
+  sudo wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
   echo ""
 
   print_msg "- Uncompressing tar file"
-  tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" --checkpoint=100 --checkpoint-action="ttyout=."        2>&1 >> "$LOG"
+  sudo tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" --checkpoint=100 --checkpoint-action="ttyout=."        2>&1 >> "$LOG"
   echo ""
 
   print_msg "- Deleting downloaded tar file..."
-  rm -r "$INSTALL_DIR/pialert_latest.tar"                                                                           2>&1 >> "$LOG"
+  sudo rm -r "$INSTALL_DIR/pialert_latest.tar"                                                                           2>&1 >> "$LOG"
 
   print_msg "- Generate autocomplete file..."
   PIALERT_CLI_PATH=$(dirname $PIALERT_HOME)
-  sed -i "s|<YOUR_PIALERT_PATH>|$PIALERT_CLI_PATH/pialert|" $PIALERT_HOME/install/pialert-cli.autocomplete
+  sudo sed -i "s|<YOUR_PIALERT_PATH>|$PIALERT_CLI_PATH/pialert|" $PIALERT_HOME/install/pialert-cli.autocomplete
 
   print_msg "- Copy autocomplete file..."
   if [ -d "/etc/bash_completion.d" ] ; then
@@ -412,7 +376,7 @@ set_pialert_parameter() {
     VALUE="$2"
   fi
   
-  sed -i "/^$1.*=/s|=.*|= $VALUE|" $PIALERT_HOME/config/pialert.conf                             2>&1 >> "$LOG"
+  sudo sed -i "/^$1.*=/s|=.*|= $VALUE|" $PIALERT_HOME/config/pialert.conf                             2>&1 >> "$LOG"
 }
 
 # ------------------------------------------------------------------------------
@@ -441,12 +405,10 @@ test_pialert() {
   print_msg "- Enable optional Speedtest..."
   chmod +x $PIALERT_HOME/back/speedtest-cli                                                      2>&1 | tee -ai "$LOG"
 
-  echo ""
   print_msg "- Enable optional pialert-cli..."
   chmod +x $PIALERT_HOME/back/pialert-cli                                                        2>&1 | tee -ai "$LOG"
 
   if $FIRST_SCAN_KNOWN ; then
-    echo ""
     print_msg "- Set devices as Known devices..."
     sqlite3 $PIALERT_HOME/db/pialert.db "UPDATE Devices SET dev_NewDevice=0, dev_AlertEvents=0 WHERE dev_NewDevice=1" 2>&1 >> "$LOG"
   fi
@@ -463,11 +425,8 @@ add_jobs_to_crontab() {
   fi
 
   print_msg "- Adding jobs to the crontab..."
-  # if [ $USE_PYTHON_VERSION -eq 3 ] ; then
-  #   sed -i "s/\<python\>/$PYTHON_BIN/g" $PIALERT_HOME/install/pialert.cron
-  # fi
 
-  (crontab -l 2>/dev/null || : ; cat $PIALERT_HOME/install/pialert.cron) | crontab -
+  (crontab -l 2>/dev/null || : ; cat $PIALERT_HOME/install/pialert.opt.cron) | crontab -
 }
 
 # ------------------------------------------------------------------------------
@@ -480,7 +439,7 @@ publish_pialert() {
   fi
 
   print_msg "- Setting permissions..."
-  chmod go+x $INSTALL_DIR
+  sudo chmod go+x $INSTALL_DIR
   sudo chgrp -R www-data "$PIALERT_HOME/db"                                                                     2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/db"                                                                          2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/db/temp"                                                                     2>&1 >> "$LOG"
@@ -494,19 +453,19 @@ publish_pialert() {
   sudo chmod -R 775 "$PIALERT_HOME/front/satellites"                                                            2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"                                                        2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/back/speedtest/"                                                             2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/shoutrrr/arm64/shoutrrr"                                                         2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/shoutrrr/armhf/shoutrrr"                                                         2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/shoutrrr/x86/shoutrrr"                                                           2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/shoutrrr/arm64/shoutrrr"                                                    2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/shoutrrr/armhf/shoutrrr"                                                    2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/shoutrrr/x86/shoutrrr"                                                      2>&1 >> "$LOG"
   print_msg "- Create Logfile Symlinks..."
-  touch "$PIALERT_HOME/log/pialert.vendors.log"                                                                 2>&1 >> "$LOG"
-  touch "$PIALERT_HOME/log/pialert.1.log"                                                                       2>&1 >> "$LOG"
-  touch "$PIALERT_HOME/log/pialert.cleanup.log"                                                                 2>&1 >> "$LOG"
-  touch "$PIALERT_HOME/log/pialert.webservices.log"                                                             2>&1 >> "$LOG"
-  touch "$PIALERT_HOME/log/pialert.speedtest.log"                                                               2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.vendors.log"                                                            2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.1.log"                                                                  2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.cleanup.log"                                                            2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.webservices.log"                                                        2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.speedtest.log"                                                          2>&1 >> "$LOG"
   src_dir="$INSTALL_DIR/pialert/log"
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
   for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log; do
-      ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
+      sudo ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
   done
 
   print_msg "- Set sudoers..."

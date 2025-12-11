@@ -761,14 +761,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Du kan installera databasen via fliken ' 
 $pia_lang['GeoLiteDB_absent'] = 'DB inte installerad';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Det är möjligt att lagringsanvändningen inte kan bestämmas för alla ovan listade enheter. Detta beror på vilken användare enheterna är monterade som.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert stängs av';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert startas om';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Stäng av Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Inte bara Pi.Alert stängs av, utan även värden där det är installerat.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Starta om Pi.Alert';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Inte bara Pi.Alert startas om, utan även värden där det är installerat.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Kommandot körs';
+$pia_lang['SysInfo_storage_note'] = 'Det kan hända att lagringsanvändningen inte kan fastställas för alla enheter som listas ovan. Detta beror på vilken användare enheterna är monterade under.';
+$pia_lang['SysInfo_Shutdown'] = 'Stäng av Pi.Alert<br>efter nästaskanning';
+$pia_lang['SysInfo_Reboot'] = 'Starta om Pi.Alert<br>efter nästaskanning';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Stäng av Pi.Alert efter nästa skanning';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Inte bara Pi.Alert, utan även värden som det är installerat på, kommer att stängas av efter nästa skanning.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Starta om Pi.Alert efter nästa skanning';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Inte bara Pi.Alert, utan även värden som det är installerat på, kommer att startas om efter nästa skanning.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Kommandot har mottagits.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Innan du kan använda Ooklas Speedtest-klient måste du köra kommandot "sudo ./speedtest" en gång i katalogen "$HOME/pialert/back/speedtest/". Speedtest-knappen aktiveras när sidan laddas om, men fungerar först efter att Ookla-licensen har accepterats.';

@@ -761,14 +761,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Du kan installere databasen via fanen ' .
 $pia_lang['GeoLiteDB_absent'] = 'DB ikke installert';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Det er mulig at lagringsforbruket ikke kan bestemmes for alle stasjonene som er listet ovenfor. Dette avhenger av hvilken bruker stasjonene er montert som.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert avsluttes';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert startes på nytt';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Avslutt Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Ikke bare Pi.Alert avsluttes, men også vertsmaskinen der det er installert.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Start Pi.Alert på nytt';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Ikke bare Pi.Alert startes på nytt, men også vertsmaskinen der det er installert.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Kommandoen utføres';
+$pia_lang['SysInfo_storage_note'] = 'Det er mulig at lagringsbruken ikke kan bestemmes for alle stasjonene som er oppført ovenfor. Dette avhenger av hvilken bruker stasjonene er montert under.';
+$pia_lang['SysInfo_Shutdown'] = 'Slå av Pi.Alert etter neste<br>skanning';
+$pia_lang['SysInfo_Reboot'] = 'Start Pi.Alert på nytt etter neste<br>skanning';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Slå av Pi.Alert etter neste skanning';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Ikke bare Pi.Alert, men også vertssystemet det er installert på, vil bli slått av etter neste skanning.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Start Pi.Alert på nytt etter neste skanning';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Ikke bare Pi.Alert, men også vertssystemet det er installert på, vil bli startet på nytt etter neste skanning.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Kommandoen ble mottatt.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Før du kan bruke Speedtest-klienten fra Ookla, må du én gang kjøre kommandoen "sudo ./speedtest" i katalogen "$HOME/pialert/back/speedtest/". Speedtest-knappen aktiveres ved å laste siden på nytt, men fungerer først etter at Ookla-lisensen er akseptert.';

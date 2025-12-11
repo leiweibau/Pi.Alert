@@ -761,14 +761,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Voit asentaa tietokannan välilehden ' . 
 $pia_lang['GeoLiteDB_absent'] = 'Tietokanta ei ole asennettu';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'On mahdollista, että tallennustilan käyttöä ei voida määrittää kaikille yllä luetelluille asemille. Tämä riippuu siitä, minkä käyttäjän alaisuudessa asemat on liitetty.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert sammuu';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert käynnistyy uudelleen';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Sammuta Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Ei ainoastaan Pi.Alert sammu, vaan myös isäntäkone, johon se on asennettu.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Käynnistä Pi.Alert uudelleen';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Ei ainoastaan Pi.Alert käynnisty uudelleen, vaan myös isäntäkone, johon se on asennettu.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Komentoa suoritetaan';
+$pia_lang['SysInfo_storage_note'] = 'Tallennustilan käyttöä ei välttämättä voida määrittää kaikille yllä luetelluille asemille. Tämä riippuu siitä, minkä käyttäjän alla asemat on liitetty.';
+$pia_lang['SysInfo_Shutdown'] = 'Sammuta Pi.Alert seuraavan<br>skannauksen jälkeen';
+$pia_lang['SysInfo_Reboot'] = 'Käynnistä Pi.Alert uudelleen<br>seuraavanskannauksen jälkeen';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Sammuta Pi.Alert seuraavan skannauksen jälkeen';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Ei ainoastaan Pi.Alert, vaan myös isäntäjärjestelmä, johon se on asennettu, sammutetaan seuraavan skannauksen jälkeen.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Käynnistä Pi.Alert uudelleen seuraavan skannauksen jälkeen';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Ei ainoastaan Pi.Alert, vaan myös isäntäjärjestelmä, johon se on asennettu, käynnistetään uudelleen seuraavan skannauksen jälkeen.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Komento vastaanotettiin.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Ennen kuin voit käyttää Ooklan Speedtest-asiakasta, sinun on suoritettava komento "sudo ./speedtest" kerran hakemistossa "$HOME/pialert/back/speedtest/". Speedtest-painike aktivoituu sivun uudelleenlatauksen jälkeen, mutta toimii vasta Ooklan lisenssin hyväksymisen jälkeen.';

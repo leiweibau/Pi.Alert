@@ -761,14 +761,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Ви можете встановити б
 $pia_lang['GeoLiteDB_absent'] = 'База не встановлена';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Можливо, що використання сховища не може бути визначено для всіх перелічених вище дисків. Це залежить від того, під яким користувачем диски змонтовано.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert вимикається';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert перезапускається';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Вимкнути Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Буде вимкнено не лише Pi.Alert, але й хост, на якому він встановлений.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Перезапустити Pi.Alert';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Буде перезапущено не лише Pi.Alert, але й хост, на якому він встановлений.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Команду виконується';
+$pia_lang['SysInfo_storage_note'] = 'Можливо, неможливо визначити використання сховища для всіх дисків, перелічених вище. Це залежить від того, під яким користувачем ці диски змонтовано.';
+$pia_lang['SysInfo_Shutdown'] = 'Вимкнути Pi.Alert після<br>наступного сканування';
+$pia_lang['SysInfo_Reboot'] = 'Перезавантажити Pi.Alert<br>після наступного сканування';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Вимкнути Pi.Alert після наступного сканування';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Після наступного сканування буде вимкнено не лише Pi.Alert, а й хост, на якому він встановлений.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Перезавантажити Pi.Alert після наступного сканування';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Після наступного сканування буде перезавантажено не лише Pi.Alert, а й хост, на якому він встановлений.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Команду отримано.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Перш ніж використовувати Speedtest-клієнт від Ookla, потрібно один раз виконати команду "sudo ./speedtest" у каталозі "$HOME/pialert/back/speedtest/". Кнопка Speedtest активується після перезавантаження сторінки, але працюватиме лише після прийняття ліцензії Ookla.';

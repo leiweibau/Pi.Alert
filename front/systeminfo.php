@@ -117,18 +117,31 @@ $stat['process_count'] = shell_exec("ps -e --no-headers | wc -l");
 // Reboot Shutdown ----------------------------------------------------------
 echo '
 		<div class="row">
-		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
-			  <a href="#" class="btn btn-danger"><i class="fa-solid fa-power-off custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text" onclick="askPialertShutdown()">'.$pia_lang['SysInfo_Shutdown_noti_head'].'</div></a>
-		  </div>
-		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
-		      <a href="#" class="btn btn-warning"><i class="fa-solid fa-rotate-right custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text" onclick="askPialertReboot()">'.$pia_lang['SysInfo_Reboot_noti_head'].'</div></a>
-		  </div>
+			<div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+			  <div style="display: flex; justify-content: center;">
+			    <a href="#" class="btn btn-danger" style="width:260px; display:flex; align-items:center; justify-content:center; gap:10px;">
+			      <i class="fa-solid fa-power-off shutreboot-button-icon" id="Menu_Report_Envelope_Icon"></i>
+			      <div class="shutreboot-button-text" onclick="askPialertShutdown()">
+			        '.$pia_lang['SysInfo_Shutdown'].'
+			      </div>
+			    </a>
+			  </div>
+			</div>
+			<div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+			  <div style="display: flex; justify-content: center;">
+			    <a href="#" class="btn btn-warning" style="width:260px; display:flex; align-items:center; justify-content:center; gap:10px;">
+			      <i class="fa-solid fa-power-off shutreboot-button-icon" id="Menu_Report_Envelope_Icon"></i>
+			      <div class="shutreboot-button-text" onclick="askPialertReboot()">
+			        '.$pia_lang['SysInfo_Reboot'].'
+			      </div>
+			    </a>
+			  </div>
+			</div>
 		</div>';
 
-
-
 // Client ----------------------------------------------------------
-echo '<div class="box box-solid">
+echo '<div class="box bo
+	x-solid">
         <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-globe"></i> This Client</h3></div>
         <div class="box-body">
 					<div class="row">

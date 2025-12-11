@@ -761,14 +761,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Duomenų bazę galite įdiegti per skirtu
 $pia_lang['GeoLiteDB_absent'] = 'DB neįdiegta';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Gali būti, kad negalima nustatyti atminties užimtumo visiems aukščiau išvardytiems diskams. Tai priklauso nuo to, kokiu naudotoju diskai prijungti.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert išjungiamas';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert paleidžiamas iš naujo';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Išjungti Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Bus išjungtas ne tik Pi.Alert, bet ir serveris, kuriame jis įdiegtas.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Paleisti Pi.Alert iš naujo';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Bus paleistas iš naujo ne tik Pi.Alert, bet ir serveris, kuriame jis įdiegtas.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Komanda vykdoma';
+$pia_lang['SysInfo_storage_note'] = 'Gali būti, kad neįmanoma nustatyti visų aukščiau išvardytų diskų naudojamos saugyklos. Tai priklauso nuo to, po kuriuo naudotoju diskai yra prijungti.';
+$pia_lang['SysInfo_Shutdown'] = 'Išjungti Pi.Alert po<br>kito skaitymo';
+$pia_lang['SysInfo_Reboot'] = 'Paleisti Pi.Alert iš naujo po<br>kito skaitymo';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Išjungti Pi.Alert po kito skaitymo';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Po kito skaitymo bus išjungtas ne tik Pi.Alert, bet ir pagrindinis serveris, kuriame jis įdiegtas.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Paleisti Pi.Alert iš naujo po kito skaitymo';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Po kito skaitymo bus paleistas iš naujo ne tik Pi.Alert, bet ir pagrindinis serveris, kuriame jis įdiegtas.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Komanda gauta.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Prieš naudodami Ookla Speedtest klientą, turite vieną kartą įvykdyti komandą "sudo ./speedtest" kataloge "$HOME/pialert/back/speedtest/". Speedtest mygtukas bus aktyvuotas puslapį atnaujinus, tačiau veiks tik priėmus Ookla licenciją.';

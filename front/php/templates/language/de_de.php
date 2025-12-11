@@ -767,13 +767,13 @@ $pia_lang['GeoLiteDB_absent'] = 'DB nicht installiert';
 // System Info Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['SysInfo_storage_note'] = 'Es ist möglich, dass die Speicherbelegung nicht für alle oben gelisteten Laufwerke ermittelt werden kann. Dies ist abhängig davon, unter welchem Benutzer die Laufwerke gemoutet sind.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.ALert wird heruntergefahren';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert wird neu gestartet';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Pi.Alert herunterfahren';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Es wird nicht nur Pi.Alert, sondern der Host, auf dem es installiert ist, heruntergefahren';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Pi.Alert neu starten';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Es wird nicht nur Pi.Alert, sondern der Host, auf dem es installiert ist, neu gestartet';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Das Kommando wird ausgeführt';
+$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert nach nächstem<br>Scan herunterfahren';
+$pia_lang['SysInfo_Reboot'] = 'Pi.Alert nach nächstem<br>Scan neu starten';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Pi.Alert nach nächstem Scan herunterfahren';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Es wird nicht nur Pi.Alert, sondern der Host, auf dem es installiert ist, nach dem nächsten Scan heruntergefahren.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Pi.Alert nach nächstem Scan neu starten';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Es wird nicht nur Pi.Alert, sondern der Host, auf dem es installiert ist, nach dem nächsten Scan neu gestartet.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Das Kommando wurde empfangen.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Bevor Sie den Speedtest-Client von Ookla nutzen können, müssen Sie einmalig den Befehl "sudo ./speedtest" im Verzeichnis "$HOME/pialert/back/speedtest/" ausführen. Die Speedtest-Schaltfläche wird mit einem Neuladen der Seite aktiviert, funktioniert aber erst, nachdem die Ookla-Lizenz akzeptiert wurde.';

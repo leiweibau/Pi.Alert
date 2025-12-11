@@ -84,7 +84,7 @@ Linux distributions which use the "apt" package manager. Check "[Things to keep 
   <tr><td>
 
 ```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_opt_install.sh)"
+bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh)"
 ```
   </td></tr>
   </tbody>
@@ -98,7 +98,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
   <tr><td>
 
 ```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh)"
+bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install_old.sh)"
 ```
   </td></tr>
   </tbody>

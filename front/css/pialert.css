@@ -398,8 +398,16 @@ body.modal-open {
 #custom-menu-default-button { color: #000; width: 190px;}
 #custom-menu-report-button:hover { color: #000;}
 .custom-menu-button-text {display: inline-block; width: 140px; text-align: left;}
-.custom-menu-button-icon {width: 15px; margin-right: 10px;}
+.custom-menu-button-icon {width: 20px; margin-right: 10px;}
 .custom-menu-icon-links {display: inline-block; width: 30%; text-align: center;}
+.shutreboot-button-text {display: inline-block; width: 240px; text-align: left; font-size: 1.6rem;}
+.shutreboot-button-icon {width: 20px; margin-right: 10px; font-size: 1.6rem;}
+.custom-flex-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
 
 /* ----------------- Header ------------------------------------------------- */
 #custom-menu-logout-button {background-color: #d73925; color: #FFF;}

@@ -761,14 +761,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'You can install the database via the ' . 
 $pia_lang['GeoLiteDB_absent'] = 'DB not installed';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'It is possible that the memory usage cannot be determined for all drives listed above. This depends on the user under which the drives are mounted.';
-$pia_lang['SysInfo_Shutdown'] = 'Shutting down Pi.Alert';
-$pia_lang['SysInfo_Reboot'] = 'Restarting Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Shutting down Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Not only Pi.Alert will be shut down, but also the host on which it is installed';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Restarting Pi.Alert';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Not only Pi.Alert will be restarted, but also the host on which it is installed';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Executing the command';
+$pia_lang['SysInfo_storage_note'] = 'It is possible that the storage usage cannot be determined for all drives listed above. This depends on the user account under which the drives are mounted.';
+$pia_lang['SysInfo_Shutdown'] = 'Shut down Pi.Alert after<br>the next scan';
+$pia_lang['SysInfo_Reboot'] = 'Reboot Pi.Alert after<br>the next scan';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Shut down Pi.Alert after the next scan';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Not only Pi.Alert, but also the host on which it is installed, will be shut down after the next scan.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Reboot Pi.Alert after the next scan';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Not only Pi.Alert, but also the host on which it is installed, will be rebooted after the next scan.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'The command has been received.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Before you can use the Ookla Speedtest client, you need to execute the command "sudo ./speedtest" once in the directory "$HOME/pialert/back/speedtest/." The Speedtest button will be enabled after reloading the page, but it will only work after accepting the Ookla license.';

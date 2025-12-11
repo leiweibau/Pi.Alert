@@ -114,16 +114,17 @@ def main():
     # Close SQL
     closeDB()
 
+    # Final menssage
+    print('\nDONE!!!\n\n')
+
     # Remove scan status file created in scan_network()
-    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent'] and os.path.exists(STATUS_FILE_SCAN):
-        os.remove(STATUS_FILE_SCAN)
+    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent']:
+        if os.path.exists(STATUS_FILE_SCAN):
+            os.remove(STATUS_FILE_SCAN)
 
         # Perform shutdown or rebppt
         process_webgui_tokens()
 
-
-    # Final menssage
-    print('\nDONE!!!\n\n')
     return 0    
 
 #===============================================================================
@@ -215,25 +216,28 @@ def process_webgui_tokens():
     reboot_exists   = os.path.isfile(REBOOT_TOKEN)
 
     if not shutdown_exists and not reboot_exists:
-        return "no_token"
+        print_log("no_token")
+        return
 
     if shutdown_exists:
         try:
             os.remove(SHUTDOWN_TOKEN)
         except Exception:
-            return "delete_failed"
+            print_log("delete_failed")
 
-        process_webgui_tokens_execute("shutdown -h now")
-        return "shutdown_executed"
+        process_webgui_tokens_execute("sudo /usr/sbin/shutdown -h +0.1")
+        print_log("shutdown_executed")
 
-    if reboot_exists:
+    elif reboot_exists:
         try:
             os.remove(REBOOT_TOKEN)
         except Exception:
-            return "delete_failed"
+            print_log("delete_failed")
 
-        process_webgui_tokens_execute("shutdown -r now")
-        return "reboot_executed"
+        process_webgui_tokens_execute("sudo /usr/sbin/shutdown -r +0.1")
+        print_log("reboot_executed")
+
+    return
 
 #===============================================================================
 # INTERNET IP CHANGE

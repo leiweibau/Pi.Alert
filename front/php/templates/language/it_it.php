@@ -766,14 +766,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Puoi installare il database tramite la sc
 $pia_lang['GeoLiteDB_absent'] = 'Database non installato';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'È possibile che l&apos;utilizzo dello spazio su disco non possa essere determinato per tutti i dischi elencati sopra. Questo dipende dal modo in cui i dischi sono montati con l&apos;utente in uso.';
-$pia_lang['SysInfo_Shutdown'] = 'Spegnimento di Pi.Alert in corso';
-$pia_lang['SysInfo_Reboot'] = 'Riavvio di Pi.Alert in corso';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Spegnimento di Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Non solo Pi.Alert verrà spento, ma anche l&apos;host su cui è installato';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Riavvio di Pi.Alert';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Non solo Pi.Alert verrà riavviato, ma anche l&apos;host su cui è installato';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Esecuzione del comando';
+$pia_lang['SysInfo_storage_note'] = 'È possibile che l&apos;utilizzo dello spazio di archiviazione non possa essere determinato per tutte le unità elencate sopra. Questo dipende dall&apos;utente con cui le unità sono state montate.';
+$pia_lang['SysInfo_Shutdown'] = 'Arresta Pi.Alert dopo<br>la prossima scansione';
+$pia_lang['SysInfo_Reboot'] = 'Riavvia Pi.Alert dopo<br>la prossima scansione';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Arresta Pi.Alert dopo la prossima scansione';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Dopo la prossima scansione verrà arrestato non solo Pi.Alert, ma anche l&apos;host su cui è installato.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Riavvia Pi.Alert dopo la prossima scansione';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Dopo la prossima scansione verrà riavviato non solo Pi.Alert, ma anche l&apos;host su cui è installato.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Il comando è stato ricevuto.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Prima di poter utilizzare il client Speedtest di Ookla, è necessario eseguire il comando "sudo ./speedtest" una volta nella directory "$HOME/pialert/back/speedtest/." Il pulsante Speedtest verrà abilitato dopo il ricaricamento della pagina, ma funzionerà solo dopo aver accettato la licenza di Ookla.';
