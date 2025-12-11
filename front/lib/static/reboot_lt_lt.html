@@ -88,22 +88,7 @@
       font-size: 0.9rem;
     }
   </style>
-  <script>
-    function checkPiAlertAvailability() {
-      fetch('../../')
-        .then(response => {
-          if (response.ok) {
-            window.location.href = '../../';
-          }
-        })
-        .catch(error => {
-          //
-        });
-    }
-
-    // check every 20 seconds
-    setInterval(checkPiAlertAvailability, 20000);
-  </script>
+  <script src="../../js/static_reload.js"></script>
 </head>
 <body>
   <header>

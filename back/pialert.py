@@ -200,7 +200,6 @@ def check_pialert_countdown():
 #===============================================================================
 
 def process_webgui_tokens_execute(cmd: str):
-    """Führt ein Systemkommando für process_webgui_tokens() aus"""
     try:
         subprocess.run(cmd, shell=True, check=True)
     except subprocess.CalledProcessError:

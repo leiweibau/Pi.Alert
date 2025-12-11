@@ -865,7 +865,6 @@ EOM
     echo "www-data ALL=(ALL) NOPASSWD: ${SCRIPTPATH}/pialert-cli" | sudo tee /etc/sudoers.d/pialert-frontend
     echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/df" | sudo tee -a /etc/sudoers.d/pialert-frontend
     echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/nmap" | sudo tee -a /etc/sudoers.d/pialert-frontend
-    echo "www-data ALL=(ALL) NOPASSWD: /usr/sbin/shutdown" | sudo tee -a /etc/sudoers.d/pialert-frontend
     echo "www-data ALL=(ALL) NOPASSWD: ${SCRIPTPATH}/speedtest/speedtest" | sudo tee -a /etc/sudoers.d/pialert-frontend
     echo -e "\nBackend sudoer"
     echo "${PIA_USER} ALL=(ALL) NOPASSWD: ${SCRIPTPATH}/pialert-cli" | sudo tee /etc/sudoers.d/pialert-backend
@@ -874,6 +873,7 @@ EOM
     echo "${PIA_USER} ALL=(ALL) NOPASSWD: /usr/bin/chown, /usr/bin/chmod" | sudo tee -a /etc/sudoers.d/pialert-backend 
     echo "${PIA_USER} ALL=(ALL) NOPASSWD: ${SCRIPTPATH}/speedtest/speedtest" | sudo tee -a /etc/sudoers.d/pialert-backend
     echo "${PIA_USER} ALL=(ALL) NOPASSWD: /usr/bin/ping" | sudo tee -a /etc/sudoers.d/pialert-backend
+    echo "${PIA_USER} ALL=(ALL) NOPASSWD: /usr/sbin/shutdown" | sudo tee -a /etc/sudoers.d/pialert-backend
     ;;
 
   unset_sudoers)

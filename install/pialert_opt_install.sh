@@ -232,21 +232,6 @@ install_arpscan() {
 # ------------------------------------------------------------------------------
 # Install Python
 # ------------------------------------------------------------------------------
-# check_and_install_package() {
-#   package_name="$1"
-#   if pip3 show "$package_name" > /dev/null 2>&1; then
-#     print_msg "  - $package_name is already installed"
-#   else
-#     print_msg "  - Installing $package_name..."
-#     if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-#       pip3 -q install "$package_name" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
-#     else
-#       pip3 -q install "$package_name" --no-warn-script-location                                 2>&1 >> "$LOG"
-#     fi
-#     print_msg "    - $package_name is now installed"
-#   fi
-# }
-
 check_and_install_package() {
   package_name="$1"
 
@@ -453,10 +438,6 @@ publish_pialert() {
     sudo rm -r "$WEBROOT/pialert"                                                                               2>&1 >> "$LOG"
   fi
 
-  # print_msg "- Create tmp Folder..."
-  # mkdir /opt/pialert/tmp                                                                                        2>&1 >> "$LOG"
-  # chown www-data:www-data /opt/pialert/tmp                                                                      2>&1 >> "$LOG"
-  # chmod 700 /opt/pialert/tmp                                                                                    2>&1 >> "$LOG"
   print_msg "- Setting permissions..."
   sudo chmod go+x $INSTALL_DIR
   sudo chgrp -R www-data "$PIALERT_HOME/db"                                                                     2>&1 >> "$LOG"
@@ -466,6 +447,8 @@ publish_pialert() {
   sudo chmod -R 775 "$PIALERT_HOME/config"                                                                      2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                                                          2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                                                               2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/front/php/tmp"                                                          2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/front/php/tmp"                                                               2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"                                                       2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/satellites"                                                            2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"                                                        2>&1 >> "$LOG"

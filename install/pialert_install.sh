@@ -488,6 +488,8 @@ publish_pialert() {
   sudo chmod -R 775 "$PIALERT_HOME/config"                                                                      2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                                                          2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                                                               2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/front/php/tmp"                                                          2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/front/php/tmp"                                                               2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"                                                       2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/satellites"                                                            2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"                                                        2>&1 >> "$LOG"
