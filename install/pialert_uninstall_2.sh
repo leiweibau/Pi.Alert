@@ -1,6 +1,6 @@
 #!/bin/bash
 # ------------------------------------------------------------------------------
-#  Pi.Alert
+#  Pi.Alert (Debian 13)
 #  Open Source Network Guard / WIFI & LAN intrusion detector 
 #
 #  pialert_uninstall.sh - Uninstallation script
