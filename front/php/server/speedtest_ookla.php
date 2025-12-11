@@ -26,8 +26,8 @@ require '../templates/language/' . $pia_lang_selected . '.php';
 OpenDB_Tools();
 OpenDB();
 
-$speedtest_binary = '../../../back/speedtest/speedtest';
-$speedtest_option = ' --accept-license --accept-gdpr -p no -f json';
+$speedtest_binary = '../../../back/pialert_tools.py';
+$speedtest_option = ' speedtest';
 $supported_arch = array('i386', 'x86_64', 'armel', 'armhf', 'aarch64');
 $mod = $_REQUEST['mod'];
 
@@ -107,41 +107,7 @@ function delete_speedtest_archive() {
 
 # Start the Test if speedtest exists
 # ------------------------------------------------------------------------------
-if (file_exists($speedtest_binary) && $mod == "test") {
-
-	exec('sudo ' . $speedtest_binary . $speedtest_option, $output);
-
-	echo '<h4>Speedtest (Ookla) Results</h4>';
-	echo '<pre style="border: none;">';
-
-	if (empty($output_json) || !is_array($output_json)) {
-	    echo "<pre>Fehler: Speedtest-Output is empty or invalid.</pre>";
-	    return;
-	}
-
-	$output_json = json_decode($output[0], true);
-	$isp = $output_json['isp'];
-	$server = $output_json['server']['name'] . ' (' . $output_json['server']['location'] . ') (' . $output_json['server']['host'] . ')';
-	$ping = $output_json['ping']['latency'];
-	$download_mbps = round($output_json['download']['bandwidth'] / 125000, 2);
-	$upload_mbps = round($output_json['upload']['bandwidth'] / 125000, 2);
-
-	$cli_output = "ISP: " . $isp . "\nServer: " . $server . "\n\nPing:     " . $ping . " ms\nDownload: " . $download_mbps . " Mbps\nUpload:   " . $upload_mbps . " Mbps";
-	echo $cli_output;
-	echo '</pre>';
-
-	$test_time = date('Y-m-d H:i:s');
-
-	$sql = 'INSERT INTO "Tools_Speedtest_History" ("speed_date", "speed_isp", "speed_server", "speed_ping", "speed_down", "speed_up") VALUES("' . $test_time . '", "' . $isp . '", "' . $server . '", "' . $ping . '", "' . $download_mbps . '", "' . $upload_mbps . '")';
-	$result = $db_tools->query($sql);
-
-	$cli_output = str_replace("\n", "<br>", $cli_output);
-	// Logging
-	pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0255', '', $cli_output);
-
-# Try Downloading
-# ------------------------------------------------------------------------------
-} elseif ($mod == "get") {
+if ($mod == "get") {
 	echo '<h4>Speedtest (Ookla) Results</h4>';
 	echo '<pre style="border: none;">';
 	echo "Try to install the speedtest. Only i386, x86_64, armel, armhf and aarch64 are currently supported.\n";
