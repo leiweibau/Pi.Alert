@@ -225,7 +225,7 @@ def process_webgui_tokens():
         except Exception:
             print_log("delete_failed")
 
-        process_webgui_tokens_execute("sudo /usr/sbin/shutdown -h +0.1")
+        process_webgui_tokens_execute("sleep && sudo /usr/sbin/shutdown -h now")
         print_log("shutdown_executed")
 
     elif reboot_exists:
@@ -234,7 +234,7 @@ def process_webgui_tokens():
         except Exception:
             print_log("delete_failed")
 
-        process_webgui_tokens_execute("sudo /usr/sbin/shutdown -r +0.1")
+        process_webgui_tokens_execute("sleep && sudo /usr/sbin/shutdown -r now")
         print_log("reboot_executed")
 
     return
