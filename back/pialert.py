@@ -118,6 +118,10 @@ def main():
     if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent'] and os.path.exists(STATUS_FILE_SCAN):
         os.remove(STATUS_FILE_SCAN)
 
+        # Perform shutdown or rebppt
+        process_webgui_tokens()
+
+
     # Final menssage
     print('\nDONE!!!\n\n')
     return 0    
@@ -190,6 +194,48 @@ def check_pialert_countdown():
 
     closeDB()
 
+
+#===============================================================================
+# Reboot / Shutdown
+#===============================================================================
+
+def process_webgui_tokens_execute(cmd: str):
+    """Führt ein Systemkommando für process_webgui_tokens() aus"""
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError:
+        sys.exit(1)
+
+
+def process_webgui_tokens():
+    TMP_DIR = os.path.join(PIALERT_PATH, "front/php/tmp")
+    SHUTDOWN_TOKEN = os.path.join(TMP_DIR, "shutdown_token")
+    REBOOT_TOKEN   = os.path.join(TMP_DIR, "reboot_token")
+
+    shutdown_exists = os.path.isfile(SHUTDOWN_TOKEN)
+    reboot_exists   = os.path.isfile(REBOOT_TOKEN)
+
+    if not shutdown_exists and not reboot_exists:
+        return "no_token"
+
+    if shutdown_exists:
+        try:
+            os.remove(SHUTDOWN_TOKEN)
+        except Exception:
+            return "delete_failed"
+
+        process_webgui_tokens_execute("shutdown -h now")
+        return "shutdown_executed"
+
+    if reboot_exists:
+        try:
+            os.remove(REBOOT_TOKEN)
+        except Exception:
+            return "delete_failed"
+
+        process_webgui_tokens_execute("shutdown -r now")
+        return "reboot_executed"
+
 #===============================================================================
 # INTERNET IP CHANGE
 #===============================================================================
@@ -202,8 +248,8 @@ def check_internet_IP():
         # Check result = IP
         if internet_IP == "" :
             print('    Error retrieving Internet IP')
-            print('    Exiting...\n')
-            return 1
+            # print('    Exiting...\n')
+            #return 1
         print('   ', internet_IP)
 
         # Get previous stored IP
@@ -213,7 +259,7 @@ def check_internet_IP():
         print('   ', previous_IP)
 
         # Check IP Change
-        if internet_IP != previous_IP :
+        if internet_IP and internet_IP != previous_IP :
             print('    Saving new IP')
             save_new_internet_IP (internet_IP)
             print('        IP updated')
@@ -222,7 +268,7 @@ def check_internet_IP():
         closeDB()
 
         # Get Dynamic DNS IP
-        if DDNS_ACTIVE :
+        if DDNS_ACTIVE and internet_IP:
             print('\nRetrieving Dynamic DNS IP...')
             dns_IP = get_dynamic_DNS_IP()
 
@@ -596,7 +642,7 @@ def check_IP_format(pIP):
     IPv4ADDR = r'(?:(?:' + IPv4SEG + r'\.){3,3}' + IPv4SEG + r')'
     IP = re.search(IPv4ADDR, pIP)
     # Return error if not IP
-    if IP is None :
+    if IP is None:
         return ""
     return IP.group(0)
 
