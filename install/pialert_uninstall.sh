@@ -1,6 +1,6 @@
 #!/bin/bash
 # ------------------------------------------------------------------------------
-#  Pi.Alert
+#  Pi.Alert (Debian 13)
 #  Open Source Network Guard / WIFI & LAN intrusion detector 
 #
 #  pialert_uninstall.sh - Uninstallation script
@@ -14,7 +14,7 @@
   COLS=70
   ROWS=12
   
-  INSTALL_DIR=$HOME
+  INSTALL_DIR=/opt
   PIALERT_HOME="$INSTALL_DIR/pialert"
   
   LIGHTTPD_CONF_DIR="/etc/lighttpd"
@@ -50,23 +50,13 @@ main() {
   sudo rm /etc/sudoers.d/pialert-frontend                         2>&1 >> "$LOG"
   sudo rm /etc/bash_completion.d/pialert-cli                      2>&1 >> "$LOG"
   sudo rm /usr/share/bash-completion/completions/pialert-cli      2>&1 >> "$LOG"
-
-  # Removing 
-  print_header "Removing Pi.Alert DNS name"
-  if [ -f /etc/pihole/custom.list ] ; then
-    sudo sed -i '/pi.alert/d' /etc/pihole/custom.list             2>&1 >> "$LOG"
-    sudo pihole restartdns                                        2>&1 >> "$LOG"
-  fi
   
   # Uninstall crontab jobs
   print_header "Removing crontab jobs"
-  crontab -l 2>/dev/null | sed '/pialert.py/d' | sed ':a;N;$!ba;s/#-------------------------------------------------------------------------------\n#  Pi.Alert\n#  Open Source Network Guard \/ WIFI & LAN intrusion detector \n#\n#  pialert.cron - Back module. Crontab jobs\n#-------------------------------------------------------------------------------\n#  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3\n#-------------------------------------------------------------------------------//g' | crontab -
+  crontab -l 2>/dev/null | grep -v "python3 /opt/pialert/back/pialert.py" | crontab -
 
   # final message
   print_header "Uninstallation process finished"
-  print_msg "Note1: If you installed Pi-hole during the Pi.Alert installation process"
-  print_msg "       Pi-hole will still be available after uninstalling Pi.Alert"
-  print_msg ""
   print_msg "Note2: lighttpd, PHP, arp-scan & Python have not been uninstalled."
   print_msg "       They may be required by other software"
   print_msg "       You can uninstall them manually with command 'apt-get remove XX'"

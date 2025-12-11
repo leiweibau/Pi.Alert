@@ -78,7 +78,7 @@ Linux distributions which use the "apt" package manager. Check "[Things to keep 
 
 <table>
   <thead>
-    <tr><th align="left">One-step automated installation</th></tr>
+    <tr><th align="left">Installation</th></tr>
   </thead>
   <tbody>
   <tr><td>
@@ -89,22 +89,6 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
   </td></tr>
   </tbody>
 </table>
-
-<table>
-  <thead>
-    <tr><th align="left">(Outdated) One-step automated installation up to Debian 12 and its derivatives</th></tr>
-  </thead>
-  <tbody>
-  <tr><td>
-
-```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install_old.sh)"
-```
-  </td></tr>
-  </tbody>
-</table>
-
-‼️ “Outdated” refers to the installer. Both the old and new installers use the same installation package.
 
 - [Guide for the first start](docs/FIRST_START_GUIDE.md)
 - If you want to use **Pi.Alert as LXC container**, feel free to check out the [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE) (originally [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)). I also support this version, as this Pi.Alert version is used with the exception of initial container creation. Updates to the LXC version are also installed from this repository. A separate update command is used for this purpose.
@@ -125,25 +109,12 @@ I recommend uninstalling it first. If you backup the database, it may be possibl
 
 <table>
   <thead>
-    <tr><th align="left">One-step Automated Update</th></tr>
+    <tr><th align="left">Update</th></tr>
   </thead>
   <tbody>
   <tr><td>
-
-```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_opt_update.sh)"
-```
-  </td></tr>
-  </tbody>
-</table>
-
-
-<table>
-  <thead>
-    <tr><th align="left">(Outdated) One-step Automated Update up to Debian 12 and its derivatives</th></tr>
-  </thead>
-  <tbody>
-  <tr><td>
+    If you installed Pi.Alert with or after version v2025-12-15 or created a Pi.Alert container<br>
+    using the Proxmox Helper Scripts, use this update script.<br><br>
 
 ```
 bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
@@ -155,20 +126,20 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 
 <table>
   <thead>
-    <tr><th align="left">One-step Automated Update (LXC - Proxmox Helper Scripts)</th></tr>
+    <tr><th align="left">(Outdated) Update up to Debian 12.x</th></tr>
   </thead>
   <tbody>
   <tr><td>
+    If you had Pi.Alert installed before version v2025-12-15, you have to use this update script.<br><br>
 
 ```
-bash -c "$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)" -s --lxc
+bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)"
 ```
-
-To Update Pi.Alert, run the command below (or type update) in the LXC Console.
-
   </td></tr>
   </tbody>
 </table>
+
+‼️ “Outdated” refers to the updater itself. Both the old and new updater use the same installation package.
 
 An archive of older versions can be found at [https://leiweibau.net/archive/pialert](https://leiweibau.net/archive/pialert/). This archive contains all release notes of my fork.
 
@@ -182,18 +153,18 @@ An archive of older versions can be found at [https://leiweibau.net/archive/pial
   | [<img src="https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/githubsponsor.png" height="30px">](https://github.com/sponsors/leiweibau) | [<img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" height="30px">](https://www.buymeacoffee.com/leiweibau) |
   | ---- | ---- |
 
-  A personal thank you :pray: to every sponsor of my fork.
+  <ins>**:pray: A personal thank you to every sponsor of this project.**</ins>
 
-  [jbierwiler](https://github.com/jbierwiler), [tcoombs](https://github.com/tcoombs), [hspindel](https://github.com/hspindel), [accessiblepixel](https://github.com/accessiblepixel), [AJ Tatum](https://github.com/ajtatum), [wsquared58](https://github.com/ankonaskiff17)
-
-  Also a big thank you to the direct or indirect contributors.
-
-  [Macleykun](https://github.com/Macleykun), [Final-Hawk](https://github.com/Final-Hawk), [TeroRERO](https://github.com/terorero), [jokob-sk](https://github.com/jokob-sk/Pi.Alert), [tteck](https://github.com/tteck/Proxmox) and many more
+  <ins>**:pray: A big thank you also goes to everyone who contributed directly or indirectly.**</ins>
 
 ### Additionally used components and services
-[Animated GIF (Loading Animation)](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif), [Selfhosted Fonts](https://github.com/adobe-fonts/source-sans), 
-[Bootstrap Icons](https://github.com/twbs/icons), [Material Design Icons](https://github.com/Pictogrammers), [For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
-[DeepL](https://www.deepl.com), [ChatGPT](https://chat.openai.com)
+[Animated GIF (Loading Animation)](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif), 
+[Selfhosted Fonts](https://github.com/adobe-fonts/source-sans), 
+[Bootstrap Icons](https://github.com/twbs/icons), 
+[Material Design Icons](https://github.com/Pictogrammers), 
+[For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
+[DeepL](https://www.deepl.com), 
+[ChatGPT](https://chat.openai.com)
 
 
 ### License
