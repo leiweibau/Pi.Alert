@@ -399,11 +399,35 @@ def create_autobackup(start_time, crontab_string):
             time.sleep(20)  # wait 20s to finish the reporting
 
             # Backup DB (no further checks)
-            sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
-            subprocess.check_output(sqlite_command, universal_newlines=True)
-            subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
+            # sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
+            # subprocess.check_output(sqlite_command, universal_newlines=True)
+            # subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
+
+            # Backup pialert.db (no further checks)
+            subprocess.check_output(
+                ['sqlite3', PIALERT_DB_PATH + '/pialert.db',
+                 '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db'],
+                universal_newlines=True
+            )
+
+            # Backup pialert-tools.db (no further checks)
+            subprocess.check_output(
+                ['sqlite3', PIALERT_DB_PATH + '/pialert_tools.db',
+                 '.backup ' + PIALERT_DB_PATH + '/temp/pialert_tools.db'],
+                universal_newlines=True
+            )
+
+            # Compress DB (both)
+            subprocess.check_output(
+                ['zip', '-j', '-qq', BACKUP_FILE,
+                 PIALERT_PATH + '/db/temp/pialert.db',
+                 PIALERT_PATH + '/db/temp/pialert_tools.db'],
+                universal_newlines=True
+            )
+
             time.sleep(4)
             os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
+            os.remove(PIALERT_DB_PATH + '/temp/pialert_tools.db')
             # Set Permissions for www-data (testing)
             os.system("sudo chown www-data:www-data " + BACKUP_FILE)
             os.system("sudo chmod 644 " + BACKUP_FILE)
