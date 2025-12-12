@@ -8,6 +8,7 @@ PIA_DB_FILE=${SCRIPTPATH}'/../db/pialert.db'
 PIA_DB_FILE_PATH=${SCRIPTPATH}'/../db'
 PIA_BACK_FILE_PATH=${SCRIPTPATH}'/../back'
 PIA_REPORTS_PATH=${SCRIPTPATH}'/../front/reports'
+PIA_TMP_PATH=${SCRIPTPATH}'/../front/php/tmp'
 #Textformating
 bold=$(tput bold)
 normal=$(tput sgr0)
@@ -798,66 +799,32 @@ EOM
     ;;
 
   set_permissions)
-    # get username
-    user() {
-        echo "Pi.Alert User: $PIA_USER"
-        echo "    Set DB Permissions"
-        sudo chmod -R 775 "$PIA_DB_FILE_PATH"
-        sudo chown -R "$PIA_USER":www-data "$PIA_DB_FILE_PATH"
-        echo "    Set Config Permissions"
-        sudo chmod -R 775 "$PIA_CONF_FILE_PATH"
-        sudo chown -R "$PIA_USER":www-data "$PIA_CONF_FILE_PATH"
-        echo "    Set Back Permissions"
-        sudo chmod -R 775 "$PIA_BACK_FILE_PATH"
-        sudo chown -R "$PIA_USER":www-data "$PIA_BACK_FILE_PATH"
-        echo "    Set Reports Permissions"
-        sudo chmod -R 775 "$PIA_REPORTS_PATH"
-        sudo chown -R "$PIA_USER":www-data "$PIA_REPORTS_PATH"
-        echo "Permissions set"; }
-    case "$2" in
-        --custom)
-            read -p "Enter the username: " CUSTOM_USER
-            PIA_USER="$CUSTOM_USER"
-            user
-            ;;
-        --homedir)
-            PIA_USER=$(basename "$(dirname "$(dirname "$SCRIPTPATH")")")
-            #PIA_USER=$(echo ${SCRIPTPATH} | xargs dirname | xargs dirname | xargs basename)
-            user
-            ;;
-        --lxc)
-            PIA_USER="root"
-            user
-            ;;
-        *)
-            echo "Pi.Alert Group: www-data"
-            echo "    Set DB Group Permissions only"
-            sudo chmod -R 775 "$PIA_DB_FILE_PATH"
-            sudo chgrp -R www-data "$PIA_DB_FILE_PATH"
-            echo "    Set Config Group Permissions only"
-            sudo chmod -R 775 "$PIA_CONF_FILE_PATH"
-            sudo chgrp -R www-data "$PIA_CONF_FILE_PATH"
-            echo "    Set Back Group Permissions only"
-            sudo chmod -R 775 "$PIA_BACK_FILE_PATH"
-            sudo chgrp -R www-data "$PIA_BACK_FILE_PATH"
-            echo "    Set Reports Permissions"
-            sudo chmod -R 775 "$PIA_REPORTS_PATH"
-            sudo chown -R "$PIA_USER":www-data "$PIA_REPORTS_PATH"
-            echo "Group Permissions set"
-            ;;
-    esac
+    echo "Pi.Alert Group: www-data"
+    echo "    Set DB Group Permissions only"
+    sudo chmod -R 775 "$PIA_DB_FILE_PATH"
+    sudo chgrp -R www-data "$PIA_DB_FILE_PATH"
+    echo "    Set Config Group Permissions only"
+    sudo chmod -R 775 "$PIA_CONF_FILE_PATH"
+    sudo chgrp -R www-data "$PIA_CONF_FILE_PATH"
+    echo "    Set Back Group Permissions only"
+    sudo chmod -R 775 "$PIA_BACK_FILE_PATH"
+    sudo chgrp -R www-data "$PIA_BACK_FILE_PATH"
+    echo "    Set tmp Group Permissions only"
+    sudo chmod -R 775 "$PIA_TMP_PATH"
+    sudo chgrp -R www-data "$PIA_TMP_PATH"
+    echo "    Set Reports Permissions"
+    sudo chmod -R 775 "$PIA_REPORTS_PATH"
+    sudo chgrp -R www-data "$PIA_REPORTS_PATH"
+    echo "Group Permissions set"
     ;;
 
   set_sudoers)
     # get username
     if [ "$2" == "--lxc" ]; then
         PIA_USER="root"
-    elif [ "$2" == "--custom" ]; then
-        read -p "Enter the username: " CUSTOM_USER
-        PIA_USER="$CUSTOM_USER"
     else
-        # Default behavior, calculate PIA_USER from SCRIPTPATH
-        PIA_USER=$(echo ${SCRIPTPATH} | xargs dirname | xargs dirname | xargs basename)
+        # Default behavior
+        PIA_USER="$(id -un)"
     fi
     # get username from install directory
     echo "Pi.Alert User: $PIA_USER"
@@ -877,9 +844,7 @@ EOM
     ;;
 
   unset_sudoers)
-    ## Set file permissions
-    # get username from install directory
-    PIA_USER=$(echo ${SCRIPTPATH} | xargs dirname | xargs dirname | xargs basename)
+    ## Remove sudoer files
     echo "Removing sudoers"
     sudo rm /etc/sudoers.d/pialert-frontend
     sudo rm /etc/sudoers.d/pialert-backend
@@ -892,7 +857,7 @@ EOM
     ;;
 
   show_usercron)
-    PIA_USER=$(echo ${SCRIPTPATH} | xargs dirname | xargs dirname | xargs basename)
+    PIA_USER="$(id -un)"
     sudo crontab -l -u ${PIA_USER}
     ;;
 
