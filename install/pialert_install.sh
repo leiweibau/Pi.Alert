@@ -284,6 +284,21 @@ install_python() {
   check_and_install_package "asusrouter"
   check_and_install_package "paho-mqtt"
 
+  REQUIRED_VERSION="2.31.0"
+  INSTALLED_VERSION=$(pip3 show requests 2>/dev/null | awk '/^Version:/ {print $2}')
+
+  version_lt () {
+    [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$2" ]
+  }
+
+  if [ -z "$INSTALLED_VERSION" ] || version_lt "$INSTALLED_VERSION" "$REQUIRED_VERSION"; then
+    print_msg "- Updating requests (installed: ${INSTALLED_VERSION:-none})"
+    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+      pip3 -q install "requests>=${REQUIRED_VERSION}" --break-system-packages --no-warn-script-location   2>&1 >> "$LOG"
+    else
+      pip3 -q install "requests>=${REQUIRED_VERSION}" --no-warn-script-location                           2>&1 >> "$LOG"
+    fi
+  fi
 }
 
 # ------------------------------------------------------------------------------
