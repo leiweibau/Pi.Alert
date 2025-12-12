@@ -31,8 +31,8 @@ This is the list of supported commands
     the next scan after 10min.
 
  ${bold}disable_mainscan <MIN>${normal}
-    Disables the main scanning method for Pi.Alert (ARP scan, reading the 
-    Pi-hole DHCP leases and device database, as well as collecting data from 
+    Disables the main scanning method for Pi.Alert (ARP scan, reading the
+    Pi-hole DHCP leases and device database, as well as collecting data from
     other routers).
 
  ${bold}disable_icmp_mon${normal}
@@ -51,8 +51,8 @@ This is the list of supported commands
     Allows the start of new scans again.
 
  ${bold}enable_mainscan <MIN>${normal}
-    Enables the main scanning method for Pi.Alert (ARP scan, reading the 
-    Pi-hole DHCP leases and device database, as well as collecting data from 
+    Enables the main scanning method for Pi.Alert (ARP scan, reading the
+    Pi-hole DHCP leases and device database, as well as collecting data from
     other routers).
 
  ${bold}enable_icmp_mon${normal}
@@ -76,11 +76,11 @@ This is the list of supported commands
 
  ${bold}set_autopassword${normal}
     Sets a new random password as a hashed value and show it plaintext in the
-    console. If the PIALERT_WEB_PROTECTION parameter does not exist yet, it 
+    console. If the PIALERT_WEB_PROTECTION parameter does not exist yet, it
     will be created and set to TRUE (login enabled).
 
  ${bold}set_login${normal}
-    Sets the parameter PIALERT_WEB_PROTECTION in the config file to TRUE. If 
+    Sets the parameter PIALERT_WEB_PROTECTION in the config file to TRUE. If
     the parameter is not present, it will be created. Additionally the default
     password '123456' is set.
 
@@ -92,18 +92,11 @@ This is the list of supported commands
  ${bold}set_permissions${normal}
     Repair file group permissions
 
-    Options:
-    Repair file user and group permissions.
-    --lxc:        set "root" as user name
-    --custom:     set individual user name
-    --homedir:    get user name from homedir
-
  ${bold}set_sudoers${normal}
     Create sudoer file for www-data and Pi.Alert user
 
     Options:
     --lxc:        set "root" as user name
-    --custom:     set individual user name
 
  ${bold}unset_login${normal}
     Sets the parameter PIALERT_WEB_PROTECTION in the config file to FALSE. If
@@ -116,7 +109,7 @@ This is the list of supported commands
  ${bold}update_db${normal}
     The script tries to make the database compatible for this fork.
 
-2024 leiweibau (https://github.com/leiweibau/Pi.Alert) (https://leiweibau.net)
+2025 leiweibau (https://github.com/leiweibau/Pi.Alert) (https://leiweibau.net)
 
 EOM
 
