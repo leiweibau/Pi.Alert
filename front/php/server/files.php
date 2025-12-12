@@ -760,7 +760,7 @@ function BackupDBtoArchive() {
 		// exec('sqlite3 ' . $db_file_temp_full . ' "' . $sql2 . '"', $output_b);
 
 		// Create archive with actual date
-		exec('zip -j ' . $Pia_Archive_Path . $Pia_Archive_Name . ' ' . $db_file_new_full . ',' . $dbtools_file_org_full, $output);
+		exec('zip -j ' . $Pia_Archive_Path . $Pia_Archive_Name . ' ' . $db_file_new_full . ' ' . $dbtools_file_org_full, $output);
 		// check if archive exists
 		if (file_exists($Pia_Archive_Path . $Pia_Archive_Name) && filesize($Pia_Archive_Path . $Pia_Archive_Name) > 0) {
 			// if archive exists
