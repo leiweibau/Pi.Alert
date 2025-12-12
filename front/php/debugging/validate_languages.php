@@ -93,7 +93,7 @@ $languages = [
     'lt_lt' => 'Lithuanian',
     'dk_da' => 'Danish',
     'no_no' => 'Norwegian',
-    'ru_ru' => 'Danish',
+    'ru_ru' => 'Russian',
     'se_sv' => 'Swedish',
     'ua_uk' => 'Ukrainian'
 ];
