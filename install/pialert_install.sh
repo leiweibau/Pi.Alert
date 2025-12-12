@@ -292,7 +292,7 @@ install_python() {
   }
 
   if [ -z "$INSTALLED_VERSION" ] || version_lt "$INSTALLED_VERSION" "$REQUIRED_VERSION"; then
-    print_msg "- Updating requests (installed: ${INSTALLED_VERSION:-none})"
+    print_msg "  - Updating requests (installed: ${INSTALLED_VERSION:-none})"
     if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
       pip3 -q install "requests>=${REQUIRED_VERSION}" --break-system-packages --no-warn-script-location   2>&1 >> "$LOG"
     else
