@@ -10,14 +10,17 @@ if ($_SESSION["login"] != 1) {
 	exit;
 }
 
-require 'php/templates/header.php';
+require __DIR__ . '/php/templates/header.php';
 
-$prevVal = shell_exec("sudo ../back/pialert-cli show_usercron");
-$prevArr = explode("\n", trim($prevVal));
-function filterValues($value) {
-    return (substr($value, 0, 1) !== '#');
+$cronFile = __DIR__ . '/php/server/usercron.log';
+if (is_readable($cronFile)) {
+    $prevVal = file_get_contents($cronFile);
+} else {
+    $prevVal = '';
 }
-$cleancron = array_filter($prevArr, 'filterValues');
+$cleancron = array_filter(
+    array_map('trim', explode("\n", $prevVal))
+);
 $stat['usercron'] = implode("\n", $cleancron);
 // https://stackoverflow.com/a/19209082
 $os_version = '';

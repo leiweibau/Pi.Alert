@@ -849,13 +849,18 @@ EOM
     echo "Test executed"
     ;;
 
-  show_usercron)
-    PIA_USER="$(id -un)"
-    sudo crontab -l -u ${PIA_USER}
-    ;;
+  # show_usercron)
+  #   if [[ -n "$SUDO_USER" ]]; then
+  #       PIA_USER="$SUDO_USER"
+  #   else
+  #       PIA_USER="$(id -un)"
+  #   fi
+
+  #   crontab -l -u ${PIA_USER}
+  #   ;;
 
   arg_list)
-    echo disable_scan disable_mainscan disable_icmp_mon disable_service_mon disable_satellites enable_scan enable_mainscan enable_icmp_mon enable_service_mon enable_satellites reporting_test set_apikey set_autopassword set_login set_password set_permissions set_sudoers unset_login unset_sudoers update_db show_usercron
+    echo disable_scan disable_mainscan disable_icmp_mon disable_service_mon disable_satellites enable_scan enable_mainscan enable_icmp_mon enable_service_mon enable_satellites reporting_test set_apikey set_autopassword set_login set_password set_permissions set_sudoers unset_login unset_sudoers update_db
     ;;
 
   *)

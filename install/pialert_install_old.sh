@@ -503,9 +503,10 @@ publish_pialert() {
   touch "$PIALERT_HOME/log/pialert.cleanup.log"                                                                 2>&1 >> "$LOG"
   touch "$PIALERT_HOME/log/pialert.webservices.log"                                                             2>&1 >> "$LOG"
   touch "$PIALERT_HOME/log/pialert.speedtest.log"                                                               2>&1 >> "$LOG"
+  touch "$PIALERT_HOME/log/usercron.log"                                                                        2>&1 >> "$LOG"
   src_dir="$INSTALL_DIR/pialert/log"
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
-  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log; do
+  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log usercron.log; do
       ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
   done
 

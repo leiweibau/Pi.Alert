@@ -141,11 +141,8 @@ def get_username():
 def set_db_file_permissions():
     print_log(f"\nPrepare Scan...")
     print_log(f"    Force file permissions on Pi.Alert db...")
-    # Set permissions
-    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
-    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
 
-    # Set permissions Experimental
+    # Set permissions
     os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
     os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
 
@@ -159,6 +156,45 @@ def set_db_file_permissions():
 def set_reports_file_permissions():
     os.system("sudo chown -R " + get_username() + ":www-data " + REPORTPATH_WEBGUI)
     os.system("sudo chmod -R 775 " + REPORTPATH_WEBGUI)
+
+# ------------------------------------------------------------------------------
+def export_user_crontab_to_file():
+    output_file = os.path.join(PIALERT_PATH + "/log", "usercron.log")
+    try:
+        result = subprocess.run(
+            ["crontab", "-l"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False
+        )
+
+        cleaned_lines = []
+
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                line = line.strip()
+
+                if not line or line.startswith("#"):
+                    continue
+
+                if "#" in line:
+                    line = line.split("#", 1)[0].rstrip()
+
+                if line:
+                    cleaned_lines.append(line)
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            if cleaned_lines:
+                f.write("\n".join(cleaned_lines) + "\n")
+            else:
+                f.write("")
+
+        return
+
+    except Exception as e:
+        print(f"Fehler beim Exportieren des User-Crontabs: {e}")
+        return
 
 #===============================================================================
 # Countdown
@@ -878,8 +914,8 @@ def scan_network():
 
     # correct db permission every scan (user must/should be sudoer)
     set_db_file_permissions()
-
     get_local_sys_timezone()
+    export_user_crontab_to_file()
 
     # Query ScanCycle properties
     print_log ('Query ScanCycle confinguration...')
