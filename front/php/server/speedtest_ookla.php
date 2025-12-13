@@ -170,8 +170,8 @@ if ($mod == "get") {
 			$post_message = $pia_lang['ookla_postinstall_note_lxc'];
 		}
 
-
-		echo '<span class="text-red" style="font-size: 18px;">' . $post_message . '</span>';
+		echo '<br><button type="button" class="btn btn-primary" onclick="location.reload();"><i class="bi bi-arrow-clockwise"></i></button>';
+		// echo '<span class="text-red" style="font-size: 18px;">' . $post_message . '</span>';
 	}
 
 # Speedtest not installed
