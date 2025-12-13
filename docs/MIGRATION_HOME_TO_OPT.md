@@ -12,7 +12,7 @@
 2. Switch to the console of your Pi.Alert host and create a new directory outside of your user directory, for example:
 
 	```
-	/opt/pialertmiration
+	/opt/pialertmigration
 	```
 
 
@@ -23,9 +23,9 @@
 	$HOME/pialert/db
 	```
 
-4. Copy Backups to the Migration Directory "/opt/pialertmiration"
+4. Copy Backups to the Migration Directory "/opt/pialertmigration"
 
-	Verify that the backed-up files are present in the "/opt/pialertmiration" directory.
+	Verify that the backed-up files are present in the "/opt/pialertmigration" directory.
 
 
 5. Uninstall the Current Pi.Alert Installation. Depending on your installed version, run the appropriate uninstall script.
@@ -50,7 +50,7 @@
 7. Open the Pi.Alert web interface and verify that the installation was completed successfully.
 
 
-8. Restore your previously saved files in "/opt/pialertmiration" as follows:
+8. Restore your previously saved files in "/opt/pialertmigration" as follows:
 
 	- Copy all \*.db files to "/opt/pialert/db/" and overwrite existing files if prompted.
 
