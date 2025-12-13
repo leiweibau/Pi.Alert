@@ -104,7 +104,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 You can always check for a new release using the "Update Check" button in the sidebar. This check will show you if the GeoLite2 DB is 
 installed or up to date and which new features, fixes or changes are available in the new Pi.Alert release, if you are not already using the latest version.
 
-‼️ With version v2025-12-15, there has been a change to the update script. With the change to the installation directory from this version onwards, it has become necessary to provide two update scripts.
+‼️ With version v2025-12-14, there has been a change to the update script. With the change to the installation directory from this version onwards, it has become necessary to provide two update scripts.
 
 🔴 If your Pi.Alert installation is located in a user directory ($HOME/pialert), use the updater in the "Updater HOME" section.
 
@@ -117,7 +117,7 @@ installed or up to date and which new features, fixes or changes are available i
   <tbody>
   <tr><td>
     - Installation is located in the "/opt/pialert"<br>
-    - Installed Pi.Alert with or after version v2025-12-15<br>
+    - Installed Pi.Alert with or after version v2025-12-14<br>
     - Or created a Pi.Alert container using the Proxmox Helper Scripts<br><br>
 
 ```
@@ -135,7 +135,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
   <tbody>
   <tr><td>
     - Installation is located in a user directory ($HOME/pialert)<br>
-    - Pi.Alert was manual installed before version v2025-12-15<br><br>
+    - Pi.Alert was manual installed before version v2025-12-14<br><br>
 
 ```
 bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)"
