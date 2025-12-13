@@ -30,11 +30,11 @@
 
 5. Uninstall the Current Pi.Alert Installation. Depending on your installed version, run the appropriate uninstall script.
 
-	If you are on version v2025-12-15 or newer:
+	If you are on version v2025-12-14 or newer:
 	```
 	$HOME/pialert/pialert_uninstall_old.sh
 	```
-	If your version is older than v2025-12-15:
+	If your version is older than v2025-12-14:
 	```
 	$HOME/pialert/pialert_uninstall.sh
 	```
