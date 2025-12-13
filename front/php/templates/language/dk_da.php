@@ -373,6 +373,12 @@ $pia_lang['MT_lang_pl_pl'] = 'Polsk (PL)';
 $pia_lang['MT_lang_nl_nl'] = 'Hollandsk (NL)';
 $pia_lang['MT_lang_dk_da'] = 'Dansk (DK)';
 $pia_lang['MT_lang_cz_cs'] = 'Tjekkisk (CZ)';
+$pia_lang['MT_lang_fi_fi'] = 'Finsk (FI)';
+$pia_lang['MT_lang_se_sv'] = 'Svensk (SE)';
+$pia_lang['MT_lang_no_no'] = 'Norsk (NO)';
+$pia_lang['MT_lang_lt_lt'] = 'Litauisk (LT)';
+$pia_lang['MT_lang_ua_uk'] = 'Ukrainsk (UA)';
+$pia_lang['MT_lang_ru_ru'] = 'Russisk (RU)';
 $pia_lang['MT_lang_selector_apply'] = 'Anvend';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Funktioner';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'Indstillingerne herunder ændrer konfigurationen på serversiden. Ændringerne gælder derfor for alle enheder, der tilgår denne side.';
@@ -758,14 +764,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Du kan installere databasen via fanen ' .
 $pia_lang['GeoLiteDB_absent'] = 'Database ikke installeret';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Det er muligt, at lagerforbruget ikke kan bestemmes for alle de ovennævnte drev. Det afhænger af, hvilken bruger drevene er mountet under.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert lukker ned';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert genstarter';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Luk Pi.Alert ned';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Det er ikke kun Pi.Alert, men hele værten hvor det er installeret, der bliver lukket ned.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Genstart Pi.Alert';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Det er ikke kun Pi.Alert, men hele værten hvor det er installeret, der bliver genstartet.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Kommandoen udføres';
+$pia_lang['SysInfo_storage_note'] = 'Det er muligt, at lagerforbruget ikke kan bestemmes for alle de ovenfor angivne drev. Dette afhænger af, hvilken bruger drevene er mountet under.';
+$pia_lang['SysInfo_Shutdown'] = 'Luk Pi.Alert ned efter<br>næste scanning';
+$pia_lang['SysInfo_Reboot'] = 'Genstart Pi.Alert efter<br>næste scanning';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Luk Pi.Alert ned efter næste scanning';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Det er ikke kun Pi.Alert, men også værten, hvor det er installeret, der lukkes ned efter næste scanning.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Genstart Pi.Alert efter næste scanning';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Det er ikke kun Pi.Alert, men også værten, hvor det er installeret, der genstartes efter næste scanning.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Kommandoen er modtaget.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Før du kan bruge Ooklas Speedtest-klient, skal du én gang køre kommandoen "sudo ./speedtest" i mappen "$HOME/pialert/back/speedtest/". Speedtest-knappen bliver aktiveret, når siden genindlæses, men virker først, når Ooklas licens er accepteret.';

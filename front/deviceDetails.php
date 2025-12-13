@@ -16,12 +16,14 @@ require 'php/server/journal.php';
 require 'php/server/graph.php';
 
 $DBFILE = '../db/pialert.db';
+$DBFILE_TOOLS = '../db/pialert_tools.db';
 OpenDB();
+OpenDB_Tools();
 
 function get_speedtestresults_table() {
-	global $db;
+	global $db_tools;
 
-	$res = $db->query('SELECT * FROM Tools_Speedtest_History');
+	$res = $db_tools->query('SELECT * FROM Tools_Speedtest_History');
 	while ($row = $res->fetchArray()) {
 		echo '<tr>
             <td>' . $row['speed_date'] . '</td>
@@ -534,11 +536,11 @@ if ($_REQUEST['mac'] == 'Internet') {
 	?>
                 <h4 class="">Online Speedtest</h4>
                 <div style="width:100%; text-align: center; margin-bottom: 50px; display: inline-block;">
-                  <button type="button" id="speedtestcli" class="btn btn-primary pa-btn" onclick="speedtestcli()">Start Speedtest-cli</button>
+                  <button type="button" id="speedtestcli" class="btn btn-primary pa-btn" onclick="speedtestcli()">Start Speedtest</button>
 <?php
 $speedtest_binary = '../back/speedtest/speedtest';
 	if (file_exists($speedtest_binary)) {
-		echo '<button type="button" id="speedtestcli_ookla" class="btn btn-primary pa-btn" onclick="speedtest_ookla(\'test\')">Start Speedtest (Ookla)</button>';
+		echo '<button type="button" id="speedtestcli_ookla" class="btn btn-success pa-btn disabled">Speedtest-Client Installed</button>';
 	} else {
 		echo '<button type="button" id="speedtestcli_ookla" class="btn btn-primary pa-btn" onclick="speedtest_ookla(\'get\')">Download Speedtest-Client</button>';
 	}

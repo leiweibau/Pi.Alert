@@ -388,7 +388,7 @@ function GetServerTime() {
 function GetLogfiles() {
 	global $pia_lang;
 
-	$logfiles = ["pialert.1.log", "pialert.IP.log", "pialert.vendors.log", "pialert.cleanup.log", "pialert.webservices.log"];
+	$logfiles = ["pialert.1.log", "pialert.IP.log", "pialert.vendors.log", "pialert.cleanup.log", "pialert.webservices.log", "pialert.speedtest.log"];
 	$logmessage = [$pia_lang['MT_Tools_Logviewer_Scan_empty'], $pia_lang['MT_Tools_Logviewer_IPLog_empty'], '', $pia_lang['MT_Tools_Logviewer_Cleanup_empty'], $pia_lang['MT_Tools_Logviewer_WebServices_empty']];
 
 	$i = 0;
@@ -728,12 +728,13 @@ function BackupDBtoArchive() {
 
 	$db_file_path = '../../../db';
 	$db_file_name_org = 'pialert.db';
+	$dbtools_file_name_org = 'pialert_tools.db';
 	$db_file_path_temp = '../../../db/temp';
-	$db_file_name_temp = 'temp_backup.db';
 
 	$db_file_org_full = $db_file_path . '/' . $db_file_name_org; # ../../../db/pialert.db
-	$db_file_temp_full = $db_file_path . '/' . $db_file_name_temp; # ../../../db/temp_backup.db
 	$db_file_new_full = $db_file_path_temp . '/' . $db_file_name_org; # ../../../db/temp/pialert.db
+	$dbtools_file_org_full = $db_file_path . '/' . $dbtools_file_name_org; # ../../../db/pialert.db
+	$dbtools_file_new_full = $db_file_path_temp . '/' . $dbtools_file_name_org; # ../../../db/temp/pialert.db
 
 	$Pia_Archive_Name = 'pialertdb_' . date("Ymd_His") . '.zip';
 	$Pia_Archive_Path = '../../../db/';
@@ -741,41 +742,34 @@ function BackupDBtoArchive() {
 	global $pia_lang;
 
 	// Check if DB has open transactions
-	if (filesize($db_file_org_full . '-wal') != "0") {
+	if ((filesize($db_file_org_full . '-wal') != "0") && (filesize($dbtools_file_org_full . '-wal') != "0")) {
 		//DEBUG
 		//echo filesize($db_file_org_full.'-shm').'-'.filesize($db_file_org_full.'-wal').' - ';
 		echo $pia_lang['BE_Dev_Backup_WALError'];exit;
 	}
 
 	// copy database
-	exec('sqlite3 "' . $db_file_org_full . '" ".backup ' . $db_file_temp_full . '"', $output);
+	exec('sqlite3 "' . $db_file_org_full . '" ".backup ' . $db_file_new_full . '"', $output);
+	exec('sqlite3 "' . $dbtools_file_org_full . '" ".backup ' . $dbtools_file_new_full . '"', $output);
 
-	if (file_exists($db_file_temp_full)) {
+	if (file_exists($db_file_new_full) && file_exists($dbtools_file_new_full)) {
 		// Integrity Check if file copy exists
-		$sql1 = "PRAGMA integrity_check";
-		$sql2 = "PRAGMA foreign_key_check";
-		exec('sqlite3 ' . $db_file_temp_full . ' "' . $sql1 . '"', $output_a);
-		exec('sqlite3 ' . $db_file_temp_full . ' "' . $sql2 . '"', $output_b);
+		// $sql1 = "PRAGMA integrity_check";
+		// $sql2 = "PRAGMA foreign_key_check";
+		// exec('sqlite3 ' . $db_file_temp_full . ' "' . $sql1 . '"', $output_a);
+		// exec('sqlite3 ' . $db_file_temp_full . ' "' . $sql2 . '"', $output_b);
 
-		if (($output_a[0] == "ok") && (sizeof($output_b) == 0)) {
-			// Integrity Check is okay
-			// move file to temp dir
-			rename($db_file_temp_full, $db_file_new_full);
-			// Create archive with actual date
-			exec('zip -j ' . $Pia_Archive_Path . $Pia_Archive_Name . ' ' . $db_file_new_full, $output);
-			// check if archive exists
-			if (file_exists($Pia_Archive_Path . $Pia_Archive_Name) && filesize($Pia_Archive_Path . $Pia_Archive_Name) > 0) {
-				// if archive exists
-				echo $pia_lang['BE_Dev_Backup_okay'] . ' / Integrity Checked: (' . $Pia_Archive_Name . ')';
-				unlink($db_file_new_full);
-				echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>");
-			} else {
-				// if archive not exists
-				echo $pia_lang['BE_Dev_Backup_Failed'] . ' / Integrity Checked (pialert-latestbackup.db)';
-			}
+		// Create archive with actual date
+		exec('zip -j ' . $Pia_Archive_Path . $Pia_Archive_Name . ' ' . $db_file_new_full . ' ' . $dbtools_file_org_full, $output);
+		// check if archive exists
+		if (file_exists($Pia_Archive_Path . $Pia_Archive_Name) && filesize($Pia_Archive_Path . $Pia_Archive_Name) > 0) {
+			// if archive exists
+			echo $pia_lang['BE_Dev_Backup_okay'] . ': (' . $Pia_Archive_Name . ')';
+			unlink($db_file_new_full);
+			echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>");
 		} else {
-			// Integrity Check is okay
-			echo $pia_lang['BE_Dev_Backup_IntegrityError'];exit;
+			// if archive not exists
+			echo $pia_lang['BE_Dev_Backup_Failed'] . ' / Integrity Checked (pialert-latestbackup.db)';
 		}
 	} else {
 		// File does not exists
@@ -1138,7 +1132,13 @@ function setLanguage() {
 		'pl_pl',
 		'cz_cs',
 		'dk_da',
-		'nl_nl');
+		'nl_nl',
+	    'fi_fi',
+	    'lt_lt',
+	    'no_no',
+	    'ru_ru',
+	    'se_sv',
+	    'ua_uk');
 
 	if (isset($_REQUEST['LangSelection'])) {
 		$pia_lang_set_dir = '../../../config/';

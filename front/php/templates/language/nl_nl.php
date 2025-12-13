@@ -373,6 +373,12 @@ $pia_lang['MT_lang_pl_pl'] = 'Pools (PL)';
 $pia_lang['MT_lang_nl_nl'] = 'Nederlands (NL)';
 $pia_lang['MT_lang_dk_da'] = 'Deens (DK)';
 $pia_lang['MT_lang_cz_cs'] = 'Tsjechisch (CZ)';
+$pia_lang['MT_lang_fi_fi'] = 'Fins (FI)';
+$pia_lang['MT_lang_se_sv'] = 'Zweeds (SE)';
+$pia_lang['MT_lang_no_no'] = 'Noors (NO)';
+$pia_lang['MT_lang_lt_lt'] = 'Litouws (LT)';
+$pia_lang['MT_lang_ua_uk'] = 'Oekraïens (UA)';
+$pia_lang['MT_lang_ru_ru'] = 'Russisch (RU)';
 $pia_lang['MT_lang_selector_apply'] = 'Toepassen';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Functies';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'De hier vermelde opties brengen serverzijdige configuratiewijzigingen aan. Deze wijzigingen gelden dus voor alle apparaten die deze pagina openen.';
@@ -758,14 +764,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Je kunt de database installeren via het t
 $pia_lang['GeoLiteDB_absent'] = 'Database niet geïnstalleerd';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Het is mogelijk dat het geheugengebruik niet voor alle hierboven vermelde stations kan worden bepaald. Dit hangt af van onder welke gebruiker de schijven zijn aangekoppeld.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert wordt afgesloten';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert wordt herstart';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Pi.Alert afsluiten';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Niet alleen Pi.Alert, maar ook de host waarop het is geïnstalleerd wordt afgesloten.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Pi.Alert herstarten';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Niet alleen Pi.Alert, maar ook de host waarop het is geïnstalleerd wordt herstart.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Commando wordt uitgevoerd';
+$pia_lang['SysInfo_storage_note'] = 'Het is mogelijk dat het gebruik van de opslag niet voor alle hierboven vermelde stations kan worden bepaald. Dit hangt ervan af onder welke gebruiker de stations zijn gekoppeld.';
+$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert na de<br>volgende scan uitschakelen';
+$pia_lang['SysInfo_Reboot'] = 'Pi.Alert na de<br>volgende scan opnieuw opstarten';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Pi.Alert na de volgende scan uitschakelen';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Niet alleen Pi.Alert, maar ook de host waarop het is geïnstalleerd, wordt na de volgende scan uitgeschakeld.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Pi.Alert na de volgende scan opnieuw opstarten';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Niet alleen Pi.Alert, maar ook de host waarop het is geïnstalleerd, wordt na de volgende scan opnieuw opgestart.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'De opdracht is ontvangen.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Voordat je de Speedtest-client van Ookla kunt gebruiken, moet je éénmalig het commando "sudo ./speedtest" uitvoeren in de map "$HOME/pialert/back/speedtest/". De Speedtest-knop wordt geactiveerd na het herladen van de pagina, maar werkt pas nadat je de Ookla-licentie hebt geaccepteerd.';

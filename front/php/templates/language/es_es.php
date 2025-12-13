@@ -377,6 +377,12 @@ $pia_lang['MT_lang_pl_pl'] = 'Polaco (PL)';
 $pia_lang['MT_lang_nl_nl'] = 'Neerlandés (NL)';
 $pia_lang['MT_lang_dk_da'] = 'Danés (DK)';
 $pia_lang['MT_lang_cz_cs'] = 'Checo (CZ)';
+$pia_lang['MT_lang_fi_fi'] = 'Finés (FI)';
+$pia_lang['MT_lang_se_sv'] = 'Sueco (SE)';
+$pia_lang['MT_lang_no_no'] = 'Noruego (NO)';
+$pia_lang['MT_lang_lt_lt'] = 'Lituano (LT)';
+$pia_lang['MT_lang_ua_uk'] = 'Ucraniano (UA)';
+$pia_lang['MT_lang_ru_ru'] = 'Ruso (RU)';
 $pia_lang['MT_lang_selector_apply'] = 'Aplicar';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Ajustes';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'Las opciones enumeradas aquí efectúan cambios en la configuración del servidor. Por lo tanto, estos cambios afectan a todos los dispositivos que accedan a esta página.';
@@ -756,14 +762,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'You can install the database via the ' . 
 $pia_lang['GeoLiteDB_absent'] = 'DB not installed';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Es posible que no se pueda determinar el uso de memoria para todas las unidades enumeradas anteriormente. Esto depende del usuario bajo el cual están montadas las unidades.';
-$pia_lang['SysInfo_Shutdown'] = 'Apagando Pi.Alert';
-$pia_lang['SysInfo_Reboot'] = 'Reiniciando Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Apagando Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'No solo se apagará Pi.Alert, sino también el host en el que está instalado';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Reiniciando Pi.Alert';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'No solo se reiniciará Pi.Alert, sino también el host en el que está instalado';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Ejecutando el comando';
+$pia_lang['SysInfo_storage_note'] = 'Es posible que no se pueda determinar el uso del almacenamiento para todas las unidades enumeradas arriba. Esto depende del usuario bajo el cual estén montadas.';
+$pia_lang['SysInfo_Shutdown'] = 'Apagar Pi.Alert después<br>del próximo escaneo';
+$pia_lang['SysInfo_Reboot'] = 'Reiniciar Pi.Alert después<br>del próximo escaneo';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Apagar Pi.Alert después del próximo escaneo';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Después del próximo escaneo, no solo se apagará Pi.Alert, sino también el host en el que está instalado.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Reiniciar Pi.Alert después del próximo escaneo';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Después del próximo escaneo, no solo se reiniciará Pi.Alert, sino también el host en el que está instalado.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'El comando ha sido recibido.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Antes de poder utilizar el cliente de Speedtest de Ookla, debe ejecutar el comando "sudo ./speedtest" una vez en el directorio "$HOME/pialert/back/speedtest/." El botón de Speedtest se habilitará después de recargar la página, pero solo funcionará después de aceptar la licencia de Ookla.';

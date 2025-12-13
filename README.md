@@ -53,16 +53,15 @@ The backend is controlled via the operating system's own cron service and is exe
 various scans and imports, save the results in the database and send notifications according to the settings. In addition to host detection, it is also 
 possible to check the availability of manually entered hosts or websites for their reachability and to receive notifications in the event of status changes. 
 Various services are available for the notifications (Frontend, Mail ([Guide](docs/NOTIFICATION_MAIL.md)), [Pushsafer](https://www.pushsafer.com/), 
-[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md))). Additional functions such as automatic 
-database optimization, DB backups and Internet speed tests are also available via the backend. The CLI tool [pialert-cli](docs/PIALERTCLI.md) is available 
-to control selected functions of the backend.
+[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md))).
 
 ### Frontend (front)
 
 The frontend is used to manage the host information determined and for general management. You can store additional information for each device, view the historical 
 history, perform manual nmap scans or send Wake-on-LAN commands. You also have the option of assigning individual devices to other network devices such as routers and 
 switches in order to maintain an overview of the relationships between the devices. A settings page allows you to configure individual parts of the frontend, while a 
-config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch and Czech, can be protected with a 
+config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch, Czech, 
+Finnish, Swedish, Norwegian, Lithuanian, Ukrainian and Russian can be protected with a 
 login that uses the password “123456” by default. You can change this using the CLI tool [pialert-cli](docs/PIALERTCLI.md).
 
 New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
@@ -79,7 +78,7 @@ Linux distributions which use the "apt" package manager. Check "[Things to keep 
 
 <table>
   <thead>
-    <tr><th align="left">One-step Automated Install</th></tr>
+    <tr><th align="left">Installation</th></tr>
   </thead>
   <tbody>
   <tr><td>
@@ -91,8 +90,6 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
   </tbody>
 </table>
 
-
-- [Installation Guide (step by step)](docs/INSTALL.md)
 - [Guide for the first start](docs/FIRST_START_GUIDE.md)
 - If you want to use **Pi.Alert as LXC container**, feel free to check out the [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE) (originally [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)). I also support this version, as this Pi.Alert version is used with the exception of initial container creation. Updates to the LXC version are also installed from this repository. A separate update command is used for this purpose.
 
@@ -107,15 +104,21 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 You can always check for a new release using the "Update Check" button in the sidebar. This check will show you if the GeoLite2 DB is 
 installed or up to date and which new features, fixes or changes are available in the new Pi.Alert release, if you are not already using the latest version.
 
-This update script is only recommended for an already existing installation of this fork. If you are using another fork, 
-I recommend uninstalling it first. If you backup the database, it may be possible to continue using it with my fork after a patch ([pialert-cli](docs/PIALERTCLI.md)).
+‼️ With version v2025-12-15, there has been a change to the update script. With the change to the installation directory from this version onwards, it has become necessary to provide two update scripts.
+
+🔴 If your Pi.Alert installation is located in a user directory ($HOME/pialert), use the updater in the "Updater HOME" section.
+
+🔴 If the Pi.ALert installation is located in the "/opt/pialert" directory, use the updater in the "Updater OPT" section.
 
 <table>
   <thead>
-    <tr><th align="left">One-step Automated Update</th></tr>
+    <tr><th align="left">Updater OPT</th></tr>
   </thead>
   <tbody>
   <tr><td>
+    - Installation is located in the "/opt/pialert"<br>
+    - Installed Pi.Alert with or after version v2025-12-15<br>
+    - Or created a Pi.Alert container using the Proxmox Helper Scripts<br><br>
 
 ```
 bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
@@ -127,20 +130,23 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 
 <table>
   <thead>
-    <tr><th align="left">One-step Automated Update (LXC - Proxmox Helper Scripts)</th></tr>
+    <tr><th align="left">Updater HOME (Outdated)</th></tr>
   </thead>
   <tbody>
   <tr><td>
+    - Installation is located in a user directory ($HOME/pialert)<br>
+    - Pi.Alert was manual installed before version v2025-12-15<br><br>
 
 ```
-bash -c "$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)" -s --lxc
+bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)"
 ```
-
-To Update Pi.Alert, run the command below (or type update) in the LXC Console.
-
   </td></tr>
   </tbody>
 </table>
+
+‼️ “Outdated” refers to the updater itself. Both the old and new updater use the same installation package.
+
+🟢 Help with migrating to the new installation path [Here](docs/MIGRATION_HOME_TO_OPT.md)
 
 An archive of older versions can be found at [https://leiweibau.net/archive/pialert](https://leiweibau.net/archive/pialert/). This archive contains all release notes of my fork.
 
@@ -154,18 +160,18 @@ An archive of older versions can be found at [https://leiweibau.net/archive/pial
   | [<img src="https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/githubsponsor.png" height="30px">](https://github.com/sponsors/leiweibau) | [<img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" height="30px">](https://www.buymeacoffee.com/leiweibau) |
   | ---- | ---- |
 
-  A personal thank you :pray: to every sponsor of my fork.
+  <ins>**:pray: A personal thank you to every sponsor of this project.**</ins>
 
-  [jbierwiler](https://github.com/jbierwiler), [tcoombs](https://github.com/tcoombs), [hspindel](https://github.com/hspindel), [accessiblepixel](https://github.com/accessiblepixel), [AJ Tatum](https://github.com/ajtatum), [wsquared58](https://github.com/ankonaskiff17)
-
-  Also a big thank you to the direct or indirect contributors.
-
-  [Macleykun](https://github.com/Macleykun), [Final-Hawk](https://github.com/Final-Hawk), [TeroRERO](https://github.com/terorero), [jokob-sk](https://github.com/jokob-sk/Pi.Alert), [tteck](https://github.com/tteck/Proxmox) and many more
+  <ins>**:pray: A big thank you also goes to everyone who contributed directly or indirectly.**</ins>
 
 ### Additionally used components and services
-[Animated GIF (Loading Animation)](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif), [Selfhosted Fonts](https://github.com/adobe-fonts/source-sans), 
-[Bootstrap Icons](https://github.com/twbs/icons), [Material Design Icons](https://github.com/Pictogrammers), [For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
-[DeepL](https://www.deepl.com), [ChatGPT](https://chat.openai.com)
+[Animated GIF (Loading Animation)](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif), 
+[Selfhosted Fonts](https://github.com/adobe-fonts/source-sans), 
+[Bootstrap Icons](https://github.com/twbs/icons), 
+[Material Design Icons](https://github.com/Pictogrammers), 
+[For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
+[DeepL](https://www.deepl.com), 
+[ChatGPT](https://chat.openai.com)
 
 
 ### License

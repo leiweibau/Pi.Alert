@@ -31,6 +31,7 @@ ini_set('max_execution_time', '30');
 
 // Open DB
 OpenDB();
+OpenDB_Tools();
 
 // Action functions
 if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
@@ -1303,10 +1304,11 @@ function EnableMainScan() {
 //  Delete all Speedtests
 function DeleteSpeedtestResults() {
 	global $db;
+	global $db_tools;
 	global $pia_lang;
 
 	$sql = 'DELETE FROM Tools_Speedtest_History';
-	$result = $db->query($sql);
+	$result = $db_tools->query($sql);
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_Dev_DBTools_DelSpeedtest'];
@@ -1322,10 +1324,11 @@ function DeleteSpeedtestResults() {
 //  Delete all Nmap Scans
 function DeleteNmapScansResults() {
 	global $db;
+	global $db_tools;
 	global $pia_lang;
 
 	$sql = 'DELETE FROM Tools_Nmap_ManScan';
-	$result = $db->query($sql);
+	$result = $db_tools->query($sql);
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_Dev_DBTools_DelNmapScans'];

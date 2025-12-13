@@ -17,15 +17,21 @@
                                           <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="dropdownButtonLangSelection">
                                             <span class="fa fa-caret-down"></span></button>
                                           <ul id="dropdownLangSelection" class="dropdown-menu dropdown-menu-right">
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','en_us');"><?=$pia_lang['MT_lang_en_us'];?></a></li>
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','de_de');"><?=$pia_lang['MT_lang_de_de'];?></a></li>
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','fr_fr');"><?=$pia_lang['MT_lang_fr_fr'];?></a></li>
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','es_es');"><?=$pia_lang['MT_lang_es_es'];?></a></li>
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','it_it');"><?=$pia_lang['MT_lang_it_it'];?></a></li>
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','pl_pl');"><?=$pia_lang['MT_lang_pl_pl'];?></a></li>
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','nl_nl');"><?=$pia_lang['MT_lang_nl_nl'];?></a></li>
-                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','dk_da');"><?=$pia_lang['MT_lang_dk_da'];?></a></li>
                                             <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','cz_cs');"><?=$pia_lang['MT_lang_cz_cs'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','de_de');"><?=$pia_lang['MT_lang_de_de'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','dk_da');"><?=$pia_lang['MT_lang_dk_da'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','en_us');"><?=$pia_lang['MT_lang_en_us'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','es_es');"><?=$pia_lang['MT_lang_es_es'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','fi_fi');"><?=$pia_lang['MT_lang_fi_fi'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','fr_fr');"><?=$pia_lang['MT_lang_fr_fr'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','it_it');"><?=$pia_lang['MT_lang_it_it'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','lt_lt');"><?=$pia_lang['MT_lang_lt_lt'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','nl_nl');"><?=$pia_lang['MT_lang_nl_nl'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','no_no');"><?=$pia_lang['MT_lang_no_no'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','pl_pl');"><?=$pia_lang['MT_lang_pl_pl'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','ru_ru');"><?=$pia_lang['MT_lang_ru_ru'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','se_sv');"><?=$pia_lang['MT_lang_se_sv'];?></a></li>
+                                            <li><a href="javascript:void(0)" onclick="setTextValue('txtLangSelection','ua_uk');"><?=$pia_lang['MT_lang_ua_uk'];?></a></li>                                            
                                           </ul>
                                         </div>
                                       </div>

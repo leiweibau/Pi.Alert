@@ -114,12 +114,17 @@ def main():
     # Close SQL
     closeDB()
 
-    # Remove scan status file created in scan_network()
-    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent'] and os.path.exists(STATUS_FILE_SCAN):
-        os.remove(STATUS_FILE_SCAN)
-
     # Final menssage
     print('\nDONE!!!\n\n')
+
+    # Remove scan status file created in scan_network()
+    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent']:
+        if os.path.exists(STATUS_FILE_SCAN):
+            os.remove(STATUS_FILE_SCAN)
+
+        # Perform shutdown or rebppt
+        process_webgui_tokens()
+
     return 0    
 
 #===============================================================================
@@ -136,11 +141,8 @@ def get_username():
 def set_db_file_permissions():
     print_log(f"\nPrepare Scan...")
     print_log(f"    Force file permissions on Pi.Alert db...")
-    # Set permissions
-    # os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE)
-    # os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE)
 
-    # Set permissions Experimental
+    # Set permissions
     os.system("sudo /usr/bin/chown " + get_username() + ":www-data " + PIALERT_DB_FILE + "*")
     os.system("sudo /usr/bin/chmod 775 " + PIALERT_DB_FILE + "*")
 
@@ -154,6 +156,45 @@ def set_db_file_permissions():
 def set_reports_file_permissions():
     os.system("sudo chown -R " + get_username() + ":www-data " + REPORTPATH_WEBGUI)
     os.system("sudo chmod -R 775 " + REPORTPATH_WEBGUI)
+
+# ------------------------------------------------------------------------------
+def export_user_crontab_to_file():
+    output_file = os.path.join(PIALERT_PATH + "/log", "usercron.log")
+    try:
+        result = subprocess.run(
+            ["crontab", "-l"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False
+        )
+
+        cleaned_lines = []
+
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                line = line.strip()
+
+                if not line or line.startswith("#"):
+                    continue
+
+                if "#" in line:
+                    line = line.split("#", 1)[0].rstrip()
+
+                if line:
+                    cleaned_lines.append(line)
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            if cleaned_lines:
+                f.write("\n".join(cleaned_lines) + "\n")
+            else:
+                f.write("")
+
+        return
+
+    except Exception as e:
+        print(f"Fehler beim Exportieren des User-Crontabs: {e}")
+        return
 
 #===============================================================================
 # Countdown
@@ -190,6 +231,50 @@ def check_pialert_countdown():
 
     closeDB()
 
+
+#===============================================================================
+# Reboot / Shutdown
+#===============================================================================
+
+def process_webgui_tokens_execute(cmd: str):
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError:
+        sys.exit(1)
+
+
+def process_webgui_tokens():
+    TMP_DIR = os.path.join(PIALERT_PATH, "front/php/tmp")
+    SHUTDOWN_TOKEN = os.path.join(TMP_DIR, "shutdown_token")
+    REBOOT_TOKEN   = os.path.join(TMP_DIR, "reboot_token")
+
+    shutdown_exists = os.path.isfile(SHUTDOWN_TOKEN)
+    reboot_exists   = os.path.isfile(REBOOT_TOKEN)
+
+    if not shutdown_exists and not reboot_exists:
+        print_log("no_token")
+        return
+
+    if shutdown_exists:
+        try:
+            os.remove(SHUTDOWN_TOKEN)
+        except Exception:
+            print_log("delete_failed")
+
+        process_webgui_tokens_execute("sleep 5 && sudo /usr/sbin/shutdown -h now")
+        print_log("shutdown_executed")
+
+    elif reboot_exists:
+        try:
+            os.remove(REBOOT_TOKEN)
+        except Exception:
+            print_log("delete_failed")
+
+        process_webgui_tokens_execute("sleep 5 && sudo /usr/sbin/shutdown -r now")
+        print_log("reboot_executed")
+
+    return
+
 #===============================================================================
 # INTERNET IP CHANGE
 #===============================================================================
@@ -202,8 +287,8 @@ def check_internet_IP():
         # Check result = IP
         if internet_IP == "" :
             print('    Error retrieving Internet IP')
-            print('    Exiting...\n')
-            return 1
+            # print('    Exiting...\n')
+            #return 1
         print('   ', internet_IP)
 
         # Get previous stored IP
@@ -213,7 +298,7 @@ def check_internet_IP():
         print('   ', previous_IP)
 
         # Check IP Change
-        if internet_IP != previous_IP :
+        if internet_IP and internet_IP != previous_IP :
             print('    Saving new IP')
             save_new_internet_IP (internet_IP)
             print('        IP updated')
@@ -222,7 +307,7 @@ def check_internet_IP():
         closeDB()
 
         # Get Dynamic DNS IP
-        if DDNS_ACTIVE :
+        if DDNS_ACTIVE and internet_IP:
             print('\nRetrieving Dynamic DNS IP...')
             dns_IP = get_dynamic_DNS_IP()
 
@@ -262,6 +347,7 @@ def check_internet_IP():
             if os.path.exists(speedtest_binary):
                 print(f"    Crontab: {SPEEDTEST_TASK_CRON}")
                 run_speedtest_task(startTime, SPEEDTEST_TASK_CRON)
+                # run_speedtest_task(startTime, "*/1 * * * *")
             else:
                 print('    Skipping Speedtest... Not installed!')
         else :
@@ -349,11 +435,35 @@ def create_autobackup(start_time, crontab_string):
             time.sleep(20)  # wait 20s to finish the reporting
 
             # Backup DB (no further checks)
-            sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
-            subprocess.check_output(sqlite_command, universal_newlines=True)
-            subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
+            # sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
+            # subprocess.check_output(sqlite_command, universal_newlines=True)
+            # subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
+
+            # Backup pialert.db (no further checks)
+            subprocess.check_output(
+                ['sqlite3', PIALERT_DB_PATH + '/pialert.db',
+                 '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db'],
+                universal_newlines=True
+            )
+
+            # Backup pialert-tools.db (no further checks)
+            subprocess.check_output(
+                ['sqlite3', PIALERT_DB_PATH + '/pialert_tools.db',
+                 '.backup ' + PIALERT_DB_PATH + '/temp/pialert_tools.db'],
+                universal_newlines=True
+            )
+
+            # Compress DB (both)
+            subprocess.check_output(
+                ['zip', '-j', '-qq', BACKUP_FILE,
+                 PIALERT_PATH + '/db/temp/pialert.db',
+                 PIALERT_PATH + '/db/temp/pialert_tools.db'],
+                universal_newlines=True
+            )
+
             time.sleep(4)
             os.remove(PIALERT_DB_PATH + '/temp/pialert.db')
+            os.remove(PIALERT_DB_PATH + '/temp/pialert_tools.db')
             # Set Permissions for www-data (testing)
             os.system("sudo chown www-data:www-data " + BACKUP_FILE)
             os.system("sudo chmod 644 " + BACKUP_FILE)
@@ -497,44 +607,13 @@ def run_speedtest_task(start_time, crontab_string):
     day_of_week = parse_cron_part(crontab_parts[4], start_time.weekday(), 0, 7)
 
     # Define the command and arguments
-    command = ["sudo", PIALERT_BACK_PATH + "/speedtest/speedtest", "--accept-license", "--accept-gdpr", "-p", "no", "-f", "json"]
     # Compare cron
     if (start_time.minute in minute) and (start_time.hour in hour) and (start_time.day in day_of_month) and \
        (start_time.month in month) and (start_time.weekday() in day_of_week):
-        openDB()
-        try:
-            output = subprocess.check_output(command, text=True)
-            # Parse the JSON output
-            result = json.loads(output)
-            # Access the speed test results
-            speedtest_isp = result['isp']
-            speedtest_server = result['server']['name'] + ' (' + result['server']['location'] + ') (' + result['server']['host'] + ')'
-            speedtest_ping = result['ping']['latency']
-            speedtest_down = round(result['download']['bandwidth'] / 125000, 2)
-            speedtest_up = round(result['upload']['bandwidth'] / 125000, 2)
-            # Build output
-            speedtest_output = ""
-            speedtest_output += f"    ISP:            {speedtest_isp}\n"
-            speedtest_output += f"    Server:         {speedtest_server}\n\n"
-            speedtest_output += f"    Ping:           {speedtest_ping} ms\n"
-            speedtest_output += f"    Download Speed: {speedtest_down} Mbps\n"
-            speedtest_output += f"    Upload Speed:   {speedtest_up} Mbps\n"
-            print(speedtest_output)
-            # Prepare db string
-            speedtest_db_output = speedtest_output.replace("\n", "<br>")
-            # Insert in db
-            sql.execute ("""INSERT INTO Tools_Speedtest_History (speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up)
-                            VALUES (?, ?, ?, ?, ?, ?) """, (startTime, speedtest_isp, speedtest_server, speedtest_ping, speedtest_down, speedtest_up))
-            # Logging
-            sql.execute ("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
-                            VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """, (startTime, speedtest_db_output))
-            sql_connection.commit()
-        except subprocess.CalledProcessError as e:
-            print(f"Error running 'speedtest': {e}")
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON output: {e}")
 
-        closeDB()
+        command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "speedtest"]
+        subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
     else:
         print("    Speedtest function was NOT executed.")
     return 0
@@ -543,9 +622,36 @@ def run_speedtest_task(start_time, crontab_string):
 def get_internet_IP():
     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
+    
     curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
-    cmd_output = subprocess.check_output (curl_args, universal_newlines=True)
-    return check_IP_format (cmd_output)
+    try:
+        cmd_output = subprocess.check_output(
+            curl_args,
+            universal_newlines=True,
+            stderr=subprocess.STDOUT,
+            timeout=10
+        ).strip()
+
+        # Check empty response
+        if not cmd_output:
+            return check_IP_format(None)
+
+        return check_IP_format(cmd_output)
+
+    except subprocess.CalledProcessError as e:
+        # curl was executed but returned an error status
+        print(f"curl error: exit {e.returncode}, output: {e.output}")
+        return check_IP_format(None)
+
+    except subprocess.TimeoutExpired:
+        # curl took too long
+        print("curl timeout")
+        return check_IP_format(None)
+
+    except Exception as e:
+        # generic errors (e.g., OSError if curl does not exist)
+        print(f"unexpected error: {e}")
+        return check_IP_format(None)
 
 #-------------------------------------------------------------------------------
 def get_dynamic_DNS_IP():
@@ -592,12 +698,14 @@ def save_new_internet_IP(pNewIP):
     
 #-------------------------------------------------------------------------------
 def check_IP_format(pIP):
+    if pIP is None:
+        return ""
     # Check IP format
     IPv4SEG  = r'(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])'
     IPv4ADDR = r'(?:(?:' + IPv4SEG + r'\.){3,3}' + IPv4SEG + r')'
     IP = re.search(IPv4ADDR, pIP)
     # Return error if not IP
-    if IP is None :
+    if IP is None:
         return ""
     return IP.group(0)
 
@@ -631,14 +739,9 @@ def cleanup_database():
                     (dev_mac, "Connected", dev_lastip, str(RepairedEventTime), 0)
                 )
 
-    print('    Nmap Scan Results')
-    sql.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
-
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_ONLINEHISTORY) + ' days:')
     print('    Online_History')
     sql.execute("DELETE FROM Online_History WHERE Scan_Date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
-    print('    Speedtest_History')
-    sql.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str(DAYS_TO_KEEP_ONLINEHISTORY) + " day')")
 
     print('\nCleanup tables, up to the lastest hard-coded days:')
     print('    Services_Events (30)')
@@ -654,6 +757,11 @@ def cleanup_database():
     sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                     VALUES (?, 'c_010', 'cronjob', 'LogStr_0101', '', 'Cleanup') """, (startTime,))
     closeDB()
+
+    print('\nCleanup DB_Tools...')
+    command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "cleanup"]
+    output = subprocess.check_output(command, text=True)
+
     return 0
 
 #===============================================================================
@@ -806,8 +914,8 @@ def scan_network():
 
     # correct db permission every scan (user must/should be sudoer)
     set_db_file_permissions()
-
     get_local_sys_timezone()
+    export_user_crontab_to_file()
 
     # Query ScanCycle properties
     print_log ('Query ScanCycle confinguration...')
@@ -1551,21 +1659,18 @@ def read_pfsense_clients():
         result = pfsense_connect(endpoint,"DHCP")
         print_log(result)
         if result:
-            pfsense_dhcpleases_raw = result
             pfsense_dhcpleases = json.dumps(result, indent=4)
 
         endpoint = "/api/v2/diagnostics/arp_table?limit=0&offset=0"
         result = pfsense_connect(endpoint,"ARP")
         print_log(result)
         if result:
-            pfsense_arptable_raw = result
             pfsense_arptable = json.dumps(result, indent=4)
 
         endpoint = "/api/v2/interface/available_interfaces"
         result = pfsense_connect(endpoint,"Interfaces")
         print_log(result)
         if result:
-            pfsense_local_interfaces_raw = result
             pfsense_local_interfaces = json.dumps(result, indent=4)
 
         pfsense_save_dhcp_data(pfsense_dhcpleases)
@@ -1973,6 +2078,7 @@ def process_satellites(satellite_list):
                 scan_asuswrt     = 1 if config.get('scan_asuswrt') else 0
                 scan_pihole_net  = 1 if config.get('scan_pihole_net') else 0
                 scan_pihole_dhcp = 1 if config.get('scan_pihole_dhcp') else 0
+                scan_pfsense     = 1 if config.get('scan_pfsense') else 0
 
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check' and result['cur_ScanMethod'] != 'Pi-hole DHCP':
@@ -2020,8 +2126,9 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_asuswrt = ?,
                                     sat_conf_scan_pihole_net = ?,
                                     sat_conf_scan_pihole_dhcp = ?,
+                                    sat_conf_scan_pfsense = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_asuswrt, scan_pihole_net, scan_pihole_dhcp, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_asuswrt, scan_pihole_net, scan_pihole_dhcp, scan_pfsense, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):

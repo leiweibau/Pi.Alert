@@ -10,14 +10,17 @@ if ($_SESSION["login"] != 1) {
 	exit;
 }
 
-require 'php/templates/header.php';
+require __DIR__ . '/php/templates/header.php';
 
-$prevVal = shell_exec("sudo ../back/pialert-cli show_usercron");
-$prevArr = explode("\n", trim($prevVal));
-function filterValues($value) {
-    return (substr($value, 0, 1) !== '#');
+$cronFile = __DIR__ . '/php/server/usercron.log';
+if (is_readable($cronFile)) {
+    $prevVal = file_get_contents($cronFile);
+} else {
+    $prevVal = '';
 }
-$cleancron = array_filter($prevArr, 'filterValues');
+$cleancron = array_filter(
+    array_map('trim', explode("\n", $prevVal))
+);
 $stat['usercron'] = implode("\n", $cleancron);
 // https://stackoverflow.com/a/19209082
 $os_version = '';
@@ -96,16 +99,6 @@ foreach ($lines as $line) {
 //usb devices
 $usb_result = shell_exec("lsusb");
 $usb_devices_mount = explode("\n", trim($usb_result));
-// users
-$temp_usercount = shell_exec("w -h | awk '{print $1 \"##\" $2 \"##\" $3 \"//\"}'");
-$search_usercount = array("##:0", "##-");
-$str_usercount = str_replace($search_usercount, '', substr($temp_usercount, 0, -3));
-$arr_usercount = explode("//", $str_usercount);
-foreach ($arr_usercount as $user) {
-	$arr_user = explode("##", $user);
-	$stat['user_count'] = $stat['user_count'] . '<span class="text-aqua">' . $arr_user[0] . '</span> (' . $arr_user[1] . ') <span class="text-red">' . $arr_user[2] . '</span> /';
-}
-$stat['user_count'] = substr($stat['user_count'], 0, -2);
 // count processes
 $stat['process_count'] = shell_exec("ps -e --no-headers | wc -l");
 ?>
@@ -127,18 +120,31 @@ $stat['process_count'] = shell_exec("ps -e --no-headers | wc -l");
 // Reboot Shutdown ----------------------------------------------------------
 echo '
 		<div class="row">
-		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
-			  <a href="#" class="btn btn-danger"><i class="fa-solid fa-power-off custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text" onclick="askPialertShutdown()">'.$pia_lang['SysInfo_Shutdown_noti_head'].'</div></a>
-		  </div>
-		  <div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
-		      <a href="#" class="btn btn-warning"><i class="fa-solid fa-rotate-right custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text" onclick="askPialertReboot()">'.$pia_lang['SysInfo_Reboot_noti_head'].'</div></a>
-		  </div>
+			<div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+			  <div style="display: flex; justify-content: center;">
+			    <a href="#" class="btn btn-danger" style="width:260px; display:flex; align-items:center; justify-content:center; gap:10px;">
+			      <i class="fa-solid fa-power-off shutreboot-button-icon" id="Menu_Report_Envelope_Icon"></i>
+			      <div class="shutreboot-button-text" onclick="askPialertShutdown()">
+			        '.$pia_lang['SysInfo_Shutdown'].'
+			      </div>
+			    </a>
+			  </div>
+			</div>
+			<div class="col-sm-6" style="text-align: center; margin-bottom:20px;">
+			  <div style="display: flex; justify-content: center;">
+			    <a href="#" class="btn btn-warning" style="width:260px; display:flex; align-items:center; justify-content:center; gap:10px;">
+			      <i class="fa-solid fa-power-off shutreboot-button-icon" id="Menu_Report_Envelope_Icon"></i>
+			      <div class="shutreboot-button-text" onclick="askPialertReboot()">
+			        '.$pia_lang['SysInfo_Reboot'].'
+			      </div>
+			    </a>
+			  </div>
+			</div>
 		</div>';
 
-
-
 // Client ----------------------------------------------------------
-echo '<div class="box box-solid">
+echo '<div class="box bo
+	x-solid">
         <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-globe"></i> This Client</h3></div>
         <div class="box-body">
 					<div class="row">
@@ -295,56 +301,97 @@ echo '<div class="nav-tabs-custom">
 				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['process_count'] . '</div>
 				</div>
 				<div class="row">
-				  <div class="col-sm-3 sysinfo_gerneral_a">Logged in Users:</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['user_count'] . '</div>
-				</div>
-				<div class="row">
 				  <div class="col-sm-3 sysinfo_gerneral_a">Timezone (PHP / System):</div>
 				  <div class="col-sm-9 sysinfo_gerneral_b">"'. date_default_timezone_get() .'" / "'. get_local_system_tz() .'"</div>
+				</div>
+				<div class="row">
+				  <div class="col-sm-3 sysinfo_gerneral_a">PHP Version:</div>
+				  <div class="col-sm-9 sysinfo_gerneral_b">'. phpversion() .'</div>
 				</div>
               </div>
               '.$tab_content.'
             </div>
           </div>';
 
-
 // DB Info ----------------------------------------------------------
-echo '<div class="box box-solid">
-        <div class="box-header"><h3 class="box-title sysinfo_headline"><i class="bi bi-database"></i> Pi.Alert Database Details</h3></div>
-        <div class="box-body">
-        	<div style="height: 300px; overflow-y: scroll; overflow-x: hidden;">';
+echo '<div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="pull-left header text-aqua" id="sys_info_gen_head"><i class="bi bi-database"></i> Databases</li>
+              <li class="active"><a href="#tab_db_a" data-toggle="tab" aria-expanded="true">Main</a></li>
+              <li class=""><a href="#tab_db_b" data-toggle="tab" aria-expanded="true">Tools</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab_db_a">
+				<div style="height: 250px; overflow-y: scroll; overflow-x: hidden;">';
 
-$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
-echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+				$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
+				echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+				$db = new SQLite3('../db/pialert.db');
+				$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
+				echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
+				echo '<thead>
+						<tr role="row">
+							<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
+							<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
+						</tr>
+					  </thead>';
+				while ($table = $tablesQuery->fetchArray()) {
+				    $tableName = $table['name'];
+				    $ignore_tables = ['Tools_Speedtest_History', 'Tools_Nmap_ManScan', 'sqlite_sequence', 'sqlite_stat1'];
 
+				    if (in_array($tableName, $ignore_tables)) {
+				    	continue;
+				    }
 
-$db = new SQLite3('../db/pialert.db');
-$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
-echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
-echo '<thead>
-		<tr role="row">
-			<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
-			<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
-		</tr>
-	  </thead>';
-while ($table = $tablesQuery->fetchArray()) {
-    $tableName = $table['name'];
-    
-    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
-    $rowCount = $rowCountQuery->fetchArray()['count'];
+				    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
+				    $rowCount = $rowCountQuery->fetchArray()['count'];
 
-    echo '<tr>
-    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
-    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
-    	</tr>';
-}
-echo '</table>';
+				    echo '<tr>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
+				    	</tr>';
+				}
+				echo '</table>';
 
-$db->close();
+				$db->close();
+				echo '</div>
+              </div>
+              <div class="tab-pane" id="tab_db_b">
+				<div style="height: 250px; overflow-y: scroll; overflow-x: hidden;">';
 
-echo '		</div>
-        </div>
-      </div>';
+				$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert_tools.db';
+				echo '<p>The directory of the Pi.Alert database is <b>' . $DB_SOURCE . '</b></p>';
+				$db = new SQLite3('../db/pialert_tools.db');
+				$tablesQuery = $db->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name ASC");
+				echo '<table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
+				echo '<thead>
+						<tr role="row">
+							<th class="sysinfo_services col-sm-4 col-xs-8" style="padding: 8px;">Table Name</th>
+							<th class="sysinfo_services" style="padding: 8px;">Table Entries</th>
+						</tr>
+					  </thead>';
+				while ($table = $tablesQuery->fetchArray()) {
+				    $tableName = $table['name'];
+				    
+				    if ($tableName == "sqlite_sequence" || $tableName == "sqlite_stat1") {
+				    	continue;
+				    }
+
+				    $rowCountQuery = $db->query("SELECT COUNT(*) as count FROM $tableName");
+				    $rowCount = $rowCountQuery->fetchArray()['count'];
+
+				    echo '<tr>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $tableName . '</td>
+				    	<td style="padding: 3px; padding-left: 10px;">' . $rowCount . '</td>
+				    	</tr>';
+				}
+				echo '</table>';
+
+				$db->close();
+				echo '</div>
+              </div>
+            </div>
+          </div>';
 
 // User Crontab -----------------------------------------------------
 echo '<div class="box box-solid">
@@ -534,10 +581,7 @@ echo '<br>';
 
 ?>
     </section>
-
-    <!-- /.content -->
 </div>
-  <!-- /.content-wrapper -->
 
 <!-- ----------------------------------------------------------------------- -->
 <?php
@@ -545,7 +589,6 @@ require 'php/templates/footer.php';
 ?>
 
 <script type="text/javascript">
-
 // Pialert Reboot
 function askPialertReboot() {
   showModalWarning('<?=$pia_lang['SysInfo_Reboot_noti_head'];?>', '<?=$pia_lang['SysInfo_Reboot_noti_text'];?>',
@@ -554,8 +597,6 @@ function askPialertReboot() {
 function PialertReboot() {
 	$.get('php/server/commands.php?action=PialertReboot', function(msg) {showMessage (msg);});
 }
-
-
 // Pialert Shutdown
 function askPialertShutdown() {
   showModalWarning('<?=$pia_lang['SysInfo_Shutdown_noti_head'];?>', '<?=$pia_lang['SysInfo_Shutdown_noti_text'];?>',

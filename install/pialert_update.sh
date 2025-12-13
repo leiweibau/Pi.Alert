@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ------------------------------------------------------------------------------
-#  Pi.Alert
+#  Pi.Alert (Debian 13)
 #  Open Source Network Guard / WIFI & LAN intrusion detector 
 #
 #  pialert_update.sh - Update script
@@ -12,11 +12,9 @@
 # ------------------------------------------------------------------------------
 # Variables
 # ------------------------------------------------------------------------------
-if [ "$1" = "--lxc" ]; then
-  INSTALL_DIR="/opt"
-else
-  INSTALL_DIR="$HOME"
-fi
+BRANCH="main"
+INSTALL_DIR="/opt"
+EXEC_USER="$(whoami)"
 PIALERT_HOME="$INSTALL_DIR/pialert"
 LOG="pialert_update_`date +"%Y-%m-%d_%H-%M"`.log"
 PYTHON_BIN=python3
@@ -81,7 +79,7 @@ update_warning() {
   print_msg "############################################################################"
   print_msg ""
   print_msg ""
-  printf "%s " "Press enter to continue or press 'F' to force the update"
+  printf "%s " "Press enter to retry or press 'F' to force the update"
   read -n 1 ans
 
   # Check if the user pressed "F" to force the update
@@ -94,11 +92,7 @@ update_warning() {
     return
   fi
 
-  if [ "$USER" = "root" ]; then
-    scan_file="/root/pialert/back/.scanning"
-  else
-    scan_file="/home/$USER/pialert/back/.scanning"
-  fi
+  scan_file="$PIALERT_HOME/back/.scanning"
 
   if [ -f "$scan_file" ]; then
     print_msg ""
@@ -253,15 +247,25 @@ download_pialert() {
   fi
 
   print_msg "- Downloading update file..."
-  URL="https://github.com/leiweibau/Pi.Alert/raw/main/tar/pialert_latest.tar"
+  URL="https://github.com/leiweibau/Pi.Alert/raw/$BRANCH/tar/pialert_latest.tar"
   wget -q --show-progress -O "$INSTALL_DIR/pialert_latest.tar" "$URL"
 
   print_msg "- Uncompressing tar file"
+
+  EXCLUDES=(
+    --exclude=pialert/config/pialert.conf
+    --exclude=pialert/db/pialert.db
+    --exclude=pialert/log/*
+  )
+
+  if [ -f "$INSTALL_DIR/pialert/db/pialert_tools.db" ]; then
+      EXCLUDES+=( --exclude=pialert/db/pialert_tools.db )
+  fi
+
   tar xf "$INSTALL_DIR/pialert_latest.tar" -C "$INSTALL_DIR" \
-    --exclude='pialert/config/pialert.conf' \
-    --exclude='pialert/db/pialert.db' \
-    --exclude='pialert/log/*'  \
-    --checkpoint=100 --checkpoint-action="ttyout=."               2>&1 >> "$LOG"
+      "${EXCLUDES[@]}" \
+      --checkpoint=100 --checkpoint-action="ttyout=."                2>&1 >> "$LOG"
+
   echo ""
 
   print_msg "- Deleting downloaded tar file..."
@@ -496,6 +500,14 @@ if ! grep -Fq "PFSENSE_EXCLUDE_INT" "$PIALERT_HOME/config/pialert.conf" ; then
 PFSENSE_EXCLUDE_INT       = ['WAN']
 EOF
 fi
+
+# 2025-10-31
+if ! grep -Fq "PFSENSE_PORT" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+PFSENSE_PORT              = 80
+EOF
+fi
 }
 
 # ------------------------------------------------------------------------------
@@ -544,35 +556,40 @@ EOL
 # ------------------------------------------------------------------------------
 update_permissions() {
   print_msg "- Set Permissions..."
-  sudo chgrp -R www-data "$PIALERT_HOME/db"                         2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/db/temp"                         2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/shoutrrr/arm64/shoutrrr"             2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/shoutrrr/armhf/shoutrrr"             2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/shoutrrr/x86/shoutrrr"               2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/speedtest-cli"                       2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/pialert-cli"                         2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/pialert.py"                          2>&1 >> "$LOG"
-  chmod +x "$PIALERT_HOME/back/update_vendors.sh"                   2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/config/"                         2>&1 >> "$LOG"
-  sudo chgrp -R www-data "$PIALERT_HOME/config"                     2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/front/reports"                   2>&1 >> "$LOG"
-  sudo chgrp -R www-data "$PIALERT_HOME/front/reports"              2>&1 >> "$LOG"
-  sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"           2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/front/satellites"                2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/back/speedtest/"                 2>&1 >> "$LOG"
-  sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"            2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/db"                              2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/db/temp"                              2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/shoutrrr/arm64/shoutrrr"             2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/shoutrrr/armhf/shoutrrr"             2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/shoutrrr/x86/shoutrrr"               2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/speedtest-cli"                       2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/pialert-cli"                         2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/pialert.py"                          2>&1 >> "$LOG"
+  sudo chmod +x "$PIALERT_HOME/back/update_vendors.sh"                   2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/config/"                              2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/config"                          2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/front/reports"                        2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                   2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/front/php/tmp"                        2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/front/php/tmp"                   2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/front/satellites"                     2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"                2>&1 >> "$LOG"
+  sudo chmod -R 775 "$PIALERT_HOME/back/speedtest/"                      2>&1 >> "$LOG"
+  sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"                 2>&1 >> "$LOG"
   print_msg "- Create Logfile Symlinks..."
-  touch "$PIALERT_HOME/log/pialert.vendors.log"                     2>&1 >> "$LOG"
-  touch "$PIALERT_HOME/log/pialert.1.log"                           2>&1 >> "$LOG"
-  touch "$PIALERT_HOME/log/pialert.cleanup.log"                     2>&1 >> "$LOG"
-  touch "$PIALERT_HOME/log/pialert.webservices.log"                 2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.vendors.log"                     2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.1.log"                           2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.cleanup.log"                     2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.webservices.log"                 2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/pialert.speedtest.log"                   2>&1 >> "$LOG"
+  sudo touch "$PIALERT_HOME/log/usercron.log"                            2>&1 >> "$LOG"
   src_dir="$INSTALL_DIR/pialert/log"
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
-  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log; do
-      ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
+  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log usercron.log; do
+      sudo ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
   done
   print_msg "- Set sudoers..."
-  sudo $PIALERT_HOME/back/pialert-cli set_sudoers                   2>&1 >> "$LOG"
+
+  sudo $PIALERT_HOME/back/pialert-cli set_sudoers --lxc             2>&1 >> "$LOG"
 
   print_msg "- Patch DB..."
   $PIALERT_HOME/back/pialert-cli update_db
@@ -637,11 +654,20 @@ check_python_version() {
     check_and_install_package "asusrouter"
     check_and_install_package "paho-mqtt"
 
-    print_msg "  - Update 'requests' package to 2.31.0"
-    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-      pip3 -q install "requests>=2.31.0" --break-system-packages --no-warn-script-location         2>&1 >> "$LOG"
-    else
-      pip3 -q install "requests>=2.31.0" --no-warn-script-location                                 2>&1 >> "$LOG"
+    REQUIRED_VERSION="2.31.0"
+    INSTALLED_VERSION=$(pip3 show requests 2>/dev/null | awk '/^Version:/ {print $2}')
+
+    version_lt () {
+      [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" != "$2" ]
+    }
+
+    if [ -z "$INSTALLED_VERSION" ] || version_lt "$INSTALLED_VERSION" "$REQUIRED_VERSION"; then
+      print_msg "  - Updating requests (installed: ${INSTALLED_VERSION:-none})"
+      if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+        pip3 -q install "requests>=${REQUIRED_VERSION}" --break-system-packages --no-warn-script-location   2>&1 >> "$LOG"
+      else
+        pip3 -q install "requests>=${REQUIRED_VERSION}" --no-warn-script-location                           2>&1 >> "$LOG"
+      fi
     fi
 
   else

@@ -16,10 +16,13 @@ require '../php/server/journal.php';
 require '../php/templates/language/' . $pia_lang_selected . '.php';
 
 $DBFILE = '../../db/pialert.db';
+$DBFILE_TOOLS = '../../db/pialert_tools.db';
+
 $PIA_HOST_IP = $_REQUEST['host'];
 $PIA_SCAN_TIME = date('Y-m-d H:i:s');
 
 OpenDB();
+OpenDB_Tools();
 
 function crosscheckIP($query_ip) {
 	global $db;
@@ -39,7 +42,7 @@ if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 	if (isset($db_crosscheck)) {
 
 		$CSVFILE = '';
-		$results = $db->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC');
+		$results = $db_tools->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC');
 		while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
 		    $CSVFILE .= '"' . $row['ID'] . '",';
 		    $CSVFILE .= '"' . $row['scan_date'] . '",';

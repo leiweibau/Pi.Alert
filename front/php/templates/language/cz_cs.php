@@ -373,6 +373,12 @@ $pia_lang['MT_lang_pl_pl'] = 'Polština (PL)';
 $pia_lang['MT_lang_nl_nl'] = 'Nizozemština (NL)';
 $pia_lang['MT_lang_dk_da'] = 'Dánština (DK)';
 $pia_lang['MT_lang_cz_cs'] = 'Čeština (CZ)';
+$pia_lang['MT_lang_fi_fi'] = 'Finština (FI)';
+$pia_lang['MT_lang_se_sv'] = 'Švédština (SE)';
+$pia_lang['MT_lang_no_no'] = 'Norština (NO)';
+$pia_lang['MT_lang_lt_lt'] = 'Litevština (LT)';
+$pia_lang['MT_lang_ua_uk'] = 'Ukrajinština (UA)';
+$pia_lang['MT_lang_ru_ru'] = 'Ruština (RU)';
 $pia_lang['MT_lang_selector_apply'] = 'Použít';
 $pia_lang['MT_Tools_Tab_Settings'] = 'Funkce';
 $pia_lang['MT_Tools_Tab_Settings_Intro'] = 'Možnosti uvedené níže provádějí změny v konfiguraci na straně serveru. Tyto změny ovlivňují všechna zařízení, která mají přístup na tuto stránku.';
@@ -758,14 +764,14 @@ $pia_lang['GeoLiteDB_Installnotes'] = 'Databázi můžeš nainstalovat pomocí z
 $pia_lang['GeoLiteDB_absent'] = 'Databáze není nainstalována';
 // System Info Page
 //////////////////////////////////////////////////////////////////
-$pia_lang['SysInfo_storage_note'] = 'Je možné, že využití úložiště nelze zjistit pro všechny výše uvedené disky. Závisí to na tom, pod kterým uživatelem jsou disky připojeny.';
-$pia_lang['SysInfo_Shutdown'] = 'Pi.Alert se vypíná';
-$pia_lang['SysInfo_Reboot'] = 'Pi.Alert se restartuje';
-$pia_lang['SysInfo_Shutdown_noti_head'] = 'Vypnout Pi.Alert';
-$pia_lang['SysInfo_Shutdown_noti_text'] = 'Nebude vypnut pouze Pi.Alert, ale celý hostitelský systém, na kterém je nainstalován.';
-$pia_lang['SysInfo_Reboot_noti_head'] = 'Restartovat Pi.Alert';
-$pia_lang['SysInfo_Reboot_noti_text'] = 'Nebude restartován pouze Pi.Alert, ale celý hostitelský systém, na kterém je nainstalován.';
-$pia_lang['SysInfo_Gen_execute_command'] = 'Příkaz se provádí';
+$pia_lang['SysInfo_storage_note'] = 'Je možné, že využití úložiště nebude možné zjistit u všech výše uvedených jednotek. Záleží to na tom, pod kterým uživatelem jsou jednotky připojeny.';
+$pia_lang['SysInfo_Shutdown'] = 'Vypnout Pi.Alert po<br>dalším skenu';
+$pia_lang['SysInfo_Reboot'] = 'Restartovat Pi.Alert po<br>dalším skenu';
+$pia_lang['SysInfo_Shutdown_noti_head'] = 'Vypnout Pi.Alert po dalším skenu';
+$pia_lang['SysInfo_Shutdown_noti_text'] = 'Po dalším skenu bude vypnut nejen Pi.Alert, ale i hostitelský systém, na kterém je nainstalován.';
+$pia_lang['SysInfo_Reboot_noti_head'] = 'Restartovat Pi.Alert po dalším skenu';
+$pia_lang['SysInfo_Reboot_noti_text'] = 'Po dalším skenu bude restartován nejen Pi.Alert, ale i hostitelský systém, na kterém je nainstalován.';
+$pia_lang['SysInfo_Gen_execute_command'] = 'Příkaz byl přijat.';
 // Speedtest
 //////////////////////////////////////////////////////////////////
 $pia_lang['ookla_postinstall_note'] = 'Než bude možné používat Speedtest klienta od Ookla, je nutné jednorázově spustit příkaz "sudo ./speedtest" ve složce "$HOME/pialert/back/speedtest/". Tlačítko Speedtest se aktivuje po obnovení stránky, ale bude fungovat až po přijetí licence Ookla.';
@@ -847,7 +853,7 @@ $pia_journ_lang['LogStr_0018'] = 'Všechny (unknown) hosty odstraněni';
 $pia_journ_lang['LogStr_0019'] = 'Odebrání (unknown) hostů selhalo';
 $pia_journ_lang['LogStr_0020'] = 'Všechny události zařízení byly smazány';
 $pia_journ_lang['LogStr_0021'] = 'Smazání událostí zařízení selhalo';
-$pia_journ_lang['LogStr_0022'] = 'Všechny hosty z přehledu zařízení byly smazány';
+$pia_journ_lang['LogStr_0022'] = 'Všechny hosty zpřehledu zařízení byly smazány';
 $pia_journ_lang['LogStr_0023'] = 'Smazání hostů z přehledu zařízení selhalo';
 $pia_journ_lang['LogStr_0024'] = 'Všechny události byly smazány';
 $pia_journ_lang['LogStr_0025'] = 'Smazání všech událostí selhalo';

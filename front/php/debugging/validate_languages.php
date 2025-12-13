@@ -46,7 +46,10 @@ if ($_SESSION["login"] != 1) {
             color: deepskyblue; 
         }
         .languages {
-            display: inline-block; width: 150px;
+            display: inline-block; width: 200px; padding-left: 5px;
+        }
+        .language_container {
+            display: inline-block; width: 320px; min-width: 50%; padding: 10px 0px;
         }
         .topheader {
             width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
@@ -86,26 +89,47 @@ $languages = [
     'pl_pl' => 'Polish',
     'nl_nl' => 'Dutch',
     'cz_cs' => 'Czech',
-    'dk_da' => 'Danish'
+    'fi_fi' => 'Finnish',
+    'lt_lt' => 'Lithuanian',
+    'dk_da' => 'Danish',
+    'no_no' => 'Norwegian',
+    'ru_ru' => 'Russian',
+    'se_sv' => 'Swedish',
+    'ua_uk' => 'Ukrainian'
 ];
+
+$row_color = "f0f0f0";
 
 foreach ($languages as $code => $label) {
     require "../templates/language/{$code}.php";
 
-    // Optional: Spracharrays für später speichern (wie im Original)
+    if ($row_color == "#f0f0f0") {$row_color = "white";} else {$row_color = "#f0f0f0";}
+
     ${str_replace('_', '', $code)} = $pia_lang;
     ${str_replace('_', '', $code) . '_journ'} = $pia_journ_lang;
 
-    echo "<div class=\"languages\">{$label}: </div>" . sizeof($pia_lang) . " entries<br>";
-    echo "<div class=\"languages\">{$label} (Journal): </div>" . sizeof($pia_journ_lang) . " entries<br>";
+    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">{$label}: </div>" . sizeof($pia_lang) . " entries</div>";
+    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">{$label} (Journal): </div>" . sizeof($pia_journ_lang) . " entries</div>";
 
     unset($pia_lang, $pia_journ_lang);
 }
 
+$all_keys_lang = [];
+$all_keys_journ = [];
 
-$all_keys_lang = array_unique(array_merge(array_keys($dede), array_keys($enus), array_keys($eses), array_keys($frfr), array_keys($itit)));
-$all_keys_journ = array_unique(array_merge(array_keys($dede_journ), array_keys($enus_journ), array_keys($eses_journ), array_keys($frfr_journ), array_keys($itit_journ)));
+foreach ($languages as $code => $label) {
+    $varName = str_replace('_', '', $code);
+    $varNameJ = $varName . '_journ';
+    if (isset($$varName) && is_array($$varName)) {
+        $all_keys_lang = array_merge($all_keys_lang, array_keys($$varName));
+    }
+    if (isset($$varNameJ) && is_array($$varNameJ)) {
+        $all_keys_journ = array_merge($all_keys_journ, array_keys($$varNameJ));
+    }
+}
 
+$all_keys_lang = array_unique($all_keys_lang);
+$all_keys_journ = array_unique($all_keys_journ);
 $missing_lang = [];
 $missing_journ = [];
 
@@ -118,7 +142,13 @@ foreach ([
     'nl_nl' => $nlnl,
     'pl_pl' => $plpl,
     'cz_cs' => $czcs,
-    'dk_da' => $dkda
+    'dk_da' => $dkda,
+    'no_no' => $nono,
+    'se_sv' => $sesv,
+    'fi_fi' => $fifi,
+    'lt_lt' => $ltlt,
+    'ru_ru' => $ruru,
+    'ua_uk' => $uauk
 ] as $lang => $arr) {
     foreach ($all_keys_lang as $key) {
         if (!array_key_exists($key, $arr)) {
@@ -136,7 +166,13 @@ foreach ([
     'nl_nl' => $nlnl_journ,
     'pl_pl' => $plpl_journ,
     'cz_cs' => $czcs_journ,
-    'dk_da' => $dkda_journ
+    'dk_da' => $dkda_journ,
+    'no_no' => $nono_journ,
+    'se_sv' => $sesv_journ,
+    'fi_fi' => $fifi_journ,
+    'lt_lt' => $ltlt_journ,
+    'ru_ru' => $ruru_journ,
+    'ua_uk' => $uauk_journ
 ] as $lang => $arr) {
     foreach ($all_keys_journ as $key) {
         if (!array_key_exists($key, $arr)) {
@@ -146,14 +182,12 @@ foreach ([
 }
 
 echo '</div>';
-
 echo '<div class="info_box">
         <h2 class="heading">Missing Entries (pia_lang)</h2>';
 foreach ($missing_lang as $lang => $keys) {
     echo '<div class="languages"><strong>' . $lang . ':</strong></div> ' . implode(', ', $keys) . '<br>';
 }
 echo '</div>';
-
 echo '<div class="info_box">
         <h2 class="heading">Missing Entries (pia_journ_lang)</h2>';
 foreach ($missing_journ as $lang => $keys) {
@@ -167,14 +201,11 @@ echo '</div>';
             const protocol = window.location.protocol;
             const host = window.location.host;
             const path = window.location.pathname;
-
             const scriptDir = path.substring(0, path.lastIndexOf('/') + 1).replace('php/debugging/', '');
-
             return `${protocol}//${host}${scriptDir}`;
         }
 
         const baseUrl = getBaseUrl();
-
         const pialertDiv = document.getElementById("pialert_url");
         if (pialertDiv) {
             const baseUrlLink = document.createElement("a");

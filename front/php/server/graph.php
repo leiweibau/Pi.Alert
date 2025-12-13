@@ -155,13 +155,13 @@ function prepare_graph_arrays_ICMPHost($icmp_ip) {
 
 // History Graph for device "Internet" / Speedtest Results
 function prepare_speedtestresults_graph() {
-	global $db;
+	global $db_tools;
 
 	$Speedtest_Graph_Time = array();
 	$Speedtest_Graph_ping = array();
 	$Speedtest_Graph_Down = array();
 	$Speedtest_Graph_Up = array();
-	$results = $db->query('SELECT speed_date, speed_ping, speed_down, speed_up FROM Tools_Speedtest_History ORDER BY speed_date DESC LIMIT 20');
+	$results = $db_tools->query('SELECT speed_date, speed_ping, speed_down, speed_up FROM Tools_Speedtest_History ORDER BY speed_date DESC LIMIT 20');
 	while ($row = $results->fetchArray()) {
 		$time_raw = explode(' ', $row['speed_date']);
 		$time = explode(':', $time_raw[1]);
