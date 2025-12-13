@@ -104,11 +104,11 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 You can always check for a new release using the "Update Check" button in the sidebar. This check will show you if the GeoLite2 DB is 
 installed or up to date and which new features, fixes or changes are available in the new Pi.Alert release, if you are not already using the latest version.
 
-With version v2025-12-15, there has been a change to the update script. With the change to the installation directory from this version onwards, it has become necessary to provide two update scripts.
+‼️ With version v2025-12-15, there has been a change to the update script. With the change to the installation directory from this version onwards, it has become necessary to provide two update scripts.
 
-If your Pi.Alert installation is located in a user directory ($HOME/pialert), use the updater in the "Updater HOME" section.
+🔴 If your Pi.Alert installation is located in a user directory ($HOME/pialert), use the updater in the "Updater HOME" section.
 
-If the Pi.ALert installation is located in the "/opt/pialert" directory, use the updater in the "Updater OPT" section.
+🔴 If the Pi.ALert installation is located in the "/opt/pialert" directory, use the updater in the "Updater OPT" section.
 
 <table>
   <thead>
@@ -116,9 +116,9 @@ If the Pi.ALert installation is located in the "/opt/pialert" directory, use the
   </thead>
   <tbody>
   <tr><td>
-    - Installation is located in the "/opt/pialert"
-    - Installed Pi.Alert with or after version v2025-12-15
-    - Created a Pi.Alert container using the Proxmox Helper Scripts<br><br>
+    - Installation is located in the "/opt/pialert"<br>
+    - Installed Pi.Alert with or after version v2025-12-15<br>
+    - Or created a Pi.Alert container using the Proxmox Helper Scripts<br><br>
 
 ```
 bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
@@ -134,7 +134,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
   </thead>
   <tbody>
   <tr><td>
-    - Installation is located in a user directory ($HOME/pialert)
+    - Installation is located in a user directory ($HOME/pialert)<br>
     - Pi.Alert was manual installed before version v2025-12-15<br><br>
 
 ```
@@ -146,7 +146,7 @@ bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pi
 
 ‼️ “Outdated” refers to the updater itself. Both the old and new updater use the same installation package.
 
-‼️ Help with migrating to the new installation path [Here](docs/MIGRATION_HOME_TO_OPT.md)
+🟢 Help with migrating to the new installation path [Here](docs/MIGRATION_HOME_TO_OPT.md)
 
 An archive of older versions can be found at [https://leiweibau.net/archive/pialert](https://leiweibau.net/archive/pialert/). This archive contains all release notes of my fork.
 
