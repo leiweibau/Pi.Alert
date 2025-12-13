@@ -1,11 +1,50 @@
 ## Comparison
 
-To make it clearer how this fork differs from the main project, I made this table.
+To make it clearer how this version differs from the original project, I made this table.
 
-![Compare][compare]
+|  |   | **Pi.Alert (leiweibau)** | **Pi.Alert (original)** |
+|---|---|:---:|:---:|
+| **Security** | Login | 🟢 | 🔴 |
+|  | API-Key for API-Calls | 🟢 | 🔴 |
+|  | Journal (Frontend/Backend) | 🟢 | 🔴 |
+| **Scans / Imports** | Scan-Methodes | arp-scan<br>nmap<br>ping | arp-scan |
+|  | Import-Methodes | Pi-hole v5 & v6<br>dnsmasq<br>Fritz!Box (Router)<br>Microtik<br>UniFi<br>Asus Router<br>OpenWRT<br>pfSense | Pi-hole v5<br>dnsmasq |
+|  | Genauigkeit (arp-scan) | 1 cycle every 5 min with 6 retries | 1 cycle every 5 min with 6 retries<br>1 cycle every 15 min with viel mehr retries |
+|  | Hostname detection | DNS<br>mDNS<br>NetBIOS | DNS |
+|  | Web Services / Monitoring | 🟢 | 🔴 |
+|  | ICMP Monitoring (ping) | 🟢 | 🔴 |
+|  | Rogue DHCP Detection | 🟢 | 🔴 |
+|  | Ignorelist (MAC, Name, IP)| 🟢 | 🔴 |
+|  | Satellites (Remote Scan) | 🟢 | 🔴 |
+| **User Interface** | Skins / Themes / Darkmode | 🟢 / 🟢 / 🟢 | 🟢 / 🔴 / 🔴 |
+|  | FavIcon / Homescreen Icon| 🟢 | 🔴 |
+|  | Column configuration (Devicelist)| 🟢 | 🔴 |
+|  | Bulk Editor | 🟢 | 🔴 |
+|  | Network activity graph | 🟢 | 🔴 |
+|  | Config-File editor | 🟢 | 🔴 |
+|  | Multilanguage | 🟢 | 🔴 |
+|  | Network relationship page | 🟢 | 🔴 |
+|  | Custom predefined filters in the sidebar | 🟢 | 🔴 |
+|  | Exclude devices from presence page | 🟢 | 🔴 |
+|  | System/Pi.Alert status page | 🟢 | 🔴 |
+| **Notifications** | Email | 🟢 | 🔴 |
+|  | Push Services | Pushover<br>Pushsaver<br>ntfy<br>Telegram | 🔴 |
+|  | Notifications on WebGui | 🟢 | 🔴 |
+|  | Notification test | 🟢 | 🔴 |
+|  | Download notifications as PDF | 🟢 | 🔴 |
+|  | optional continuously notifications | 🟢 | 🔴 |
+|  | MQTT Messages | 🟢 | 🔴 |
+| **Maintenance** | Backup / Restore Database | 🟢 | 🔴 |
+|  | Backup / Restore Configfile | 🟢 | 🔴 |
+|  | Export / Download devices as CSV file | 🟢 | 🔴 |
+|  | DB Cleanup | 🟢 | 🔴 |
+|  | Update Check (manual / automatically)| 🟢 / 🟢 | 🔴 / 🔴 |
+|  | Log-Viewer | 🟢 | 🔴 |
+| **Misc** | CLI Tool | 🟢 | 🔴 |
+|  | API | 🟢 | 🔴 |
+|  | Wake-on-LAN | 🟢 | 🔴 |
+|  | Manual nmap Scan per device | 🟢 | 🔴 |
+|  | Speedtest (manual / automatically)| 🟢 / 🟢 | 🔴 / 🔴 |
 
 
 [Back](https://github.com/leiweibau/Pi.Alert)
-
-
-[compare]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/compare.png     "Compare"
