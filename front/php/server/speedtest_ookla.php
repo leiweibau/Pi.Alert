@@ -170,7 +170,7 @@ if ($mod == "get") {
 			$post_message = $pia_lang['ookla_postinstall_note_lxc'];
 		}
 
-		echo '<br><button type="button" class="btn btn-primary" onclick="location.reload();"><i class="bi bi-arrow-clockwise"></i></button>';
+		echo '<br><button type="button" class="btn btn-primary" onclick="location.reload();" style="font-size: 18px; width:100px;"><i class="bi bi-arrow-clockwise"></i></button>';
 		// echo '<span class="text-red" style="font-size: 18px;">' . $post_message . '</span>';
 	}
 
