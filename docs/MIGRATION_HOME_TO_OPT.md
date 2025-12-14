@@ -32,11 +32,11 @@
 
 	If you are on version v2025-12-14 or newer:
 	```
-	$HOME/pialert/pialert_uninstall_old.sh
+	$HOME/pialert/install/pialert_uninstall_old.sh
 	```
 	If your version is older than v2025-12-14:
 	```
-	$HOME/pialert/pialert_uninstall.sh
+	$HOME/pialert/install/pialert_uninstall.sh
 	```
 
 
