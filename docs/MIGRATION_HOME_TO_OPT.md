@@ -58,8 +58,20 @@
 
 	- Copy the file pialert.conf to "/opt/pialert/config/"
 
+9. Edit the restored configuration file "pialert.conf" in "/opt/pialert/config/".
 
-9. Set Correct Permissions
+	```
+	sudo nano /opt/pialert/config/pialert.conf
+	```
+
+	Set the value of PIALERT_PATH to the new directory	
+
+	```
+	PIALERT_PATH               = '/opt/pialert'
+	```
+
+
+10. Set Correct Permissions
 
 	```
 	sudo chgrp -R www-data "/opt/pialert/db"
@@ -69,4 +81,4 @@
 	sudo chmod -R 775 "/opt/pialert/config"
 	```
 
-10. If you have previously downloaded the Ookla Speedtest Client to use the automatic speed tests, you will need to download it again via the WebGUI.
+11. If you have previously downloaded the Ookla Speedtest Client to use the automatic speed tests, you will need to download it again via the WebGUI.
