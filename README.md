@@ -84,7 +84,7 @@ Linux distributions which use the "apt" package manager. Check "[Things to keep 
   <tr><td>
 
 ```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh)"
+sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh)"
 ```
   </td></tr>
   </tbody>
@@ -121,7 +121,7 @@ installed or up to date and which new features, fixes or changes are available i
     - Or created a Pi.Alert container using the Proxmox Helper Scripts<br><br>
 
 ```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
+sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
 ```
   </td></tr>
   </tbody>
