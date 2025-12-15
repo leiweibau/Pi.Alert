@@ -43,7 +43,7 @@
 6. Install Pi.Alert Using the Latest Installer
 
 	```
-	bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh)"
+	sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh)"
 	```
 
 
