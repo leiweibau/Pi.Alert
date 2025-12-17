@@ -285,11 +285,11 @@ def check_internet_IP():
         internet_IP = get_internet_IP()
 
         # Check result = IP
-        if internet_IP == "" :
+        if internet_IP is None or internet_IP == "":
             print('    Error retrieving Internet IP')
             # print('    Exiting...\n')
             #return 1
-        print('   ', internet_IP)
+        print('    Internet IP: ', internet_IP)
 
         # Get previous stored IP
         print('\nRetrieving previous IP...')
@@ -302,8 +302,8 @@ def check_internet_IP():
             print('    Saving new IP')
             save_new_internet_IP (internet_IP)
             print('        IP updated')
-        else :
-            print('    No changes to perform')
+        # else :
+        #     print('    No changes to perform')
         closeDB()
 
         # Get Dynamic DNS IP
@@ -619,39 +619,75 @@ def run_speedtest_task(start_time, crontab_string):
     return 0
 
 #-------------------------------------------------------------------------------
-def get_internet_IP():
+# def get_internet_IP():
+#     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
+#     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
+    
+#     curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
+#     try:
+#         cmd_output = subprocess.check_output(
+#             curl_args,
+#             universal_newlines=True,
+#             stderr=subprocess.STDOUT,
+#             timeout=10
+#         ).strip()
+
+#         # Check empty response
+#         if not cmd_output:
+#             return check_IP_format(None)
+
+#         return check_IP_format(cmd_output)
+
+#     except subprocess.CalledProcessError as e:
+#         # curl was executed but returned an error status
+#         print(f"curl error: exit {e.returncode}, output: {e.output}")
+#         return check_IP_format(None)
+
+#     except subprocess.TimeoutExpired:
+#         # curl took too long
+#         print("curl timeout")
+#         return check_IP_format(None)
+
+#     except Exception as e:
+#         # generic errors (e.g., OSError if curl does not exist)
+#         print(f"unexpected error: {e}")
+#         return check_IP_format(None)
+
+def get_internet_IP(retries=3, delay=2):
     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
-    
+
     curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
-    try:
-        cmd_output = subprocess.check_output(
-            curl_args,
-            universal_newlines=True,
-            stderr=subprocess.STDOUT,
-            timeout=10
-        ).strip()
 
-        # Check empty response
-        if not cmd_output:
-            return check_IP_format(None)
+    for attempt in range(1, retries + 1):
+        try:
+            cmd_output = subprocess.check_output(
+                curl_args,
+                universal_newlines=True,
+                stderr=subprocess.STDOUT,
+                timeout=10
+            ).strip()
 
-        return check_IP_format(cmd_output)
+            if cmd_output:
+                return check_IP_format(cmd_output)
 
-    except subprocess.CalledProcessError as e:
-        # curl was executed but returned an error status
-        print(f"curl error: exit {e.returncode}, output: {e.output}")
-        return check_IP_format(None)
+            print(f"    Attempt {attempt}: empty response")
 
-    except subprocess.TimeoutExpired:
-        # curl took too long
-        print("curl timeout")
-        return check_IP_format(None)
+        except subprocess.CalledProcessError as e:
+            print(f"    Attempt {attempt}: curl error {e.returncode}")
 
-    except Exception as e:
-        # generic errors (e.g., OSError if curl does not exist)
-        print(f"unexpected error: {e}")
-        return check_IP_format(None)
+        except subprocess.TimeoutExpired:
+            print(f"    Attempt {attempt}: curl timeout")
+
+        except Exception as e:
+            print(f"    Attempt {attempt}: unexpected error: {e}")
+
+        # waiting for next retry
+        if attempt < retries:
+            time.sleep(delay)
+
+    # all retries used
+    return None
 
 #-------------------------------------------------------------------------------
 def get_dynamic_DNS_IP():
@@ -3056,6 +3092,7 @@ def update_devices_names():
     print('        Trying to resolve devices without name...', end='')
     for device in sql.execute ("SELECT * FROM Devices WHERE dev_Name IN ('(unknown)','') AND dev_LastIP <> '-'") :
         # Resolve device name
+        # print(device['dev_MAC'])
         newName = resolve_device_name (device['dev_MAC'], device['dev_LastIP'])
        
         if newName == -1 :
