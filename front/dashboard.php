@@ -126,6 +126,11 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <!-- Navbar Right Menu -->
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
+          <li>
+            <div id="dashboardRefreshCountdown" class="a navbar-servertime text-muted" style="font-size:12px;">
+    Next update in <strong><span id="dashboardRefreshCountdownValue">--</span>s</strong>
+</div>
+          </li>
           <?php
           if ($FRONTEND_PHBUTTON != '') {
             echo '<li><a id="navbar-pihole-button" class="a navbar-servertime" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
@@ -403,7 +408,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-3">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Reports</h3>
+          <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Reports (latest 5)</h3>
         </div>
 
         <div class="box-body" style="height:300px;">
@@ -431,7 +436,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 
         <div class="box-body" style="height:300px;">
 
-            <div style="width:260px; height:260px; margin:auto;">
+            <div style="width:260px; height:260px; margin:auto; padding-top:20px">
                 <canvas id="devicesDonutIcmp"></canvas>
             </div>
 
@@ -446,7 +451,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua">
-            <i class="bi bi-calendar-event"></i> LEER
+            <i class="bi bi-calendar-event"></i> Activity Chart
           </h3>
         </div>
 
@@ -541,9 +546,10 @@ $(document).ready(function () {
     getEvents('all');
     getLocalDeviceStatus();
     getIcmpDeviceStatus();
-    startDeviceStatusRefresh();
+    startDashboardRefresh();
     getReportsCount();
     loadLatestReports();
+    startDashboardRefresh();
 });
 
 // --------------------------------------------------------------------------
@@ -1039,12 +1045,12 @@ function showReportModal(filename) {
         }
     });
 }
-
+// --------------------------------------------------------------------------
 function formatReportFilename(filename) {
     // Entfernt führenden Zeitstempel: YYYYMMDD-HHMMSS_
     return filename.replace(/^[0-9]{8}-[0-9]{6}_/, '');
 }
-
+// --------------------------------------------------------------------------
 function refreshEventsTable() {
 
     if (!eventsTable) {
@@ -1054,14 +1060,14 @@ function refreshEventsTable() {
     // Ajax-Reload ohne Reset von Scroll / Order
     eventsTable.ajax.reload(null, false);
 }
-
-
-// Donut Charts – gemeinsamer Auto-Refresh
 // --------------------------------------------------------------------------
-var deviceStatusTimer = null;
-var DEVICE_STATUS_REFRESH_INTERVAL = 120000; // 2 Minuten
+var dashboardRefreshTimer   = null;
+var dashboardCountdownTimer = null;
 
-function refreshDeviceStatusCharts() {
+var DASHBOARD_REFRESH_INTERVAL = 120000; // 2 Minuten
+var dashboardCountdownSeconds  = DASHBOARD_REFRESH_INTERVAL / 1000;
+
+function refreshDashboardData() {
     getLocalDeviceStatus();
     getIcmpDeviceStatus();
     getReportsCount();
@@ -1069,18 +1075,62 @@ function refreshDeviceStatusCharts() {
     refreshEventsTable();
 }
 
-function startDeviceStatusRefresh() {
-    stopDeviceStatusRefresh(); // Sicherheit
-    deviceStatusTimer = setInterval(function () {
-        refreshDeviceStatusCharts();
-    }, DEVICE_STATUS_REFRESH_INTERVAL);
+function startDashboardRefresh() {
+
+    startDashboardCountdown();
+
+    if (dashboardRefreshTimer !== null) {
+        return;
+    }
+
+    refreshDashboardData();
+
+    dashboardRefreshTimer = setInterval(function () {
+        refreshDashboardData();
+        startDashboardCountdown();
+    }, DASHBOARD_REFRESH_INTERVAL);
 }
 
-function stopDeviceStatusRefresh() {
-    if (deviceStatusTimer !== null) {
-        clearInterval(deviceStatusTimer);
-        deviceStatusTimer = null;
+
+function stopDashboardRefresh() {
+
+    if (dashboardRefreshTimer === null) {
+        return;
     }
+
+    clearInterval(dashboardRefreshTimer);
+    dashboardRefreshTimer = null;
+}
+// --------------------------------------------------------------------------
+function startDashboardCountdown() {
+
+    stopDashboardCountdown(); // Sicherheit
+
+    dashboardCountdownSeconds = DASHBOARD_REFRESH_INTERVAL / 1000;
+    $('#dashboardRefreshCountdownValue').text(dashboardCountdownSeconds);
+
+    dashboardCountdownTimer = setInterval(function () {
+
+        dashboardCountdownSeconds--;
+
+        if (dashboardCountdownSeconds <= 0) {
+            stopDashboardCountdown();
+            return;
+        }
+
+        $('#dashboardRefreshCountdownValue').text(dashboardCountdownSeconds);
+
+    }, 1000);
+}
+// --------------------------------------------------------------------------
+function stopDashboardCountdown() {
+
+    if (dashboardCountdownTimer === null) {
+        return;
+    }
+
+    clearInterval(dashboardCountdownTimer);
+    dashboardCountdownTimer = null;
 }
 
 </script>
