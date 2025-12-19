@@ -64,7 +64,6 @@ def main():
     cycle = str(sys.argv[1])
 
     if cycle == 'speedtest':
-        # res = check_internet_IP()
         res = speedtest()
     elif cycle == 'nmap':
         res = nmap_scan()
@@ -73,7 +72,6 @@ def main():
         res = cleanup_database_tools()
     else:
         return 0
-
 
 #===============================================================================
 # Set Env (Userpermissions DB-file)
@@ -107,7 +105,61 @@ def set_reports_file_permissions():
     os.system("sudo chown -R " + get_username() + ":www-data " + REPORTPATH_WEBGUI)
     os.system("sudo chmod -R 775 " + REPORTPATH_WEBGUI)
 
-#-------------------------------------------------------------------------------
+#===============================================================================
+# Save logs
+#===============================================================================
+
+
+def write_cycle_logs_to_tables(log_dir=PIALERT_PATH + "/log"):
+    global sql_connection_tools
+    global sql_tools
+    global startTime
+
+    print_log("Save Log in Tools-DB")
+    LOGFILE_TABLE_MAP = {
+        "pialert.speedtest.log": "Log_History_Speedtest",
+    }
+
+    CYCLE_LOGFILES = {
+        "speedtest": [
+            "pialert.speedtest.log"
+        ],
+    }
+
+    logfiles = CYCLE_LOGFILES.get(cycle, [])
+    if not logfiles:
+        return
+
+    for logfile in logfiles:
+        table = LOGFILE_TABLE_MAP.get(logfile)
+        if not table:
+            continue  # kein Ziel definiert → bewusst ignorieren
+
+        if logfile == "pialert.webservices.log":
+            if startTime.minute % 10 != 0:
+                continue
+
+        logfile_path = os.path.join(log_dir, logfile)
+        if not os.path.isfile(logfile_path):
+            continue
+
+        with open(logfile_path, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read()
+        # print(content)
+
+        sql_tools.execute(
+            f"""
+            INSERT INTO {table} (ScanDate, Logfile)
+            VALUES (?, ?)
+            """,
+            (startTime, content)
+        )
+
+    sql_connection_tools.commit()
+
+#===============================================================================
+# Main Tasks
+#===============================================================================
 
 def speedtest(retries=3):
     import logging
@@ -210,7 +262,7 @@ def speedtest(retries=3):
         if line.strip():
             logprint(line)
 
-    logger.info("Speedtest successfully completed.")
+    logger.info("Speedtest successfully completed.\n\n")
 
     # Insert in db
     speedtest_db_output = speedtest_output.replace("\n", "<br>")
@@ -225,8 +277,17 @@ def speedtest(retries=3):
     sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
                    VALUES (?, 'c_002', 'cronjob', 'LogStr_0255', '', ?) """,
                 (startTime, speedtest_db_output))
+
     closeDB()
 
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    # Save Log to ToolsDB
+    openDB_tools()
+    write_cycle_logs_to_tables()
+    closeDB_tools()
+    
     return 0
 
 #===============================================================================
@@ -241,6 +302,24 @@ def cleanup_database_tools():
 
     print('    Speedtest_History')
     sql_tools.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str("180") + " day')")
+
+    print('    Log_History_Scan')
+    sql_tools.execute("DELETE FROM Log_History_Scan WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+
+    print('    Log_History_Cleanup')
+    sql_tools.execute("DELETE FROM Log_History_Cleanup WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+
+    print('    Log_History_Vendors')
+    sql_tools.execute("DELETE FROM Log_History_Vendors WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+
+    print('    Log_History_WebServices')
+    sql_tools.execute("DELETE FROM Log_History_WebServices WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+
+    print('    Log_History_InternetIP')
+    sql_tools.execute("DELETE FROM Log_History_InternetIP WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+
+    print('    Log_History_Speedtest')
+    sql_tools.execute("DELETE FROM Log_History_Speedtest WHERE ScanDate <= date('now', '-" + str("4") + " day')")
 
     print('\nShrink Database...')
     sql_tools.execute("VACUUM;")
