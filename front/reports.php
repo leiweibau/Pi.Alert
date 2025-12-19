@@ -442,9 +442,6 @@ require 'php/templates/footer.php';
 
 <script>
 $(document).ready(function () {
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-    });
     Coloris({
     	theme: 'pill',
         themeMode: 'dark',

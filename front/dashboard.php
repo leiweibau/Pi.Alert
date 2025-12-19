@@ -88,9 +88,10 @@ if (file_exists('../config/setting_piholebutton')) {
     <link rel="apple-touch-icon" href="<?=$FRONTEND_FAVICON?>">
     <link rel="manifest" href="img/manifest.json">
 <?php
-if ($ENABLED_DARKMODE === True) {echo '<link rel="stylesheet" href="css/dark-patch.css?' . $conf_data['VERSION_DATE'] . '">';}
+if ($ENABLED_DARKMODE === True) {echo '<link rel="stylesheet" href="css/dark-patch.css?' . $conf_data['VERSION_DATE'] . '">';} else {$wrapper_color = 'style="background-color:white"';}
 if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 ?>
+    <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
     <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
     <script src="lib/AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
@@ -100,7 +101,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 
 <?=$skin_selected_body;?>
 
-<div class="wrapper">
+<div class="wrapper" <?=$wrapper_color;?>>
   <!-- Main Header -->
   <header class="main-header">
     <a href="." class="logo">
@@ -180,22 +181,19 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
   </header>
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-9">
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-speedometer2"></i> Speedtests</h3>
         </div>
         <div class="box-body">
 
-            <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
-            <div id="speedtestChartWrapper" style="height:180px;">
-                <canvas id="speedtestChart"></canvas>
-            </div>
+            <div id="speedtestChartWrapper" style="height:200px;"><canvas id="speedtestChart"></canvas></div>
 
             <div class="btn-group btn-group-xs" role="group" style="margin-top: 10px; margin-bottom:10px">
               <button class="btn btn-default" onclick="loadSpeedtestChart(7)">7 Tage</button>
-              <button class="btn btn-default active" onclick="loadSpeedtestChart(10)">10 Tage</button>
-              <button class="btn btn-default" onclick="loadSpeedtestChart(14)">14 Tage</button>
+              <button class="btn btn-default active" onclick="loadSpeedtestChart(14)">14 Tage</button>
+              <button class="btn btn-default" onclick="loadSpeedtestChart(21)">21 Tage</button>
             </div>
 
             <script>
@@ -256,7 +254,6 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
                             xAxes: [{
                                 ticks: {
                                     callback: function (value) {
-                                        // Erwartet: YYYY-MM-DD HH:MM:SS
                                         if (typeof value !== 'string') {
                                             return value;
                                         }
@@ -266,7 +263,6 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
                                             return value;
                                         }
 
-                                        // Datum zerlegen
                                         const dateParts = parts[0].split('-');
                                         if (dateParts.length !== 3) {
                                             return value;
@@ -274,10 +270,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 
                                         const month = dateParts[1];
                                         const day   = dateParts[2];
-
                                         const time = parts[1].substring(0, 5); // HH:MM
 
-                                        // Multi-Line Label (Chart.js 2.x)
                                         return [month + '.' + day, time];
                                     }
                                 }
@@ -298,17 +292,14 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       </div>
     </div>
 
-</div>
-
-<div class="row">
     <div class="col-md-3">
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Logs</h3>
         </div>
 
-        <div class="box-body" style="height:300px;">
-            <div class="form-group" style="margin-top: 20px;">
+        <div class="box-body" style="height:240px;">
+            <div class="form-group" style="margin-top: 10px;">
               <label for="logfileSelect">Logfile</label>
               <select id="logfileSelect" class="form-control">
                 <option value="">-- Logfile auswählen --</option>
@@ -320,7 +311,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
                 <option value="pialert.speedtest.log">Speedtest (Cron)</option>
               </select>
             </div>
-            <div class="form-group" style="margin-top: 20px;">
+            <div class="form-group" style="margin-top: 10px;">
               <label for="dateSelect">Scan-Datum</label>
               <select id="dateSelect" class="form-control">
                 <option value="">-- zuerst Logfile wählen --</option>
@@ -332,6 +323,11 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       </div>
     </div>
 
+</div>
+
+<div class="row">
+
+
 
     <div class="col-md-3">
       <div class="box box-solid">
@@ -339,35 +335,76 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
           <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> Devices - Total</h3>
         </div>
 
-        <div class="box-body" style="height:300px;">
-
+        <div class="box-body" style="height:280px;">
             <div style="width:260px; height:260px; margin:auto; padding-top:20px">
                 <canvas id="devicesDonut"></canvas>
             </div>
-
         </div>
 
       </div>
     </div>
 
+    <div class="col-md-3">
+      <div class="box box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> ICMP</h3>
+        </div>
 
+        <div class="box-body" style="height:280px;">
+            <div style="width:260px; height:260px; margin:auto; padding-top:20px"><canvas id="devicesDonutIcmp"></canvas></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="box box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> WebServices</h3>
+        </div>
+
+        <div class="box-body" style="height:280px;">
+            <div style="width:260px; height:260px; margin:auto; padding-top:20px"><canvas id=""></canvas></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="box box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Reports (latest 5)</h3>
+        </div>
+
+        <div class="box-body" style="height:280px;">
+            <div style="display: inline-flex; width: 49%;">Reports:&nbsp;<strong id="reportsCount">0</strong></div>
+            <div style="display: inline-flex; width: 49%;">Archived:&nbsp;<strong id="reportsArchiveCount">0</strong></div>
+
+            <hr style="margin:10px 0;">
+
+            <!-- latest Reports -->
+            <div id="latestReports">
+                <em>Loading reports…</em>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+</div>
+
+<div class="row">
     <div class="col-md-6">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua">
-            <i class="bi bi-calendar-event"></i> Last 50 Events (Today)
-          </h3>
+          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> Last 50 Events (Today)</h3>
         </div>
 
         <div class="box-body" style="padding:0;">
-          
-          <!-- Scroll-Container -->
-          <div style="height:300px; overflow-y:auto; overflow-x:hidden;">
-
+          <div style="height:350px; overflow-y:auto; overflow-x:hidden;">
             <table id="tableEvents" class="table table-striped table-hover table-condensed" style="width:100%; font-size: 12px;">
               <thead>
                 <tr>
-                  <!-- Header MUSS zur Backend-Struktur passen -->
                   <th>Date</th>
                   <th>Device</th>
                   <th>Event</th>
@@ -382,98 +419,32 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
                 </tr>
               </thead>
               <tbody>
-                <!-- wird per AJAX gefüllt -->
+                <!-- AJAX Content -->
               </tbody>
             </table>
-
           </div>
 
         </div>
       </div>
     </div>
 
-</div>
-
-
-
-
-
-
-
-
-
-
-
-<div class="row">
-    <div class="col-md-3">
-      <div class="box box-solid">
-        <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Reports (latest 5)</h3>
-        </div>
-
-        <div class="box-body" style="height:300px;">
-            <div style="display: inline-flex; width: 49%;">Reports:&nbsp;<strong id="reportsCount">0</strong></div>
-            <div style="display: inline-flex; width: 49%;">Archived:&nbsp;<strong id="reportsArchiveCount">0</strong></div>
-
-            <hr style="margin:10px 0;">
-
-            <!-- Letzte Reports -->
-            <div id="latestReports">
-                <em>Loading reports…</em>
-            </div>
-
-        </div>
-
-      </div>
-    </div>
-
-
-    <div class="col-md-3">
-      <div class="box box-solid">
-        <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> ICMP</h3>
-        </div>
-
-        <div class="box-body" style="height:300px;">
-
-            <div style="width:260px; height:260px; margin:auto; padding-top:20px">
-                <canvas id="devicesDonutIcmp"></canvas>
-            </div>
-
-
-        </div>
-
-      </div>
-    </div>
-
-
     <div class="col-md-6">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua">
-            <i class="bi bi-calendar-event"></i> Activity Chart
-          </h3>
+          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> Activity Chart (12h)</h3>
         </div>
 
         <div class="box-body" style="padding:0;">
-          
 
+            <div style="height:160px; width:100%;">
+              <div id="historyChartsContainer"></div>
+            </div>
 
         </div>
       </div>
     </div>
 
 </div>
-
-
-
-
-
-
-
-
-
-
 
 
 <!-- Modal -->
@@ -537,11 +508,12 @@ let currentLogfile = '';
 var devicesDonutChart = null;
 var devicesDonutIcmpChart = null;
 let speedtestChart = null;
-let currentDays = 10;
+let currentDays = 7;
 var eventsTable = null;
+var historyStackedCharts = {};
 
 $(document).ready(function () {
-    loadSpeedtestChart(10);
+    loadSpeedtestChart(7);
     initializeDatatable();
     getEvents('all');
     getLocalDeviceStatus();
@@ -550,22 +522,20 @@ $(document).ready(function () {
     getReportsCount();
     loadLatestReports();
     startDashboardRefresh();
+    loadHistoryStackedChart('main_scan');
+    loadHistoryStackedChart('icmp_scan');
 });
 
 // --------------------------------------------------------------------------
 $('#logfileSelect').on('change', function () {
-
     currentLogfile = $(this).val();
     logfileDates   = [];
     currentIndex   = -1;
-
     $('#dateSelect').html('<option value="">lade...</option>');
-
     if (!currentLogfile) {
         $('#dateSelect').html('<option value="">-- Datum wählen --</option>');
         return;
     }
-
     $.ajax({
         url: 'php/server/dashboard.php',
         type: 'GET',
@@ -575,9 +545,7 @@ $('#logfileSelect').on('change', function () {
             logfile: currentLogfile
         },
         success: function (data) {
-
             logfileDates = Array.isArray(data) ? data : [];
-
             let html = '<option value="">-- Datum wählen --</option>';
             logfileDates.forEach(function (date) {
                 html += '<option value="' + date + '">' + date + '</option>';
@@ -598,12 +566,10 @@ function showLogModal()
     if (!currentLogfile || !date) {
         return;
     }
-
     currentIndex = logfileDates.indexOf(date);
     if (currentIndex === -1) {
         return;
     }
-
     loadLogfile(currentLogfile, date);
     $('#logModal').modal('show');
 }
@@ -637,16 +603,12 @@ function loadLogfile(logfile, date)
 function navigateLog(direction)
 {
     const newIndex = currentIndex + direction;
-
     if (newIndex < 0 || newIndex >= logfileDates.length) {
         return;
     }
-
     currentIndex = newIndex;
-
     const date = logfileDates[currentIndex];
     $('#dateSelect').val(date);
-
     loadLogfile(currentLogfile, date);
 }
 
@@ -662,14 +624,12 @@ function loadSpeedtestChart(days)
 {
     currentDays = days || currentDays;
 
-    // Button-Status setzen
     $('.btn-group button').removeClass('active');
     $('.btn-group button').each(function () {
         if ($(this).text().startsWith(currentDays.toString())) {
             $(this).addClass('active');
         }
     });
-
     $.ajax({
         url: 'php/server/dashboard.php',
         type: 'GET',
@@ -699,7 +659,7 @@ function initializeDatatable () {
     ordering      : true,
     order         : [[0, "desc"], [3, "desc"], [5, "desc"]],
 
-    scrollY       : '260',
+    scrollY       : '310',
     scrollX       : true,
     scrollCollapse: true,
 
@@ -772,7 +732,6 @@ function translateHTMLcodes(text)
 
 // --------------------------------------------------------------------------
 function getLocalDeviceStatus() {
-
     $.ajax({
         url: 'php/server/dashboard.php',
         type: 'GET',
@@ -784,7 +743,6 @@ function getLocalDeviceStatus() {
             if (!data || typeof data.online === 'undefined') {
                 return;
             }
-
             renderDevicesDonut({
                 online:   data.online,
                 offline:  data.offline,
@@ -796,9 +754,7 @@ function getLocalDeviceStatus() {
 
 // --------------------------------------------------------------------------
 function renderDevicesDonut(values, total) {
-
     const ctx = document.getElementById('devicesDonut').getContext('2d');
-
     if (devicesDonutChart) {
         devicesDonutChart.destroy();
     }
@@ -829,8 +785,6 @@ function renderDevicesDonut(values, total) {
             responsive: true,
             maintainAspectRatio: false,
             cutoutPercentage: 60,
-
-            // Center-Text (Plugin aus vorherigem Schritt)
             centerText: {
                 textTop: total.toLocaleString(),
                 textBottom: 'Devices',
@@ -858,7 +812,6 @@ Chart.plugins.register({
 
     const ctx = chart.chart.ctx;
     const centerConfig = chart.config.options.centerText;
-
     const txtTop    = centerConfig.textTop || '';
     const txtBottom = centerConfig.textBottom || '';
     const fontSize  = centerConfig.fontSize || 18;
@@ -898,7 +851,6 @@ function getIcmpDeviceStatus() {
             if (!data || typeof data.online === 'undefined') {
                 return;
             }
-
             renderIcmpDevicesDonut({
                 online:   data.online,
                 offline:  data.offline,
@@ -910,9 +862,7 @@ function getIcmpDeviceStatus() {
 
 
 function renderIcmpDevicesDonut(values, total) {
-
     const ctx = document.getElementById('devicesDonutIcmp').getContext('2d');
-
     if (devicesDonutIcmpChart) {
         devicesDonutIcmpChart.destroy();
     }
@@ -995,14 +945,11 @@ function loadLatestReports() {
             action: 'getLatestReports'
         },
         success: function (data) {
-
             if (!data || data.length === 0) {
                 $('#latestReports').html('<em>No reports found</em>');
                 return;
             }
-
             let html = '<ul class="list-unstyled" style="margin-bottom:0;">';
-
             data.forEach(function (item) {
                 var displayName = formatReportFilename(item.name);
 
@@ -1014,21 +961,16 @@ function loadLatestReports() {
                     '<br><small class="text-muted">' + item.time + '</small>' +
                     '</li><hr style="margin:6px 0;">';
             });
-
             html += '</ul>';
-
             $('#latestReports').html(html);
         }
     });
 }
 // --------------------------------------------------------------------
 function showReportModal(filename) {
-
     $('#reportModalTitle').text(filename);
     $('#reportModalContent').text('Loading…');
-
     $('#reportModal').modal('show');
-
     $.ajax({
         url: 'php/server/dashboard.php',
         type: 'GET',
@@ -1052,18 +994,14 @@ function formatReportFilename(filename) {
 }
 // --------------------------------------------------------------------------
 function refreshEventsTable() {
-
     if (!eventsTable) {
-        return; // noch nicht initialisiert
+        return;
     }
-
-    // Ajax-Reload ohne Reset von Scroll / Order
     eventsTable.ajax.reload(null, false);
 }
 // --------------------------------------------------------------------------
 var dashboardRefreshTimer   = null;
 var dashboardCountdownTimer = null;
-
 var DASHBOARD_REFRESH_INTERVAL = 120000; // 2 Minuten
 var dashboardCountdownSeconds  = DASHBOARD_REFRESH_INTERVAL / 1000;
 
@@ -1073,53 +1011,42 @@ function refreshDashboardData() {
     getReportsCount();
     loadLatestReports();
     refreshEventsTable();
+    loadHistoryStackedChart('main_scan');
+    loadHistoryStackedChart('icmp_scan');
 }
 
 function startDashboardRefresh() {
-
     startDashboardCountdown();
-
     if (dashboardRefreshTimer !== null) {
         return;
     }
-
     refreshDashboardData();
-
     dashboardRefreshTimer = setInterval(function () {
         refreshDashboardData();
         startDashboardCountdown();
     }, DASHBOARD_REFRESH_INTERVAL);
 }
 
-
 function stopDashboardRefresh() {
-
     if (dashboardRefreshTimer === null) {
         return;
     }
-
     clearInterval(dashboardRefreshTimer);
     dashboardRefreshTimer = null;
 }
 // --------------------------------------------------------------------------
 function startDashboardCountdown() {
-
-    stopDashboardCountdown(); // Sicherheit
-
+    stopDashboardCountdown();
     dashboardCountdownSeconds = DASHBOARD_REFRESH_INTERVAL / 1000;
     $('#dashboardRefreshCountdownValue').text(dashboardCountdownSeconds);
 
     dashboardCountdownTimer = setInterval(function () {
-
         dashboardCountdownSeconds--;
-
         if (dashboardCountdownSeconds <= 0) {
             stopDashboardCountdown();
             return;
         }
-
         $('#dashboardRefreshCountdownValue').text(dashboardCountdownSeconds);
-
     }, 1000);
 }
 // --------------------------------------------------------------------------
@@ -1133,10 +1060,76 @@ function stopDashboardCountdown() {
     dashboardCountdownTimer = null;
 }
 
+var historyDataSourceLabels = {
+    'main_scan' : 'Main Scan',
+    'icmp_scan' : 'ICMP Scan'
+};
+
+function getHistoryDataSourceLabel(dataSource) {
+    return historyDataSourceLabels[dataSource] || dataSource;
+}
+
+function loadHistoryStackedChart(dataSource) {
+    if (!dataSource) {
+        dataSource = 'main_scan';
+    }
+    var chartId = 'historyChart_' + dataSource;
+    // Canvas existiert noch nicht → erzeugen
+    if (!document.getElementById(chartId)) {
+
+        var html =
+            '<div class="history-chart-wrapper" style="height:160px; margin-bottom:20px;">' +
+                '<h5 style="margin-bottom:8px;">History: ' + getHistoryDataSourceLabel(dataSource) + '</h5>' +
+                '<canvas id="' + chartId + '"></canvas>' +
+            '</div>';
+
+        $('#historyChartsContainer').append(html);
+    }
+
+    $.getJSON(
+        'php/server/dashboard.php',
+        {
+            action: 'getDeviceHistoryChart',
+            source: dataSource
+        },
+        function (chartData) {
+
+            var ctx = document
+                .getElementById(chartId)
+                .getContext('2d');
+
+            // vorhandenen Chart für diese Quelle zerstören
+            if (historyStackedCharts[dataSource]) {
+                historyStackedCharts[dataSource].destroy();
+            }
+
+            historyStackedCharts[dataSource] = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{ stacked: true }],
+                        yAxes: [{
+                            stacked: true,
+                            ticks: { beginAtZero: true }
+                        }]
+                    },
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+        }
+    );
+}
+
 </script>
-
-
-
 
 </body>
 </html>

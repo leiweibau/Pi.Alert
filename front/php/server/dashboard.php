@@ -33,6 +33,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
         break;
     case 'getLatestReports':getLatestReports();
         break;
+    case 'getDeviceHistoryChart':getDeviceHistoryChart();
+        break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
@@ -132,9 +134,9 @@ function getSpeedtestHistory() {
     global $db_tools;
 
     // erlaubte Zeiträume
-    $days = isset($_GET['days']) ? (int)$_GET['days'] : 10;
-    if (!in_array($days, [7, 10, 14], true)) {
-        $days = 10;
+    $days = isset($_GET['days']) ? (int)$_GET['days'] : 7;
+    if (!in_array($days, [7, 14, 21], true)) {
+        $days = 7;
     }
 
     $sql = "
@@ -268,7 +270,7 @@ function getReportsCount() {
     }
 
     $reportsPath = $basePath;
-    $archivePath = $basePath . '/archive';
+    $archivePath = $basePath . '/archived';
 
     // *.txt in reports/
     $reportsFiles = glob($reportsPath . '/*.txt');
@@ -342,6 +344,96 @@ function getReportContent() {
     exit;
 }
 
+function getDeviceHistoryChart() {
+    global $db;
+
+    header('Content-Type: application/json');
+    $source = $_GET['source'] ?? 'main_scan';
+    $source = SQLite3::escapeString($source);
+
+    $labels   = [];
+    $online   = [];
+    $offline  = [];
+    $archived = [];
+
+    /* ---------------------------------------------------
+     * MAIN SCAN → aggregieren nach Timestamp
+     * --------------------------------------------------- */
+    if ($source === 'main_scan') {
+
+        $sql = "
+            SELECT
+                Scan_Date,
+                SUM(Online_Devices)   AS Online_Devices,
+                SUM(Down_Devices)     AS Down_Devices,
+                SUM(Archived_Devices) AS Archived_Devices
+            FROM Online_History
+            WHERE Data_Source LIKE 'main_scan%'
+            GROUP BY Scan_Date
+            ORDER BY Scan_Date DESC
+            LIMIT 144
+        ";
+
+    /* ---------------------------------------------------
+     * ANDERE QUELLEN (z. B. icmp_scan) → exakt matchen
+     * --------------------------------------------------- */
+    } else {
+
+        $sql = "
+            SELECT
+                Scan_Date,
+                Online_Devices,
+                Down_Devices,
+                Archived_Devices
+            FROM Online_History
+            WHERE Data_Source = '{$source}'
+            ORDER BY Scan_Date DESC
+            LIMIT 144
+        ";
+    }
+
+    $results = $db->query($sql);
+
+    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+
+        // X-Achse: HH:MM
+        $timePart = explode(' ', $row['Scan_Date'])[1];
+        $time     = substr($timePart, 0, 5);
+
+        // unshift → älteste links, neueste rechts
+        array_unshift($labels,   $time);
+        array_unshift($online,   (int)$row['Online_Devices']);
+        array_unshift($offline,  (int)$row['Down_Devices']);
+        array_unshift($archived, (int)$row['Archived_Devices']);
+    }
+
+    echo json_encode([
+        'labels'   => $labels,
+        'datasets' => [
+            [
+                'label'           => 'Online',
+                'data'            => $online,
+                'stack'           => 'devices',
+                'backgroundColor' => '#2ecc71'
+            ],
+            [
+                'label'           => 'Offline',
+                'data'            => $offline,
+                'stack'           => 'devices',
+                'backgroundColor' => '#e74c3c'
+            ],
+            [
+                'label'           => 'Archived',
+                'data'            => $archived,
+                'stack'           => 'devices',
+                'backgroundColor' => '#95a5a6'
+            ]
+        ]
+    ]);
+
+    exit;
+
+}
 
 
 CloseDB();
