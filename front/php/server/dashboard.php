@@ -35,6 +35,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
         break;
     case 'getDeviceHistoryChart':getDeviceHistoryChart();
         break;
+    case 'getServiceStatusSummary':getServiceStatusSummary();
+        break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
@@ -276,7 +278,7 @@ function getReportsCount() {
     $reportsFiles = glob($reportsPath . '/*.txt');
     $reportsCount = is_array($reportsFiles) ? count($reportsFiles) : 0;
 
-    // *.txt in reports/archive/
+    // *.txt in reports/archived/
     $archiveFiles = glob($archivePath . '/*.txt');
     $archiveCount = is_array($archiveFiles) ? count($archiveFiles) : 0;
 
@@ -287,7 +289,7 @@ function getReportsCount() {
 
     exit;
 }
-
+// --------------------------------------------------------------------
 function getLatestReports() {
 
     header('Content-Type: application/json');
@@ -304,7 +306,6 @@ function getLatestReports() {
         exit;
     }
 
-    // Nach Änderungsdatum sortieren (neueste zuerst)
     usort($files, function ($a, $b) {
         return filemtime($b) - filemtime($a);
     });
@@ -322,7 +323,7 @@ function getLatestReports() {
     echo json_encode($result);
     exit;
 }
-
+// --------------------------------------------------------------------
 function getReportContent() {
 
     header('Content-Type: text/plain');
@@ -332,7 +333,7 @@ function getReportContent() {
     }
 
     $basePath = realpath(__DIR__ . '/../../reports');
-    $file = basename($_GET['file']); // Schutz gegen Path Traversal
+    $file = basename($_GET['file']);
     $path = $basePath . '/' . $file;
 
     if (!is_file($path)) {
@@ -343,7 +344,7 @@ function getReportContent() {
     readfile($path);
     exit;
 }
-
+// --------------------------------------------------------------------
 function getDeviceHistoryChart() {
     global $db;
 
@@ -356,9 +357,7 @@ function getDeviceHistoryChart() {
     $offline  = [];
     $archived = [];
 
-    /* ---------------------------------------------------
-     * MAIN SCAN → aggregieren nach Timestamp
-     * --------------------------------------------------- */
+    // MAIN SCAN → aggregieren nach Timestamp
     if ($source === 'main_scan') {
 
         $sql = "
@@ -374,9 +373,8 @@ function getDeviceHistoryChart() {
             LIMIT 144
         ";
 
-    /* ---------------------------------------------------
-     * ANDERE QUELLEN (z. B. icmp_scan) → exakt matchen
-     * --------------------------------------------------- */
+     // ANDERE QUELLEN (z. B. icmp_scan) → exakt matchen
+
     } else {
 
         $sql = "
@@ -393,10 +391,7 @@ function getDeviceHistoryChart() {
     }
 
     $results = $db->query($sql);
-
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-
-        // X-Achse: HH:MM
         $timePart = explode(' ', $row['Scan_Date'])[1];
         $time     = substr($timePart, 0, 5);
 
@@ -430,9 +425,47 @@ function getDeviceHistoryChart() {
             ]
         ]
     ]);
-
     exit;
+}
+// --------------------------------------------------------------------
+function getServiceStatusSummary() {
+    global $db;
 
+    header('Content-Type: application/json');
+
+    $sql = "
+        SELECT
+            mon_LastStatus,
+            COUNT(*) AS cnt
+        FROM Services
+        GROUP BY mon_LastStatus
+    ";
+
+    $result = $db->query($sql);
+
+    $labels = [];
+    $values = [];
+
+    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+
+        $status = (string)$row['mon_LastStatus'];
+        $count  = (int)$row['cnt'];
+
+        // Sonderfall: 0 = offline
+        if ($status === '0') {
+            $labels[] = 'offline';
+        } else {
+            $labels[] = $status;
+        }
+
+        $values[] = $count;
+    }
+
+    echo json_encode([
+        'labels' => $labels,
+        'data'   => $values
+    ]);
+    exit;
 }
 
 

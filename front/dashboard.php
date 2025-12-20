@@ -113,7 +113,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 
     <!-- Header Navbar -->
     <nav class="navbar navbar-static-top" role="navigation">
-      <a id="navbar-reload-button" href="" role="button" onclick="window.location.reload(true)"><i class="fa fa-repeat"></i></a>
+      <div  class="sidebar-toggle"><span class="sr-only"></span></div>
+      <a id="navbar-reload-button" href="" role="button" onclick="window.location.reload(true)" style="padding-top: 17px;"><i class="fa fa-repeat"></i></a>
       <script>
           function toggle_systeminfobox() {
             $("#sidebar_systeminfobox").toggleClass("collapse");
@@ -165,7 +166,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./dashboard.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Dashboard</div></a>
+                  <a href="./devices.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span></div></a>
                 </div>
               </li>
               <li class="user-footer">
@@ -333,6 +334,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> Devices - Total</h3>
+          <div class="box-tools pull-right"><a href="./devices.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
@@ -348,6 +350,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> ICMP</h3>
+          <div class="box-tools pull-right"><a href="./icmpmonitor.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
@@ -361,10 +364,11 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> WebServices</h3>
+          <div class="box-tools pull-right"><a href="./services.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
-            <div style="width:260px; height:260px; margin:auto; padding-top:20px"><canvas id=""></canvas></div>
+            <div style="width:260px; height:260px; margin:auto; padding-top:20px"><canvas id="servicesStatusDonut"></canvas></div>
         </div>
 
       </div>
@@ -374,6 +378,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Reports (latest 5)</h3>
+          <div class="box-tools pull-right"><a href="./reports.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
@@ -398,6 +403,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> Last 50 Events (Today)</h3>
+          <div class="box-tools pull-right"><a href="./devicesEvents.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
         </div>
 
         <div class="box-body" style="padding:0;">
@@ -507,6 +513,7 @@ let currentIndex   = -1;
 let currentLogfile = '';
 var devicesDonutChart = null;
 var devicesDonutIcmpChart = null;
+var servicesStatusDonutChart = null;
 let speedtestChart = null;
 let currentDays = 7;
 var eventsTable = null;
@@ -1013,6 +1020,7 @@ function refreshDashboardData() {
     refreshEventsTable();
     loadHistoryStackedChart('main_scan');
     loadHistoryStackedChart('icmp_scan');
+    loadServicesStatusDonut();
 }
 
 function startDashboardRefresh() {
@@ -1110,10 +1118,15 @@ function loadHistoryStackedChart(dataSource) {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        xAxes: [{ stacked: true }],
+                        xAxes: [{ 
+                            stacked: true,
+                        }],
                         yAxes: [{
                             stacked: true,
-                            ticks: { beginAtZero: true }
+                            ticks: { 
+                                beginAtZero: true,
+                                stepSize: 1,
+                            }
                         }]
                     },
                     legend: {
@@ -1122,6 +1135,78 @@ function loadHistoryStackedChart(dataSource) {
                     tooltips: {
                         mode: 'index',
                         intersect: false
+                    }
+                }
+            });
+        }
+    );
+}
+
+
+function loadServicesStatusDonut() {
+
+    $.getJSON(
+        'php/server/dashboard.php',
+        { action: 'getServiceStatusSummary' },
+        function (resp) {
+
+            if (!resp || !resp.labels || !resp.data) {
+                return;
+            }
+
+            var ctx = document
+                .getElementById('servicesStatusDonut')
+                .getContext('2d');
+
+            if (servicesStatusDonutChart) {
+                servicesStatusDonutChart.destroy();
+            }
+
+            var total = resp.data.reduce(function (sum, value) {
+                return sum + value;
+            }, 0);
+
+            servicesStatusDonutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: resp.labels,
+                    datasets: [{
+                        data: resp.data,
+                        backgroundColor: [
+                            '#2ecc71', // 200 – grün
+                            '#e74c3c', // 500 – rot
+                            '#95a5a6', // offline – grau
+                            '#f1c40f', // Fallback
+                            '#3498db'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutoutPercentage: 60,
+
+                    centerText: {
+                        textTop: total.toLocaleString(),
+                        textBottom: 'Services',
+                        fontSize: 22,
+                        color: '#888'
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            fontSize: 12
+                        }
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                                var label = data.labels[tooltipItem.index];
+                                var value = data.datasets[0].data[tooltipItem.index];
+                                return label + ': ' + value;
+                            }
+                        }
                     }
                 }
             });
