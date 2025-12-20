@@ -430,15 +430,23 @@ function getDeviceHistoryChart() {
 // --------------------------------------------------------------------
 function getServiceStatusSummary() {
     global $db;
-
     header('Content-Type: application/json');
 
     $sql = "
         SELECT
-            mon_LastStatus,
+            CASE
+                WHEN mon_LastStatus = 0 THEN 'Offline'
+                WHEN mon_LastStatus BETWEEN 100 AND 199 THEN '1xx'
+                WHEN mon_LastStatus BETWEEN 200 AND 299 THEN '2xx'
+                WHEN mon_LastStatus BETWEEN 300 AND 399 THEN '3xx'
+                WHEN mon_LastStatus BETWEEN 400 AND 499 THEN '4xx'
+                WHEN mon_LastStatus BETWEEN 500 AND 599 THEN '5xx'
+                ELSE 'Other'
+            END AS status_group,
             COUNT(*) AS cnt
         FROM Services
-        GROUP BY mon_LastStatus
+        GROUP BY status_group
+        ORDER BY status_group
     ";
 
     $result = $db->query($sql);
@@ -447,26 +455,18 @@ function getServiceStatusSummary() {
     $values = [];
 
     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-
-        $status = (string)$row['mon_LastStatus'];
-        $count  = (int)$row['cnt'];
-
-        // Sonderfall: 0 = offline
-        if ($status === '0') {
-            $labels[] = 'offline';
-        } else {
-            $labels[] = $status;
-        }
-
-        $values[] = $count;
+        $labels[] = $row['status_group'];
+        $values[] = (int)$row['cnt'];
     }
 
     echo json_encode([
         'labels' => $labels,
         'data'   => $values
     ]);
+
     exit;
 }
+
 
 
 CloseDB();

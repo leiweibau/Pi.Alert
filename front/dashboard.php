@@ -1143,6 +1143,7 @@ function loadHistoryStackedChart(dataSource) {
 }
 
 
+
 function loadServicesStatusDonut() {
 
     $.getJSON(
@@ -1162,6 +1163,20 @@ function loadServicesStatusDonut() {
                 servicesStatusDonutChart.destroy();
             }
 
+            var serviceStatusColors = {
+                'Offline': '#e74c3c',
+                '1xx':     '#3498db',
+                '2xx':     '#2ecc71',
+                '3xx':     '#f1c40f',
+                '4xx':     '#e67e22',
+                '5xx':     '#ff4c3c',
+                'Other':   '#7f8c8d'
+            };
+
+            var bgColors = resp.labels.map(function (lbl) {
+                return serviceStatusColors[lbl] || '#7f8c8d';
+            });
+
             var total = resp.data.reduce(function (sum, value) {
                 return sum + value;
             }, 0);
@@ -1172,13 +1187,7 @@ function loadServicesStatusDonut() {
                     labels: resp.labels,
                     datasets: [{
                         data: resp.data,
-                        backgroundColor: [
-                            '#2ecc71', // 200 – grün
-                            '#e74c3c', // 500 – rot
-                            '#95a5a6', // offline – grau
-                            '#f1c40f', // Fallback
-                            '#3498db'
-                        ],
+                        backgroundColor: bgColors,
                         borderWidth: 0
                     }]
                 },
@@ -1186,7 +1195,6 @@ function loadServicesStatusDonut() {
                     responsive: true,
                     maintainAspectRatio: false,
                     cutoutPercentage: 60,
-
                     centerText: {
                         textTop: total.toLocaleString(),
                         textBottom: 'Services',
@@ -1199,17 +1207,9 @@ function loadServicesStatusDonut() {
                             fontSize: 12
                         }
                     },
-                    tooltips: {
-                        callbacks: {
-                            label: function (tooltipItem, data) {
-                                var label = data.labels[tooltipItem.index];
-                                var value = data.datasets[0].data[tooltipItem.index];
-                                return label + ': ' + value;
-                            }
-                        }
-                    }
                 }
             });
+
         }
     );
 }
