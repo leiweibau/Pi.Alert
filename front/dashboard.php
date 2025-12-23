@@ -130,8 +130,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
         <ul class="nav navbar-nav">
           <li>
             <div id="dashboardRefreshCountdown" class="a navbar-servertime text-muted" style="font-size:12px;">
-    Next update in <strong><span id="dashboardRefreshCountdownValue">--</span>s</strong>
-</div>
+                Next refresh in <strong><span id="dashboardRefreshCountdownValue">--</span>s</strong>
+            </div>
           </li>
           <?php
           if ($FRONTEND_PHBUTTON != '') {
@@ -197,98 +197,6 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               <button class="btn btn-default" onclick="loadSpeedtestChart(21)">21 Tage</button>
             </div>
 
-            <script>
-            function renderSpeedtestChart(data)
-            {
-                const ctx = document.getElementById('speedtestChart').getContext('2d');
-
-                if (speedtestChart) {
-                    speedtestChart.destroy();
-                }
-
-                speedtestChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.labels,
-                        datasets: [
-                            {
-                                label: 'Ping (ms)',
-                                data: data.ping,
-                                borderColor: '#3498db',   // blau
-                                backgroundColor: 'rgba(52,152,219,0.15)',
-                                fill: false,
-                                borderWidth: 1,
-                                pointRadius: 2,
-                                tension: 0.2
-                            },
-                            {
-                                label: 'Download (Mbps)',
-                                data: data.down,
-                                borderColor: '#2ecc71',   // grün
-                                backgroundColor: 'rgba(46,204,113,0.15)',
-                                fill: false,
-                                borderWidth: 1,
-                                pointRadius: 2,
-                                tension: 0.2
-                            },
-                            {
-                                label: 'Upload (Mbps)',
-                                data: data.up,
-                                borderColor: '#e74c3c',   // rot
-                                backgroundColor: 'rgba(231,76,60,0.15)',
-                                fill: false,
-                                borderWidth: 1,
-                                pointRadius: 2,
-                                tension: 0.2
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true
-                            }
-                        },
-                        scales: {
-                            xAxes: [{
-                                ticks: {
-                                    callback: function (value) {
-                                        if (typeof value !== 'string') {
-                                            return value;
-                                        }
-
-                                        const parts = value.split(' ');
-                                        if (parts.length !== 2) {
-                                            return value;
-                                        }
-
-                                        const dateParts = parts[0].split('-');
-                                        if (dateParts.length !== 3) {
-                                            return value;
-                                        }
-
-                                        const month = dateParts[1];
-                                        const day   = dateParts[2];
-                                        const time = parts[1].substring(0, 5); // HH:MM
-
-                                        return [month + '.' + day, time];
-                                    }
-                                }
-                            }],
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true,
-                                    maxTicksLimit: 4
-                                }
-                            }]
-                        }
-                    }
-                });
-            }
-            </script>
-
         </div>
       </div>
     </div>
@@ -318,7 +226,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
                 <option value="">-- zuerst Logfile wählen --</option>
               </select>
             </div>
-            <button class="btn btn-primary" onclick="showLogModal()" style="margin-top: 20px;">Anzeigen</button>
+            <button class="btn btn-primary" onclick="showLogModal()" style="margin-top: 20px;"><?=ucfirst($pia_lang['Gen_show'])?></button>
         </div>
 
       </div>
@@ -327,9 +235,6 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 </div>
 
 <div class="row">
-
-
-
     <div class="col-md-3">
       <div class="box box-solid">
         <div class="box-header with-border">
@@ -384,10 +289,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
         <div class="box-body" style="height:280px;">
             <div style="display: inline-flex; width: 49%;">Reports:&nbsp;<strong id="reportsCount">0</strong></div>
             <div style="display: inline-flex; width: 49%;">Archived:&nbsp;<strong id="reportsArchiveCount">0</strong></div>
-
             <hr style="margin:10px 0;">
-
-            <!-- latest Reports -->
             <div id="latestReports">
                 <em>Loading reports…</em>
             </div>
@@ -429,8 +331,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </tbody>
             </table>
           </div>
-
         </div>
+
       </div>
     </div>
 
@@ -441,17 +343,15 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
         </div>
 
         <div class="box-body" style="padding:0;">
-
             <div style="height:160px; width:100%;">
               <div id="historyChartsContainer"></div>
             </div>
-
         </div>
+
       </div>
     </div>
 
 </div>
-
 
 <!-- Modal -->
 <div class="modal fade" id="logModal" tabindex="-1">
@@ -468,9 +368,9 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="navigateLog(1)">← zurück</button>
-        <button class="btn btn-default" onclick="navigateLog(-1)">vor →</button>
-        <button class="btn btn-primary" data-dismiss="modal">Schließen</button>
+        <button class="btn btn-default" onclick="navigateLog(1)">← <?=$pia_lang['Device_Table_nav_prev']?></button>
+        <button class="btn btn-default" onclick="navigateLog(-1)"><?=$pia_lang['Device_Table_nav_next']?> →</button>
+        <button class="btn btn-primary" data-dismiss="modal"><?=$pia_lang['Gen_Close']?></button>
       </div>
 
     </div>
@@ -488,23 +388,18 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 
       <div class="modal-body">
         <pre id="reportModalContent"
-             style="white-space:pre-wrap; font-size:12px;">
+             style="max-height:500px; overflow:auto; white-space:pre-wrap; font-size:12px; border: none;">
 Loading…
         </pre>
       </div>
 
       <div class="modal-footer">
-        <button type="button"
-                class="btn btn-default"
-                data-dismiss="modal">
-          Schließen
-        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$pia_lang['Gen_Close']?></button>
       </div>
 
     </div>
   </div>
 </div>
-
 
 <script>
 // --------------------------------------------------------------------------
@@ -650,6 +545,97 @@ function loadSpeedtestChart(days)
         },
         error: function () {
             console.error('Failed to load speedtest data');
+        }
+    });
+}
+
+// --------------------------------------------------------------------------
+function renderSpeedtestChart(data)
+{
+    const ctx = document.getElementById('speedtestChart').getContext('2d');
+
+    if (speedtestChart) {
+        speedtestChart.destroy();
+    }
+
+    speedtestChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Ping (ms)',
+                    data: data.ping,
+                    borderColor: '#3498db',   // blau
+                    backgroundColor: 'rgba(52,152,219,0.15)',
+                    fill: false,
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    tension: 0.2
+                },
+                {
+                    label: 'Download (Mbps)',
+                    data: data.down,
+                    borderColor: '#2ecc71',   // grün
+                    backgroundColor: 'rgba(46,204,113,0.15)',
+                    fill: false,
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    tension: 0.2
+                },
+                {
+                    label: 'Upload (Mbps)',
+                    data: data.up,
+                    borderColor: '#e74c3c',   // rot
+                    backgroundColor: 'rgba(231,76,60,0.15)',
+                    fill: false,
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    tension: 0.2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        callback: function (value) {
+                            if (typeof value !== 'string') {
+                                return value;
+                            }
+
+                            const parts = value.split(' ');
+                            if (parts.length !== 2) {
+                                return value;
+                            }
+
+                            const dateParts = parts[0].split('-');
+                            if (dateParts.length !== 3) {
+                                return value;
+                            }
+
+                            const month = dateParts[1];
+                            const day   = dateParts[2];
+                            const time = parts[1].substring(0, 5); // HH:MM
+
+                            return [month + '.' + day, time];
+                        }
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        maxTicksLimit: 4
+                    }
+                }]
+            }
         }
     });
 }

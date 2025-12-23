@@ -37,6 +37,7 @@ PIALERT_PATH = PIALERT_BACK_PATH + "/.."
 PIALERT_WEBSERVICES_LOG = PIALERT_PATH + "/log/pialert.webservices.log"
 STOPPIALERT = PIALERT_PATH + "/config/setting_stoppialert"
 PIALERT_DB_FILE = PIALERT_PATH + "/db/pialert.db"
+PIALERT_DBTOOLS_FILE = PIALERT_PATH + "/db/pialert_tools.db"
 PIALERT_DB_PATH = PIALERT_PATH + "/db"
 REPORTPATH_WEBGUI = PIALERT_PATH + "/front/reports/"
 STATUS_FILE_SCAN = PIALERT_BACK_PATH + "/.scanning"
@@ -62,6 +63,8 @@ def main():
     global log_timestamp
     global sql_connection
     global sql
+    global sql_connection_tools
+    global sql_tools
 
     # Header
     print('\nPi.Alert v'+ VERSION_DATE)
@@ -72,8 +75,10 @@ def main():
     log_timestamp  = datetime.datetime.now()
 
     # DB
-    sql_connection = None
-    sql            = None
+    sql_connection       = None
+    sql                  = None
+    sql_connection_tools = None
+    sql_tools            = None
     sqlite3.register_adapter(datetime.datetime, adapt_datetime)
 
     # Timestamp
@@ -125,7 +130,15 @@ def main():
         # Perform shutdown or rebppt
         process_webgui_tokens()
 
-    return 0    
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    # Save Log to ToolsDB
+    openDB_tools()
+    write_cycle_logs_to_tables()
+    closeDB_tools()
+
+    return 0
 
 #===============================================================================
 # Set Env (Userpermissions DB-file)
@@ -274,6 +287,74 @@ def process_webgui_tokens():
         print_log("reboot_executed")
 
     return
+
+#===============================================================================
+# Save logs
+#===============================================================================
+
+def write_cycle_logs_to_tables(log_dir=PIALERT_PATH + "/log"):
+    global sql_connection_tools
+    global sql_tools
+    global startTime
+
+    print_log("Save Log in Tools-DB")
+    LOGFILE_TABLE_MAP = {
+        "pialert.1.log": "Log_History_Scan",
+        "pialert.webservices.log": "Log_History_WebServices",
+        "pialert.cleanup.log": "Log_History_Cleanup",
+        "pialert.IP.log": "Log_History_InternetIP",
+        "pialert.vendors.log": "Log_History_Vendors",
+    }
+
+    CYCLE_LOGFILES = {
+        "1": [
+            "pialert.1.log",
+            "pialert.webservices.log"
+        ],
+        "cleanup": [
+            "pialert.cleanup.log"
+        ],
+        "internet_IP": [
+            "pialert.IP.log"
+        ],
+        "update_vendors": [
+            "pialert.vendors.log"
+        ],
+    }
+
+    # print(cycle)
+
+    logfiles = CYCLE_LOGFILES.get(cycle, [])
+    if not logfiles:
+        return
+
+    for logfile in logfiles:
+        table = LOGFILE_TABLE_MAP.get(logfile)
+        if not table:
+            continue  # kein Ziel definiert → bewusst ignorieren
+
+        if logfile == "pialert.webservices.log":
+            if startTime.minute % 10 != 0:
+                continue
+
+        logfile_path = os.path.join(log_dir, logfile)
+        if not os.path.isfile(logfile_path):
+            continue
+
+        with open(logfile_path, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read()
+        # print(content)
+
+        sql_tools.execute(
+            f"""
+            INSERT INTO {table} (ScanDate, Logfile)
+            VALUES (?, ?)
+            """,
+            (startTime, content)
+        )
+
+    sql_connection_tools.commit()
+
 
 #===============================================================================
 # INTERNET IP CHANGE
@@ -619,40 +700,6 @@ def run_speedtest_task(start_time, crontab_string):
     return 0
 
 #-------------------------------------------------------------------------------
-# def get_internet_IP():
-#     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
-#     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
-    
-#     curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
-#     try:
-#         cmd_output = subprocess.check_output(
-#             curl_args,
-#             universal_newlines=True,
-#             stderr=subprocess.STDOUT,
-#             timeout=10
-#         ).strip()
-
-#         # Check empty response
-#         if not cmd_output:
-#             return check_IP_format(None)
-
-#         return check_IP_format(cmd_output)
-
-#     except subprocess.CalledProcessError as e:
-#         # curl was executed but returned an error status
-#         print(f"curl error: exit {e.returncode}, output: {e.output}")
-#         return check_IP_format(None)
-
-#     except subprocess.TimeoutExpired:
-#         # curl took too long
-#         print("curl timeout")
-#         return check_IP_format(None)
-
-#     except Exception as e:
-#         # generic errors (e.g., OSError if curl does not exist)
-#         print(f"unexpected error: {e}")
-#         return check_IP_format(None)
-
 def get_internet_IP(retries=3, delay=2):
     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
@@ -3675,6 +3722,8 @@ def print_service_monitoring_changes():
         monitor_logfile.write("\n    Down..........: " + str(changeddown))
         monitor_logfile.write("\n    Up............: " + str(changedup))
         monitor_logfile.write("\n")
+        monitor_logfile.write("\nDONE!!!")
+        monitor_logfile.write("\n")
         monitor_logfile.close()
 
 # -----------------------------------------------------------------------------
@@ -5169,6 +5218,42 @@ def SafeParseGlobalBool(boolVariable):
 #===============================================================================
 # DB
 #===============================================================================
+def openDB_tools():
+    global sql_connection_tools
+    global sql_tools
+
+    # Check if DB is open
+    if sql_connection_tools != None :
+        return
+
+    # Log    
+    print_log ('Opening DB...')
+
+    # Open DB and Cursor
+    sql_connection_tools = sqlite3.connect (PIALERT_DBTOOLS_FILE, isolation_level=None)
+    sql_connection_tools.execute('pragma journal_mode=wal') #
+    sql_connection_tools.text_factory = str
+    sql_connection_tools.row_factory = sqlite3.Row
+    sql_tools = sql_connection_tools.cursor()
+
+#-------------------------------------------------------------------------------
+def closeDB_tools():
+    global sql_connection_tools
+    global sql_tools
+
+    # Check if DB is open
+    if sql_connection_tools == None :
+        return
+
+    # Log    
+    print_log ('Closing DB...')
+
+    # Close DB
+    sql_connection_tools.commit()
+    sql_connection_tools.close()
+    sql_connection_tools = None    
+
+#-------------------------------------------------------------------------------
 def openDB():
     global sql_connection
     global sql
