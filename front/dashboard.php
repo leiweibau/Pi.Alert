@@ -221,7 +221,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </select>
             </div>
             <div class="form-group" style="margin-top: 10px;">
-              <label for="dateSelect">Scan-Datum</label>
+              <label for="dateSelect"><?=$pia_lang['EVE_TableHead_Date']?></label>
               <select id="dateSelect" class="form-control">
                 <option value="">-- zuerst Logfile wählen --</option>
               </select>
@@ -238,8 +238,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-3">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> Devices - Total</h3>
-          <div class="box-tools pull-right"><a href="./devices.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
+          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> <?=$pia_lang['NAV_Devices']?> - Total</h3>
+          <div class="box-tools pull-right"><a href="./devices.php"><i class="fa-solid fa-up-right-from-square text-yellow"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
@@ -254,8 +254,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-3">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> ICMP</h3>
-          <div class="box-tools pull-right"><a href="./icmpmonitor.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
+          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> <?=$pia_lang['NAV_ICMPScan']?></h3>
+          <div class="box-tools pull-right"><a href="./icmpmonitor.php"><i class="fa-solid fa-up-right-from-square text-yellow"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
@@ -268,8 +268,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-3">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> WebServices</h3>
-          <div class="box-tools pull-right"><a href="./services.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
+          <h3 class="box-title text-aqua"><i class="bi bi-pie-chart"></i> <?=$pia_lang['NAV_Services']?></h3>
+          <div class="box-tools pull-right"><a href="./services.php"><i class="fa-solid fa-up-right-from-square text-yellow"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
@@ -283,12 +283,12 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Reports (latest 5)</h3>
-          <div class="box-tools pull-right"><a href="./reports.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
+          <div class="box-tools pull-right"><a href="./reports.php"><i class="fa-solid fa-up-right-from-square text-yellow"></i></a></div>
         </div>
 
         <div class="box-body" style="height:280px;">
-            <div style="display: inline-flex; width: 49%;">Reports:&nbsp;<strong id="reportsCount">0</strong></div>
-            <div style="display: inline-flex; width: 49%;">Archived:&nbsp;<strong id="reportsArchiveCount">0</strong></div>
+            <div style="display: inline-flex; width: 49%;"><?=$pia_lang['REP_Title']?>:&nbsp;<strong id="reportsCount">0</strong></div>
+            <div style="display: inline-flex; width: 49%;"><?=$pia_lang['Device_Shortcut_Archived']?>:&nbsp;<strong id="reportsArchiveCount">0</strong></div>
             <hr style="margin:10px 0;">
             <div id="latestReports">
                 <em>Loading reports…</em>
@@ -305,7 +305,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="box box-solid">
         <div class="box-header with-border">
           <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> Last 50 Events (Today)</h3>
-          <div class="box-tools pull-right"><a href="./devicesEvents.php"><i class="fa-solid fa-up-right-from-square"></i></a></div>
+          <div class="box-tools pull-right"><a href="./devicesEvents.php"><i class="fa-solid fa-up-right-from-square text-yellow"></i></a></div>
         </div>
 
         <div class="box-body" style="padding:0;">
@@ -340,7 +340,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-6">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> Activity Chart (12h)</h3>
+          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> <?=$pia_lang['Device_Shortcut_OnlineChart_a']?> 12 <?=$pia_lang['Device_Shortcut_OnlineChart_b'] ?></h3>
         </div>
 
         <div class="box-body" style="padding:0;">
@@ -427,8 +427,8 @@ $(document).ready(function () {
     startDashboardRefresh();
     loadHistoryStackedChart('main_scan');
     loadHistoryStackedChart('icmp_scan');
+    getReportTotalsBadge();
 });
-
 // --------------------------------------------------------------------------
 $('#logfileSelect').on('change', function () {
     currentLogfile = $(this).val();
@@ -461,7 +461,6 @@ $('#logfileSelect').on('change', function () {
         }
     });
 });
-
 // --------------------------------------------------------------------------
 function showLogModal()
 {
@@ -476,7 +475,6 @@ function showLogModal()
     loadLogfile(currentLogfile, date);
     $('#logModal').modal('show');
 }
-
 // --------------------------------------------------------------------------
 function loadLogfile(logfile, date)
 {
@@ -501,7 +499,6 @@ function loadLogfile(logfile, date)
         }
     });
 }
-
 // --------------------------------------------------------------------------
 function navigateLog(direction)
 {
@@ -514,14 +511,12 @@ function navigateLog(direction)
     $('#dateSelect').val(date);
     loadLogfile(currentLogfile, date);
 }
-
 // --------------------------------------------------------------------------
 function updateNavButtons()
 {
     $('.btn-prev').prop('disabled', currentIndex <= 0);
     $('.btn-next').prop('disabled', currentIndex >= logfileDates.length - 1);
 }
-
 // --------------------------------------------------------------------------
 function loadSpeedtestChart(days)
 {
@@ -549,7 +544,6 @@ function loadSpeedtestChart(days)
         }
     });
 }
-
 // --------------------------------------------------------------------------
 function renderSpeedtestChart(data)
 {
@@ -640,7 +634,6 @@ function renderSpeedtestChart(data)
         }
     });
 }
-
 // --------------------------------------------------------------------------
 function initializeDatatable () {
 
@@ -662,7 +655,7 @@ function initializeDatatable () {
     pageLength    : 50,
 
     columnDefs: [
-      { visible: false, targets: [0,5,6,7,8,10,11] },
+      { visible: false, targets: [0,2,5,6,7,8,10,11] },
       {targets: [1],
         "createdCell": function (td, cellData, rowData, row, col) {
           if (rowData[13]) {
@@ -699,7 +692,6 @@ function initializeDatatable () {
     }
   });
 }
-
 // --------------------------------------------------------------------------
 function getEvents () {
 
@@ -712,7 +704,6 @@ function getEvents () {
     .url('php/server/events.php?action=getEvents&type=all&period=1 day')
     .load();
 }
-
 // --------------------------------------------------------------------------
 function translateHTMLcodes(text)
 {
@@ -727,7 +718,6 @@ function translateHTMLcodes(text)
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'");
 }
-
 // --------------------------------------------------------------------------
 function getLocalDeviceStatus() {
     $.ajax({
@@ -749,7 +739,6 @@ function getLocalDeviceStatus() {
         }
     });
 }
-
 // --------------------------------------------------------------------------
 function renderDevicesDonut(values, total) {
     const ctx = document.getElementById('devicesDonut').getContext('2d');
@@ -799,7 +788,6 @@ function renderDevicesDonut(values, total) {
         }
     });
 }
-
 // --------------------------------------------------------------------------
 Chart.plugins.register({
   beforeDraw: function (chart) {
@@ -834,7 +822,6 @@ Chart.plugins.register({
     ctx.restore();
   }
 });
-
 // --------------------------------------------------------------------
 function getIcmpDeviceStatus() {
 
@@ -857,8 +844,7 @@ function getIcmpDeviceStatus() {
         }
     });
 }
-
-
+// --------------------------------------------------------------------
 function renderIcmpDevicesDonut(values, total) {
     const ctx = document.getElementById('devicesDonutIcmp').getContext('2d');
     if (devicesDonutIcmpChart) {
@@ -931,7 +917,6 @@ function getReportsCount() {
         }
     });
 }
-
 // --------------------------------------------------------------------
 function loadLatestReports() {
 
@@ -1012,6 +997,7 @@ function refreshDashboardData() {
     loadHistoryStackedChart('main_scan');
     loadHistoryStackedChart('icmp_scan');
     loadServicesStatusDonut();
+    getReportTotalsBadge();
 }
 
 function startDashboardRefresh() {
@@ -1132,9 +1118,7 @@ function loadHistoryStackedChart(dataSource) {
         }
     );
 }
-
-
-
+// --------------------------------------------------------------------------
 function loadServicesStatusDonut() {
 
     $.getJSON(
@@ -1204,7 +1188,22 @@ function loadServicesStatusDonut() {
         }
     );
 }
-
+// --------------------------------------------------------------------------
+function getReportTotalsBadge() {
+  // get totals and put in boxes
+  $.get('php/server/files.php?action=getReportTotals', function(data) {
+    var totalsReportbadge = JSON.parse(data);
+    var unsetbadge = "";
+    if (totalsReportbadge[0] > 0) {
+      $('#Menu_Report_Counter_Badge').html(totalsReportbadge[0].toLocaleString());
+      $('#Menu_Report_Envelope_Icon' ).addClass("text-red");
+    } else {
+      $('#Menu_Report_Counter_Badge').html(unsetbadge.toLocaleString());
+      $('#Menu_Report_Envelope_Icon' ).removeClass("text-red");
+    }
+    document.title = document.title.replace(/\(\d*\)/, `(${totalsReportbadge[0].toLocaleString()})`);
+  });
+}
 </script>
 
 </body>
