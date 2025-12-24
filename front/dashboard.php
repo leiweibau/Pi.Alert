@@ -313,17 +313,18 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
             <table id="tableEvents" class="table table-striped table-hover table-condensed" style="width:100%; font-size: 12px;">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Device</th>
-                  <th>Event</th>
-                  <th>Type</th>
-                  <th>Info</th>
-                  <th>Session</th>
-                  <th>Start</th>
-                  <th>End</th>
-                  <th>Timestamp</th>
-                  <th>IP</th>
-                  <th>Hidden</th>
+                  <th><?=$pia_lang['EVE_TableHead_Order'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_Device'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_Owner'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_Date'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_EventType'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_Connection'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_Disconnection'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_Duration'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_DurationOrder'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_IP'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_IPOrder'];?></th>
+                  <th><?=$pia_lang['EVE_TableHead_AdditionalInfo'];?></th>
                 </tr>
               </thead>
               <tbody>
@@ -661,24 +662,28 @@ function initializeDatatable () {
     pageLength    : 50,
 
     columnDefs: [
-      { visible: false, targets: [0,5,6,7,8,10] },
-      {
-        targets: [1],
-        createdCell: function (td, cellData, rowData) {
-
+      { visible: false, targets: [0,5,6,7,8,10,11] },
+      {targets: [1],
+        "createdCell": function (td, cellData, rowData, row, col) {
           if (rowData[13]) {
-            $(td).html(
-              '<b><a href="deviceDetails.php?mac=' +
-              rowData[13] + '">' + cellData + '</a></b>'
-            );
+              $(td).html('<b><a href="deviceDetails.php?mac=' + rowData[13] + '" class="">' + cellData + '</a></b>');
           } else {
-            $(td).html(
-              '<b><a href="icmpmonitorDetails.php?hostip=' +
-              rowData[9] + '">' + cellData + '</a></b>'
-            );
+              
+              if (String(cellData).endsWith("**")) {
+                  const mainText = String(cellData).slice(0, -2);
+
+                  $(td).html(
+                      '<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' +
+                      mainText +
+                      '<span class="text-warning">**</span>' +
+                      '</a></b>'
+                  );
+              } else {
+                  // default
+                  $(td).html('<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' + cellData + '</a></b>');
+              }
           }
-        }
-      },
+      } },
       {
         targets: [3,4,5,6,7],
         createdCell: function (td, cellData) {
@@ -704,7 +709,7 @@ function getEvents () {
   table.order([[0, "desc"], [3, "desc"], [5, "desc"]]);
 
   table.ajax
-    .url('php/server/events.php?action=getEvents&period=1 day')
+    .url('php/server/events.php?action=getEvents&type=all&period=1 day')
     .load();
 }
 
