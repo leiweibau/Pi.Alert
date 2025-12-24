@@ -104,12 +104,9 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 <div class="wrapper" <?=$wrapper_color;?>>
   <!-- Main Header -->
   <header class="main-header">
-    <a href="." class="logo">
-      <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini">P<b>a</b></span>
-      <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg">Pi<b>.Alert</b></span>
-    </a>
+    <div class="logo">
+      <span>Pi<b>.Alert</b></span>
+    </div>
 
     <!-- Header Navbar -->
     <nav class="navbar navbar-static-top" role="navigation">
@@ -147,8 +144,18 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               <img src="img/<?=$_SESSION['UserLogo'];?>.png" class="user-image" style="border-radius: initial" alt="Pi.Alert Logo">
               <span class="label label-danger" id="Menu_Report_Counter_Badge"></span>
             </a>
-            <ul class="dropdown-menu" style="width: 240px;">
+            <ul class="dropdown-menu zoom-menu" style="width: 240px;">
               <!-- Menu Body -->
+              <li class="user-footer">
+                <div style="text-align: center;">
+                  <div class="zoom-controls">
+                    <button class="btn btn-xs btn-primary" onclick="zoomOut()">−</button>
+                    <span id="zoom-percent">100%</span>
+                    <button class="btn btn-xs btn-primary" onclick="zoomIn()">+</button>
+                    <button class="btn btn-xs btn-success" onclick="zoomReset()">Reset</button>
+                  </div>
+                </div>
+              </li>
               <li class="user-footer">
                 <div style="text-align: center;">
                   <a href="./deviceDetails.php?mac=Internet" id="custom-menu-default-button" class="btn btn-default" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Internet</div></a>
@@ -460,6 +467,10 @@ $('#logfileSelect').on('change', function () {
             $('#dateSelect').html('<option value="">Fehler beim Laden</option>');
         }
     });
+});
+
+$(document).on('click', '.dropdown-menu.zoom-menu', function (e) {
+  e.stopPropagation();
 });
 // --------------------------------------------------------------------------
 function showLogModal()
@@ -1203,6 +1214,33 @@ function getReportTotalsBadge() {
     }
     document.title = document.title.replace(/\(\d*\)/, `(${totalsReportbadge[0].toLocaleString()})`);
   });
+}
+
+
+
+
+let zoomLevel = 100;
+
+function applyZoom() {
+  document.body.style.zoom = zoomLevel + '%';
+  document.getElementById('zoom-percent').innerText = zoomLevel + '%';
+}
+
+function zoomIn() {
+  if (zoomLevel < 150) {
+    zoomLevel += 10;
+    applyZoom();
+  }
+}
+function zoomReset() {
+  zoomLevel = 100;
+  applyZoom();
+}
+function zoomOut() {
+  if (zoomLevel > 50) {
+    zoomLevel -= 10;
+    applyZoom();
+  }
 }
 </script>
 
