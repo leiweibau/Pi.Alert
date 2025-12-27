@@ -295,33 +295,33 @@ def speedtest(retries=3):
 #===============================================================================
 def cleanup_database_tools():
     openDB_tools()
-    print('\nCleanup tables, up to the lastest ' + str("180") + ' days:')
+    # print('\nCleanup tables, up to the lastest ' + str("180") + ' days:')
 
-    print('    Nmap Scan Results')
+    print('    Nmap Scan Results (180)')
     sql_tools.execute("DELETE FROM Tools_Nmap_ManScan WHERE scan_date <= date('now', '-" + str("180") + " day')")
 
-    print('    Speedtest_History')
+    print('    Speedtest_History (180)')
     sql_tools.execute("DELETE FROM Tools_Speedtest_History WHERE speed_date <= date('now', '-" + str("180") + " day')")
 
-    print('    Log_History_Scan')
+    print('    Log_History_Scan (4)')
     sql_tools.execute("DELETE FROM Log_History_Scan WHERE ScanDate <= date('now', '-" + str("4") + " day')")
 
-    print('    Log_History_Cleanup')
-    sql_tools.execute("DELETE FROM Log_History_Cleanup WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+    print('    Log_History_Cleanup (16)')
+    sql_tools.execute("DELETE FROM Log_History_Cleanup WHERE ScanDate <= date('now', '-" + str("16") + " day')")
 
-    print('    Log_History_Vendors')
-    sql_tools.execute("DELETE FROM Log_History_Vendors WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+    print('    Log_History_Vendors (16)')
+    sql_tools.execute("DELETE FROM Log_History_Vendors WHERE ScanDate <= date('now', '-" + str("16") + " day')")
 
-    print('    Log_History_WebServices')
+    print('    Log_History_WebServices (4)')
     sql_tools.execute("DELETE FROM Log_History_WebServices WHERE ScanDate <= date('now', '-" + str("4") + " day')")
 
-    print('    Log_History_InternetIP')
+    print('    Log_History_InternetIP (4)')
     sql_tools.execute("DELETE FROM Log_History_InternetIP WHERE ScanDate <= date('now', '-" + str("4") + " day')")
 
-    print('    Log_History_Speedtest')
-    sql_tools.execute("DELETE FROM Log_History_Speedtest WHERE ScanDate <= date('now', '-" + str("4") + " day')")
+    print('    Log_History_Speedtest (7)')
+    sql_tools.execute("DELETE FROM Log_History_Speedtest WHERE ScanDate <= date('now', '-" + str("7") + " day')")
 
-    print('\nShrink Database...')
+    print('\nShrink Tools-Database...')
     sql_tools.execute("VACUUM;")
     closeDB_tools()
 

@@ -130,11 +130,16 @@ def sending_notifications_test(_Mode):
         send_ntfy_test (notiMessage)
     else :
         print ('    Skip NTFY...')
+    if REPORT_DISCORD or REPORT_DISCORD_WEBMON:
+        print ('    Sending report by Discord...')
+        send_discord_test (notiMessage)
+    else :
+        print ('    Skip Discord...')  
     if REPORT_WEBGUI or REPORT_WEBGUI_WEBMON:
         print ('    Save report to file...')
         send_webgui_test (notiMessage)
     else :
-        print ('    Skip WebGUI...')        
+        print ('    Skip WebGUI...')         
     return 0
 
 #-------------------------------------------------------------------------------
@@ -214,6 +219,24 @@ def send_pushover_test(_notiMessage):
         "sound" : notification_sound,
         }
     requests.post(url, data=post_fields)
+#-------------------------------------------------------------------------------
+def send_discord_test (_notiMessage):
+    # block = _Text.replace('\n\n\n', '\n\n')
+    # event_type = next((line.split(":")[1].strip() for line in block.splitlines() if line.startswith("Event:")), "Alert")
+    # color_map = {"Connected": 65280, "Disconnected": 16711680, "Alert": 16753920}
+    # color = color_map.get(event_type, 3447003)
+
+    payload = {
+        "embeds": [
+            {
+                "title": 'Pi.Alert Message',
+                "description": _notiMessage,
+                # "color": color
+            }
+        ]
+    }
+
+    requests.post(DISCORD_BOT_TOKEN_URL, json=payload)
 
 #-------------------------------------------------------------------------------
 def send_telegram_test(_notiMessage):

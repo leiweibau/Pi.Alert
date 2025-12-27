@@ -210,8 +210,8 @@ function show_all_satellites_list($satellite) {
 function format_notifications($source_array) {
 	$format_array_true = array();
 	$format_array_false = array();
-	$text_reference = array('WEBGUI', 'TELEGRAM', 'MAIL', 'PUSHSAFER', 'PUSHOVER', 'NTFY');
-	$text_format = array('WebGUI', 'Telegram', 'Mail', 'Pushsafer', 'Pushover', 'NTFY');
+	$text_reference = array('WEBGUI', 'TELEGRAM', 'MAIL', 'PUSHSAFER', 'PUSHOVER', 'NTFY', 'DISCORD');
+	$text_format = array('WebGUI', 'Telegram', 'Mail', 'Pushsafer', 'Pushover', 'NTFY', 'Discord');
 	for ($x = 0; $x < sizeof($source_array); $x++) {
 		$temp = explode("=", $source_array[$x]);
 		$temp[0] = trim($temp[0]);

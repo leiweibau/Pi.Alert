@@ -842,8 +842,12 @@ def cleanup_database():
     closeDB()
 
     print('\nCleanup DB_Tools...')
+    sys.stdout.flush()
+    sys.stderr.flush()
     command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "cleanup"]
-    output = subprocess.check_output(command, text=True)
+    # output = subprocess.check_output(command, text=True)
+
+    subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr, text=True, check=True)
 
     return 0
 
@@ -5018,6 +5022,25 @@ def send_telegram (_Text):
     stream = os.popen(runningpath+'/shoutrrr/'+SHOUTRRR_BINARY+'/shoutrrr send --url "'+TELEGRAM_BOT_TOKEN_URL+'" --message "'+_telegram_Text+'" --title "Pi.Alert - '+subheadline+'"')
 
 #-------------------------------------------------------------------------------
+def send_discord (_Text):
+    block = _Text.replace('\n\n\n', '\n\n')
+    event_type = next((line.split(":")[1].strip() for line in block.splitlines() if line.startswith("Event:")), "Alert")
+    color_map = {"Connected": 65280, "Disconnected": 16711680, "Alert": 16753920}
+    color = color_map.get(event_type, 3447003)
+
+    payload = {
+        "embeds": [
+            {
+                "title": f"Pi.Alert - {event_type}",
+                "description": block,
+                "color": color
+            }
+        ]
+    }
+
+    requests.post(DISCORD_BOT_TOKEN_URL, json=payload)
+
+#-------------------------------------------------------------------------------
 def send_webgui (_Text):
     # Remove one linebrake between "Server" and the headline of the event type
     _webgui_Text = _Text.replace('\n\n\n', '\n\n')
@@ -5036,67 +5059,52 @@ def send_webgui (_Text):
 #===============================================================================
 def sending_notifications (_type, _html_text, _txt_text):
     if _type in ['webservice']:
-        if REPORT_MAIL_WEBMON :
-            print('    Sending report by email...')
-            send_email (_txt_text, _html_text)
-        else :
-            print('    Skip mail...')
-        if REPORT_PUSHSAFER_WEBMON :
-            print('    Sending report by PUSHSAFER...')
-            send_pushsafer (_txt_text)
-        else :
-            print('    Skip PUSHSAFER...')
-        if REPORT_PUSHOVER_WEBMON :
-            print('    Sending report by PUSHOVER...')
-            send_pushover (_txt_text)
-        else :
-            print('    Skip PUSHOVER...')
-        if REPORT_TELEGRAM_WEBMON :
-            print('    Sending report by Telegram...')
-            send_telegram (_txt_text)
-        else :
-            print('    Skip Telegram...')
-        if REPORT_NTFY_WEBMON :
-            print('    Sending report by NTFY...')
-            send_ntfy (_txt_text)
-        else :
-            print('    Skip NTFY...')
-        if REPORT_WEBGUI_WEBMON :
-            print('    Save report to file...')
-            send_webgui (_txt_text)
-        else :
-            print('    Skip WebUI...')
+        REPORT_CHANNELS_WEBMON = [
+            (REPORT_MAIL_WEBMON,      "email",     lambda: send_email(_txt_text, _html_text)),
+            (REPORT_PUSHSAFER_WEBMON, "PUSHSAFER", lambda: send_pushsafer(_txt_text)),
+            (REPORT_PUSHOVER_WEBMON,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
+            (REPORT_TELEGRAM_WEBMON,  "Telegram",  lambda: send_telegram(_txt_text)),
+            (REPORT_NTFY_WEBMON,      "NTFY",      lambda: send_ntfy(_txt_text)),
+            (REPORT_DISCORD_WEBMON,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_WEBGUI_WEBMON,    "WebUI",     lambda: send_webgui(_txt_text)),
+        ]
+
+        for enabled, name, action in REPORT_CHANNELS_WEBMON:
+            if not enabled:
+                print(f"    Skip {name}...")
+                continue
+
+            print(f"    Sending report by {name}...")
+
+            try:
+                action()
+                print(f"    {name} sent successfully")
+            except Exception as e:
+                print(f"    ERROR sending via {name}: {e}")
+
     elif _type in ['pialert', 'icmp_mon', 'rogue_dhcp']:
-        if REPORT_MAIL :
-            print('    Sending report by email...')
-            send_email (_txt_text, _html_text)
-        else :
-            print('    Skip mail...')
-        if REPORT_PUSHSAFER :
-            print('    Sending report by PUSHSAFER...')
-            send_pushsafer (_txt_text)
-        else :
-            print('    Skip PUSHSAFER...')
-        if REPORT_PUSHOVER :
-            print('    Sending report by PUSHOVER...')
-            send_pushover (_txt_text)
-        else :
-            print('    Skip PUSHOVER...')
-        if REPORT_TELEGRAM :
-            print('    Sending report by Telegram...')
-            send_telegram (_txt_text)
-        else :
-            print('    Skip Telegram...')
-        if REPORT_NTFY :
-            print('    Sending report by NTFY...')
-            send_ntfy (_txt_text)
-        else :
-            print('    Skip NTFY...')
-        if REPORT_WEBGUI :
-            print('    Save report to file...')
-            send_webgui (_txt_text)
-        else :
-            print('    Skip WebUI...')
+        REPORT_CHANNELS = [
+            (REPORT_MAIL,      "email",     lambda: send_email(_txt_text, _html_text)),
+            (REPORT_PUSHSAFER, "PUSHSAFER", lambda: send_pushsafer(_txt_text)),
+            (REPORT_PUSHOVER,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
+            (REPORT_TELEGRAM,  "Telegram",  lambda: send_telegram(_txt_text)),
+            (REPORT_NTFY,      "NTFY",      lambda: send_ntfy(_txt_text)),
+            (REPORT_DISCORD,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_WEBGUI,    "WebUI",     lambda: send_webgui(_txt_text)),
+        ]
+
+        for enabled, name, action in REPORT_CHANNELS:
+            if not enabled:
+                print(f"    Skip {name}...")
+                continue
+
+            print(f"    Sending report by {name}...")
+
+            try:
+                action()
+                print(f"    {name} sent successfully")
+            except Exception as e:
+                print(f"    ERROR sending via {name}: {e}")
 
 #-------------------------------------------------------------------------------
 def format_report_section (pActive, pSection, pTable, pText, pHTML):

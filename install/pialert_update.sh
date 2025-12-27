@@ -517,7 +517,7 @@ if ! grep -Fq "# Discord" "$PIALERT_HOME/config/pialert.conf" ; then
 # ----------------------
 REPORT_DISCORD            = True
 REPORT_DISCORD_WEBMON     = True
-DISCORD_BOT_TOKEN_URL       = "https://discord.com/api/webhooks/XXXXXXX/1XXXXXX"
+DISCORD_BOT_TOKEN_URL       = "https://discord.com/api/webhooks/XXXXXXX/XXXXXX"
 EOF
 fi
 

@@ -134,7 +134,7 @@ insert_back_button();
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./dashboard.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Dashboard</div></a>
+                  <a href="./dashboard.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span> Dashboard</div></a>
                 </div>
               </li>
 

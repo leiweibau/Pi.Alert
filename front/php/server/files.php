@@ -599,6 +599,12 @@ NTFY_PASSWORD	           = '" . $configArray['NTFY_PASSWORD'] . "'
 NTFY_PRIORITY 	           = '" . $configArray['NTFY_PRIORITY'] . "'
 NTFY_CLICKABLE 	           = " . convert_bool($configArray['NTFY_CLICKABLE']) . "
 
+# Discord
+# ----------------------
+REPORT_DISCORD             = " . convert_bool($configArray['REPORT_DISCORD']) . "
+REPORT_DISCORD_WEBMON      = " . convert_bool($configArray['REPORT_DISCORD_WEBMON']) . "
+DISCORD_BOT_TOKEN_URL      = '" . $configArray['DISCORD_BOT_TOKEN_URL'] . "'
+
 # Shoutrrr
 # ----------------------
 SHOUTRRR_BINARY            = '" . $configArray['SHOUTRRR_BINARY'] . "'
