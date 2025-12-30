@@ -127,7 +127,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
         <ul class="nav navbar-nav">
           <li>
             <div id="dashboardRefreshCountdown" class="a navbar-servertime text-muted" style="font-size:12px;">
-                Next refresh in <strong><span id="dashboardRefreshCountdownValue">--</span>s</strong>
+                <?=$pia_lang['DASH_refresh_counter']?> <strong><span id="dashboardRefreshCountdownValue">--</span>s</strong>
             </div>
           </li>
           <?php
@@ -192,16 +192,16 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-9">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-speedometer2"></i> Speedtests</h3>
+          <h3 class="box-title text-aqua"><i class="bi bi-speedometer2"></i> <?=$pia_lang['ookla_devdetails_tab_title']?></h3>
         </div>
         <div class="box-body">
 
             <div id="speedtestChartWrapper" style="height:200px;"><canvas id="speedtestChart"></canvas></div>
 
             <div class="btn-group btn-group-xs" role="group" style="margin-top: 10px; margin-bottom:10px">
-              <button class="btn btn-default" onclick="loadSpeedtestChart(7)">7 Tage</button>
-              <button class="btn btn-default active" onclick="loadSpeedtestChart(14)">14 Tage</button>
-              <button class="btn btn-default" onclick="loadSpeedtestChart(21)">21 Tage</button>
+              <button class="btn btn-default" onclick="loadSpeedtestChart(7)">7 <?=$pia_lang['DASH_days']?></button>
+              <button class="btn btn-default active" onclick="loadSpeedtestChart(14)">14 <?=$pia_lang['DASH_days']?></button>
+              <button class="btn btn-default" onclick="loadSpeedtestChart(21)">21 <?=$pia_lang['DASH_days']?></button>
             </div>
 
         </div>
@@ -218,7 +218,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
             <div class="form-group" style="margin-top: 10px;">
               <label for="logfileSelect">Logfile</label>
               <select id="logfileSelect" class="form-control">
-                <option value="">-- Logfile auswählen --</option>
+                <option value=""><?=$pia_lang['DASH_select_log']?></option>
                 <option value="pialert.1.log"><?=$pia_lang['MT_Tools_Logviewer_Scan'];?></option>
                 <option value="pialert.IP.log"><?=$pia_lang['MT_Tools_Logviewer_IPLog'];?></option>
                 <option value="pialert.cleanup.log"><?=$pia_lang['MT_Tools_Logviewer_Cleanup'];?></option>
@@ -230,7 +230,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
             <div class="form-group" style="margin-top: 10px;">
               <label for="dateSelect"><?=$pia_lang['EVE_TableHead_Date']?></label>
               <select id="dateSelect" class="form-control">
-                <option value="">-- zuerst Logfile wählen --</option>
+                <option value=""><?=$pia_lang['DASH_select_date']?></option>
               </select>
             </div>
             <button class="btn btn-primary" onclick="showLogModal()" style="margin-top: 20px;"><?=ucfirst($pia_lang['Gen_show'])?></button>
@@ -289,7 +289,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-3">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> Reports (latest 5)</h3>
+          <h3 class="box-title text-aqua"><i class="bi bi-journal-text"></i> <?=$pia_lang['DASH_reports_head']?></h3>
           <div class="box-tools pull-right"><a href="./reports.php"><i class="fa-solid fa-up-right-from-square text-yellow"></i></a></div>
         </div>
 
@@ -311,7 +311,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <div class="col-md-6">
       <div class="box box-solid">
         <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> Last 50 Events (Today)</h3>
+          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> <?=$pia_lang['DASH_events_head']?></h3>
           <div class="box-tools pull-right"><a href="./devicesEvents.php"><i class="fa-solid fa-up-right-from-square text-yellow"></i></a></div>
         </div>
 
@@ -421,17 +421,20 @@ let speedtestChart = null;
 let currentDays = 7;
 var eventsTable = null;
 var historyStackedCharts = {};
-
+var dashboardRefreshTimer   = null;
+var dashboardCountdownTimer = null;
+var DASHBOARD_REFRESH_INTERVAL = 120000; // 2 Minuten
+var dashboardCountdownSeconds  = DASHBOARD_REFRESH_INTERVAL / 1000;
+// --------------------------------------------------------------------------
 $(document).ready(function () {
     loadSpeedtestChart(7);
     initializeDatatable();
     getEvents('all');
     getLocalDeviceStatus();
     getIcmpDeviceStatus();
-    startDashboardRefresh();
+    // startDashboardRefresh();
     getReportsCount();
     loadLatestReports();
-    startDashboardRefresh();
     loadHistoryStackedChart('main_scan');
     loadHistoryStackedChart('icmp_scan');
     getReportTotalsBadge();
@@ -988,17 +991,12 @@ function formatReportFilename(filename) {
 }
 // --------------------------------------------------------------------------
 function refreshEventsTable() {
-    if (!eventsTable) {
-        return;
-    }
+    if (!eventsTable) return;
+    if (document.visibilityState !== 'visible') return;
+
     eventsTable.ajax.reload(null, false);
 }
 // --------------------------------------------------------------------------
-var dashboardRefreshTimer   = null;
-var dashboardCountdownTimer = null;
-var DASHBOARD_REFRESH_INTERVAL = 120000; // 2 Minuten
-var dashboardCountdownSeconds  = DASHBOARD_REFRESH_INTERVAL / 1000;
-
 function refreshDashboardData() {
     getLocalDeviceStatus();
     getIcmpDeviceStatus();
@@ -1010,25 +1008,32 @@ function refreshDashboardData() {
     loadServicesStatusDonut();
     getReportTotalsBadge();
 }
-
+// --------------------------------------------------------------------------
 function startDashboardRefresh() {
-    startDashboardCountdown();
     if (dashboardRefreshTimer !== null) {
         return;
     }
     refreshDashboardData();
+    startDashboardCountdown();
     dashboardRefreshTimer = setInterval(function () {
         refreshDashboardData();
         startDashboardCountdown();
     }, DASHBOARD_REFRESH_INTERVAL);
 }
-
+// --------------------------------------------------------------------------
 function stopDashboardRefresh() {
-    if (dashboardRefreshTimer === null) {
-        return;
+    if (dashboardRefreshTimer !== null) {
+        clearInterval(dashboardRefreshTimer);
+        dashboardRefreshTimer = null;
     }
-    clearInterval(dashboardRefreshTimer);
-    dashboardRefreshTimer = null;
+    stopDashboardCountdown();
+}
+// --------------------------------------------------------------------------
+function stopDashboardCountdown() {
+    if (dashboardCountdownTimer !== null) {
+        clearInterval(dashboardCountdownTimer);
+        dashboardCountdownTimer = null;
+    }
 }
 // --------------------------------------------------------------------------
 function startDashboardCountdown() {
@@ -1046,16 +1051,6 @@ function startDashboardCountdown() {
     }, 1000);
 }
 // --------------------------------------------------------------------------
-function stopDashboardCountdown() {
-
-    if (dashboardCountdownTimer === null) {
-        return;
-    }
-
-    clearInterval(dashboardCountdownTimer);
-    dashboardCountdownTimer = null;
-}
-
 var historyDataSourceLabels = {
     'main_scan' : 'Main Scan',
     'icmp_scan' : 'ICMP Scan'
@@ -1075,7 +1070,7 @@ function loadHistoryStackedChart(dataSource) {
 
         var html =
             '<div class="history-chart-wrapper" style="height:160px; margin-bottom:20px;">' +
-                '<h5 style="margin-bottom:8px;">History: ' + getHistoryDataSourceLabel(dataSource) + '</h5>' +
+                '<h5 style="margin-bottom:8px;"><?=$pia_lang['DASH_charts_history']?>: ' + getHistoryDataSourceLabel(dataSource) + '</h5>' +
                 '<canvas id="' + chartId + '"></canvas>' +
             '</div>';
 
@@ -1216,9 +1211,6 @@ function getReportTotalsBadge() {
   });
 }
 
-
-
-
 let zoomLevel = 100;
 
 function applyZoom() {
@@ -1242,6 +1234,24 @@ function zoomOut() {
     applyZoom();
   }
 }
+
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+        stopDashboardRefresh();
+        return;
+    }
+    if (document.visibilityState === 'visible') {
+        refreshDashboardData();   // EINMAL sofort
+        startDashboardRefresh();  // Timer + Countdown neu starten
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    refreshDashboardData();
+    startDashboardRefresh();
+});
+
+
 </script>
 
 </body>

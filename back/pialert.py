@@ -113,11 +113,11 @@ def main():
         return res
 
     # Reporting
-    if cycle not in ['internet_IP', 'cleanup']:
+    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent']:
         email_reporting()
 
-    # Close SQL
-    closeDB()
+    # # Close SQL
+    # closeDB()
 
     # Final menssage
     print('\nDONE!!!\n\n')
@@ -909,6 +909,8 @@ def update_devices_MAC_vendors (pArg = ''):
         closeDB()
     else :
         print('\nOffline Mode...\n')
+
+    return 0
 
 #-------------------------------------------------------------------------------
 def query_MAC_vendor(pMAC):

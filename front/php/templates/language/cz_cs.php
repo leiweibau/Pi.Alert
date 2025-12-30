@@ -792,6 +792,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Režim';
 $pia_lang['nmap_devdetails_download'] = 'Uložit skeny jako CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'V databázi se nachází <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> výsledků skenování';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Dny';
+$pia_lang['DASH_select_log'] = '-- Vyberte soubor protokolu --';
+$pia_lang['DASH_select_date'] = '-- nejprve vyberte soubor protokolu --';
+$pia_lang['DASH_reports_head'] = 'Reporty (posledních 5)';
+$pia_lang['DASH_events_head'] = 'Posledních 50 událostí (dnes)';
+$pia_lang['DASH_charts_history'] = 'Historie';
+$pia_lang['DASH_refresh_counter'] = 'další aktualizace za ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================
