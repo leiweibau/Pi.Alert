@@ -817,6 +817,7 @@ function insertNewICMPHost(refreshCallback='') {
     }
   });
 }
+
 </script>
 
 <?php

@@ -124,7 +124,7 @@ insert_back_button();
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning" style="width:190px;"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?></div></a>
+                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning" style="width:190px;"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?> (r)</div></a>
                 </div>
               </li>
               <li class="user-footer">
@@ -134,7 +134,7 @@ insert_back_button();
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./dashboard.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span> Dashboard</div></a>
+                  <a href="./dashboard.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span> Dashboard (d)</div></a>
                 </div>
               </li>
 

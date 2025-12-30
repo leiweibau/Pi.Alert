@@ -163,7 +163,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning" style="width:190px;"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?></div></a>
+                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning" style="width:190px;"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?> (r)</div></a>
                 </div>
               </li>
               <li class="user-footer">
@@ -173,7 +173,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./devices.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span></div></a>
+                  <a href="./devices.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span> (d)</div></a>
                 </div>
               </li>
               <li class="user-footer">
@@ -1210,7 +1210,7 @@ function getReportTotalsBadge() {
     document.title = document.title.replace(/\(\d*\)/, `(${totalsReportbadge[0].toLocaleString()})`);
   });
 }
-
+// --------------------------------------------------------------------------
 let zoomLevel = 100;
 
 function applyZoom() {
@@ -1234,7 +1234,7 @@ function zoomOut() {
     applyZoom();
   }
 }
-
+// --------------------------------------------------------------------------
 document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') {
         stopDashboardRefresh();
@@ -1245,12 +1245,35 @@ document.addEventListener('visibilitychange', function () {
         startDashboardRefresh();  // Timer + Countdown neu starten
     }
 });
-
+// --------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
     refreshDashboardData();
     startDashboardRefresh();
 });
-
+// --------------------------------------------------------------------------
+document.addEventListener('keydown', function (event) {
+    const active = document.activeElement;
+    if (active && (
+        active.tagName === 'INPUT' ||
+        active.tagName === 'TEXTAREA' ||
+        active.isContentEditable
+    )) {
+        return;
+    }
+    if (event.repeat) {
+        return;
+    }
+    const shortcuts = {
+        'd': './devices.php',
+        'j': './journal.php',
+        'r': './reports.php'
+    };
+    const key = event.key.toLowerCase();
+    if (shortcuts[key]) {
+        event.preventDefault();
+        window.location.href = shortcuts[key];
+    }
+});
 
 </script>
 

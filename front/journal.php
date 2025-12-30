@@ -217,13 +217,13 @@ function get_pialert_journal() {
 window.removeField = function (selector) {
     $(selector).remove();
 };
-
+// --------------------------------------------------------------------------
 function JournalReload() {
     setTimeout(function() {
         location.reload();
     }, 1000)
 };
-
+// --------------------------------------------------------------------------
 function initializeCustomColors() {
     $.get('php/server/parameters.php?action=getJournalParameter', function(data) {
         var customColors = JSON.parse(data);
@@ -238,12 +238,13 @@ function initializeCustomColors() {
         initializeDatatable();
     });
 }
-
+// --------------------------------------------------------------------------
 function addTriggerRows() {
     for (var i = 0; i < journalTriggerFilter.length; i++) {
         addTriggerRow(journalTriggerFilter[i], journalTriggerFilterColor[i]);
     }
 }
+// --------------------------------------------------------------------------
 function addTriggerRow(Name, Color) {
     triggerIndex++;
     var newFields = `
@@ -255,12 +256,13 @@ function addTriggerRow(Name, Color) {
     `;
     $('#triggerContainer').append(newFields);
 }
-
+// --------------------------------------------------------------------------
 function addMethodRows() {
     for (var i = 0; i < journalMethodFilter.length; i++) {
         addMethodRow(journalMethodFilter[i], journalMethodFilterColor[i]);
     }
 }
+// --------------------------------------------------------------------------
 function addMethodRow(Name, Color) {
     methodIndex++;
     var newFields = `
@@ -272,7 +274,7 @@ function addMethodRow(Name, Color) {
     `;
     $('#methodContainer').append(newFields);
 }
-
+// --------------------------------------------------------------------------
 function initializeDatatable () {
   $('#tableJournal').DataTable({
     'paging'       : true,
@@ -334,7 +336,7 @@ function initializeDatatable () {
     },
   });
 };
-
+// --------------------------------------------------------------------------
 function custom_journal_color_trigger(trigger) {
     for (let i = 0; i < journalTriggerFilter.length; i++) {
         if (journalTriggerFilter[i] === trigger) {
@@ -343,7 +345,7 @@ function custom_journal_color_trigger(trigger) {
     }
     return " ";
 }
-
+// --------------------------------------------------------------------------
 function custom_journal_color_datetime(cellData, td) {
     var createdAtValue = new Date(cellData);
     var currentTime = new Date();
@@ -358,7 +360,7 @@ function custom_journal_color_datetime(cellData, td) {
         $(td).html('<b style="">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
     }
 }
-
+// --------------------------------------------------------------------------
 function custom_journal_color_method(method) {
     for (let i = 0; i < journalMethodFilter.length; i++) {
         if (journalMethodFilter[i] === method) {
@@ -367,7 +369,7 @@ function custom_journal_color_method(method) {
     }
     return " ";
 }
-
+// --------------------------------------------------------------------------
 function SetTriggerColors() {
     let triggerNames = $('input[name="triggerNames[]"]').map(function () { return $(this).val(); }).get();
     let triggerColors = $('input[name="triggerColors[]"]').map(function () { return $(this).val(); }).get();
@@ -381,7 +383,7 @@ function SetTriggerColors() {
     showMessage (msg);
   });
 }
-
+// --------------------------------------------------------------------------
 function SetMethodColors() {
     let methodNames = $('input[name="methodNames[]"]').map(function () { return $(this).val(); }).get();
     let methodColors = $('input[name="methodColors[]"]').map(function () { return $(this).val(); }).get();

@@ -605,4 +605,5 @@ function askPialertShutdown() {
 function PialertShutdown() {
 	$.get('php/server/commands.php?action=PialertShutdown', function(msg) {showMessage (msg);});
 }
+
 </script>

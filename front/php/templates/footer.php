@@ -180,6 +180,30 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
       reloadPage();
     }
 
+// --------------------------------------------------------------------------
+document.addEventListener('keydown', function (event) {
+    const active = document.activeElement;
+    if (active && (
+        active.tagName === 'INPUT' ||
+        active.tagName === 'TEXTAREA' ||
+        active.isContentEditable
+    )) {
+        return;
+    }
+    if (event.repeat) {
+        return;
+    }
+    const shortcuts = {
+        'd': './dashboard.php',
+        'j': './journal.php',
+        'r': './reports.php'
+    };
+    const key = event.key.toLowerCase();
+    if (shortcuts[key]) {
+        event.preventDefault();
+        window.location.href = shortcuts[key];
+    }
+});
   </script>
 
 </body>
