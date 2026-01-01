@@ -45,6 +45,8 @@ To make it clearer how this version differs from the original project, I made th
 |  | Wake-on-LAN | 🟢 | 🔴 |
 |  | Manual nmap Scan per device | 🟢 | 🔴 |
 |  | Speedtest (manual / automatically)| 🟢 / 🟢 | 🔴 / 🔴 |
+|  | Hotkeys | 🟢 | 🔴 |
+|  | Dashboard | 🟢 | 🔴 |
 
 
 [Back](https://github.com/leiweibau/Pi.Alert)
