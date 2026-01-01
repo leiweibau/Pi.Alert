@@ -97,6 +97,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
     <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+    <script src="js/hotkeys.js"></script>
 </head>
 
 <?=$skin_selected_body;?>
@@ -135,7 +136,10 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
             echo '<li><a id="navbar-pihole-button" class="a navbar-servertime" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
           }
           ?>
-          <li><a id="navbar-help-button" class="a navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" role="button" target="blank"><i class="fa-regular fa-circle-question"></i></a></li>
+          <li><a id="navbar-help-button" class="navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" target="_blank">
+                <i class="fa-regular fa-circle-question"></i>
+              </a>
+          </li>
           <li><div class="a navbar-servertime"><?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span></div></li>
           <!-- Header right info -->
           <li class="dropdown user user-menu">
@@ -173,7 +177,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./devices.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span> (d)</div></a>
+                  <a href="./devices.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span></div></a>
                 </div>
               </li>
               <li class="user-footer">
@@ -1250,33 +1254,8 @@ document.addEventListener('DOMContentLoaded', function () {
     refreshDashboardData();
     startDashboardRefresh();
 });
-// --------------------------------------------------------------------------
-document.addEventListener('keydown', function (event) {
-    const active = document.activeElement;
-    if (active && (
-        active.tagName === 'INPUT' ||
-        active.tagName === 'TEXTAREA' ||
-        active.isContentEditable
-    )) {
-        return;
-    }
-    if (event.repeat) {
-        return;
-    }
-    const shortcuts = {
-        'd': './devices.php',
-        'j': './journal.php',
-        'r': './reports.php'
-    };
-    const key = event.key.toLowerCase();
-    if (shortcuts[key]) {
-        event.preventDefault();
-        window.location.href = shortcuts[key];
-    }
-});
 
 </script>
 
 </body>
 </html>
-

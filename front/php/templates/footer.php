@@ -13,13 +13,10 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
 </div>
 <!-- ./wrapper -->
 
-<!-- jQuery 3 -->
+  <script src="js/hotkeys.js"></script>
   <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.4.1 -->
   <script src="lib/AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- AdminLTE App -->
   <script src="lib/AdminLTE/dist/js/adminlte.min.js"></script>
-<!-- Custom JS -->
   <script src="js/pialert_common.js"></script>
 
   <script>
@@ -180,30 +177,6 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
       reloadPage();
     }
 
-// --------------------------------------------------------------------------
-document.addEventListener('keydown', function (event) {
-    const active = document.activeElement;
-    if (active && (
-        active.tagName === 'INPUT' ||
-        active.tagName === 'TEXTAREA' ||
-        active.isContentEditable
-    )) {
-        return;
-    }
-    if (event.repeat) {
-        return;
-    }
-    const shortcuts = {
-        'd': './dashboard.php',
-        'j': './journal.php',
-        'r': './reports.php'
-    };
-    const key = event.key.toLowerCase();
-    if (shortcuts[key]) {
-        event.preventDefault();
-        window.location.href = shortcuts[key];
-    }
-});
   </script>
 
 </body>
