@@ -27,6 +27,7 @@ To make it clearer how this version differs from the original project, I made th
 |  | Custom predefined filters in the sidebar | 🟢 | 🔴 |
 |  | Exclude devices from presence page | 🟢 | 🔴 |
 |  | System/Pi.Alert status page | 🟢 | 🔴 |
+|  | Dashboard | 🟢 | 🔴 |
 | **Notifications** | Email | 🟢 | 🔴 |
 |  | Push Services | Pushover<br>Pushsaver<br>ntfy<br>Telegram | 🔴 |
 |  | Notifications on WebGui | 🟢 | 🔴 |
@@ -46,7 +47,6 @@ To make it clearer how this version differs from the original project, I made th
 |  | Manual nmap Scan per device | 🟢 | 🔴 |
 |  | Speedtest (manual / automatically)| 🟢 / 🟢 | 🔴 / 🔴 |
 |  | Hotkeys | 🟢 | 🔴 |
-|  | Dashboard | 🟢 | 🔴 |
 
 
 [Back](https://github.com/leiweibau/Pi.Alert)
