@@ -310,7 +310,7 @@ function getLatestReports() {
         return filemtime($b) - filemtime($a);
     });
 
-    $latest = array_slice($files, 0, 5);
+    $latest = array_slice($files, 0, 10);
     $result = [];
 
     foreach ($latest as $file) {

@@ -301,7 +301,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
             <div style="display: inline-flex; width: 49%;"><?=$pia_lang['REP_Title']?>:&nbsp;<strong id="reportsCount">0</strong></div>
             <div style="display: inline-flex; width: 49%;"><?=$pia_lang['Device_Shortcut_Archived']?>:&nbsp;<strong id="reportsArchiveCount">0</strong></div>
             <hr style="margin:10px 0;">
-            <div id="latestReports">
+            <div id="latestReports" style="max-height:225px; overflow-y:auto;">
                 <em>Loading reports…</em>
             </div>
         </div>
@@ -955,12 +955,13 @@ function loadLatestReports() {
                 var displayName = formatReportFilename(item.name);
 
                 html +=
-                    '<li>' +
-                    '<a href="#" onclick="showReportModal(\'' + item.name + '\');return false;">' +
-                    displayName +
-                    '</a>' +
-                    '<br><small class="text-muted">' + item.time + '</small>' +
-                    '</li><hr style="margin:6px 0;">';
+                    '<li style="display:flex; justify-content:space-between; align-items:center;">' +
+                        '<a href="#" onclick="showReportModal(\'' + item.name + '\');return false;">' +
+                            displayName +
+                        '</a>' +
+                        '<small class="text-muted">' + item.time + '</small>' +
+                    '</li>' +
+                    '<hr style="margin:6px 0;">';
             });
             html += '</ul>';
             $('#latestReports').html(html);
