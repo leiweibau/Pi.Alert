@@ -206,17 +206,16 @@ function getLocalDeviceStatus() {
           AND data_source LIKE 'main_scan%'
     ";
 
-    $resSum = $db->query($sqlSum);
-    if (!$resSum || !($row = $resSum->fetchArray(SQLITE3_ASSOC))) {
-        echo json_encode([]);
-        exit;
+    $result = $db->query($sqlSum);
+    if ($result) {
+        $row = $result->fetchArray(SQLITE3_ASSOC);
     }
 
     echo json_encode([
-        'online'   => (int)$row['online'],
-        'offline'  => (int)$row['offline'],
-        'archived' => (int)$row['archived'],
-        'total'    => (int)$row['total'],
+        'online'   => (int)($row['online'] ?? 0),
+        'offline'  => (int)($row['offline'] ?? 0),
+        'archived' => (int)($row['archived'] ?? 0),
+        'total'    => (int)($row['total'] ?? 0),
         'scanDate' => $latestScanDate
     ]);
 
@@ -241,18 +240,16 @@ function getIcmpDeviceStatus() {
     ";
 
     $result = $db->query($sql);
-
-    if ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
-
-        echo json_encode([
-            'online'   => (int)$row['Online_Devices'],
-            'offline'  => (int)$row['Down_Devices'],
-            'archived' => (int)$row['Archived_Devices'],
-            'total'    => (int)$row['All_Devices']
-        ]);
-    } else {
-        echo json_encode([]);
+    if ($result) {
+        $row = $result->fetchArray(SQLITE3_ASSOC);
     }
+
+    echo json_encode([
+        'online'   => (int)($row['Online_Devices'] ?? 0),
+        'offline'  => (int)($row['Down_Devices'] ?? 0),
+        'archived' => (int)($row['Archived_Devices'] ?? 0),
+        'total'    => (int)($row['All_Devices'] ?? 0)
+    ]);
 
     exit;
 }
