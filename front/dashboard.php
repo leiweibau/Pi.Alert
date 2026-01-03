@@ -167,7 +167,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning" style="width:190px;"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?> (r)</div></a>
+                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning" style="width:190px;"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?> <i>(R)</i></div></a>
                 </div>
               </li>
               <li class="user-footer">
@@ -1057,8 +1057,8 @@ function startDashboardCountdown() {
 }
 // --------------------------------------------------------------------------
 var historyDataSourceLabels = {
-    'main_scan' : 'Main Scan',
-    'icmp_scan' : 'ICMP Scan'
+    'main_scan' : 'Main Scan <i>(1)</i>',
+    'icmp_scan' : 'ICMP Scan <i>(3)</i>'
 };
 
 function getHistoryDataSourceLabel(dataSource) {
