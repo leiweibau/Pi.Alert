@@ -914,6 +914,7 @@ function renderIcmpDevicesDonut(values, total) {
 }
 // --------------------------------------------------------------------------
 function getReportsCount() {
+
     $.ajax({
         url: 'php/server/dashboard.php',
         type: 'GET',
@@ -936,26 +937,35 @@ function getReportsCount() {
 }
 // --------------------------------------------------------------------
 function loadLatestReports() {
-    $.get('php/server/dashboard.php?action=getLatestReports', function (data) {
-        if (!data || data.length === 0) {
-            $('#latestReports').html('<em>No reports found</em>');
-            return;
-        }
-        let html = '<ul class="list-unstyled" style="margin-bottom:0;">';
-        data.forEach(function (item) {
-            var displayName = formatReportFilename(item.name);
 
-            html +=
-                '<li style="display:flex; justify-content:space-between; align-items:center;">' +
-                    '<a href="#" onclick="showReportModal(\'' + item.name + '\');return false;">' +
-                        displayName +
-                    '</a>' +
-                    '<small class="text-muted">' + item.time + '</small>' +
-                '</li>' +
-                '<hr style="margin:6px 0;">';
-        });
-        html += '</ul>';
-        $('#latestReports').html(html);
+    $.ajax({
+        url: 'php/server/dashboard.php',
+        type: 'GET',
+        dataType: 'json',
+        data: {
+            action: 'getLatestReports'
+        },
+        success: function (data) {
+            if (!data || data.length === 0) {
+                $('#latestReports').html('<em>No reports found</em>');
+                return;
+            }
+            let html = '<ul class="list-unstyled" style="margin-bottom:0;">';
+            data.forEach(function (item) {
+                var displayName = formatReportFilename(item.name);
+
+                html +=
+                    '<li style="display:flex; justify-content:space-between; align-items:center;">' +
+                        '<a href="#" onclick="showReportModal(\'' + item.name + '\');return false;">' +
+                            displayName +
+                        '</a>' +
+                        '<small class="text-muted">' + item.time + '</small>' +
+                    '</li>' +
+                    '<hr style="margin:6px 0;">';
+            });
+            html += '</ul>';
+            $('#latestReports').html(html);
+        }
     });
 }
 // --------------------------------------------------------------------
@@ -1047,8 +1057,8 @@ function startDashboardCountdown() {
 }
 // --------------------------------------------------------------------------
 var historyDataSourceLabels = {
-    'main_scan' : 'Main Scan <i>(1)</i>',
-    'icmp_scan' : 'ICMP Scan <i>(3)</i>'
+    'main_scan' : 'Main Scan',
+    'icmp_scan' : 'ICMP Scan'
 };
 
 function getHistoryDataSourceLabel(dataSource) {
@@ -1072,138 +1082,138 @@ function loadHistoryStackedChart(dataSource) {
         $('#historyChartsContainer').append(html);
     }
 
-    $.get('php/server/dashboard.php?action=getDeviceHistoryChart&source=' + dataSource, function (chartData) {
+    $.getJSON(
+        'php/server/dashboard.php',
+        {
+            action: 'getDeviceHistoryChart',
+            source: dataSource
+        },
+        function (chartData) {
 
-        var ctx = document
-            .getElementById(chartId)
-            .getContext('2d');
+            var ctx = document
+                .getElementById(chartId)
+                .getContext('2d');
 
-        // vorhandenen Chart für diese Quelle zerstören
-        if (historyStackedCharts[dataSource]) {
-            historyStackedCharts[dataSource].destroy();
-        }
-
-        historyStackedCharts[dataSource] = new Chart(ctx, {
-            type: 'bar',
-            data: chartData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    xAxes: [{ 
-                        stacked: true,
-                    }],
-                    yAxes: [{
-                        stacked: true,
-                        ticks: { 
-                            beginAtZero: true,
-                            stepSize: 1,
-                        }
-                    }]
-                },
-                legend: {
-                    position: 'bottom'
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false
-                }
+            // vorhandenen Chart für diese Quelle zerstören
+            if (historyStackedCharts[dataSource]) {
+                historyStackedCharts[dataSource].destroy();
             }
-        });
-    });
+
+            historyStackedCharts[dataSource] = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{ 
+                            stacked: true,
+                        }],
+                        yAxes: [{
+                            stacked: true,
+                            ticks: { 
+                                beginAtZero: true,
+                                stepSize: 1,
+                            }
+                        }]
+                    },
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+        }
+    );
 }
 // --------------------------------------------------------------------------
 function loadServicesStatusDonut() {
-    $.get('php/server/dashboard.php?action=getServiceStatusSummary', function (resp) {
-        if (!resp || !resp.labels || !resp.data) {
-            return;
-        }
 
-        var ctx = document
-            .getElementById('servicesStatusDonut')
-            .getContext('2d');
+    $.getJSON(
+        'php/server/dashboard.php',
+        { action: 'getServiceStatusSummary' },
+        function (resp) {
 
-        if (servicesStatusDonutChart) {
-            servicesStatusDonutChart.destroy();
-        }
-
-        var serviceStatusColors = {
-            'Offline': '#e74c3c',
-            '1xx':     '#3498db',
-            '2xx':     '#2ecc71',
-            '3xx':     '#f1c40f',
-            '4xx':     '#e67e22',
-            '5xx':     '#ff4c3c',
-            'Other':   '#7f8c8d'
-        };
-
-        var bgColors = resp.labels.map(function (lbl) {
-            return serviceStatusColors[lbl] || '#7f8c8d';
-        });
-
-        var total = resp.data.reduce(function (sum, value) {
-            return sum + value;
-        }, 0);
-
-        servicesStatusDonutChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: resp.labels,
-                datasets: [{
-                    data: resp.data,
-                    backgroundColor: bgColors,
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutoutPercentage: 60,
-                centerText: {
-                    textTop: total.toLocaleString(),
-                    textBottom: 'Services',
-                    fontSize: 22,
-                    color: '#888'
-                },
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        fontSize: 12
-                    }
-                },
+            if (!resp || !resp.labels || !resp.data) {
+                return;
             }
-        });
-    });
+
+            var ctx = document
+                .getElementById('servicesStatusDonut')
+                .getContext('2d');
+
+            if (servicesStatusDonutChart) {
+                servicesStatusDonutChart.destroy();
+            }
+
+            var serviceStatusColors = {
+                'Offline': '#e74c3c',
+                '1xx':     '#3498db',
+                '2xx':     '#2ecc71',
+                '3xx':     '#f1c40f',
+                '4xx':     '#e67e22',
+                '5xx':     '#ff4c3c',
+                'Other':   '#7f8c8d'
+            };
+
+            var bgColors = resp.labels.map(function (lbl) {
+                return serviceStatusColors[lbl] || '#7f8c8d';
+            });
+
+            var total = resp.data.reduce(function (sum, value) {
+                return sum + value;
+            }, 0);
+
+            servicesStatusDonutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: resp.labels,
+                    datasets: [{
+                        data: resp.data,
+                        backgroundColor: bgColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutoutPercentage: 60,
+                    centerText: {
+                        textTop: total.toLocaleString(),
+                        textBottom: 'Services',
+                        fontSize: 22,
+                        color: '#888'
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            fontSize: 12
+                        }
+                    },
+                }
+            });
+
+        }
+    );
 }
 // --------------------------------------------------------------------------
 function getReportTotalsBadge() {
-    $.get('php/server/files.php?action=getReportTotals', function(data) {
-        let totalsReportbadge;
-
-        try {
-            totalsReportbadge = JSON.parse(data);
-        } catch(e) {
-            //console.warn('Invalid JSON response for report totals, abort update', e, data);
-            return;
-        }
-
-        if (!Array.isArray(totalsReportbadge) || totalsReportbadge.length === 0) {
-            // console.warn('Report totals invalid or session expired');
-            // Optional: location.reload(); // oder Soft-Abbruch
-            return;
-        }
-
-        let unsetbadge = "";
-        if (totalsReportbadge[0] > 0) {
-            $('#Menu_Report_Counter_Badge').html(totalsReportbadge[0].toLocaleString());
-            $('#Menu_Report_Envelope_Icon').addClass("text-red");
-        } else {
-            $('#Menu_Report_Counter_Badge').html(unsetbadge.toLocaleString());
-            $('#Menu_Report_Envelope_Icon').removeClass("text-red");
-        }
-
-        document.title = document.title.replace(/\(\d*\)/, `(${totalsReportbadge[0].toLocaleString()})`);
-    });
+  // get totals and put in boxes
+  $.get('php/server/files.php?action=getReportTotals', function(data) {
+    var totalsReportbadge = JSON.parse(data);
+    var unsetbadge = "";
+    if (totalsReportbadge[0] > 0) {
+      $('#Menu_Report_Counter_Badge').html(totalsReportbadge[0].toLocaleString());
+      $('#Menu_Report_Envelope_Icon' ).addClass("text-red");
+    } else {
+      $('#Menu_Report_Counter_Badge').html(unsetbadge.toLocaleString());
+      $('#Menu_Report_Envelope_Icon' ).removeClass("text-red");
+    }
+    document.title = document.title.replace(/\(\d*\)/, `(${totalsReportbadge[0].toLocaleString()})`);
+  });
 }
 // --------------------------------------------------------------------------
 let zoomLevel = 100;
