@@ -508,6 +508,19 @@ if ! grep -Fq "PFSENSE_PORT" "$PIALERT_HOME/config/pialert.conf" ; then
 PFSENSE_PORT              = 80
 EOF
 fi
+
+# 2026-01-01
+if ! grep -Fq "# Discord" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# Discord
+# ----------------------
+REPORT_DISCORD            = False
+REPORT_DISCORD_WEBMON     = False
+DISCORD_BOT_TOKEN_URL     = "https://discord.com/api/webhooks/XXXXXXX/XXXXXX"
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

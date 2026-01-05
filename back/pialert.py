@@ -37,6 +37,7 @@ PIALERT_PATH = PIALERT_BACK_PATH + "/.."
 PIALERT_WEBSERVICES_LOG = PIALERT_PATH + "/log/pialert.webservices.log"
 STOPPIALERT = PIALERT_PATH + "/config/setting_stoppialert"
 PIALERT_DB_FILE = PIALERT_PATH + "/db/pialert.db"
+PIALERT_DBTOOLS_FILE = PIALERT_PATH + "/db/pialert_tools.db"
 PIALERT_DB_PATH = PIALERT_PATH + "/db"
 REPORTPATH_WEBGUI = PIALERT_PATH + "/front/reports/"
 STATUS_FILE_SCAN = PIALERT_BACK_PATH + "/.scanning"
@@ -62,6 +63,8 @@ def main():
     global log_timestamp
     global sql_connection
     global sql
+    global sql_connection_tools
+    global sql_tools
 
     # Header
     print('\nPi.Alert v'+ VERSION_DATE)
@@ -72,8 +75,10 @@ def main():
     log_timestamp  = datetime.datetime.now()
 
     # DB
-    sql_connection = None
-    sql            = None
+    sql_connection       = None
+    sql                  = None
+    sql_connection_tools = None
+    sql_tools            = None
     sqlite3.register_adapter(datetime.datetime, adapt_datetime)
 
     # Timestamp
@@ -108,11 +113,11 @@ def main():
         return res
 
     # Reporting
-    if cycle not in ['internet_IP', 'cleanup']:
+    if cycle not in ['internet_IP', 'cleanup', 'update_vendors', 'update_vendors_silent']:
         email_reporting()
 
-    # Close SQL
-    closeDB()
+    # # Close SQL
+    # closeDB()
 
     # Final menssage
     print('\nDONE!!!\n\n')
@@ -125,7 +130,15 @@ def main():
         # Perform shutdown or rebppt
         process_webgui_tokens()
 
-    return 0    
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    # Save Log to ToolsDB
+    openDB_tools()
+    write_cycle_logs_to_tables()
+    closeDB_tools()
+
+    return 0
 
 #===============================================================================
 # Set Env (Userpermissions DB-file)
@@ -276,6 +289,74 @@ def process_webgui_tokens():
     return
 
 #===============================================================================
+# Save logs
+#===============================================================================
+
+def write_cycle_logs_to_tables(log_dir=PIALERT_PATH + "/log"):
+    global sql_connection_tools
+    global sql_tools
+    global startTime
+
+    print_log("Save Log in Tools-DB")
+    LOGFILE_TABLE_MAP = {
+        "pialert.1.log": "Log_History_Scan",
+        "pialert.webservices.log": "Log_History_WebServices",
+        "pialert.cleanup.log": "Log_History_Cleanup",
+        "pialert.IP.log": "Log_History_InternetIP",
+        "pialert.vendors.log": "Log_History_Vendors",
+    }
+
+    CYCLE_LOGFILES = {
+        "1": [
+            "pialert.1.log",
+            "pialert.webservices.log"
+        ],
+        "cleanup": [
+            "pialert.cleanup.log"
+        ],
+        "internet_IP": [
+            "pialert.IP.log"
+        ],
+        "update_vendors": [
+            "pialert.vendors.log"
+        ],
+    }
+
+    # print(cycle)
+
+    logfiles = CYCLE_LOGFILES.get(cycle, [])
+    if not logfiles:
+        return
+
+    for logfile in logfiles:
+        table = LOGFILE_TABLE_MAP.get(logfile)
+        if not table:
+            continue  # kein Ziel definiert → bewusst ignorieren
+
+        if logfile == "pialert.webservices.log":
+            if startTime.minute % 10 != 0:
+                continue
+
+        logfile_path = os.path.join(log_dir, logfile)
+        if not os.path.isfile(logfile_path):
+            continue
+
+        with open(logfile_path, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read()
+        # print(content)
+
+        sql_tools.execute(
+            f"""
+            INSERT INTO {table} (ScanDate, Logfile)
+            VALUES (?, ?)
+            """,
+            (startTime, content)
+        )
+
+    sql_connection_tools.commit()
+
+
+#===============================================================================
 # INTERNET IP CHANGE
 #===============================================================================
 def check_internet_IP():
@@ -285,11 +366,11 @@ def check_internet_IP():
         internet_IP = get_internet_IP()
 
         # Check result = IP
-        if internet_IP == "" :
+        if internet_IP is None or internet_IP == "":
             print('    Error retrieving Internet IP')
             # print('    Exiting...\n')
             #return 1
-        print('   ', internet_IP)
+        print('    Internet IP: ', internet_IP)
 
         # Get previous stored IP
         print('\nRetrieving previous IP...')
@@ -302,8 +383,8 @@ def check_internet_IP():
             print('    Saving new IP')
             save_new_internet_IP (internet_IP)
             print('        IP updated')
-        else :
-            print('    No changes to perform')
+        # else :
+        #     print('    No changes to perform')
         closeDB()
 
         # Get Dynamic DNS IP
@@ -619,39 +700,41 @@ def run_speedtest_task(start_time, crontab_string):
     return 0
 
 #-------------------------------------------------------------------------------
-def get_internet_IP():
+def get_internet_IP(retries=3, delay=2):
     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
-    
+
     curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
-    try:
-        cmd_output = subprocess.check_output(
-            curl_args,
-            universal_newlines=True,
-            stderr=subprocess.STDOUT,
-            timeout=10
-        ).strip()
 
-        # Check empty response
-        if not cmd_output:
-            return check_IP_format(None)
+    for attempt in range(1, retries + 1):
+        try:
+            cmd_output = subprocess.check_output(
+                curl_args,
+                universal_newlines=True,
+                stderr=subprocess.STDOUT,
+                timeout=10
+            ).strip()
 
-        return check_IP_format(cmd_output)
+            if cmd_output:
+                return check_IP_format(cmd_output)
 
-    except subprocess.CalledProcessError as e:
-        # curl was executed but returned an error status
-        print(f"curl error: exit {e.returncode}, output: {e.output}")
-        return check_IP_format(None)
+            print(f"    Attempt {attempt}: empty response")
 
-    except subprocess.TimeoutExpired:
-        # curl took too long
-        print("curl timeout")
-        return check_IP_format(None)
+        except subprocess.CalledProcessError as e:
+            print(f"    Attempt {attempt}: curl error {e.returncode}")
 
-    except Exception as e:
-        # generic errors (e.g., OSError if curl does not exist)
-        print(f"unexpected error: {e}")
-        return check_IP_format(None)
+        except subprocess.TimeoutExpired:
+            print(f"    Attempt {attempt}: curl timeout")
+
+        except Exception as e:
+            print(f"    Attempt {attempt}: unexpected error: {e}")
+
+        # waiting for next retry
+        if attempt < retries:
+            time.sleep(delay)
+
+    # all retries used
+    return None
 
 #-------------------------------------------------------------------------------
 def get_dynamic_DNS_IP():
@@ -759,8 +842,12 @@ def cleanup_database():
     closeDB()
 
     print('\nCleanup DB_Tools...')
+    sys.stdout.flush()
+    sys.stderr.flush()
     command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "cleanup"]
-    output = subprocess.check_output(command, text=True)
+    # output = subprocess.check_output(command, text=True)
+
+    subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr, text=True, check=True)
 
     return 0
 
@@ -822,6 +909,8 @@ def update_devices_MAC_vendors (pArg = ''):
         closeDB()
     else :
         print('\nOffline Mode...\n')
+
+    return 0
 
 #-------------------------------------------------------------------------------
 def query_MAC_vendor(pMAC):
@@ -3056,6 +3145,7 @@ def update_devices_names():
     print('        Trying to resolve devices without name...', end='')
     for device in sql.execute ("SELECT * FROM Devices WHERE dev_Name IN ('(unknown)','') AND dev_LastIP <> '-'") :
         # Resolve device name
+        # print(device['dev_MAC'])
         newName = resolve_device_name (device['dev_MAC'], device['dev_LastIP'])
        
         if newName == -1 :
@@ -3637,6 +3727,8 @@ def print_service_monitoring_changes():
         monitor_logfile.write("    StatusCodes...: " + str(changedStatusCode))
         monitor_logfile.write("\n    Down..........: " + str(changeddown))
         monitor_logfile.write("\n    Up............: " + str(changedup))
+        monitor_logfile.write("\n")
+        monitor_logfile.write("\nDONE!!!")
         monitor_logfile.write("\n")
         monitor_logfile.close()
 
@@ -4932,6 +5024,25 @@ def send_telegram (_Text):
     stream = os.popen(runningpath+'/shoutrrr/'+SHOUTRRR_BINARY+'/shoutrrr send --url "'+TELEGRAM_BOT_TOKEN_URL+'" --message "'+_telegram_Text+'" --title "Pi.Alert - '+subheadline+'"')
 
 #-------------------------------------------------------------------------------
+def send_discord (_Text):
+    block = _Text.replace('\n\n\n', '\n\n')
+    event_type = next((line.split(":")[1].strip() for line in block.splitlines() if line.startswith("Event:")), "Alert")
+    color_map = {"Connected": 65280, "Disconnected": 16711680, "Alert": 16753920}
+    color = color_map.get(event_type, 3447003)
+
+    payload = {
+        "embeds": [
+            {
+                "title": f"Pi.Alert - {event_type}",
+                "description": block,
+                "color": color
+            }
+        ]
+    }
+
+    requests.post(DISCORD_BOT_TOKEN_URL, json=payload)
+
+#-------------------------------------------------------------------------------
 def send_webgui (_Text):
     # Remove one linebrake between "Server" and the headline of the event type
     _webgui_Text = _Text.replace('\n\n\n', '\n\n')
@@ -4950,67 +5061,52 @@ def send_webgui (_Text):
 #===============================================================================
 def sending_notifications (_type, _html_text, _txt_text):
     if _type in ['webservice']:
-        if REPORT_MAIL_WEBMON :
-            print('    Sending report by email...')
-            send_email (_txt_text, _html_text)
-        else :
-            print('    Skip mail...')
-        if REPORT_PUSHSAFER_WEBMON :
-            print('    Sending report by PUSHSAFER...')
-            send_pushsafer (_txt_text)
-        else :
-            print('    Skip PUSHSAFER...')
-        if REPORT_PUSHOVER_WEBMON :
-            print('    Sending report by PUSHOVER...')
-            send_pushover (_txt_text)
-        else :
-            print('    Skip PUSHOVER...')
-        if REPORT_TELEGRAM_WEBMON :
-            print('    Sending report by Telegram...')
-            send_telegram (_txt_text)
-        else :
-            print('    Skip Telegram...')
-        if REPORT_NTFY_WEBMON :
-            print('    Sending report by NTFY...')
-            send_ntfy (_txt_text)
-        else :
-            print('    Skip NTFY...')
-        if REPORT_WEBGUI_WEBMON :
-            print('    Save report to file...')
-            send_webgui (_txt_text)
-        else :
-            print('    Skip WebUI...')
+        REPORT_CHANNELS_WEBMON = [
+            (REPORT_MAIL_WEBMON,      "email",     lambda: send_email(_txt_text, _html_text)),
+            (REPORT_PUSHSAFER_WEBMON, "PUSHSAFER", lambda: send_pushsafer(_txt_text)),
+            (REPORT_PUSHOVER_WEBMON,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
+            (REPORT_TELEGRAM_WEBMON,  "Telegram",  lambda: send_telegram(_txt_text)),
+            (REPORT_NTFY_WEBMON,      "NTFY",      lambda: send_ntfy(_txt_text)),
+            (REPORT_DISCORD_WEBMON,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_WEBGUI_WEBMON,    "WebUI",     lambda: send_webgui(_txt_text)),
+        ]
+
+        for enabled, name, action in REPORT_CHANNELS_WEBMON:
+            if not enabled:
+                print(f"    Skip {name}...")
+                continue
+
+            print(f"    Sending report by {name}...")
+
+            try:
+                action()
+                print(f"    {name} sent successfully")
+            except Exception as e:
+                print(f"    ERROR sending via {name}: {e}")
+
     elif _type in ['pialert', 'icmp_mon', 'rogue_dhcp']:
-        if REPORT_MAIL :
-            print('    Sending report by email...')
-            send_email (_txt_text, _html_text)
-        else :
-            print('    Skip mail...')
-        if REPORT_PUSHSAFER :
-            print('    Sending report by PUSHSAFER...')
-            send_pushsafer (_txt_text)
-        else :
-            print('    Skip PUSHSAFER...')
-        if REPORT_PUSHOVER :
-            print('    Sending report by PUSHOVER...')
-            send_pushover (_txt_text)
-        else :
-            print('    Skip PUSHOVER...')
-        if REPORT_TELEGRAM :
-            print('    Sending report by Telegram...')
-            send_telegram (_txt_text)
-        else :
-            print('    Skip Telegram...')
-        if REPORT_NTFY :
-            print('    Sending report by NTFY...')
-            send_ntfy (_txt_text)
-        else :
-            print('    Skip NTFY...')
-        if REPORT_WEBGUI :
-            print('    Save report to file...')
-            send_webgui (_txt_text)
-        else :
-            print('    Skip WebUI...')
+        REPORT_CHANNELS = [
+            (REPORT_MAIL,      "email",     lambda: send_email(_txt_text, _html_text)),
+            (REPORT_PUSHSAFER, "PUSHSAFER", lambda: send_pushsafer(_txt_text)),
+            (REPORT_PUSHOVER,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
+            (REPORT_TELEGRAM,  "Telegram",  lambda: send_telegram(_txt_text)),
+            (REPORT_NTFY,      "NTFY",      lambda: send_ntfy(_txt_text)),
+            (REPORT_DISCORD,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_WEBGUI,    "WebUI",     lambda: send_webgui(_txt_text)),
+        ]
+
+        for enabled, name, action in REPORT_CHANNELS:
+            if not enabled:
+                print(f"    Skip {name}...")
+                continue
+
+            print(f"    Sending report by {name}...")
+
+            try:
+                action()
+                print(f"    {name} sent successfully")
+            except Exception as e:
+                print(f"    ERROR sending via {name}: {e}")
 
 #-------------------------------------------------------------------------------
 def format_report_section (pActive, pSection, pTable, pText, pHTML):
@@ -5132,6 +5228,42 @@ def SafeParseGlobalBool(boolVariable):
 #===============================================================================
 # DB
 #===============================================================================
+def openDB_tools():
+    global sql_connection_tools
+    global sql_tools
+
+    # Check if DB is open
+    if sql_connection_tools != None :
+        return
+
+    # Log    
+    print_log ('Opening DB...')
+
+    # Open DB and Cursor
+    sql_connection_tools = sqlite3.connect (PIALERT_DBTOOLS_FILE, isolation_level=None)
+    sql_connection_tools.execute('pragma journal_mode=wal') #
+    sql_connection_tools.text_factory = str
+    sql_connection_tools.row_factory = sqlite3.Row
+    sql_tools = sql_connection_tools.cursor()
+
+#-------------------------------------------------------------------------------
+def closeDB_tools():
+    global sql_connection_tools
+    global sql_tools
+
+    # Check if DB is open
+    if sql_connection_tools == None :
+        return
+
+    # Log    
+    print_log ('Closing DB...')
+
+    # Close DB
+    sql_connection_tools.commit()
+    sql_connection_tools.close()
+    sql_connection_tools = None    
+
+#-------------------------------------------------------------------------------
 def openDB():
     global sql_connection
     global sql

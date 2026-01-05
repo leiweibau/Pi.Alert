@@ -9,7 +9,7 @@ To make it clearer how this version differs from the original project, I made th
 |  | Journal (Frontend/Backend) | 🟢 | 🔴 |
 | **Scans / Imports** | Scan-Methodes | arp-scan<br>nmap<br>ping | arp-scan |
 |  | Import-Methodes | Pi-hole v5 & v6<br>dnsmasq<br>Fritz!Box (Router)<br>Microtik<br>UniFi<br>Asus Router<br>OpenWRT<br>pfSense | Pi-hole v5<br>dnsmasq |
-|  | Genauigkeit (arp-scan) | 1 cycle every 5 min with 6 retries | 1 cycle every 5 min with 6 retries<br>1 cycle every 15 min with viel mehr retries |
+|  | Accuracy (arp-scan) | 1 cycle every 5 min with 6 retries | 1 cycle every 5 min with 6 retries<br>1 cycle every 15 min with viel mehr retries |
 |  | Hostname detection | DNS<br>mDNS<br>NetBIOS | DNS |
 |  | Web Services / Monitoring | 🟢 | 🔴 |
 |  | ICMP Monitoring (ping) | 🟢 | 🔴 |
@@ -27,8 +27,9 @@ To make it clearer how this version differs from the original project, I made th
 |  | Custom predefined filters in the sidebar | 🟢 | 🔴 |
 |  | Exclude devices from presence page | 🟢 | 🔴 |
 |  | System/Pi.Alert status page | 🟢 | 🔴 |
+|  | Dashboard | 🟢 | 🔴 |
 | **Notifications** | Email | 🟢 | 🔴 |
-|  | Push Services | Pushover<br>Pushsaver<br>ntfy<br>Telegram | 🔴 |
+|  | Push Services | Pushover<br>Pushsaver<br>ntfy<br>Telegram<br>Discord | 🔴 |
 |  | Notifications on WebGui | 🟢 | 🔴 |
 |  | Notification test | 🟢 | 🔴 |
 |  | Download notifications as PDF | 🟢 | 🔴 |
@@ -45,6 +46,7 @@ To make it clearer how this version differs from the original project, I made th
 |  | Wake-on-LAN | 🟢 | 🔴 |
 |  | Manual nmap Scan per device | 🟢 | 🔴 |
 |  | Speedtest (manual / automatically)| 🟢 / 🟢 | 🔴 / 🔴 |
+|  | Hotkeys | 🟢 | 🔴 |
 
 
 [Back](https://github.com/leiweibau/Pi.Alert)

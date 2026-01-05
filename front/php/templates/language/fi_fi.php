@@ -789,6 +789,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Tila';
 $pia_lang['nmap_devdetails_download'] = 'Tallenna skannaukset CSV-muodossa';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Tietokannassa on <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> skannaustulosta';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Päivää';
+$pia_lang['DASH_select_log'] = '-- Valitse lokitiedosto --';
+$pia_lang['DASH_select_date'] = '-- valitse ensin lokitiedosto --';
+$pia_lang['DASH_reports_head'] = 'Raportit (viimeiset 10)';
+$pia_lang['DASH_events_head'] = 'Viimeiset 50 tapahtumaa (tänään)';
+$pia_lang['DASH_charts_history'] = 'Historia';
+$pia_lang['DASH_refresh_counter'] = 'seuraava päivitys ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================

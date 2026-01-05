@@ -789,6 +789,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Режим';
 $pia_lang['nmap_devdetails_download'] = 'Сохранить все сканы в CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'В базе данных ';
 $pia_lang['nmap_devdetails_countmsg_b'] = ' результатов сканирования';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Дней';
+$pia_lang['DASH_select_log'] = '-- Выбрать файл журнала --';
+$pia_lang['DASH_select_date'] = '-- сначала выберите файл журнала --';
+$pia_lang['DASH_reports_head'] = 'Отчёты (последние 10)';
+$pia_lang['DASH_events_head'] = 'Последние 50 событий (сегодня)';
+$pia_lang['DASH_charts_history'] = 'История';
+$pia_lang['DASH_refresh_counter'] = 'следующее обновление через ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================

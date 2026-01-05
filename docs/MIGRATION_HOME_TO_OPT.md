@@ -81,4 +81,5 @@
 	sudo chmod -R 775 "/opt/pialert/config"
 	```
 
+
 11. If you have previously downloaded the Ookla Speedtest Client to use the automatic speed tests, you will need to download it again via the WebGUI.

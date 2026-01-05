@@ -81,14 +81,19 @@ $NAME_IGNORE_LIST = parse_ignore_list(get_config_parmeter('HOSTNAME_IGNORE_LIST'
 // Get Notification Settings --------------------------------------------------
 $CONFIG_FILE_SOURCE = "../config/pialert.conf";
 $CONFIG_FILE_KEY_LINE = file($CONFIG_FILE_SOURCE);
-$CONFIG_FILE_FILTER_VALUE_ARP = array_values(preg_grep("/(REPORT_MAIL|REPORT_NTFY|REPORT_WEBGUI|REPORT_PUSHSAFER|REPORT_PUSHOVER|REPORT_TELEGRAM)(?!_)/i", $CONFIG_FILE_KEY_LINE));
-$CONFIG_FILE_FILTER_VALUE_WEB = array_values(preg_grep("/(REPORT_MAIL_WEBMON|REPORT_NTFY_WEBMON|REPORT_WEBGUI_WEBMON|REPORT_PUSHSAFER_WEBMON|REPORT_PUSHOVER_WEBMON |REPORT_TELEGRAM_WEBMON)/i", $CONFIG_FILE_KEY_LINE));
+$CONFIG_FILE_FILTER_VALUE_ARP = array_values(preg_grep("/(REPORT_MAIL|REPORT_NTFY|REPORT_WEBGUI|REPORT_PUSHSAFER|REPORT_PUSHOVER|REPORT_TELEGRAM|REPORT_DISCORD)(?!_)/i", $CONFIG_FILE_KEY_LINE));
+$CONFIG_FILE_FILTER_VALUE_WEB = array_values(preg_grep("/(REPORT_MAIL_WEBMON|REPORT_NTFY_WEBMON|REPORT_WEBGUI_WEBMON|REPORT_PUSHSAFER_WEBMON|REPORT_PUSHOVER_WEBMON |REPORT_TELEGRAM_WEBMON|REPORT_DISCORD_WEBMON)/i", $CONFIG_FILE_KEY_LINE));
 $CONFIG_FILE_MOD_DATA = date("d.m.Y, H:i:s", filemtime($CONFIG_FILE_SOURCE)) . '';
 
 // Size and last mod of DB ----------------------------------------------------
 $DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
 $DB_SIZE_DATA = number_format((filesize($DB_SOURCE) / 1000000), 2, ",", ".") . '&nbsp;MB';
 $DB_MOD_DATA = date("d.m.Y, H:i:s", filemtime($DB_SOURCE)) . '';
+
+// Size and last mod of DB-Tools ----------------------------------------------------
+$DB_TOOLS_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert_tools.db';
+$DB_TOOLS_SIZE_DATA = number_format((filesize($DB_TOOLS_SOURCE) / 1000000), 2, ",", ".") . '&nbsp;MB';
+$DB_TOOLS_MOD_DATA = date("d.m.Y, H:i:s", filemtime($DB_TOOLS_SOURCE)) . '';
 
 // Find latest DB Backup for restore and download -----------------------------
 $ARCHIVE_PATH = str_replace('front', 'db', getcwd()) . '/';
@@ -146,7 +151,13 @@ if ($_REQUEST['tab'] == '1') {
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_database_lastmod'];?></div>
                     <div class="db_info_table_cell">
-                        <?=$DB_MOD_DATA.' '.$buffer_indicator;?> /  <?=$DB_SIZE_DATA;?>
+                        <?=$DB_MOD_DATA.' '.$buffer_indicator;?> /  <?=$DB_SIZE_DATA;?> (Main)
+                    </div>
+                </div>
+                <div class="db_info_table_row">
+                    <div class="db_info_table_cell db_info_table_cell_a"> </div>
+                    <div class="db_info_table_cell">
+                        <?=$DB_TOOLS_MOD_DATA?> /  <?=$DB_TOOLS_SIZE_DATA;?> (Tools)
                     </div>
                 </div>
                 <div class="db_info_table_row">

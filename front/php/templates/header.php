@@ -95,7 +95,10 @@ insert_back_button();
             echo '<li><a id="navbar-pihole-button" class="a navbar-servertime" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
           }
           ?>
-          <li><a id="navbar-help-button" class="a navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" role="button" target="blank"><i class="fa-regular fa-circle-question"></i></a></li>
+          <li><a id="navbar-help-button" class="navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" target="_blank">
+                <i class="fa-regular fa-circle-question"></i>
+              </a>
+          </li>
           <li><div class="a navbar-servertime"><?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span></div></li>
           <!-- Header right info -->
           <li class="dropdown user user-menu">
@@ -108,30 +111,30 @@ insert_back_button();
               <span class="label label-danger" id="Menu_Report_Counter_Badge"></span>
             </a>
             <ul class="dropdown-menu" style="width: 240px;">
-              <!-- The user image in the menu -->
-              <li class="user-header" style=" height: 70px; padding-top: 0px;">
-                <img src="img/pialertLogoWhite.png" class="img-circle" alt="Pi.Alert Logo" style="border-color:transparent; height: 50px; width: 50px; margin-top:10px;">
-                <p style="float: right; width: 150px"><?=$pia_lang['About_Title'];?></p>
-              </li>
-              <!-- Menu Body -->
               <li class="user-footer" style="padding-top: 15px; padding-bottom: 0px;">
                 <div style="text-align: center;"><label> <input type="checkbox" id="autoReloadCheckbox" style="margin-right: 10px;"> Auto Page Reload (2min)</label></div>
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./deviceDetails.php?mac=Internet" id="custom-menu-default-button" class="btn btn-default"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Internet</div></a>
+                  <a href="./deviceDetails.php?mac=Internet" id="custom-menu-default-button" class="btn btn-default" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Internet</div></a>
                 </div>
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?></div></a>
+                  <a href="./reports.php" id="custom-menu-report-button" class="btn btn-warning" style="width:190px;"><i class="fa-regular fa-envelope-open custom-menu-button-icon" id="Menu_Report_Envelope_Icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Reports'];?> <i>(R)</i></div></a>
                 </div>
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./index.php?action=logout" id="custom-menu-logout-button" class="btn btn-danger"><i class="fa-solid fa-arrow-right-from-bracket custom-menu-button-icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Exit'];?></div></a>
+                  <a href="./index.php?action=logout" id="custom-menu-logout-button" class="btn btn-danger" style="width:190px;"><i class="fa-solid fa-arrow-right-from-bracket custom-menu-button-icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Exit'];?></div></a>
                 </div>
               </li>
+              <li class="user-footer">
+                <div style="text-align: center;">
+                  <a href="./dashboard.php" id="custom-menu-dashboard-button" class="btn btn-success" style="width:190px;"><i class="fa-solid fa-globe custom-menu-button-icon"></i><div class="custom-menu-button-text">Pi.<span style="font-weight: bold;">Alert</span> Dashboard <i>(D)</i></div></a>
+                </div>
+              </li>
+
               <li class="user-footer">
                 <div class="custom-menu-icon-links"><a href="https://github.com/leiweibau/Pi.Alert" class="btn btn-default" target="blank"><i class="fa-brands fa-github"></i></a></div>
                 <div class="custom-menu-icon-links"><a href="https://github.com/sponsors/leiweibau" class="btn btn-default" target="blank"><i class="fa-regular fa-heart text-maroon"></i></a></div>

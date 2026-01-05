@@ -441,10 +441,8 @@ require 'php/templates/footer.php';
 ?>
 
 <script>
+// --------------------------------------------------------------------------
 $(document).ready(function () {
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-    });
     Coloris({
     	theme: 'pill',
         themeMode: 'dark',
@@ -455,6 +453,7 @@ $(document).ready(function () {
         clearLabel: 'Clear',
     });
 });
+// --------------------------------------------------------------------------
 function SetReportColors() {
     let HeadLineColors = $('input[name="HeadLineColors[]"]').map(function () { return $(this).val(); }).get();
 
@@ -465,7 +464,7 @@ function SetReportColors() {
     showMessage (msg);
   });
 }
-
+// --------------------------------------------------------------------------
 function askdeleteAllNotifications() {
   showModalWarning('<?=$pia_lang['REP_delete_all_noti'];?>', '<?=$pia_lang['REP_delete_all_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotifications');
@@ -476,7 +475,7 @@ function deleteAllNotifications()
     showMessage (msg);
   });
 }
-
+// --------------------------------------------------------------------------
 function askdeleteAllNotificationsArchive() {
   showModalWarning('<?=$pia_lang['REP_delete_all_noti'];?>', '<?=$pia_lang['REP_delete_all_noti_text'];?>',
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllNotificationsArchive');
@@ -487,11 +486,10 @@ function deleteAllNotificationsArchive()
     showMessage (msg);
   });
 }
-
+// --------------------------------------------------------------------------
 function ReportReload() {
     setTimeout(function() {
         location.reload();
     }, 1000)
 };
-
 </script>

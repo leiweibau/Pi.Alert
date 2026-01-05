@@ -794,6 +794,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Modus';
 $pia_lang['nmap_devdetails_download'] = 'Scans als CSV speichern';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Es befinden sich <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> Scan-Ergebnisse in der Datenbank';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Tage';
+$pia_lang['DASH_select_log'] = '-- Logfile auswählen --';
+$pia_lang['DASH_select_date'] = '-- zuerst Logfile wählen --';
+$pia_lang['DASH_reports_head'] = 'Reports (letzen 10)';
+$pia_lang['DASH_events_head'] = 'Letzten 50 Events (heute)';
+$pia_lang['DASH_charts_history'] = 'Verlauf';
+$pia_lang['DASH_refresh_counter'] = 'nächstes Update in ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================

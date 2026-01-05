@@ -1113,7 +1113,6 @@ function initializeDatatable () {
   } );
 
 };
-
 // -----------------------------------------------------------------------------
 function getDevicesTotals() {
   // stop timer
@@ -1134,7 +1133,6 @@ function getDevicesTotals() {
     newTimerRefreshData (getDevicesTotals);
   } );
 }
-
 // -----------------------------------------------------------------------------
 function getDevicesList (status) {
   // Save status selected
@@ -1160,7 +1158,7 @@ function getDevicesList (status) {
   $('#tableDevices').DataTable().ajax.url(
     'php/server/devices.php?action=getDevicesList&scansource=<?=$SCANSOURCE?>&status=' + deviceStatus).load();
 };
-
+// --------------------------------------------------------------------------
 // WakeonLAN
 function askwakeonlan(fmac,fip,fname) {
   window.global_fmac = fmac;
@@ -1178,7 +1176,7 @@ function wakeonlan() {
     showMessage (msg);
   });
 }
-
+// --------------------------------------------------------------------------
 // Remove Device List Column
 function askDeleteDeviceFilter() {
   showModalWarning('<?=$pia_lang['Device_del_table_filter_noti'];?>', '<?=$pia_lang['Device_del_table_filter_noti_text'];?>',
@@ -1190,7 +1188,7 @@ function DeleteDeviceFilter() {
     showMessage (msg);
   });
 }
-
+// --------------------------------------------------------------------------
 // Set Device Filter
 function SetDeviceFilter() {
     $.get('php/server/devices.php?action=SetDeviceFilter&'
@@ -1210,6 +1208,7 @@ function SetDeviceFilter() {
     showMessage (msg);
   });
 }
+// --------------------------------------------------------------------------
 // Copy Filter from Searchbox
 $('#modal-set-predefined-filter').on('shown.bs.modal', function () {
  		var tableDevicesFilter = $("#tableDevices_filter .form-control.input-sm").val();
@@ -1217,7 +1216,6 @@ $('#modal-set-predefined-filter').on('shown.bs.modal', function () {
         $("#txtFilterString").val(tableDevicesFilter);
     }
 });
-
 </script>
 
 <?php

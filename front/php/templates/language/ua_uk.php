@@ -789,6 +789,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Режим';
 $pia_lang['nmap_devdetails_download'] = 'Зберегти сканування у форматі CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'У базі даних є <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> результатів сканування';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Днів';
+$pia_lang['DASH_select_log'] = '-- Вибрати файл журналу --';
+$pia_lang['DASH_select_date'] = '-- спочатку виберіть файл журналу --';
+$pia_lang['DASH_reports_head'] = 'Звіти (останні 10)';
+$pia_lang['DASH_events_head'] = 'Останні 50 подій (сьогодні)';
+$pia_lang['DASH_charts_history'] = 'Історія';
+$pia_lang['DASH_refresh_counter'] = 'наступне оновлення через ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================

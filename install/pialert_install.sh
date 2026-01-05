@@ -240,28 +240,47 @@ check_and_install_package() {
 
   # Compare versions
   version_ge() {
-      [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$2" ]
+    [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$2" ]
   }
 
   # Option if pip >= 22.1
   extra_pip_option=""
   if version_ge "$pip_version" "22.1"; then
-     extra_pip_option="--root-user-action=ignore"
+    extra_pip_option="--root-user-action=ignore"
   fi
 
   if pip3 show "$package_name" > /dev/null 2>&1; then
     print_msg "  - $package_name is already installed"
-  else
-    print_msg "  - Installing $package_name..."
-    if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
-      pip3 -q install "$package_name" --break-system-packages --no-warn-script-location $extra_pip_option  2>&1 >> "$LOG"
-    else
-      pip3 -q install "$package_name" --no-warn-script-location $extra_pip_option                          2>&1 >> "$LOG"
-    fi
-    print_msg "    - $package_name is now installed"
+    return 0
   fi
-}
 
+  print_msg "  - Installing $package_name..."
+
+  if [ -e "$(find /usr/lib -path '*/python3.*/EXTERNALLY-MANAGED' -print -quit)" ]; then
+    pip3 -q install "$package_name" \
+      --break-system-packages \
+      --no-warn-script-location \
+      $extra_pip_option >> "$LOG" 2>&1
+  else
+    pip3 -q install "$package_name" \
+      --no-warn-script-location \
+      $extra_pip_option >> "$LOG" 2>&1
+  fi
+
+  # Check installation result
+  if ! pip3 show "$package_name" > /dev/null 2>&1; then
+    echo
+    echo "ERROR: Failed to install Python package '$package_name'."
+    echo "Please install this package manually before running this script again."
+    echo
+    echo "Example:"
+    echo "  pip3 install $package_name"
+    echo
+    exit 1
+  fi
+
+  print_msg "    - $package_name is now installed"
+}
 
 install_python() {
   print_header "Python"

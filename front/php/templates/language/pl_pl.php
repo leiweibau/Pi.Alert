@@ -793,6 +793,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Tryb';
 $pia_lang['nmap_devdetails_download'] = 'Zapisz skany jako CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'W bazie danych znajduje się <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> wyników skanowania';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Dni';
+$pia_lang['DASH_select_log'] = '-- Wybierz plik dziennika --';
+$pia_lang['DASH_select_date'] = '-- najpierw wybierz plik dziennika --';
+$pia_lang['DASH_reports_head'] = 'Raporty (ostatnie 10)';
+$pia_lang['DASH_events_head'] = 'Ostatnie 50 zdarzeń (dzisiaj)';
+$pia_lang['DASH_charts_history'] = 'Historia';
+$pia_lang['DASH_refresh_counter'] = 'następna aktualizacja za ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================

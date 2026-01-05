@@ -789,6 +789,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Režimas';
 $pia_lang['nmap_devdetails_download'] = 'Išsaugoti skenavimus CSV formatu';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Duomenų bazėje yra <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> skenavimo rezultatų';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Dienos';
+$pia_lang['DASH_select_log'] = '-- Pasirinkti žurnalo failą --';
+$pia_lang['DASH_select_date'] = '-- pirmiausia pasirinkite žurnalo failą --';
+$pia_lang['DASH_reports_head'] = 'Ataskaitos (paskutinės 10)';
+$pia_lang['DASH_events_head'] = 'Paskutiniai 50 įvykių (šiandien)';
+$pia_lang['DASH_charts_history'] = 'Istorija';
+$pia_lang['DASH_refresh_counter'] = 'kitas atnaujinimas po ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================

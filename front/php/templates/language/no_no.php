@@ -789,6 +789,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Modus';
 $pia_lang['nmap_devdetails_download'] = 'Lagre skanninger som CSV';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Det er <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> skanneresultater i databasen';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Dager';
+$pia_lang['DASH_select_log'] = '-- Velg loggfil --';
+$pia_lang['DASH_select_date'] = '-- velg først loggfil --';
+$pia_lang['DASH_reports_head'] = 'Rapporter (siste 10)';
+$pia_lang['DASH_events_head'] = 'Siste 50 hendelser (i dag)';
+$pia_lang['DASH_charts_history'] = 'Historikk';
+$pia_lang['DASH_refresh_counter'] = 'neste oppdatering om ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================

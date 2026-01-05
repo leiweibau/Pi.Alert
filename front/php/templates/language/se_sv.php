@@ -343,7 +343,7 @@ $pia_lang['MT_database_backup_found'] = 'Säkerhetskopior hittades';
 $pia_lang['MT_database_backup_total'] = 'Total storlek';
 $pia_lang['MT_arp_status'] = 'Skanningsstatus';
 $pia_lang['MT_arp_status_off'] = 'är för närvarande inaktiverad';
-$pia_lang['MT_arp_status_on'] = 'Skanningar är aktiva nu';
+$pia_lang['MT_arp_status_on'] = 'skanning är aktiv nu';
 $pia_lang['MT_notification_config'] = 'Avisering (Enheter, ICMP)';
 $pia_lang['MT_notification_config_webmon'] = 'Avisering (Tjänster)';
 $pia_lang['MT_Tools_Logviewer_Scan'] = 'Skanna';
@@ -789,6 +789,15 @@ $pia_lang['nmap_devdetails_scanmode'] = 'Läge';
 $pia_lang['nmap_devdetails_download'] = 'Spara skanningar som CSV-fil';
 $pia_lang['nmap_devdetails_countmsg_a'] = 'Det finns <span class="text-aqua">';
 $pia_lang['nmap_devdetails_countmsg_b'] = '</span> skanningsresultat i databasen';
+// Dashboard
+//////////////////////////////////////////////////////////////////
+$pia_lang['DASH_days'] = 'Dagar';
+$pia_lang['DASH_select_log'] = '-- Välj loggfil --';
+$pia_lang['DASH_select_date'] = '-- välj först loggfil --';
+$pia_lang['DASH_reports_head'] = 'Rapporter (senaste 10)';
+$pia_lang['DASH_events_head'] = 'Senaste 50 händelser (idag)';
+$pia_lang['DASH_charts_history'] = 'Historik';
+$pia_lang['DASH_refresh_counter'] = 'nästa uppdatering om ';
 // =============================================================================================================
 // Journal
 // =============================================================================================================
