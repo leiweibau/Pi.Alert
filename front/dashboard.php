@@ -429,6 +429,11 @@ var dashboardRefreshTimer   = null;
 var dashboardCountdownTimer = null;
 var DASHBOARD_REFRESH_INTERVAL = 120000; // 2 Minuten
 var dashboardCountdownSeconds  = DASHBOARD_REFRESH_INTERVAL / 1000;
+let zoomLevel = 100;
+var historyDataSourceLabels = {
+    'main_scan' : 'Main Scan',
+    'icmp_scan' : 'ICMP Scan'
+};
 // --------------------------------------------------------------------------
 $(document).ready(function () {
     loadSpeedtestChart(7);
@@ -1056,11 +1061,6 @@ function startDashboardCountdown() {
     }, 1000);
 }
 // --------------------------------------------------------------------------
-var historyDataSourceLabels = {
-    'main_scan' : 'Main Scan',
-    'icmp_scan' : 'ICMP Scan'
-};
-
 function getHistoryDataSourceLabel(dataSource) {
     return historyDataSourceLabels[dataSource] || dataSource;
 }
@@ -1216,8 +1216,6 @@ function getReportTotalsBadge() {
   });
 }
 // --------------------------------------------------------------------------
-let zoomLevel = 100;
-
 function applyZoom() {
   document.body.style.zoom = zoomLevel + '%';
   document.getElementById('zoom-percent').innerText = zoomLevel + '%';
