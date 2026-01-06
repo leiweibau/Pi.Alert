@@ -7,8 +7,8 @@ To make it clearer how this version differs from the original project, I made th
 | **Security** | Login | 🟢 | 🔴 |
 |  | API-Key for API-Calls | 🟢 | 🔴 |
 |  | Journal (Frontend/Backend) | 🟢 | 🔴 |
-| **Scans / Imports** | Scan-Methodes | arp-scan<br>nmap<br>ping | arp-scan |
-|  | Import-Methodes | Pi-hole v5 & v6<br>dnsmasq<br>Fritz!Box (Router)<br>Microtik, UniFi<br>Asus Router, OpenWRT<br>pfSense | Pi-hole v5<br>dnsmasq |
+| **Scans / Imports** | Scan-Methodes | arp-scan, nmap, ping | arp-scan |
+|  | Import-Methodes | Pi-hole 5.x / 6.x<br>dnsmasq<br>Fritz!Box (Router)<br>Microtik, UniFi<br>Asus Router, OpenWRT<br>pfSense | Pi-hole 5.x, dnsmasq |
 |  | Accuracy (arp-scan) | 1 cycle every 5 min with 6 retries | 1 cycle every 5 min with 6 retries<br>1 cycle every 15 min with viel mehr retries |
 |  | Hostname detection | DNS<br>mDNS<br>NetBIOS | DNS |
 |  | Web Services / Monitoring | 🟢 | 🔴 |
