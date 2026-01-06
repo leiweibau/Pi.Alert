@@ -4854,7 +4854,7 @@ def email_reporting():
 
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
-                      AND eve_EventType IN ('Connected', 'Disconnected', 'IP Changed', 'Inter-Satellite movement')
+                      AND eve_EventType IN ('Connected', 'Disconnected', 'IP Changed', 'Internet IP Changed', 'Inter-Satellite movement')
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :
