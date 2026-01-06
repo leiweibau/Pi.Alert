@@ -251,7 +251,7 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 		}
 	}
 	if (!file_exists("/opt/pialert")) {
-		$updatecommand = 'bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)&quot;';
+		$updatecommand = 'sudo bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)&quot;';
 		$updateenv = ' (Outdated)';
 	} else {
 		$updatecommand = 'bash -c &quot;$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)&quot; -s';
