@@ -8,7 +8,7 @@ To make it clearer how this version differs from the original project, I made th
 |  | API-Key for API-Calls | 🟢 | 🔴 |
 |  | Journal (Frontend/Backend) | 🟢 | 🔴 |
 | **Scans / Imports** | Scan-Methodes | arp-scan, nmap, ping | arp-scan |
-|  | Import-Methodes | Pi-hole 5.x / 6.x, dnsmasq<br>Fritz!Box, Microtik, UniFi<br>Asus Router, OpenWRT, pfSense | Pi-hole 5.x, dnsmasq |
+|  | Import-Methodes | Pi-hole 5.x / 6.x, dnsmasq,<br>Fritz!Box, Microtik, UniFi,<br>Asus Router, OpenWRT, pfSense | Pi-hole 5.x, dnsmasq |
 |  | Accuracy (arp-scan) | 1 cycle every 5 min with 6 retries | 1 cycle every 5 min with 6 retries<br>1 cycle every 15 min with viel mehr retries |
 |  | Hostname detection | DNS<br>mDNS<br>NetBIOS | DNS |
 |  | Web Services / Monitoring | 🟢 | 🔴 |
@@ -29,7 +29,7 @@ To make it clearer how this version differs from the original project, I made th
 |  | System/Pi.Alert status page | 🟢 | 🔴 |
 |  | Dashboard | 🟢 | 🔴 |
 | **Notifications** | Email | 🟢 | 🔴 |
-|  | Push Services | Pushover, Pushsaver<br>ntfy, Telegram, Discord | 🔴 |
+|  | Push Services | Pushover, Pushsaver,<br>ntfy, Telegram, Discord | 🔴 |
 |  | Notifications on WebGui | 🟢 | 🔴 |
 |  | Notification test | 🟢 | 🔴 |
 |  | Download notifications as PDF | 🟢 | 🔴 |
