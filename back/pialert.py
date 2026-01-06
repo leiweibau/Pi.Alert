@@ -366,11 +366,11 @@ def check_internet_IP():
         internet_IP = get_internet_IP()
 
         # Check result = IP
-        if internet_IP is None or internet_IP == "":
+        if internet_IP == "" :
             print('    Error retrieving Internet IP')
-            # print('    Exiting...\n')
-            #return 1
-        print('    Internet IP: ', internet_IP)
+            print('    Exiting...\n')
+            return 1
+        print('   ', internet_IP)
 
         # Get previous stored IP
         print('\nRetrieving previous IP...')
@@ -379,12 +379,12 @@ def check_internet_IP():
         print('   ', previous_IP)
 
         # Check IP Change
-        if internet_IP and internet_IP != previous_IP :
+        if internet_IP != previous_IP :
             print('    Saving new IP')
             save_new_internet_IP (internet_IP)
             print('        IP updated')
-        # else :
-        #     print('    No changes to perform')
+        else :
+            print('    No changes to perform')
         closeDB()
 
         # Get Dynamic DNS IP
@@ -700,41 +700,12 @@ def run_speedtest_task(start_time, crontab_string):
     return 0
 
 #-------------------------------------------------------------------------------
-def get_internet_IP(retries=3, delay=2):
+def get_internet_IP():
     # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
     # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
-
     curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
-
-    for attempt in range(1, retries + 1):
-        try:
-            cmd_output = subprocess.check_output(
-                curl_args,
-                universal_newlines=True,
-                stderr=subprocess.STDOUT,
-                timeout=10
-            ).strip()
-
-            if cmd_output:
-                return check_IP_format(cmd_output)
-
-            print(f"    Attempt {attempt}: empty response")
-
-        except subprocess.CalledProcessError as e:
-            print(f"    Attempt {attempt}: curl error {e.returncode}")
-
-        except subprocess.TimeoutExpired:
-            print(f"    Attempt {attempt}: curl timeout")
-
-        except Exception as e:
-            print(f"    Attempt {attempt}: unexpected error: {e}")
-
-        # waiting for next retry
-        if attempt < retries:
-            time.sleep(delay)
-
-    # all retries used
-    return None
+    cmd_output = subprocess.check_output (curl_args, universal_newlines=True)
+    return check_IP_format (cmd_output)
 
 #-------------------------------------------------------------------------------
 def get_dynamic_DNS_IP():
@@ -2922,16 +2893,45 @@ def insert_events():
 
     # Check IP Changed
     print_log ('Events 4 - IP Changes')
-    sql.execute ("""INSERT INTO Events (eve_MAC, eve_IP, eve_DateTime,
-                        eve_EventType, eve_AdditionalInfo,
-                        eve_PendingAlertEmail)
-                    SELECT cur_MAC, cur_IP, ?, 'IP Changed',
-                        'Previous IP: '|| dev_LastIP, dev_AlertEvents
-                    FROM Devices, CurrentScan
-                    WHERE dev_MAC = cur_MAC AND dev_ScanCycle = cur_ScanCycle
-                      AND dev_ScanCycle = ?
-                      AND dev_LastIP <> cur_IP """,
-                    (startTime, cycle) )
+    # sql.execute ("""INSERT INTO Events (eve_MAC, eve_IP, eve_DateTime,
+    #                     eve_EventType, eve_AdditionalInfo,
+    #                     eve_PendingAlertEmail)
+    #                 SELECT cur_MAC, cur_IP, ?, 'IP Changed',
+    #                     'Previous IP: '|| dev_LastIP, dev_AlertEvents
+    #                 FROM Devices, CurrentScan
+    #                 WHERE dev_MAC = cur_MAC AND dev_ScanCycle = cur_ScanCycle
+    #                   AND dev_ScanCycle = ?
+    #                   AND dev_LastIP <> cur_IP """,
+    #                 (startTime, cycle) )
+    sql.execute ("""
+        INSERT INTO Events (
+            eve_MAC, eve_IP, eve_DateTime,
+            eve_EventType, eve_AdditionalInfo,
+            eve_PendingAlertEmail
+        )
+        SELECT
+            cur_MAC,
+            cur_IP,
+            ?,
+            CASE
+                WHEN cur_MAC = 'Internet'
+                    THEN 'Internet IP Changed'
+                ELSE 'IP Changed'
+            END,
+            CASE
+                WHEN cur_MAC = 'Internet'
+                    THEN 'Previous Internet IP: ' || dev_LastIP
+                ELSE 'Previous IP: ' || dev_LastIP
+            END,
+            dev_AlertEvents
+        FROM Devices, CurrentScan
+        WHERE dev_MAC = cur_MAC
+          AND dev_ScanCycle = cur_ScanCycle
+          AND dev_ScanCycle = ?
+          AND dev_LastIP <> cur_IP
+    """,
+    (startTime, cycle))
+
 
     # Inter-Satellite movement
     print_log ('Events 5 - Inter-Satellite movement')
