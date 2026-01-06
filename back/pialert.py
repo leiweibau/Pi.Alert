@@ -5067,7 +5067,7 @@ def sending_notifications (_type, _html_text, _txt_text):
             (REPORT_PUSHOVER_WEBMON,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
             (REPORT_TELEGRAM_WEBMON,  "Telegram",  lambda: send_telegram(_txt_text)),
             (REPORT_NTFY_WEBMON,      "NTFY",      lambda: send_ntfy(_txt_text)),
-            (REPORT_DISCORD_WEBMON,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_DISCORD_WEBMON,   "Discord",   lambda: send_discord(_txt_text)),
             (REPORT_WEBGUI_WEBMON,    "WebUI",     lambda: send_webgui(_txt_text)),
         ]
 
@@ -5091,7 +5091,7 @@ def sending_notifications (_type, _html_text, _txt_text):
             (REPORT_PUSHOVER,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
             (REPORT_TELEGRAM,  "Telegram",  lambda: send_telegram(_txt_text)),
             (REPORT_NTFY,      "NTFY",      lambda: send_ntfy(_txt_text)),
-            (REPORT_DISCORD,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_DISCORD,   "Discord",   lambda: send_discord(_txt_text)),
             (REPORT_WEBGUI,    "WebUI",     lambda: send_webgui(_txt_text)),
         ]
 
