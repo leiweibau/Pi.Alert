@@ -29,7 +29,7 @@ To make it clearer how this version differs from the original project, I made th
 |  | System/Pi.Alert status page | 🟢 | 🔴 |
 |  | Dashboard | 🟢 | 🔴 |
 | **Notifications** | Email | 🟢 | 🔴 |
-|  | Push Services | Pushover, Pushsaver<br>ntfy, Telegram<br>Discord | 🔴 |
+|  | Push Services | Pushover, Pushsaver<br>ntfy, Telegram, Discord | 🔴 |
 |  | Notifications on WebGui | 🟢 | 🔴 |
 |  | Notification test | 🟢 | 🔴 |
 |  | Download notifications as PDF | 🟢 | 🔴 |
