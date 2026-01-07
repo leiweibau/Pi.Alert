@@ -2273,7 +2273,7 @@ def update_scan_validation():
     if PRINT_LOG:
         print('----------> Dump: Query (Validation)')
         for row in devices_to_insert:
-            print(row['dev_MAC'], row['dev_IP'])
+            print(row['dev_MAC'], row['dev_LastIP'])
         print('----------> Dump: End')
 
     # 3. Add the devices to CurrentScan
@@ -2389,7 +2389,6 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
             "WHERE cur_ScanCycle = ? AND cur_MAC = ?",
             (local_ip, cycle, local_mac)
         )
-
 
 #-------------------------------------------------------------------------------
 def insert_ext_sources(sql, cycle, network_table, mac_column, ip_column, vendor_column, scan_method):
