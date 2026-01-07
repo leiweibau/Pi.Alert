@@ -2270,7 +2270,11 @@ def update_scan_validation():
         AND dev_MAC NOT IN (SELECT cur_MAC FROM CurrentScan)
     """)
     devices_to_insert = sql.fetchall()
-    print_log(f"Scan Validation: \n{devices_to_insert}")
+    if PRINT_LOG:
+        print('----------> Dump: Query (Validation)')
+        for row in devices_to_insert:
+            print(row['dev_MAC'], row['dev_LastIP'])
+        print('----------> Dump: End')
 
     # 3. Add the devices to CurrentScan
     sql.executemany("""
@@ -2356,15 +2360,35 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
     local_mac_cmd = ["/sbin/ifconfig `ip -o route get 1 | sed 's/^.*dev \\([^ ]*\\).*$/\\1/;q'` | grep ether | awk '{print $2}'"]
     local_mac = subprocess.Popen (local_mac_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode().strip()
     
+    print_log(f"        ...Local Interfaces")
+    print_log(f"{local_mac}")
+
     # local_ip_cmd = ["ip route list default | awk {'print $7'}"]
     local_ip_cmd = ["ip -o route get 1 | sed 's/^.*src \\([^ ]*\\).*$/\\1/;q'"]
     local_ip = subprocess.Popen (local_ip_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode().strip()
 
+    print_log(f"{local_ip}\n")
+
     # Check if local mac has been detected with other methods
-    sql.execute ("SELECT COUNT(*) FROM CurrentScan WHERE cur_ScanCycle = ? AND cur_MAC = ? ", (cycle, local_mac) )
-    if sql.fetchone()[0] == 0 :
-        sql.execute ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod) "+
-                     "VALUES ( ?, ?, ?, Null, 'local_MAC') ", (cycle, local_mac, local_ip) )
+
+    sql.execute("SELECT COUNT(*) FROM CurrentScan WHERE cur_ScanCycle = ? AND cur_MAC = ? ", (cycle, local_mac) )
+    # if sql.fetchone()[0] == 0 :
+    #     sql.execute ("INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod) "+
+    #                  "VALUES ( ?, ?, ?, Null, 'local_MAC') ", (cycle, local_mac, local_ip) )
+    
+    if sql.fetchone()[0] == 0:
+        sql.execute(
+            "INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod) "
+            "VALUES (?, ?, ?, NULL, 'local_MAC')",
+            (cycle, local_mac, local_ip)
+        )
+    else:
+        sql.execute(
+            "UPDATE CurrentScan "
+            "SET cur_IP = ? "
+            "WHERE cur_ScanCycle = ? AND cur_MAC = ?",
+            (local_ip, cycle, local_mac)
+        )
 
 #-------------------------------------------------------------------------------
 def insert_ext_sources(sql, cycle, network_table, mac_column, ip_column, vendor_column, scan_method):
@@ -4854,7 +4878,7 @@ def email_reporting():
 
     sql.execute ("""SELECT * FROM Events_Devices
                     WHERE eve_PendingAlertEmail = 1
-                      AND eve_EventType IN ('Connected', 'Disconnected', 'IP Changed', 'Inter-Satellite movement')
+                      AND eve_EventType IN ('Connected', 'Disconnected', 'IP Changed', 'Internet IP Changed', 'Inter-Satellite movement')
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :
@@ -5067,7 +5091,7 @@ def sending_notifications (_type, _html_text, _txt_text):
             (REPORT_PUSHOVER_WEBMON,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
             (REPORT_TELEGRAM_WEBMON,  "Telegram",  lambda: send_telegram(_txt_text)),
             (REPORT_NTFY_WEBMON,      "NTFY",      lambda: send_ntfy(_txt_text)),
-            (REPORT_DISCORD_WEBMON,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_DISCORD_WEBMON,   "Discord",   lambda: send_discord(_txt_text)),
             (REPORT_WEBGUI_WEBMON,    "WebUI",     lambda: send_webgui(_txt_text)),
         ]
 
@@ -5091,7 +5115,7 @@ def sending_notifications (_type, _html_text, _txt_text):
             (REPORT_PUSHOVER,  "PUSHOVER",  lambda: send_pushover(_txt_text)),
             (REPORT_TELEGRAM,  "Telegram",  lambda: send_telegram(_txt_text)),
             (REPORT_NTFY,      "NTFY",      lambda: send_ntfy(_txt_text)),
-            (REPORT_DISCORD,   "Discord",   lambda: send_discord_test(_txt_text)),
+            (REPORT_DISCORD,   "Discord",   lambda: send_discord(_txt_text)),
             (REPORT_WEBGUI,    "WebUI",     lambda: send_webgui(_txt_text)),
         ]
 
