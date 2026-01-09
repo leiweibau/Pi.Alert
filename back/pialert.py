@@ -2391,14 +2391,50 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
         )
 
 #-------------------------------------------------------------------------------
+# def insert_ext_sources(sql, cycle, network_table, mac_column, ip_column, vendor_column, scan_method):
+#     sql.execute(f"""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
+#                         cur_IP, cur_Vendor, cur_ScanMethod)
+#                     SELECT ?, {mac_column}, {ip_column}, {vendor_column}, ?
+#                     FROM {network_table}
+#                     WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
+#                                       WHERE cur_MAC = {mac_column} )""",
+#                 (cycle, scan_method))
+
 def insert_ext_sources(sql, cycle, network_table, mac_column, ip_column, vendor_column, scan_method):
-    sql.execute(f"""INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, 
-                        cur_IP, cur_Vendor, cur_ScanMethod)
-                    SELECT ?, {mac_column}, {ip_column}, {vendor_column}, ?
-                    FROM {network_table}
-                    WHERE NOT EXISTS (SELECT 'X' FROM CurrentScan
-                                      WHERE cur_MAC = {mac_column} )""",
-                (cycle, scan_method))
+    sql.execute("BEGIN TRANSACTION")
+
+    try:
+        # INSERT for all MACs that do not yet exist
+        sql.execute(f"""
+            INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+            SELECT ?, {mac_column}, {ip_column}, {vendor_column}, ?
+            FROM {network_table} nt
+            WHERE NOT EXISTS (
+                SELECT 1 FROM CurrentScan cs WHERE cs.cur_MAC = nt.{mac_column}
+            )
+        """, (cycle, scan_method))
+
+        # UPDATE for all existing MACs with cur_IP = 'no IP'
+        sql.execute(f"""
+            UPDATE CurrentScan
+            SET cur_IP = (
+                SELECT {ip_column} FROM {network_table} nt
+                WHERE nt.{mac_column} = CurrentScan.cur_MAC
+            )
+            WHERE cur_IP = 'no IP'
+            AND EXISTS (
+                SELECT 1 FROM {network_table} nt
+                WHERE nt.{mac_column} = CurrentScan.cur_MAC
+            )
+        """)
+
+        # Commit
+        sql.execute("COMMIT")
+    except Exception as e:
+        # Rollback
+        sql.execute("ROLLBACK")
+        # raise e
+
 
 #-------------------------------------------------------------------------------
 def dump_all_resulttables():
@@ -5050,7 +5086,8 @@ def send_telegram (_Text):
 #-------------------------------------------------------------------------------
 def send_discord (_Text):
     block = _Text.replace('\n\n\n', '\n\n')
-    event_type = next((line.split(":")[1].strip() for line in block.splitlines() if line.startswith("Event:")), "Alert")
+    event_type = next((line.split(":", 1)[1].strip() for line in block.splitlines() if line.strip().lower().startswith("event:")), "Alert")
+    # event_type = next((line.split(":")[1].strip() for line in block.splitlines() if line.startswith("Event:")), "Alert")
     color_map = {"Connected": 65280, "Disconnected": 16711680, "Alert": 16753920}
     color = color_map.get(event_type, 3447003)
 
