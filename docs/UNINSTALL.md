@@ -5,14 +5,14 @@ Estimated time: 5'
 
 ## One-step Automated Uninstall:
 <!--- --------------------------------------------------------------------- --->
-  #### `curl -sSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_uninstall.sh | bash`
+  #### `sudo curl -sSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_uninstall.sh | bash`
 
 ## Uninstallation process (step by step)
 <!--- --------------------------------------------------------------------- --->
 
 1.1 - Remove Pi.Alert files
   ```
-  rm -r "$HOME/pialert"
+  sudo rm -r "/opt/pialert"
   ```
 
 1.2 - Remove Pi.Alert web front
