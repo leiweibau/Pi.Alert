@@ -29,13 +29,7 @@
   sudo rm -r /var/cache/lighttpd/compress/pialert
   ```
 
-1.5 - Remove Pi.Alert DNS entry
-  ```
-  sudo sed -i '/pi.alert/d' /etc/pihole/custom.list
-  sudo pihole restartdns
-  ```
-
-1.6 - Remove Pi.Alert crontab jobs
+1.5 - Remove Pi.Alert crontab jobs
   ```
   crontab -l 2>/dev/null | sed ':a;N;$!ba;s/#-------------------------------------------------------------------------------\n#  Pi.Alert\n#  Open Source Network Guard \/ WIFI & LAN intrusion detector \n#\n#  pialert.cron - Back module. Crontab jobs\n#-------------------------------------------------------------------------------\n#  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3\n#-------------------------------------------------------------------------------//g' | crontab -
   crontab -l 2>/dev/null | sed '/pialert.py/d' | crontab -
