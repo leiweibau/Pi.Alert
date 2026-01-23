@@ -168,11 +168,7 @@ if ($_REQUEST['tab'] == '1') {
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_arp_status'];?></div>
-                    <div class="db_info_table_cell">
-<?php 
-echo $_SESSION['arpscan_result'];
-read_arpscan_timer();
-?>                  </div>
+                    <div class="db_info_table_cell"><?=$MainScanStatus['result_html'] . $MainScanStatus['timer_output']?></div>
                 </div>
                 <div class="db_info_table_row">
                     <div class="db_info_table_cell db_info_table_cell_a">Api-Key</div>
@@ -476,7 +472,7 @@ $(document).ready(function () {
     GetARPStatus();
     GetAutoBackupStatus();
     GetModalInactiveHosts();
-    startCountdown();    
+    // startCountdown();    
 });
 </script>
 
@@ -918,50 +914,6 @@ function initializeiCheck () {
 // JS created by php while loop
 <?=create_filter_editor_js();?>
 
-var StatusBoxARPCountdown; 
-
-function startCountdown() {
-    var currentTime = new Date();
-    var minutes = currentTime.getMinutes();
-    var seconds = currentTime.getSeconds();
-
-    // Calculate the time until the next 5-minute interval
-    var countdownMinutes = (4 - (minutes % 5)) % 5;
-    var countdownSeconds = 60 - seconds;
-
-    // Stop Countdown
-    clearInterval(StatusBoxARPCountdown);
-
-    // Display initial countdown
-    displayCountdown(countdownMinutes, countdownSeconds);
-
-    // Update countdown every second
-    StatusBoxARPCountdown = setInterval(function() {
-        countdownSeconds--;
-        if (countdownSeconds < 0) {
-            countdownSeconds = 59;
-            countdownMinutes--;
-
-            if (countdownMinutes < 0) {
-                // Reset countdown for the next 5-minute interval
-                countdownMinutes = 4;
-                countdownSeconds = 59;
-            }
-        }
-        displayCountdown(countdownMinutes, countdownSeconds);
-    }, 1000);
-}
-function displayCountdown(minutes, seconds) {
-    var countdownElement = document.getElementById('nextscancountdown');
-    countdownElement.textContent = '(next Scan in: ' + formatTime(minutes) + ':' + formatTime(seconds) + ')';
-    if (minutes == 4 && seconds == 59) {
-        GetARPStatus();
-        GetAutoBackupStatus();
-    }
-}
-function formatTime(time) {
-    return time < 10 ? '0' + time : time;
-}
 function GetARPStatus() {
   $.get('php/server/files.php?action=GetARPStatus', function(data) {
     var arpproccount = JSON.parse(data);
@@ -1014,7 +966,7 @@ function UpdateStatusBox() {
 	GetModalLogContent();
 	GetARPStatus();
     GetAutoBackupStatus();
-	startCountdown();
+	// startCountdown();
 }
 function askCreateNewSatellite() {
   showModalWarning('<?=$pia_lang['MT_SET_SatCreate_noti'];?>', '<?=$pia_lang['MT_SET_SatCreate_noti_text'];?>',

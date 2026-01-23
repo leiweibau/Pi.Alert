@@ -84,31 +84,92 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
     var pia_servertime;
     var TopServerClock;
 
+    var countdownMinutes = 0;
+    var countdownSeconds = 0;
+    var serverClockRunning = false;
+
+    // Drift protection
+    var serverStartTime = 0;  // Server time in ms
+    var clientStartTime = 0;  // Client time in ms
+
+    // get Servertime
     function GetPiAlertServerTime() {
-      clearTimeout(TopServerClock);
-      $.get('php/server/files.php?action=GetServerTime', function(data) {
-          var dateArray = data.split(',').map(Number);
-          pia_servertime = new Date(dateArray[0], dateArray[1] - 1, dateArray[2], dateArray[3], dateArray[4], dateArray[5]);
-          ShowPiAlertServerTime();
-      });
+
+        if (serverClockRunning) return; // Timer already running
+        serverClockRunning = true;
+
+        clearTimeout(TopServerClock);
+
+        $.get('php/server/files.php?action=GetServerTime', function(data) {
+            var d = data.split(',').map(Number);
+            pia_servertime = new Date(d[0], d[1]-1, d[2], d[3], d[4], d[5]);
+
+            // Drift protection: Save reference times
+            serverStartTime = pia_servertime.getTime();
+            clientStartTime = Date.now();
+
+            initCountdownFromServerTime();
+            ShowPiAlertServerTime(); // Start 1-Sekund-Tick
+        });
     }
 
+    // Countdown initialisieren
+    function initCountdownFromServerTime() {
+        var minutes = pia_servertime.getMinutes();
+        var seconds = pia_servertime.getSeconds();
+
+        countdownMinutes = 4 - (minutes % 5);
+        countdownSeconds = 60 - seconds;
+        if (countdownSeconds === 60) {
+            countdownSeconds = 0;
+            countdownMinutes += 1;
+        }
+    }
+
+    // 1-Second-Tick: Time + Countdown, driftfree
     function ShowPiAlertServerTime() {
-        if (!document.getElementById) {
+        if (!document.getElementById || !pia_servertime) return;
+
+        // Drift correction: actual elapsed time since server query
+        var elapsed = Date.now() - clientStartTime;
+        pia_servertime = new Date(serverStartTime + elapsed);
+
+        // Time format HH:MM:SS
+        var h = String(pia_servertime.getHours()).padStart(2,'0');
+        var m = String(pia_servertime.getMinutes()).padStart(2,'0');
+        // var s = String(pia_servertime.getSeconds()).padStart(2,'0');
+
+        document.getElementById("PIA_Servertime_place").innerHTML =
+            "- " + h + ":" + m;
+            // "- " + h + ":" + m + ":" + s;
+
+        // Countdown
+        var minutes = pia_servertime.getMinutes();
+        var seconds = pia_servertime.getSeconds();
+
+        countdownMinutes = 4 - (minutes % 5);
+        countdownSeconds = 60 - seconds;
+        if (countdownSeconds === 60) {
+            countdownSeconds = 0;
+            countdownMinutes += 1;
+        }
+
+        // Update countdown element
+        document.getElementById('nextscancountdown').textContent =
+            'next Scan in: ' + formatTime(countdownMinutes) + ':' + formatTime(countdownSeconds);
+
+        // Countdown reaches 0:00 → Re-sync
+        if (countdownMinutes < 0) {
+            serverClockRunning = false; // Timer kann neu starten
+            GetPiAlertServerTime();
             return;
         }
-        var pia_hour = pia_servertime.getHours();
-        var pia_minute = pia_servertime.getMinutes();
-        var pia_second = pia_servertime.getSeconds();
-        pia_servertime.setSeconds(pia_second + 1);
-        if (pia_hour <= 9) { pia_hour = "0" + pia_hour; }
-        if (pia_minute <= 9) { pia_minute = "0" + pia_minute; }
-        if (pia_second <= 9) { pia_second = "0" + pia_second; } 
-        var realtime_pia_servertime = "(" + pia_hour + ":" + pia_minute + ":" + pia_second + ")";
-        if (document.getElementById) { 
-            document.getElementById("PIA_Servertime_place").innerHTML = realtime_pia_servertime; 
-        } 
+
         TopServerClock = setTimeout(ShowPiAlertServerTime, 1000);
+    }
+
+    function formatTime(time) {
+        return time < 10 ? '0' + time : time;
     }
 
     function initializeiCheck() {
@@ -125,13 +186,19 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
 <?php create_satellite_badges(); ?>
       getICMPTotalsBadge();
       getServicesTotalsBadge();
-      GetPiAlertServerTime();
       GetUpdateStatus();
+
+      if (serverClockRunning && serverStartTime && clientStartTime) {
+          // Tatsächlich verstrichene Zeit seit Serverabfrage
+          var elapsed = Date.now() - clientStartTime;
+          pia_servertime = new Date(serverStartTime + elapsed);
+      }
     }
 
     // Init functions
     initCPUtemp();
     getReportTotalsBadge();
+    GetPiAlertServerTime();
     updateTotals();
 
     // Start function timers

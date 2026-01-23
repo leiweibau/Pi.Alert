@@ -108,25 +108,6 @@ function get_all_satellites_list() {
 
     $db->close();
 }
-// Maintenance Page - Aprscan read Timer
-function read_arpscan_timer() {
-	$file = '../config/setting_stoppialert';
-	if (file_exists($file)) {
-		$timer_arpscan = file_get_contents($file, true);
-		if ($timer_arpscan == 10 || $timer_arpscan == 15 || $timer_arpscan == 30) {
-			$timer_output = ' (' . $timer_arpscan . 'min)';
-		}
-		if ($timer_arpscan == 60 || $timer_arpscan == 120 || $timer_arpscan == 720 || $timer_arpscan == 1440) {
-			$timer_arpscan = $timer_arpscan / 60;
-			$timer_output = ' (' . $timer_arpscan . 'h)';
-		}
-		if ($timer_arpscan == 1051200) {
-			$timer_output = ' (very long)';
-		}
-	}
-	$timer_output = '<span style="color:red;">' . $timer_output . '</span>';
-	echo $timer_output;
-}
 // Maintenance Page - Get Device List Columns
 function read_DevListCol() {
 	$file = '../config/setting_devicelist';
@@ -205,7 +186,6 @@ function show_all_satellites_list($satellite) {
                     </div>
                 </div>';
 }
-
 // Maintenance Page - Statusbox
 function format_notifications($source_array) {
 	$format_array_true = array();
