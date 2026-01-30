@@ -418,9 +418,8 @@ body.modal-open {
 #navbar-reload-button:hover {background-color: rgba(0, 0, 0, 0.1);}
 #navbar-back-button {position: relative; left:0px; width: 42px; height: 50px; display: inline-block; padding-top: 15px; text-align: center;}
 #navbar-back-button:hover {background-color: rgba(0, 0, 0, 0.1);}
-.navbar-servertime {
-    display: inline-block; height: 50px; padding-top: 15px;
-}
+.navbar-servertime {display: inline-block; height: 50px; padding-top: 5px;}
+.navbar-servertime-big {padding-top: 15px;}
 #navbar-help-button {font-size: 18px; position: relative; left: 0px; width: 42px; display: inline-block; padding-top: 15px; text-align: center;}
 #navbar-pihole-button {font-size: 24px; position: relative; left: 0px; width: 42px; display: inline-block; padding-top: 13px; text-align: center;}
 /* ----------------- System Info -------------------------------------------- */

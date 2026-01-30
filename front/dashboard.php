@@ -111,7 +111,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 
     <!-- Header Navbar -->
     <nav class="navbar navbar-static-top" role="navigation">
-      <div  class="sidebar-toggle"><span class="sr-only"></span></div>
+      <!-- <div  class="sidebar-toggle"><span class="sr-only"></span></div> -->
+
       <a id="navbar-reload-button" href="" role="button" onclick="window.location.reload(true)" style="padding-top: 17px;"><i class="fa fa-repeat"></i></a>
       <script>
           function toggle_systeminfobox() {
@@ -127,20 +128,20 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
           <li>
-            <div id="dashboardRefreshCountdown" class="a navbar-servertime text-muted" style="font-size:12px;">
+            <div id="dashboardRefreshCountdown" class="a navbar-servertime navbar-servertime-big text-muted" style="font-size:12px;">
                 <?=$pia_lang['DASH_refresh_counter']?> <strong><span id="dashboardRefreshCountdownValue">--</span>s</strong>
             </div>
           </li>
           <?php
           if ($FRONTEND_PHBUTTON != '') {
-            echo '<li><a id="navbar-pihole-button" class="a navbar-servertime" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
+            echo '<li><a id="navbar-pihole-button" class="a navbar-servertime navbar-servertime-big" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
           }
           ?>
-          <li><a id="navbar-help-button" class="navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" target="_blank">
+          <li><a id="navbar-help-button" class="navbar-servertime navbar-servertime-big" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" target="_blank">
                 <i class="fa-regular fa-circle-question"></i>
               </a>
           </li>
-          <li><div class="a navbar-servertime"><?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span></div></li>
+          <li><div class="a navbar-servertime navbar-servertime-big"><?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span></div></li>
           <!-- Header right info -->
           <li class="dropdown user user-menu">
             <!-- Menu Toggle Button -->
