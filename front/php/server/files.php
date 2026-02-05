@@ -5,7 +5,7 @@
 //
 //  file.php - Back module. Server side. FileSystem Operations
 //------------------------------------------------------------------------------
-//  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
+//  leiweibau  2023+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
 session_start();
@@ -29,11 +29,15 @@ $maskKeys = [
     'PUSHSAFER_TOKEN',
     'NTFY_PASSWORD',
     'MIKROTIK_PASS',
+    'UNIFI_PASS',
     'OPENWRT_PASS',
+    'ASUSWRT_PASS',
     'SMTP_PASS',
     'REPORT_MQTT_PASSWORD',
     'PUSHOVER_USER',
-    'PFSENSE_APIKEY'
+    'PFSENSE_APIKEY',
+    'PIHOLE6_PASSWORD',
+    'DDNS_PASSWORD'
 ];
 
 // Open DB
@@ -481,9 +485,6 @@ function GetLogfiles() {
 				$file = str_replace("Start Services Monitoring\n\n", "Start Services Monitoring\n\n<pre style=\"border: solid 1px #666; background-color: transparent;\">", $file);
 				$file = str_replace("\nServices Monitoring Changes:", "\n</pre>Services Monitoring Changes:", $file);
 			}
-			// if ($logfiles[$i] == "pialert.1.log") {
-			// 	$file = str_replace("\n        ...Skipped", "<span style=\"color:red;\"> Skipped</span>", $file);
-			// }
 			$templog = str_replace("\n", '<br>', str_replace("    ", '&nbsp;&nbsp;&nbsp;&nbsp;', str_replace("        ", '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $file)));
 			array_push($logs, $templog);
 		}
@@ -492,23 +493,17 @@ function GetLogfiles() {
 	echo (json_encode($logs));
 }
 
-// function convert_bool($var) {
-// 	if ($var == 1) {return "True";} else {return "False";}
-// }
 function convert_bool($val) {
     if (is_bool($val)) return $val ? 'True' : 'False';
     $val_lower = strtolower(trim($val));
     if ($val_lower === 'true') return 'True';
     if ($val_lower === 'false') return 'False';
-    return $val; // für alles andere unverändert
+    return $val;
 }
 
-
 function serializeList($ListString) {
-	$ignorlist_search = array();
-	$ignorlist_replace = array();
-    // $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
-    // $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
+    $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
+    $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
 	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
 	return $temp;
 }
