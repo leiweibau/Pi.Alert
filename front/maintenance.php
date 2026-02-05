@@ -368,7 +368,7 @@ require 'php/templates/maintenance_sat.php';
                     <button type="button" id="nextButton" class="btn btn-primary" style="margin-left: 10px;">Next</button>
                 </div>
                 <div class="modal-body" style="text-align: left;">
-                    <textarea class="form-control" name="txtConfigFileEditor" id="ConfigFileEditor" spellcheck="false" wrap="off" style="resize: none; font-family: monospace; height: 70vh;"><?=file_get_contents('../config/pialert.conf');?></textarea>
+                    <textarea class="form-control" name="txtConfigFileEditor" id="ConfigFileEditor" spellcheck="false" wrap="off" style="resize: none; font-family: monospace; height: 70vh;"></textarea>
                 </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-danger" id="btnPiaRestoreConfigFile" data-dismiss="modal" style="margin: 5px" onclick="askRestoreConfigFile()"><?=$pia_lang['MT_ConfEditor_Restore'];?></button>
@@ -399,6 +399,7 @@ require 'php/templates/footer.php';
 <script>
 $(document).ready(function () {
     $('#modal-config-editor').on('show.bs.modal', function () {
+        GetConfigFile();
         // Save the current scroll position and apply styles to the body and modal
         var scrollPosition = $(window).scrollTop();
         $('body').css({
@@ -1067,5 +1068,21 @@ function DeleteBlockDeviceIP() {
   $.get('php/server/files.php?action=DeleteBlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
   delete window.selectedIPStep;
 }
+
+function GetConfigFile() {
+    $.ajax({
+        url: 'php/server/files.php?action=GetConfigFile',
+        type: 'GET',
+        dataType: 'text',
+        success: function (response) {
+            $('#ConfigFileEditor').val(response);
+        },
+        error: function (xhr, status, error) {
+            console.error('GetConfigFile error:', error);
+            $('#ConfigFileEditor').val('ERROR: Unable to load config file.');
+        }
+    });
+}
+
 </script>
 

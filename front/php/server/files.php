@@ -24,6 +24,17 @@ require '../templates/language/' . $pia_lang_selected . '.php';
 // Action selector
 // Set maximum execution time to 15 seconds
 ini_set('max_execution_time', '30');
+$maskKeys = [
+    'FRITZBOX_PASS',
+    'PUSHSAFER_TOKEN',
+    'NTFY_PASSWORD',
+    'MIKROTIK_PASS',
+    'OPENWRT_PASS',
+    'SMTP_PASS',
+    'REPORT_MQTT_PASSWORD',
+    'PUSHOVER_USER',
+    'PFSENSE_APIKEY'
+];
 
 // Open DB
 OpenDB();
@@ -100,10 +111,78 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'DeleteBlockDeviceIP':DeleteBlockDeviceIP();
 		break;
+	case 'GetConfigFile':GetConfigFile();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
 }
+
+function GetConfigFile() {
+	global $maskKeys;
+
+    $configFile = __DIR__ . '/../../../config/pialert.conf';
+
+    if (!file_exists($configFile) || !is_readable($configFile)) {
+        http_response_code(500);
+        echo 'ERROR: Config file not accessible';
+        exit;
+    }
+
+    $lines = file($configFile, FILE_IGNORE_NEW_LINES);
+
+    if ($lines === false) {
+        http_response_code(500);
+        echo 'ERROR: Unable to read config file';
+        exit;
+    }
+
+    foreach ($lines as &$line) {
+
+        // skipp comments
+        if (preg_match('/^\s*#/', $line) || trim($line) === '') {
+            continue;
+        }
+
+        foreach ($maskKeys as $key) {
+            // Match: KEY = VALUE (mit optionalen Quotes)
+            if (preg_match(
+                '/^(\s*' . preg_quote($key, '/') . '\s*=\s*)([\'"]?)(.*?)(\2)\s*$/',
+                $line,
+                $matches
+            )) {
+                $prefix = $matches[1];
+                $quote  = $matches[2]; // ' oder "
+                $value  = $matches[3];
+
+                $trimmedValue = trim($value);
+
+                // not mask: empty, "password"
+                if ($trimmedValue === '' || strtolower($trimmedValue) === 'password') {
+                    break;
+                }
+
+                $len = strlen($trimmedValue);
+
+                // mask
+                if ($len > 2) {
+                    $maskedValue =
+                        $trimmedValue[0] .
+                        str_repeat('*', $len - 2) .
+                        $trimmedValue[$len - 1];
+
+                    $line = $prefix . $quote . $maskedValue . $quote;
+                }
+                break; // Schlüssel gefunden, nächster Line
+            }
+        }
+    }
+
+    header('Content-Type: text/plain; charset=utf-8');
+    echo implode(PHP_EOL, $lines);
+    exit;
+}
+
 
 function DeleteBlockDeviceIP() {
 	global $pia_lang;
@@ -413,13 +492,23 @@ function GetLogfiles() {
 	echo (json_encode($logs));
 }
 
-function convert_bool($var) {
-	if ($var == 1) {return "True";} else {return "False";}
+// function convert_bool($var) {
+// 	if ($var == 1) {return "True";} else {return "False";}
+// }
+function convert_bool($val) {
+    if (is_bool($val)) return $val ? 'True' : 'False';
+    $val_lower = strtolower(trim($val));
+    if ($val_lower === 'true') return 'True';
+    if ($val_lower === 'false') return 'False';
+    return $val; // für alles andere unverändert
 }
 
+
 function serializeList($ListString) {
-	$ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
-	$ignorlist_replace = array("[", "]", ",", "','", "['", "']");
+	$ignorlist_search = array();
+	$ignorlist_replace = array();
+    // $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
+    // $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
 	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
 	return $temp;
 }
@@ -427,12 +516,54 @@ function serializeList($ListString) {
 //  Save Config
 function SaveConfigFile() {
 	global $pia_lang;
+	global $maskKeys;
 
 	$laststate = '../../../config/pialert-prev.bak';
 	$configfile = '../../../config/pialert.conf';
 
+	copy($configfile, $laststate);
+
 	$configContent = preg_replace('/^\s*#.*$/m', '', $_REQUEST['configfile']);
 	$configArray = parse_ini_string($configContent);
+
+    // Get old Values from Backup
+    $oldLines = file($laststate, FILE_IGNORE_NEW_LINES);
+    $oldValues = [];
+    foreach ($oldLines as $line) {
+        foreach ($maskKeys as $key) {
+            if (preg_match('/^\s*' . preg_quote($key, '/') . '\s*=\s*([\'"]?)(.*)\1\s*$/', $line, $matches)) {
+                $oldValues[$key] = $matches[2];
+            }
+        }
+    }
+
+    // Read Frontend Input
+    $inputLines = explode("\n", $_REQUEST['configfile']);
+    $configArray = [];
+
+    foreach ($inputLines as $line) {
+        if (preg_match('/^\s*([A-Z0-9_]+)\s*=\s*([\'"]?)(.*)\2\s*$/', trim($line), $matches)) {
+            $key = $matches[1];
+            $value = $matches[3];
+
+            // Maskierte Werte prüfen
+            if (in_array($key, $maskKeys) && isset($oldValues[$key])) {
+                $lenOld = strlen($oldValues[$key]);
+                $lenFront = strlen($value);
+                $firstOld = substr($oldValues[$key], 0, 1);
+                $lastOld = substr($oldValues[$key], -1);
+                $firstFront = substr($value, 0, 1);
+                $lastFront = substr($value, -1);
+                $middleFront = substr($value, 1, -1);
+
+                if ($lenOld == $lenFront && $firstOld == $firstFront && $lastOld == $lastFront && preg_match('/^\*+$/', $middleFront)) {
+                    $value = $oldValues[$key];
+                }
+            }
+
+            $configArray[$key] = $value;
+        }
+    }
 
 	// Handle some special entries
 	$Mail_Reort = str_replace(" ", "", $configArray['REPORT_FROM']);
@@ -445,35 +576,14 @@ function SaveConfigFile() {
 		$configArray['REPORT_FROM'] = $mail_parts[0] . $mail_parts[1];
 	}
 	
-	if (strpos($configArray['DHCP_SERVER_ADDRESS'], '[') !== false || strpos($configArray['DHCP_SERVER_ADDRESS'], ']') !== false) {
-	    $configArray['DHCP_SERVER_ADDRESS'] = serializeList($configArray['DHCP_SERVER_ADDRESS']);
-	} else {
-	    $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
-	}
+    if (strpos($configArray['DHCP_SERVER_ADDRESS'], '[') === false && strpos($configArray['DHCP_SERVER_ADDRESS'], ']') === false) {
+        $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
+    }
 	// Ignore List Syntax handling start
-	if ($configArray['MAC_IGNORE_LIST'] != "" && $configArray['MAC_IGNORE_LIST'] != "[]") {
-		$configArray['MAC_IGNORE_LIST'] = serializeList($configArray['MAC_IGNORE_LIST']);
-	} else {
-		$configArray['MAC_IGNORE_LIST'] = "[]";
-	}
-
-	if ($configArray['IP_IGNORE_LIST'] != "" && $configArray['IP_IGNORE_LIST'] != "[]") {
-		$configArray['IP_IGNORE_LIST'] = serializeList($configArray['IP_IGNORE_LIST']);
-	} else {
-		$configArray['IP_IGNORE_LIST'] = "[]";
-	}
-
-	if ($configArray['HOSTNAME_IGNORE_LIST'] != "" && $configArray['HOSTNAME_IGNORE_LIST'] != "[]") {
-		$configArray['HOSTNAME_IGNORE_LIST'] = serializeList($configArray['HOSTNAME_IGNORE_LIST']);
-	} else {
-		$configArray['HOSTNAME_IGNORE_LIST'] = "[]";
-	}
-
-	if ($configArray['PFSENSE_EXCLUDE_INT'] != "" && $configArray['PFSENSE_EXCLUDE_INT'] != "[]") {
-		$configArray['PFSENSE_EXCLUDE_INT'] = serializeList($configArray['PFSENSE_EXCLUDE_INT']);
-	} else {
-		$configArray['PFSENSE_EXCLUDE_INT'] = "[]";
-	}
+    if ($configArray['MAC_IGNORE_LIST'] == "") {$configArray['MAC_IGNORE_LIST'] = "[]";}
+	if ($configArray['IP_IGNORE_LIST'] == "") {$configArray['IP_IGNORE_LIST'] = "[]";}
+	if ($configArray['HOSTNAME_IGNORE_LIST'] == "") {$configArray['HOSTNAME_IGNORE_LIST'] = "[]";}
+	if ($configArray['PFSENSE_EXCLUDE_INT'] == "") {$configArray['PFSENSE_EXCLUDE_INT'] = "[]";}
 	
     // Ignore List Syntax handling stop
 	if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
@@ -497,8 +607,12 @@ function SaveConfigFile() {
 	$config_template = "# General Settings
 # ----------------------
 PIALERT_PATH               = '" . $configArray['PIALERT_PATH'] . "'
-DB_PATH                    = " . str_replace("PIALERT_PATH + /", "PIALERT_PATH + '/", $configArray['DB_PATH']) . "'
-LOG_PATH                   = " . str_replace("PIALERT_PATH + /", "PIALERT_PATH + '/", $configArray['LOG_PATH']) . "'
+DB_PATH                    = " . (isset($configArray['DB_PATH']) && $configArray['DB_PATH'] !== '' 
+                                     ? $configArray['DB_PATH'] 
+                                     : "PIALERT_PATH + '/db/pialert.db'") . "
+LOG_PATH                   = " . (isset($configArray['LOG_PATH']) && $configArray['LOG_PATH'] !== '' 
+                                     ? $configArray['LOG_PATH'] 
+                                     : "PIALERT_PATH + '/log'") . "
 PRINT_LOG                  = " . convert_bool($configArray['PRINT_LOG']) . "
 VENDORS_DB                 = '" . $configArray['VENDORS_DB'] . "'
 PIALERT_APIKEY             = '" . $configArray['PIALERT_APIKEY'] . "'
@@ -717,7 +831,6 @@ DAYS_TO_KEEP_ONLINEHISTORY = " . $configArray['DAYS_TO_KEEP_ONLINEHISTORY'] . "
 DAYS_TO_KEEP_EVENTS        = " . $configArray['DAYS_TO_KEEP_EVENTS'] . "
 ";
 
-	copy($configfile, $laststate);
 	$newconfig = fopen($configfile, 'w');
 	fwrite($newconfig, $config_template);
 	fclose($newconfig);
