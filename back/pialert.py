@@ -606,6 +606,7 @@ def NewVersion_FrontendNotification(newVersion,update_notes):
     if newVersion == True:
         if not os.path.exists(file_path):
             print("    Create Frontend Notification.")
+            os.system('/usr/bin/python3 ' + PIALERT_BACK_PATH + '/pialert_reporting_test.py update_notification')
         else:
             print("    Update Frontend Notification.")
         with open(file_path, 'w') as file:

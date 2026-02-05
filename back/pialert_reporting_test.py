@@ -71,6 +71,8 @@ def main():
     ## Main Commands
     if cycle == 'reporting_test':
         res = sending_notifications_test('Test')
+    elif cycle == 'update_notification':
+        res = sending_notifications_test('Update')
     elif cycle == 'reporting_starttimer':
         res = sending_notifications_test('noti_Timerstart')
     elif cycle == 'reporting_stoptimer':
@@ -99,6 +101,8 @@ def set_reports_file_permissions():
 def sending_notifications_test(_Mode):
     if _Mode == 'Test' :
         notiMessage = "Test-Notification"
+    elif _Mode == 'Update' :
+        notiMessage = "Update-Notification\n\nA new Version of Pi.Alert is available."
     elif _Mode == 'noti_Timerstart' :
         notiMessage = "Pi.Alert is paused"
     elif _Mode == 'noti_Timerstop' :
