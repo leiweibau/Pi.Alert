@@ -606,6 +606,7 @@ def NewVersion_FrontendNotification(newVersion,update_notes):
     if newVersion == True:
         if not os.path.exists(file_path):
             print("    Create Frontend Notification.")
+            os.system('/usr/bin/python3 ' + PIALERT_BACK_PATH + '/pialert_reporting_test.py update_notification')
         else:
             print("    Update Frontend Notification.")
         with open(file_path, 'w') as file:
@@ -2155,6 +2156,24 @@ def process_satellites(satellite_list):
                                               Sat_MAC, Sat_IP, Sat_Name, Sat_Vendor, Sat_ScanMethod, Sat_Token)
                                               VALUES (?, ?, ?, ?, ?, ?)""",
                                               (sat_MAC, sat_IP, sat_hostname, sat_Vendor, sat_ScanMethod, sat_ScanSource))
+
+                    # Satellite WAN IP
+                    if result['cur_ScanMethod'] == 'Internet Check':
+                        sat_MAC = result['cur_MAC']
+                        sat_IP = result['cur_IP']
+                        sat_hostname = "Satellite - Internet (" + satellite_meta_data['hostname'] + ")"
+                        sat_Vendor = ""
+                        sat_ScanMethod = result['cur_ScanMethod']
+                        sat_ScanSource = result['cur_SatelliteID']                
+
+                        sql.execute("""SELECT 1 FROM Satellites_Network WHERE Sat_MAC = ?""", (sat_MAC,))
+                        if sql.fetchone() is None:
+                            sql.execute("""INSERT INTO Satellites_Network (
+                                              Sat_MAC, Sat_IP, Sat_Name, Sat_Vendor, Sat_ScanMethod, Sat_Token)
+                                              VALUES (?, ?, ?, ?, ?, ?)""",
+                                              (sat_MAC, sat_IP, sat_hostname, sat_Vendor, sat_ScanMethod, sat_ScanSource))
+
+
                     # DHCP results are saved in another table
                     if result['cur_ScanMethod'] == 'Pi-hole DHCP':
                         # skip lo interface if present
@@ -2963,6 +2982,9 @@ def insert_events():
     #                   AND dev_ScanCycle = ?
     #                   AND dev_LastIP <> cur_IP """,
     #                 (startTime, cycle) )
+
+    # WHEN cur_MAC = 'Internet'
+
     sql.execute ("""
         INSERT INTO Events (
             eve_MAC, eve_IP, eve_DateTime,
@@ -2974,12 +2996,12 @@ def insert_events():
             cur_IP,
             ?,
             CASE
-                WHEN cur_MAC = 'Internet'
+                WHEN cur_MAC LIKE 'Internet%'
                     THEN 'Internet IP Changed'
                 ELSE 'IP Changed'
             END,
             CASE
-                WHEN cur_MAC = 'Internet'
+                WHEN cur_MAC LIKE 'Internet%'
                     THEN 'Previous Internet IP: ' || dev_LastIP
                 ELSE 'Previous IP: ' || dev_LastIP
             END,
@@ -3047,7 +3069,6 @@ def update_devices_data_from_scan():
                                  WHERE dev_MAC = cur_MAC
                                    AND dev_ScanCycle = cur_ScanCycle)""",
                 (cycle,))
-
 
     # Pi-hole Network - Update (unknown) Name
     print_log ('Update devices - 4 Unknown Name')
@@ -4804,8 +4825,9 @@ def email_reporting():
         '  <td style="font-size: 24px; color:#D02020"> {} </td>'+ \
         '  <td> {} </td></tr>\n'
 
+    # WHERE eve_PendingAlertEmail = 1 AND eve_MAC = 'Internet'
     sql.execute ("""SELECT * FROM Events
-                    WHERE eve_PendingAlertEmail = 1 AND eve_MAC = 'Internet'
+                    WHERE eve_PendingAlertEmail = 1 AND eve_MAC LIKE 'Internet%'
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :

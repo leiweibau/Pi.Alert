@@ -99,7 +99,12 @@ insert_back_button();
                 <i class="fa-regular fa-circle-question"></i>
               </a>
           </li>
-          <li><div class="a navbar-servertime"><?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span></div></li>
+          <li>
+            <div class="a navbar-servertime">
+              <?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span><br>
+              <span id="nextscancountdown"></span>
+            </div>
+          </li>
           <!-- Header right info -->
           <li class="dropdown user user-menu">
             <!-- Menu Toggle Button -->
@@ -158,8 +163,8 @@ insert_back_button();
           <a href="systeminfo.php">
             <div class="systemstatusbox" style="font-size: smaller; margin-top:10px;">
 <?php
-arpscanstatus();
-echo '<span id="status"><i class="fa fa-w fa-circle text-' . $_SESSION['arpscan_sidebarstate_light'] . '"></i> ' . $_SESSION['arpscan_sidebarstate'] . '&nbsp;&nbsp;</span><br>';
+$MainScanStatus = scanstatus();
+echo '<span id="status"><i class="fa fa-w fa-circle text-' . $MainScanStatus['sidebar_light'] . '"></i> ' . $MainScanStatus['sidebar_state'] . '&nbsp;&nbsp;</span><br>';
 format_sysloadavg(sys_getloadavg());
 echo '<br>';
 format_MemUsage(getMemUsage());

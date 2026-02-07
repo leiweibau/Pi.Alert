@@ -139,7 +139,16 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 			if (stristr($line, "MAC:")) {
 				// edit MAC line - add link
 				$tempmac = explode(": ", $line);
-				$webgui_report .= "\tMAC: <a href=\"./deviceDetails.php?mac=" . $tempmac[1] . "\">" . $tempmac[1] . "</a>";
+				$mac_full = $tempmac[1];
+				$mac_text = $mac_full;
+				if (strpos(trim($mac_full), 'Internet') === 0) {
+				    if (strlen($mac_full) > 22) {
+				        $mac_text = substr($mac_full, 0, 22) . "...\n";
+				    } else {
+				        $mac_text = "Internet\n";
+				    }
+				}
+				$webgui_report .= "\tMAC: <a href=\"./deviceDetails.php?mac=" . $mac_full . "\">" . $mac_text . "</a>";
 			} elseif (stristr($line, "Service:")) {
 				// edit Service line - add link
 				$tempmac = explode(": ", $line);

@@ -31,11 +31,11 @@
         <h4 id="modal-warning-title" class="modal-title"> Modal Title </h4>
       </div>
 
-      <div id="modal-warning-message" class="modal-body"> Modal message </div>
+      <div id="modal-warning-message" class="modal-body" style="font-size: 16px;"> Modal message </div>
 
       <div class="modal-footer">
         <button id="modal-warning-cancel" type="button" class="btn btn-outline pull-left" style="min-width: 80px;" data-dismiss="modal">       Cancel </button>
-        <button id="modal-warning-OK"     type="button" class="btn btn-outline"           style="min-width: 80px;" onclick="modalWarningOK()"> OK     </button>
+        <button id="modal-warning-OK"     type="button" class="btn btn-danger"           style="min-width: 80px;" onclick="modalWarningOK()"> OK     </button>
       </div>
 
     </div>

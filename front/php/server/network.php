@@ -63,10 +63,22 @@ function network_device_downlink() {
 	$special_dev = array("Router", "Switch", "AP", "Access Point");
 
 	if (in_array($node_typ, $special_dev)) {
-		$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet" ORDER BY "dev_DeviceType" ASC';
+		// $func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet" ORDER BY "dev_DeviceType" ASC';
+		$func_sql = 'SELECT *
+				FROM "Devices"
+				WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point")
+				   OR "dev_MAC" LIKE "Internet%"
+				ORDER BY "dev_DeviceType" ASC';
 		$value_seperator = ',';
 	} else {
-		$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" NOT IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet" ORDER BY "dev_Name" ASC';
+		// $func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" NOT IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet" ORDER BY "dev_Name" ASC';
+		$func_sql = 'SELECT *
+				FROM "Devices"
+				WHERE (
+				        "dev_DeviceType" NOT IN ("Router", "Switch", "AP", "Access Point")
+				      )
+				   OR "dev_MAC" LIKE "Internet%"
+				ORDER BY "dev_Name" ASC';
 		$value_seperator = ';';
 	}
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
@@ -79,7 +91,7 @@ function network_device_downlink() {
 
 function NetworkInfrastructure_list() {
 	global $db;
-	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point", "Hypervisor") OR "dev_MAC" = "Internet"';
+	$func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point", "Hypervisor") OR "dev_MAC" LIKE "Internet%" ORDER BY "dev_Name" ASC';
 
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {

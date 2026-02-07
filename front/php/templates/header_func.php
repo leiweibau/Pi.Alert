@@ -43,21 +43,56 @@ function calc_header_size($header_all, $header_selected) {
 		];
 	}
 }
-
-// Maintenance Page - Pause Arp Scan Section
-function arpscanstatus() {
+// Maintenance Page - Pause Scan Section
+function scanstatus() {
 	global $pia_lang;
-	if (!file_exists('../config/setting_stoppialert')) {
-		unset($_SESSION['arpscan_timerstart']);
-		$_SESSION['arpscan_result'] = '<span id="arpproccounter"></span> ' . $pia_lang['MT_arp_status_on'] . ' <div id="nextscancountdown" style="display: inline-block;"></div>';
-		$_SESSION['arpscan_sidebarstate'] = 'Active';
-		$_SESSION['arpscan_sidebarstate_light'] = 'green-light fa-gradient-green';
+
+	$status = [
+		'result_html'   => '',
+		'sidebar_state' => '',
+		'sidebar_light' => '',
+		'timer_start'   => null,
+		'timer_output'  => '',
+		'timer_length'  => 0, // Defaultwert
+	];
+
+	$settingFile = '../config/setting_stoppialert';
+
+	if (!file_exists($settingFile)) {
+		// Datei existiert nicht, alles normal
+		$status['result_html'] =
+			'<span id="arpproccounter"></span> ' .
+			$pia_lang['MT_arp_status_on'] .
+			' <div id="nextscancountdown" style="display: inline-block;"></div>';
+		$status['sidebar_state'] = 'Active';
+		$status['sidebar_light'] = 'green-light fa-gradient-green';
+		$status['timer_output'] = '';
+		$status['timer_length'] = 0; // Defaultwert
 	} else {
-		$_SESSION['arpscan_timerstart'] = date("H:i:s", filectime('../config/setting_stoppialert'));
-		$_SESSION['arpscan_result'] = '<span style="color:red;">Pi.Alert ' . $pia_lang['MT_arp_status_off'] . '</span> <div id="nextscancountdown" style="display: none;"></div>';
-		$_SESSION['arpscan_sidebarstate'] = 'Disabled&nbsp;&nbsp;&nbsp;(' . $_SESSION['arpscan_timerstart'] . ')';
-		$_SESSION['arpscan_sidebarstate_light'] = 'red fa-gradient-red';
+		// Datei existiert, Timerwert auslesen
+		$timerStart = date("H:i:s", filectime($settingFile));
+		$status['timer_start'] = $timerStart;
+
+		$fileContent = trim(file_get_contents($settingFile));
+		if (is_numeric($fileContent)) {
+			$status['timer_length'] = (int)$fileContent;
+		} else {
+			$status['timer_length'] = 10; // Fallback
+		}
+
+		$status['result_html'] =
+			'<span style="color:red;">Pi.Alert ' .
+			$pia_lang['MT_arp_status_off'] .
+			'</span> <div id="nextscancountdown" style="display: none;"></div>';
+
+		$status['sidebar_state'] =
+			'Disabled&nbsp;&nbsp;&nbsp;(' . $timerStart . ')';
+		$status['sidebar_light'] = 'red fa-gradient-red';
+		$status['timer_output'] =
+			'<span style="color:red;">('. $timerStart .' - ' . $status['timer_length'] . ' min)</span>';
 	}
+
+	return $status;
 }
 // Sidebar - Systeminfo
 function getTemperature() {
