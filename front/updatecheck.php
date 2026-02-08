@@ -62,9 +62,18 @@ if (file_exists("auto_Update.info")) {
                 echo '<div style="display: list-item; margin-left : 2em;">' . str_replace('* ', '', $row) . '</div>';
             }
         }
+
+        if (!file_exists("/opt/pialert")) {
+            $updatecommand = 'sudo bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)&quot;';
+            $updateenv = ' (Outdated)';
+        } else {
+            $updatecommand = 'bash -c &quot;$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)&quot; -s';
+            $updateenv = '';
+        }
+
         echo '  <br><br>
                 <lable for="bashupdatecommand" class="text-red"><i>Update command:</i></lable>
-                <input id="bashupdatecommand" readonly value="bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)&quot;" style="width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;">
+                <input id="bashupdatecommand" readonly value="'.$updatecommand.'" style="width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;">
                 <br><br>
                 </div>
             </div>
