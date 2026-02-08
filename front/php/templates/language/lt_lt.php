@@ -949,6 +949,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Paleistas iš naujo';
 $pia_journ_lang['LogStr_9994'] = 'Išjungimas inicijuotas';
+$pia_journ_lang['LogStr_9998'] = 'Konfigūracijos failas neišsaugotas';
 $pia_journ_lang['LogStr_9999'] = 'Konfigūracijos failas redaguotas';
 
 ?>

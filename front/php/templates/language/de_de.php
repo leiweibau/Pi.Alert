@@ -954,6 +954,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Neustart ausgelöst';
 $pia_journ_lang['LogStr_9994'] = 'Herunterfahren ausgelöst';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurationsdatei nicht gespeichert';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsdatei bearbeitet';
 
 ?>

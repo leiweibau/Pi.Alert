@@ -952,6 +952,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Genstart udløst';
 $pia_journ_lang['LogStr_9994'] = 'Nedlukning udløst';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurationsfilen blev ikke gemt';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsfil redigeret';
 
 ?>

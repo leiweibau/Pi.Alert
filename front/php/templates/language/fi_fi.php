@@ -949,6 +949,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Uudelleenkäynnistys käynnistetty';
 $pia_journ_lang['LogStr_9994'] = 'Sammutus käynnistetty';
+$pia_journ_lang['LogStr_9998'] = 'Asetustiedostoa ei tallennettu';
 $pia_journ_lang['LogStr_9999'] = 'Asetustiedostoa muokattu';
 
 ?>

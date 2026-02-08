@@ -953,6 +953,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Wykonano restart';
 $pia_journ_lang['LogStr_9994'] = 'Wykonano wyłączenie';
+$pia_journ_lang['LogStr_9998'] = 'Plik konfiguracyjny nie został zapisany';
 $pia_journ_lang['LogStr_9999'] = 'Plik konfiguracyjny został edytowany';
 
 ?>

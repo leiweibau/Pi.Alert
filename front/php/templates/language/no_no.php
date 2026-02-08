@@ -949,6 +949,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Omstart utløst';
 $pia_journ_lang['LogStr_9994'] = 'Avslutting utløst';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurasjonsfilen ble ikke lagret';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurasjonsfil redigert';
 
 ?>
