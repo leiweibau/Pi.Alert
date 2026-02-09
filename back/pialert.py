@@ -4819,9 +4819,9 @@ def email_reporting():
     mail_section_Internet = False
     mail_text_Internet = ''
     mail_html_Internet = ''
-    text_line_template = '{} \t{}\t{}\t{}\n'
+    text_line_template = '{}\n\tEvent:\t{}\n\tTime:\t{}\n\tIP:\t{}\n\tInfo:\t{}\n'
     html_line_template = '<tr>\n'+ \
-        '  <td> <a href="{}{}"> {} </a> </td><td> {} </td>'+ \
+        '  <td> <a href="{}{}"> {} </a> </td><td> {} </td><td> {} </td>'+ \
         '  <td style="font-size: 24px; color:#D02020"> {} </td>'+ \
         '  <td> {} </td></tr>\n'
 
@@ -4831,12 +4831,17 @@ def email_reporting():
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :
+        # Trim internet device name
+        event_mac = eventAlert['eve_MAC']
+        if len(event_mac) > 20:
+            event_mac = event_mac[:20] + '...'
+
         mail_section_Internet = True
         mail_text_Internet += text_line_template.format (
-            eventAlert['eve_EventType'], eventAlert['eve_DateTime'],
+            event_mac, eventAlert['eve_EventType'], eventAlert['eve_DateTime'],
             eventAlert['eve_IP'], eventAlert['eve_AdditionalInfo'])
         mail_html_Internet += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], event_mac,
             eventAlert['eve_EventType'], eventAlert['eve_DateTime'],
             eventAlert['eve_IP'], eventAlert['eve_AdditionalInfo'])
 
