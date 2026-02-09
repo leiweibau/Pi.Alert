@@ -4819,7 +4819,7 @@ def email_reporting():
     mail_section_Internet = False
     mail_text_Internet = ''
     mail_html_Internet = ''
-    text_line_template = '{}\n\tEvent:\t{}\n\tTime:\t{}\n\tIP:\t{}\n\tInfo:\t{}\n'
+    text_line_template = '{}\n\t{}\n\t{}\n\t{}\n\t{}\n'
     html_line_template = '<tr>\n'+ \
         '  <td> <a href="{}{}"> {} </a> </td><td> {} </td><td> {} </td>'+ \
         '  <td style="font-size: 24px; color:#D02020"> {} </td>'+ \
