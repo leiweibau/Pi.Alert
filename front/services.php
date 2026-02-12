@@ -498,7 +498,7 @@ $(document).ready(function() {
         scrollY: '120px',
         scrollX: true,
         scrollCollapse: false,
-        paging: true
+        paging: false
     });
 
 	setInterval(function() {
