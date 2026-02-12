@@ -907,8 +907,22 @@ EOM
       \"Logfile\" BLOB,
       PRIMARY KEY(\"ScanDate\")
     );"
-
-
+    # Index on Services_Events
+    echo -e "...Create index on Services_Events (DateTime)"
+    sqlite3 "$PIA_DB_FILE" "CREATE INDEX IF NOT EXISTS \"idx_services_events_datetime\"
+    ON \"Services_Events\" (\"moneve_DateTime\");"
+    
+    # Services_Events_Journal
+    echo -e "...Insert new table 'Services_Events_Journal' to DB"
+    sqlite3 "$PIA_DB_FILE" "CREATE TABLE IF NOT EXISTS \"Services_Events_Journal\" (
+      \"monevj_URL\" TEXT NOT NULL,
+      \"monevj_DateTime\" TEXT NOT NULL,
+      \"monevj_Additional_Info\" TEXT
+    );"
+    # Index on Services_Events_Journal
+    echo -e "...Create index on Services_Events_Journal (URL + DateTime)"
+    sqlite3 "$PIA_DB_FILE" "CREATE INDEX IF NOT EXISTS \"idx_Services_Events_Journal_URL_DateTime\"
+    ON \"Services_Events_Journal\" (\"monevj_URL\", \"monevj_DateTime\" DESC);"
 
     echo -e "\nUpdate finished!\n"
 

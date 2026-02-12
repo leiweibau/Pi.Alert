@@ -58,9 +58,40 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'DeleteAllWebServices':DeleteAllWebServices();
 		break;
+	case 'getServicesJournal':getServicesJournal();
+        break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function getServicesJournal() {
+    global $db;
+
+    header('Content-Type: application/json');
+
+    $data = [];
+
+    $sql = "
+        SELECT 
+            monevj_URL,
+            monevj_DateTime,
+            monevj_Additional_Info
+        FROM Services_Events_Journal
+        ORDER BY datetime(monevj_DateTime) DESC
+        LIMIT 50
+    ";
+
+    $result = $db->query($sql);
+
+    if ($result) {
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+    }
+
+    echo json_encode($data);
+    exit;
 }
 
 //  Delete all devices

@@ -666,18 +666,13 @@ function initializeDatatable () {
     searching     : false,
     info          : false,
     lengthChange  : false,
-
     ordering      : true,
     order         : [[0, "desc"], [3, "desc"], [5, "desc"]],
-
     scrollY       : '310',
     scrollX       : true,
     scrollCollapse: true,
-
     autoWidth     : false,
-
     pageLength    : 50,
-
     columnDefs: [
       { visible: false, targets: [0,2,5,6,7,8,10,11] },
       {targets: [1],
@@ -708,7 +703,6 @@ function initializeDatatable () {
         }
       }
     ],
-
     processing : true,
     language: {
       processing : '<i class="ion ion-ios-sync fa-spin fa-2x"></i>',

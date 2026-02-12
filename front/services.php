@@ -369,12 +369,31 @@ function get_service_from_unique_device($func_unique_device) {
 
     <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
+
+<!-- 
+===============================================================================
+ Start rendering page data
+=============================================================================== 
+-->
+
+	<div class="box" style="height: 210px;">
+<!--         <div class="box-header with-border">
+          <h3 class="box-title">All Services Journal</h3>
+        </div> -->
+		<div class="box-body">
+		    <table id="servicesJournalTable" class="table table-bordered table-striped overflow" width="100%">
+		        <thead>
+		            <tr>
+		                <th><?=$pia_lang['EVE_TableHead_Date']?></th>
+		                <th><?=$pia_lang['WEBS_label_URL']?></th>
+		                <th><?=$pia_lang['EVE_TableHead_AdditionalInfo']?></th>
+		            </tr>
+		        </thead>
+		    </table>
+		</div>
+    </div>
+
 <?php
-
-// ===============================================================================
-// Start rendering page data
-// ===============================================================================
-
 // Load http status code in array
 $http_status_code = open_http_status_code_json();
 // Get a array of device with monitored URLs
@@ -435,10 +454,57 @@ if ($count_standalone > 0) {
 <?php
 require 'php/templates/footer.php';
 ?>
+<link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+<script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
 <script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
 <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
 <script>
+
+$(document).ready(function() {
+    $('#servicesJournalTable').DataTable({
+        ajax: {
+            url: 'php/server/services.php?action=getServicesJournal',
+            type: 'GET',
+            dataSrc: ''  // <- Root Array
+        },
+        searching    : false,
+        lengthChange : false,
+        pageLength: 10,
+        order: [[0, 'desc']],
+        columns: [
+            { data: 'monevj_DateTime' },
+            { 
+                data: 'monevj_URL',
+                render: function(data, type, row, meta) {
+
+                    if (type === 'display') {
+
+                        let encodedUrl = encodeURIComponent(data);
+
+                        return `
+                            <a href="./serviceDetails.php?url=${encodedUrl}">
+                                ${data}
+                            </a>
+                            &nbsp;
+                            <a href="${data}" target="_blank" data-toggle="tooltip" title="Open service">
+                                <i class="fa fa-external-link-alt text-red"></i>
+                            </a>
+                        `;
+                    }
+
+                    return data;
+                }
+            },
+            { data: 'monevj_Additional_Info' }
+        ],
+        scrollY: '120px',
+        scrollX       : true,
+        scrollCollapse: false,
+        paging: true
+    });
+});
 
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()

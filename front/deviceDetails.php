@@ -1143,7 +1143,6 @@ function initializeCalendar () {
         buttonText         : '<?=$pia_lang['PRE_CalHead_year'];?>',
         columnHeaderFormat : ''
       },
-
       agendaMonth: {
         type               : 'agenda',
         duration           : { month: 1 },

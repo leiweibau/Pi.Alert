@@ -1002,11 +1002,6 @@ function initializeDatatable () {
             case 'Off-line':  color='transparent';         break;
             default:          color='transparent';         break;
           };
-        	// if (rowData[11] == "Internet") {
-        	// 	$(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="text-danger">'+ cellData +'</a></b>');
-        	// } else {
-            // $(td).html ('<b><a href="deviceDetails.php?mac='+ rowData[11] +'" class="">'+ cellData +'</a></b>');
-        	// }
 			if (rowData[11].startsWith("Internet")) {
 			    $(td).html(
 			        '<b><a href="deviceDetails.php?mac=' + rowData[11] +
@@ -1018,7 +1013,6 @@ function initializeDatatable () {
 			        '" class="">' + cellData + '</a></b>'
 			    );
 			}
-
 
           let tableWidth = $("#tableDevices").outerWidth();
           let viewportWidth = $(window).width() - 50;
