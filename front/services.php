@@ -463,26 +463,23 @@ require 'php/templates/footer.php';
 <script>
 
 $(document).ready(function() {
-    $('#servicesJournalTable').DataTable({
+    var table = $('#servicesJournalTable').DataTable({
         ajax: {
             url: 'php/server/services.php?action=getServicesJournal',
             type: 'GET',
-            dataSrc: ''  // <- Root Array
+            dataSrc: ''
         },
         searching    : false,
         lengthChange : false,
-        pageLength: 10,
-        order: [[0, 'desc']],
+        pageLength   : 10,
+        order        : [[0, 'desc']],
         columns: [
             { data: 'monevj_DateTime' },
             { 
                 data: 'monevj_URL',
                 render: function(data, type, row, meta) {
-
                     if (type === 'display') {
-
-                        let encodedUrl = encodeURIComponent(data);
-
+                        var encodedUrl = encodeURIComponent(data);
                         return `
                             <a href="./serviceDetails.php?url=${encodedUrl}">
                                 ${data}
@@ -493,22 +490,22 @@ $(document).ready(function() {
                             </a>
                         `;
                     }
-
                     return data;
                 }
             },
             { data: 'monevj_Additional_Info' }
         ],
         scrollY: '120px',
-        scrollX       : true,
+        scrollX: true,
         scrollCollapse: false,
         paging: true
     });
-});
 
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+	setInterval(function() {
+	    table.ajax.reload(null, true);
+	}, 30000);
+
+});
 
 initializeiCheck();
 
