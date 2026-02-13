@@ -770,7 +770,7 @@ def check_IP_format(pIP):
 def cleanup_database():
     openDB()
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_EVENTS) + ' days:')
-    print('    Events')
+    print('    Devices Events')
 
     sql.execute("SELECT COUNT(*) FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
     count = sql.fetchone()[0]
@@ -807,6 +807,9 @@ def cleanup_database():
     print('\nTrim Journal to the lastest 1000 entries')
     sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
 
+    print('\nTrim Services Events Journal to the lastest 500 entries')
+    sql.execute("DELETE FROM Services_Events_Journal WHERE monevj_DateTime NOT IN (SELECT monevj_DateTime FROM Services_Events_Journal ORDER BY monevj_DateTime DESC LIMIT 500) AND (SELECT COUNT(*) FROM Services_Events_Journal) > 500")
+
     print('\nShrink Database...')
     sql.execute("VACUUM;")
     sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
@@ -817,8 +820,6 @@ def cleanup_database():
     sys.stdout.flush()
     sys.stderr.flush()
     command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "cleanup"]
-    # output = subprocess.check_output(command, text=True)
-
     subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr, text=True, check=True)
 
     return 0
@@ -3600,6 +3601,108 @@ def set_services_events(_moneve_URL, _moneve_DateTime, _moneve_StatusCode, _mone
     sql_connection.commit()
 
 # -----------------------------------------------------------------------------
+def set_services_events_journal(_monevj_URL, _monevj_DateTime, _monevj_StatusCode, _monevj_Latency, _monevj_TargetIP, _monevj_ssl_fc):
+
+    # Neues Services Journal
+    sql.execute("""
+        SELECT mon_LastStatus,
+               mon_LastLatency,
+               mon_TargetIP
+        FROM Services
+        WHERE mon_URL = ?
+    """, (_monevj_URL,))
+
+    service = sql.fetchone()
+
+    # Wenn URL nicht existiert → abbrechen
+    if service is None:
+        return
+
+    mon_LastStatus, mon_LastLatency, mon_TargetIP = service
+
+    conditions_met = False
+    additional_info = []
+
+    # Latenz-Vergleich (FLOAT mit Sonderlogik)
+    if str(_monevj_Latency) != str(mon_LastLatency):
+        try:
+            current_latency = float(_monevj_Latency)
+            last_latency = float(mon_LastLatency)
+        except (TypeError, ValueError):
+            current_latency = None
+            last_latency = None
+
+        if current_latency is not None:
+
+            if current_latency == 99999999:
+                conditions_met = True
+                additional_info.append("Service unreachable")
+
+            elif last_latency == 99999999:
+                conditions_met = True
+                additional_info.append("Service reachable again")
+
+            elif last_latency is not None and last_latency > 0:
+                if current_latency >= (last_latency * 10):
+                    conditions_met = True
+                    additional_info.append(
+                        f"High latency: {current_latency:.6f}s "
+                        f"(>10x previous {last_latency:.6f}s)"
+                    )
+
+    # Status-Code Vergleich
+    if _monevj_StatusCode != mon_LastStatus:
+
+        if {mon_LastStatus, _monevj_StatusCode} != {0, 200}:
+            conditions_met = True
+            additional_info.append(
+                f"Status changed: {mon_LastStatus} → {_monevj_StatusCode}"
+            )
+
+    # Target-IP Vergleich
+    if _monevj_TargetIP != mon_TargetIP:
+
+        if (mon_TargetIP is None) != (_monevj_TargetIP is None):
+            conditions_met = True
+            additional_info.append(
+                f"IP changed: {mon_TargetIP} → {_monevj_TargetIP}"
+            )
+
+    # SSL-Flag Vergleich (Bitmask auflösen)
+    if int(_monevj_ssl_fc) > 0:
+        conditions_met = True
+        ssl_code = int(_monevj_ssl_fc)
+        additional_info = []
+
+        if ssl_code & 8:
+            additional_info.append("SSL Subject changed")
+        if ssl_code & 4:
+            additional_info.append("SSL Issuer changed")
+        if ssl_code & 2:
+            additional_info.append("SSL Valid_from changed")
+        if ssl_code & 1:
+            additional_info.append("SSL Valid_to changed")
+
+    if conditions_met:
+
+        sqlite_insert = """
+            INSERT INTO Services_Events_Journal
+            (monevj_URL,
+             monevj_DateTime,
+             monevj_Additional_Info)
+            VALUES (?, ?, ?);
+        """
+
+        table_data = (
+            _monevj_URL,
+            _monevj_DateTime,
+            " | ".join(additional_info)
+        )
+
+        sql.execute(sqlite_insert, table_data)
+        sql_connection.commit()
+
+# -----------------------------------------------------------------------------
 def set_services_current_scan(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _cur_TargetIP, _cur_ssl_info):
 
     _cur_StatusChanged = 0
@@ -3669,8 +3772,10 @@ def set_services_current_scan(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Lat
     sql.execute(sqlite_insert, table_data)
     sql_connection.commit()
 
-    return _cur_ssl_fc
-
+    # Save Journal and Events
+    set_services_events_journal(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _cur_TargetIP, _cur_ssl_fc)
+    set_services_events(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _cur_TargetIP, _cur_ssl_fc)
+    
 # -----------------------------------------------------------------------------
 def service_monitoring_log(site, status, latency):
     status_str = str(status)
@@ -3678,11 +3783,8 @@ def service_monitoring_log(site, status, latency):
     # Log status message to log file
     with open(PIALERT_WEBSERVICES_LOG, 'a') as monitor_logfile:
         monitor_logfile.write("{} |        {} |     {} | {}\n".format(strftime("%Y-%m-%d %H:%M:%S"),
-                                                status_str.zfill(3),
-                                                latency,
-                                                site
-                                                )
-                             )
+                                status_str.zfill(3), latency, site)
+        )
 
 # -----------------------------------------------------------------------------
 def check_services_health(site):
@@ -3757,7 +3859,6 @@ def get_ssl_cert_info(url, timeout=10):
                     ssl_info['Valid_to'] = f"""{cert.not_valid_after}"""
 
                 return ssl_info
-
 
     except socket.timeout:
         return "SSL certificate could not be found (Timeout)"
@@ -3988,7 +4089,7 @@ def service_monitoring():
     sql_connection.commit()
     closeDB()
     
-    print("    Check Services (New)...")
+    print("    Check Services...")
     with open(PIALERT_WEBSERVICES_LOG, 'a') as monitor_logfile:
         monitor_logfile.write("\nStart Services Monitoring\n\n Timestamp          | StatusCode | ResponseTime | URL \n-----------------------------------------------------------------\n") 
         monitor_logfile.close()
@@ -4005,11 +4106,11 @@ def service_monitoring():
             status, latency = check_services_health(site)
             site_retry = ''
             if latency == "99999999":
-                # 2. Versuch bei Fehler im ersten Durchlauf
+                # 2. Attempt in case of error in the first run
                 status, latency = check_services_health(site)
                 site_retry = '*'
                 if latency == "99999999":
-                    # 3. Versuch bei Fehler im zweiten Durchlauf
+                    # 3. Attempt in case of error in the second run
                     status, latency = check_services_health(site)
                     site_retry = '**'
 
@@ -4029,20 +4130,22 @@ def service_monitoring():
             # Speicherung der Ergebnisse in Listen/Dictionaries
             results_log.append((site + ' ' + site_retry, status, latency))
             scan_data.append((site, scantime, status, latency, domain_ip, ssl_info))
-            event_data.append((site, scantime, status, latency, domain_ip, ""))
             update_data.append((site, scantime, status, latency, domain_ip, redirect_state, ssl_info, ""))
 
         # OpenDB to save Scan Results
         openDB()
+
+        # Log-File
         for log_entry in results_log:
             service_monitoring_log(*log_entry)
 
+        # Storing the current status and determining the change since the last scan
+        # Saving the current status as a separate event for the history
+        # Write the journal from the changes identified
         for scan_entry in scan_data:
-            ssl_fc = set_services_current_scan(*scan_entry)
+            set_services_current_scan(*scan_entry)
 
-        for event_entry in event_data:
-            set_services_events(*event_entry)
-
+        # Update the services list with the current status
         for update_entry in update_data:
             set_service_update(*update_entry)
 
