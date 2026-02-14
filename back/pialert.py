@@ -3633,6 +3633,7 @@ def set_services_events_journal(_monevj_URL, _monevj_DateTime, _monevj_StatusCod
             last_latency = None
 
         if current_latency is not None:
+            print(f"general Latency check {_monevj_URL}")
 
             if current_latency == 99999999:
                 conditions_met = True
@@ -3672,7 +3673,6 @@ def set_services_events_journal(_monevj_URL, _monevj_DateTime, _monevj_StatusCod
     if int(_monevj_ssl_fc) > 0:
         conditions_met = True
         ssl_code = int(_monevj_ssl_fc)
-        additional_info = []
 
         if ssl_code & 8:
             additional_info.append("SSL Subject changed")
