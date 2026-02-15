@@ -1155,7 +1155,7 @@ function DeleteInactiveHosts() {
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0015', '', '');
 	} else {
-		echo $pia_lang['BE_Dev_DBTools_DelInactHostsError'] . '<br>' . "\n\n$sql_loop \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelInactHostsError'] . '<br>' . "\n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0014', '', '');
 	}
