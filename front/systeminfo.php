@@ -243,12 +243,12 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['proc_count'] . '</div>
 											</div>
 											<div class="row">
-											  <div class="col-sm-3 sysinfo_gerneral_a">Satellite Host:</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">Name: ' . $hostdata['hostname'] . ' / IP: ' . $hostdata['satellite_ip'] . ' / MAC: <a href="./deviceDetails.php?mac=' . $hostdata['satellite_mac'] . '">' . $hostdata['satellite_mac'] . '</a></div>
-											</div>
-											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Timezone (System):</div>
 											  <div class="col-sm-9 sysinfo_gerneral_b">"' . $hostdata['os_timezone'] . '"</div>
+											</div>
+											<div class="row">
+											  <div class="col-sm-3 sysinfo_gerneral_a">Satellite Host:</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">Name: ' . $hostdata['hostname'] . ' / IP: ' . $hostdata['satellite_ip'] . ' / MAC: <a href="./deviceDetails.php?mac=' . $hostdata['satellite_mac'] . '">' . $hostdata['satellite_mac'] . '</a></div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Proxy Mode:</div>
@@ -274,7 +274,7 @@ echo '<div class="nav-tabs-custom">
               <div class="tab-pane active" id="tab_0">
 				<div class="row">
 				  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-				  <div class="col-sm-9 sysinfo_gerneral_b">' . $stat['uptime'] . '</div>
+				  <div class="col-sm-9 sysinfo_gerneral_b text-green">' . $stat['uptime'] . '</div>
 				</div>
 				<div class="row">
 				  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
@@ -307,6 +307,14 @@ echo '<div class="nav-tabs-custom">
 				<div class="row">
 				  <div class="col-sm-3 sysinfo_gerneral_a">PHP Version:</div>
 				  <div class="col-sm-9 sysinfo_gerneral_b">'. phpversion() .'</div>
+				</div>
+				<div class="row">
+				  <div class="col-sm-3 sysinfo_gerneral_a">&nbsp;</div>
+				  <div class="col-sm-9 sysinfo_gerneral_b"></div>
+				</div>
+				<div class="row">
+				  <div class="col-sm-3 sysinfo_gerneral_a">&nbsp;</div>
+				  <div class="col-sm-9 sysinfo_gerneral_b"></div>
 				</div>
               </div>
               '.$tab_content.'

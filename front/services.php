@@ -376,7 +376,7 @@ function get_service_from_unique_device($func_unique_device) {
 =============================================================================== 
 -->
 
-	<div class="box" style="height: 210px;">
+	<div class="box" style="height: 200px;">
 <!--         <div class="box-header with-border">
           <h3 class="box-title">All Services Journal</h3>
         </div> -->
