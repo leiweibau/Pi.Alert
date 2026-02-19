@@ -3633,8 +3633,6 @@ def set_services_events_journal(_monevj_URL, _monevj_DateTime, _monevj_StatusCod
             last_latency = None
 
         if current_latency is not None:
-            print(f"general Latency check {_monevj_URL}")
-
             if current_latency == 99999999:
                 conditions_met = True
                 additional_info.append("Service unreachable")
