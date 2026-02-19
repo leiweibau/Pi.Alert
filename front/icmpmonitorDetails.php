@@ -217,7 +217,7 @@ function get_host_statistic($hostip) {
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#">
             <div class="small-box bg-aqua">
-              <div class="inner"> <h3 id="deviceStatus" class="<?=$headstatus_color?>" style="margin-left: 0em"><?=$headstatus?></h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="deviceStatus" class="<?=$headstatus_color?>" style="margin-left: 0em"><?=$headstatus?></h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_CurrentStatus'];?></p>
               </div>
               <div class="icon"> <i id="deviceStatusIcon" class="<?=$headstatus_icon?>"></i></div>
@@ -228,7 +228,7 @@ function get_host_statistic($hostip) {
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#">
             <div class="small-box bg-yellow">
-              <div class="inner"> <h3 id="eventspresence"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventspresence"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_curPresence'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-check2-square text-green-40"></i> </div>
@@ -239,7 +239,7 @@ function get_host_statistic($hostip) {
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#">
             <div  class="small-box bg-red">
-              <div class="inner"> <h3 id="eventsdown"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsdown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_DownAlerts'];?></p>
               </div>
               <div class="icon"> <i class="mdi mdi-lan-disconnect text-red-40"></i> </div>

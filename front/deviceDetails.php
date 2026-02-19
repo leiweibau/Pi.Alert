@@ -78,7 +78,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabDetails').trigger('click')">
             <div class="small-box bg-aqua">
-              <div class="inner"><h3 id="deviceStatus" style="margin-left: 0em"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceStatus" style="margin-left: 0em"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_CurrentStatus'];?></p>
               </div>
               <div class="icon"><i id="deviceStatusIcon" class=""></i></div>
@@ -89,7 +89,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabSessions').trigger('click');">
             <div class="small-box bg-green">
-              <div class="inner"><h3 id="deviceSessions"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceSessions"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_Sessions'];?></p>
               </div>
               <div class="icon"><i class="mdi mdi-lan-connect"></i></div>
@@ -100,7 +100,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabPresence').trigger('click')">
             <div  class="small-box bg-yellow">
-              <div class="inner"><h3 id="deviceEvents" style="margin-left: 0em"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceEvents" style="margin-left: 0em"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_Presence'];?></p>
               </div>
               <div id="deviceEventsIcon" class="icon"><i class="fa fa-calendar"></i></div>
@@ -111,7 +111,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabEvents').trigger('click');">
             <div  class="small-box bg-red">
-              <div class="inner"><h3 id="deviceDownAlerts"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceDownAlerts"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_DownAlerts'];?></p>
               </div>
               <div class="icon"><i class="mdi mdi-lan-disconnect"></i></div>

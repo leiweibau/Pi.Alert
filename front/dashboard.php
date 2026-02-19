@@ -991,8 +991,11 @@ function showReportModal(filename) {
 }
 // --------------------------------------------------------------------------
 function formatReportFilename(filename) {
-    // Entfernt führenden Zeitstempel: YYYYMMDD-HHMMSS_
-    return filename.replace(/^[0-9]{8}-[0-9]{6}_/, '');
+    return filename
+        // Entfernt führenden Zeitstempel: YYYYMMDD-HHMMSS_
+        .replace(/^[0-9]{8}-[0-9]{6}_/, '')
+        // Entfernt .txt oder .TXT am Ende
+        .replace(/\.txt$/i, '');
 }
 // --------------------------------------------------------------------------
 function refreshEventsTable() {

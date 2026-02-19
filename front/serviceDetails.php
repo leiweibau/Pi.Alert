@@ -287,7 +287,7 @@ function get_service_statistic($service) {
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=all" onclick="javascript: getEventsTotalsforService('all');">
             <div class="small-box bg-aqua">
-              <div class="inner"> <h3 id="eventsAll"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsAll"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_All'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-bolt text-aqua-40"></i> </div>
@@ -298,7 +298,7 @@ function get_service_statistic($service) {
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=2" onclick="javascript: getEventsTotalsforService('2');">
             <div class="small-box bg-green">
-              <div class="inner"> <h3 id="events2xx"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="events2xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP2xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-check2-square text-green-40"></i> </div>
@@ -309,7 +309,7 @@ function get_service_statistic($service) {
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=3" onclick="javascript: getEventsTotalsforService('3');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="events3xx"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="events3xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP3xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-sign-turn-right text-yellow-40"></i> </div>
@@ -320,7 +320,7 @@ function get_service_statistic($service) {
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=4" onclick="javascript: getEventsTotalsforService('4');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="events4xx"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="events4xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP4xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-exclamation-square text-yellow-40"></i> </div>
@@ -331,7 +331,7 @@ function get_service_statistic($service) {
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=5" onclick="javascript: getEventsTotalsforService('5');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="events5xx"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="events5xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP5xx'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-database-x text-yellow-40"></i> </div>
@@ -342,7 +342,7 @@ function get_service_statistic($service) {
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=99999999" onclick="javascript: getEventsTotalsforService('99999999');">
             <div  class="small-box bg-red">
-              <div class="inner"> <h3 id="eventsDown"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_Down'];?></p>
               </div>
               <div class="icon"> <i class="bi bi-exclamation-diamond-fill text-red-40"></i> </div>

@@ -439,7 +439,7 @@ function header_icmp_all($visibility, $header_all, $header_selected) {
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
         	<a href="#" onclick="javascript: getDevicesList(\'all\');">
           <div class="small-box bg-aqua">
-            <div class="inner"><h3 id="devicesAll"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_AllDevices'].'</p></div>
+            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesAll"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_AllDevices'].'</p></div>
             <div class="icon"><i class="fa fa-laptop text-aqua-40"></i></div>
           </div>
         </a>
@@ -452,7 +452,7 @@ function header_icmp_con($visibility, $header_all, $header_selected) {
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'connected\');">
           <div class="small-box bg-green">
-            <div class="inner"><h3 id="devicesConnected"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Connected'].'</p></div>
+            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesConnected"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Connected'].'</p></div>
             <div class="icon"><i class="mdi mdi-lan-connect text-green-40"></i></div>
           </div>
           </a>
@@ -465,7 +465,7 @@ function header_icmp_fav($visibility, $header_all, $header_selected) {
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'favorites\');">
           <div class="small-box bg-yellow">
-            <div class="inner"><h3 id="devicesFavorites"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Favorites'].'</p></div>
+            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesFavorites"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Favorites'].'</p></div>
             <div class="icon"><i class="fa fa-star text-yellow-40"></i></div>
           </div>
           </a>
@@ -478,7 +478,7 @@ function header_icmp_dnw($visibility, $header_all, $header_selected) {
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'down\');">
           <div class="small-box bg-red">
-            <div class="inner"><h3 id="devicesDown"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_DownAlerts'].'</p></div>
+            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesDown"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_DownAlerts'].'</p></div>
             <div class="icon"><i class="mdi mdi-lan-disconnect text-red-40"></i></div>
           </div>
           </a>
@@ -491,7 +491,7 @@ function header_icmp_arc($visibility, $header_all, $header_selected) {
 	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
           <a href="#" onclick="javascript: getDevicesList(\'archived\');">
           <div class="small-box bg-gray top_small_box_gray_text">
-            <div class="inner"><h3 id="devicesArchived"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Archived'].'</p></div>
+            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesArchived"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Archived'].'</p></div>
             <div class="icon"><i class="fa fa-eye-slash text-gray-40"></i></div>
           </div>
           </a>
