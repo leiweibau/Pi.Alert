@@ -9,7 +9,7 @@ To make it clearer how this version differs from the original project, I made th
 |  | Journal (Frontend/Backend) | 🟢 | 🔴 |
 | **Scans / Imports** | Scan-Methodes | arp-scan, nmap, ping | arp-scan |
 |  | Import-Methodes | Pi-hole 5.x / 6.x, dnsmasq,<br>Fritz!Box, Microtik, UniFi,<br>Asus Router, OpenWRT, pfSense | Pi-hole 5.x, dnsmasq |
-|  | Accuracy (arp-scan) | 1 cycle every 5 min with 6 retries | 1 cycle every 5 min with 6 retries<br>1 cycle every 15 min with viel mehr retries |
+|  | Accuracy (arp-scan) | 1 cycle every 5 min with 6 retries | 1 cycle every 5 min with 6 retries<br>1 cycle every 15 min with much more retries |
 |  | Hostname detection | DNS<br>mDNS<br>NetBIOS | DNS |
 |  | Web Services / Monitoring | 🟢 | 🔴 |
 |  | ICMP Monitoring (ping) | 🟢 | 🔴 |
