@@ -41,7 +41,7 @@ require 'php/server/journal.php';
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getEvents('all');">
             <div class="small-box bg-aqua">
-              <div class="inner"> <h3 id="eventsAll"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsAll"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_AllEvents'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-bolt text-aqua-40"></i> </div>
@@ -52,7 +52,7 @@ require 'php/server/journal.php';
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getEvents('sessions');">
             <div class="small-box bg-green">
-              <div class="inner"> <h3 id="eventsSessions"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsSessions"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_Sessions'];?></p>
               </div>
               <div class="icon"> <i class="mdi mdi-lan-connect text-green-40"></i> </div>
@@ -63,7 +63,7 @@ require 'php/server/journal.php';
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getEvents('missing');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="eventsMissing"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsMissing"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_MissSessions'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-exchange text-yellow-40"></i> </div>
@@ -74,7 +74,7 @@ require 'php/server/journal.php';
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getEvents('voided');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="eventsVoided"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsVoided"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_VoidSessions'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-exclamation-circle text-yellow-40"></i> </div>
@@ -85,7 +85,7 @@ require 'php/server/journal.php';
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getEvents('new');">
             <div  class="small-box bg-yellow">
-              <div class="inner"> <h3 id="eventsNewDevices"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsNewDevices"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_NewDevices'];?></p>
               </div>
               <div class="icon"> <i class="fa fa-plus text-yellow-40"></i> </div>
@@ -96,7 +96,7 @@ require 'php/server/journal.php';
         <div class="col-lg-2 col-sm-4 col-xs-6">
           <a href="#" onclick="javascript: getEvents('down');">
             <div  class="small-box bg-red">
-              <div class="inner"> <h3 id="eventsDown"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_DownAlerts'];?></p>
               </div>
               <div class="icon"> <i class="mdi mdi-lan-disconnect text-red-40"></i> </div>
