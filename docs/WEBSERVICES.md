@@ -50,7 +50,7 @@ In addition, this page also shows you the current information from the SSL certi
 
 A code "12" therefore means changes in the fields "Subject" and "Issuer", a code "11" means changes in the fields "Subject", "Valid from" and "Valid to". After the change is detected, the fields are updated accordingly and the code "0" appears again in the following scan. There is no notification for the change back to code "0".
 
-In addition to the display of individual web services with corresponding details pages, there is also a “general journal” at the top that covers all web services. This journal contains the 50 most recent entries and has a total length of 500 entries. It is automatically shortened to the 500 most recent entries by the database maintenance task. In the journal, for example, the SSL status code is resolved again to provide a better overview of the changes. In addition, messages about unusually high latencies are also provided here. Of course, HTTP status code changes and down/up events are also listed here.
+In addition to displaying individual web services with corresponding detail pages, there is also a “general journal” at the top that covers all web services. This journal contains the 50 newest entries and has a total length of 500 entries. It is automatically shortened to the 500 newest entries by the database maintenance task. In the journal, for example, the SSL status code is resolved again to provide a better overview of the changes. In addition, messages about unusually high latencies are also provided here. Of course, changes to the HTTP status code and failure/recovery events are also listed here.
 
 ![WSM servicejournal][wsm_servicejournal]
 
