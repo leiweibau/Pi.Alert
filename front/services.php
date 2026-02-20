@@ -381,7 +381,7 @@ function get_service_from_unique_device($func_unique_device) {
           <h3 class="box-title">All Services Journal</h3>
         </div> -->
 		<div class="box-body">
-		    <table id="servicesJournalTable" class="table table-bordered table-striped overflow" width="100%">
+		    <table id="servicesJournalTable" class="table table-bordered table-hover table-striped overflow" width="100%">
 		        <thead>
 		            <tr>
 		                <th><?=$pia_lang['EVE_TableHead_Date']?></th>
