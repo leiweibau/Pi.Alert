@@ -1,3 +1,4 @@
+@charset "UTF-8";
 table.dataTable {
   clear: both;
   margin-top: 6px !important;
@@ -92,20 +93,22 @@ table.dataTable thead .sorting_desc_disabled:after {
   bottom: 8px;
   right: 8px;
   display: block;
-  font-family: 'Glyphicons Halflings';
+  font-family: "Glyphicons Halflings";
   opacity: 0.5;
 }
 table.dataTable thead .sorting:after {
   opacity: 0.2;
-  content: "\e150";
+  content: "";
   /* sort */
 }
 table.dataTable thead .sorting_asc:after {
-  content: "\e155";
+  opacity: 0.5;
+  content: "";
   /* sort-by-attributes */
 }
 table.dataTable thead .sorting_desc:after {
-  content: "\e156";
+  opacity: 0.5;
+  content: "";
   /* sort-by-attributes-alt */
 }
 table.dataTable thead .sorting_asc_disabled:after,
@@ -142,9 +145,9 @@ div.dataTables_scrollFoot > .dataTables_scrollFootInner > table {
 
 @media screen and (max-width: 767px) {
   div.dataTables_wrapper div.dataTables_length,
-  div.dataTables_wrapper div.dataTables_filter,
-  div.dataTables_wrapper div.dataTables_info,
-  div.dataTables_wrapper div.dataTables_paginate {
+div.dataTables_wrapper div.dataTables_filter,
+div.dataTables_wrapper div.dataTables_info,
+div.dataTables_wrapper div.dataTables_paginate {
     text-align: center;
   }
 }
@@ -182,9 +185,9 @@ div.dataTables_scrollHead table.table-bordered {
 div.table-responsive > div.dataTables_wrapper > div.row {
   margin: 0;
 }
-div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:first-child {
+div.table-responsive > div.dataTables_wrapper > div.row > div[class^=col-]:first-child {
   padding-left: 0;
 }
-div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:last-child {
+div.table-responsive > div.dataTables_wrapper > div.row > div[class^=col-]:last-child {
   padding-right: 0;
 }
