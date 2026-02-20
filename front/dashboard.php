@@ -635,7 +635,7 @@ function renderSpeedtestChart(data) {
                             if (!month || !day) return label;
 
                             const time = timePart.substring(0,5); // HH:MM, Sekunden entfernen
-                            return month + '.' + day + ' ' + time;
+                            return [month + '.' + day + '.', time];
                         }
                     }
                 },
