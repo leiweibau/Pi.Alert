@@ -530,7 +530,7 @@ get_icmphost_events_table($hostip, $icmpfilter);
                 <h4 class="text-aqua" style="font-size: 18px; margin: 0; line-height: 1; margin-bottom: 20px;"><?=$pia_lang['WEBS_Chart_a'];?> <span class="maxlogage-interval">24</span> <?=$pia_lang['WEBS_Chart_b'];?></h4>
                 <div class="col-md-12">
                   <div class="chart" style="height: 150px;">
-                    <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
+                    <script src="lib/AdminLTE/bower_components/chart.js/chart.js"></script>
                     <canvas id="ServiceChart"></canvas>
                   </div>
                 </div>

@@ -522,7 +522,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
               </div>
               <div class="box-body">
                 <div class="chart">
-                  <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
+                  <script src="lib/AdminLTE/bower_components/chart.js/chart.js"></script>
                   <canvas id="OnlineChart" style="width:100%; height: 150px;  margin-bottom: 15px;"></canvas>
                 </div>
               </div>

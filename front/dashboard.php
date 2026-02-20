@@ -91,7 +91,7 @@ if (file_exists('../config/setting_piholebutton')) {
 if ($ENABLED_DARKMODE === True) {echo '<link rel="stylesheet" href="css/dark-patch.css?' . $conf_data['VERSION_DATE'] . '">';} else {$wrapper_color = 'style="background-color:white"';}
 if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 ?>
-    <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
+    <script src="lib/AdminLTE/bower_components/chart.js/chart.js"></script>
     <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
     <script src="lib/AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
@@ -569,15 +569,15 @@ function loadSpeedtestChart(days)
     });
 }
 // --------------------------------------------------------------------------
-function renderSpeedtestChart(data)
-{
+function renderSpeedtestChart(data) {
     const ctx = document.getElementById('speedtestChart').getContext('2d');
 
-    if (speedtestChart) {
-        speedtestChart.destroy();
+    // Sicherstellen, dass destroy nur auf existierendem Chart-Objekt aufgerufen wird
+    if (window.speedtestChart instanceof Chart) {
+        window.speedtestChart.destroy();
     }
 
-    speedtestChart = new Chart(ctx, {
+    window.speedtestChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: data.labels,
@@ -585,7 +585,7 @@ function renderSpeedtestChart(data)
                 {
                     label: 'Ping (ms)',
                     data: data.ping,
-                    borderColor: '#3498db',   // blau
+                    borderColor: '#3498db',
                     backgroundColor: 'rgba(52,152,219,0.15)',
                     fill: false,
                     borderWidth: 1,
@@ -595,7 +595,7 @@ function renderSpeedtestChart(data)
                 {
                     label: 'Download (Mbps)',
                     data: data.down,
-                    borderColor: '#2ecc71',   // grün
+                    borderColor: '#2ecc71',
                     backgroundColor: 'rgba(46,204,113,0.15)',
                     fill: false,
                     borderWidth: 1,
@@ -605,7 +605,7 @@ function renderSpeedtestChart(data)
                 {
                     label: 'Upload (Mbps)',
                     data: data.up,
-                    borderColor: '#e74c3c',   // rot
+                    borderColor: '#e74c3c',
                     backgroundColor: 'rgba(231,76,60,0.15)',
                     fill: false,
                     borderWidth: 1,
@@ -618,42 +618,31 @@ function renderSpeedtestChart(data)
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: true
-                }
+                legend: { display: true }
             },
             scales: {
-                xAxes: [{
+                x: {
                     ticks: {
-                        callback: function (value) {
-                            if (typeof value !== 'string') {
-                                return value;
-                            }
+                        callback: function(value, index) {
+                            // value ist die Label-Zeichenkette aus data.labels
+                            const label = this.getLabelForValue(index); // echtes Label
+                            if (!label) return '';
 
-                            const parts = value.split(' ');
-                            if (parts.length !== 2) {
-                                return value;
-                            }
+                            const [datePart, timePart] = label.split(' ');
+                            if (!datePart || !timePart) return label;
 
-                            const dateParts = parts[0].split('-');
-                            if (dateParts.length !== 3) {
-                                return value;
-                            }
+                            const [year, month, day] = datePart.split('-');
+                            if (!month || !day) return label;
 
-                            const month = dateParts[1];
-                            const day   = dateParts[2];
-                            const time = parts[1].substring(0, 5); // HH:MM
-
-                            return [month + '.' + day, time];
+                            const time = timePart.substring(0,5); // HH:MM, Sekunden entfernen
+                            return month + '.' + day + ' ' + time;
                         }
                     }
-                }],
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        maxTicksLimit: 4
-                    }
-                }]
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { maxTicksLimit: 4 }
+                }
             }
         }
     });
@@ -760,86 +749,107 @@ function getLocalDeviceStatus() {
 // --------------------------------------------------------------------------
 function renderDevicesDonut(values, total) {
     const ctx = document.getElementById('devicesDonut').getContext('2d');
-    if (devicesDonutChart) {
-        devicesDonutChart.destroy();
+
+    // Vorhandenes Chart zerstören
+    if (window.devicesDonutChart) {
+        window.devicesDonutChart.destroy();
     }
 
-    devicesDonutChart = new Chart(ctx, {
+    // Plugin für Center-Text
+    const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw(chart) {
+            const cfg = chart.options.centerText;
+            if (!cfg) return;
+
+            const { ctx, chartArea: { left, right, top, bottom } } = chart;
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
+
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = cfg.color || '#888';
+
+            // obere Zeile (groß)
+            ctx.font = 'bold ' + (cfg.fontSize || 18) + 'px Arial';
+            ctx.fillText(cfg.textTop || '', centerX, centerY - 8);
+
+            // untere Zeile (klein)
+            ctx.font = 'normal ' + Math.round((cfg.fontSize || 18) * 0.6) + 'px Arial';
+            ctx.fillText(cfg.textBottom || '', centerX, centerY + 12);
+
+            ctx.restore();
+        }
+    };
+
+    // Chart erzeugen
+    window.devicesDonutChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: [
-                'Online',
-                'Offline',
-                'Archived'
-            ],
+            labels: ['Online', 'Offline', 'Archived'],
             datasets: [{
-                data: [
-                    values.online,
-                    values.offline,
-                    values.archived
-                ],
-                backgroundColor: [
-                    '#2ecc71', // Online
-                    '#e74c3c', // Offline
-                    '#95a5a6'  // Archived
-                ],
+                data: [values.online, values.offline, values.archived],
+                backgroundColor: ['#2ecc71', '#e74c3c', '#95a5a6'],
                 borderWidth: 0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutoutPercentage: 60,
+            cutout: '60%',
             centerText: {
                 textTop: total.toLocaleString(),
                 textBottom: 'Devices',
                 fontSize: 22,
                 color: '#888'
             },
-
-            legend: {
-                position: 'bottom',
-                labels: {
-                    fontSize: 12
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12 }
+                    }
                 }
             }
-        }
+        },
+        plugins: [centerTextPlugin] // Plugin lokal registrieren
     });
 }
 // --------------------------------------------------------------------------
-Chart.plugins.register({
-  beforeDraw: function (chart) {
+// Chart.plugins.register({
+//   beforeDraw: function (chart) {
 
-    if (!chart.config.options.centerText) {
-      return;
-    }
+//     if (!chart.config.options.centerText) {
+//       return;
+//     }
 
-    const ctx = chart.chart.ctx;
-    const centerConfig = chart.config.options.centerText;
-    const txtTop    = centerConfig.textTop || '';
-    const txtBottom = centerConfig.textBottom || '';
-    const fontSize  = centerConfig.fontSize || 18;
-    const fontColor = centerConfig.color || '#888';
+//     const ctx = chart.chart.ctx;
+//     const centerConfig = chart.config.options.centerText;
+//     const txtTop    = centerConfig.textTop || '';
+//     const txtBottom = centerConfig.textBottom || '';
+//     const fontSize  = centerConfig.fontSize || 18;
+//     const fontColor = centerConfig.color || '#888';
 
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = fontColor;
+//     ctx.save();
+//     ctx.textAlign = 'center';
+//     ctx.textBaseline = 'middle';
+//     ctx.fillStyle = fontColor;
 
-    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+//     const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+//     const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
 
-    // obere Zeile (groß)
-    ctx.font = 'bold ' + fontSize + 'px Arial';
-    ctx.fillText(txtTop, centerX, centerY - 8);
+//     // obere Zeile (groß)
+//     ctx.font = 'bold ' + fontSize + 'px Arial';
+//     ctx.fillText(txtTop, centerX, centerY - 8);
 
-    // untere Zeile (klein)
-    ctx.font = 'normal ' + Math.round(fontSize * 0.6) + 'px Arial';
-    ctx.fillText(txtBottom, centerX, centerY + 12);
+//     // untere Zeile (klein)
+//     ctx.font = 'normal ' + Math.round(fontSize * 0.6) + 'px Arial';
+//     ctx.fillText(txtBottom, centerX, centerY + 12);
 
-    ctx.restore();
-  }
-});
+//     ctx.restore();
+//   }
+// });
 // --------------------------------------------------------------------
 function getIcmpDeviceStatus() {
 
@@ -865,51 +875,71 @@ function getIcmpDeviceStatus() {
 // --------------------------------------------------------------------
 function renderIcmpDevicesDonut(values, total) {
     const ctx = document.getElementById('devicesDonutIcmp').getContext('2d');
-    if (devicesDonutIcmpChart) {
-        devicesDonutIcmpChart.destroy();
+
+    // Vorhandenes Chart zerstören
+    if (window.devicesDonutIcmpChart) {
+        window.devicesDonutIcmpChart.destroy();
     }
 
-    devicesDonutIcmpChart = new Chart(ctx, {
+    // Plugin für Center-Text
+    const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw(chart) {
+            const cfg = chart.options.centerText;
+            if (!cfg) return;
+
+            const { ctx, chartArea: { left, right, top, bottom } } = chart;
+            const centerX = (left + right) / 2;
+            const centerY = (top + bottom) / 2;
+
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = cfg.color || '#888';
+
+            // obere Zeile (groß)
+            ctx.font = 'bold ' + (cfg.fontSize || 18) + 'px Arial';
+            ctx.fillText(cfg.textTop || '', centerX, centerY - 8);
+
+            // untere Zeile (klein)
+            ctx.font = 'normal ' + Math.round((cfg.fontSize || 18) * 0.6) + 'px Arial';
+            ctx.fillText(cfg.textBottom || '', centerX, centerY + 12);
+
+            ctx.restore();
+        }
+    };
+
+    // Chart erzeugen
+    window.devicesDonutIcmpChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: [
-                'Online',
-                'Offline',
-                'Archived'
-            ],
+            labels: ['Online', 'Offline', 'Archived'],
             datasets: [{
-                data: [
-                    values.online,
-                    values.offline,
-                    values.archived
-                ],
-                backgroundColor: [
-                    '#2ecc71', // Online
-                    '#e74c3c', // Offline
-                    '#95a5a6'  // Archived
-                ],
+                data: [values.online, values.offline, values.archived],
+                backgroundColor: ['#2ecc71', '#e74c3c', '#95a5a6'],
                 borderWidth: 0
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutoutPercentage: 60,
-
+            cutout: '60%',
             centerText: {
                 textTop: total.toLocaleString(),
                 textBottom: 'ICMP Devices',
                 fontSize: 22,
                 color: '#888'
             },
-
-            legend: {
-                position: 'bottom',
-                labels: {
-                    fontSize: 12
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12 }
+                    }
                 }
             }
-        }
+        },
+        plugins: [centerTextPlugin] // Plugin lokal registrieren
     });
 }
 // --------------------------------------------------------------------------
@@ -1130,72 +1160,92 @@ function loadHistoryStackedChart(dataSource) {
 // --------------------------------------------------------------------------
 function loadServicesStatusDonut() {
 
-    $.getJSON(
-        'php/server/dashboard.php',
-        { action: 'getServiceStatusSummary' },
-        function (resp) {
+    $.getJSON('php/server/dashboard.php', { action: 'getServiceStatusSummary' }, function (resp) {
 
-            if (!resp || !resp.labels || !resp.data) {
-                return;
+        if (!resp || !resp.labels || !resp.data) return;
+
+        const ctx = document.getElementById('servicesStatusDonut').getContext('2d');
+
+        // Vorhandenes Chart zerstören, falls es existiert
+        if (window.servicesStatusDonutChart) {
+            window.servicesStatusDonutChart.destroy();
+        }
+
+        // Farben für die Statuslabels
+        const serviceStatusColors = {
+            'Offline': '#e74c3c',
+            '1xx':     '#3498db',
+            '2xx':     '#2ecc71',
+            '3xx':     '#f1c40f',
+            '4xx':     '#e67e22',
+            '5xx':     '#ff4c3c',
+            'Other':   '#7f8c8d'
+        };
+
+        const bgColors = resp.labels.map(lbl => serviceStatusColors[lbl] || '#7f8c8d');
+
+        const total = resp.data.reduce((sum, value) => sum + value, 0);
+
+        // Lokales Plugin für Center-Text
+        const centerTextPlugin = {
+            id: 'centerText',
+            beforeDraw(chart) {
+                const cfg = chart.options.centerText;
+                if (!cfg) return;
+
+                const { ctx, chartArea: { left, right, top, bottom } } = chart;
+                const centerX = (left + right) / 2;
+                const centerY = (top + bottom) / 2;
+
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = cfg.color || '#888';
+
+                ctx.font = 'bold ' + (cfg.fontSize || 18) + 'px Arial';
+                ctx.fillText(cfg.textTop || '', centerX, centerY - 8);
+                ctx.font = 'normal ' + Math.round((cfg.fontSize || 18) * 0.6) + 'px Arial';
+                ctx.fillText(cfg.textBottom || '', centerX, centerY + 12);
+                ctx.restore();
             }
+        };
 
-            var ctx = document
-                .getElementById('servicesStatusDonut')
-                .getContext('2d');
-
-            if (servicesStatusDonutChart) {
-                servicesStatusDonutChart.destroy();
-            }
-
-            var serviceStatusColors = {
-                'Offline': '#e74c3c',
-                '1xx':     '#3498db',
-                '2xx':     '#2ecc71',
-                '3xx':     '#f1c40f',
-                '4xx':     '#e67e22',
-                '5xx':     '#ff4c3c',
-                'Other':   '#7f8c8d'
-            };
-
-            var bgColors = resp.labels.map(function (lbl) {
-                return serviceStatusColors[lbl] || '#7f8c8d';
-            });
-
-            var total = resp.data.reduce(function (sum, value) {
-                return sum + value;
-            }, 0);
-
-            servicesStatusDonutChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: resp.labels,
-                    datasets: [{
-                        data: resp.data,
-                        backgroundColor: bgColors,
-                        borderWidth: 0
-                    }]
+        // Chart erzeugen
+        window.servicesStatusDonutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: resp.labels,
+                datasets: [{
+                    data: resp.data,
+                    backgroundColor: bgColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                centerText: {
+                    textTop: total.toLocaleString(),
+                    textBottom: 'Services',
+                    fontSize: 22,
+                    color: '#888'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutoutPercentage: 60,
-                    centerText: {
-                        textTop: total.toLocaleString(),
-                        textBottom: 'Services',
-                        fontSize: 22,
-                        color: '#888'
-                    },
+                plugins: {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            fontSize: 12
+                            font: {
+                                size: 12
+                            }
                         }
-                    },
+                    }
                 }
-            });
+            },
+            plugins: [centerTextPlugin] // Plugin lokal registrieren
+        });
 
-        }
-    );
+    });
 }
 // --------------------------------------------------------------------------
 function getReportTotalsBadge() {

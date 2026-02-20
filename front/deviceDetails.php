@@ -670,7 +670,7 @@ if ($_REQUEST['mac'] == 'Internet') {
                 <!-- Speedtest Graph -->
                 <div class="col-md-12" style="margin-bottom:20px;">
                   <div class="chart" style="height: 200px;">
-                    <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
+                    <script src="lib/AdminLTE/bower_components/chart.js/chart.js"></script>
                     <canvas id="SpeedtestChart"></canvas>
                   </div>
                 </div>
@@ -1737,14 +1737,32 @@ function showmanualnmapscan(targetip) {
     }
   })
 }
-function initToolsSection () {
-setTimeout(function(){
-   document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
-   document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtLastIP').value +')';
-   document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtLastIP').value +')';
-   document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
-   showmanualnmapscan(document.getElementById('txtLastIP').value);
-}, 1000);
+function initToolsSection() {
+    setTimeout(function() {
+        // Prüfen, ob txtLastIP existiert
+        const $txtLastIP = $('#txtLastIP');
+        if ($txtLastIP.length === 0) return; // Abbruch, wenn txtLastIP fehlt
+
+        const lastIP = $txtLastIP.val() || '';
+
+        // Elemente auswählen
+        const $manualFast   = $('#manualnmap_fast');
+        const $manualNormal = $('#manualnmap_normal');
+        const $manualDetail = $('#manualnmap_detail');
+        const $btnWake      = $('#btnwakeonlan');
+
+        // Inhalte nur setzen, wenn Element existiert
+        if ($manualFast.length)   $manualFast.text('Schneller Scan (' + lastIP + ')');
+        if ($manualNormal.length) $manualNormal.text('Standard Scan (' + lastIP + ')');
+        if ($manualDetail.length) $manualDetail.text('Detailierter Scan (' + lastIP + ')');
+        if ($btnWake.length)      $btnWake.text('Sende Wol Befehl an ' + lastIP);
+
+        // Funktion nur aufrufen, wenn lastIP existiert
+        if (lastIP) {
+            showmanualnmapscan(lastIP);
+        }
+
+    }, 1000);
 }
 
 function generateMACDropdownList() {
