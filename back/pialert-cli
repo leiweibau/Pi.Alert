@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.36'
+SCRIPTVERSION='v1.37'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -911,7 +911,7 @@ EOM
     echo -e "...Create index on Services_Events (DateTime)"
     sqlite3 "$PIA_DB_FILE" "CREATE INDEX IF NOT EXISTS \"idx_services_events_datetime\"
     ON \"Services_Events\" (\"moneve_DateTime\");"
-    
+
     # Services_Events_Journal
     echo -e "...Insert new table 'Services_Events_Journal' to DB"
     sqlite3 "$PIA_DB_FILE" "CREATE TABLE IF NOT EXISTS \"Services_Events_Journal\" (
