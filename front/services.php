@@ -377,9 +377,6 @@ function get_service_from_unique_device($func_unique_device) {
 -->
 
 	<div class="box" style="height: 200px;">
-<!--         <div class="box-header with-border">
-          <h3 class="box-title">All Services Journal</h3>
-        </div> -->
 		<div class="box-body">
 		    <table id="servicesJournalTable" class="table table-bordered table-hover table-striped overflow" width="100%">
 		        <thead>
@@ -493,8 +490,34 @@ $(document).ready(function() {
                     return data;
                 }
             },
-            { data: 'monevj_Additional_Info' }
-        ],
+            { data: 'monevj_Additional_Info',
+              render: function (data, type) {
+
+                if (type !== 'display') return data;
+
+                let text = data;
+
+                const statusMap = {
+                    "Service reachable again": "text-green",
+                    "Service unreachable": "text-red",
+                    "SSL Subject changed": "text-aqua",
+                    "SSL Issuer changed": "text-aqua",
+                    "SSL Valid_from changed": "text-aqua",
+                    "SSL Valid_to changed": "text-aqua",
+                    "High latency:": "text-yellow",
+                    "Status changed:": "text-purple"
+                };
+
+                Object.keys(statusMap).forEach(function(key) {
+                    const cssClass = statusMap[key];
+                    const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                    text = text.replace(regex,
+                        `<span class="${cssClass}">${key}</span>`);
+                });
+
+                return text;
+            } 
+        }],
         scrollY: '120px',
         scrollX: true,
         scrollCollapse: false,
