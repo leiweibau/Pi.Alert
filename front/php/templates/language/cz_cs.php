@@ -211,6 +211,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Model';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Sériové číslo';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Oblíbené';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Zobrazit v "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'Zařízení MQTT';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Skupina';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Umístění';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Poznámka';

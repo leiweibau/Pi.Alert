@@ -595,6 +595,7 @@ function setDeviceData() {
                  dev_ConnectionType       = "' . quotes($_REQUEST['connectiontype']) . '",
                  dev_LinkSpeed            = "' . quotes($_REQUEST['linkspeed']) . '",
                  dev_StaticIP             = "' . quotes($_REQUEST['staticIP']) . '",
+                 dev_MQTTDevice           = "' . quotes($_REQUEST['mqttdevice']) . '",
                  dev_ScanCycle            = "' . quotes($_REQUEST['scancycle']) . '",
                  dev_AlertEvents          = "' . quotes($_REQUEST['alertevents']) . '",
                  dev_AlertDeviceDown      = "' . quotes($_REQUEST['alertdown']) . '",

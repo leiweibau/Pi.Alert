@@ -59,8 +59,9 @@ if ($_REQUEST['mod'] == 'bulkedit') {
         </section>';
 
 	echo '<section class="content">
-        <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
-        <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">';
+          <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
+          <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
+		  <script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>';
 
 	echo '<form method="post" action="./devices.php?scansource='.$SCANSOURCE.'">
           <input type="hidden" id="mod" name="mod" value="bulkedit">
@@ -106,6 +107,9 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		if ($_REQUEST['en_bulk_PresencePage'] == 'on') {
 			if ($_REQUEST['bulk_PresencePage'] == 'on') {$set_bulk_PresencePage = 1;} else { $set_bulk_PresencePage = 0;}
 			array_push($sql_queue, 'dev_PresencePage="' . $set_bulk_PresencePage . '"');}
+		if ($_REQUEST['en_bulk_MQTTDevice'] == 'on') {
+			if ($_REQUEST['bulk_MQTTDevice'] == 'on') {$set_bulk_MQTTDevice = 1;} else { $set_bulk_MQTTDevice = 0;}
+			array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '"');}
 
 		print_box_top_element($pia_lang['Device_bulkEditor_savebox_title']);
 		// Count changed fields
@@ -120,7 +124,8 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			$sql = 'SELECT dev_Name, dev_MAC FROM Devices ORDER BY dev_Name COLLATE NOCASE ASC';
 			$results = $db->query($sql);
 			while ($row = $results->fetchArray()) {
-				if (isset($_REQUEST[$row['dev_MAC']])) {
+				$matched_mac = str_replace(" ", "_",$row['dev_MAC']);
+				if (isset($_REQUEST[$matched_mac])) {
 					// List modified devices (name)
 					$modified_hosts = $modified_hosts . $row['dev_Name'] . '; ';
 					// Build sql query and update
@@ -145,7 +150,8 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			    'set_bulk_AlertDown' => 'DevDetail_EveandAl_AlertDown',
 			    'set_bulk_NewDevice' => 'DevDetail_EveandAl_NewDevice',
 			    'set_bulk_Archived' => 'DevDetail_EveandAl_Archived',
-			    'set_bulk_PresencePage' => 'DevDetail_MainInfo_ShowPresence'
+			    'set_bulk_PresencePage' => 'DevDetail_MainInfo_ShowPresence',
+			    'set_bulk_MQTTDevice' => 'DevDetail_MainInfo_MQTTDevice'
 			];
 
 			foreach ($bulk_fields as $varName => $langKey) {
@@ -302,6 +308,14 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 				            </div>
                         </div>
 
+                         <div class="db_info_table_row">
+                            <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_MQTTDevice" name="en_bulk_MQTTDevice" type="checkbox"></div>
+                            <div class="db_tools_table_cell_b">
+				                <label for="bulk_MQTTDevice" style="width: 240px;"><?=$pia_lang['DevDetail_MainInfo_MQTTDevice']?>:</label>
+				                <input class="icheckbox_flat" id="bulk_MQTTDevice" name="bulk_MQTTDevice" type="checkbox" disabled>
+				            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -388,70 +402,80 @@ if ($_REQUEST['mod'] == 'bulkedit') {
       $("#bulk_PresencePage").prop("disabled", !bulk_PresencePage);
       bulk_PresencePage = !bulk_PresencePage;
     });
+    var bulk_MQTTDevice = true;
+    $("#en_bulk_MQTTDevice").on("click", function() {
+      $("#bulk_MQTTDevice").prop("checked", false);
+      $("#bulk_MQTTDevice").prop("disabled", !bulk_MQTTDevice);
+      bulk_MQTTDevice = !bulk_MQTTDevice;
+    });
     function setTextValue (textElement, textValue) {
       $("#"+textElement).val (textValue);
     }
-		function askBulkDeletion() {
-		  // Ask
-		  showModalWarning('<?=$pia_lang['Device_bulkDel_info_head']?>', '<?=$pia_lang['Device_bulkDel_info_text']?>',
-		    '<?=$pia_lang['Gen_Cancel']?>', '<?=$pia_lang['Gen_Delete']?>', 'BulkDeletion');
-		}
-		function BulkDeletion()
-		{
-			const checkboxes = document.querySelectorAll('.icheckbox_flat-blue.hostselection:checked');
-			const checkedIds = Array.from(checkboxes).map((checkbox) => checkbox.id);
-			const queryParams = new URLSearchParams();
-			checkedIds.forEach((id) => queryParams.append('hosts[]', id));
-		  // Execute
-		  $.get('php/server/devices.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
-		    showMessage (msg);
-		  });
-		}
-		function initializeCombos () {
-		  // Initialize combos with queries
-		  initializeCombo ( $('#dropdownDeviceOwner')[0], 'getOwners',         'bulk_owner');
-		  initializeCombo ( $('#dropdownDeviceType')[0],  'getDeviceTypes',    'bulk_type');
-		  initializeCombo ( $('#dropdownGroup')[0],       'getGroups',         'bulk_group');
-		  initializeCombo ( $('#dropdownConType')[0],     'getConnectionType', 'bulk_connectiontype');
-		  initializeCombo ( $('#dropdownLinkSpeed')[0],   'getLinkSpeed',      'bulk_linkspeed');
-		}
+	function askBulkDeletion() {
+	  // Ask
+	  showModalWarning('<?=$pia_lang['Device_bulkDel_info_head']?>', '<?=$pia_lang['Device_bulkDel_info_text']?>',
+	    '<?=$pia_lang['Gen_Cancel']?>', '<?=$pia_lang['Gen_Delete']?>', 'BulkDeletion');
+	}
+	function BulkDeletion()
+	{
+		const checkboxes = document.querySelectorAll('.icheckbox_flat-blue.hostselection:checked');
+		const checkedIds = Array.from(checkboxes).map((checkbox) => checkbox.id);
+		const queryParams = new URLSearchParams();
+		checkedIds.forEach((id) => queryParams.append('hosts[]', id));
+	  // Execute
+	  $.get('php/server/devices.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
+	    showMessage (msg);
+	  });
+	}
+	function initializeiCheck() {
+	   // Blue
+	   $('input[type="checkbox"].blue').iCheck({
+	     checkboxClass: 'icheckbox_flat-blue',
+	     radioClass:    'iradio_flat-blue',
+	     increaseArea:  '20%'
+	   });
+	}
+	function initializeCombos () {
+	  // Initialize combos with queries
+	  initializeCombo ( $('#dropdownDeviceOwner')[0], 'getOwners',         'bulk_owner');
+	  initializeCombo ( $('#dropdownDeviceType')[0],  'getDeviceTypes',    'bulk_type');
+	  initializeCombo ( $('#dropdownGroup')[0],       'getGroups',         'bulk_group');
+	  initializeCombo ( $('#dropdownConType')[0],     'getConnectionType', 'bulk_connectiontype');
+	  initializeCombo ( $('#dropdownLinkSpeed')[0],   'getLinkSpeed',      'bulk_linkspeed');
+	}
+	function initializeCombo (HTMLelement, queryAction, txtDataField) {
+	  // get data from server
+	  $.get('php/server/devices.php?action='+queryAction, function(data) {
+	    var listData = JSON.parse(data);
+	    var order = 1;
 
-		function initializeCombo (HTMLelement, queryAction, txtDataField) {
-		  // get data from server
-		  $.get('php/server/devices.php?action='+queryAction, function(data) {
-		    var listData = JSON.parse(data);
-		    var order = 1;
+	    HTMLelement.innerHTML = ''
 
-		    HTMLelement.innerHTML = ''
-		    // for each item
-		    listData.forEach(function (item, index) {
-		      // insert line divisor
-		      if (order != item['order']) {
-		        HTMLelement.innerHTML += '<li class="divider"></li>';
-		        order = item['order'];
-		      }
+	    listData.forEach(function (item, index) {
+	      if (order != item['order']) {
+	        HTMLelement.innerHTML += '<li class="divider"></li>';
+	        order = item['order'];
+	      }
 
-		      id = item['name'];
-		      // use explicitly specified id (value) if avaliable
-		      if(item['id'])
-		      {
-		        id = item['id'];
-		      }
-		      if (queryAction == "getNetworkNodes") {
-		      // add NetworkNodes dropdown item
-		        HTMLelement.innerHTML +=
-		          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-		          txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
-		      } else {
-		        // add dropdown item
-		        HTMLelement.innerHTML +=
-		          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-		          txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
-		      }
-		    });
-		  });
-		}
-		initializeCombos();
+	      id = item['name'];
+	      if(item['id'])
+	      {
+	        id = item['id'];
+	      }
+	      if (queryAction == "getNetworkNodes") {
+	        HTMLelement.innerHTML +=
+	          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
+	          txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
+	      } else {
+	        HTMLelement.innerHTML +=
+	          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
+	          txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
+	      }
+	    });
+	  });
+	}
+	initializeCombos();
+	initializeiCheck();
 </script>
 
 <?php
@@ -546,7 +570,7 @@ function filterDevicesByLabel(searchTerm) {
 		if ($row[7] == 0) {$underline = 'presence-underlined';} else { $underline = '';}
 		echo '<div class="bulked_dev_box ' . $status_border . '">
              <div class="bulked_dev_chk_cont ' . $status_box . '" style="">
-             		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . $row[1] . '" name="' . $row[1] . '" type="checkbox">
+             		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . $row[1] . '" name="' . str_replace(" ", "_", $row[1]) . '" type="checkbox">
              </div>
              <label class="control-label ' . $status_text_color . ' ' . $underline . '" for="' . $row[1] . '">' . $row[0] . '</label>
           </div>';
@@ -1218,6 +1242,20 @@ function SetDeviceFilter() {
     , function(msg) {
     showMessage (msg);
   });
+}
+
+function initializeiCheck() {
+   // Blue
+   $('input[type="checkbox"].blue').iCheck({
+     checkboxClass: 'icheckbox_flat-blue',
+     radioClass:    'iradio_flat-blue',
+     increaseArea:  '20%'
+   });
+   $('input[type="checkbox"].purple').iCheck({
+     checkboxClass: 'icheckbox_flat-purple',
+     radioClass:    'iradio_flat-purple',
+     increaseArea:  '20%'
+   });
 }
 // --------------------------------------------------------------------------
 // Copy Filter from Searchbox

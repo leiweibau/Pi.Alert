@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Modelis';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serijos nr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Mėgstamiausi';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Rodyti skiltyje "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT įrenginys';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Grupė';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Vieta';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Pastaba';

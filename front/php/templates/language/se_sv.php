@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Modell';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serienr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favorit';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Visa under "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-enhet';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Grupp';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Plats';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Anteckning';

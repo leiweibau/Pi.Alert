@@ -211,6 +211,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Model';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Numer seryjny';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Ulubione';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Pokaż w "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'Urządzenie MQTT';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Grupa';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Lokalizacja';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Notatka';

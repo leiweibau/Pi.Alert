@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Модель';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Серійний №';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Вибране';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Показати у "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-пристрій';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Група';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Розташування';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Нотатка';

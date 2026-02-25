@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Malli';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Sarjanumero';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Suosikki';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Näytä kohdassa "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-laite';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Ryhmä';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Sijainti';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Huomio';

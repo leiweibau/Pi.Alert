@@ -4577,8 +4577,10 @@ def icmphost_monitoring_notification():
 # Publish to MQTT
 #===============================================================================
 def report_to_mqtt():
+
+    # General System Data
     if PUBLISH_MQTT_STATUS:
-        print('        Pi.Alert Status')
+        print('    Pi.Alert Status')
         daten = mqtt_get_system_status()
 
         for group, values in daten.items():
@@ -4587,6 +4589,9 @@ def report_to_mqtt():
             base_topic = f"pi_alert/{group}"
 
             publish_sensor_group(device_id, device_name, base_topic, values)
+
+    # Per Device Data
+    sync_mqtt_devices_stateless()
 
 #-------------------------------------------------------------------------------
 def publish_sensor_group(device_id: str, device_name: str, base_topic: str, values: dict):
@@ -4610,7 +4615,7 @@ def publish_sensor_group(device_id: str, device_name: str, base_topic: str, valu
             device_class=device_class
         )
 
-        # Wert senden
+        # Publish
         send_mqtt_message(topic, value, retain=True)
 
 #-------------------------------------------------------------------------------
@@ -4722,6 +4727,138 @@ def mqtt_get_system_status():
     return data
 
 #-------------------------------------------------------------------------------
+def normalize_mac(mac: str) -> str:
+    return mac.lower().replace(":", "")
+
+#-------------------------------------------------------------------------------
+def publish_ha_device_entities(device_row):
+    mac = device_row["dev_MAC"]
+    mac_clean = normalize_mac(mac)
+
+    name = device_row["dev_Name"] or "Unknown"
+    vendor = device_row["dev_Vendor"] or "Unknown"
+    model = device_row["dev_Model"] or "Network Device"
+    location = device_row["dev_Location"] or "Unknown"
+    online_state = "ON" if device_row["dev_PresentLastScan"] else "OFF"
+    ip_address = device_row["dev_LastIP"] or "0.0.0.0"
+    scan_source_value = mqtt_resolve_scan_source(device_row["dev_ScanSource"])
+
+    localhostlist = ['local', '']
+    if device_row["dev_ScanSource"] in localhostlist and mac.startswith('Internet'):
+        device_identifier = f"pialert_internet_local"
+    elif device_row["dev_ScanSource"] not in localhostlist and mac.startswith('Internet'):
+        device_identifier = f"pialert_internet_{scan_source_value}"
+    else:
+        device_identifier = f"pialert_{mac_clean}"
+
+    device_info = {
+        "identifiers": [f"{device_identifier}"],
+        "name": name,
+        "manufacturer": vendor,
+        "model": model,
+        "connections": [["mac", mac]]
+    }
+
+    # Binary Sensor: Online / Offline
+    binary_topic = f"homeassistant/binary_sensor/{device_identifier}_online/config"
+    binary_payload = {
+        "name": f"Online",
+        "unique_id": f"{device_identifier}_online",
+        "state_topic": f"pi_alert/device/{device_identifier}/online",
+        "payload_on": "ON",
+        "payload_off": "OFF",
+        "device_class": "connectivity",
+        "device": device_info
+    }
+    send_mqtt_message(binary_topic, binary_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/online", online_state, retain=True)
+
+    # IP
+    ip_topic = f"homeassistant/sensor/{device_identifier}_ip/config"
+    ip_payload = {
+        "name": f"IP",
+        "unique_id": f"{device_identifier}_ip",
+        "state_topic": f"pi_alert/device/{device_identifier}/ip",
+        "icon": "mdi:ip",
+        "device": device_info
+    }
+    send_mqtt_message(ip_topic, ip_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/ip", ip_address, retain=True)
+
+    # Location
+    loc_topic = f"homeassistant/sensor/{device_identifier}_location/config"
+    loc_payload = {
+        "name": f"Standort",
+        "unique_id": f"{device_identifier}_location",
+        "state_topic": f"pi_alert/device/{device_identifier}/location",
+        "icon": "mdi:home",
+        "device": device_info
+    }
+    send_mqtt_message(loc_topic, loc_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/location", location, retain=True)
+
+    # ScanSource
+    scan_topic = f"homeassistant/sensor/{device_identifier}_scansource/config"
+    scan_payload = {
+        "name": "Scan Source",
+        "unique_id": f"{device_identifier}_scansource",
+        "state_topic": f"pi_alert/device/{device_identifier}/scansource",
+        "icon": "mdi:radar",
+        "device": device_info
+    }
+    send_mqtt_message(scan_topic, scan_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/scansource", scan_source_value ,retain=True)
+
+#-------------------------------------------------------------------------------
+def remove_ha_entities(mac: str, source):
+    mac_clean = normalize_mac(mac)
+
+    scan_source_value = mqtt_resolve_scan_source(source)
+
+    localhostlist = ['local', '']
+    if source in localhostlist and mac.startswith('Internet'):
+        device_identifier = f"pialert_internet_local"
+    elif source not in localhostlist and mac.startswith('Internet'):
+        device_identifier = f"pialert_internet_{scan_source_value}"
+    else:
+        device_identifier = f"pialert_{mac_clean}"
+
+    # if device_identifier.startswith("pialert_internet"):
+    #     print(f"DEBUG: {device_identifier}")
+
+    topics = [
+        f"homeassistant/binary_sensor/{device_identifier}_online/config",
+        f"homeassistant/sensor/{device_identifier}_ip/config",
+        f"homeassistant/sensor/{device_identifier}_location/config",
+        f"homeassistant/sensor/{device_identifier}_scansource/config"
+    ]
+
+    for topic in topics:
+        send_mqtt_message(topic, "", retain=True)
+
+    print_log(f"HA Device fully removed: {mac}")
+
+#-------------------------------------------------------------------------------
+def sync_mqtt_devices_stateless():
+    openDB()
+    
+    # Publish all enabled devices
+    sql.execute("SELECT * FROM Devices WHERE dev_MQTTDevice=1")
+    activeMQTT = sql.fetchall()
+    for device in activeMQTT:
+        publish_ha_device_entities(device)
+    print(f"    Published MQTT-Devices: {len(activeMQTT)}")
+
+    # Remove all disabled devices
+    sql.execute("SELECT dev_MAC, dev_ScanSource FROM Devices WHERE dev_MQTTDevice=0")
+    inactiveMQTT = sql.fetchall()
+    for row in inactiveMQTT:
+        remove_ha_entities(row["dev_MAC"],row["dev_ScanSource"])
+    print(f"    Remove disabled MQTT-Devices")
+
+    closeDB()
+
+#-------------------------------------------------------------------------------
 def send_mqtt_message(topic: str, value, retain: bool = False):
     client = Client(protocol=MQTTv311, callback_api_version=CallbackAPIVersion.VERSION2)
 
@@ -4755,6 +4892,27 @@ def send_mqtt_message(topic: str, value, retain: bool = False):
         client.loop_stop()
     except Exception as e:
         print_log(f"❌ MQTT-Connection: {e}")
+
+#-------------------------------------------------------------------------------
+def mqtt_resolve_scan_source(source):
+    scan_source = source
+
+    if not scan_source:
+        return "unknown"
+
+    if scan_source == "local":
+        return "local"
+
+    sql.execute(
+        "SELECT sat_name FROM Satellites WHERE sat_token = ?",
+        (scan_source,)
+    )
+    row = sql.fetchone()
+
+    if row:
+        return row[0]
+    else:
+        return "unknown"
 
 #===============================================================================
 # REPORTING

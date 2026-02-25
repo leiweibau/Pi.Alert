@@ -332,6 +332,12 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                         <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_StaticIP'];?></label>
                         <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox blue hidden" id="chkStaticIP" type="checkbox"></div>
                       </div>
+
+                      <!-- MQTT -->
+                      <div class="form-group">
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_MainInfo_MQTTDevice']?></label>
+                        <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox purple hidden" id="chkMQTTDevice" type="checkbox"></div>
+                      </div>
                     </div>
 
                     <h4 class="bottom-border-aqua"><?=$pia_lang['DevDetail_Network_Titel'];?></h4>
@@ -925,6 +931,13 @@ function initializeiCheck () {
     increaseArea:  '20%'
   });
 
+  // purple
+  $('input[type="checkbox"].purple').iCheck({
+    checkboxClass: 'icheckbox_flat-purple',
+    radioClass:    'iradio_flat-purple',
+    increaseArea:  '20%'
+  });
+
   // When toggle iCheck
   $('input').on('ifToggled', function(event){
     // Hide / Show Events
@@ -1294,6 +1307,7 @@ function getDeviceData (readAllData=false) {
       $('#txtLastIP').val          ('--');
       $('#txtStatus').val          ('--');
       $('#chkStaticIP').iCheck     ('uncheck');
+      $('#chkMQTTDevice').iCheck   ('uncheck');
 
       $('#txtScanCycle').val       ('--');
       $('#chkAlertEvents').iCheck  ('uncheck');
@@ -1390,6 +1404,7 @@ function getDeviceData (readAllData=false) {
         $('#txtScanSource').val                      (deviceData['dev_ScanSource']);
         $('#txtStatus').val                          (deviceData['dev_Status'].replace('-', ''));
         if (deviceData['dev_StaticIP'] == 1)         {$('#chkStaticIP').iCheck('check');}    else {$('#chkStaticIP').iCheck('uncheck');}
+        if (deviceData['dev_MQTTDevice'] == 1)       {$('#chkMQTTDevice').iCheck('check');}    else {$('#chkMQTTDevice').iCheck('uncheck');}
 
         $('#txtScanCycle').val                       (deviceData['dev_ScanCycle']);
         if (deviceData['dev_AlertEvents'] == 1)      {$('#chkAlertEvents').iCheck('check');} else {$('#chkAlertEvents').iCheck('uncheck');}
@@ -1525,6 +1540,7 @@ function setDeviceData (refreshCallback='') {
     + '&connectiontype='  + $('#txtConnectionType').val()
     + '&linkspeed='       + $('#txtLinkSpeed').val()
     + '&staticIP='        + ($('#chkStaticIP')[0].checked * 1)
+    + '&mqttdevice='      + ($('#chkMQTTDevice')[0].checked * 1)
     + '&scancycle='       + $('#txtScanCycle').val()
     + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
