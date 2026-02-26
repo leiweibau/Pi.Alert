@@ -577,6 +577,7 @@ function setDeviceData() {
 	global $db;
 	global $pia_lang;
 
+	$cleanup = ($_REQUEST['mqttdevice'] == 1) ? 0 : 1;
 	// sql
 	$sql = 'UPDATE Devices SET
                  dev_Name                 = "' . quotes($_REQUEST['name']) . '",
@@ -596,6 +597,7 @@ function setDeviceData() {
                  dev_LinkSpeed            = "' . quotes($_REQUEST['linkspeed']) . '",
                  dev_StaticIP             = "' . quotes($_REQUEST['staticIP']) . '",
                  dev_MQTTDevice           = "' . quotes($_REQUEST['mqttdevice']) . '",
+                 dev_MQTTDevice_cleanup   = "' . $cleanup . '",
                  dev_ScanCycle            = "' . quotes($_REQUEST['scancycle']) . '",
                  dev_AlertEvents          = "' . quotes($_REQUEST['alertevents']) . '",
                  dev_AlertDeviceDown      = "' . quotes($_REQUEST['alertdown']) . '",

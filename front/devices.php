@@ -108,8 +108,14 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			if ($_REQUEST['bulk_PresencePage'] == 'on') {$set_bulk_PresencePage = 1;} else { $set_bulk_PresencePage = 0;}
 			array_push($sql_queue, 'dev_PresencePage="' . $set_bulk_PresencePage . '"');}
 		if ($_REQUEST['en_bulk_MQTTDevice'] == 'on') {
-			if ($_REQUEST['bulk_MQTTDevice'] == 'on') {$set_bulk_MQTTDevice = 1;} else { $set_bulk_MQTTDevice = 0;}
-			array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '"');}
+			if ($_REQUEST['bulk_MQTTDevice'] == 'on') {
+				$set_bulk_MQTTDevice = 1;
+				array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '", dev_MQTTDevice_cleanup="0"');
+			} else { 
+				$set_bulk_MQTTDevice = 0;
+				array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '", dev_MQTTDevice_cleanup="1"');
+			}
+		}
 
 		print_box_top_element($pia_lang['Device_bulkEditor_savebox_title']);
 		// Count changed fields

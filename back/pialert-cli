@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTVERSION='v1.37'
+SCRIPTVERSION='v1.38'
 SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 PIA_CONF_FILE=${SCRIPTPATH}'/../config/pialert.conf'
@@ -931,6 +931,14 @@ EOM
       sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"Devices\" ADD COLUMN \"dev_MQTTDevice\" BOOLEAN NOT NULL DEFAULT 0;"
     else
       echo "        Column 'dev_MQTTDevice' already exists in the 'Devices' table."
+    fi
+    # Devices.dev_MQTTDevice_cleanup
+    echo -e "...Insert new column 'dev_MQTTDevice_cleanup' to table 'Devices' to DB"
+    existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"Devices\");" | awk -F\| '{print $2}' | grep -wci "dev_MQTTDevice_cleanup")
+    if [ "$existing" -eq 0 ]; then
+      sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"Devices\" ADD COLUMN \"dev_MQTTDevice_cleanup\" BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'dev_MQTTDevice_cleanup' already exists in the 'Devices' table."
     fi
 
     echo -e "\nUpdate finished!\n"

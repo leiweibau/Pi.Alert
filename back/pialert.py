@@ -4850,10 +4850,12 @@ def sync_mqtt_devices_stateless():
     print(f"    Published MQTT-Devices: {len(activeMQTT)}")
 
     # Remove all disabled devices
-    sql.execute("SELECT dev_MAC, dev_ScanSource FROM Devices WHERE dev_MQTTDevice=0")
+    sql.execute("SELECT dev_MAC, dev_ScanSource FROM Devices WHERE dev_MQTTDevice=0 and dev_MQTTDevice_cleanup=1")
     inactiveMQTT = sql.fetchall()
     for row in inactiveMQTT:
         remove_ha_entities(row["dev_MAC"],row["dev_ScanSource"])
+
+    sql.execute("""UPDATE Devices SET dev_MQTTDevice_cleanup = 0 WHERE dev_MQTTDevice=0 AND dev_MQTTDevice_cleanup=1""")
     print(f"    Remove disabled MQTT-Devices")
 
     closeDB()
