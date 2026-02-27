@@ -433,6 +433,12 @@ function get_host_statistic($hostip) {
                       </div>
 
                       <div class="form-group">
+                        <label class="col-xs-4 control-label"><?=$pia_lang['DevDetail_MainInfo_MQTTDevice']?></label>
+                        <div class="col-xs-4" style="padding-top:6px;">
+                        	<input class="checkbox purple hidden" id="chkMQTTDevice" <?php if ($icmpmonitorDetails['icmp_MQTTDevice'] == 1) {echo 'checked';}?> type="checkbox"></div>
+                      </div>
+
+                      <div class="form-group">
                         <label class="col-xs-4 control-label"><?=$pia_lang['DevDetail_EveandAl_Archived'];?></label>
                         <div class="col-xs-4" style="padding-top:6px;">
                           <input class="checkbox blue" id="chkArchived" <?php if ($icmpmonitorDetails['icmp_Archived'] == 1) {echo 'checked';}?> type="checkbox">
@@ -711,6 +717,12 @@ function initializeiCheck () {
     radioClass:    'iradio_flat-red',
     increaseArea:  '20%'
   });
+  // Purple
+  $('input[type="checkbox"].purple').iCheck({
+    checkboxClass: 'icheckbox_flat-purple',
+    radioClass:    'iradio_flat-purple',
+    increaseArea:  '20%'
+  });
 }
 // -----------------------------------------------------------------------------
 function getEventsTotalsforICMPHost() {
@@ -793,6 +805,7 @@ function setICMPHostData(refreshCallback='') {
     + '&icmp_vendor='     + $('#txtVendor').val()
     + '&icmp_model='      + $('#txtModel').val()
     + '&icmp_serial='     + $('#txtSerialnumber').val()
+    + '&mqttdevice='      + ($('#chkMQTTDevice')[0].checked * 1)
     + '&favorit='         + ($('#chkFavorit')[0].checked * 1)
     + '&archived='        + ($('#chkArchived')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)

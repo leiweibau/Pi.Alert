@@ -923,7 +923,6 @@ EOM
     echo -e "...Create index on Services_Events_Journal (URL + DateTime)"
     sqlite3 "$PIA_DB_FILE" "CREATE INDEX IF NOT EXISTS \"idx_Services_Events_Journal_URL_DateTime\"
     ON \"Services_Events_Journal\" (\"monevj_URL\", \"monevj_DateTime\" DESC);"
-
     # Devices.dev_MQTTDevice
     echo -e "...Insert new column 'dev_MQTTDevice' to table 'Devices' to DB"
     existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"Devices\");" | awk -F\| '{print $2}' | grep -wci "dev_MQTTDevice")
@@ -939,6 +938,22 @@ EOM
       sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"Devices\" ADD COLUMN \"dev_MQTTDevice_cleanup\" BOOLEAN NOT NULL DEFAULT 0;"
     else
       echo "        Column 'dev_MQTTDevice_cleanup' already exists in the 'Devices' table."
+    fi
+    # ICMP_Mon.icmp_MQTTDevice
+    echo -e "...Insert new column 'icmp_MQTTDevice' to table 'ICMP_Mon' to DB"
+    existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"ICMP_Mon\");" | awk -F\| '{print $2}' | grep -wci "icmp_MQTTDevice")
+    if [ "$existing" -eq 0 ]; then
+      sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"ICMP_Mon\" ADD COLUMN \"icmp_MQTTDevice\" BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'icmp_MQTTDevice' already exists in the 'ICMP_Mon' table."
+    fi
+    # ICMP_Mon.icmp_MQTTDevice_cleanup
+    echo -e "...Insert new column 'icmp_MQTTDevice_cleanup' to table 'ICMP_Mon' to DB"
+    existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"ICMP_Mon\");" | awk -F\| '{print $2}' | grep -wci "icmp_MQTTDevice_cleanup")
+    if [ "$existing" -eq 0 ]; then
+      sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"ICMP_Mon\" ADD COLUMN \"icmp_MQTTDevice_cleanup\" BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'icmp_MQTTDevice_cleanup' already exists in the 'ICMP_Mon' table."
     fi
 
     echo -e "\nUpdate finished!\n"

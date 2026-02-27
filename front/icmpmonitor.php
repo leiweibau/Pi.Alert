@@ -98,6 +98,16 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			if ($_REQUEST['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
 			array_push($sql_queue, 'icmp_AlertDown="' . $set_bulk_AlertDown . '"');
 		}
+    if ($_REQUEST['en_bulk_MQTTDevice'] == 'on') {
+      if ($_REQUEST['bulk_MQTTDevice'] == 'on') {
+        $set_bulk_MQTTDevice = 1;
+        array_push($sql_queue, 'icmp_MQTTDevice="' . $set_bulk_MQTTDevice . '", icmp_MQTTDevice_cleanup="0"');
+      } else { 
+        $set_bulk_MQTTDevice = 0;
+        array_push($sql_queue, 'icmp_MQTTDevice="' . $set_bulk_MQTTDevice . '", icmp_MQTTDevice_cleanup="1"');
+      }
+    }
+
 
 		print_box_top_element($pia_lang['Device_bulkEditor_savebox_title']);
 		// Count changed fields
@@ -134,6 +144,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
           'set_bulk_comments'       => 'DevDetail_MainInfo_Comments',
           'set_bulk_AlertAllEvents' => 'DevDetail_EveandAl_AlertAllEvents',
           'set_bulk_AlertDown'      => 'DevDetail_EveandAl_AlertDown',
+          'set_bulk_MQTTDevice' => 'DevDetail_MainInfo_MQTTDevice'
       ];
 
       foreach ($bulk_fields as $varName => $langKey) {

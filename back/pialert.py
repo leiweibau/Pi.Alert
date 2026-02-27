@@ -27,7 +27,7 @@ from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion, MQTT_ERR_SUCCESS
-import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
+import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -4730,26 +4730,51 @@ def mqtt_get_system_status():
 def normalize_mac(mac: str) -> str:
     return mac.lower().replace(":", "")
 
+def normalize_ip(ip: str) -> str:
+    return ip.lower().replace(".", "")
+
+def ipv4_to_mac(ip: str) -> str:
+    digest = hashlib.sha256(ip.encode()).digest()
+    mac = bytearray(digest[:6])
+    mac[0] = (mac[0] & 0b11111110) | 0b00000010
+    return ':'.join(f'{b:02x}' for b in mac)
+
 #-------------------------------------------------------------------------------
-def publish_ha_device_entities(device_row):
-    mac = device_row["dev_MAC"]
-    mac_clean = normalize_mac(mac)
+def publish_ha_device_entities(mode, device_row):
+    if mode == "main":
+        mac = device_row["dev_MAC"]
+        mac_clean = normalize_mac(mac)
 
-    name = device_row["dev_Name"] or "Unknown"
-    vendor = device_row["dev_Vendor"] or "Unknown"
-    model = device_row["dev_Model"] or "Network Device"
-    location = device_row["dev_Location"] or "Unknown"
-    online_state = "ON" if device_row["dev_PresentLastScan"] else "OFF"
-    ip_address = device_row["dev_LastIP"] or "0.0.0.0"
-    scan_source_value = mqtt_resolve_scan_source(device_row["dev_ScanSource"])
+        name = device_row["dev_Name"] or "Unknown"
+        vendor = device_row["dev_Vendor"] or "Unknown"
+        model = device_row["dev_Model"] or "Network Device"
+        location = device_row["dev_Location"] or "Unknown"
+        online_state = "ON" if device_row["dev_PresentLastScan"] else "OFF"
+        ip_address = device_row["dev_LastIP"] or "0.0.0.0"
+        scan_source_value = mqtt_resolve_scan_source(device_row["dev_ScanSource"])
 
-    localhostlist = ['local', '']
-    if device_row["dev_ScanSource"] in localhostlist and mac.startswith('Internet'):
-        device_identifier = f"pialert_internet_local"
-    elif device_row["dev_ScanSource"] not in localhostlist and mac.startswith('Internet'):
-        device_identifier = f"pialert_internet_{scan_source_value}"
-    else:
-        device_identifier = f"pialert_{mac_clean}"
+        localhostlist = ['local', '']
+        if device_row["dev_ScanSource"] in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_local"
+        elif device_row["dev_ScanSource"] not in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_{scan_source_value}"
+        else:
+            device_identifier = f"pialert_{mac_clean}"
+
+    elif mode == "icmp":
+        icmpip = device_row["icmp_ip"]
+        ip_clean = normalize_ip(icmpip)
+        # Random mac is only for home assistant requirements
+        mac = ipv4_to_mac(icmpip)
+
+        name = device_row["icmp_hostname"] or "Unknown"
+        vendor = device_row["icmp_vendor"] or "Unknown"
+        model = device_row["icmp_model"] or "Network Device"
+        location = device_row["icmp_location"] or "Unknown"
+        online_state = "ON" if device_row["icmp_PresentLastScan"] else "OFF"
+        ip_address = device_row["icmp_ip"] or "0.0.0.0"
+        scan_source_value = "local ICMP Monitoring"
+        device_identifier = f"pialert_ip{ip_clean}"
 
     device_info = {
         "identifiers": [f"{device_identifier}"],
@@ -4810,21 +4835,22 @@ def publish_ha_device_entities(device_row):
     send_mqtt_message(f"pi_alert/device/{device_identifier}/scansource", scan_source_value ,retain=True)
 
 #-------------------------------------------------------------------------------
-def remove_ha_entities(mac: str, source):
-    mac_clean = normalize_mac(mac)
+def remove_ha_entities(mode, mac: str, source):
+    if mode == "main":
+        mac_clean = normalize_mac(mac)
+        scan_source_value = mqtt_resolve_scan_source(source)
 
-    scan_source_value = mqtt_resolve_scan_source(source)
+        localhostlist = ['local', '']
+        if source in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_local"
+        elif source not in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_{scan_source_value}"
+        else:
+            device_identifier = f"pialert_{mac_clean}"
 
-    localhostlist = ['local', '']
-    if source in localhostlist and mac.startswith('Internet'):
-        device_identifier = f"pialert_internet_local"
-    elif source not in localhostlist and mac.startswith('Internet'):
-        device_identifier = f"pialert_internet_{scan_source_value}"
-    else:
-        device_identifier = f"pialert_{mac_clean}"
-
-    # if device_identifier.startswith("pialert_internet"):
-    #     print(f"DEBUG: {device_identifier}")
+    elif mode == "icmp":
+        ip_clean = normalize_ip(icmpip)
+        device_identifier = f"pialert_ip{ip_clean}"
 
     topics = [
         f"homeassistant/binary_sensor/{device_identifier}_online/config",
@@ -4846,16 +4872,29 @@ def sync_mqtt_devices_stateless():
     sql.execute("SELECT * FROM Devices WHERE dev_MQTTDevice=1")
     activeMQTT = sql.fetchall()
     for device in activeMQTT:
-        publish_ha_device_entities(device)
+        publish_ha_device_entities("main", device)
+
+    sql.execute("SELECT * FROM ICMP_Mon WHERE icmp_MQTTDevice=1")
+    activeMQTT = sql.fetchall()
+    for device in activeMQTT:
+        publish_ha_device_entities("icmp", device)
+
     print(f"    Published MQTT-Devices: {len(activeMQTT)}")
 
     # Remove all disabled devices
     sql.execute("SELECT dev_MAC, dev_ScanSource FROM Devices WHERE dev_MQTTDevice=0 and dev_MQTTDevice_cleanup=1")
     inactiveMQTT = sql.fetchall()
     for row in inactiveMQTT:
-        remove_ha_entities(row["dev_MAC"],row["dev_ScanSource"])
-
+        remove_ha_entities("main", row["dev_MAC"],row["dev_ScanSource"])
     sql.execute("""UPDATE Devices SET dev_MQTTDevice_cleanup = 0 WHERE dev_MQTTDevice=0 AND dev_MQTTDevice_cleanup=1""")
+
+
+    sql.execute("SELECT icmp_ip FROM ICMP_Mon WHERE icmp_MQTTDevice=0 and icmp_MQTTDevice_cleanup=1")
+    inactiveMQTT = sql.fetchall()
+    for row in inactiveMQTT:
+        remove_ha_entities("icmp", row["icmp_ip"],"local_ICMP")
+    sql.execute("""UPDATE ICMP_Mon SET icmp_MQTTDevice_cleanup = 0 WHERE icmp_MQTTDevice=0 AND icmp_MQTTDevice_cleanup=1""")
+
     print(f"    Remove disabled MQTT-Devices")
 
     closeDB()
