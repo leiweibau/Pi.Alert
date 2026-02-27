@@ -34,7 +34,8 @@ To make it clearer how this version differs from the original project, I made th
 |  | Notification test | 🟢 | 🔴 |
 |  | Download notifications as PDF | 🟢 | 🔴 |
 |  | optional continuously notifications | 🟢 | 🔴 |
-|  | MQTT Messages | 🟢 | 🔴 |
+|  | MQTT Messages (general Status) | 🟢 | 🔴 |
+|  | MQTT Messages per Device | 🟢 | 🔴 |
 | **Maintenance** | Backup / Restore Database | 🟢 | 🔴 |
 |  | Backup / Restore Configfile | 🟢 | 🔴 |
 |  | Export / Download devices as CSV file | 🟢 | 🔴 |
