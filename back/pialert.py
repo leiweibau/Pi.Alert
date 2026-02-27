@@ -4849,7 +4849,7 @@ def remove_ha_entities(mode, mac: str, source):
             device_identifier = f"pialert_{mac_clean}"
 
     elif mode == "icmp":
-        ip_clean = normalize_ip(icmpip)
+        ip_clean = normalize_ip(mac)
         device_identifier = f"pialert_ip{ip_clean}"
 
     topics = [
