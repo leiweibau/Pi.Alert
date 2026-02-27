@@ -175,7 +175,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	}
 
 	print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
-
 ?>
             <div class="row" style="padding-bottom: 20px;">
                 <div class="col-xs-12 col-md-6">
@@ -227,6 +226,22 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 									</div>
 				               	</div>
 				            </div>
+                        </div>
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_location" name="en_bulk_location" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_location"><?=$pia_lang['DevDetail_MainInfo_Location']?>:</label><br>
+                            <div class="input-group" style="max-width: 400px;">
+                              <input class="form-control" id="bulk_location" name="bulk_location" type="text" disabled>
+                              <div class="input-group-btn">
+                                <button type="button" id="bulk_location_selector" name="bulk_location_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+                                  <span class="fa fa-caret-down"></span>
+                                </button>
+                                <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right"></ul>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
                         <div class="db_info_table_row">
@@ -448,6 +463,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	  initializeCombo ( $('#dropdownGroup')[0],       'getGroups',         'bulk_group');
 	  initializeCombo ( $('#dropdownConType')[0],     'getConnectionType', 'bulk_connectiontype');
 	  initializeCombo ( $('#dropdownLinkSpeed')[0],   'getLinkSpeed',      'bulk_linkspeed');
+	  initializeCombo ( $('#dropdownLocation')[0],    'getLocations',       'bulk_location');
 	}
 	function initializeCombo (HTMLelement, queryAction, txtDataField) {
 	  // get data from server

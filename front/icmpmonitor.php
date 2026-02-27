@@ -117,28 +117,30 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 					$modified_hosts = $modified_hosts . $row['icmp_hostname'] . '; ';
 					// Build sql query and update
 					$sql_queue_str = implode(', ', $sql_queue);
-					// Build Host list
-					array_push($sql_modified_hosts, $row['icmp_ip']);
+          $sql_update = 'UPDATE ICMP_Mon SET ' . $sql_queue_str . ' WHERE icmp_ip="' . $row['icmp_ip'] . '"';
+          $results_update = $db->query($sql_update);
 				}
 			}
 			// output modified hosts
 			echo $modified_hosts;
 			// List modifications
-			echo '<h4>' . $pia_lang['Device_bulkEditor_savebox_mod_fields'] . ':</h4>';
-			if (isset($set_bulk_owner)) {echo $pia_lang['DevDetail_MainInfo_Owner'] . ': ' . $set_bulk_owner . '<br>';}
-			if (isset($set_bulk_type)) {echo $pia_lang['DevDetail_MainInfo_Type'] . ': ' . $set_bulk_type . '<br>';}
-			if (isset($set_bulk_group)) {echo $pia_lang['DevDetail_MainInfo_Group'] . ': ' . $set_bulk_group . '<br>';}
-			if (isset($set_bulk_location)) {echo $pia_lang['DevDetail_MainInfo_Location'] . ': ' . $set_bulk_location . '<br>';}
-			if (isset($set_bulk_comments)) {echo $pia_lang['DevDetail_MainInfo_Comments'] . ': ' . $set_bulk_comments . '<br>';}
-			if (isset($set_bulk_AlertAllEvents)) {echo $pia_lang['DevDetail_EveandAl_AlertAllEvents'] . ': ' . $set_bulk_AlertAllEvents . '<br>';}
-			if (isset($set_bulk_AlertDown)) {echo $pia_lang['DevDetail_EveandAl_AlertDown'] . ': ' . $set_bulk_AlertDown . '<br>';}
-			// Prepare Update Segment stop
 
-			// Update Segment
-			foreach ($sql_modified_hosts as $value) {
-				$sql_update = 'UPDATE ICMP_Mon SET ' . $sql_queue_str . ' WHERE icmp_ip="' . $value . '"';
-				$results_update = $db->query($sql_update);
-			}
+      echo '<h4>' . $pia_lang['Device_bulkEditor_savebox_mod_fields'] . ':</h4>';
+      $bulk_fields = [
+          'set_bulk_owner'          => 'DevDetail_MainInfo_Owner',
+          'set_bulk_type'           => 'DevDetail_MainInfo_Type',
+          'set_bulk_group'          => 'DevDetail_MainInfo_Group',
+          'set_bulk_location'       => 'DevDetail_MainInfo_Location',
+          'set_bulk_comments'       => 'DevDetail_MainInfo_Comments',
+          'set_bulk_AlertAllEvents' => 'DevDetail_EveandAl_AlertAllEvents',
+          'set_bulk_AlertDown'      => 'DevDetail_EveandAl_AlertDown',
+      ];
+
+      foreach ($bulk_fields as $varName => $langKey) {
+          if (isset($$varName)) {
+              echo $pia_lang[$langKey] . ': ' . $$varName . '<br>';
+          }
+      }
 
 			// Logging
 			pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $modified_hosts);
@@ -151,6 +153,258 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	echo '<form method="post" action="./icmpmonitor.php">
           <input type="hidden" id="mod" name="mod" value="bulkedit">
           <input type="hidden" id="savedata" name="savedata" value="yes">';
+
+  print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
+ ?>
+             <div class="row" style="padding-bottom: 20px;">
+                <div class="col-xs-12 col-md-6">
+                    <div class="db_info_table">
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_owner" name="en_bulk_owner" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_owner"><?=$pia_lang['DevDetail_MainInfo_Owner']?>:</label><br>
+                            <div class="input-group" style="max-width: 400px;">
+                              <input class="form-control" id="bulk_owner" name="bulk_owner" type="text" disabled>
+                              <div class="input-group-btn">
+                                <button type="button" id="bulk_owner_selector" name="bulk_owner_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+                                  <span class="fa fa-caret-down"></span>
+                                </button>
+                                <ul id="dropdownDeviceOwner" class="dropdown-menu dropdown-menu-right"></ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_type" name="en_bulk_type" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_type"><?=$pia_lang['DevDetail_MainInfo_Type']?>:</label><br>
+                            <div class="input-group" style="max-width: 400px;">
+                              <input class="form-control" id="bulk_type" name="bulk_type" type="text" disabled>
+                              <div class="input-group-btn">
+                                <button type="button" id="bulk_type_selector" name="bulk_type_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+                                  <span class="fa fa-caret-down"></span>
+                                </button>
+                                <ul id="dropdownDeviceType" class="dropdown-menu dropdown-menu-right"></ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_group" name="en_bulk_group" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_group"><?=$pia_lang['DevDetail_MainInfo_Group']?>:</label><br>
+                            <div class="input-group" style="max-width: 400px;">
+                              <input class="form-control" id="bulk_group" name="bulk_group" type="text" disabled>
+                              <div class="input-group-btn">
+                                <button type="button" id="bulk_group_selector" name="bulk_group_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+                                  <span class="fa fa-caret-down"></span>
+                                </button>
+                                <ul id="dropdownGroup" class="dropdown-menu dropdown-menu-right"></ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_location" name="en_bulk_location" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_location"><?=$pia_lang['DevDetail_MainInfo_Location']?>:</label><br>
+                            <div class="input-group" style="max-width: 400px;">
+                              <input class="form-control" id="bulk_location" name="bulk_location" type="text" disabled>
+                              <div class="input-group-btn">
+                                <button type="button" id="bulk_location_selector" name="bulk_location_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
+                                  <span class="fa fa-caret-down"></span>
+                                </button>
+                                <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right"></ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_comments" name="en_bulk_comments" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_comments"><?=$pia_lang['DevDetail_MainInfo_Comments']?>:</label><br>
+                            <textarea class="form-control" rows="3" id="bulk_comments" name="bulk_comments" spellcheck="false" data-gramm="false" style="max-width: 400px;" disabled></textarea></td>
+                          </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <div class="db_info_table">
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_AlertAllEvents" name="en_bulk_AlertAllEvents" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_AlertAllEvents" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertAllEvents']?>:</label>
+                            <input class="icheckbox_flat-blue" id="bulk_AlertAllEvents" name="bulk_AlertAllEvents" type="checkbox" disabled>
+                          </div>
+                        </div>
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_AlertDown" name="en_bulk_AlertDown" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_AlertDown" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertDown']?>:</label>
+                            <input class="icheckbox_flat-blue" id="bulk_AlertDown" name="bulk_AlertDown" type="checkbox" disabled>
+                          </div>
+                        </div>
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_Archived" name="en_bulk_Archived" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_Archived" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_Archived']?>:</label>
+                            <input class="icheckbox_flat-blue" id="bulk_Archived" name="bulk_Archived" type="checkbox" disabled>
+                          </div>
+                        </div>
+
+                        <div class="db_info_table_row">
+                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_MQTTDevice" name="en_bulk_MQTTDevice" type="checkbox"></div>
+                          <div class="db_tools_table_cell_b">
+                            <label for="bulk_MQTTDevice" style="width: 240px;"><?=$pia_lang['DevDetail_MainInfo_MQTTDevice']?>:</label>
+                            <input class="icheckbox_flat" id="bulk_MQTTDevice" name="bulk_MQTTDevice" type="checkbox" disabled>
+                          </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        <button type="button" class="btn btn-danger" id="btnBulkDeletion" onclick="askBulkDeletion()" style="min-width: 180px;"><?=$pia_lang['Device_bulkDel_button']?></button>
+        <input class="btn btn-warning pull-right" type="submit" value="<?=$pia_lang['Gen_Save']?>" style="margin-bottom: 10px; min-width: 180px;">
+
+<script>
+  var bulk_owner = true;
+  $("#en_bulk_owner").on("click", function() {
+    $("#bulk_owner").val('');
+    $("#bulk_owner").prop("disabled", !bulk_owner);
+    $("#bulk_owner_selector").prop("disabled", !bulk_owner);
+    bulk_owner = !bulk_owner;
+  });
+  var bulk_type = true;
+  $("#en_bulk_type").on("click", function() {
+    $("#bulk_type").val('');
+    $("#bulk_type").prop("disabled", !bulk_type);
+    $("#bulk_type_selector").prop("disabled", !bulk_type);
+    bulk_type = !bulk_type;
+  });
+  var bulk_group = true;
+  $("#en_bulk_group").on("click", function() {
+    $("#bulk_group").val('');
+    $("#bulk_group").prop("disabled", !bulk_group);
+    $("#bulk_group_selector").prop("disabled", !bulk_group);
+    bulk_group = !bulk_group;
+  });
+  var bulk_location = true;
+  $("#en_bulk_location").on("click", function() {
+    $("#bulk_location").val('');
+    $("#bulk_location").prop("disabled", !bulk_location);
+    $("#bulk_location_selector").prop("disabled", !bulk_location);
+    bulk_location = !bulk_location;
+  });
+  var bulk_comments = true;
+  $("#en_bulk_comments").on("click", function() {
+    $("#bulk_comments").val('');
+    $("#bulk_comments").prop("disabled", !bulk_comments);
+    bulk_comments = !bulk_comments;
+  });
+  var bulk_AlertAllEvents = true;
+  $("#en_bulk_AlertAllEvents").on("click", function() {
+    $("#bulk_AlertAllEvents").prop("checked", false);
+    $("#bulk_AlertAllEvents").prop("disabled", !bulk_AlertAllEvents);
+    bulk_AlertAllEvents = !bulk_AlertAllEvents;
+  });
+  var bulk_AlertDown = true;
+  $("#en_bulk_AlertDown").on("click", function() {
+    $("#bulk_AlertDown").prop("checked", false);
+    $("#bulk_AlertDown").prop("disabled", !bulk_AlertDown);
+    bulk_AlertDown = !bulk_AlertDown;
+  });
+  var bulk_Archived = true;
+  $("#en_bulk_Archived").on("click", function() {
+    $("#bulk_Archived").prop("checked", false);
+    $("#bulk_Archived").prop("disabled", !bulk_Archived);
+    bulk_Archived = !bulk_Archived;
+  });
+  var bulk_MQTTDevice = true;
+  $("#en_bulk_MQTTDevice").on("click", function() {
+    $("#bulk_MQTTDevice").prop("checked", false);
+    $("#bulk_MQTTDevice").prop("disabled", !bulk_MQTTDevice);
+    bulk_MQTTDevice = !bulk_MQTTDevice;
+  });
+
+  function setTextValue (textElement, textValue) {
+    $("#"+textElement).val (textValue);
+  }
+
+  function askBulkDeletion() {
+    // Ask
+    showModalWarning('<?=$pia_lang['Device_bulkDel_info_head']?>', '<?=$pia_lang['Device_bulkDel_info_text']?>',
+      '<?=$pia_lang['Gen_Cancel']?>', '<?=$pia_lang['Gen_Delete']?>', 'BulkDeletion');
+  }
+  function BulkDeletion()
+  {
+    const checkboxes = document.querySelectorAll('.icheckbox_flat-blue.hostselection:checked');
+    const checkedIds = Array.from(checkboxes).map((checkbox) => checkbox.id);
+    const queryParams = new URLSearchParams();
+    checkedIds.forEach((id) => queryParams.append('hosts[]', id));
+    // Execute
+    $.get('php/server/icmpmonitor.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
+      showMessage (msg);
+    });
+  }
+
+  function initializeCombos () {
+    // Initialize combos with queries
+    initializeCombo ( $('#dropdownDeviceOwner')[0], 'getOwners',         'bulk_owner');
+    initializeCombo ( $('#dropdownDeviceType')[0],  'getDeviceTypes',    'bulk_type');
+    initializeCombo ( $('#dropdownGroup')[0],       'getGroups',         'bulk_group');
+    initializeCombo ( $('#dropdownConType')[0],     'getConnectionType', 'bulk_connectiontype');
+    initializeCombo ( $('#dropdownLinkSpeed')[0],   'getLinkSpeed',      'bulk_linkspeed');
+    initializeCombo ( $('#dropdownLocation')[0],    'getLocations',       'bulk_location');
+  }
+  function initializeCombo (HTMLelement, queryAction, txtDataField) {
+    // get data from server
+    $.get('php/server/devices.php?action='+queryAction, function(data) {
+      var listData = JSON.parse(data);
+      var order = 1;
+
+      HTMLelement.innerHTML = ''
+
+      listData.forEach(function (item, index) {
+        if (order != item['order']) {
+          HTMLelement.innerHTML += '<li class="divider"></li>';
+          order = item['order'];
+        }
+
+        id = item['name'];
+        if(item['id'])
+        {
+          id = item['id'];
+        }
+        if (queryAction == "getNetworkNodes") {
+          HTMLelement.innerHTML +=
+            '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
+            txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
+        } else {
+          HTMLelement.innerHTML +=
+            '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
+            txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
+        }
+      });
+    });
+  }
+  initializeCombos();
+  initializeiCheck();
+
+</script>
+<?php
+  print_box_bottom_element();
+
 	print_box_top_element($pia_lang['Device_bulkEditor_hostbox_title']);
 
 	$sql = 'SELECT icmp_hostname, icmp_ip, icmp_PresentLastScan, icmp_AlertEvents, icmp_AlertDown FROM ICMP_Mon ORDER BY icmp_hostname COLLATE NOCASE ASC';
@@ -176,178 +430,6 @@ if ($_REQUEST['mod'] == 'bulkedit') {
               this.innerHTML = clicked ? \'' . $pia_lang['Device_bulkEditor_selectnone'] . '\' : \'' . $pia_lang['Device_bulkEditor_selectall'] . '\';
             });
         </script>';
-	print_box_bottom_element();
-
-	print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
-	// Inputs
-	echo '<table style="margin-bottom:30px; width: 100%">
-          <tr>
-            <td class="bulked_table_cell_a" style="width: 80px;"><input class="icheckbox_flat-blue" id="en_bulk_owner" name="en_bulk_owner" type="checkbox"></td>
-            <td>
-                <label for="bulk_owner">' . $pia_lang['DevDetail_MainInfo_Owner'] . ':</label><br>
-                <input type="text" class="form-control" id="bulk_owner" name="bulk_owner" style="max-width: 400px;" disabled></td>
-          </tr>
-          <tr>
-            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_type" name="en_bulk_type" type="checkbox"></td>
-            <td>
-                <label for="bulk_type">' . $pia_lang['DevDetail_MainInfo_Type'] . ':</label><br>
-                <div class="input-group" style="max-width: 400px;">
-                  <input class="form-control" id="bulk_type" name="bulk_type" type="text" disabled>
-                  <div class="input-group-btn">
-                    <button type="button" id="bulk_type_selector" name="bulk_type_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-                      <span class="fa fa-caret-down"></span></button>
-                    <ul id="dropdownDeviceType" class="dropdown-menu dropdown-menu-right">
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'Smartphone\')">   Smartphone   </a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'Laptop\')">       Laptop       </a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'PC\')">           PC           </a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'Tablet\')">       Tablet       </a></li>
-                      <li class="divider"></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'Router\')">       Router       </a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'Switch\')">       Switch       </a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'Access Point\')"> Access Point </a></li>
-                      <li class="divider"></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_type\',\'Others\')">       Others       </a></li>
-                    </ul>
-                  </div>
-                </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_group" name="en_bulk_group" type="checkbox"></td>
-            <td>
-                <label for="bulk_group">' . $pia_lang['DevDetail_MainInfo_Group'] . ':</label><br>
-                <div class="input-group" style="max-width: 400px;">
-                  <input class="form-control" id="bulk_group" name="bulk_group" type="text" disabled>
-                  <div class="input-group-btn">
-                    <button type="button" id="bulk_group_selector" name="bulk_group_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-                      <span class="fa fa-caret-down"></span></button>
-                    <ul id="dropdownGroup" class="dropdown-menu dropdown-menu-right">
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_group\',\'Always On\')"> Always On </a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_group\',\'Friends\')">   Friends   </a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_group\',\'Personal\')">  Personal  </a></li>
-                      <li class="divider"></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_group\',\'Others\')">    Others    </a></li>
-                    </ul>
-                  </div>
-                </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_location" name="en_bulk_location" type="checkbox"></td>
-            <td>
-                <label for="bulk_location">' . $pia_lang['DevDetail_MainInfo_Location'] . ':</label><br>
-                <div class="input-group" style="max-width: 400px;">
-                  <input class="form-control" id="bulk_location" name="bulk_location" type="text" disabled>
-                  <div class="input-group-btn">
-                    <button type="button" id="bulk_location_selector" name="bulk_location_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-                      <span class="fa fa-caret-down"></span></button>
-                    <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right">
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_location\',\'Bathroom\')">    Bathroom</a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_location\',\'Bedroom\')">     Bedroom</a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_location\',\'Hall\')">        Hall</a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_location\',\'Kitchen\')">     Kitchen</a></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_location\',\'Living room\')"> Living room</a></li>
-                      <li class="divider"></li>
-                      <li><a href="javascript:void(0)" onclick="setTextValue(\'bulk_location\',\'Others\')">      Others</a></li>
-                    </ul>
-                  </div>
-                </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_comments" name="en_bulk_comments" type="checkbox"></td>
-            <td>
-                <label for="bulk_comments">' . $pia_lang['DevDetail_MainInfo_Comments'] . ':</label><br>
-                <textarea class="form-control" rows="3" id="bulk_comments" name="bulk_comments" spellcheck="false" data-gramm="false" style="max-width: 400px;" disabled></textarea></td>
-          </tr>
-          <tr>
-            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_AlertAllEvents" name="en_bulk_AlertAllEvents" type="checkbox"></td>
-            <td>
-                <label for="bulk_AlertAllEvents" style="width: 200px;">' . $pia_lang['DevDetail_EveandAl_AlertAllEvents'] . ':</label>
-                <input class="icheckbox_flat-blue" id="bulk_AlertAllEvents" name="bulk_AlertAllEvents" type="checkbox" disabled></td>
-          </tr>
-          <tr>
-            <td class="bulked_table_cell_a"><input class="icheckbox_flat-blue" id="en_bulk_AlertDown" name="en_bulk_AlertDown" type="checkbox"></td>
-            <td>
-                <label for="bulk_AlertDown" style="width: 200px;">' . $pia_lang['DevDetail_EveandAl_AlertDown'] . ':</label>
-                <input class="icheckbox_flat-blue" id="bulk_AlertDown" name="bulk_AlertDown" type="checkbox" disabled></td>
-          </tr>
-
-        </table>
-        <button type="button" class="btn btn-danger" id="btnBulkDeletion" onclick="askBulkDeletion()" style="min-width: 180px;">' . $pia_lang['Device_bulkDel_button'] . '</button>
-        <input class="btn btn-warning pull-right" type="submit" value="' . $pia_lang['Gen_Save'] . '" style="margin-bottom: 10px; min-width: 180px;">';
-
-	// JS to enable/disable inputs. Inputs are delete, when disabled
-	echo '<script>
-            var bulk_owner = true;
-            $("#en_bulk_owner").on("click", function() {
-              $("#bulk_owner").val(\'\');
-              $("#bulk_owner").prop("disabled", !bulk_owner);
-              bulk_owner = !bulk_owner;
-            });
-            var bulk_type = true;
-            $("#en_bulk_type").on("click", function() {
-              $("#bulk_type").val(\'\');
-              $("#bulk_type").prop("disabled", !bulk_type);
-              $("#bulk_type_selector").prop("disabled", !bulk_type);
-              bulk_type = !bulk_type;
-            });
-            var bulk_group = true;
-            $("#en_bulk_group").on("click", function() {
-              $("#bulk_group").val(\'\');
-              $("#bulk_group").prop("disabled", !bulk_group);
-              $("#bulk_group_selector").prop("disabled", !bulk_group);
-              bulk_group = !bulk_group;
-            });
-            var bulk_location = true;
-            $("#en_bulk_location").on("click", function() {
-              $("#bulk_location").val(\'\');
-              $("#bulk_location").prop("disabled", !bulk_location);
-              $("#bulk_location_selector").prop("disabled", !bulk_location);
-              bulk_location = !bulk_location;
-            });
-            var bulk_comments = true;
-            $("#en_bulk_comments").on("click", function() {
-              $("#bulk_comments").val(\'\');
-              $("#bulk_comments").prop("disabled", !bulk_comments);
-              bulk_comments = !bulk_comments;
-            });
-            var bulk_AlertAllEvents = true;
-            $("#en_bulk_AlertAllEvents").on("click", function() {
-              $("#bulk_AlertAllEvents").prop("checked", false);
-              $("#bulk_AlertAllEvents").prop("disabled", !bulk_AlertAllEvents);
-              bulk_AlertAllEvents = !bulk_AlertAllEvents;
-            });
-            var bulk_AlertDown = true;
-            $("#en_bulk_AlertDown").on("click", function() {
-              $("#bulk_AlertDown").prop("checked", false);
-              $("#bulk_AlertDown").prop("disabled", !bulk_AlertDown);
-              bulk_AlertDown = !bulk_AlertDown;
-            });
-
-            function setTextValue (textElement, textValue) {
-              $("#"+textElement).val (textValue);
-            }
-
-            function askBulkDeletion() {
-              // Ask
-              showModalWarning(\'' . $pia_lang['Device_bulkDel_info_head'] . '\', \'' . $pia_lang['Device_bulkDel_info_text'] . '\',
-                \'' . $pia_lang['Gen_Cancel'] . '\', \'' . $pia_lang['Gen_Delete'] . '\', \'BulkDeletion\');
-            }
-            function BulkDeletion()
-            {
-              const checkboxes = document.querySelectorAll(\'.icheckbox_flat-blue.hostselection:checked\');
-              const checkedIds = Array.from(checkboxes).map((checkbox) => checkbox.id);
-              const queryParams = new URLSearchParams();
-              checkedIds.forEach((id) => queryParams.append(\'hosts[]\', id));
-              // Execute
-              $.get(\'php/server/icmpmonitor.php?action=BulkDeletion&\' + queryParams.toString(), function(msg) {
-                showMessage (msg);
-              });
-            }
-
-        </script>';
-
 	print_box_bottom_element();
 
 	echo '</form>';
@@ -548,7 +630,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
             <!-- box-header -->
             <div class="box-header">
               <h3 id="tableDevicesTitle" class="box-title text-aqua"><?=$pia_lang['Device_Title'];?></h3>
-              <a href="./icmpmonitor.php?mod=bulkedit" class="btn btn-xs btn-default" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil" style="font-size:1.5rem"></i></a>
+              <a href="./icmpmonitor.php?mod=bulkedit" class="btn btn-xs btn-link" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil text-yellow" style="font-size:1.5rem"></i></a>
             </div>
 
             <div class="box-body table-responsive">
