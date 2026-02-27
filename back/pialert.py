@@ -4227,8 +4227,8 @@ def icmp_monitoring():
 
         update_icmp_validation()
         online, offline = get_online_offline_hosts()
-        print("        Online Host(s)  : " + str(online))
-        print("        Offline Host(s) : " + str(offline))
+        print("        Online Host(s) : " + str(online))
+        print("        Offline Host(s): " + str(offline))
 
         print("    Create Events...")
         icmp_create_events()
@@ -4875,11 +4875,11 @@ def sync_mqtt_devices_stateless():
         publish_ha_device_entities("main", device)
 
     sql.execute("SELECT * FROM ICMP_Mon WHERE icmp_MQTTDevice=1")
-    activeMQTT = sql.fetchall()
-    for device in activeMQTT:
+    activeMQTT_icmp = sql.fetchall()
+    for device in activeMQTT_icmp:
         publish_ha_device_entities("icmp", device)
 
-    print(f"    Published MQTT-Devices: {len(activeMQTT)}")
+    print(f"    Published MQTT-Devices      : {len(activeMQTT) + len(activeMQTT_icmp)}")
 
     # Remove all disabled devices
     sql.execute("SELECT dev_MAC, dev_ScanSource FROM Devices WHERE dev_MQTTDevice=0 and dev_MQTTDevice_cleanup=1")
@@ -4890,12 +4890,12 @@ def sync_mqtt_devices_stateless():
 
 
     sql.execute("SELECT icmp_ip FROM ICMP_Mon WHERE icmp_MQTTDevice=0 and icmp_MQTTDevice_cleanup=1")
-    inactiveMQTT = sql.fetchall()
-    for row in inactiveMQTT:
+    inactiveMQTT_icmp = sql.fetchall()
+    for row in inactiveMQTT_icmp:
         remove_ha_entities("icmp", row["icmp_ip"],"local_ICMP")
     sql.execute("""UPDATE ICMP_Mon SET icmp_MQTTDevice_cleanup = 0 WHERE icmp_MQTTDevice=0 AND icmp_MQTTDevice_cleanup=1""")
 
-    print(f"    Remove disabled MQTT-Devices")
+    print(f"    Remove disabled MQTT-Devices: {len(inactiveMQTT) + len(inactiveMQTT_icmp)}")
 
     closeDB()
 
