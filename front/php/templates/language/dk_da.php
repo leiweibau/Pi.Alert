@@ -211,6 +211,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Model';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serienr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favorit';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Vis på "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-enhed';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Gruppe';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Placering';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Note';
@@ -952,6 +953,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Genstart udløst';
 $pia_journ_lang['LogStr_9994'] = 'Nedlukning udløst';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurationsfilen blev ikke gemt';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsfil redigeret';
 
 ?>

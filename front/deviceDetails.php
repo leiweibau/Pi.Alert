@@ -78,7 +78,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabDetails').trigger('click')">
             <div class="small-box bg-aqua">
-              <div class="inner"><h3 id="deviceStatus" style="margin-left: 0em"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceStatus" style="margin-left: 0em"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_CurrentStatus'];?></p>
               </div>
               <div class="icon"><i id="deviceStatusIcon" class=""></i></div>
@@ -89,7 +89,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabSessions').trigger('click');">
             <div class="small-box bg-green">
-              <div class="inner"><h3 id="deviceSessions"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceSessions"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_Sessions'];?></p>
               </div>
               <div class="icon"><i class="mdi mdi-lan-connect"></i></div>
@@ -100,7 +100,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabPresence').trigger('click')">
             <div  class="small-box bg-yellow">
-              <div class="inner"><h3 id="deviceEvents" style="margin-left: 0em"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceEvents" style="margin-left: 0em"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_Presence'];?></p>
               </div>
               <div id="deviceEventsIcon" class="icon"><i class="fa fa-calendar"></i></div>
@@ -111,7 +111,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
         <div class="col-lg-3 col-sm-6 col-xs-6">
           <a href="#" onclick="javascript: $('#tabEvents').trigger('click');">
             <div  class="small-box bg-red">
-              <div class="inner"><h3 id="deviceDownAlerts"> -- </h3>
+              <div class="inner" style="padding: 0px 10px;"><h3 id="deviceDownAlerts"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['DevDetail_Shortcut_DownAlerts'];?></p>
               </div>
               <div class="icon"><i class="mdi mdi-lan-disconnect"></i></div>
@@ -331,6 +331,12 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                       <div class="form-group">
                         <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_StaticIP'];?></label>
                         <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox blue hidden" id="chkStaticIP" type="checkbox"></div>
+                      </div>
+
+                      <!-- MQTT -->
+                      <div class="form-group">
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_MainInfo_MQTTDevice']?></label>
+                        <div class="col-sm-7" style="padding-top:6px;"><input class="checkbox purple hidden" id="chkMQTTDevice" type="checkbox"></div>
                       </div>
                     </div>
 
@@ -670,7 +676,7 @@ if ($_REQUEST['mac'] == 'Internet') {
                 <!-- Speedtest Graph -->
                 <div class="col-md-12" style="margin-bottom:20px;">
                   <div class="chart" style="height: 200px;">
-                    <script src="lib/AdminLTE/bower_components/chart.js/Chart.js"></script>
+                    <script src="lib/AdminLTE/bower_components/chart.js/chart.js"></script>
                     <canvas id="SpeedtestChart"></canvas>
                   </div>
                 </div>
@@ -925,6 +931,13 @@ function initializeiCheck () {
     increaseArea:  '20%'
   });
 
+  // purple
+  $('input[type="checkbox"].purple').iCheck({
+    checkboxClass: 'icheckbox_flat-purple',
+    radioClass:    'iradio_flat-purple',
+    increaseArea:  '20%'
+  });
+
   // When toggle iCheck
   $('input').on('ifToggled', function(event){
     // Hide / Show Events
@@ -1143,7 +1156,6 @@ function initializeCalendar () {
         buttonText         : '<?=$pia_lang['PRE_CalHead_year'];?>',
         columnHeaderFormat : ''
       },
-
       agendaMonth: {
         type               : 'agenda',
         duration           : { month: 1 },
@@ -1295,6 +1307,7 @@ function getDeviceData (readAllData=false) {
       $('#txtLastIP').val          ('--');
       $('#txtStatus').val          ('--');
       $('#chkStaticIP').iCheck     ('uncheck');
+      $('#chkMQTTDevice').iCheck   ('uncheck');
 
       $('#txtScanCycle').val       ('--');
       $('#chkAlertEvents').iCheck  ('uncheck');
@@ -1391,6 +1404,7 @@ function getDeviceData (readAllData=false) {
         $('#txtScanSource').val                      (deviceData['dev_ScanSource']);
         $('#txtStatus').val                          (deviceData['dev_Status'].replace('-', ''));
         if (deviceData['dev_StaticIP'] == 1)         {$('#chkStaticIP').iCheck('check');}    else {$('#chkStaticIP').iCheck('uncheck');}
+        if (deviceData['dev_MQTTDevice'] == 1)       {$('#chkMQTTDevice').iCheck('check');}    else {$('#chkMQTTDevice').iCheck('uncheck');}
 
         $('#txtScanCycle').val                       (deviceData['dev_ScanCycle']);
         if (deviceData['dev_AlertEvents'] == 1)      {$('#chkAlertEvents').iCheck('check');} else {$('#chkAlertEvents').iCheck('uncheck');}
@@ -1526,6 +1540,7 @@ function setDeviceData (refreshCallback='') {
     + '&connectiontype='  + $('#txtConnectionType').val()
     + '&linkspeed='       + $('#txtLinkSpeed').val()
     + '&staticIP='        + ($('#chkStaticIP')[0].checked * 1)
+    + '&mqttdevice='      + ($('#chkMQTTDevice')[0].checked * 1)
     + '&scancycle='       + $('#txtScanCycle').val()
     + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
     + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
@@ -1738,14 +1753,32 @@ function showmanualnmapscan(targetip) {
     }
   })
 }
-function initToolsSection () {
-setTimeout(function(){
-   document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtLastIP').value +')';
-   document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtLastIP').value +')';
-   document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtLastIP').value +')';
-   document.getElementById('btnwakeonlan').innerHTML='<?=$pia_lang['DevDetail_Tools_WOL'];?> ' + document.getElementById('txtLastIP').value + '';
-   showmanualnmapscan(document.getElementById('txtLastIP').value);
-}, 1000);
+function initToolsSection() {
+    setTimeout(function() {
+        // Prüfen, ob txtLastIP existiert
+        const $txtLastIP = $('#txtLastIP');
+        if ($txtLastIP.length === 0) return; // Abbruch, wenn txtLastIP fehlt
+
+        const lastIP = $txtLastIP.val() || '';
+
+        // Elemente auswählen
+        const $manualFast   = $('#manualnmap_fast');
+        const $manualNormal = $('#manualnmap_normal');
+        const $manualDetail = $('#manualnmap_detail');
+        const $btnWake      = $('#btnwakeonlan');
+
+        // Inhalte nur setzen, wenn Element existiert
+        if ($manualFast.length)   $manualFast.text('Schneller Scan (' + lastIP + ')');
+        if ($manualNormal.length) $manualNormal.text('Standard Scan (' + lastIP + ')');
+        if ($manualDetail.length) $manualDetail.text('Detailierter Scan (' + lastIP + ')');
+        if ($btnWake.length)      $btnWake.text('Sende Wol Befehl an ' + lastIP);
+
+        // Funktion nur aufrufen, wenn lastIP existiert
+        if (lastIP) {
+            showmanualnmapscan(lastIP);
+        }
+
+    }, 1000);
 }
 
 function generateMACDropdownList() {

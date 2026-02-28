@@ -211,6 +211,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Model';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serienummer';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favoriet';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Weergeven op "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-apparaat';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Groep';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Locatie';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Notitie';
@@ -952,6 +953,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Herstart uitgevoerd';
 $pia_journ_lang['LogStr_9994'] = 'Afsluiten uitgevoerd';
+$pia_journ_lang['LogStr_9998'] = 'Configuratiebestand niet opgeslagen';
 $pia_journ_lang['LogStr_9999'] = 'Configuratiebestand bewerkt';
 
 ?>

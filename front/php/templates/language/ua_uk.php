@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Модель';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Серійний №';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Вибране';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Показати у "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-пристрій';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Група';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Розташування';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Нотатка';
@@ -949,6 +950,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Перезапуск ініційовано';
 $pia_journ_lang['LogStr_9994'] = 'Вимкнення ініційовано';
+$pia_journ_lang['LogStr_9998'] = 'Файл конфігурації не збережено';
 $pia_journ_lang['LogStr_9999'] = 'Конфігураційний файл змінено';
 
 ?>

@@ -27,7 +27,7 @@ from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion, MQTT_ERR_SUCCESS
-import sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
+import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -770,7 +770,7 @@ def check_IP_format(pIP):
 def cleanup_database():
     openDB()
     print('\nCleanup tables, up to the lastest ' + str(DAYS_TO_KEEP_EVENTS) + ' days:')
-    print('    Events')
+    print('    Devices Events')
 
     sql.execute("SELECT COUNT(*) FROM Events WHERE eve_DateTime <= date('now', '-" + str(DAYS_TO_KEEP_EVENTS) + " day')")
     count = sql.fetchone()[0]
@@ -807,6 +807,9 @@ def cleanup_database():
     print('\nTrim Journal to the lastest 1000 entries')
     sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
 
+    print('\nTrim Services Events Journal to the lastest 500 entries')
+    sql.execute("DELETE FROM Services_Events_Journal WHERE monevj_DateTime NOT IN (SELECT monevj_DateTime FROM Services_Events_Journal ORDER BY monevj_DateTime DESC LIMIT 500) AND (SELECT COUNT(*) FROM Services_Events_Journal) > 500")
+
     print('\nShrink Database...')
     sql.execute("VACUUM;")
     sql.execute("""INSERT INTO pialert_journal (Journal_DateTime, LogClass, Trigger, LogString, Hash, Additional_Info)
@@ -817,8 +820,6 @@ def cleanup_database():
     sys.stdout.flush()
     sys.stderr.flush()
     command = ["python3", PIALERT_BACK_PATH + "/pialert_tools.py", "cleanup"]
-    # output = subprocess.check_output(command, text=True)
-
     subprocess.run(command, stdout=sys.stdout, stderr=sys.stderr, text=True, check=True)
 
     return 0
@@ -3600,6 +3601,106 @@ def set_services_events(_moneve_URL, _moneve_DateTime, _moneve_StatusCode, _mone
     sql_connection.commit()
 
 # -----------------------------------------------------------------------------
+def set_services_events_journal(_monevj_URL, _monevj_DateTime, _monevj_StatusCode, _monevj_Latency, _monevj_TargetIP, _monevj_ssl_fc):
+
+    # Neues Services Journal
+    sql.execute("""
+        SELECT mon_LastStatus,
+               mon_LastLatency,
+               mon_TargetIP
+        FROM Services
+        WHERE mon_URL = ?
+    """, (_monevj_URL,))
+
+    service = sql.fetchone()
+
+    # Wenn URL nicht existiert → abbrechen
+    if service is None:
+        return
+
+    mon_LastStatus, mon_LastLatency, mon_TargetIP = service
+
+    conditions_met = False
+    additional_info = []
+
+    # Latenz-Vergleich (FLOAT mit Sonderlogik)
+    if str(_monevj_Latency) != str(mon_LastLatency):
+        try:
+            current_latency = float(_monevj_Latency)
+            last_latency = float(mon_LastLatency)
+        except (TypeError, ValueError):
+            current_latency = None
+            last_latency = None
+
+        if current_latency is not None:
+            if current_latency == 99999999:
+                conditions_met = True
+                additional_info.append("Service unreachable")
+
+            elif last_latency == 99999999:
+                conditions_met = True
+                additional_info.append("Service reachable again")
+
+            elif last_latency is not None and last_latency > 0:
+                if current_latency >= (last_latency * 10):
+                    conditions_met = True
+                    additional_info.append(
+                        f"High latency: {current_latency:.6f}s "
+                        f"(>10x previous {last_latency:.6f}s)"
+                    )
+
+    # Status-Code Vergleich
+    if _monevj_StatusCode != mon_LastStatus:
+
+        if {mon_LastStatus, _monevj_StatusCode} != {0, 200}:
+            conditions_met = True
+            additional_info.append(
+                f"Status changed: {mon_LastStatus} → {_monevj_StatusCode}"
+            )
+
+    # Target-IP Vergleich
+    if _monevj_TargetIP != mon_TargetIP:
+
+        if (mon_TargetIP is None) != (_monevj_TargetIP is None):
+            conditions_met = True
+            additional_info.append(
+                f"IP changed: {mon_TargetIP} → {_monevj_TargetIP}"
+            )
+
+    # SSL-Flag Vergleich (Bitmask auflösen)
+    if int(_monevj_ssl_fc) > 0:
+        conditions_met = True
+        ssl_code = int(_monevj_ssl_fc)
+
+        if ssl_code & 8:
+            additional_info.append("SSL Subject changed")
+        if ssl_code & 4:
+            additional_info.append("SSL Issuer changed")
+        if ssl_code & 2:
+            additional_info.append("SSL Valid_from changed")
+        if ssl_code & 1:
+            additional_info.append("SSL Valid_to changed")
+
+    if conditions_met:
+
+        sqlite_insert = """
+            INSERT INTO Services_Events_Journal
+            (monevj_URL,
+             monevj_DateTime,
+             monevj_Additional_Info)
+            VALUES (?, ?, ?);
+        """
+
+        table_data = (
+            _monevj_URL,
+            _monevj_DateTime,
+            " | ".join(additional_info)
+        )
+
+        sql.execute(sqlite_insert, table_data)
+        sql_connection.commit()
+
+# -----------------------------------------------------------------------------
 def set_services_current_scan(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _cur_TargetIP, _cur_ssl_info):
 
     _cur_StatusChanged = 0
@@ -3669,8 +3770,10 @@ def set_services_current_scan(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Lat
     sql.execute(sqlite_insert, table_data)
     sql_connection.commit()
 
-    return _cur_ssl_fc
-
+    # Save Journal and Events
+    set_services_events_journal(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _cur_TargetIP, _cur_ssl_fc)
+    set_services_events(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _cur_TargetIP, _cur_ssl_fc)
+    
 # -----------------------------------------------------------------------------
 def service_monitoring_log(site, status, latency):
     status_str = str(status)
@@ -3678,11 +3781,8 @@ def service_monitoring_log(site, status, latency):
     # Log status message to log file
     with open(PIALERT_WEBSERVICES_LOG, 'a') as monitor_logfile:
         monitor_logfile.write("{} |        {} |     {} | {}\n".format(strftime("%Y-%m-%d %H:%M:%S"),
-                                                status_str.zfill(3),
-                                                latency,
-                                                site
-                                                )
-                             )
+                                status_str.zfill(3), latency, site)
+        )
 
 # -----------------------------------------------------------------------------
 def check_services_health(site):
@@ -3757,7 +3857,6 @@ def get_ssl_cert_info(url, timeout=10):
                     ssl_info['Valid_to'] = f"""{cert.not_valid_after}"""
 
                 return ssl_info
-
 
     except socket.timeout:
         return "SSL certificate could not be found (Timeout)"
@@ -3988,7 +4087,7 @@ def service_monitoring():
     sql_connection.commit()
     closeDB()
     
-    print("    Check Services (New)...")
+    print("    Check Services...")
     with open(PIALERT_WEBSERVICES_LOG, 'a') as monitor_logfile:
         monitor_logfile.write("\nStart Services Monitoring\n\n Timestamp          | StatusCode | ResponseTime | URL \n-----------------------------------------------------------------\n") 
         monitor_logfile.close()
@@ -4005,11 +4104,11 @@ def service_monitoring():
             status, latency = check_services_health(site)
             site_retry = ''
             if latency == "99999999":
-                # 2. Versuch bei Fehler im ersten Durchlauf
+                # 2. Attempt in case of error in the first run
                 status, latency = check_services_health(site)
                 site_retry = '*'
                 if latency == "99999999":
-                    # 3. Versuch bei Fehler im zweiten Durchlauf
+                    # 3. Attempt in case of error in the second run
                     status, latency = check_services_health(site)
                     site_retry = '**'
 
@@ -4029,20 +4128,22 @@ def service_monitoring():
             # Speicherung der Ergebnisse in Listen/Dictionaries
             results_log.append((site + ' ' + site_retry, status, latency))
             scan_data.append((site, scantime, status, latency, domain_ip, ssl_info))
-            event_data.append((site, scantime, status, latency, domain_ip, ""))
             update_data.append((site, scantime, status, latency, domain_ip, redirect_state, ssl_info, ""))
 
         # OpenDB to save Scan Results
         openDB()
+
+        # Log-File
         for log_entry in results_log:
             service_monitoring_log(*log_entry)
 
+        # Storing the current status and determining the change since the last scan
+        # Saving the current status as a separate event for the history
+        # Write the journal from the changes identified
         for scan_entry in scan_data:
-            ssl_fc = set_services_current_scan(*scan_entry)
+            set_services_current_scan(*scan_entry)
 
-        for event_entry in event_data:
-            set_services_events(*event_entry)
-
+        # Update the services list with the current status
         for update_entry in update_data:
             set_service_update(*update_entry)
 
@@ -4126,8 +4227,8 @@ def icmp_monitoring():
 
         update_icmp_validation()
         online, offline = get_online_offline_hosts()
-        print("        Online Host(s)  : " + str(online))
-        print("        Offline Host(s) : " + str(offline))
+        print("        Online Host(s) : " + str(online))
+        print("        Offline Host(s): " + str(offline))
 
         print("    Create Events...")
         icmp_create_events()
@@ -4476,8 +4577,10 @@ def icmphost_monitoring_notification():
 # Publish to MQTT
 #===============================================================================
 def report_to_mqtt():
+
+    # General System Data
     if PUBLISH_MQTT_STATUS:
-        print('        Pi.Alert Status')
+        print('    Pi.Alert Status')
         daten = mqtt_get_system_status()
 
         for group, values in daten.items():
@@ -4486,6 +4589,9 @@ def report_to_mqtt():
             base_topic = f"pi_alert/{group}"
 
             publish_sensor_group(device_id, device_name, base_topic, values)
+
+    # Per Device Data
+    sync_mqtt_devices_stateless()
 
 #-------------------------------------------------------------------------------
 def publish_sensor_group(device_id: str, device_name: str, base_topic: str, values: dict):
@@ -4509,7 +4615,7 @@ def publish_sensor_group(device_id: str, device_name: str, base_topic: str, valu
             device_class=device_class
         )
 
-        # Wert senden
+        # Publish
         send_mqtt_message(topic, value, retain=True)
 
 #-------------------------------------------------------------------------------
@@ -4621,6 +4727,179 @@ def mqtt_get_system_status():
     return data
 
 #-------------------------------------------------------------------------------
+def normalize_mac(mac: str) -> str:
+    return mac.lower().replace(":", "")
+
+def normalize_ip(ip: str) -> str:
+    return ip.lower().replace(".", "")
+
+def ipv4_to_mac(ip: str) -> str:
+    digest = hashlib.sha256(ip.encode()).digest()
+    mac = bytearray(digest[:6])
+    mac[0] = (mac[0] & 0b11111110) | 0b00000010
+    return ':'.join(f'{b:02x}' for b in mac)
+
+#-------------------------------------------------------------------------------
+def publish_ha_device_entities(mode, device_row):
+    if mode == "main":
+        mac = device_row["dev_MAC"]
+        mac_clean = normalize_mac(mac)
+
+        name = device_row["dev_Name"] or "Unknown"
+        vendor = device_row["dev_Vendor"] or "Unknown"
+        model = device_row["dev_Model"] or "Network Device"
+        location = device_row["dev_Location"] or "Unknown"
+        online_state = "ON" if device_row["dev_PresentLastScan"] else "OFF"
+        ip_address = device_row["dev_LastIP"] or "0.0.0.0"
+        scan_source_value = mqtt_resolve_scan_source(device_row["dev_ScanSource"])
+
+        localhostlist = ['local', '']
+        if device_row["dev_ScanSource"] in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_local"
+        elif device_row["dev_ScanSource"] not in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_{scan_source_value}"
+        else:
+            device_identifier = f"pialert_{mac_clean}"
+
+    elif mode == "icmp":
+        icmpip = device_row["icmp_ip"]
+        ip_clean = normalize_ip(icmpip)
+        # Random mac is only for home assistant requirements
+        mac = ipv4_to_mac(icmpip)
+
+        name = device_row["icmp_hostname"] or "Unknown"
+        vendor = device_row["icmp_vendor"] or "Unknown"
+        model = device_row["icmp_model"] or "Network Device"
+        location = device_row["icmp_location"] or "Unknown"
+        online_state = "ON" if device_row["icmp_PresentLastScan"] else "OFF"
+        ip_address = device_row["icmp_ip"] or "0.0.0.0"
+        scan_source_value = "local ICMP Monitoring"
+        device_identifier = f"pialert_ip{ip_clean}"
+
+    device_info = {
+        "identifiers": [f"{device_identifier}"],
+        "name": name,
+        "manufacturer": vendor,
+        "model": model,
+        "connections": [["mac", mac]]
+    }
+
+    # Binary Sensor: Online / Offline
+    binary_topic = f"homeassistant/binary_sensor/{device_identifier}_online/config"
+    binary_payload = {
+        "name": f"Online",
+        "unique_id": f"{device_identifier}_online",
+        "state_topic": f"pi_alert/device/{device_identifier}/online",
+        "payload_on": "ON",
+        "payload_off": "OFF",
+        "device_class": "connectivity",
+        "device": device_info
+    }
+    send_mqtt_message(binary_topic, binary_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/online", online_state, retain=True)
+
+    # IP
+    ip_topic = f"homeassistant/sensor/{device_identifier}_ip/config"
+    ip_payload = {
+        "name": f"IP",
+        "unique_id": f"{device_identifier}_ip",
+        "state_topic": f"pi_alert/device/{device_identifier}/ip",
+        "icon": "mdi:ip",
+        "device": device_info
+    }
+    send_mqtt_message(ip_topic, ip_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/ip", ip_address, retain=True)
+
+    # Location
+    loc_topic = f"homeassistant/sensor/{device_identifier}_location/config"
+    loc_payload = {
+        "name": f"Standort",
+        "unique_id": f"{device_identifier}_location",
+        "state_topic": f"pi_alert/device/{device_identifier}/location",
+        "icon": "mdi:home",
+        "device": device_info
+    }
+    send_mqtt_message(loc_topic, loc_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/location", location, retain=True)
+
+    # ScanSource
+    scan_topic = f"homeassistant/sensor/{device_identifier}_scansource/config"
+    scan_payload = {
+        "name": "Scan Source",
+        "unique_id": f"{device_identifier}_scansource",
+        "state_topic": f"pi_alert/device/{device_identifier}/scansource",
+        "icon": "mdi:radar",
+        "device": device_info
+    }
+    send_mqtt_message(scan_topic, scan_payload, retain=True)
+    send_mqtt_message(f"pi_alert/device/{device_identifier}/scansource", scan_source_value ,retain=True)
+
+#-------------------------------------------------------------------------------
+def remove_ha_entities(mode, mac: str, source):
+    if mode == "main":
+        mac_clean = normalize_mac(mac)
+        scan_source_value = mqtt_resolve_scan_source(source)
+
+        localhostlist = ['local', '']
+        if source in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_local"
+        elif source not in localhostlist and mac.startswith('Internet'):
+            device_identifier = f"pialert_internet_{scan_source_value}"
+        else:
+            device_identifier = f"pialert_{mac_clean}"
+
+    elif mode == "icmp":
+        ip_clean = normalize_ip(mac)
+        device_identifier = f"pialert_ip{ip_clean}"
+
+    topics = [
+        f"homeassistant/binary_sensor/{device_identifier}_online/config",
+        f"homeassistant/sensor/{device_identifier}_ip/config",
+        f"homeassistant/sensor/{device_identifier}_location/config",
+        f"homeassistant/sensor/{device_identifier}_scansource/config"
+    ]
+
+    for topic in topics:
+        send_mqtt_message(topic, "", retain=True)
+
+    print_log(f"HA Device fully removed: {mac}")
+
+#-------------------------------------------------------------------------------
+def sync_mqtt_devices_stateless():
+    openDB()
+    
+    # Publish all enabled devices
+    sql.execute("SELECT * FROM Devices WHERE dev_MQTTDevice=1")
+    activeMQTT = sql.fetchall()
+    for device in activeMQTT:
+        publish_ha_device_entities("main", device)
+
+    sql.execute("SELECT * FROM ICMP_Mon WHERE icmp_MQTTDevice=1")
+    activeMQTT_icmp = sql.fetchall()
+    for device in activeMQTT_icmp:
+        publish_ha_device_entities("icmp", device)
+
+    print(f"    Published MQTT-Devices      : {len(activeMQTT) + len(activeMQTT_icmp)}")
+
+    # Remove all disabled devices
+    sql.execute("SELECT dev_MAC, dev_ScanSource FROM Devices WHERE dev_MQTTDevice=0 and dev_MQTTDevice_cleanup=1")
+    inactiveMQTT = sql.fetchall()
+    for row in inactiveMQTT:
+        remove_ha_entities("main", row["dev_MAC"],row["dev_ScanSource"])
+    sql.execute("""UPDATE Devices SET dev_MQTTDevice_cleanup = 0 WHERE dev_MQTTDevice=0 AND dev_MQTTDevice_cleanup=1""")
+
+
+    sql.execute("SELECT icmp_ip FROM ICMP_Mon WHERE icmp_MQTTDevice=0 and icmp_MQTTDevice_cleanup=1")
+    inactiveMQTT_icmp = sql.fetchall()
+    for row in inactiveMQTT_icmp:
+        remove_ha_entities("icmp", row["icmp_ip"],"local_ICMP")
+    sql.execute("""UPDATE ICMP_Mon SET icmp_MQTTDevice_cleanup = 0 WHERE icmp_MQTTDevice=0 AND icmp_MQTTDevice_cleanup=1""")
+
+    print(f"    Remove disabled MQTT-Devices: {len(inactiveMQTT) + len(inactiveMQTT_icmp)}")
+
+    closeDB()
+
+#-------------------------------------------------------------------------------
 def send_mqtt_message(topic: str, value, retain: bool = False):
     client = Client(protocol=MQTTv311, callback_api_version=CallbackAPIVersion.VERSION2)
 
@@ -4654,6 +4933,27 @@ def send_mqtt_message(topic: str, value, retain: bool = False):
         client.loop_stop()
     except Exception as e:
         print_log(f"❌ MQTT-Connection: {e}")
+
+#-------------------------------------------------------------------------------
+def mqtt_resolve_scan_source(source):
+    scan_source = source
+
+    if not scan_source:
+        return "unknown"
+
+    if scan_source == "local":
+        return "local"
+
+    sql.execute(
+        "SELECT sat_name FROM Satellites WHERE sat_token = ?",
+        (scan_source,)
+    )
+    row = sql.fetchone()
+
+    if row:
+        return row[0]
+    else:
+        return "unknown"
 
 #===============================================================================
 # REPORTING
@@ -4819,9 +5119,9 @@ def email_reporting():
     mail_section_Internet = False
     mail_text_Internet = ''
     mail_html_Internet = ''
-    text_line_template = '{} \t{}\t{}\t{}\n'
+    text_line_template = '{}\n\t{}\n\t{}\n\t{}\n\t{}\n'
     html_line_template = '<tr>\n'+ \
-        '  <td> <a href="{}{}"> {} </a> </td><td> {} </td>'+ \
+        '  <td> <a href="{}{}"> {} </a> </td><td> {} </td><td> {} </td>'+ \
         '  <td style="font-size: 24px; color:#D02020"> {} </td>'+ \
         '  <td> {} </td></tr>\n'
 
@@ -4831,12 +5131,17 @@ def email_reporting():
                     ORDER BY eve_DateTime""")
 
     for eventAlert in sql :
+        # Trim internet device name
+        event_mac = eventAlert['eve_MAC']
+        if len(event_mac) > 20:
+            event_mac = event_mac[:20] + '...'
+
         mail_section_Internet = True
         mail_text_Internet += text_line_template.format (
-            eventAlert['eve_EventType'], eventAlert['eve_DateTime'],
+            event_mac, eventAlert['eve_EventType'], eventAlert['eve_DateTime'],
             eventAlert['eve_IP'], eventAlert['eve_AdditionalInfo'])
         mail_html_Internet += html_line_template.format (
-            REPORT_DEVICE_URL, eventAlert['eve_MAC'],
+            REPORT_DEVICE_URL, eventAlert['eve_MAC'], event_mac,
             eventAlert['eve_EventType'], eventAlert['eve_DateTime'],
             eventAlert['eve_IP'], eventAlert['eve_AdditionalInfo'])
 

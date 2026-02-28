@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Modelis';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serijos nr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Mėgstamiausi';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Rodyti skiltyje "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT įrenginys';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Grupė';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Vieta';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Pastaba';
@@ -949,6 +950,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Paleistas iš naujo';
 $pia_journ_lang['LogStr_9994'] = 'Išjungimas inicijuotas';
+$pia_journ_lang['LogStr_9998'] = 'Konfigūracijos failas neišsaugotas';
 $pia_journ_lang['LogStr_9999'] = 'Konfigūracijos failas redaguotas';
 
 ?>

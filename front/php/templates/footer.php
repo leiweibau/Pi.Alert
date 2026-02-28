@@ -172,15 +172,6 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
         return time < 10 ? '0' + time : time;
     }
 
-    function initializeiCheck() {
-       // Blue
-       $('input[type="checkbox"].blue').iCheck({
-         checkboxClass: 'icheckbox_flat-blue',
-         radioClass:    'iradio_flat-blue',
-         increaseArea:  '20%'
-       });
-    }
-
     function updateTotals() {
       getDevicesTotalsBadge('local');
 <?php create_satellite_badges(); ?>

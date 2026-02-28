@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Modell';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serien&nbsp;Nr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favorit';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Auf "'.$pia_lang['NAV_Presence'].'" anzeigen';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT Gerät';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Gruppe';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Standort';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Notiz';
@@ -954,6 +955,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Neustart ausgelöst';
 $pia_journ_lang['LogStr_9994'] = 'Herunterfahren ausgelöst';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurationsdatei nicht gespeichert';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsdatei bearbeitet';
 
 ?>

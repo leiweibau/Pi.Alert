@@ -211,6 +211,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Model';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Sériové číslo';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Oblíbené';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Zobrazit v "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'Zařízení MQTT';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Skupina';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Umístění';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Poznámka';
@@ -952,6 +953,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Restart spuštěn';
 $pia_journ_lang['LogStr_9994'] = 'Vypnutí spuštěno';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurační soubor nebyl uložen';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurační soubor byl upraven';
 
 ?>

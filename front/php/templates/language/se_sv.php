@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Modell';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serienr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favorit';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Visa under "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-enhet';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Grupp';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Plats';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Anteckning';
@@ -949,6 +950,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Omstart initierad';
 $pia_journ_lang['LogStr_9994'] = 'Avstängning initierad';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurationsfilen sparades inte';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsfil redigerad';
 
 ?>

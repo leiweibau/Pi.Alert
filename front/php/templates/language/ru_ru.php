@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Модель';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Серийный номер';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Избранное';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Показывать в "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-устройство';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Группа';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Расположение';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Комментарии';
@@ -1062,6 +1063,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Инициирована перезагрузка';
 $pia_journ_lang['LogStr_9994'] = 'Инициировано выключение';
+$pia_journ_lang['LogStr_9998'] = 'Файл конфигурации не сохранён';
 $pia_journ_lang['LogStr_9999'] = 'Файл конфигурации отредактирован';
 
 ?>

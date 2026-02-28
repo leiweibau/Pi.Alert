@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Modell';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serienr.';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favoritt';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Vis på "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-enhet';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Gruppe';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Plassering';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Notat';
@@ -949,6 +950,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Omstart utløst';
 $pia_journ_lang['LogStr_9994'] = 'Avslutting utløst';
+$pia_journ_lang['LogStr_9998'] = 'Konfigurasjonsfilen ble ikke lagret';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurasjonsfil redigert';
 
 ?>

@@ -516,7 +516,11 @@ function SaveConfigFile() {
 	$laststate = '../../../config/pialert-prev.bak';
 	$configfile = '../../../config/pialert.conf';
 
-	copy($configfile, $laststate);
+    if (!copy($configfile, $laststate)) {
+        pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+        echo "<meta http-equiv='refresh' content='2; URL=./index.php'>";
+        return;
+    }
 
 	$configContent = preg_replace('/^\s*#.*$/m', '', $_REQUEST['configfile']);
 	$configArray = parse_ini_string($configContent);
@@ -597,7 +601,6 @@ function SaveConfigFile() {
 	}
 	# Fix install script error 26.11.2024
 	if (!is_numeric($configArray['REPORT_TO_ARCHIVE'])) {$configArray['REPORT_TO_ARCHIVE'] = 0;}
-
 
 	$config_template = "# General Settings
 # ----------------------

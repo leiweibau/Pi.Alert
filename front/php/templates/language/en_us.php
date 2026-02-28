@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Model';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Serial';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Favorite';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Show on "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT Device';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Group';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Location';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Comments';
@@ -949,6 +950,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Restart triggered';
 $pia_journ_lang['LogStr_9994'] = 'Shutdown triggered';
+$pia_journ_lang['LogStr_9998'] = 'Configuration file not saved';
 $pia_journ_lang['LogStr_9999'] = 'Configuration file edited';
 
 ?>

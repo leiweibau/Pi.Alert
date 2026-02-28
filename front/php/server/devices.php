@@ -577,6 +577,7 @@ function setDeviceData() {
 	global $db;
 	global $pia_lang;
 
+	$cleanup = ($_REQUEST['mqttdevice'] == 1) ? 0 : 1;
 	// sql
 	$sql = 'UPDATE Devices SET
                  dev_Name                 = "' . quotes($_REQUEST['name']) . '",
@@ -595,6 +596,8 @@ function setDeviceData() {
                  dev_ConnectionType       = "' . quotes($_REQUEST['connectiontype']) . '",
                  dev_LinkSpeed            = "' . quotes($_REQUEST['linkspeed']) . '",
                  dev_StaticIP             = "' . quotes($_REQUEST['staticIP']) . '",
+                 dev_MQTTDevice           = "' . quotes($_REQUEST['mqttdevice']) . '",
+                 dev_MQTTDevice_cleanup   = "' . $cleanup . '",
                  dev_ScanCycle            = "' . quotes($_REQUEST['scancycle']) . '",
                  dev_AlertEvents          = "' . quotes($_REQUEST['alertevents']) . '",
                  dev_AlertDeviceDown      = "' . quotes($_REQUEST['alertdown']) . '",
@@ -1155,7 +1158,7 @@ function DeleteInactiveHosts() {
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0015', '', '');
 	} else {
-		echo $pia_lang['BE_Dev_DBTools_DelInactHostsError'] . '<br>' . "\n\n$sql_loop \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_Dev_DBTools_DelInactHostsError'] . '<br>' . "\n\n" . $db->lastErrorMsg();
 		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0014', '', '');
 	}

@@ -369,12 +369,28 @@ function get_service_from_unique_device($func_unique_device) {
 
     <!-- Main content ---------------------------------------------------------- -->
     <section class="content">
+
+<!-- 
+===============================================================================
+ Start rendering page data
+=============================================================================== 
+-->
+
+	<div class="box" style="height: 200px;">
+		<div class="box-body">
+		    <table id="servicesJournalTable" class="table table-bordered table-hover table-striped overflow" width="100%">
+		        <thead>
+		            <tr>
+		                <th><?=$pia_lang['EVE_TableHead_Date']?></th>
+		                <th><?=$pia_lang['WEBS_label_URL']?></th>
+		                <th><?=$pia_lang['EVE_TableHead_AdditionalInfo']?></th>
+		            </tr>
+		        </thead>
+		    </table>
+		</div>
+    </div>
+
 <?php
-
-// ===============================================================================
-// Start rendering page data
-// ===============================================================================
-
 // Load http status code in array
 $http_status_code = open_http_status_code_json();
 // Get a array of device with monitored URLs
@@ -435,14 +451,84 @@ if ($count_standalone > 0) {
 <?php
 require 'php/templates/footer.php';
 ?>
+<link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+<script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
 <script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
 <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
 <script>
 
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+$(document).ready(function() {
+    var table = $('#servicesJournalTable').DataTable({
+        ajax: {
+            url: 'php/server/services.php?action=getServicesJournal',
+            type: 'GET',
+            dataSrc: ''
+        },
+        searching    : false,
+        lengthChange : false,
+        pageLength   : 10,
+        order        : [[0, 'desc']],
+        columns: [
+            { data: 'monevj_DateTime' },
+            { 
+                data: 'monevj_URL',
+                render: function(data, type, row, meta) {
+                    if (type === 'display') {
+                        var encodedUrl = encodeURIComponent(data);
+                        return `
+                            <a href="./serviceDetails.php?url=${encodedUrl}">
+                                ${data}
+                            </a>
+                            &nbsp;
+                            <a href="${data}" target="_blank" data-toggle="tooltip" title="Open service">
+                                <i class="fa fa-external-link-alt text-red"></i>
+                            </a>
+                        `;
+                    }
+                    return data;
+                }
+            },
+            { data: 'monevj_Additional_Info',
+              render: function (data, type) {
+
+                if (type !== 'display') return data;
+
+                let text = data;
+
+                const statusMap = {
+                    "Service reachable again": "text-green",
+                    "Service unreachable": "text-red",
+                    "SSL Subject changed": "text-aqua",
+                    "SSL Issuer changed": "text-aqua",
+                    "SSL Valid_from changed": "text-aqua",
+                    "SSL Valid_to changed": "text-aqua",
+                    "High latency:": "text-yellow",
+                    "Status changed:": "text-purple"
+                };
+
+                Object.keys(statusMap).forEach(function(key) {
+                    const cssClass = statusMap[key];
+                    const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                    text = text.replace(regex,
+                        `<span class="${cssClass}">${key}</span>`);
+                });
+
+                return text;
+            } 
+        }],
+        scrollY: '120px',
+        scrollX: true,
+        scrollCollapse: false,
+        paging: false
+    });
+
+	setInterval(function() {
+	    table.ajax.reload(null, true);
+	}, 30000);
+
+});
 
 initializeiCheck();
 

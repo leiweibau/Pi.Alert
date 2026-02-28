@@ -50,6 +50,11 @@ In addition, this page also shows you the current information from the SSL certi
 
 A code "12" therefore means changes in the fields "Subject" and "Issuer", a code "11" means changes in the fields "Subject", "Valid from" and "Valid to". After the change is detected, the fields are updated accordingly and the code "0" appears again in the following scan. There is no notification for the change back to code "0".
 
+In addition to displaying individual web services with corresponding detail pages, there is also a “general journal” at the top that covers all web services. This journal contains the 50 newest entries and has a total length of 500 entries. It is automatically shortened to the 500 newest entries by the database maintenance task. In the journal, for example, the SSL status code is resolved again to provide a better overview of the changes. In addition, messages about unusually high latencies are also provided here. Of course, changes to the HTTP status code and failure/recovery events are also listed here.
+
+![WSM servicejournal][wsm_servicejournal]
+
+
 [Back](https://github.com/leiweibau/Pi.Alert#front)
 
 
@@ -59,3 +64,4 @@ A code "12" therefore means changes in the fields "Subject" and "Issuer", a code
 [wsm_newURL_1]:       https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/wsm_newURL_1.png   		   "WSM new URL"
 [wsm_newURL_2]:       https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/wsm_newURL_2.png   		   "WSM new URL Scans"
 [wsm_statuscode]:     https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/wsm_statuscode.png   	   "WSM statuscode"
+[wsm_servicejournal]:     https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/wsm_servicejournal.png   	   "WSM servicejournal"

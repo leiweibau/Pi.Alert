@@ -212,6 +212,7 @@ $pia_lang['DevDetail_MainInfo_Model'] = 'Malli';
 $pia_lang['DevDetail_MainInfo_Serialnumber'] = 'Sarjanumero';
 $pia_lang['DevDetail_MainInfo_Favorite'] = 'Suosikki';
 $pia_lang['DevDetail_MainInfo_ShowPresence'] = 'Näytä kohdassa "'.$pia_lang['NAV_Presence'].'"';
+$pia_lang['DevDetail_MainInfo_MQTTDevice'] = 'MQTT-laite';
 $pia_lang['DevDetail_MainInfo_Group'] = 'Ryhmä';
 $pia_lang['DevDetail_MainInfo_Location'] = 'Sijainti';
 $pia_lang['DevDetail_MainInfo_Comments'] = 'Huomio';
@@ -949,6 +950,7 @@ $pia_journ_lang['LogStr_9991'] = $pia_lang['BE_Dev_MainScan_enabled'];
 $pia_journ_lang['LogStr_9992'] = $pia_lang['BE_Dev_MainScan_disabled'];
 $pia_journ_lang['LogStr_9993'] = 'Uudelleenkäynnistys käynnistetty';
 $pia_journ_lang['LogStr_9994'] = 'Sammutus käynnistetty';
+$pia_journ_lang['LogStr_9998'] = 'Asetustiedostoa ei tallennettu';
 $pia_journ_lang['LogStr_9999'] = 'Asetustiedostoa muokattu';
 
 ?>

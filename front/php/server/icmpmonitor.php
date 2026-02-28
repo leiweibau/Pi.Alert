@@ -135,6 +135,8 @@ function setICMPHostData() {
 	if ($_REQUEST['icmp_location'] == '--') {unset($_REQUEST['icmp_location']);}
 	if (!is_numeric($_REQUEST['icmp_scanvalid'])) {$_REQUEST['icmp_scanvalid'] = 0;}
 
+	$cleanup = ($_REQUEST['mqttdevice'] == 1) ? 0 : 1;
+
 	$sql = 'UPDATE ICMP_Mon SET
 				icmp_hostname        = "' . quotes($_REQUEST['icmp_hostname']) . '",
                 icmp_type            = "' . quotes($_REQUEST['icmp_type']) . '",
@@ -146,6 +148,8 @@ function setICMPHostData() {
                 icmp_vendor          = "' . quotes($_REQUEST['icmp_vendor']) . '",
                 icmp_model           = "' . quotes($_REQUEST['icmp_model']) . '",
                 icmp_serial          = "' . quotes($_REQUEST['icmp_serial']) . '",
+                icmp_MQTTDevice      = "' . quotes($_REQUEST['mqttdevice']) . '",
+                icmp_MQTTDevice_cleanup   = "' . $cleanup . '",
                 icmp_AlertEvents     = "' . quotes($_REQUEST['alertevents']) . '",
                 icmp_AlertDown       = "' . quotes($_REQUEST['alertdown']) . '",
                 icmp_Favorite        = "' . quotes($_REQUEST['favorit']) . '",
