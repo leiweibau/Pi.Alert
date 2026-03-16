@@ -160,18 +160,25 @@ function prepare_speedtestresults_graph() {
 	$Speedtest_Graph_Time = array();
 	$Speedtest_Graph_ping = array();
 	$Speedtest_Graph_Down = array();
-	$Speedtest_Graph_Up = array();
+	$Speedtest_Graph_Up   = array();
+
 	$results = $db_tools->query('SELECT speed_date, speed_ping, speed_down, speed_up FROM Tools_Speedtest_History ORDER BY speed_date DESC LIMIT 20');
+
+	if (!$results) {
+		return array(array(),array(),array(),array());
+	}
+
 	while ($row = $results->fetchArray()) {
 		$time_raw = explode(' ', $row['speed_date']);
 		$time = explode(':', $time_raw[1]);
 		$day = explode('-', $time_raw[0]);
-		//array_push($Speedtest_Graph_Time, $time[0] . ':' . $time[1]);
 		array_push($Speedtest_Graph_Time, $day[2] . '.' . $day[1] . '. ' . $time[0] . ':' . $time[1]);
 		array_push($Speedtest_Graph_ping, $row['speed_ping']);
 		array_push($Speedtest_Graph_Down, $row['speed_down']);
 		array_push($Speedtest_Graph_Up, $row['speed_up']);
 	}
-	return array($Speedtest_Graph_Time, $Speedtest_Graph_ping, $Speedtest_Graph_Down, $Speedtest_Graph_Up);
+
+	return array($Speedtest_Graph_Time,$Speedtest_Graph_ping,$Speedtest_Graph_Down,$Speedtest_Graph_Up);
 }
+
 ?>

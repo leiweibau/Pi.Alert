@@ -1066,11 +1066,11 @@ function PurgeDBBackups() {
 	// Clean DB Backups
 	$Pia_Archive_Path = '../../../db';
 	$Pia_Backupfiles = array();
-	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.db', 'temp', 'GeoLite2-Country.mmdb', 'pialert.db-shm', 'pialert.db-wal', 'pialertcsv.zip', 'user_vendors.txt'));
-	foreach ($files as &$item) {
-		$item = $Pia_Archive_Path . '/' . $item;
-		if (stristr($item, 'setting_') == '') {array_push($Pia_Backupfiles, $item);}
-	}
+	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.db', 'temp', 'GeoLite2-Country.mmdb', 'pialert.db-shm', 'pialert.db-wal', 'pialertcsv.zip', 'user_vendors.txt', 'pialert_tools.db', 'pialert_tools.db-shm', 'pialert_tools.db-wal'));
+    foreach ($files as &$item) {
+        $item = $Pia_Archive_Path . '/' . $item;
+        array_push($Pia_Backupfiles, $item);
+    }
 	if (sizeof($Pia_Backupfiles) > 3) {
 		rsort($Pia_Backupfiles);
 		unset($Pia_Backupfiles[0], $Pia_Backupfiles[1], $Pia_Backupfiles[2]);

@@ -988,6 +988,14 @@ def scan_network():
         print('    Exiting...\n')
         return 1
 
+    print('\nDB presence check...')
+    for label, path in [
+        ("pialert.db.........", PIALERT_DB_FILE),
+        ("pialert_tools.db...", PIALERT_DBTOOLS_FILE)
+    ]:
+        status = "ok" if os.path.isfile(path) else "error"
+        print(f"    {label} {status}")
+
     # ScanCycle data
     cycle_interval  = scanCycle_data['cic_EveryXmin']
     #arpscan_retries = scanCycle_data['cic_arpscanCycles']
@@ -1084,9 +1092,11 @@ def scan_network():
     if SCAN_WEBSERVICES:
         if str(startTime)[15] == "0":
             service_monitoring()
+
     # ICMP Monitoring
     if ICMPSCAN_ACTIVE:
         icmp_monitoring()
+
     # Check Rogue DHCP
     if SCAN_ROGUE_DHCP:
         print('\nLooking for Rogue DHCP Servers...')
@@ -1098,8 +1108,6 @@ def scan_network():
         report_to_mqtt()
 
     return 0
-
-
 
 #-------------------------------------------------------------------------------
 def get_local_sys_timezone():
@@ -1126,9 +1134,8 @@ def query_ScanCycle_Data(pOpenCloseDB = False):
         openDB()
 
     # Query Data
-    sql.execute ("""SELECT cic_arpscanCycles, cic_EveryXmin
-                    FROM ScanCycles
-                    WHERE cic_ID = ? """, (cycle,))
+    sql.execute ("""SELECT cic_arpscanCycles, cic_EveryXmin FROM ScanCycles WHERE cic_ID = ? """, 
+                (cycle,))
     sqlRow = sql.fetchone()
 
     # Check if is necesary close DB
@@ -1185,10 +1192,9 @@ def execute_arpscan():
 def execute_arpscan_on_interface(SCAN_SUBNETS):
     # Prepare command arguments
     subnets = SCAN_SUBNETS.strip().split()
-    # Retry is 3 to avoid false offline devices
+    # Retry is 6 to avoid false offline devices
     arpscan_args = ['sudo', 'arp-scan', '--ignoredups', '--bandwidth=256k', '--retry=6'] + subnets
 
-    # Execute command
     try:
         # try runnning a subprocess
         result = subprocess.check_output (arpscan_args, universal_newlines=True)
@@ -1293,7 +1299,6 @@ def pihole_six_api_auth():
         print(f"        Invalid response. Check Pi-hole URL")
         return
 
-
 #-------------------------------------------------------------------------------
 def pihole_six_api_deauth():
     global PIHOLE6_URL
@@ -1319,8 +1324,6 @@ def pihole_six_api_deauth():
     except Exception as e:
         print(f"        An unexpected error occurred")
         return
-
-    #print("        Pi-hole Logout")
 
 #-------------------------------------------------------------------------------
 def copy_pihole_network_six():
@@ -1371,7 +1374,6 @@ def copy_pihole_network_six():
                         "lastQuery": lastQuery
                     }
 
-        # print(result)
         for hwaddr, details in result.items():
             sql.execute("""
                 INSERT INTO PiHole_Network (PH_MAC, PH_Vendor, PH_LastQuery, PH_Name, PH_IP)
@@ -1413,13 +1415,11 @@ def get_pihole_interface_data():
 
     return result
 
-
 #-------------------------------------------------------------------------------
 def read_fritzbox_active_hosts():
 
     sql.execute ("DELETE FROM Fritzbox_Network")
 
-    # check if Pi-hole is active
     if not FRITZBOX_ACTIVE :
         return
 
@@ -1506,7 +1506,6 @@ def read_unifi_clients():
         print('        Missing python package')
         return
 
-    # Enable self signed SSL / no warnings
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     try:
@@ -1609,8 +1608,6 @@ def read_asuswrt_clients():
                 vendor = "(unknown)"
             ip_method = client["ip_method"]
 
-            # print(f"{hostname} - {ip_address} - {mac} - {vendor}")
-
             sql.execute ("INSERT INTO Asuswrt_Network (ASUS_MAC, ASUS_IP, ASUS_Name, ASUS_Vendor, ASUS_Method) "+
                         "VALUES (?, ?, ?, ?, ?) ", (mac.lower(), ip_address, hostname, vendor, ip_method))
 
@@ -1631,7 +1628,7 @@ async def collect_asuswrt_data(AsusRouter,AsusData):
         )
 
         connected = await router.async_connect()
-        # print(f"Verbindung erfolgreich: {connected}")
+
         if not connected:
             return
 
@@ -3786,7 +3783,7 @@ def service_monitoring_log(site, status, latency):
 
 # -----------------------------------------------------------------------------
 def check_services_health(site):
-    # Enable self signed SSL / no warning
+
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     try:
         resp = requests.get(site, verify=False, timeout=10)
@@ -3809,7 +3806,7 @@ def check_services_health(site):
 
 # -----------------------------------------------------------------------------
 def check_services_redirect(site):
-    # Enable self signed SSL
+
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     try:
         resp = requests.get(site, verify=False, timeout=10, allow_redirects=False)
