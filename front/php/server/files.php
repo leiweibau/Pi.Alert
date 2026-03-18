@@ -501,12 +501,39 @@ function convert_bool($val) {
     return $val;
 }
 
-function serializeList($ListString) {
-    $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
-    $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
-	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
-	return $temp;
+// function serializeList($ListString) {
+//     $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
+//     $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
+// 	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
+// 	return $temp;
+// }
+function serializeList($listString) {
+    $listString = trim($listString);
+
+    if ($listString === '') { return '[]';}
+
+    $listString = trim($listString, "[] \t\n\r\0\x0B");
+
+    if ($listString === '') { return '[]';}
+
+    $items = preg_split('/\s*,\s*/', $listString);
+    $result = [];
+
+    foreach ($items as $item) {
+        $item = trim($item);
+
+        if ($item === '') {
+            continue;
+        }
+
+        $item = trim($item, "'\"");
+        $item = preg_replace('/\s+/', ' ', $item);
+        $result[] = "'" . $item . "'";
+    }
+
+    return '[' . implode(',', $result) . ']';
 }
+
 
 //  Save Config
 function SaveConfigFile() {
