@@ -2,6 +2,7 @@
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
+ini_set('pcre.jit', '0');
 
 session_start();
 
