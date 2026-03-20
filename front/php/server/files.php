@@ -501,11 +501,31 @@ function convert_bool($val) {
     return $val;
 }
 
-function serializeList($ListString) {
-    $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
-    $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
-	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
-	return $temp;
+// function serializeList($ListString) {
+//     $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
+//     $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
+// 	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
+// 	return $temp;
+// }
+function serializeList($listString) {
+    $listString = trim($listString, " \t\n\r\0\x0B[]");
+
+    if ($listString === '') { return '[]'; }
+
+    $items = preg_split('/\s*,\s*/', $listString);
+    $result = [];
+
+    foreach ($items as $item) {
+        $item = trim($item, " \t\n\r\0\x0B'\"");
+        if ($item === '') {
+            continue;
+        }
+
+        $item = preg_replace('/\s+/', ' ', $item);
+        $result[] = "'" . $item . "'";
+    }
+
+    return '[' . implode(',', $result) . ']';
 }
 
 //  Save Config
@@ -585,9 +605,17 @@ function SaveConfigFile() {
 	if ($configArray['PFSENSE_EXCLUDE_INT'] == "") {$configArray['PFSENSE_EXCLUDE_INT'] = "[]";}
 	
     // Ignore List Syntax handling stop
-	if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
-		$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
-	}
+	// if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
+	// 	$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
+	// }
+    $scanSubnets = trim($configArray['SCAN_SUBNETS']);
+    if (substr($scanSubnets, 0, 2) === '--') {
+        $scanSubnets = preg_replace('/\s+/', ' ', $scanSubnets);
+        $configArray['SCAN_SUBNETS'] = "'" . trim($scanSubnets, "'\" ") . "'";
+    } else {
+        $configArray['SCAN_SUBNETS'] = serializeList($scanSubnets);
+    }
+
 	if ($configArray['PUSHSAFER_PRIO'] == "") {$configArray['PUSHSAFER_PRIO'] = 0;}
 	if ($configArray['PUSHOVER_PRIO'] == "") {$configArray['PUSHOVER_PRIO'] = 0;}
 	
