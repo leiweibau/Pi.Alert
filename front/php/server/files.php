@@ -761,6 +761,7 @@ TELEGRAM_BOT_TOKEN_URL     = '" . $configArray['TELEGRAM_BOT_TOKEN_URL'] . "'
 # DynDNS and IP
 # ----------------------
 QUERY_MYIP_SERVER          = '" . $configArray['QUERY_MYIP_SERVER'] . "'
+QUERY_MYIP_SERVER_FALLBACK = '" . $configArray['QUERY_MYIP_SERVER_FALLBACK'] . "'
 DDNS_ACTIVE                = " . convert_bool($configArray['DDNS_ACTIVE']) . "
 DDNS_DOMAIN                = '" . $configArray['DDNS_DOMAIN'] . "'
 DDNS_USER                  = '" . $configArray['DDNS_USER'] . "'

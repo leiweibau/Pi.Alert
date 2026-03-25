@@ -529,6 +529,13 @@ DISCORD_BOT_TOKEN_URL     = "https://discord.com/api/webhooks/XXXXXXX/XXXXXX"
 EOF
 fi
 
+# 2026-03-25
+if ! grep -Fq "QUERY_MYIP_SERVER_FALLBACK" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+QUERY_MYIP_SERVER_FALLBACK = 'https://api.ipify.org/?format=json'
+EOF
+fi
 
 }
 

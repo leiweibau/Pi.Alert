@@ -702,11 +702,39 @@ def run_speedtest_task(start_time, crontab_string):
 
 #-------------------------------------------------------------------------------
 def get_internet_IP():
-    # dig_args = ['dig', '+short', '-4', 'myip.opendns.com', '@resolver1.opendns.com']
-    # cmd_output = subprocess.check_output (dig_args, universal_newlines=True)
-    curl_args = ['curl', '-s', QUERY_MYIP_SERVER]
-    cmd_output = subprocess.check_output (curl_args, universal_newlines=True)
-    return check_IP_format (cmd_output)
+    primary_args = ['curl', '-s', QUERY_MYIP_SERVER]
+    fallback_args = ['curl', '-s', QUERY_MYIP_SERVER_FALLBACK]
+
+    last_error = None
+
+    # Primärer Server
+    for attempt in range(3):
+        try:
+            cmd_output = subprocess.check_output(primary_args, universal_newlines=True)
+            return check_IP_format(cmd_output.strip())
+        except (subprocess.CalledProcessError, OSError) as error:
+            last_error = error
+            print_log(f"Primary IP lookup failed (attempt {attempt + 1}/3): {error}")
+            if attempt < 2:
+                time.sleep(1)
+
+    # Fallback: ipify
+    for attempt in range(3):
+        try:
+            cmd_output = subprocess.check_output(fallback_args, universal_newlines=True)
+            data = json.loads(cmd_output)
+            ip = data["ip"].strip()
+            if not ip:
+                raise ValueError("Fallback response does not contain a valid IP")
+            return check_IP_format(ip)
+        except (subprocess.CalledProcessError, OSError, json.JSONDecodeError, KeyError, ValueError) as error:
+            last_error = error
+            print_log(f"Fallback IP lookup failed (attempt {attempt + 1}/3): {error}")
+            if attempt < 2:
+                time.sleep(1)
+
+    print_log(f"Internet IP lookup failed after all attempts: {last_error}")
+    return "0.0.0.0"
 
 #-------------------------------------------------------------------------------
 def get_dynamic_DNS_IP():
@@ -1520,7 +1548,7 @@ def read_unifi_clients():
         for row in clients:
             mac = row['mac'].lower()
             ip = row.get('ip','no IP')
-            hostname = row.get('hostname',row.get('name',''))
+            hostname = row.get('name') or row.get('hostname') or '(unknown)'
             vendor = row.get('oui',None)
             if not vendor:
                 try:
