@@ -534,6 +534,16 @@ if ! grep -Fq "QUERY_MYIP_SERVER_FALLBACK" "$PIALERT_HOME/config/pialert.conf" ;
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
 
 QUERY_MYIP_SERVER_FALLBACK = 'https://api.ipify.org/?format=json'
+
+# OPNsense Configuration
+# ----------------------
+OPNSENSE_ACTIVE           = False
+OPNSENSE_IP               = '192.168.1.1'
+OPNSENSE_PORT             = 443
+OPNSENSE_APIKEY           = ''
+OPNSENSE_APISECRET        = ''
+OPNSENSE_SSL              = True
+OPNSENSE_EXCLUDE_INT      = ['WAN']
 EOF
 fi
 

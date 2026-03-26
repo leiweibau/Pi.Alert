@@ -847,6 +847,16 @@ PFSENSE_APIKEY            = '" . $configArray['PFSENSE_APIKEY'] . "'
 PFSENSE_SSL               = " . convert_bool($configArray['PFSENSE_SSL']) . "
 PFSENSE_EXCLUDE_INT       = " . $configArray['PFSENSE_EXCLUDE_INT'] . "
 
+# OPNsense Configuration
+# ----------------------
+OPNSENSE_ACTIVE            = " . convert_bool($configArray['OPNSENSE_ACTIVE']) . "
+OPNSENSE_IP                = '" . $configArray['OPNSENSE_IP'] . "'
+OPNSENSE_PORT              = " . $configArray['OPNSENSE_PORT'] . "
+OPNSENSE_APIKEY            = '" . $configArray['OPNSENSE_APIKEY'] . "'
+OPNSENSE_APISECRET         = '" . $configArray['OPNSENSE_APISECRET'] . "'
+OPNSENSE_SSL               = " . convert_bool($configArray['OPNSENSE_SSL']) . "
+OPNSENSE_EXCLUDE_INT       = " . $configArray['OPNSENSE_EXCLUDE_INT'] . "
+
 # Satellite Configuration
 # -----------------------
 SATELLITE_PROXY_MODE       = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
@@ -1556,6 +1566,7 @@ function ToggleImport() {
         'OW' => 'OPENWRT_ACTIVE',
         'AW' => 'ASUSWRT_ACTIVE',
         'PF' => 'PFSENSE_ACTIVE',
+        'OPN' => 'OPNSENSE_ACTIVE',
         'PiN' => 'PIHOLE_ACTIVE',
         'PiD' => 'DHCP_ACTIVE',
     ];

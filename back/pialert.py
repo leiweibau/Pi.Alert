@@ -515,11 +515,6 @@ def create_autobackup(start_time, crontab_string):
             BACKUP_FILE = PIALERT_DB_PATH + "/pialertdb_" + BACKUP_FILE_DATE.replace("-", "").replace(" ", "_").replace(":", "") + ".zip"
             time.sleep(20)  # wait 20s to finish the reporting
 
-            # Backup DB (no further checks)
-            # sqlite_command = ['sqlite3', PIALERT_DB_PATH + '/pialert.db', '.backup ' + PIALERT_DB_PATH + '/temp/pialert.db']
-            # subprocess.check_output(sqlite_command, universal_newlines=True)
-            # subprocess.check_output(['zip', '-j', '-qq', BACKUP_FILE, PIALERT_PATH + '/db/temp/pialert.db'], universal_newlines=True)
-
             # Backup pialert.db (no further checks)
             subprocess.check_output(
                 ['sqlite3', PIALERT_DB_PATH + '/pialert.db',
@@ -1063,6 +1058,9 @@ def scan_network():
     openDB()
     print_log ('pfsense copy starts...')
     read_pfsense_clients()
+    openDB()
+    print_log ('OPNsense copy starts...')
+    read_opnsense_clients()
     # Import Satellites Scans
     openDB()
     get_satellite_scans()
@@ -1769,6 +1767,370 @@ def read_pfsense_clients():
         return
 
 #-------------------------------------------------------------------------------
+def opnsense_connect(endpoint, topic):
+    global OPNSENSE_PORT
+
+    try:
+        OPNSENSE_PORT = int(OPNSENSE_PORT)
+    except (TypeError, ValueError):
+        print(f"        ...{topic} Request canceled: Incorrect Port.")
+        return None
+
+    protocol = "https" if OPNSENSE_SSL else "http"
+    port = str(OPNSENSE_PORT)
+    url = f"{protocol}://{OPNSENSE_IP}:{port}{endpoint}"
+    headers = {
+        "Accept": "application/json"
+    }
+
+    try:
+        response = requests.get(
+            url,
+            headers=headers,
+            auth=(OPNSENSE_APIKEY, OPNSENSE_APISECRET),
+            verify=False,
+            timeout=10
+        )
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"        ...❌ Error {response.status_code}: {response.text}")
+            return None
+
+    except requests.Timeout:
+        print(f"        ...{topic} Request canceled: Timeout reached.")
+        return None
+
+    except requests.RequestException:
+        print(f"        ...{topic} Skipped - Connection error")
+        return None
+
+#-------------------------------------------------------------------------------
+def read_opnsense_clients():
+
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    opnsense_dhcpleases = ""
+    opnsense_arptable = ""
+    opnsense_interfaces = ""
+    opnsense_interface_names = ""
+
+    if OPNSENSE_ACTIVE:
+        sql.execute("DELETE FROM opnsense_Network")
+
+        print("    OPNsense Method...")
+        endpoint = "/api/dhcpv4/leases/search_lease"
+        result = opnsense_connect(endpoint, "DHCP")
+        print_log(result)
+        if result:
+            opnsense_dhcpleases = json.dumps(result, indent=4)
+
+        endpoint = "/api/diagnostics/interface/search_arp"
+        result = opnsense_connect(endpoint, "ARP")
+        print_log(result)
+        if result:
+            opnsense_arptable = json.dumps(result, indent=4)
+
+        endpoint = "/api/diagnostics/interface/get_interface_config"
+        result = opnsense_connect(endpoint, "Interfaces")
+        print_log(result)
+        if result:
+            opnsense_interfaces = json.dumps(result, indent=4)
+
+        endpoint = "/api/diagnostics/interface/get_interface_names"
+        result = opnsense_connect(endpoint, "Interface Names")
+        print_log(result)
+        if result:
+            opnsense_interface_names = json.dumps(result, indent=4)
+
+        opnsense_save_dhcp_data(opnsense_dhcpleases)
+        opnsense_save_arp_data(opnsense_arptable, opnsense_interfaces, opnsense_interface_names)
+        opnsense_mark_local_interfaces(opnsense_interfaces, opnsense_interface_names)
+
+        closeDB()
+    else:
+        return
+
+#-------------------------------------------------------------------------------
+def opnsense_get_rows(payload):
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except json.JSONDecodeError:
+            return []
+
+    if isinstance(payload, dict):
+        if "rows" in payload and isinstance(payload["rows"], list):
+            return payload["rows"]
+        if "data" in payload and isinstance(payload["data"], list):
+            return payload["data"]
+
+    if isinstance(payload, list):
+        return payload
+
+    return []
+
+#-------------------------------------------------------------------------------
+def opnsense_get_interface_map(interface_names):
+    if isinstance(interface_names, str):
+        try:
+            interface_names = json.loads(interface_names)
+        except json.JSONDecodeError:
+            return {}
+
+    if isinstance(interface_names, dict):
+        return interface_names
+
+    return {}
+
+#-------------------------------------------------------------------------------
+def opnsense_mark_local_interfaces(interfaces, interface_names):
+
+    if isinstance(interfaces, str):
+        try:
+            interfaces = json.loads(interfaces)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            return
+
+    interface_map = opnsense_get_interface_map(interface_names)
+    if not isinstance(interfaces, dict):
+        print_log("⚠️ no local interfaces were found")
+        return
+
+    local_interfaces = []
+
+    for if_name, if_data in interfaces.items():
+        if not isinstance(if_data, dict):
+            continue
+
+        mac = (
+            if_data.get("mac")
+            or if_data.get("macaddr")
+            or if_data.get("ether")
+            or ""
+        ).strip().lower()
+
+        if not mac:
+            continue
+
+        local_interfaces.append({
+            "MAC": mac,
+            "Description": interface_map.get(if_name, if_name.upper())
+        })
+
+    for entry in local_interfaces:
+        sql_update = """UPDATE opnsense_Network
+                        SET OPN_Name = ?
+                        WHERE OPN_MAC = ? AND OPN_Name = '(unknown)';"""
+
+        new_name = f"OPNsense {entry['Description']}"
+        sql.execute(sql_update, (new_name, entry["MAC"]))
+
+    print_log(local_interfaces)
+
+#-------------------------------------------------------------------------------
+def opnsense_save_dhcp_data(opnsense_dhcpleases):
+
+    if isinstance(opnsense_dhcpleases, str):
+        try:
+            opnsense_dhcpleases = json.loads(opnsense_dhcpleases)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (opnsense_dhcpleases)")
+            return [], []
+
+    opnsense_network_dhcp = []
+    lease_rows = opnsense_get_rows(opnsense_dhcpleases)
+
+    if not lease_rows:
+        print_log("⚠️ no DHCP-Leases were found")
+        return opnsense_network_dhcp
+
+    for entry in lease_rows:
+        mac = (entry.get("mac") or "").strip().lower()
+        ip = (entry.get("address") or entry.get("ip") or "").strip()
+        hostname = (entry.get("hostname") or entry.get("descr") or "(unknown)").strip() or "(unknown)"
+        ends_str = entry.get("ends")
+
+        try:
+            ends_ts = int(datetime.datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
+        except (ValueError, TypeError):
+            ends_ts = 0
+
+        opn_connected = entry.get("status") == "online"
+
+        opnsense_network_dhcp.append({
+            "MAC": mac,
+            "IP": ip,
+            "Name": hostname,
+            "Vendor": entry.get("man", ""),
+            "Method": "OPNsense",
+            "Interface": entry.get("if_descr") or entry.get("if") or "",
+            "Custom_a": entry.get("type", ""),
+            "Custom_b": entry.get("state", ""),
+            "Connected": opn_connected,
+            "Datetime": ends_ts
+        })
+
+    sql_insert = """INSERT INTO opnsense_Network
+                    (OPN_MAC, OPN_IP, OPN_Name, OPN_Vendor, OPN_Method, OPN_Interface,
+                     OPN_Custom_a, OPN_Custom_b, OPN_Connected, OPN_Datetime)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+
+    for entry in opnsense_network_dhcp:
+        sql.execute(sql_insert, (
+            entry["MAC"],
+            entry["IP"],
+            entry["Name"],
+            entry["Vendor"],
+            entry["Method"],
+            entry["Interface"],
+            entry["Custom_a"],
+            entry["Custom_b"],
+            entry["Connected"],
+            entry["Datetime"]
+        ))
+
+    sql_connection.commit()
+
+    print_log(opnsense_network_dhcp)
+
+#-------------------------------------------------------------------------------
+def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
+
+    if isinstance(opnsense_arptable, str):
+        try:
+            opnsense_arptable = json.loads(opnsense_arptable)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (opnsense_arptable)")
+            return [], []
+
+    if isinstance(interfaces, str):
+        try:
+            interfaces = json.loads(interfaces)
+        except json.JSONDecodeError:
+            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            return [], []
+
+    interface_map = opnsense_get_interface_map(interface_names)
+    arp_rows = opnsense_get_rows(opnsense_arptable)
+    opnsense_arp_list = []
+
+    if not arp_rows:
+        print_log("⚠️ no valid ARP-data found.")
+        return opnsense_arp_list
+
+    local_interfaces = []
+    if isinstance(interfaces, dict):
+        for if_name, if_data in interfaces.items():
+            if not isinstance(if_data, dict):
+                continue
+
+            mac = (
+                if_data.get("mac")
+                or if_data.get("macaddr")
+                or if_data.get("ether")
+                or ""
+            ).strip().lower()
+
+            if mac:
+                local_interfaces.append({
+                    "MAC": mac,
+                    "Description": interface_map.get(if_name, if_name.upper())
+                })
+
+    for entry in arp_rows:
+        mac = (entry.get("mac-address") or entry.get("mac_address") or "").strip().lower()
+        ip = (entry.get("ip-address") or entry.get("ip_address") or "").strip()
+        hostname = (entry.get("hostname") or "").strip()
+        dnsresolve = (entry.get("dnsresolve") or "").strip()
+        interface = (entry.get("intf_description") or entry.get("interface") or entry.get("intf") or "").strip()
+        interface_raw = (entry.get("intf") or entry.get("interface") or "").strip()
+        arpexpires = str(entry.get("expires") or "").strip()
+
+        if interface.lower() in (i.lower() for i in OPNSENSE_EXCLUDE_INT) and all(mac != local_entry["MAC"] for local_entry in local_interfaces):
+            continue
+        if interface_raw.lower() in (i.lower() for i in OPNSENSE_EXCLUDE_INT) and all(mac != local_entry["MAC"] for local_entry in local_interfaces):
+            continue
+
+        match = re.search(r"Expires\\s+in\\s+(\\d+)\\s+seconds", arpexpires, flags=re.I)
+        if match:
+            seconds = match.group(1)
+        elif arpexpires.isdigit():
+            seconds = arpexpires
+        else:
+            seconds = ""
+
+        if arpexpires.lower() == "permanent":
+            connected = True
+        elif seconds != "":
+            connected = int(seconds) > 0
+        else:
+            connected = True
+
+        if hostname == "" or hostname == "?":
+            if dnsresolve != "" and dnsresolve != "?":
+                hostname = dnsresolve
+            else:
+                hostname = "(unknown)"
+
+        opnsense_arp_list.append({
+            "MAC": mac,
+            "IP": ip,
+            "Name": hostname,
+            "Vendor": "",
+            "Method": "OPNsense",
+            "Interface": interface or interface_raw,
+            "Custom_a": seconds,
+            "Custom_b": "",
+            "Connected": connected,
+            "Datetime": ""
+        })
+
+    sql_select = "SELECT OPN_Name, OPN_Interface, OPN_Connected FROM opnsense_Network WHERE OPN_MAC = ? COLLATE NOCASE;"
+    sql_insert = """INSERT INTO opnsense_Network
+                    (OPN_MAC, OPN_IP, OPN_Name, OPN_Vendor, OPN_Method, OPN_Interface,
+                     OPN_Custom_a, OPN_Custom_b, OPN_Connected, OPN_Datetime)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
+    sql_update_name = "UPDATE opnsense_Network SET OPN_Name = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
+    sql_update_interface = "UPDATE opnsense_Network SET OPN_Interface = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
+    sql_update_connected = "UPDATE opnsense_Network SET OPN_Connected = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
+
+    for entry in opnsense_arp_list:
+        mac = entry["MAC"]
+        sql.execute(sql_select, (mac,))
+        row = sql.fetchone()
+
+        if row:
+            db_name, db_interface, db_connected = row
+
+            if (not db_interface or db_interface.strip() == "") and entry["Interface"]:
+                sql.execute(sql_update_interface, (entry["Interface"], mac))
+
+            if (not db_name or db_name.strip() == "") and entry["Name"]:
+                sql.execute(sql_update_name, (entry["Name"], mac))
+
+            if (not db_connected) and entry["Connected"]:
+                sql.execute(sql_update_connected, (1, mac))
+
+        else:
+            sql.execute(sql_insert, (
+                entry["MAC"],
+                entry["IP"],
+                entry["Name"],
+                entry["Vendor"],
+                entry["Method"],
+                entry["Interface"],
+                entry["Custom_a"],
+                entry["Custom_b"],
+                entry["Connected"],
+                entry["Datetime"]
+            ))
+
+        sql_connection.commit()
+
+    print_log(opnsense_arp_list)
+
+#-------------------------------------------------------------------------------
 def pfsense_mark_local_interfaces(interfaces):
 
     if isinstance(interfaces, str):
@@ -2378,6 +2740,19 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
           )
     """, (cycle, cycle))
 
+    # Insert OPNsense import
+    sql.execute("""
+        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+        SELECT ?, OPN_MAC, OPN_IP, OPN_Vendor, OPN_Method
+        FROM opnsense_Network
+        WHERE OPN_Connected = 1
+          AND NOT EXISTS (
+              SELECT 1 FROM CurrentScan
+              WHERE cur_MAC = OPN_MAC COLLATE NOCASE
+                AND cur_ScanCycle = ?
+          )
+    """, (cycle, cycle))
+
 
     # Insert Satellite devices
     sql.execute ("""
@@ -2555,6 +2930,15 @@ def dump_all_resulttables():
             for row in rows:
                 print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
             print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='opnsense_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT OPN_MAC, OPN_IP, OPN_Name FROM opnsense_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (OPNsense Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
         sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Satellites_Network';")
         table_exists = sql.fetchone()
         if table_exists:
@@ -2617,7 +3001,8 @@ def remove_entries_from_table():
                 'Unifi_Network': 'UF_MAC',
                 'Openwrt_Network': 'OWRT_MAC',
                 'Asuswrt_Network': 'ASUS_MAC',
-                'pfsense_Network': 'PF_MAC'
+                'pfsense_Network': 'PF_MAC',
+                'opnsense_Network': 'OPN_MAC'
             }
 
             for table, column in table_column_map.items():
@@ -2651,7 +3036,8 @@ def remove_entries_from_table():
                 'Unifi_Network': 'UF_IP',
                 'Openwrt_Network': 'OWRT_IP',
                 'Asuswrt_Network': 'ASUS_IP',
-                'pfsense_Network': 'PF_IP'
+                'pfsense_Network': 'PF_IP',
+                'opnsense_Network': 'OPN_IP'
             }
 
             for table, column in table_column_map.items():
@@ -2682,6 +3068,7 @@ def remove_entries_from_table():
                 ("Openwrt_Network", "OWRT_MAC", "OWRT_Name"),
                 ("Asuswrt_Network", "ASUS_MAC", "ASUS_Name"),
                 ("pfsense_Network", "PF_MAC", "PF_Name"),
+                ("opnsense_Network", "OPN_MAC", "OPN_Name"),
             ]
 
             matched_macs = set()
@@ -2702,7 +3089,8 @@ def remove_entries_from_table():
                 'Unifi_Network': 'UF_MAC',
                 'Openwrt_Network': 'OWRT_MAC',
                 'Asuswrt_Network': 'ASUS_MAC',
-                'pfsense_Network': 'PF_MAC'
+                'pfsense_Network': 'PF_MAC',
+                'opnsense_Network': 'OPN_MAC'
             }
 
             for tabelle, mac_spalte in work_tables.items():
@@ -2754,6 +3142,7 @@ def print_scan_stats():
         "OpenWRT",
         "AsusWRT",
         "pfSense",
+        "OPNsense",
         "Pi-hole DHCP"
     ]
 
@@ -3190,6 +3579,18 @@ def update_devices_data_from_scan():
                                   WHERE PF_MAC = dev_MAC
                                     AND PF_Name IS NOT NULL
                                     AND PF_Name <> '') """)
+
+    # OPNsense - Update (unknown) Name
+    sql.execute ("""UPDATE Devices
+                    SET dev_Name = (SELECT OPN_Name FROM opnsense_Network
+                                    WHERE OPN_MAC = dev_MAC)
+                    WHERE (dev_Name = "(unknown)"
+                           OR dev_Name = ""
+                           OR dev_Name IS NULL)
+                      AND EXISTS (SELECT 1 FROM opnsense_Network
+                                  WHERE OPN_MAC = dev_MAC
+                                    AND OPN_Name IS NOT NULL
+                                    AND OPN_Name <> '') """)
 
     # Satellite - Update (unknown) Name
     sql.execute ("""UPDATE Devices
