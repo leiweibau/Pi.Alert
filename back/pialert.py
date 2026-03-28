@@ -1818,9 +1818,7 @@ def read_opnsense_clients():
         sql.execute("DELETE FROM opnsense_Network")
 
         print("    OPNsense Method...")
-        endpoint = "/api/dhcpv4/leases/search_lease"
-        result = opnsense_connect(endpoint, "DHCP")
-        print_log(result)
+        result = opnsense_fetch_dhcp_leases()
         if result:
             opnsense_dhcpleases = json.dumps(result, indent=4)
 
@@ -1849,6 +1847,29 @@ def read_opnsense_clients():
         closeDB()
     else:
         return
+
+#-------------------------------------------------------------------------------
+def opnsense_fetch_dhcp_leases():
+    dhcp_endpoints = [
+        ("/api/dhcpv4/leases/search_lease?inactive=1", "DHCP"),
+        ("/api/dnsmasq/leases/search", "Dnsmasq DHCP"),
+        ("/api/kea/leases4/search", "Kea DHCP")
+    ]
+
+    first_response = None
+
+    for endpoint, topic in dhcp_endpoints:
+        result = opnsense_connect(endpoint, topic)
+        print_log(result)
+
+        if first_response is None and result is not None:
+            first_response = result
+
+        if opnsense_get_rows(result):
+            print_log(f"        ...OPNsense DHCP backend selected: {topic}")
+            return result
+
+    return first_response
 
 #-------------------------------------------------------------------------------
 def opnsense_get_rows(payload):
@@ -1946,25 +1967,51 @@ def opnsense_save_dhcp_data(opnsense_dhcpleases):
         return opnsense_network_dhcp
 
     for entry in lease_rows:
-        mac = (entry.get("mac") or "").strip().lower()
+        mac = (entry.get("mac") or entry.get("hwaddr") or "").strip().lower()
         ip = (entry.get("address") or entry.get("ip") or "").strip()
-        hostname = (entry.get("hostname") or entry.get("descr") or "(unknown)").strip() or "(unknown)"
+        hostname = (entry.get("hostname") or entry.get("host") or entry.get("name") or entry.get("descr") or "(unknown)").strip() or "(unknown)"
         ends_str = entry.get("ends")
+        expire_value = entry.get("expire")
+        if_descr = entry.get("if_descr") or entry.get("if_name") or entry.get("if") or ""
+        vendor = entry.get("man") or entry.get("mac_info") or entry.get("manufacturer") or ""
+
+        if not mac or not ip:
+            continue
 
         try:
             ends_ts = int(datetime.datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
         except (ValueError, TypeError):
-            ends_ts = 0
+            try:
+                ends_ts = int(ends_str)
+            except (ValueError, TypeError):
+                try:
+                    ends_ts = int(expire_value)
+                except (ValueError, TypeError):
+                    ends_ts = 0
 
-        opn_connected = entry.get("status") == "online"
+        status = str(entry.get("status") or "").lower()
+        state = str(entry.get("state") or "").lower()
+        active = entry.get("active")
+        expired = entry.get("expired")
+
+        if status != "":
+            opn_connected = status == "online"
+        elif active is not None:
+            opn_connected = bool(active)
+        elif expired is not None:
+            opn_connected = not bool(expired)
+        elif state != "":
+            opn_connected = state not in ["expired", "offline", "released", "free"]
+        else:
+            opn_connected = True
 
         opnsense_network_dhcp.append({
             "MAC": mac,
             "IP": ip,
             "Name": hostname,
-            "Vendor": entry.get("man", ""),
+            "Vendor": vendor,
             "Method": "OPNsense",
-            "Interface": entry.get("if_descr") or entry.get("if") or "",
+            "Interface": if_descr,
             "Custom_a": entry.get("type", ""),
             "Custom_b": entry.get("state", ""),
             "Connected": opn_connected,
@@ -2039,13 +2086,21 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
                 })
 
     for entry in arp_rows:
-        mac = (entry.get("mac-address") or entry.get("mac_address") or "").strip().lower()
-        ip = (entry.get("ip-address") or entry.get("ip_address") or "").strip()
+        mac = (entry.get("mac") or entry.get("mac-address") or entry.get("mac_address") or "").strip().lower()
+        ip = (entry.get("ip") or entry.get("ip-address") or entry.get("ip_address") or "").strip()
         hostname = (entry.get("hostname") or "").strip()
         dnsresolve = (entry.get("dnsresolve") or "").strip()
         interface = (entry.get("intf_description") or entry.get("interface") or entry.get("intf") or "").strip()
         interface_raw = (entry.get("intf") or entry.get("interface") or "").strip()
-        arpexpires = str(entry.get("expires") or "").strip()
+        manufacturer = (entry.get("manufacturer") or entry.get("vendor") or "").strip()
+        expires_raw = entry.get("expires")
+        permanent = bool(entry.get("permanent"))
+        expired = bool(entry.get("expired"))
+
+        if not mac or not ip:
+            continue
+
+        arpexpires = "" if expires_raw is None else str(expires_raw).strip()
 
         if interface.lower() in (i.lower() for i in OPNSENSE_EXCLUDE_INT) and all(mac != local_entry["MAC"] for local_entry in local_interfaces):
             continue
@@ -2060,8 +2115,10 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
         else:
             seconds = ""
 
-        if arpexpires.lower() == "permanent":
+        if permanent or arpexpires.lower() == "permanent":
             connected = True
+        elif expired:
+            connected = False
         elif seconds != "":
             connected = int(seconds) > 0
         else:
@@ -2077,7 +2134,7 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
             "MAC": mac,
             "IP": ip,
             "Name": hostname,
-            "Vendor": "",
+            "Vendor": manufacturer,
             "Method": "OPNsense",
             "Interface": interface or interface_raw,
             "Custom_a": seconds,
@@ -2085,6 +2142,8 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
             "Connected": connected,
             "Datetime": ""
         })
+
+    arp_macs = {entry["MAC"] for entry in opnsense_arp_list}
 
     sql_select = "SELECT OPN_Name, OPN_Interface, OPN_Connected FROM opnsense_Network WHERE OPN_MAC = ? COLLATE NOCASE;"
     sql_insert = """INSERT INTO opnsense_Network
@@ -2094,6 +2153,9 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
     sql_update_name = "UPDATE opnsense_Network SET OPN_Name = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
     sql_update_interface = "UPDATE opnsense_Network SET OPN_Interface = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
     sql_update_connected = "UPDATE opnsense_Network SET OPN_Connected = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
+    sql_update_presence = "UPDATE opnsense_Network SET OPN_Connected = 0 WHERE OPN_MAC NOT IN ({})".format(
+        ", ".join(["?"] * len(arp_macs))
+    ) if arp_macs else "UPDATE opnsense_Network SET OPN_Connected = 0"
 
     for entry in opnsense_arp_list:
         mac = entry["MAC"]
@@ -2109,8 +2171,8 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
             if (not db_name or db_name.strip() == "") and entry["Name"]:
                 sql.execute(sql_update_name, (entry["Name"], mac))
 
-            if (not db_connected) and entry["Connected"]:
-                sql.execute(sql_update_connected, (1, mac))
+            if db_connected != entry["Connected"]:
+                sql.execute(sql_update_connected, (1 if entry["Connected"] else 0, mac))
 
         else:
             sql.execute(sql_insert, (
@@ -2126,7 +2188,12 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
                 entry["Datetime"]
             ))
 
-        sql_connection.commit()
+    if arp_macs:
+        sql.execute(sql_update_presence, tuple(arp_macs))
+    else:
+        sql.execute(sql_update_presence)
+
+    sql_connection.commit()
 
     print_log(opnsense_arp_list)
 
