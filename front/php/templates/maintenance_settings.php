@@ -95,15 +95,22 @@
 <!-- Toggle OPNSense ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                    <?php $state = convert_state_action($_SESSION['PFSENSE_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('PF',<?=$_SESSION['PFSENSE_ACTIVE'];?>)"><span class="<?= ($_SESSION['PFSENSE_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">pfSense</span><br><?=$state;?></button>
+                                    <?php $state = convert_state_action($_SESSION['OPNSENSE_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOW" onclick="askToggleImport('OPN',<?=$_SESSION['OPNSENSE_ACTIVE'];?>)"><span class="<?= ($_SESSION['OPNSENSE_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">OPNsense</span><br><?=$state;?></button>
+                                </div>
+                            </div>
+<!-- Toggle AdGuard ----------------------------------------------- -->
+                            <div class="settings_button_wrapper">
+                                <div class="settings_button_box">
+                                    <?php $state = convert_state_action($_SESSION['ADGUARD_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOPN" onclick="askToggleImport('AG',<?=$_SESSION['ADGUARD_ACTIVE'];?>)"><span class="<?= ($_SESSION['ADGUARD_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">AdGuard</span><br><?=$state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Pi-hole Network ----------------------------------------------- -->
                             <div class="settings_button_wrapper">
                                 <div class="settings_button_box">
-                                    <?php $state = convert_state_action($_SESSION['OPNSENSE_ACTIVE'], 1);?>
-                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOPN" onclick="askToggleImport('OPN',<?=$_SESSION['OPNSENSE_ACTIVE'];?>)"><span class="<?= ($_SESSION['OPNSENSE_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">OPNsense</span><br><?=$state;?></button>
+                                    <?php $state = convert_state_action($_SESSION['PIHOLE_ACTIVE'], 1);?>
+                                    <button type="button" class="btn btn-default dbtools-button-sm" id="btnToggleOPN" onclick="askToggleImport('PiN',<?=$_SESSION['PIHOLE_ACTIVE'];?>)"><span class="<?= ($_SESSION['PIHOLE_ACTIVE'] == 0) ? 'text-red' : 'text-green' ?>">Pi-hole Network</span><br><?=$state;?></button>
                                 </div>
                             </div>
 <!-- Toggle Pi-hole DHCP ----------------------------------------------- -->

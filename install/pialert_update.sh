@@ -539,6 +539,24 @@ OPNSENSE_EXCLUDE_INT      = ['WAN']
 EOF
 fi
 
+# 2026-03-29
+if ! grep -Fq "# AdGuard Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# AdGuard Configuration
+# ---------------------
+ADGUARD_ACTIVE            = False
+ADGUARD_IP                = '192.168.1.1'
+ADGUARD_PORT              = 80
+ADGUARD_USER              = 'AdGuard-Admin'
+ADGUARD_PASSWORD          = ''
+ADGUARD_SSL               = False
+ADGUARD_QUERY_MINUTES     = 5
+ADGUARD_ACTIVITY_MINUTES  = 10
+ADGUARD_QUERY_LIMIT       = 1000
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

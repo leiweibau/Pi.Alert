@@ -1061,6 +1061,9 @@ def scan_network():
     openDB()
     print_log ('OPNsense copy starts...')
     read_opnsense_clients()
+    openDB()
+    print_log ('AdGuard import starts...')
+    read_adguard_data()
     # Import Satellites Scans
     openDB()
     get_satellite_scans()
@@ -1950,6 +1953,354 @@ def opnsense_mark_local_interfaces(interfaces, interface_names):
     print_log(local_interfaces)
 
 #-------------------------------------------------------------------------------
+def adguard_try_login(protocol, host, port, headers, payload):
+    base_url = f"{protocol}://{host}:{port}"
+    login_url = f"{base_url}/control/login"
+
+    try:
+        response = requests.post(login_url, data=json.dumps(payload), headers=headers, timeout=5)
+        if response.status_code == 200:
+            return response.cookies, base_url
+    except requests.exceptions.RequestException:
+        pass
+
+    return None, None
+
+#-------------------------------------------------------------------------------
+def adguard_fetch_dns_queries(cookies, base_url, headers, limit=200):
+    url = f"{base_url}/control/querylog"
+    params = {
+        "limit": limit,
+        "response_status": "all",
+    }
+
+    try:
+        response = requests.get(url, params=params, cookies=cookies, headers=headers, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("data", [])
+    except Exception as error:
+        print_log(f"[!] Failed to fetch query log: {error}")
+        return []
+
+#-------------------------------------------------------------------------------
+def adguard_filter_dns_queries(queries, minutes=10):
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(minutes=minutes)
+    filtered = []
+
+    for entry in queries:
+        query_time_str = entry.get("time")
+        if not query_time_str:
+            continue
+
+        try:
+            query_time = datetime.fromisoformat(query_time_str.replace("Z", "+00:00"))
+        except Exception:
+            continue
+
+        if cutoff <= query_time <= now:
+            filtered.append(entry)
+
+    return filtered
+
+#-------------------------------------------------------------------------------
+def adguard_get_dhcp_leases(cookies, base_url, headers):
+    url = f"{base_url}/control/dhcp/status"
+
+    try:
+        response = requests.get(url, cookies=cookies, headers=headers, timeout=5)
+        response.raise_for_status()
+        all_leases = response.json()
+        return {
+            "leases": all_leases.get("leases", []),
+            "static_leases": all_leases.get("static_leases", []),
+        }
+    except Exception as error:
+        print_log(f"[!] Failed to fetch DHCP leases: {error}")
+        return {
+            "leases": [],
+            "static_leases": [],
+        }
+
+#-------------------------------------------------------------------------------
+def adguard_get_latest_queries_per_client(cookies, base_url, headers, minutes=10, limit=1000):
+    queries = adguard_fetch_dns_queries(cookies, base_url, headers, limit=limit)
+    recent_queries = adguard_filter_dns_queries(queries, minutes=minutes)
+
+    if not recent_queries:
+        return {}
+
+    latest_per_client = {}
+
+    for entry in recent_queries:
+        client_info = entry.get("client_info", {})
+        client_ip = (entry.get("client") or "").strip()
+        if not adguard_is_valid_ipv4(client_ip):
+            continue
+
+        client_name = (client_info.get("name") or client_ip).strip() or client_ip
+        query_time_str = entry.get("time")
+
+        if not query_time_str:
+            continue
+
+        try:
+            query_time = datetime.fromisoformat(query_time_str.replace("Z", "+00:00"))
+        except Exception:
+            continue
+
+        if client_ip not in latest_per_client or query_time > latest_per_client[client_ip]["time"]:
+            latest_per_client[client_ip] = {
+                "time": query_time,
+                "client_ip": client_ip,
+                "client_name": client_name,
+            }
+
+    return latest_per_client
+
+#-------------------------------------------------------------------------------
+def adguard_get_first_value(item, keys, default=""):
+    for key in keys:
+        value = item.get(key)
+        if value is None:
+            continue
+
+        if isinstance(value, str):
+            value = value.strip()
+
+        if value != "":
+            return value
+
+    return default
+
+#-------------------------------------------------------------------------------
+def adguard_is_valid_ipv4(ip_value):
+    try:
+        ip = ipaddress.ip_address(ip_value)
+    except ValueError:
+        return False
+
+    return ip.version == 4 and not ip.is_loopback
+
+#-------------------------------------------------------------------------------
+def adguard_parse_lease_expires(expires_value):
+    if expires_value in [None, ""]:
+        return 0
+
+    try:
+        return int(expires_value)
+    except (TypeError, ValueError):
+        pass
+
+    if isinstance(expires_value, str):
+        try:
+            return int(datetime.fromisoformat(expires_value.replace("Z", "+00:00")).timestamp())
+        except ValueError:
+            return 0
+
+    return 0
+
+#-------------------------------------------------------------------------------
+def adguard_format_timestamp(date_value):
+    if not isinstance(date_value, datetime):
+        return ""
+
+    return date_value.astimezone(timezone.utc).isoformat()
+
+#-------------------------------------------------------------------------------
+def adguard_normalize_dhcp_leases(lease_payload):
+    normalized_leases = {}
+    dynamic_leases = lease_payload.get("leases", [])
+    static_leases = lease_payload.get("static_leases", [])
+
+    for lease in dynamic_leases + static_leases:
+        ip = str(adguard_get_first_value(lease, ["ip", "address"]))
+        mac = str(adguard_get_first_value(lease, ["mac", "hwaddr"]))
+        name = str(adguard_get_first_value(lease, ["hostname", "name", "host"], "(unknown)"))
+        expires = adguard_parse_lease_expires(
+            adguard_get_first_value(lease, ["expires", "expire", "expiration_time"], 0)
+        )
+
+        if not adguard_is_valid_ipv4(ip):
+            continue
+        if mac == "":
+            continue
+
+        normalized_leases[ip] = {
+            "mac": mac.lower(),
+            "ip": ip,
+            "name": name,
+            "connected": False,
+            "lease_expires": expires,
+            "last_query_time": None,
+        }
+
+    return normalized_leases
+
+#-------------------------------------------------------------------------------
+def adguard_mark_active_from_queries(devices_by_ip, latest_queries):
+    unmatched_queries = {}
+
+    for ip, query in latest_queries.items():
+        if ip not in devices_by_ip:
+            unmatched_queries[ip] = query
+            continue
+
+        devices_by_ip[ip]["connected"] = True
+        devices_by_ip[ip]["last_query_time"] = query["time"]
+
+    return unmatched_queries
+
+#-------------------------------------------------------------------------------
+def adguard_build_network_rows(devices_by_ip):
+    rows = []
+
+    for ip in sorted(devices_by_ip):
+        device = devices_by_ip[ip]
+        rows.append({
+            "AG_MAC": device["mac"],
+            "AG_IP": device["ip"],
+            "AG_Name": device["name"],
+            "AG_Connected": 1 if device["connected"] else 0,
+            "AG_LeaseExpires": device["lease_expires"],
+            "AG_LastQueryTime": adguard_format_timestamp(device["last_query_time"]),
+        })
+
+    return rows
+
+#-------------------------------------------------------------------------------
+def adguard_build_activity_rows(devices_by_ip, latest_queries):
+    activity_by_ip = {}
+
+    for ip, device in devices_by_ip.items():
+        activity_by_ip[ip] = {
+            "AGA_IP": ip,
+            "AGA_MAC": device.get("mac", ""),
+            "AGA_Name": device.get("name", "(unknown)"),
+            "AGA_LastQueryTime": "",
+        }
+
+    for ip, query in latest_queries.items():
+        device = devices_by_ip.get(ip, {})
+        current = activity_by_ip.setdefault(ip, {
+            "AGA_IP": ip,
+            "AGA_MAC": device.get("mac", ""),
+            "AGA_Name": query.get("client_name", device.get("name", "(unknown)")),
+            "AGA_LastQueryTime": "",
+        })
+
+        if not current["AGA_MAC"]:
+            current["AGA_MAC"] = device.get("mac", "")
+        if current["AGA_Name"] in ["", "(unknown)"]:
+            current["AGA_Name"] = query.get("client_name", current["AGA_Name"])
+
+        current["AGA_LastQueryTime"] = adguard_format_timestamp(query.get("time"))
+
+    return [row for row in activity_by_ip.values() if row["AGA_LastQueryTime"]]
+
+#-------------------------------------------------------------------------------
+def adguard_write_network_table(rows):
+    sql.execute("DELETE FROM AdGuard_Network")
+
+    sql.executemany(
+        """
+        INSERT INTO AdGuard_Network (
+            AG_MAC, AG_IP, AG_Name, AG_Connected, AG_LeaseExpires, AG_LastQueryTime
+        ) VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                row["AG_MAC"],
+                row["AG_IP"],
+                row["AG_Name"],
+                row["AG_Connected"],
+                row["AG_LeaseExpires"],
+                row["AG_LastQueryTime"],
+            )
+            for row in rows
+        ]
+    )
+
+#-------------------------------------------------------------------------------
+def adguard_cleanup_activity_table(max_age_minutes):
+    cutoff = adguard_format_timestamp(datetime.now(timezone.utc) - timedelta(minutes=max_age_minutes))
+    sql.execute("DELETE FROM AdGuard_Activity WHERE AGA_LastQueryTime < ?", (cutoff,))
+
+#-------------------------------------------------------------------------------
+def adguard_write_activity_table(activity_rows):
+    sql.executemany(
+        """
+        INSERT INTO AdGuard_Activity (
+            AGA_IP, AGA_MAC, AGA_Name, AGA_LastQueryTime
+        ) VALUES (?, ?, ?, ?)
+        ON CONFLICT(AGA_IP) DO UPDATE SET
+            AGA_MAC = excluded.AGA_MAC,
+            AGA_Name = excluded.AGA_Name,
+            AGA_LastQueryTime = excluded.AGA_LastQueryTime
+        """,
+        [
+            (
+                row["AGA_IP"],
+                row["AGA_MAC"],
+                row["AGA_Name"],
+                row["AGA_LastQueryTime"],
+            )
+            for row in activity_rows
+        ]
+    )
+
+#-------------------------------------------------------------------------------
+def read_adguard_data():
+    if not ADGUARD_ACTIVE:
+        return
+
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    payload = {
+        "name": ADGUARD_USER,
+        "password": ADGUARD_PASSWORD,
+    }
+
+    protocol_order = ["https", "http"] if ADGUARD_SSL else ["http", "https"]
+    cookies = None
+    base_url = None
+
+    for protocol in protocol_order:
+        cookies, base_url = adguard_try_login(protocol, ADGUARD_IP, ADGUARD_PORT, headers, payload)
+        if cookies is not None:
+            break
+
+    if cookies is None:
+        print("    AdGuard import skipped - Connection failed")
+        return
+
+    lease_payload = adguard_get_dhcp_leases(cookies, base_url, headers)
+    latest_queries = adguard_get_latest_queries_per_client(
+        cookies,
+        base_url,
+        headers,
+        minutes=ADGUARD_QUERY_MINUTES,
+        limit=ADGUARD_QUERY_LIMIT,
+    )
+
+    devices_by_ip = adguard_normalize_dhcp_leases(lease_payload)
+    adguard_mark_active_from_queries(devices_by_ip, latest_queries)
+
+    network_rows = adguard_build_network_rows(devices_by_ip)
+    activity_rows = adguard_build_activity_rows(devices_by_ip, latest_queries)
+
+    adguard_write_network_table(network_rows)
+    adguard_cleanup_activity_table(ADGUARD_ACTIVITY_MINUTES)
+    adguard_write_activity_table(activity_rows)
+
+    sql_connection.commit()
+    print_log(network_rows)
+    print_log(activity_rows)
+
+#-------------------------------------------------------------------------------
 def opnsense_save_dhcp_data(opnsense_dhcpleases):
 
     if isinstance(opnsense_dhcpleases, str):
@@ -2822,6 +3173,20 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
           )
     """, (cycle, cycle))
 
+    # Insert AdGuard devices with known MAC addresses
+    if table_exists("AdGuard_Network"):
+        sql.execute("""
+            INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
+            SELECT ?, AG_MAC, AG_IP, NULL, 'AdGuard'
+            FROM AdGuard_Network
+            WHERE AG_Connected = 1
+              AND NOT EXISTS (
+                  SELECT 1 FROM CurrentScan
+                  WHERE cur_MAC = AG_MAC COLLATE NOCASE
+                    AND cur_ScanCycle = ?
+              )
+        """, (cycle, cycle))
+
 
     # Insert Satellite devices
     sql.execute ("""
@@ -2924,6 +3289,11 @@ def insert_ext_sources(sql, cycle, network_table, mac_column, ip_column, vendor_
         sql.execute("ROLLBACK")
         # raise e
 
+#-------------------------------------------------------------------------------
+def table_exists(table_name):
+    sql.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name = ?", (table_name,))
+    return sql.fetchone() is not None
+
 
 #-------------------------------------------------------------------------------
 def dump_all_resulttables():
@@ -3008,6 +3378,24 @@ def dump_all_resulttables():
             for row in rows:
                 print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
             print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='AdGuard_Network';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT AG_MAC, AG_IP, AG_Name FROM AdGuard_Network')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (AdGuard Network)')
+            for row in rows:
+                print(f"MAC: {row[0]}, IP: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
+        sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='AdGuard_Activity';")
+        table_exists = sql.fetchone()
+        if table_exists:
+            sql.execute('SELECT AGA_IP, AGA_MAC, AGA_Name FROM AdGuard_Activity')
+            rows = sql.fetchall()
+            print('----------> Dump: Table (AdGuard Activity)')
+            for row in rows:
+                print(f"IP: {row[0]}, MAC: {row[1]}, Name: {row[2]}")
+            print('----------> Dump: End')
         sql.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Satellites_Network';")
         table_exists = sql.fetchone()
         if table_exists:
@@ -3071,10 +3459,14 @@ def remove_entries_from_table():
                 'Openwrt_Network': 'OWRT_MAC',
                 'Asuswrt_Network': 'ASUS_MAC',
                 'pfsense_Network': 'PF_MAC',
-                'opnsense_Network': 'OPN_MAC'
+                'opnsense_Network': 'OPN_MAC',
+                'AdGuard_Network': 'AG_MAC'
             }
 
             for table, column in table_column_map.items():
+                if table.startswith("AdGuard") and not table_exists(table):
+                    continue
+
                 if table not in table_column_map or column != table_column_map[table]:
                     continue
 
@@ -3106,10 +3498,15 @@ def remove_entries_from_table():
                 'Openwrt_Network': 'OWRT_IP',
                 'Asuswrt_Network': 'ASUS_IP',
                 'pfsense_Network': 'PF_IP',
-                'opnsense_Network': 'OPN_IP'
+                'opnsense_Network': 'OPN_IP',
+                'AdGuard_Network': 'AG_IP',
+                'AdGuard_Activity': 'AGA_IP'
             }
 
             for table, column in table_column_map.items():
+                if table.startswith("AdGuard") and not table_exists(table):
+                    continue
+
                 if table not in table_column_map or column != table_column_map[table]:
                     continue
 
@@ -3138,11 +3535,15 @@ def remove_entries_from_table():
                 ("Asuswrt_Network", "ASUS_MAC", "ASUS_Name"),
                 ("pfsense_Network", "PF_MAC", "PF_Name"),
                 ("opnsense_Network", "OPN_MAC", "OPN_Name"),
+                ("AdGuard_Network", "AG_MAC", "AG_Name"),
             ]
 
             matched_macs = set()
 
             for map_tablename, map_mac, map_name in source_tables:
+                if map_tablename.startswith("AdGuard") and not table_exists(map_tablename):
+                    continue
+
                 query = f"SELECT {map_mac}, {map_name} FROM {map_tablename}"
                 sql.execute(query)
                 for mac, name in sql.fetchall():
@@ -3159,10 +3560,14 @@ def remove_entries_from_table():
                 'Openwrt_Network': 'OWRT_MAC',
                 'Asuswrt_Network': 'ASUS_MAC',
                 'pfsense_Network': 'PF_MAC',
-                'opnsense_Network': 'OPN_MAC'
+                'opnsense_Network': 'OPN_MAC',
+                'AdGuard_Network': 'AG_MAC'
             }
 
             for tabelle, mac_spalte in work_tables.items():
+                if tabelle.startswith("AdGuard") and not table_exists(tabelle):
+                    continue
+
                 for mac in matched_macs:
                     sql.execute(
                         f"DELETE FROM {tabelle} WHERE {mac_spalte} = ? COLLATE NOCASE",
@@ -3212,6 +3617,7 @@ def print_scan_stats():
         "AsusWRT",
         "pfSense",
         "OPNsense",
+        "AdGuard",
         "Pi-hole DHCP"
     ]
 
@@ -3660,6 +4066,19 @@ def update_devices_data_from_scan():
                                   WHERE OPN_MAC = dev_MAC
                                     AND OPN_Name IS NOT NULL
                                     AND OPN_Name <> '') """)
+
+    # AdGuard - Update (unknown) Name
+    if table_exists("AdGuard_Network"):
+        sql.execute ("""UPDATE Devices
+                        SET dev_Name = (SELECT AG_Name FROM AdGuard_Network
+                                        WHERE AG_MAC = dev_MAC)
+                        WHERE (dev_Name = "(unknown)"
+                               OR dev_Name = ""
+                               OR dev_Name IS NULL)
+                          AND EXISTS (SELECT 1 FROM AdGuard_Network
+                                      WHERE AG_MAC = dev_MAC
+                                        AND AG_Name IS NOT NULL
+                                        AND AG_Name <> '') """)
 
     # Satellite - Update (unknown) Name
     sql.execute ("""UPDATE Devices

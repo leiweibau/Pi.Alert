@@ -871,6 +871,26 @@ EOM
       \"OPN_Connected\" BOOLEAN,
       \"OPN_Datetime\" DATETIME
     );"
+    # AdGuard_Network
+    echo -e "...Insert new table 'AdGuard_Network' to DB"
+    sqlite3 "$PIA_DB_FILE" "CREATE TABLE IF NOT EXISTS \"AdGuard_Network\" (
+      \"AG_MAC\" STRING(50) NOT NULL COLLATE NOCASE,
+      \"AG_IP\" STRING(50) NOT NULL COLLATE NOCASE UNIQUE,
+      \"AG_Name\" STRING(100),
+      \"AG_Connected\" BOOLEAN NOT NULL DEFAULT 0,
+      \"AG_LeaseExpires\" INTEGER DEFAULT 0,
+      \"AG_LastQueryTime\" DATETIME,
+      PRIMARY KEY(\"AG_MAC\")
+    );"
+    # AdGuard_Activity
+    echo -e "...Insert new table 'AdGuard_Activity' to DB"
+    sqlite3 "$PIA_DB_FILE" "CREATE TABLE IF NOT EXISTS \"AdGuard_Activity\" (
+      \"AGA_IP\" STRING(50) NOT NULL COLLATE NOCASE UNIQUE,
+      \"AGA_MAC\" STRING(50) COLLATE NOCASE,
+      \"AGA_Name\" STRING(100),
+      \"AGA_LastQueryTime\" DATETIME NOT NULL,
+      PRIMARY KEY(\"AGA_IP\")
+    );"
     # Satellites.sat_conf_scan_pfsense
     echo -e "...Insert new column 'sat_conf_scan_pfsense' to table 'Satellites' to DB"
     existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"Satellites\");" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_pfsense")

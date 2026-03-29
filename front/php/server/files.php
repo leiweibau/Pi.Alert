@@ -36,6 +36,7 @@ $maskKeys = [
     'REPORT_MQTT_PASSWORD',
     'PUSHOVER_USER',
     'PFSENSE_APIKEY',
+    'ADGUARD_PASSWORD',
     'PIHOLE6_PASSWORD',
     'DDNS_PASSWORD'
 ];
@@ -501,12 +502,6 @@ function convert_bool($val) {
     return $val;
 }
 
-// function serializeList($ListString) {
-//     $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
-//     $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
-// 	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
-// 	return $temp;
-// }
 function serializeList($listString) {
     $listString = trim($listString, " \t\n\r\0\x0B[]");
 
@@ -599,11 +594,12 @@ function SaveConfigFile() {
         $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
     }
 	// Ignore List Syntax handling start
-    if ($configArray['MAC_IGNORE_LIST'] == "") {$configArray['MAC_IGNORE_LIST'] = "[]";}
+	if ($configArray['MAC_IGNORE_LIST'] == "") {$configArray['MAC_IGNORE_LIST'] = "[]";}
 	if ($configArray['IP_IGNORE_LIST'] == "") {$configArray['IP_IGNORE_LIST'] = "[]";}
 	if ($configArray['HOSTNAME_IGNORE_LIST'] == "") {$configArray['HOSTNAME_IGNORE_LIST'] = "[]";}
 	if ($configArray['PFSENSE_EXCLUDE_INT'] == "") {$configArray['PFSENSE_EXCLUDE_INT'] = "[]";}
-	
+    if ($configArray['OPNSENSE_EXCLUDE_INT'] == "") {$configArray['OPNSENSE_EXCLUDE_INT'] = "[]";}
+
     // Ignore List Syntax handling stop
 	// if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
 	// 	$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
@@ -856,6 +852,18 @@ OPNSENSE_APIKEY            = '" . $configArray['OPNSENSE_APIKEY'] . "'
 OPNSENSE_APISECRET         = '" . $configArray['OPNSENSE_APISECRET'] . "'
 OPNSENSE_SSL               = " . convert_bool($configArray['OPNSENSE_SSL']) . "
 OPNSENSE_EXCLUDE_INT       = " . $configArray['OPNSENSE_EXCLUDE_INT'] . "
+
+# AdGuard Configuration
+# ---------------------
+ADGUARD_ACTIVE            = " . convert_bool($configArray['ADGUARD_ACTIVE']) . "
+ADGUARD_IP                = '" . $configArray['ADGUARD_IP'] . "'
+ADGUARD_PORT              = " . $configArray['ADGUARD_PORT'] . "
+ADGUARD_USER              = '" . $configArray['ADGUARD_USER'] . "'
+ADGUARD_PASSWORD          = '" . $configArray['ADGUARD_PASSWORD'] . "'
+ADGUARD_SSL               = " . convert_bool($configArray['ADGUARD_SSL']) . "
+ADGUARD_QUERY_MINUTES     = " . $configArray['ADGUARD_QUERY_MINUTES'] . "
+ADGUARD_ACTIVITY_MINUTES  = " . $configArray['ADGUARD_ACTIVITY_MINUTES'] . "
+ADGUARD_QUERY_LIMIT       = " . $configArray['ADGUARD_QUERY_LIMIT'] . "
 
 # Satellite Configuration
 # -----------------------
@@ -1569,6 +1577,7 @@ function ToggleImport() {
         'OPN' => 'OPNSENSE_ACTIVE',
         'PiN' => 'PIHOLE_ACTIVE',
         'PiD' => 'DHCP_ACTIVE',
+        'AG' => 'ADGUARD_ACTIVE',
     ];
 
     $deviceType = $_REQUEST['deviceType'];
