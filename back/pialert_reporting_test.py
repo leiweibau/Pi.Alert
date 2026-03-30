@@ -42,6 +42,64 @@ else:
   execfile(f"{PIALERT_PATH}/config/version.conf")
   execfile(f"{PIALERT_PATH}/config/pialert.conf")
 
+RAW_CONFIG_SECRET_KEYS = [
+    'PIALERT_APIKEY',
+    'PIALERT_WEB_PASSWORD',
+    'SMTP_PASS',
+    'REPORT_MQTT_PASSWORD',
+    'PUSHSAFER_TOKEN',
+    'PUSHOVER_TOKEN',
+    'PUSHOVER_USER',
+    'NTFY_PASSWORD',
+    'FRITZBOX_PASS',
+    'MIKROTIK_PASS',
+    'UNIFI_PASS',
+    'OPENWRT_PASS',
+    'ASUSWRT_PASS',
+    'PFSENSE_APIKEY',
+    'OPNSENSE_APIKEY',
+    'OPNSENSE_APISECRET',
+    'ADGUARD_PASSWORD',
+    'PIHOLE6_PASSWORD',
+    'DDNS_PASSWORD',
+]
+
+#-------------------------------------------------------------------------------
+def recover_sensitive_config_values(config_file, secret_keys):
+    def contains_control_characters(value):
+        return isinstance(value, str) and any(ord(char) < 32 for char in value)
+
+    try:
+        lines = open(config_file, encoding='utf-8').read().splitlines()
+    except OSError:
+        return
+
+    for line in lines:
+        match = re.match(r"^\s*([A-Z0-9_]+)\s*=\s*(['\"])(.*)\2\s*$", line)
+        if not match:
+            continue
+
+        key = match.group(1)
+        quote = match.group(2)
+        raw_value = match.group(3)
+
+        if key not in secret_keys:
+            continue
+
+        current_value = globals().get(key, '')
+        if not contains_control_characters(current_value):
+            continue
+
+        recovered_value = raw_value.replace("\\\\", "\\")
+        if quote == "'":
+            recovered_value = recovered_value.replace("\\'", "'")
+        else:
+            recovered_value = recovered_value.replace('\\"', '"')
+
+        globals()[key] = recovered_value
+
+recover_sensitive_config_values(f"{PIALERT_PATH}/config/pialert.conf", RAW_CONFIG_SECRET_KEYS)
+
 #===============================================================================
 # MAIN
 #===============================================================================

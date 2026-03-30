@@ -58,8 +58,8 @@ I would like to give a short explanation to the individual points.
 |-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | SMTP_SERVER     | Address of the e-mail server (e.g. smtp.gmail.com)                                                                                                |
 | SMTP_PORT       | The port of the SMTP server. The port may vary depending on the server configuration.                                                             |
-| SMTP_USER       | User name                                                                                                                                         |
-| SMTP_PASS       | Password                                                                                                                                          |
+| SMTP_USER       | User name used to authenticate with the SMTP server.                                                                                              |
+| SMTP_PASS       | Password used to authenticate with the SMTP server.                                                                                               |
 | SMTP_SKIP_TLS   | If this entry is set to True, transport encryption of the e-mail is enabled. If the server does not support this, the entry must be set to False. |
 | SMTP_SKIP_LOGIN | There are SMTP servers which do not require a login. In such a case, this value can be set to True.                                               |
 
@@ -154,16 +154,26 @@ I would like to give a short explanation to the individual points.
 | TELEGRAM_BOT_TOKEN_URL | Here the URL created by the shoutrrr setup wizard is entered.                               |
 
 
+#### :eight_spoked_asterisk: Discord
+
+| Option                | Description |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| REPORT_DISCORD        | Enables/disables notifications about network changes via Discord.                                                              |
+| REPORT_DISCORD_WEBMON | Enables/disables notifications about monitored web service changes via Discord.                                                |
+| DISCORD_BOT_TOKEN_URL | The Discord webhook URL used to send the notification.                                                                         |
+
+
 #### :eight_spoked_asterisk: DynDNS and IP
 
 | Option               | Description |
 |-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | QUERY_MYIP_SERVER | Server URL that determines and returns the current public IP.                                                                                                                                                 |
+| QUERY_MYIP_SERVER_FALLBACK | Fallback server URL used when the primary public IP lookup fails.                                                                                                                                     |
 | DDNS_ACTIVE       | Enables/Disables the configured DDNS service in Pi.Alert. DDNS, also known as DynDNS, allows a domain name to be updated with a regularly changing IP address. This service is provided by various providers. |
-| DDNS_DOMAIN       |                                                                                                                                                                                                               |
-| DDNS_USER         | Username                                                                                                                                                                                                      |
-| DDNS_PASSWORD     | Password                                                                                                                                                                                                      |
-| DDNS_UPDATE_URL   | URL to update the current IP with the DDNS service                                                                                                                                                            |
+| DDNS_DOMAIN       | Domain name or host name that should be updated by the configured DDNS provider.                                                                                                                             |
+| DDNS_USER         | User name used to authenticate with the DDNS provider.                                                                                                                                                        |
+| DDNS_PASSWORD     | Password used to authenticate with the DDNS provider.                                                                                                                                                         |
+| DDNS_UPDATE_URL   | Provider-specific update URL used to send the current public IP to the DDNS service.                                                                                                                         |
 
 
 #### :eight_spoked_asterisk: Automatic Speedtest
@@ -211,9 +221,9 @@ I would like to give a short explanation to the individual points.
 | Option          | Description |
 |-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | FRITZBOX_ACTIVE | If a Fritzbox is used in the network, it can be used as a data source. This can be activated or deactivated at this point.                                  |
-| FRITZBOX_IP     | IP address of the Fritzbox.                                                                                                                                 |
-| FRITZBOX_USER   | This assumes that the Fritzbox is configured for a login with username and password, instead of password only. A login with password only is not supported. |
-| FRITZBOX_PASS   | Password                                                                                                                                                    |
+| FRITZBOX_IP     | IP address or host name of the Fritzbox.                                                                                                                  |
+| FRITZBOX_USER   | User name for Fritzbox authentication. Password-only logins are not supported.                                                                            |
+| FRITZBOX_PASS   | Password for the configured Fritzbox user.                                                                                                                 |
 
 
 #### :eight_spoked_asterisk: Mikrotik Configuration
@@ -221,9 +231,9 @@ I would like to give a short explanation to the individual points.
 | Option          | Description |
 |-----------------|------------------------------------------------------------------------------------------------------------------------------|
 | MIKROTIK_ACTIVE | If a Mikrotik router is used in the network, it can be used as a data source. This can be enabled or disabled at this point. |
-| MIKROTIK_IP     | IP address of the Mikrotik router.                                                                                           |
-| MIKROTIK_USER   | Username                                                                                                                     |
-| MIKROTIK_PASS   | Password                                                                                                                     |
+| MIKROTIK_IP     | IP address or host name of the Mikrotik router.                                                                              |
+| MIKROTIK_USER   | User name used to authenticate with the Mikrotik router.                                                                     |
+| MIKROTIK_PASS   | Password used to authenticate with the Mikrotik router.                                                                      |
 
 
 #### :eight_spoked_asterisk: UniFi Configuration
@@ -231,10 +241,10 @@ I would like to give a short explanation to the individual points.
 | Option       | Description |
 |--------------|---------------------------------------------------------------------------------------------------------------------------|
 | UNIFI_ACTIVE | If a UniFi system is used in the network, it can be used as a data source. This can be enabled or disabled at this point. |
-| UNIFI_IP     | IP address of the Unifi system.                                                                                           |
+| UNIFI_IP     | IP address or host name of the UniFi controller or UniFi OS device.                                                       |
 | UNIFI_API    | Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default                                                            |
-| UNIFI_USER   | Username                                                                                                                  |
-| UNIFI_PASS   | Password                                                                                                                  |
+| UNIFI_USER   | User name used to authenticate with the UniFi controller.                                                                 |
+| UNIFI_PASS   | Password used to authenticate with the UniFi controller.                                                                  |
 
 
 #### :eight_spoked_asterisk: OpenWRT Configuration
@@ -242,9 +252,9 @@ I would like to give a short explanation to the individual points.
 | Option         | Description |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | OPENWRT_ACTIVE | The package `luci-mod-rpc`need to be installed, on your OpenWrt router. If a OpenWRT router is used in the network, it can be used as a data source. This can be activated or deactivated at this point. |
-| OPENWRT_IP     | IP address of the router.                                                                                                                                                                         |
-| OPENWRT_USER   | Username                                                                                                                                                                                          |
-| OPENWRT_PASS   | Password                                                                                                                                                                                          |
+| OPENWRT_IP     | IP address or host name of the OpenWRT router.                                                                                                                                                    |
+| OPENWRT_USER   | User name used to authenticate with the OpenWRT router.                                                                                                                                           |
+| OPENWRT_PASS   | Password used to authenticate with the OpenWRT router.                                                                                                                                            |
 
 
 #### :eight_spoked_asterisk: Asus Configuration
@@ -252,10 +262,10 @@ I would like to give a short explanation to the individual points.
 | Option         | Description |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | ASUSWRT_ACTIVE | If a Asus router is used in the network, it can be used as a data source. This can be activated or deactivated at this point. The Python package “asusrouter” is used for communication with the router, which supports a large number of devices. You can check whether your router is supported at “https://pypi.org/project/asusrouter/”. |
-| ASUSWRT_IP     | IP address of the router.                                                                                                                                                                         |
-| ASUSWRT_USER   | Username                                                                                                                                                                                          |
-| ASUSWRT_PASS   | Password                                                                                                                                                                                          |
-| ASUSWRT_SSL    | Is https is True or False?                                                                                                                                                                        |
+| ASUSWRT_IP     | IP address or host name of the AsusWRT router.                                                                                                                                                    |
+| ASUSWRT_USER   | User name used to authenticate with the AsusWRT router.                                                                                                                                           |
+| ASUSWRT_PASS   | Password used to authenticate with the AsusWRT router.                                                                                                                                            |
+| ASUSWRT_SSL    | Set to True for https or False for http when connecting to the router.                                                                                                                            |
 
 
 #### :eight_spoked_asterisk: pfsense Configuration
@@ -263,18 +273,44 @@ I would like to give a short explanation to the individual points.
 | Option              | Description |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | PFSENSE_ACTIVE      | Enables the import of pfSense. To do this, the REST API must be installed in pfSense. You can find more details here: [pfSense REST API](https://pfrest.org/). The API is used to import the DHCP leases and the ARP table from pfSense. |
-| PFSENSE_IP          | IP address or domain name of the pfSense Firewall.                                                                                                                                                                                       |
+| PFSENSE_IP          | IP address or domain name of the pfSense firewall.                                                                                                                                                                                      |
 | PFSENSE_PORT        | The port through which the web interface can be accessed. This is usually 443 for https (PFSENSE_SSL = True) and 80 for http (PFSENSE_SSL = False).                                                                                      |
 | PFSENSE_APIKEY      | The API key that was created after installing the API in pfSense under ‘System’ -> ‘REST API’ -> 'Keys'                                                                                                                                  |
-| PFSENSE_SSL         | Is https is True or False?                                                                                                                                                                                                               |
+| PFSENSE_SSL         | Set to True for https or False for http.                                                                                                                                                                                                 |
 | PFSENSE_EXCLUDE_INT | Interfaces that should be ignored during import                                                                                                                                                                                          |
+
+#### :eight_spoked_asterisk: OPNsense Configuration
+
+| Option               | Description |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| OPNSENSE_ACTIVE      | Enables the import of OPNsense data. Pi.Alert uses the OPNsense API to read DHCP lease and ARP information.                                                                               |
+| OPNSENSE_IP          | IP address or domain name of the OPNsense firewall.                                                                                                                                       |
+| OPNSENSE_PORT        | The port used by the OPNsense web interface and API. This is usually 443 for https and 80 for http.                                                                                       |
+| OPNSENSE_APIKEY      | API key created for the OPNsense API user.                                                                                                                                                  |
+| OPNSENSE_APISECRET   | API secret that belongs to the configured API key.                                                                                                                                          |
+| OPNSENSE_SSL         | Set to True for https or False for http.                                                                                                                                                    |
+| OPNSENSE_EXCLUDE_INT | Interfaces that should be ignored during import.                                                                                                                                            |
+
+#### :eight_spoked_asterisk: AdGuard Configuration
+
+| Option                   | Description |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ADGUARD_ACTIVE           | Enables or disables the AdGuard import.                                                                                                                                                    |
+| ADGUARD_IP               | IP address or host name of the AdGuard Home instance.                                                                                                                                     |
+| ADGUARD_PORT             | Port used by the AdGuard web interface and API.                                                                                                                                           |
+| ADGUARD_USER             | User name used to authenticate with the AdGuard web interface.                                                                                                                            |
+| ADGUARD_PASSWORD         | Password for the AdGuard web interface. If you enter a password with `\` in the GUI, `pialert.conf` may show `\\`. This is expected and preserves the correct value.                     |
+| ADGUARD_SSL              | Set to True for https or False for http.                                                                                                                                                   |
+| ADGUARD_QUERY_MINUTES    | Query time window, in minutes, that is used to mark AdGuard lease entries as active.                                                                                                      |
+| ADGUARD_ACTIVITY_MINUTES | Retention time, in minutes, for entries in the AdGuard activity table before they are removed as inactive.                                                                                |
+| ADGUARD_QUERY_LIMIT      | Maximum number of query log entries requested from AdGuard per run.                                                                                                                        |
 
 #### :eight_spoked_asterisk: Satellite Configuration
 
 | Option               | Description |
 |----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | SATELLITE_PROXY_MODE | Activates/deactivates the support of an external API to which the satellites send their data. If this function is deactivated, Pi.Alert only uses scan events that were sent directly to this instance. |
-| SATELLITE_PROXY_URL  | The URL of the Pi.Alert Satellite Poxy API                                                  |
+| SATELLITE_PROXY_URL  | URL of the Pi.Alert Satellite Proxy API that receives scan data from satellite instances.   |
 
 
 #### :eight_spoked_asterisk: Maintenance Tasks
@@ -287,8 +323,6 @@ I would like to give a short explanation to the individual points.
 
 
 [Back](https://github.com/leiweibau/Pi.Alert#back)
-
-
 
 
 

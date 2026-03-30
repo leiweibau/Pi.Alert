@@ -14,6 +14,9 @@ to pause the arp scan on the maintenance page.
 
 In addition to the password, the parameter PIALERT_WEB_PROTECTION must also be set to True in the configuration file `~/pialert/config/pialert.conf` or `/opt/pialert/config/pialert.conf`.
 
+#### _Why does a password entered in the GUI with `\` sometimes appear as `\\` in `pialert.conf`?_
+
+Pi.Alert stores the configuration file as Python syntax. Because of that, backslashes inside sensitive values such as passwords may be escaped when the file is written by the GUI. For example, a password entered as `abc\123` in the GUI may appear as `abc\\123` in `pialert.conf`. This is expected and is done to keep the configuration valid and to preserve the original password value correctly.
 
 #### _There is an update available. How do I proceed if I want to update Pi.Alert?_
 

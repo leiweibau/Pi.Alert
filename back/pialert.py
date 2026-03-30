@@ -54,6 +54,64 @@ else:
     execfile(PIALERT_PATH + "/config/version.conf")
     execfile(PIALERT_PATH + "/config/pialert.conf")
 
+RAW_CONFIG_SECRET_KEYS = [
+    'PIALERT_APIKEY',
+    'PIALERT_WEB_PASSWORD',
+    'SMTP_PASS',
+    'REPORT_MQTT_PASSWORD',
+    'PUSHSAFER_TOKEN',
+    'PUSHOVER_TOKEN',
+    'PUSHOVER_USER',
+    'NTFY_PASSWORD',
+    'FRITZBOX_PASS',
+    'MIKROTIK_PASS',
+    'UNIFI_PASS',
+    'OPENWRT_PASS',
+    'ASUSWRT_PASS',
+    'PFSENSE_APIKEY',
+    'OPNSENSE_APIKEY',
+    'OPNSENSE_APISECRET',
+    'ADGUARD_PASSWORD',
+    'PIHOLE6_PASSWORD',
+    'DDNS_PASSWORD',
+]
+
+#-------------------------------------------------------------------------------
+def recover_sensitive_config_values(config_file, secret_keys):
+    def contains_control_characters(value):
+        return isinstance(value, str) and any(ord(char) < 32 for char in value)
+
+    try:
+        lines = open(config_file, encoding='utf-8').read().splitlines()
+    except OSError:
+        return
+
+    for line in lines:
+        match = re.match(r"^\s*([A-Z0-9_]+)\s*=\s*(['\"])(.*)\2\s*$", line)
+        if not match:
+            continue
+
+        key = match.group(1)
+        quote = match.group(2)
+        raw_value = match.group(3)
+
+        if key not in secret_keys:
+            continue
+
+        current_value = globals().get(key, '')
+        if not contains_control_characters(current_value):
+            continue
+
+        recovered_value = raw_value.replace("\\\\", "\\")
+        if quote == "'":
+            recovered_value = recovered_value.replace("\\'", "'")
+        else:
+            recovered_value = recovered_value.replace('\\"', '"')
+
+        globals()[key] = recovered_value
+
+recover_sensitive_config_values(PIALERT_PATH + "/config/pialert.conf", RAW_CONFIG_SECRET_KEYS)
+
 #===============================================================================
 # MAIN
 #===============================================================================
@@ -1062,7 +1120,7 @@ def scan_network():
     print_log ('OPNsense copy starts...')
     read_opnsense_clients()
     openDB()
-    print_log ('AdGuard import starts...')
+    print_log ('AdGuard copy starts...')
     read_adguard_data()
     # Import Satellites Scans
     openDB()
@@ -1797,7 +1855,7 @@ def opnsense_connect(endpoint, topic):
         if response.status_code == 200:
             return response.json()
         else:
-            print(f"        ...❌ Error {response.status_code}: {response.text}")
+            print(f"        ...Error {response.status_code}: {response.text}")
             return None
 
     except requests.Timeout:
@@ -1913,12 +1971,12 @@ def opnsense_mark_local_interfaces(interfaces, interface_names):
         try:
             interfaces = json.loads(interfaces)
         except json.JSONDecodeError:
-            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            print_log("        ...Error: invalid JSON-format (interfaces)")
             return
 
     interface_map = opnsense_get_interface_map(interface_names)
     if not isinstance(interfaces, dict):
-        print_log("⚠️ no local interfaces were found")
+        print_log("        Info: no local interfaces were found")
         return
 
     local_interfaces = []
@@ -1985,7 +2043,7 @@ def adguard_fetch_dns_queries(cookies, base_url, headers, limit=200):
 
 #-------------------------------------------------------------------------------
 def adguard_filter_dns_queries(queries, minutes=10):
-    now = datetime.now(timezone.utc)
+    now = datetime.datetime.now(timezone.utc)
     cutoff = now - timedelta(minutes=minutes)
     filtered = []
 
@@ -1995,7 +2053,7 @@ def adguard_filter_dns_queries(queries, minutes=10):
             continue
 
         try:
-            query_time = datetime.fromisoformat(query_time_str.replace("Z", "+00:00"))
+            query_time = datetime.datetime.fromisoformat(query_time_str.replace("Z", "+00:00"))
         except Exception:
             continue
 
@@ -2046,7 +2104,7 @@ def adguard_get_latest_queries_per_client(cookies, base_url, headers, minutes=10
             continue
 
         try:
-            query_time = datetime.fromisoformat(query_time_str.replace("Z", "+00:00"))
+            query_time = datetime.datetime.fromisoformat(query_time_str.replace("Z", "+00:00"))
         except Exception:
             continue
 
@@ -2095,7 +2153,7 @@ def adguard_parse_lease_expires(expires_value):
 
     if isinstance(expires_value, str):
         try:
-            return int(datetime.fromisoformat(expires_value.replace("Z", "+00:00")).timestamp())
+            return int(datetime.datetime.fromisoformat(expires_value.replace("Z", "+00:00")).timestamp())
         except ValueError:
             return 0
 
@@ -2103,7 +2161,7 @@ def adguard_parse_lease_expires(expires_value):
 
 #-------------------------------------------------------------------------------
 def adguard_format_timestamp(date_value):
-    if not isinstance(date_value, datetime):
+    if not isinstance(date_value, datetime.datetime):
         return ""
 
     return date_value.astimezone(timezone.utc).isoformat()
@@ -2224,7 +2282,7 @@ def adguard_write_network_table(rows):
 
 #-------------------------------------------------------------------------------
 def adguard_cleanup_activity_table(max_age_minutes):
-    cutoff = adguard_format_timestamp(datetime.now(timezone.utc) - timedelta(minutes=max_age_minutes))
+    cutoff = adguard_format_timestamp(datetime.datetime.now(timezone.utc) - timedelta(minutes=max_age_minutes))
     sql.execute("DELETE FROM AdGuard_Activity WHERE AGA_LastQueryTime < ?", (cutoff,))
 
 #-------------------------------------------------------------------------------
@@ -2255,6 +2313,8 @@ def read_adguard_data():
     if not ADGUARD_ACTIVE:
         return
 
+    print(f"    AdGuard Method...")
+
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -2274,7 +2334,7 @@ def read_adguard_data():
             break
 
     if cookies is None:
-        print("    AdGuard import skipped - Connection failed")
+        print("        ...Skipped - Connection failed")
         return
 
     lease_payload = adguard_get_dhcp_leases(cookies, base_url, headers)
@@ -2307,14 +2367,14 @@ def opnsense_save_dhcp_data(opnsense_dhcpleases):
         try:
             opnsense_dhcpleases = json.loads(opnsense_dhcpleases)
         except json.JSONDecodeError:
-            print_log("        ...❌ Error: invalid JSON-format (opnsense_dhcpleases)")
+            print_log("        ...Error: invalid JSON-format (opnsense_dhcpleases)")
             return [], []
 
     opnsense_network_dhcp = []
     lease_rows = opnsense_get_rows(opnsense_dhcpleases)
 
     if not lease_rows:
-        print_log("⚠️ no DHCP-Leases were found")
+        print_log("        ...Info: no DHCP-Leases were found")
         return opnsense_network_dhcp
 
     for entry in lease_rows:
@@ -2399,14 +2459,14 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
         try:
             opnsense_arptable = json.loads(opnsense_arptable)
         except json.JSONDecodeError:
-            print_log("        ...❌ Error: invalid JSON-format (opnsense_arptable)")
+            print_log("        ...Error: invalid JSON-format (opnsense_arptable)")
             return [], []
 
     if isinstance(interfaces, str):
         try:
             interfaces = json.loads(interfaces)
         except json.JSONDecodeError:
-            print_log("        ...❌ Error: invalid JSON-format (interfaces)")
+            print_log("        ...Error: invalid JSON-format (interfaces)")
             return [], []
 
     interface_map = opnsense_get_interface_map(interface_names)
@@ -2414,7 +2474,7 @@ def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
     opnsense_arp_list = []
 
     if not arp_rows:
-        print_log("⚠️ no valid ARP-data found.")
+        print_log("        ...Info: no valid ARP-data found.")
         return opnsense_arp_list
 
     local_interfaces = []
@@ -6516,8 +6576,7 @@ def send_email (pText, pHTML):
         smtp_connection.starttls()
         smtp_connection.ehlo()
     if not SafeParseGlobalBool("SMTP_SKIP_LOGIN"):
-        escaped_password = repr(SMTP_PASS)[1:-1]
-        smtp_connection.login (SMTP_USER, escaped_password)
+        smtp_connection.login (SMTP_USER, SMTP_PASS)
     smtp_connection.sendmail (REPORT_FROM, REPORT_TO, msg.as_string())
     smtp_connection.quit()
 
