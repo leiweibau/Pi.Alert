@@ -3007,6 +3007,7 @@ def process_satellites(satellite_list):
                 scan_pihole_dhcp = 1 if config.get('scan_pihole_dhcp') else 0
                 scan_pfsense     = 1 if config.get('scan_pfsense') else 0
                 scan_opnsense    = 1 if config.get('scan_opnsense') else 0
+                scan_adguard     = 1 if config.get('scan_adguard') else 0
 
                 for result in data['scan_results']:
                     if result['cur_ScanMethod'] != 'Internet Check' and result['cur_ScanMethod'] != 'Pi-hole DHCP':
@@ -3074,8 +3075,9 @@ def process_satellites(satellite_list):
                                     sat_conf_scan_pihole_dhcp = ?,
                                     sat_conf_scan_pfsense = ?,
                                     sat_conf_scan_opnsense = ?,
+                                    sat_conf_scan_adguard = ?,
                                     sat_host_data = ?
-                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_asuswrt, scan_pihole_net, scan_pihole_dhcp, scan_pfsense, scan_opnsense, satellite_meta_data_json, token))
+                                WHERE sat_token = ?""", (satUpdateTime, satellite_version, scan_arp, scan_fritzbox, scan_mikrotik, scan_unifi, scan_openwrt, scan_asuswrt, scan_pihole_net, scan_pihole_dhcp, scan_pfsense, scan_opnsense, scan_adguard, satellite_meta_data_json, token))
 
 #-------------------------------------------------------------------------------
 def get_satellite_proxy_scans(satellite_list):

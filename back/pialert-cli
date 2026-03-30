@@ -997,7 +997,14 @@ EOM
     else
       echo "        Column 'sat_conf_scan_opnsense' already exists in the 'Satellites' table."
     fi
-
+    # Satellites.sat_conf_scan_adguard
+    echo -e "...Insert new column 'sat_conf_scan_adguard' to table 'Satellites' to DB"
+    existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"Satellites\");" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_adguard")
+    if [ "$existing" -eq 0 ]; then
+      sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"Satellites\" ADD COLUMN \"sat_conf_scan_adguard\" BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'sat_conf_scan_adguard' already exists in the 'Satellites' table."
+    fi
 
     echo -e "\nUpdate finished!\n"
 
