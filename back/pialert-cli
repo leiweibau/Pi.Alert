@@ -941,6 +941,30 @@ EOM
       \"Logfile\" BLOB,
       PRIMARY KEY(\"ScanDate\")
     );"
+    # Tools_Nmap_ManScan
+    echo -e "...Insert new table 'Tools_Nmap_ManScan' to DB"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Nmap_ManScan\" (
+      \"ID\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"scan_date\" DATETIME NOT NULL,
+      \"scan_target\" STRING(50) NOT NULL,
+      \"scan_type\" STRING(50) NOT NULL,
+      \"scan_result\" TEXT,
+      \"reserve_a\" INTEGER,
+      \"reserve_b\" TEXT,
+      \"reserve_c\" TEXT,
+      \"reserve_d\" TEXT
+    );"
+    # Tools_Speedtest_History
+    echo -e "...Insert new table 'Tools_Speedtest_History' to DB"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Speedtest_History\" (
+      \"ID\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"speed_date\" TEXT,
+      \"speed_isp\" TEXT,
+      \"speed_server\" TEXT,
+      \"speed_ping\" NUMERIC,
+      \"speed_down\" NUMERIC,
+      \"speed_up\" NUMERIC
+    );"
     # Index on Services_Events
     echo -e "...Create index on Services_Events (DateTime)"
     sqlite3 "$PIA_DB_FILE" "CREATE INDEX IF NOT EXISTS \"idx_services_events_datetime\"
