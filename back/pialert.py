@@ -47,12 +47,8 @@ PIHOLE6_SES_VALID = ""
 PIHOLE6_SES_SID = ""
 PIHOLE6_SES_CSRF = ""
 
-if (sys.version_info > (3,0)):
-    exec(open(PIALERT_PATH + "/config/version.conf").read())
-    exec(open(PIALERT_PATH + "/config/pialert.conf").read())
-else:
-    execfile(PIALERT_PATH + "/config/version.conf")
-    execfile(PIALERT_PATH + "/config/pialert.conf")
+exec(open(PIALERT_PATH + "/config/version.conf").read())
+exec(open(PIALERT_PATH + "/config/pialert.conf").read())
 
 RAW_CONFIG_SECRET_KEYS = [
     'PIALERT_APIKEY',
