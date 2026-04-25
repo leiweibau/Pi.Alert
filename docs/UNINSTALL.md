@@ -34,6 +34,13 @@
   crontab -l 2>/dev/null | sed ':a;N;$!ba;s/#-------------------------------------------------------------------------------\n#  Pi.Alert\n#  Open Source Network Guard \/ WIFI & LAN intrusion detector \n#\n#  pialert.cron - Back module. Crontab jobs\n#-------------------------------------------------------------------------------\n#  Puche 2021        pi.alert.application@gmail.com        GNU GPLv3\n#-------------------------------------------------------------------------------//g' | crontab -
   crontab -l 2>/dev/null | sed '/pialert.py/d' | crontab -
   ```
+1.6 - Remove Pi.Alert helper
+  ```
+  sudo rm /etc/sudoers.d/pialert-backend
+  sudo rm /etc/sudoers.d/pialert-frontend
+  sudo rm /etc/bash_completion.d/pialert-cli
+  sudo rm /usr/share/bash-completion/completions/pialert-cli
+  ```
 
 ### Uninstallation Notes
 <!--- --------------------------------------------------------------------- --->
