@@ -1768,10 +1768,10 @@ function initToolsSection() {
         const $btnWake      = $('#btnwakeonlan');
 
         // Inhalte nur setzen, wenn Element existiert
-        if ($manualFast.length)   $manualFast.text('Schneller Scan (' + lastIP + ')');
-        if ($manualNormal.length) $manualNormal.text('Standard Scan (' + lastIP + ')');
-        if ($manualDetail.length) $manualDetail.text('Detailierter Scan (' + lastIP + ')');
-        if ($btnWake.length)      $btnWake.text('Sende Wol Befehl an ' + lastIP);
+        if ($manualFast.length)   $manualFast.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonFast']?> (' + lastIP + ')');
+        if ($manualNormal.length) $manualNormal.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault']?> (' + lastIP + ')');
+        if ($manualDetail.length) $manualDetail.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail']?> (' + lastIP + ')');
+        if ($btnWake.length)      $btnWake.text('<?=$pia_lang['DevDetail_Tools_WOL']?> ' + lastIP);
 
         // Funktion nur aufrufen, wenn lastIP existiert
         if (lastIP) {
