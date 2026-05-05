@@ -549,6 +549,7 @@ function serializeList($listString) {
     return '[' . implode(',', $result) . ']';
 }
 
+// Get pialert root
 function find_pialert_root($startDir = __DIR__) {
     $dir = realpath($startDir);
 
@@ -566,6 +567,45 @@ function find_pialert_root($startDir = __DIR__) {
     }
 
     throw new Exception("Pi.Alert Root not found");
+}
+
+function safeConfigPath($input, $mustExist = true, $mustBeFile = true) {
+
+    // 1. Validate input type
+    if (!is_string($input) || trim($input) === '') {
+        throw new Exception("Invalid path: empty or not a string");
+    }
+
+    // 2. Cut everything after semicolon (prevents command/config injection)
+    //    Example: "/path/file; rm -rf /" => "/path/file"
+    $input = explode(';', $input, 2)[0];
+
+    // 3. Remove newline characters (prevents config breaking / injection)
+    $input = str_replace(["\r", "\n", "'"], '', trim($input));
+
+    // 4. Normalize path
+    $realPath = realpath($input);
+
+    if ($realPath === false) {
+        // If existence is required, reject invalid path
+        if ($mustExist) {
+            throw new Exception("Path does not exist");
+        }
+        // Otherwise allow raw input (e.g. for log files not yet created)
+        $realPath = $input;
+    }
+
+    // 5. Validate type (file or directory)
+    if ($mustExist) {
+        if ($mustBeFile && !is_file($realPath)) {
+            throw new Exception("Path is not a valid file");
+        }
+        if (!$mustBeFile && !is_dir($realPath)) {
+            throw new Exception("Path is not a valid directory");
+        }
+    }
+
+    return $realPath;
 }
 
 //  Save Config
@@ -653,9 +693,6 @@ function SaveConfigFile() {
     } else {
         $configArray['SCAN_SUBNETS'] = serializeList($scanSubnets);
     }
-
-	if ($configArray['PUSHSAFER_PRIO'] == "") {$configArray['PUSHSAFER_PRIO'] = 0;}
-	if ($configArray['PUSHOVER_PRIO'] == "") {$configArray['PUSHOVER_PRIO'] = 0;}
 	
 	$configArray['NETWORK_DNS_SERVER'] = str_replace(" ", "", $configArray['NETWORK_DNS_SERVER']);
 	if ($configArray['NETWORK_DNS_SERVER'] == "") {
@@ -667,6 +704,9 @@ function SaveConfigFile() {
 	}
 
     $PIALERT_PATH = find_pialert_root();
+    $VENDORS_DB = safeConfigPath($configArray['VENDORS_DB'], true, true);
+    $PIHOLE_DB = safeConfigPath($configArray['PIHOLE_DB'], false, true);
+    $DHCP_LEASES = safeConfigPath($configArray['DHCP_LEASES'], false, true);
 
 	$config_template = "# General Settings
 # ----------------------
@@ -674,7 +714,7 @@ PIALERT_PATH               = '" . $PIALERT_PATH . "'
 DB_PATH                    = PIALERT_PATH + '/db/pialert.db'
 LOG_PATH                   = PIALERT_PATH + '/log'
 PRINT_LOG                  = " . convert_bool($configArray['PRINT_LOG']) . "
-VENDORS_DB                 = '" . $configArray['VENDORS_DB'] . "'
+VENDORS_DB                 = '" . $VENDORS_DB . "'
 PIALERT_APIKEY             = '" . escape_python_config_string($configArray['PIALERT_APIKEY']) . "'
 PIALERT_WEB_PROTECTION     = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']) . "
 PIALERT_WEB_PASSWORD       = '" . escape_python_config_string($configArray['PIALERT_WEB_PASSWORD']) . "'
@@ -826,12 +866,12 @@ ICMP_GET_AVG_RTT           = " . ((isset($configArray['ICMP_GET_AVG_RTT']) && is
 # ----------------------
 PIHOLE_ACTIVE              = " . convert_bool($configArray['PIHOLE_ACTIVE']) . "
 PIHOLE_VERSION             = " . ((isset($configArray['PIHOLE_VERSION']) && is_numeric($configArray['PIHOLE_VERSION'])) ? $configArray['PIHOLE_VERSION'] : 6) . "
-PIHOLE_DB                  = '" . $configArray['PIHOLE_DB'] . "'
+PIHOLE_DB                  = '" . $PIHOLE_DB . "'
 PIHOLE6_URL                = '" . $configArray['PIHOLE6_URL'] . "'
 PIHOLE6_PASSWORD           = '" . escape_python_config_string($configArray['PIHOLE6_PASSWORD']) . "'
 PIHOLE6_API_MAXCLIENTS     = " . ((isset($configArray['PIHOLE6_API_MAXCLIENTS']) && is_numeric($configArray['PIHOLE6_API_MAXCLIENTS'])) ? $configArray['PIHOLE6_API_MAXCLIENTS'] : 150) . "
 DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
-DHCP_LEASES                = '" . $configArray['DHCP_LEASES'] . "'
+DHCP_LEASES                = '" . $DHCP_LEASES . "'
 DHCP_INCL_SELF_TO_LEASES   = " . convert_bool($configArray['DHCP_INCL_SELF_TO_LEASES']) . "
 
 # Fritzbox Configuration
