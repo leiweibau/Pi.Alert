@@ -13,11 +13,16 @@
 session_start();
 
 if ($_SESSION["login"] != 1) {
-	if ($_REQUEST['action'] != "getDevicesTotals") {
 	header('Location: ../../index.php');
 	exit;
-	}
 }
+
+// if ($_SESSION["login"] != 1) {
+// 	if ($_REQUEST['action'] != "getDevicesTotals") {
+// 	header('Location: ../../index.php');
+// 	exit;
+// 	}
+// }
 require 'timezone.php';
 require 'db.php';
 require 'util.php';
@@ -773,7 +778,30 @@ function TestNotificationSystem() {
 function getDevicesTotals() {
 	global $db;
 
-	if (!$_REQUEST['scansource']) {$scansource = 'local';} else {$scansource = $_REQUEST['scansource'];}
+	// Default
+	$scansource = 'local';
+
+	if (!empty($_REQUEST['scansource'])) {
+		$input = $_REQUEST['scansource'];
+
+		if ($input === 'local') {
+			$scansource = 'local';
+		} else {
+			// Optional: Formatprüfung (empfohlen)
+			if (preg_match('/^[a-zA-Z0-9_\-]{10,250}$/', $input)) {
+
+				// Escapen für sichere Query
+				$escaped = SQLite3::escapeString($input);
+
+				$res = $db->query("SELECT 1 FROM Satellites WHERE sat_token = '$escaped' LIMIT 1");
+
+				if ($res && $res->fetchArray()) {
+					$scansource = $input; // Original übernehmen
+				}
+			}
+		}
+	}
+
 	// combined query
 	$result = $db->query(
 		'SELECT
@@ -789,11 +817,22 @@ function getDevicesTotals() {
 	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6]));
 }
 
+
 //  Query the List of devices in a determined Status
 function getDevicesList() {
 	global $db;
 
-	$condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
+	$status = $_REQUEST['status'] ?? 'all';
+	$scansource = $_REQUEST['scansource'] ?? 'local';
+
+	// minimale Absicherung
+	if ($scansource === '' || $scansource === null) {
+		$scansource = 'local';
+	}
+
+	$condition = getDeviceCondition($status, $scansource);
+
+	// $condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
 	$sql = 'SELECT rowid, *, CASE
             WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
             WHEN dev_NewDevice=1 AND dev_PresentLastScan=1 THEN "NewON"
@@ -1118,24 +1157,59 @@ function getNetworkNodes() {
 
 //  Status Where conditions
 function getDeviceCondition($deviceStatus, $scansource) {
-	if ($scansource == "all") {$scansource_query = "";} else {$scansource_query = 'dev_ScanSource="'.$scansource.'" AND ';}
+	global $db;
+
+	// NICHTS ist Spezialfall → alles ist Filter
+	if ($scansource === '' || $scansource === null) {
+		$scansource = 'local';
+	}
+
+	// Sicherheit
+	if (!preg_match('/^[a-zA-Z0-9_\-]{1,250}$/', $scansource)) {
+		return "WHERE 1=0";
+	}
+
+	$escaped = SQLite3::escapeString($scansource);
+
+	// Validierung: existiert entweder local oder satellite token
+	$res = $db->query("
+		SELECT 1
+		FROM Devices
+		WHERE dev_ScanSource = '$escaped'
+		LIMIT 1
+	");
+
+	if (!$res || !$res->fetchArray()) {
+		return "WHERE 1=0";
+	}
+
+	$filter = 'dev_ScanSource="'.$escaped.'" AND ';
+
 	switch ($deviceStatus) {
-	case 'all':return 'WHERE '.$scansource_query.'dev_Archived=0';
-		break;
-	case 'connected':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_PresentLastScan=1';
-		break;
-	case 'favorites':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_Favorite=1';
-		break;
-	case 'new':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_NewDevice=1';
-		break;
-	case 'down':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
-		break;
-	case 'archived':return 'WHERE '.$scansource_query.'dev_Archived=1';
-		break;
-	case 'presence':return 'WHERE '.$scansource_query.'dev_Archived=0 AND dev_PresencePage=1';
-		break;
-	default:return 'WHERE '.$scansource_query.'AND 1=0';
-		break;
+
+	case 'all':
+		return 'WHERE '.$filter.'dev_Archived=0';
+
+	case 'connected':
+		return 'WHERE '.$filter.'dev_Archived=0 AND dev_PresentLastScan=1';
+
+	case 'favorites':
+		return 'WHERE '.$filter.'dev_Archived=0 AND dev_Favorite=1';
+
+	case 'new':
+		return 'WHERE '.$filter.'dev_Archived=0 AND dev_NewDevice=1';
+
+	case 'down':
+		return 'WHERE '.$filter.'dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
+
+	case 'archived':
+		return 'WHERE '.$filter.'dev_Archived=1';
+
+	case 'presence':
+		return 'WHERE '.$filter.'dev_Archived=0 AND dev_PresencePage=1';
+
+	default:
+		return 'WHERE 1=0';
 	}
 }
 
