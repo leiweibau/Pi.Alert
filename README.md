@@ -60,9 +60,9 @@ Various services are available for the notifications (Frontend, Mail ([Guide](do
 The frontend is used to manage the host information determined and for general management. You can store additional information for each device, view the historical 
 history, perform manual nmap scans or send Wake-on-LAN commands. You also have the option of assigning individual devices to other network devices such as routers and 
 switches in order to maintain an overview of the relationships between the devices. A settings page allows you to configure individual parts of the frontend, while a 
-config file editor allows you to configure the backend. This interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch, Czech, 
-Finnish, Swedish, Norwegian, Lithuanian, Ukrainian and Russian can be protected with a 
-login that uses the password “123456” by default. You can change this using the CLI tool [pialert-cli](docs/PIALERTCLI.md).
+config file editor allows you to configure the backend. The user interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch, Czech, 
+Finnish, Swedish, Norwegian, Lithuanian, Ukrainian, and Russian, is protected by a login; the password is randomly generated during installation and displayed at the end 
+of the installation process. You can change this using the CLI tool [pialert-cli](docs/PIALERTCLI.md).
 
 New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
 iOS devices, icons can be directly linked from the repository, as iOS devices may not load homescreen icons from insecure sources (without SSL or self-signed SSL).
@@ -74,7 +74,8 @@ or [Homepage](https://github.com/gethomepage/homepage).
 # Installation
 <!--- --------------------------------------------------------------------- --->
 Initially designed to run on a Raspberry Pi, probably it can run on some other
-Linux distributions which use the "apt" package manager. Check "[Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md)" before using Pi.Alert with another Debian based distribution like DietPi or Ubuntu Server to see, if there are any special notes to follow.
+Linux distributions which use the "apt" package manager. Check "[Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md)" before using 
+Pi.Alert with another Debian based distribution like DietPi or Ubuntu Server to see, if there are any special notes to follow.
 
 <table>
   <thead>
