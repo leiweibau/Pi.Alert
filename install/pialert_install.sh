@@ -589,7 +589,7 @@ check_pialert_home() {
 }
 
 # ------------------------------------------------------------------------------
-# Check Pi.Alert Installation Path
+# Installing dependencies
 # ------------------------------------------------------------------------------
 install_dependencies() {
   print_msg "- Installing dependencies..."
