@@ -562,8 +562,13 @@ set_pialert_default_page() {
 # Enable Web-Protection
 # ------------------------------------------------------------------------------
 enable_webprotection() {
-  print_header "Enable Password Protection"
+  print_header "Enable password protection"
+
+  print_msg "- Set random password..."
   /opt/pialert/back/pialert-cli set_autopassword
+  print_msg ""
+  print_msg "- Enable password protection..."
+  /opt/pialert/back/pialert-cli set_login
   print_msg ""
   print_msg "run '/opt/pialert/back/pialert-cli set_autopassword' to set a new randowm password"
 }
