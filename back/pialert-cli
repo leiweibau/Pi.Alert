@@ -857,6 +857,40 @@ EOM
       \"PF_Connected\" BOOLEAN,
       \"PF_Datetime\" DATETIME
     );"
+    # opnsense_Network
+    echo -e "...Insert new table 'opnsense_Network' to DB"
+    sqlite3 "$PIA_DB_FILE" "CREATE TABLE IF NOT EXISTS \"opnsense_Network\" (
+      \"OPN_MAC\" STRING(50) NOT NULL COLLATE NOCASE,
+      \"OPN_IP\" STRING(50) COLLATE NOCASE,
+      \"OPN_Name\" STRING(50),
+      \"OPN_Vendor\" STRING(250),
+      \"OPN_Method\" STRING(50),
+      \"OPN_Interface\" STRING(20),
+      \"OPN_Custom_a\" STRING(100),
+      \"OPN_Custom_b\" STRING(100),
+      \"OPN_Connected\" BOOLEAN,
+      \"OPN_Datetime\" DATETIME
+    );"
+    # AdGuard_Network
+    echo -e "...Insert new table 'AdGuard_Network' to DB"
+    sqlite3 "$PIA_DB_FILE" "CREATE TABLE IF NOT EXISTS \"AdGuard_Network\" (
+      \"AG_MAC\" STRING(50) NOT NULL COLLATE NOCASE,
+      \"AG_IP\" STRING(50) NOT NULL COLLATE NOCASE UNIQUE,
+      \"AG_Name\" STRING(100),
+      \"AG_Connected\" BOOLEAN NOT NULL DEFAULT 0,
+      \"AG_LeaseExpires\" INTEGER DEFAULT 0,
+      \"AG_LastQueryTime\" DATETIME,
+      PRIMARY KEY(\"AG_MAC\")
+    );"
+    # AdGuard_Activity
+    echo -e "...Insert new table 'AdGuard_Activity' to DB"
+    sqlite3 "$PIA_DB_FILE" "CREATE TABLE IF NOT EXISTS \"AdGuard_Activity\" (
+      \"AGA_IP\" STRING(50) NOT NULL COLLATE NOCASE UNIQUE,
+      \"AGA_MAC\" STRING(50) COLLATE NOCASE,
+      \"AGA_Name\" STRING(100),
+      \"AGA_LastQueryTime\" DATETIME NOT NULL,
+      PRIMARY KEY(\"AGA_IP\")
+    );"
     # Satellites.sat_conf_scan_pfsense
     echo -e "...Insert new column 'sat_conf_scan_pfsense' to table 'Satellites' to DB"
     existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"Satellites\");" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_pfsense")
@@ -907,6 +941,30 @@ EOM
       \"Logfile\" BLOB,
       PRIMARY KEY(\"ScanDate\")
     );"
+    # Tools_Nmap_ManScan
+    echo -e "...Insert new table 'Tools_Nmap_ManScan' to DB"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Nmap_ManScan\" (
+      \"ID\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"scan_date\" DATETIME NOT NULL,
+      \"scan_target\" STRING(50) NOT NULL,
+      \"scan_type\" STRING(50) NOT NULL,
+      \"scan_result\" TEXT,
+      \"reserve_a\" INTEGER,
+      \"reserve_b\" TEXT,
+      \"reserve_c\" TEXT,
+      \"reserve_d\" TEXT
+    );"
+    # Tools_Speedtest_History
+    echo -e "...Insert new table 'Tools_Speedtest_History' to DB"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Speedtest_History\" (
+      \"ID\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"speed_date\" TEXT,
+      \"speed_isp\" TEXT,
+      \"speed_server\" TEXT,
+      \"speed_ping\" NUMERIC,
+      \"speed_down\" NUMERIC,
+      \"speed_up\" NUMERIC
+    );"
     # Index on Services_Events
     echo -e "...Create index on Services_Events (DateTime)"
     sqlite3 "$PIA_DB_FILE" "CREATE INDEX IF NOT EXISTS \"idx_services_events_datetime\"
@@ -954,6 +1012,22 @@ EOM
       sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"ICMP_Mon\" ADD COLUMN \"icmp_MQTTDevice_cleanup\" BOOLEAN NOT NULL DEFAULT 0;"
     else
       echo "        Column 'icmp_MQTTDevice_cleanup' already exists in the 'ICMP_Mon' table."
+    fi
+    # Satellites.sat_conf_scan_opnsense
+    echo -e "...Insert new column 'sat_conf_scan_opnsense' to table 'Satellites' to DB"
+    existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"Satellites\");" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_opnsense")
+    if [ "$existing" -eq 0 ]; then
+      sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"Satellites\" ADD COLUMN \"sat_conf_scan_opnsense\" BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'sat_conf_scan_opnsense' already exists in the 'Satellites' table."
+    fi
+    # Satellites.sat_conf_scan_adguard
+    echo -e "...Insert new column 'sat_conf_scan_adguard' to table 'Satellites' to DB"
+    existing=$(sqlite3 "$PIA_DB_FILE" "PRAGMA table_info(\"Satellites\");" | awk -F\| '{print $2}' | grep -wci "sat_conf_scan_adguard")
+    if [ "$existing" -eq 0 ]; then
+      sqlite3 "$PIA_DB_FILE" "ALTER TABLE \"Satellites\" ADD COLUMN \"sat_conf_scan_adguard\" BOOLEAN NOT NULL DEFAULT 0;"
+    else
+      echo "        Column 'sat_conf_scan_adguard' already exists in the 'Satellites' table."
     fi
 
     echo -e "\nUpdate finished!\n"
@@ -1038,16 +1112,6 @@ EOM
     echo "Test executed"
     ;;
 
-  # show_usercron)
-  #   if [[ -n "$SUDO_USER" ]]; then
-  #       PIA_USER="$SUDO_USER"
-  #   else
-  #       PIA_USER="$(id -un)"
-  #   fi
-
-  #   crontab -l -u ${PIA_USER}
-  #   ;;
-
   arg_list)
     echo disable_scan disable_mainscan disable_icmp_mon disable_service_mon disable_satellites enable_scan enable_mainscan enable_icmp_mon enable_service_mon enable_satellites reporting_test set_apikey set_autopassword set_login set_password set_permissions set_sudoers unset_login unset_sudoers update_db
     ;;
@@ -1056,4 +1120,3 @@ EOM
     echo "pialert-cli $SCRIPTVERSION (https://github.com/leiweibau/Pi.Alert)"
     echo "Use \"${bold}pialert-cli help${normal}\" for a list of supported commands."
 esac
-

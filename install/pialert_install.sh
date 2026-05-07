@@ -62,6 +62,7 @@ main() {
   install_arpscan
   install_python
   install_pialert
+  enable_webprotection
 
   print_header "Installation process finished"
   print_msg "     - http://$MAIN_IP/pialert/"
@@ -558,6 +559,21 @@ set_pialert_default_page() {
 }
 
 # ------------------------------------------------------------------------------
+# Enable Web-Protection
+# ------------------------------------------------------------------------------
+enable_webprotection() {
+  print_header "Enable password protection"
+
+  print_msg "- Set random password..."
+  /opt/pialert/back/pialert-cli set_autopassword
+  print_msg ""
+  print_msg "- Enable password protection..."
+  /opt/pialert/back/pialert-cli set_login
+  print_msg ""
+  print_msg "run '/opt/pialert/back/pialert-cli set_autopassword' to set a new randowm password"
+}
+
+# ------------------------------------------------------------------------------
 # Check Pi.Alert Installation Path
 # ------------------------------------------------------------------------------
 check_pialert_home() {
@@ -573,7 +589,7 @@ check_pialert_home() {
 }
 
 # ------------------------------------------------------------------------------
-# Check Pi.Alert Installation Path
+# Installing dependencies
 # ------------------------------------------------------------------------------
 install_dependencies() {
   print_msg "- Installing dependencies..."

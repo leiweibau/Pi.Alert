@@ -14,6 +14,7 @@ if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
 	exit;
 }
+
 require 'timezone.php';
 require 'db.php';
 require 'util.php';
@@ -25,6 +26,8 @@ require '../templates/language/' . $pia_lang_selected . '.php';
 // Set maximum execution time to 15 seconds
 ini_set('max_execution_time', '30');
 $maskKeys = [
+    'PIALERT_APIKEY',
+    'PIALERT_WEB_PASSWORD',
     'FRITZBOX_PASS',
     'PUSHSAFER_TOKEN',
     'NTFY_PASSWORD',
@@ -34,8 +37,12 @@ $maskKeys = [
     'ASUSWRT_PASS',
     'SMTP_PASS',
     'REPORT_MQTT_PASSWORD',
+    'PUSHOVER_TOKEN',
     'PUSHOVER_USER',
     'PFSENSE_APIKEY',
+    'OPNSENSE_APIKEY',
+    'OPNSENSE_APISECRET',
+    'ADGUARD_PASSWORD',
     'PIHOLE6_PASSWORD',
     'DDNS_PASSWORD'
 ];
@@ -157,7 +164,7 @@ function GetConfigFile() {
             )) {
                 $prefix = $matches[1];
                 $quote  = $matches[2]; // ' oder "
-                $value  = $matches[3];
+                $value  = decode_python_config_string($matches[3], $quote);
 
                 $trimmedValue = trim($value);
 
@@ -501,12 +508,26 @@ function convert_bool($val) {
     return $val;
 }
 
-// function serializeList($ListString) {
-//     $ignorlist_search = array("[ ", " ]", ", ", ",", "[", "]");
-//     $ignorlist_replace = array("[", "]", ",", "','", "['", "']");
-// 	$temp = str_replace($ignorlist_search, $ignorlist_replace, $ListString);
-// 	return $temp;
-// }
+function escape_python_config_string($val) {
+    return str_replace(
+        ["\\", "'"],
+        ["\\\\", "\\'"],
+        (string)$val
+    );
+}
+
+function decode_python_config_string($val, $quote = "'") {
+    $decoded = str_replace("\\\\", "\\", (string)$val);
+
+    if ($quote === "'") {
+        $decoded = str_replace("\\'", "'", $decoded);
+    } elseif ($quote === '"') {
+        $decoded = str_replace('\\"', '"', $decoded);
+    }
+
+    return $decoded;
+}
+
 function serializeList($listString) {
     $listString = trim($listString, " \t\n\r\0\x0B[]");
 
@@ -526,6 +547,132 @@ function serializeList($listString) {
     }
 
     return '[' . implode(',', $result) . ']';
+}
+
+// Get pialert root
+function find_pialert_root($startDir = __DIR__) {
+    $dir = realpath($startDir);
+
+    while ($dir !== '/' && $dir !== false) {
+
+        if (
+            file_exists($dir . '/config') &&
+            file_exists($dir . '/front') &&
+            file_exists($dir . '/back')
+        ) {
+            return $dir;
+        }
+
+        $dir = dirname($dir);
+    }
+
+    throw new Exception("Pi.Alert Root not found");
+}
+
+// Secure the path specification for the configuration file
+// Layer 1: Basic sanitization (removes obvious injection vectors)
+function pialert_sanitize_input($input) {
+
+    if (!is_string($input) || trim($input) === '') {
+        throw new Exception("Invalid input");
+    }
+
+    // Decode common encodings
+    $input = urldecode($input);
+    $input = html_entity_decode($input, ENT_QUOTES | ENT_HTML5);
+
+    // Split injection chains early
+    $input = preg_split('/[;\r\n]+/', $input)[0];
+
+    // Remove dangerous control characters
+    $input = str_replace(["\r", "\n", "\0"], '', $input);
+
+    return trim($input);
+}
+
+// Layer 2: Structural validation (must LOOK like a path)
+function pialert_validate_path_shape($path) {
+
+    // Must contain at least one slash (absolute or relative path)
+    if (strpos($path, '/') === false) {
+        return false;
+    }
+
+    // Reject obvious command patterns (ls, rm, etc.)
+    if (preg_match('#(^|\s)(ls|rm|cat|echo|bash|sh|wget|curl)\b#i', $path)) {
+        return false;
+    }
+
+    // Only allow safe filesystem characters
+    if (!preg_match('#^[a-zA-Z0-9_./\-\s\'"]+$#', $path)) {
+        return false;
+    }
+
+    return true;
+}
+
+// Layer 3: Filesystem resolution + type validation
+function pialert_resolve_path($path, $mustExist = true, $mustBeFile = true) {
+
+    $realPath = realpath($path);
+
+    if ($mustExist) {
+
+        if ($realPath === false) {
+            return false;
+        }
+
+        if ($mustBeFile && !is_file($realPath)) {
+            return false;
+        }
+
+        if (!$mustBeFile && !is_dir($realPath)) {
+            return false;
+        }
+
+        return $realPath;
+    }
+
+    return $path;
+}
+
+// MAIN FUNCTION: Secure path resolver
+function safeConfigPath($input, $mustExist = true, $mustBeFile = true) {
+
+    // 1. sanitize raw input
+    $clean = pialert_sanitize_input($input);
+
+    // 2. split into segments (injection chain support)
+    $segments = preg_split('/[;\r\n]+/', $clean);
+
+    foreach ($segments as $segment) {
+
+        $segment = trim($segment);
+
+        if ($segment === '') {
+            continue;
+        }
+
+        // 3. structural validation
+        if (!pialert_validate_path_shape($segment)) {
+            continue;
+        }
+
+        // 4. filesystem validation
+        $resolved = pialert_resolve_path($segment, $mustExist, $mustBeFile);
+
+        if ($resolved === false) {
+            continue;
+        }
+
+        // 5. FINAL NORMALIZATION STEP (IMPORTANT)
+        // Removes leftover quotes from INI or earlier processing layers
+        $resolved = trim($resolved, " \t\n\r\0\x0B'\"");
+
+        return $resolved;
+    }
+
+    throw new Exception("No valid path found in input");
 }
 
 //  Save Config
@@ -551,7 +698,7 @@ function SaveConfigFile() {
     foreach ($oldLines as $line) {
         foreach ($maskKeys as $key) {
             if (preg_match('/^\s*' . preg_quote($key, '/') . '\s*=\s*([\'"]?)(.*)\1\s*$/', $line, $matches)) {
-                $oldValues[$key] = $matches[2];
+                $oldValues[$key] = decode_python_config_string($matches[2], $matches[1]);
             }
         }
     }
@@ -565,7 +712,7 @@ function SaveConfigFile() {
             $key = $matches[1];
             $value = $matches[3];
 
-            // Maskierte Werte prüfen
+            // Masked values
             if (in_array($key, $maskKeys) && isset($oldValues[$key])) {
                 $lenOld = strlen($oldValues[$key]);
                 $lenFront = strlen($value);
@@ -599,15 +746,13 @@ function SaveConfigFile() {
         $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
     }
 	// Ignore List Syntax handling start
-    if ($configArray['MAC_IGNORE_LIST'] == "") {$configArray['MAC_IGNORE_LIST'] = "[]";}
+	if ($configArray['MAC_IGNORE_LIST'] == "") {$configArray['MAC_IGNORE_LIST'] = "[]";}
 	if ($configArray['IP_IGNORE_LIST'] == "") {$configArray['IP_IGNORE_LIST'] = "[]";}
 	if ($configArray['HOSTNAME_IGNORE_LIST'] == "") {$configArray['HOSTNAME_IGNORE_LIST'] = "[]";}
 	if ($configArray['PFSENSE_EXCLUDE_INT'] == "") {$configArray['PFSENSE_EXCLUDE_INT'] = "[]";}
-	
+    if ($configArray['OPNSENSE_EXCLUDE_INT'] == "") {$configArray['OPNSENSE_EXCLUDE_INT'] = "[]";}
+
     // Ignore List Syntax handling stop
-	// if (substr($configArray['SCAN_SUBNETS'], 0, 2) == "--") {$configArray['SCAN_SUBNETS'] = "'" . $configArray['SCAN_SUBNETS'] . "'";} else {
-	// 	$configArray['SCAN_SUBNETS'] = serializeList($configArray['SCAN_SUBNETS']);
-	// }
     $scanSubnets = trim($configArray['SCAN_SUBNETS']);
     if (substr($scanSubnets, 0, 2) === '--') {
         $scanSubnets = preg_replace('/\s+/', ' ', $scanSubnets);
@@ -615,9 +760,6 @@ function SaveConfigFile() {
     } else {
         $configArray['SCAN_SUBNETS'] = serializeList($scanSubnets);
     }
-
-	if ($configArray['PUSHSAFER_PRIO'] == "") {$configArray['PUSHSAFER_PRIO'] = 0;}
-	if ($configArray['PUSHOVER_PRIO'] == "") {$configArray['PUSHOVER_PRIO'] = 0;}
 	
 	$configArray['NETWORK_DNS_SERVER'] = str_replace(" ", "", $configArray['NETWORK_DNS_SERVER']);
 	if ($configArray['NETWORK_DNS_SERVER'] == "") {
@@ -627,27 +769,26 @@ function SaveConfigFile() {
 		    $configArray['NETWORK_DNS_SERVER'] = $configArray['NETWORK_DNS_SERVER'];
 		} else {$configArray['NETWORK_DNS_SERVER'] = "localhost";}
 	}
-	# Fix install script error 26.11.2024
-	if (!is_numeric($configArray['REPORT_TO_ARCHIVE'])) {$configArray['REPORT_TO_ARCHIVE'] = 0;}
+
+    $PIALERT_PATH = find_pialert_root();
+    $VENDORS_DB = safeConfigPath($configArray['VENDORS_DB'], true, true);
+    $PIHOLE_DB = safeConfigPath($configArray['PIHOLE_DB'], false, true);
+    $DHCP_LEASES = safeConfigPath($configArray['DHCP_LEASES'], false, true);
 
 	$config_template = "# General Settings
 # ----------------------
-PIALERT_PATH               = '" . $configArray['PIALERT_PATH'] . "'
-DB_PATH                    = " . (isset($configArray['DB_PATH']) && $configArray['DB_PATH'] !== '' 
-                                     ? $configArray['DB_PATH'] 
-                                     : "PIALERT_PATH + '/db/pialert.db'") . "
-LOG_PATH                   = " . (isset($configArray['LOG_PATH']) && $configArray['LOG_PATH'] !== '' 
-                                     ? $configArray['LOG_PATH'] 
-                                     : "PIALERT_PATH + '/log'") . "
+PIALERT_PATH               = '" . $PIALERT_PATH . "'
+DB_PATH                    = PIALERT_PATH + '/db/pialert.db'
+LOG_PATH                   = PIALERT_PATH + '/log'
 PRINT_LOG                  = " . convert_bool($configArray['PRINT_LOG']) . "
-VENDORS_DB                 = '" . $configArray['VENDORS_DB'] . "'
-PIALERT_APIKEY             = '" . $configArray['PIALERT_APIKEY'] . "'
+VENDORS_DB                 = '" . $VENDORS_DB . "'
+PIALERT_APIKEY             = '" . escape_python_config_string($configArray['PIALERT_APIKEY']) . "'
 PIALERT_WEB_PROTECTION     = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']) . "
-PIALERT_WEB_PASSWORD       = '" . $configArray['PIALERT_WEB_PASSWORD'] . "'
+PIALERT_WEB_PASSWORD       = '" . escape_python_config_string($configArray['PIALERT_WEB_PASSWORD']) . "'
 NETWORK_DNS_SERVER         = '" . $configArray['NETWORK_DNS_SERVER'] . "'
 AUTO_UPDATE_CHECK          = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
 AUTO_DB_BACKUP             = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
-AUTO_DB_BACKUP_KEEP        = " . $configArray['AUTO_DB_BACKUP_KEEP'] . "
+AUTO_DB_BACKUP_KEEP        = " . ((isset($configArray['AUTO_DB_BACKUP_KEEP']) && is_numeric($configArray['AUTO_DB_BACKUP_KEEP'])) ? $configArray['AUTO_DB_BACKUP_KEEP'] : 5) . "
 REPORT_NEW_CONTINUOUS      = " . convert_bool($configArray['REPORT_NEW_CONTINUOUS']) . "
 NEW_DEVICE_PRESET_EVENTS   = " . convert_bool($configArray['NEW_DEVICE_PRESET_EVENTS']) . "
 NEW_DEVICE_PRESET_DOWN     = " . convert_bool($configArray['NEW_DEVICE_PRESET_DOWN']) . "
@@ -678,9 +819,9 @@ SPEEDTEST_TASK_CRON        = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
 # Mail-Account Settings
 # ----------------------
 SMTP_SERVER                = '" . $configArray['SMTP_SERVER'] . "'
-SMTP_PORT                  = " . $configArray['SMTP_PORT'] . "
+SMTP_PORT                  = " . ((isset($configArray['SMTP_PORT']) && is_numeric($configArray['SMTP_PORT'])) ? $configArray['SMTP_PORT'] : 587) . "
 SMTP_USER                  = '" . $configArray['SMTP_USER'] . "'
-SMTP_PASS                  = '" . $configArray['SMTP_PASS'] . "'
+SMTP_PASS                  = '" . escape_python_config_string($configArray['SMTP_PASS']) . "'
 SMTP_SKIP_TLS	           = " . convert_bool($configArray['SMTP_SKIP_TLS']) . "
 SMTP_SKIP_LOGIN	           = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) . "
 
@@ -688,16 +829,16 @@ SMTP_SKIP_LOGIN	           = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) .
 # ----------------------
 REPORT_WEBGUI              = " . convert_bool($configArray['REPORT_WEBGUI']) . "
 REPORT_WEBGUI_WEBMON       = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON']) . "
-REPORT_TO_ARCHIVE          = " . $configArray['REPORT_TO_ARCHIVE'] . "
+REPORT_TO_ARCHIVE          = " . ((isset($configArray['REPORT_TO_ARCHIVE']) && is_numeric($configArray['REPORT_TO_ARCHIVE'])) ? $configArray['REPORT_TO_ARCHIVE'] : 12) . "
 # Number of hours after which a report is moved to the archive. The value 0 disables the feature
 
 # MQTT Reporting
 # ----------------------
 REPORT_TO_MQTT             = " . convert_bool($configArray['REPORT_TO_MQTT']) . "
 REPORT_MQTT_BROKER         = '" . $configArray['REPORT_MQTT_BROKER'] . "'
-REPORT_MQTT_PORT           = " . $configArray['REPORT_MQTT_PORT'] . "
+REPORT_MQTT_PORT           = " . ((isset($configArray['REPORT_MQTT_PORT']) && is_numeric($configArray['REPORT_MQTT_PORT'])) ? $configArray['REPORT_MQTT_PORT'] : 1883) . "
 REPORT_MQTT_USERNAME       = '" . $configArray['REPORT_MQTT_USERNAME'] . "'
-REPORT_MQTT_PASSWORD       = '" . $configArray['REPORT_MQTT_PASSWORD'] . "'
+REPORT_MQTT_PASSWORD       = '" . escape_python_config_string($configArray['REPORT_MQTT_PASSWORD']) . "'
 REPORT_MQTT_TLS            = " . convert_bool($configArray['REPORT_MQTT_TLS']) . "
 PUBLISH_MQTT_STATUS        = " . convert_bool($configArray['PUBLISH_MQTT_STATUS']) . "
 
@@ -714,18 +855,18 @@ REPORT_DASHBOARD_URL       = '" . $configArray['REPORT_DASHBOARD_URL'] . "'
 # ----------------------
 REPORT_PUSHSAFER           = " . convert_bool($configArray['REPORT_PUSHSAFER']) . "
 REPORT_PUSHSAFER_WEBMON    = " . convert_bool($configArray['REPORT_PUSHSAFER_WEBMON']) . "
-PUSHSAFER_TOKEN            = '" . $configArray['PUSHSAFER_TOKEN'] . "'
+PUSHSAFER_TOKEN            = '" . escape_python_config_string($configArray['PUSHSAFER_TOKEN']) . "'
 PUSHSAFER_DEVICE           = '" . $configArray['PUSHSAFER_DEVICE'] . "'
-PUSHSAFER_PRIO             = " . $configArray['PUSHSAFER_PRIO'] . "
-PUSHSAFER_SOUND            = " . $configArray['PUSHSAFER_SOUND'] . "
+PUSHSAFER_PRIO             = " . ((isset($configArray['PUSHSAFER_PRIO']) && is_numeric($configArray['PUSHSAFER_PRIO'])) ? $configArray['PUSHSAFER_PRIO'] : 0) . "
+PUSHSAFER_SOUND            = " . ((isset($configArray['PUSHSAFER_SOUND']) && is_numeric($configArray['PUSHSAFER_SOUND'])) ? $configArray['PUSHSAFER_SOUND'] : 22) . "
 
 # Pushover
 # ----------------------
 REPORT_PUSHOVER            = " . convert_bool($configArray['REPORT_PUSHOVER']) . "
 REPORT_PUSHOVER_WEBMON     = " . convert_bool($configArray['REPORT_PUSHOVER_WEBMON']) . "
-PUSHOVER_TOKEN             = '" . $configArray['PUSHOVER_TOKEN'] . "'
-PUSHOVER_USER              = '" . $configArray['PUSHOVER_USER'] . "'
-PUSHOVER_PRIO              = " . $configArray['PUSHOVER_PRIO'] . "
+PUSHOVER_TOKEN             = '" . escape_python_config_string($configArray['PUSHOVER_TOKEN']) . "'
+PUSHOVER_USER              = '" . escape_python_config_string($configArray['PUSHOVER_USER']) . "'
+PUSHOVER_PRIO              = " . ((isset($configArray['PUSHOVER_PRIO']) && is_numeric($configArray['PUSHOVER_PRIO'])) ? $configArray['PUSHOVER_PRIO'] : 0) . "
 PUSHOVER_SOUND             = '" . $configArray['PUSHOVER_SOUND'] . "'
 
 # NTFY
@@ -735,7 +876,7 @@ REPORT_NTFY_WEBMON         = " . convert_bool($configArray['REPORT_NTFY_WEBMON']
 NTFY_HOST                  = '" . $configArray['NTFY_HOST'] . "'
 NTFY_TOPIC                 = '" . $configArray['NTFY_TOPIC'] . "'
 NTFY_USER                  = '" . $configArray['NTFY_USER'] . "'
-NTFY_PASSWORD	           = '" . $configArray['NTFY_PASSWORD'] . "'
+NTFY_PASSWORD	           = '" . escape_python_config_string($configArray['NTFY_PASSWORD']) . "'
 NTFY_PRIORITY 	           = '" . $configArray['NTFY_PRIORITY'] . "'
 NTFY_CLICKABLE 	           = " . convert_bool($configArray['NTFY_CLICKABLE']) . "
 
@@ -761,10 +902,11 @@ TELEGRAM_BOT_TOKEN_URL     = '" . $configArray['TELEGRAM_BOT_TOKEN_URL'] . "'
 # DynDNS and IP
 # ----------------------
 QUERY_MYIP_SERVER          = '" . $configArray['QUERY_MYIP_SERVER'] . "'
+QUERY_MYIP_SERVER_FALLBACK = '" . $configArray['QUERY_MYIP_SERVER_FALLBACK'] . "'
 DDNS_ACTIVE                = " . convert_bool($configArray['DDNS_ACTIVE']) . "
 DDNS_DOMAIN                = '" . $configArray['DDNS_DOMAIN'] . "'
 DDNS_USER                  = '" . $configArray['DDNS_USER'] . "'
-DDNS_PASSWORD              = '" . $configArray['DDNS_PASSWORD'] . "'
+DDNS_PASSWORD              = '" . escape_python_config_string($configArray['DDNS_PASSWORD']) . "'
 DDNS_UPDATE_URL            = '" . $configArray['DDNS_UPDATE_URL'] . "'
 
 # Automatic Speedtest
@@ -784,19 +926,19 @@ SCAN_SUBNETS               = " . $configArray['SCAN_SUBNETS'] . "
 
 # ICMP Monitoring Options
 # ----------------------
-ICMP_ONLINE_TEST           = " . $configArray['ICMP_ONLINE_TEST'] . "
-ICMP_GET_AVG_RTT           = " . $configArray['ICMP_GET_AVG_RTT'] . "
+ICMP_ONLINE_TEST           = " . ((isset($configArray['ICMP_ONLINE_TEST']) && is_numeric($configArray['ICMP_ONLINE_TEST'])) ? $configArray['ICMP_ONLINE_TEST'] : 2) . "
+ICMP_GET_AVG_RTT           = " . ((isset($configArray['ICMP_GET_AVG_RTT']) && is_numeric($configArray['ICMP_GET_AVG_RTT'])) ? $configArray['ICMP_GET_AVG_RTT'] : 3) . "
 
 # Pi-hole Configuration
 # ----------------------
 PIHOLE_ACTIVE              = " . convert_bool($configArray['PIHOLE_ACTIVE']) . "
-PIHOLE_VERSION             = " . $configArray['PIHOLE_VERSION'] . "
-PIHOLE_DB                  = '" . $configArray['PIHOLE_DB'] . "'
+PIHOLE_VERSION             = " . ((isset($configArray['PIHOLE_VERSION']) && is_numeric($configArray['PIHOLE_VERSION'])) ? $configArray['PIHOLE_VERSION'] : 6) . "
+PIHOLE_DB                  = '" . $PIHOLE_DB . "'
 PIHOLE6_URL                = '" . $configArray['PIHOLE6_URL'] . "'
-PIHOLE6_PASSWORD           = '" . $configArray['PIHOLE6_PASSWORD'] . "'
-PIHOLE6_API_MAXCLIENTS     = " . $configArray['PIHOLE6_API_MAXCLIENTS'] . "
+PIHOLE6_PASSWORD           = '" . escape_python_config_string($configArray['PIHOLE6_PASSWORD']) . "'
+PIHOLE6_API_MAXCLIENTS     = " . ((isset($configArray['PIHOLE6_API_MAXCLIENTS']) && is_numeric($configArray['PIHOLE6_API_MAXCLIENTS'])) ? $configArray['PIHOLE6_API_MAXCLIENTS'] : 150) . "
 DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
-DHCP_LEASES                = '" . $configArray['DHCP_LEASES'] . "'
+DHCP_LEASES                = '" . $DHCP_LEASES . "'
 DHCP_INCL_SELF_TO_LEASES   = " . convert_bool($configArray['DHCP_INCL_SELF_TO_LEASES']) . "
 
 # Fritzbox Configuration
@@ -804,14 +946,14 @@ DHCP_INCL_SELF_TO_LEASES   = " . convert_bool($configArray['DHCP_INCL_SELF_TO_LE
 FRITZBOX_ACTIVE            = " . convert_bool($configArray['FRITZBOX_ACTIVE']) . "
 FRITZBOX_IP                = '" . $configArray['FRITZBOX_IP'] . "'
 FRITZBOX_USER              = '" . $configArray['FRITZBOX_USER'] . "'
-FRITZBOX_PASS              = '" . $configArray['FRITZBOX_PASS'] . "'
+FRITZBOX_PASS              = '" . escape_python_config_string($configArray['FRITZBOX_PASS']) . "'
 
 # Mikrotik Configuration
 # ----------------------
 MIKROTIK_ACTIVE            = " . convert_bool($configArray['MIKROTIK_ACTIVE']) . "
 MIKROTIK_IP                = '" . $configArray['MIKROTIK_IP'] . "'
 MIKROTIK_USER              = '" . $configArray['MIKROTIK_USER'] . "'
-MIKROTIK_PASS              = '" . $configArray['MIKROTIK_PASS'] . "'
+MIKROTIK_PASS              = '" . escape_python_config_string($configArray['MIKROTIK_PASS']) . "'
 
 # UniFi Configuration
 # -------------------
@@ -819,7 +961,7 @@ UNIFI_ACTIVE               = " . convert_bool($configArray['UNIFI_ACTIVE']) . "
 UNIFI_IP                   = '" . $configArray['UNIFI_IP'] . "'
 UNIFI_API                  = '" . $configArray['UNIFI_API'] . "'
 UNIFI_USER                 = '" . $configArray['UNIFI_USER'] . "'
-UNIFI_PASS                 = '" . $configArray['UNIFI_PASS'] . "'
+UNIFI_PASS                 = '" . escape_python_config_string($configArray['UNIFI_PASS']) . "'
 # Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
 
 # OpenWRT Configuration
@@ -827,24 +969,46 @@ UNIFI_PASS                 = '" . $configArray['UNIFI_PASS'] . "'
 OPENWRT_ACTIVE            = " . convert_bool($configArray['OPENWRT_ACTIVE']) . "
 OPENWRT_IP                = '" . $configArray['OPENWRT_IP'] . "'
 OPENWRT_USER              = '" . $configArray['OPENWRT_USER'] . "'
-OPENWRT_PASS              = '" . $configArray['OPENWRT_PASS'] . "'
+OPENWRT_PASS              = '" . escape_python_config_string($configArray['OPENWRT_PASS']) . "'
 
 # AsusWRT Configuration
 # ----------------------
 ASUSWRT_ACTIVE            = " . convert_bool($configArray['ASUSWRT_ACTIVE']) . "
 ASUSWRT_IP                = '" . $configArray['ASUSWRT_IP'] . "'
 ASUSWRT_USER              = '" . $configArray['ASUSWRT_USER'] . "'
-ASUSWRT_PASS              = '" . $configArray['ASUSWRT_PASS'] . "'
+ASUSWRT_PASS              = '" . escape_python_config_string($configArray['ASUSWRT_PASS']) . "'
 ASUSWRT_SSL               = " . convert_bool($configArray['ASUSWRT_SSL']) . "
 
 # pfsense Configuration
 # ----------------------
 PFSENSE_ACTIVE            = " . convert_bool($configArray['PFSENSE_ACTIVE']) . "
 PFSENSE_IP                = '" . $configArray['PFSENSE_IP'] . "'
-PFSENSE_PORT              = " . $configArray['PFSENSE_PORT'] . "
-PFSENSE_APIKEY            = '" . $configArray['PFSENSE_APIKEY'] . "'
+PFSENSE_PORT              = " . ((isset($configArray['PFSENSE_PORT']) && is_numeric($configArray['PFSENSE_PORT'])) ? $configArray['PFSENSE_PORT'] : 443) . "
+PFSENSE_APIKEY            = '" . escape_python_config_string($configArray['PFSENSE_APIKEY']) . "'
 PFSENSE_SSL               = " . convert_bool($configArray['PFSENSE_SSL']) . "
 PFSENSE_EXCLUDE_INT       = " . $configArray['PFSENSE_EXCLUDE_INT'] . "
+
+# OPNsense Configuration
+# ----------------------
+OPNSENSE_ACTIVE            = " . convert_bool($configArray['OPNSENSE_ACTIVE']) . "
+OPNSENSE_IP                = '" . $configArray['OPNSENSE_IP'] . "'
+OPNSENSE_PORT              = " . ((isset($configArray['OPNSENSE_PORT']) && is_numeric($configArray['OPNSENSE_PORT'])) ? $configArray['OPNSENSE_PORT'] : 443) . "
+OPNSENSE_APIKEY            = '" . escape_python_config_string($configArray['OPNSENSE_APIKEY']) . "'
+OPNSENSE_APISECRET         = '" . escape_python_config_string($configArray['OPNSENSE_APISECRET']) . "'
+OPNSENSE_SSL               = " . convert_bool($configArray['OPNSENSE_SSL']) . "
+OPNSENSE_EXCLUDE_INT       = " . $configArray['OPNSENSE_EXCLUDE_INT'] . "
+
+# AdGuard Configuration
+# ---------------------
+ADGUARD_ACTIVE            = " . convert_bool($configArray['ADGUARD_ACTIVE']) . "
+ADGUARD_IP                = '" . escape_python_config_string($configArray['ADGUARD_IP']) . "'
+ADGUARD_PORT              = " . ((isset($configArray['ADGUARD_PORT']) && is_numeric($configArray['ADGUARD_PORT'])) ? $configArray['ADGUARD_PORT'] : 80) . "
+ADGUARD_USER              = '" . escape_python_config_string($configArray['ADGUARD_USER']) . "'
+ADGUARD_PASSWORD          = '" . escape_python_config_string($configArray['ADGUARD_PASSWORD']) . "'
+ADGUARD_SSL               = " . convert_bool($configArray['ADGUARD_SSL']) . "
+ADGUARD_QUERY_MINUTES     = " . ((isset($configArray['ADGUARD_QUERY_MINUTES']) && is_numeric($configArray['ADGUARD_QUERY_MINUTES'])) ? $configArray['ADGUARD_QUERY_MINUTES'] : 5) . "
+ADGUARD_ACTIVITY_MINUTES  = " . ((isset($configArray['ADGUARD_ACTIVITY_MINUTES']) && is_numeric($configArray['ADGUARD_ACTIVITY_MINUTES'])) ? $configArray['ADGUARD_ACTIVITY_MINUTES'] : 10) . "
+ADGUARD_QUERY_LIMIT       = " . ((isset($configArray['ADGUARD_QUERY_LIMIT']) && is_numeric($configArray['ADGUARD_QUERY_LIMIT'])) ? $configArray['ADGUARD_QUERY_LIMIT'] : 1000) . "
 
 # Satellite Configuration
 # -----------------------
@@ -853,8 +1017,8 @@ SATELLITE_PROXY_URL        = '" . $configArray['SATELLITE_PROXY_URL'] . "'
 
 # Maintenance Tasks Cron
 # ----------------------
-DAYS_TO_KEEP_ONLINEHISTORY = " . $configArray['DAYS_TO_KEEP_ONLINEHISTORY'] . "
-DAYS_TO_KEEP_EVENTS        = " . $configArray['DAYS_TO_KEEP_EVENTS'] . "
+DAYS_TO_KEEP_ONLINEHISTORY = " . ((isset($configArray['DAYS_TO_KEEP_ONLINEHISTORY']) && is_numeric($configArray['DAYS_TO_KEEP_ONLINEHISTORY'])) ? $configArray['DAYS_TO_KEEP_ONLINEHISTORY'] : 60) . "
+DAYS_TO_KEEP_EVENTS        = " . ((isset($configArray['DAYS_TO_KEEP_EVENTS']) && is_numeric($configArray['DAYS_TO_KEEP_EVENTS'])) ? $configArray['DAYS_TO_KEEP_EVENTS'] : 0) . "
 ";
 
 	$newconfig = fopen($configfile, 'w');
@@ -1555,8 +1719,10 @@ function ToggleImport() {
         'OW' => 'OPENWRT_ACTIVE',
         'AW' => 'ASUSWRT_ACTIVE',
         'PF' => 'PFSENSE_ACTIVE',
+        'OPN' => 'OPNSENSE_ACTIVE',
         'PiN' => 'PIHOLE_ACTIVE',
         'PiD' => 'DHCP_ACTIVE',
+        'AG' => 'ADGUARD_ACTIVE',
     ];
 
     $deviceType = $_REQUEST['deviceType'];

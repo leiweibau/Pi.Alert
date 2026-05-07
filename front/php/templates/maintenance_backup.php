@@ -64,7 +64,7 @@ if (!$block_restore_button_db) {
 
             <div class="row" style="margin-top: 10px; margin-bottom: 20px;">
                 <div class="col-xs-12">
- <?php
+<?php
 if (!$block_restore_button_db) {
 	echo '<div class="col-md-3 col-xs-12 p-3" style="margin-bottom:15px;"><a class="btn btn-default col-xs-12" href="./download/database.php" role="button">' . $pia_lang['MT_Tool_latestdb_download'] . '</a></div>';}
 if (file_exists('../db/pialertcsv.zip')) {
@@ -72,7 +72,11 @@ if (file_exists('../db/pialertcsv.zip')) {
 	echo '<div class="col-md-3 col-xs-12 p-3" style="margin-bottom:15px;"><a class="btn btn-default col-xs-12" href="./download/databasecsv.php" role="button">' . $pia_lang['MT_Tool_CSVExport_download'] . ' ('. $csvdate .')</a></div>';}
 ?>
                     <div class="col-md-3 col-xs-12 p-3" style="margin-bottom:15px;"><a class="btn btn-default col-xs-12" href="./download/config.php" role="button"><?=$pia_lang['MT_Tool_latestconf_download']?></a></div>
-                    <div class="col-md-3 col-xs-12 p-3" style="margin-bottom:15px;"><a class="btn btn-default col-xs-12" href="./download/uisettings.php" role="button"><?=$pia_lang['MT_Tool_uisettings_download']?></a></div>
+<?php
+if (glob('../config/setting_*')) {
+    echo '<div class="col-md-3 col-xs-12 p-3" style="margin-bottom:15px;"><a class="btn btn-default col-xs-12" href="./download/uisettings.php" role="button">' . $pia_lang['MT_Tool_uisettings_download'] . '</a></div>';
+}
+?>
                 </div>
             </div>
 

@@ -10,55 +10,13 @@ It may well be that low-performance devices reach their performance limits with 
 communicate with the network via WLAN. Solutions here would be, if possible, to switch to a cable connection or, if the device is only to be used for a limited period of time, 
 to pause the arp scan on the maintenance page.
 
-
-#### _I get the message that the database is read-only_
-
-It is possible that the backend is currently writing changes to the database. Just try again after a short wait. If you want to make major changes to the device list, it makes 
-sense to pause Pi.Alert for the duration of editing on the settings page. If the behavior is permanent, follow the instructions below. 
-
-Check in the Pi.Alert directory whether the folder of the database (db) has been assigned the correct rights:
-
-```
-drwxrwxr-x 2 (your username) www-data
-```
-
-If the authorization is not correct, you can set it again with the following commands in the terminal or console:
-
-```
-sudo chgrp -R www-data ~/pialert/db
-sudo chown [Username]:www-data ~/pialert/db/pialert.db
-chmod -R 775 ~/pialert/db
-```
-
-Another possibility would be to reset the necessary rights with the help of pialert-cli in the directory `~/pialert/back`. Several options are available here.
-
-```
-./pialert-cli set_permissions
-```
-
-Only the group permissions are reset here. The owner of the file remains untouched.
-
-```
-./pialert-cli set_permissions --lxc
-```
-
-This additional option was introduced for use in an LXC container. It changes the group according to the basic function and sets the user “root” as the owner. This option is not 
-relevant outside of an LXC environment.
-
-```
-./pialert-cli set_permissions --homedir
-```
-
-This should be the preferred option. Here the username is determined based on the parent home directory of the Pi.Alert installation. This user name is set as the owner of the files. 
-The group is set according to the basic function.
-
-If this error still appears after all the previous measures, delete the \*-wal and \*-shm files in the directory `~/pialert/db`
-
-
 #### _The login page does not appear, even after changing the password_
 
-In addition to the password, the parameter PIALERT_WEB_PROTECTION must also be set to True in the configuration file `~/pialert/config/pialert.conf`.
+In addition to the password, the parameter PIALERT_WEB_PROTECTION must also be set to True in the configuration file `~/pialert/config/pialert.conf` or `/opt/pialert/config/pialert.conf`.
 
+#### _Why does a password entered in the GUI with `\` sometimes appear as `\\` in `pialert.conf`?_
+
+Pi.Alert stores the configuration file as Python syntax. Because of that, backslashes inside sensitive values such as passwords may be escaped when the file is written by the GUI. For example, a password entered as `abc\123` in the GUI may appear as `abc\\123` in `pialert.conf`. This is expected and is done to keep the configuration valid and to preserve the original password value correctly.
 
 #### _There is an update available. How do I proceed if I want to update Pi.Alert?_
 
@@ -67,7 +25,7 @@ In addition to the password, the parameter PIALERT_WEB_PROTECTION must also be s
 3. Now switch to the terminal of the device on which Pi.Alert is installed.
 4. Execute the command: 
 ```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
+sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
 ```
 5. Now follow the instructions
 6. After the successful update, Pi.Alert should start again on its own. Alternatively, you can also restart it manually on the installation page.

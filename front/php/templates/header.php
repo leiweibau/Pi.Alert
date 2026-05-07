@@ -158,7 +158,7 @@ insert_back_button();
     <section class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel" id="sidebar_systeminfobox">
-        <div class="logo" style="width:58px; display: inline-block;"><a href="./"><img src="img/pialertLogoGray80.png" class="img-responsive" alt="Pi.Alert Logo"></a></div>
+        <!-- <div class="logo" style="width:58px; display: inline-block;"><a href="./"><img src="img/pialertLogoGray80.png" class="img-responsive" alt="Pi.Alert Logo"></a></div> -->
         <div style="width:142px; display: inline-block; padding-left: 8px;">
           <a href="systeminfo.php">
             <div class="systemstatusbox" style="font-size: smaller; margin-top:10px;">
