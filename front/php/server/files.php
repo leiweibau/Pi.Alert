@@ -569,43 +569,110 @@ function find_pialert_root($startDir = __DIR__) {
     throw new Exception("Pi.Alert Root not found");
 }
 
+// Secure the path specification for the configuration file
+// Layer 1: Basic sanitization (removes obvious injection vectors)
+function pialert_sanitize_input($input) {
+
+    if (!is_string($input) || trim($input) === '') {
+        throw new Exception("Invalid input");
+    }
+
+    // Decode common encodings
+    $input = urldecode($input);
+    $input = html_entity_decode($input, ENT_QUOTES | ENT_HTML5);
+
+    // Split injection chains early
+    $input = preg_split('/[;\r\n]+/', $input)[0];
+
+    // Remove dangerous control characters
+    $input = str_replace(["\r", "\n", "\0"], '', $input);
+
+    return trim($input);
+}
+
+// Layer 2: Structural validation (must LOOK like a path)
+function pialert_validate_path_shape($path) {
+
+    // Must contain at least one slash (absolute or relative path)
+    if (strpos($path, '/') === false) {
+        return false;
+    }
+
+    // Reject obvious command patterns (ls, rm, etc.)
+    if (preg_match('#(^|\s)(ls|rm|cat|echo|bash|sh|wget|curl)\b#i', $path)) {
+        return false;
+    }
+
+    // Only allow safe filesystem characters
+    if (!preg_match('#^[a-zA-Z0-9_./\-\s\'"]+$#', $path)) {
+        return false;
+    }
+
+    return true;
+}
+
+// Layer 3: Filesystem resolution + type validation
+function pialert_resolve_path($path, $mustExist = true, $mustBeFile = true) {
+
+    $realPath = realpath($path);
+
+    if ($mustExist) {
+
+        if ($realPath === false) {
+            return false;
+        }
+
+        if ($mustBeFile && !is_file($realPath)) {
+            return false;
+        }
+
+        if (!$mustBeFile && !is_dir($realPath)) {
+            return false;
+        }
+
+        return $realPath;
+    }
+
+    return $path;
+}
+
+// MAIN FUNCTION: Secure path resolver
 function safeConfigPath($input, $mustExist = true, $mustBeFile = true) {
 
-    // 1. Validate input type
-    if (!is_string($input) || trim($input) === '') {
-        throw new Exception("Invalid path: empty or not a string");
+    // 1. sanitize raw input
+    $clean = pialert_sanitize_input($input);
+
+    // 2. split into segments (injection chain support)
+    $segments = preg_split('/[;\r\n]+/', $clean);
+
+    foreach ($segments as $segment) {
+
+        $segment = trim($segment);
+
+        if ($segment === '') {
+            continue;
+        }
+
+        // 3. structural validation
+        if (!pialert_validate_path_shape($segment)) {
+            continue;
+        }
+
+        // 4. filesystem validation
+        $resolved = pialert_resolve_path($segment, $mustExist, $mustBeFile);
+
+        if ($resolved === false) {
+            continue;
+        }
+
+        // 5. FINAL NORMALIZATION STEP (IMPORTANT)
+        // Removes leftover quotes from INI or earlier processing layers
+        $resolved = trim($resolved, " \t\n\r\0\x0B'\"");
+
+        return $resolved;
     }
 
-    // 2. Cut everything after semicolon (prevents command/config injection)
-    //    Example: "/path/file; rm -rf /" => "/path/file"
-    $input = explode(';', $input, 2)[0];
-
-    // 3. Remove newline characters (prevents config breaking / injection)
-    $input = str_replace(["\r", "\n", "'"], '', trim($input));
-
-    // 4. Normalize path
-    $realPath = realpath($input);
-
-    if ($realPath === false) {
-        // If existence is required, reject invalid path
-        if ($mustExist) {
-            throw new Exception("Path does not exist");
-        }
-        // Otherwise allow raw input (e.g. for log files not yet created)
-        $realPath = $input;
-    }
-
-    // 5. Validate type (file or directory)
-    if ($mustExist) {
-        if ($mustBeFile && !is_file($realPath)) {
-            throw new Exception("Path is not a valid file");
-        }
-        if (!$mustBeFile && !is_dir($realPath)) {
-            throw new Exception("Path is not a valid directory");
-        }
-    }
-
-    return $realPath;
+    throw new Exception("No valid path found in input");
 }
 
 //  Save Config
