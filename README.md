@@ -26,11 +26,11 @@
 WIFI / LAN intruder detector with web service monitoring. The main functions are as follows:
 
 - Scan your WIFI/LAN-connected devices and receive alerts for unknown device connections. 
-- Get warnings if an "always connected" device disconnects. 
+- Receive notifications when a new device appears on the network or when a known device loses connection, depending on your notification settings.
 - Assess web service availability by evaluating the HTTP status code, SSL certificate, and service response time. 
 - Receive notifications if the SSL certificate changes, the HTTP status code changes, or if the service becomes unreachable. 
 - Detect unwanted/foreign DHCP servers 
-- Device monitoring using the ping command
+- Device monitoring using the ping command, for devices outside your own subnet
 
 There is also a companion script, [Pi.Alert-Satellite](https://github.com/leiweibau/Pi.Alert-Satellite), 
 which performs its own scans and the results can be sent to an existing Pi.Alert instance.
@@ -44,8 +44,9 @@ which performs its own scans and the results can be sent to an existing Pi.Alert
 <ins>**arp-scan**</ins> (system utility to search for devices using arp frames), 
 <ins>**Pi-hole DNS**</ins> (v5 or v6), <ins>**Pi-hole DHCP**</ins>. (v5 or v6),
 <ins>**Fritzbox**</ins> (active Hosts), <ins>**Mikrotik**</ins> (DHCP leases), <ins>**UniFi**</ins> (Client Devices), <ins>**OpenWRT**</ins> (active hosts), 
-<ins>**AsusWRT**</ins> (active hosts), <ins>**pfSense**</ins> (active hosts, DHCP leases, ARP Table), 
-<ins>**Satellite Scan**</ins> (arp-scan, Pi-hole DNS, Pi-hole DHCP, Mikrotik, UniFi, OpenWRT, AsusWRT)
+<ins>**AsusWRT**</ins> (active hosts), <ins>**pfSense**</ins> (active hosts, DHCP leases, ARP Table), <ins>**OPNSense**</ins> (active hosts, DHCP leases, ARP Table),
+<ins>**Adguard Home**</ins> (DHCP leases, "Active Hosts" - Detection using the latest DNS queries),
+<ins>**Satellite Scan**</ins> (arp-scan, Pi-hole v6 DNS, Pi-hole v6 DHCP, Mikrotik, UniFi, OpenWRT, AsusWRT, pfSense, OPNSense, Adguard Home)
 
 ### Backend (back)
 
@@ -105,21 +106,12 @@ sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/insta
 You can always check for a new release using the "Update Check" button in the sidebar. This check will show you if the GeoLite2 DB is 
 installed or up to date and which new features, fixes or changes are available in the new Pi.Alert release, if you are not already using the latest version.
 
-‼️ With version v2025-12-14, there has been a change to the update script. With the change to the installation directory from this version onwards, it has become necessary to provide two update scripts.
-
-🔴 If your Pi.Alert installation is located in a user directory ($HOME/pialert), use the updater in the "Updater HOME" section.
-
-🔴 If the Pi.ALert installation is located in the "/opt/pialert" directory, use the updater in the "Updater OPT" section.
-
 <table>
   <thead>
-    <tr><th align="left">Updater OPT</th></tr>
+    <tr><th align="left">Updater</th></tr>
   </thead>
   <tbody>
   <tr><td>
-    - Installation is located in the "/opt/pialert"<br>
-    - Installed Pi.Alert with or after version v2025-12-14<br>
-    - Or created a Pi.Alert container using the Proxmox Helper Scripts<br><br>
 
 ```
 sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
@@ -127,25 +119,6 @@ sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/insta
   </td></tr>
   </tbody>
 </table>
-
-
-<table>
-  <thead>
-    <tr><th align="left">Updater HOME (Outdated)</th></tr>
-  </thead>
-  <tbody>
-  <tr><td>
-    - Installation is located in a user directory ($HOME/pialert)<br>
-    - Pi.Alert was manual installed before version v2025-12-14<br><br>
-
-```
-bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)"
-```
-  </td></tr>
-  </tbody>
-</table>
-
-‼️ “Outdated” refers to the updater itself. Both the old and new updater use the same installation package.
 
 🟢 Help with migrating to the new installation path [Here](docs/MIGRATION_HOME_TO_OPT.md)
 
