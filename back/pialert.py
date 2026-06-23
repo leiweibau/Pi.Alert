@@ -5575,6 +5575,7 @@ def publish_sensor_group(device_id: str, device_name: str, base_topic: str, valu
         # Automatic assignment of unit and device_class
         unit = "" if isinstance(value, int) else None
         device_class = "timestamp" if "time" in key.lower() else None
+        state_class = "measurement" if isinstance(value, int) else None
 
         # Send Discovery
         publish_discovery_sensor(
@@ -5584,15 +5585,16 @@ def publish_sensor_group(device_id: str, device_name: str, base_topic: str, valu
             name=f"{device_name}: {key.capitalize()}",
             topic=topic,
             unit=unit,
-            device_class=device_class
+            device_class=device_class,
+            state_class=state_class
         )
 
         # Publish
         send_mqtt_message(topic, value, retain=True)
 
 #-------------------------------------------------------------------------------
-def publish_discovery_sensor(device_id, device_name, object_id, name, topic, unit=None, device_class=None):
-    is_binary = object_id.lower() == "status"  # automatically detect
+def publish_discovery_sensor(device_id, device_name, object_id, name, topic, unit=None, device_class=None, state_class=None):
+    is_binary = object_id.lower() == "status"
 
     sensor_type = "binary_sensor" if is_binary else "sensor"
     discovery_topic = f"homeassistant/{sensor_type}/{device_id}_{object_id}/config"
@@ -5609,16 +5611,18 @@ def publish_discovery_sensor(device_id, device_name, object_id, name, topic, uni
         }
     }
 
-    # Additional fields depending on type
     if is_binary:
         payload["payload_on"] = "on"
         payload["payload_off"] = "off"
-        #payload["device_class"] = device_class or "connectivity"
     else:
         if unit:
             payload["unit_of_measurement"] = unit
+
         if device_class:
             payload["device_class"] = device_class
+
+        if state_class:
+            payload["state_class"] = state_class
 
     send_mqtt_message(discovery_topic, payload, retain=True)
 
