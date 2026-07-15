@@ -60,9 +60,16 @@ I would like to give a short explanation to the individual points.
 | SMTP_PORT       | The port of the SMTP server. The port may vary depending on the server configuration.                                                             |
 | SMTP_USER       | User name used to authenticate with the SMTP server.                                                                                              |
 | SMTP_PASS       | Password used to authenticate with the SMTP server.                                                                                               |
-| SMTP_SKIP_TLS   | If this entry is set to True, transport encryption of the e-mail is enabled. If the server does not support this, the entry must be set to False. |
+| SMTP_SSL        | Use SSL immediately when connecting to the SMTP server (SMTPS / SSL-on-connect).                                                                  |
+| SMTP_SKIP_TLS   | Skip STARTTLS after connecting with regular SMTP. This setting is ignored when `SMTP_SSL` is True.                                                |
 | SMTP_SKIP_LOGIN | There are SMTP servers which do not require a login. In such a case, this value can be set to True.                                               |
 
+
+**SMTP transport modes:**
+
+- `SMTP_SSL = True`: Connect with SMTPS / SSL-on-connect. STARTTLS is not used.
+- `SMTP_SSL = False` and `SMTP_SKIP_TLS = False`: Connect with SMTP and upgrade the connection with STARTTLS.
+- `SMTP_SSL = False` and `SMTP_SKIP_TLS = True`: Connect with SMTP without TLS.
 
 #### :eight_spoked_asterisk: WebGUI Reporting
 

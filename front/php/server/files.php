@@ -775,6 +775,7 @@ function SaveConfigFile() {
     $PIHOLE_DB = safeConfigPath($configArray['PIHOLE_DB'], false, true);
     $DHCP_LEASES = safeConfigPath($configArray['DHCP_LEASES'], false, true);
 
+    $smtpSsl = isset($configArray['SMTP_SSL']) ? $configArray['SMTP_SSL'] : false;
 	$config_template = "# General Settings
 # ----------------------
 PIALERT_PATH               = '" . $PIALERT_PATH . "'
@@ -822,6 +823,7 @@ SMTP_SERVER                = '" . $configArray['SMTP_SERVER'] . "'
 SMTP_PORT                  = " . ((isset($configArray['SMTP_PORT']) && is_numeric($configArray['SMTP_PORT'])) ? $configArray['SMTP_PORT'] : 587) . "
 SMTP_USER                  = '" . $configArray['SMTP_USER'] . "'
 SMTP_PASS                  = '" . escape_python_config_string($configArray['SMTP_PASS']) . "'
+SMTP_SSL                   = " . convert_bool($smtpSsl) . "
 SMTP_SKIP_TLS	           = " . convert_bool($configArray['SMTP_SKIP_TLS']) . "
 SMTP_SKIP_LOGIN	           = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) . "
 

@@ -422,6 +422,15 @@ ADGUARD_QUERY_LIMIT       = 1000
 EOF
 fi
 
+# 2026-07-15
+if ! grep -Fq "SMTP_SSL" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# Use SSL immediately when connecting to the SMTP server (SMTPS / SSL-on-connect)
+SMTP_SSL = False
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------

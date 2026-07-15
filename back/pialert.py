@@ -6572,11 +6572,15 @@ def send_email (pText, pHTML):
     msg.attach (MIMEText (pHTML, 'html'))
 
     # Send mail
-    smtp_connection = smtplib.SMTP (SMTP_SERVER, SMTP_PORT)
-    smtp_connection.ehlo()
-    if not SafeParseGlobalBool("SMTP_SKIP_TLS"):
-        smtp_connection.starttls()
+    if SafeParseGlobalBool("SMTP_SSL"):
+        smtp_connection = smtplib.SMTP_SSL (SMTP_SERVER, SMTP_PORT)
         smtp_connection.ehlo()
+    else:
+        smtp_connection = smtplib.SMTP (SMTP_SERVER, SMTP_PORT)
+        smtp_connection.ehlo()
+        if not SafeParseGlobalBool("SMTP_SKIP_TLS"):
+            smtp_connection.starttls()
+            smtp_connection.ehlo()
     if not SafeParseGlobalBool("SMTP_SKIP_LOGIN"):
         smtp_connection.login (SMTP_USER, SMTP_PASS)
     smtp_connection.sendmail (REPORT_FROM, REPORT_TO, msg.as_string())
