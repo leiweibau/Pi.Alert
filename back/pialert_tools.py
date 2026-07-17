@@ -10,6 +10,7 @@ from base64 import b64encode
 from urllib.parse import urlparse
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
+from config_validation import ConfigValidationError, load_pialert_config
 import sys, subprocess, os, re, datetime, sqlite3, socket, io, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
 import logging
 from logging.handlers import RotatingFileHandler
@@ -24,10 +25,14 @@ STATUS_FILE_SCAN = PIALERT_BACK_PATH + "/.scanning_tools"
 
 if (sys.version_info > (3,0)):
     exec(open(PIALERT_PATH + "/config/version.conf").read())
-    exec(open(PIALERT_PATH + "/config/pialert.conf").read())
 else:
     execfile(PIALERT_PATH + "/config/version.conf")
-    execfile(PIALERT_PATH + "/config/pialert.conf")
+try:
+    globals().update(load_pialert_config(
+        PIALERT_PATH + "/config/pialert.conf", PIALERT_PATH))
+except ConfigValidationError as exc:
+    print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
+    raise SystemExit(1)
 
 #===============================================================================
 # MAIN

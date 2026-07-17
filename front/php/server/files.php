@@ -246,7 +246,7 @@ function DeleteBlockDeviceIP() {
         return;
     }
 
-    file_put_contents($configfile, $newConfigContent);
+    validate_and_replace_pialert_config($configfile, $newConfigContent);
     echo $pia_lang['BE_Dev_Ignore_f'];
 	// Logging
 	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $removeIP.' '.$pia_lang['BE_Files_Ignore_a']);
@@ -303,7 +303,7 @@ function BlockDeviceIP() {
         return;
     }
 
-    file_put_contents($configfile, $newConfigContent);
+    validate_and_replace_pialert_config($configfile, $newConfigContent);
     echo $pia_lang['BE_Dev_Ignore_g'];
 	// Logging
 	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', $newIP.' '.$pia_lang['BE_Files_Ignore_b']);
@@ -362,7 +362,7 @@ function DeleteBlockDeviceMAC() {
         return;
     }
 
-    file_put_contents($configfile, $newConfigContent);
+    validate_and_replace_pialert_config($configfile, $newConfigContent);
     echo $pia_lang['BE_Dev_Ignore_j'];
 
 	// Logging
@@ -425,7 +425,7 @@ function BlockDeviceMAC() {
         return;
     }
 
-    file_put_contents($configfile, $newConfigContent);
+    validate_and_replace_pialert_config($configfile, $newConfigContent);
     echo $pia_lang['BE_Dev_Ignore_k'];
 
 	// Logging
@@ -502,12 +502,94 @@ function GetLogfiles() {
 
 function convert_bool($val) {
     if (is_bool($val)) return $val ? 'True' : 'False';
+    if (!is_string($val)) {
+        throw new InvalidArgumentException('Invalid boolean value');
+    }
     $val_lower = strtolower(trim($val));
     if ($val_lower === 'true') return 'True';
     if ($val_lower === 'false') return 'False';
-    return $val;
+    throw new InvalidArgumentException('Invalid boolean value');
 }
 
+function validate_and_replace_pialert_config($configfile, $content) {
+    $directory = realpath(dirname($configfile));
+    $validator = realpath(__DIR__ . '/../../../back/validate_pialert_config.py');
+    if ($directory === false || $validator === false || strlen($content) > 262144) {
+        throw new RuntimeException('Unable to prepare configuration update');
+    }
+    $temporary = tempnam($directory, '.pialert.conf.');
+    if ($temporary === false) {
+        throw new RuntimeException('Unable to create temporary configuration');
+    }
+    try {
+        if (file_put_contents($temporary, $content, LOCK_EX) !== strlen($content)) {
+            throw new RuntimeException('Unable to write temporary configuration');
+        }
+        $command = 'python3 ' . escapeshellarg($validator) . ' ' . escapeshellarg($temporary) .
+            ' --expected-pialert-path ' . escapeshellarg(dirname($directory));
+        exec($command, $output, $status);
+        if ($status !== 0) {
+            throw new InvalidArgumentException('Invalid configuration');
+        }
+        if (file_exists($configfile) && !copy($configfile, $directory . '/pialert-prev.bak')) {
+            throw new RuntimeException('Unable to back up configuration');
+        }
+        if (!rename($temporary, $configfile)) {
+            throw new RuntimeException('Unable to replace configuration');
+        }
+        $temporary = null;
+    } finally {
+        if ($temporary !== null && file_exists($temporary)) {
+            unlink($temporary);
+        }
+    }
+}
+
+function get_config_schema() {
+    static $schema = null;
+    if ($schema !== null) return $schema;
+    $groups = [
+        'bool' => 'PRINT_LOG PIALERT_WEB_PROTECTION AUTO_UPDATE_CHECK AUTO_DB_BACKUP REPORT_NEW_CONTINUOUS NEW_DEVICE_PRESET_EVENTS NEW_DEVICE_PRESET_DOWN OFFLINE_MODE SCAN_WEBSERVICES ICMPSCAN_ACTIVE SATELLITES_ACTIVE SCAN_ROGUE_DHCP SMTP_SSL SMTP_SKIP_TLS SMTP_SKIP_LOGIN REPORT_WEBGUI REPORT_WEBGUI_WEBMON REPORT_TO_MQTT REPORT_MQTT_TLS PUBLISH_MQTT_STATUS REPORT_MAIL REPORT_MAIL_WEBMON REPORT_PUSHSAFER REPORT_PUSHSAFER_WEBMON REPORT_PUSHOVER REPORT_PUSHOVER_WEBMON REPORT_NTFY REPORT_NTFY_WEBMON NTFY_CLICKABLE REPORT_DISCORD REPORT_DISCORD_WEBMON REPORT_TELEGRAM REPORT_TELEGRAM_WEBMON DDNS_ACTIVE SPEEDTEST_TASK_ACTIVE ARPSCAN_ACTIVE PIHOLE_ACTIVE DHCP_ACTIVE DHCP_INCL_SELF_TO_LEASES FRITZBOX_ACTIVE MIKROTIK_ACTIVE UNIFI_ACTIVE OPENWRT_ACTIVE ASUSWRT_ACTIVE ASUSWRT_SSL PFSENSE_ACTIVE PFSENSE_SSL OPNSENSE_ACTIVE OPNSENSE_SSL ADGUARD_ACTIVE ADGUARD_SSL SATELLITE_PROXY_MODE',
+        'int' => 'AUTO_DB_BACKUP_KEEP REPORT_TO_ARCHIVE SMTP_PORT REPORT_MQTT_PORT PUSHSAFER_PRIO PUSHSAFER_SOUND PUSHOVER_PRIO ICMP_ONLINE_TEST ICMP_GET_AVG_RTT PIHOLE_VERSION PIHOLE6_API_MAXCLIENTS PFSENSE_PORT OPNSENSE_PORT ADGUARD_PORT ADGUARD_QUERY_MINUTES ADGUARD_ACTIVITY_MINUTES ADGUARD_QUERY_LIMIT DAYS_TO_KEEP_ONLINEHISTORY DAYS_TO_KEEP_EVENTS',
+        'string' => 'PIALERT_PATH VENDORS_DB PIALERT_APIKEY PIALERT_WEB_PASSWORD NETWORK_DNS_SERVER SYSTEM_TIMEZONE AUTO_UPDATE_CHECK_CRON AUTO_DB_BACKUP_CRON REPORT_NEW_CONTINUOUS_CRON SPEEDTEST_TASK_CRON SMTP_SERVER SMTP_USER SMTP_PASS REPORT_MQTT_BROKER REPORT_MQTT_USERNAME REPORT_MQTT_PASSWORD REPORT_FROM REPORT_TO REPORT_DEVICE_URL REPORT_DASHBOARD_URL PUSHSAFER_TOKEN PUSHSAFER_DEVICE PUSHOVER_TOKEN PUSHOVER_USER PUSHOVER_SOUND NTFY_HOST NTFY_TOPIC NTFY_USER NTFY_PASSWORD NTFY_PRIORITY DISCORD_BOT_TOKEN_URL SHOUTRRR_BINARY TELEGRAM_BOT_TOKEN_URL QUERY_MYIP_SERVER QUERY_MYIP_SERVER_FALLBACK DDNS_DOMAIN DDNS_USER DDNS_PASSWORD DDNS_UPDATE_URL PIHOLE_DB PIHOLE6_URL PIHOLE6_PASSWORD DHCP_LEASES FRITZBOX_IP FRITZBOX_USER FRITZBOX_PASS MIKROTIK_IP MIKROTIK_USER MIKROTIK_PASS UNIFI_IP UNIFI_API UNIFI_USER UNIFI_PASS OPENWRT_IP OPENWRT_USER OPENWRT_PASS ASUSWRT_IP ASUSWRT_USER ASUSWRT_PASS PFSENSE_IP PFSENSE_APIKEY OPNSENSE_IP OPNSENSE_APIKEY OPNSENSE_APISECRET ADGUARD_IP ADGUARD_USER ADGUARD_PASSWORD SATELLITE_PROXY_URL',
+        'list' => 'MAC_IGNORE_LIST IP_IGNORE_LIST HOSTNAME_IGNORE_LIST PFSENSE_EXCLUDE_INT OPNSENSE_EXCLUDE_INT',
+        'special' => 'DB_PATH LOG_PATH DHCP_SERVER_ADDRESS SCAN_SUBNETS',
+    ];
+    $schema = [];
+    foreach ($groups as $type => $keys) {
+        foreach (explode(' ', $keys) as $key) {
+            $schema[$key] = ['type' => $type, 'required' => true];
+        }
+    }
+    $schema['SMTP_SSL']['required'] = false;
+    $schema['SMTP_SSL']['default'] = false;
+    return $schema;
+}
+
+function assert_config_editor_keys($content) {
+    if (!is_string($content) || strlen($content) > 262144) {
+        throw new InvalidArgumentException('Invalid configuration input');
+    }
+    $schema = get_config_schema();
+    $seen = [];
+    foreach (preg_split('/\R/', $content) as $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, '#') === 0) continue;
+        if (!preg_match('/^([A-Z][A-Z0-9_]*)\s*=/', $line, $matches)) {
+            throw new InvalidArgumentException('Invalid configuration statement');
+        }
+        $key = $matches[1];
+        if (!isset($schema[$key]) || isset($seen[$key])) {
+            throw new InvalidArgumentException('Unknown or duplicate configuration key');
+        }
+        $seen[$key] = true;
+    }
+    foreach ($schema as $key => $rule) {
+        if ($rule['required'] && !isset($seen[$key])) {
+            throw new InvalidArgumentException('Missing required configuration key');
+        }
+    }
+}
 function escape_python_config_string($val) {
     return str_replace(
         ["\\", "'"],
@@ -683,17 +765,20 @@ function SaveConfigFile() {
 	$laststate = '../../../config/pialert-prev.bak';
 	$configfile = '../../../config/pialert.conf';
 
-    if (!copy($configfile, $laststate)) {
-        pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
-        echo "<meta http-equiv='refresh' content='2; URL=./index.php'>";
-        return;
-    }
+	try {
+		assert_config_editor_keys($_REQUEST['configfile']);
+	} catch (Throwable $exception) {
+		pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+		echo 'ERROR: Invalid configuration';
+		return;
+	}
 
 	$configContent = preg_replace('/^\s*#.*$/m', '', $_REQUEST['configfile']);
 	$configArray = parse_ini_string($configContent);
 
     // Get old Values from Backup
-    $oldLines = file($laststate, FILE_IGNORE_NEW_LINES);
+    $secretSource = file_exists($laststate) ? $laststate : $configfile;
+    $oldLines = file($secretSource, FILE_IGNORE_NEW_LINES) ?: [];
     $oldValues = [];
     foreach ($oldLines as $line) {
         foreach ($maskKeys as $key) {
@@ -1023,9 +1108,14 @@ DAYS_TO_KEEP_ONLINEHISTORY = " . ((isset($configArray['DAYS_TO_KEEP_ONLINEHISTOR
 DAYS_TO_KEEP_EVENTS        = " . ((isset($configArray['DAYS_TO_KEEP_EVENTS']) && is_numeric($configArray['DAYS_TO_KEEP_EVENTS'])) ? $configArray['DAYS_TO_KEEP_EVENTS'] : 0) . "
 ";
 
-	$newconfig = fopen($configfile, 'w');
-	fwrite($newconfig, $config_template);
-	fclose($newconfig);
+	try {
+		validate_and_replace_pialert_config($configfile, $config_template);
+	} catch (Throwable $exception) {
+		pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+		echo 'ERROR: Invalid configuration';
+		echo "<meta http-equiv='refresh' content='2; URL=./index.php'>";
+		return;
+	}
 
 	echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
 
@@ -1515,13 +1605,17 @@ function RestoreConfigFile() {
 
 	$file = '../../../config/pialert.conf';
 	$laststate = '../../../config/pialert-prev.bak';
-	// Restore fast Backup
-	if (!copy($laststate, $file)) {
-		echo $pia_lang['BE_Dev_ConfEditor_RestoreError'];
-	} else {
+	// Restore only a structurally valid backup through the atomic writer.
+	try {
+		$content = file_get_contents($laststate);
+		if ($content === false) {
+			throw new RuntimeException('Unable to read configuration backup');
+		}
+		validate_and_replace_pialert_config($file, $content);
 		echo $pia_lang['BE_Dev_ConfEditor_RestoreOkay'];
+	} catch (Throwable $exception) {
+		echo $pia_lang['BE_Dev_ConfEditor_RestoreError'];
 	}
-	copy($file, $laststate);
 	// Logging
 	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_0006', '1', '');
 	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
@@ -1755,7 +1849,7 @@ function ToggleImport() {
     $newContents = preg_replace($pattern, $replacement, $fileContents);
 
     if ($newContents !== null) {
-        file_put_contents($file_path, $newContents);
+        validate_and_replace_pialert_config($file_path, $newContents);
         echo "{$configKey} set to {$newValue}";
     } else {
         echo 'Failed to update configuration';
@@ -1791,7 +1885,7 @@ function ToggleExtLogging() {
     $newContents = preg_replace($pattern, $replacement, $fileContents);
 
     if ($newContents !== null) {
-        file_put_contents($file_path, $newContents);
+        validate_and_replace_pialert_config($file_path, $newContents);
         echo "{$configKey} set to {$newValue}";
     } else {
         echo 'Failed to update configuration';
@@ -1827,7 +1921,7 @@ function ToggleRogueDHCP() {
     $newContents = preg_replace($pattern, $replacement, $fileContents);
 
     if ($newContents !== null) {
-        file_put_contents($file_path, $newContents);
+        validate_and_replace_pialert_config($file_path, $newContents);
         echo "{$configKey} set to {$newValue}";
     } else {
         echo 'Failed to update configuration';

@@ -26,6 +26,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
+from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, validate_loaded_config
 from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion, MQTT_ERR_SUCCESS
 import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
 
@@ -48,7 +49,12 @@ PIHOLE6_SES_SID = ""
 PIHOLE6_SES_CSRF = ""
 
 exec(open(PIALERT_PATH + "/config/version.conf").read())
-exec(open(PIALERT_PATH + "/config/pialert.conf").read())
+try:
+    globals().update(load_pialert_config(
+        PIALERT_PATH + "/config/pialert.conf", PIALERT_PATH, validate=False))
+except ConfigValidationError as exc:
+    print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
+    raise SystemExit(1)
 
 RAW_CONFIG_SECRET_KEYS = [
     'PIALERT_APIKEY',
@@ -73,6 +79,8 @@ RAW_CONFIG_SECRET_KEYS = [
 ]
 
 #-------------------------------------------------------------------------------
+# Compatibility layer for existing manually maintained secret values.
+# Must run after loading pialert.conf and before type validation.
 def recover_sensitive_config_values(config_file, secret_keys):
     def contains_control_characters(value):
         return isinstance(value, str) and any(ord(char) < 32 for char in value)
@@ -107,6 +115,12 @@ def recover_sensitive_config_values(config_file, secret_keys):
         globals()[key] = recovered_value
 
 recover_sensitive_config_values(PIALERT_PATH + "/config/pialert.conf", RAW_CONFIG_SECRET_KEYS)
+try:
+    globals().update(validate_loaded_config(
+        {name: globals()[name] for name in ALL_KEYS}, PIALERT_PATH))
+except ConfigValidationError as exc:
+    print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
+    raise SystemExit(1)
 
 #===============================================================================
 # MAIN

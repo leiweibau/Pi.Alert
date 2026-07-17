@@ -1046,10 +1046,10 @@ EOM
     if [ $CHECK_API -eq 0 ]
     then
         ## Create PIALERT_APIKEY
-        sed -i "/^VENDORS_DB.*/a PIALERT_APIKEY = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
+        sed -i "/^VENDORS_DB.*/a PIALERT_APIKEY             = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
     else
         ## Change PIALERT_APIKEY
-        sed -i "/PIALERT_APIKEY/c\PIALERT_APIKEY = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
+        sed -i "/PIALERT_APIKEY/c\PIALERT_APIKEY             = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
     fi
     echo "API-Key set"
     ;;

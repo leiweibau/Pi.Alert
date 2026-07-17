@@ -23,6 +23,7 @@ try:
   from urlparse import urlparse
 except ImportError:
   from urllib.parse import urlparse
+from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, validate_loaded_config
 import sys, subprocess, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob
 
 #===============================================================================
@@ -37,10 +38,14 @@ REPORTPATH_WEBGUI = f"{PIALERT_PATH}/front/reports/"
 
 if (sys.version_info > (3,0)):
   exec(open(f"{PIALERT_PATH}/config/version.conf").read())
-  exec(open(f"{PIALERT_PATH}/config/pialert.conf").read())
 else:
   execfile(f"{PIALERT_PATH}/config/version.conf")
-  execfile(f"{PIALERT_PATH}/config/pialert.conf")
+try:
+  globals().update(load_pialert_config(
+      f"{PIALERT_PATH}/config/pialert.conf", PIALERT_PATH, validate=False))
+except ConfigValidationError as exc:
+  print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
+  raise SystemExit(1)
 
 RAW_CONFIG_SECRET_KEYS = [
     'PIALERT_APIKEY',
@@ -65,6 +70,8 @@ RAW_CONFIG_SECRET_KEYS = [
 ]
 
 #-------------------------------------------------------------------------------
+# Compatibility layer for existing manually maintained secret values.
+# Must run after loading pialert.conf and before type validation.
 def recover_sensitive_config_values(config_file, secret_keys):
     def contains_control_characters(value):
         return isinstance(value, str) and any(ord(char) < 32 for char in value)
@@ -99,6 +106,12 @@ def recover_sensitive_config_values(config_file, secret_keys):
         globals()[key] = recovered_value
 
 recover_sensitive_config_values(f"{PIALERT_PATH}/config/pialert.conf", RAW_CONFIG_SECRET_KEYS)
+try:
+  globals().update(validate_loaded_config(
+      {name: globals()[name] for name in ALL_KEYS}, PIALERT_PATH))
+except ConfigValidationError as exc:
+  print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
+  raise SystemExit(1)
 
 #===============================================================================
 # MAIN
