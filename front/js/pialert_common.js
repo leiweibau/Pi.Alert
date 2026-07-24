@@ -252,3 +252,33 @@ if (window.matchMedia("(max-width: 767px)").matches) {
 function setDefaultPageTitle() {
   document.title += " (0)";
 }
+
+function copymactoclipboard() {
+    var copyText = document.getElementById("txtMAC");
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(copyText.value).catch(function(err) {
+            console.error("Copy failed:", err);
+        });
+    } else {
+        copyText.select();
+        copyText.setSelectionRange(0, copyText.value.length);
+        document.execCommand("copy");
+        copyText.blur(); // Auswahl wieder entfernen
+    }
+}
+
+function copyiptoclipboard() {
+    var copyText = document.getElementById("txtLastIP");
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(copyText.value).catch(function(err) {
+            console.error("Copy failed:", err);
+        });
+    } else {
+        copyText.select();
+        copyText.setSelectionRange(0, copyText.value.length);
+        document.execCommand("copy");
+        copyText.blur(); // Auswahl wieder entfernen
+    }
+}

@@ -154,7 +154,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                     <div class="box-body form-horizontal">
 
                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?> <a href="#" type="button" class="text-aqua" onclick="copymactoclipboard()"><i class="bi bi-clipboard"></i></a></label>
                         <div class="col-sm-8">
                           <div class="input-group">
                             <div class="input-group-btn">
@@ -314,7 +314,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 
                       <!-- Last IP -->
                       <div class="form-group">
-                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?></label>
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?> <a href="#" type="button" class="text-aqua" onclick="copyiptoclipboard()"><i class="bi bi-clipboard"></i></a></label>
                         <div class="col-sm-7">
                           <div class="input-group">
                             <div class="input-group-btn">
