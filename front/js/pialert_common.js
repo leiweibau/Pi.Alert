@@ -257,14 +257,26 @@ function copymactoclipboard() {
     var copyText = document.getElementById("txtMAC");
 
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(copyText.value).catch(function(err) {
-            console.error("Copy failed:", err);
-        });
+        navigator.clipboard.writeText(copyText.value)
+            .then(function() {
+                alert("MAC-Adresse copied.");
+            })
+            .catch(function() {
+                alert("Copy failed.");
+            });
     } else {
         copyText.select();
         copyText.setSelectionRange(0, copyText.value.length);
-        document.execCommand("copy");
-        copyText.blur(); // Auswahl wieder entfernen
+
+        try {
+            if (document.execCommand("copy")) {
+                alert("MAC-Adresse copied.");
+            } else {
+                alert("Copy failed.");
+            }
+        } finally {
+            copyText.blur();
+        }
     }
 }
 
@@ -272,13 +284,25 @@ function copyiptoclipboard() {
     var copyText = document.getElementById("txtLastIP");
 
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(copyText.value).catch(function(err) {
-            console.error("Copy failed:", err);
-        });
+        navigator.clipboard.writeText(copyText.value)
+            .then(function() {
+                alert("IP-Adresse copied.");
+            })
+            .catch(function() {
+                alert("Copy failed.");
+            });
     } else {
         copyText.select();
         copyText.setSelectionRange(0, copyText.value.length);
-        document.execCommand("copy");
-        copyText.blur(); // Auswahl wieder entfernen
+
+        try {
+            if (document.execCommand("copy")) {
+                alert("IP-Adresse copied.");
+            } else {
+                alert("Copy failed.");
+            }
+        } finally {
+            copyText.blur();
+        }
     }
 }
