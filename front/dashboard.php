@@ -313,6 +313,22 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
 </div>
 
 <div class="row">
+
+    <div class="col-md-6">
+      <div class="box box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> <?=$pia_lang['Device_Shortcut_OnlineChart_a']?> 12 <?=$pia_lang['Device_Shortcut_OnlineChart_b'] ?></h3>
+        </div>
+
+        <div class="box-body" style="padding:0;">
+            <div style="height:160px; width:100%;">
+              <div id="historyChartsContainer"></div>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
     <div class="col-md-6">
       <div class="box box-solid">
         <div class="box-header with-border">
@@ -344,21 +360,6 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </tbody>
             </table>
           </div>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="col-md-6">
-      <div class="box box-solid">
-        <div class="box-header with-border">
-          <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> <?=$pia_lang['Device_Shortcut_OnlineChart_a']?> 12 <?=$pia_lang['Device_Shortcut_OnlineChart_b'] ?></h3>
-        </div>
-
-        <div class="box-body" style="padding:0;">
-            <div style="height:160px; width:100%;">
-              <div id="historyChartsContainer"></div>
-            </div>
         </div>
 
       </div>
@@ -816,40 +817,6 @@ function renderDevicesDonut(values, total) {
         plugins: [centerTextPlugin] // Plugin lokal registrieren
     });
 }
-// --------------------------------------------------------------------------
-// Chart.plugins.register({
-//   beforeDraw: function (chart) {
-
-//     if (!chart.config.options.centerText) {
-//       return;
-//     }
-
-//     const ctx = chart.chart.ctx;
-//     const centerConfig = chart.config.options.centerText;
-//     const txtTop    = centerConfig.textTop || '';
-//     const txtBottom = centerConfig.textBottom || '';
-//     const fontSize  = centerConfig.fontSize || 18;
-//     const fontColor = centerConfig.color || '#888';
-
-//     ctx.save();
-//     ctx.textAlign = 'center';
-//     ctx.textBaseline = 'middle';
-//     ctx.fillStyle = fontColor;
-
-//     const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-//     const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-
-//     // obere Zeile (groß)
-//     ctx.font = 'bold ' + fontSize + 'px Arial';
-//     ctx.fillText(txtTop, centerX, centerY - 8);
-
-//     // untere Zeile (klein)
-//     ctx.font = 'normal ' + Math.round(fontSize * 0.6) + 'px Arial';
-//     ctx.fillText(txtBottom, centerX, centerY + 12);
-
-//     ctx.restore();
-//   }
-// });
 // --------------------------------------------------------------------
 function getIcmpDeviceStatus() {
 
