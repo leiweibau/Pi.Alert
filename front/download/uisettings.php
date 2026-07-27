@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if ($_SESSION["login"] != 1) {
+    header('Location: ../index.php');
+    exit;
+}
+
 $dir = "../../config/";
 $pattern = $dir . "setting_*";
 $zip_name = "../../db/temp/uisettings.zip";
@@ -10,7 +17,7 @@ $existing_files = array_filter($files, function($file) {
 });
 
 if (empty($existing_files)) {
-    exit("Keine der angegebenen Dateien wurde gefunden.");
+    exit("None of the specified files were found.");
 }
 
 $escaped_files = array_map('escapeshellarg', $existing_files);
@@ -19,7 +26,7 @@ $command = "zip -j " . escapeshellarg($zip_name) . " " . implode(' ', $escaped_f
 exec($command, $output, $result_code);
 
 if ($result_code !== 0) {
-    exit("Fehler beim Erstellen der ZIP-Datei.");
+    exit("Error creating the ZIP file.");
 }
 
 if (file_exists($zip_name)) {
@@ -31,7 +38,7 @@ if (file_exists($zip_name)) {
     unlink($zip_name);
     exit;
 } else {
-    echo "ZIP-Datei wurde nicht gefunden.";
+    echo "The ZIP file was not found.";
 }
 ?>
 
