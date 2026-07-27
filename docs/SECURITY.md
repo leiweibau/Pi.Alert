@@ -18,8 +18,6 @@ To help keep your installation secure, please follow these recommendations:
 - **Never expose the web interface directly to the public Internet.** This project is intended to run in trusted environments only.
 - **Use a VPN for remote access.** Solutions such as WireGuard provide secure remote connectivity without exposing the application publicly.
 - **Keep your operating system and all dependencies updated.** Security updates for the host system are just as important as updates for this project.
-- **Use strong authentication.** Protect user accounts with strong, unique passwords and remove access for users who no longer require it.
-- **Follow the principle of least privilege.** Grant only the permissions required for the software to operate.
 - **Protect the host system.** Use a firewall, restrict unnecessary services, and regularly review your system's security configuration.
 - **Create regular backups.** Ensure you can recover your configuration and data in the event of hardware failure or a security incident.
 
