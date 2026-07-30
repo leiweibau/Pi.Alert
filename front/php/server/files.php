@@ -194,7 +194,6 @@ function GetConfigFile() {
     exit;
 }
 
-
 function DeleteBlockDeviceIP() {
 	global $pia_lang;
     $configfile = '../../../config/pialert.conf';
@@ -773,12 +772,19 @@ function SaveConfigFile() {
 		return;
 	}
 
+	// Always preserve the current configuration before processing a save.
+	// copy() intentionally replaces an existing pialert-prev.bak.
+	if (!copy($configfile, $laststate)) {
+		pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+		echo 'ERROR: Unable to back up current configuration';
+		return;
+	}
+
 	$configContent = preg_replace('/^\s*#.*$/m', '', $_REQUEST['configfile']);
 	$configArray = parse_ini_string($configContent);
 
     // Get old Values from Backup
-    $secretSource = file_exists($laststate) ? $laststate : $configfile;
-    $oldLines = file($secretSource, FILE_IGNORE_NEW_LINES) ?: [];
+    $oldLines = file($laststate, FILE_IGNORE_NEW_LINES) ?: [];
     $oldValues = [];
     foreach ($oldLines as $line) {
         foreach ($maskKeys as $key) {
