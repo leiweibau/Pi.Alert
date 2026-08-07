@@ -21,6 +21,7 @@ if (filter_var($_REQUEST['url'], FILTER_VALIDATE_URL)) {
 	exit;
 }
 
+require 'php/server/db.php';
 require 'php/templates/header.php';
 require 'php/server/graph.php';
 require 'php/server/journal.php';
@@ -34,8 +35,8 @@ $db->exec('PRAGMA journal_mode = wal;');
 function get_service_details($service_URL) {
 	global $db;
 
-	$mon_res = $db->query('SELECT * FROM Services WHERE mon_URL="' . $service_URL . '"');
-	$row = $mon_res->fetchArray();
+	$mon_res = db_execute_prepared($db, 'SELECT * FROM Services WHERE mon_URL = :url', array(':url' => (string) $service_URL));
+	$row = $mon_res ? $mon_res->fetchArray() : false;
 	return $row;
 }
 
@@ -61,7 +62,7 @@ function get_service_events_table($service_URL, $service_filter) {
 		$filter_sql = 'AND moneve_Latency="99999999"';
 	}
 
-	$moneve_res = $db->query('SELECT * FROM Services_Events WHERE moneve_URL="' . $service_URL . '"' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000');
+	$moneve_res = db_execute_prepared($db, 'SELECT * FROM Services_Events WHERE moneve_URL = :url ' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000', array(':url' => (string) $service_URL));
 	while ($row = $moneve_res->fetchArray()) {
 		if ($row['moneve_TargetIP'] == '') {$func_TargetIP = 'n.a.';} else {
 			$func_TargetIP = $row['moneve_TargetIP'];
@@ -154,108 +155,62 @@ function parse_location_array($LOCATION_ARRAY) {
 function get_service_statistic($service) {
 	global $db;
 
-	// Compensate Timezone
-	$stat_query_24h = 24 - (date('Z') / 3600);
-	$stat_query_1w = 168 - (date('Z') / 3600);
+	$params = array(':service' => (string) $service);
+	$scalarQueries = array(
+		'latency_avg' => 'SELECT AVG(moneve_Latency) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL = :service',
+		'latency_max' => 'SELECT MAX(moneve_Latency) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL = :service',
+		'latency_min' => 'SELECT MIN(moneve_Latency) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL = :service',
+		'offline' => 'SELECT COUNT(*) FROM Services_Events WHERE moneve_Latency = 99999999 AND moneve_URL = :service',
+		'online' => 'SELECT COUNT(*) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_URL = :service',
+	);
+	$values = array();
+	foreach ($scalarQueries as $key => $sql) {
+		$result = db_execute_prepared($db, $sql, $params);
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$values[$key] = $row[0];
+	}
 
 	$statistic = array();
-	$query = "SELECT AVG(moneve_Latency) AS average_latency FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL=\"$service\"";
-	$result = $db->querySingle($query);
-	$statistic['latency_avg'] = round($result, 4) . ' ms';
-	$query_max = "SELECT MAX(moneve_Latency) AS max_latency FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL=\"$service\"";
-	$query_min = "SELECT MIN(moneve_Latency) AS min_latency FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL=\"$service\"";
-	$result_max = $db->querySingle($query_max);
-	$statistic['latency_max'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($result_max, 4) . ' ms';
-	$result_min = $db->querySingle($query_min);
-	$statistic['latency_min'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($result_min, 4) . ' ms';
-	$query = "SELECT COUNT(*) AS row_count FROM Services_Events WHERE moneve_Latency == 99999999 AND moneve_URL=\"$service\"";
-	$result = $db->querySingle($query);
-	$statistic['offline'] = $result;
-	$query = "SELECT COUNT(*) AS row_count FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_URL=\"$service\"";
-	$result = $db->querySingle($query);
-	$statistic['online'] = $result;
-	$temp100 = $statistic['online'] + $statistic['offline'];
-	if ($temp100 > 0 && $statistic['online'] > 0) {
-		$statistic['online_percent_all'] = round(($statistic['online'] * 100 / $temp100), 2);
-	} else {
-		$statistic['online_percent_all'] = 0;
+	$statistic['latency_avg'] = round($values['latency_avg'], 4) . ' ms';
+	$statistic['latency_max'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($values['latency_max'], 4) . ' ms';
+	$statistic['latency_min'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($values['latency_min'], 4) . ' ms';
+	$statistic['offline'] = (int) $values['offline'];
+	$statistic['online'] = (int) $values['online'];
+	$total = $statistic['online'] + $statistic['offline'];
+	$onlinePercent = $total > 0 && $statistic['online'] > 0 ? round(($statistic['online'] * 100 / $total), 2) : 0;
+	$statistic['online_percent_all'] = $onlinePercent . ' %';
+	$statistic['offline_percent_all'] = round(100 - $onlinePercent, 2) . ' %';
+
+	$windows = array('24h' => 24 - (date('Z') / 3600), '1w' => 168 - (date('Z') / 3600));
+	foreach ($windows as $label => $hours) {
+		$result = db_execute_prepared($db, 'SELECT * FROM Services_Events
+			WHERE moneve_URL = :service AND datetime(moneve_DateTime) >= datetime("now", :offset)
+			ORDER BY datetime(moneve_DateTime) DESC', array(':service' => (string) $service, ':offset' => '-' . $hours . ' hours'));
+		$offline = 0;
+		$online = 0;
+		$minimum = 99999999;
+		$maximum = 0;
+		$average = 0;
+		while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+			if ($row['moneve_Latency'] != '' && $row['moneve_Latency'] != '99999999') {
+				$online++;
+				$maximum = max($maximum, $row['moneve_Latency']);
+				$minimum = min($minimum, $row['moneve_Latency']);
+				$average += $row['moneve_Latency'];
+			} else {
+				$offline++;
+			}
+		}
+		$statistic['latency_min_' . $label] = $minimum == 99999999 ? 'n.a.' : '<i class="bi bi-speedometer2 text-green"></i> ' . round($minimum, 4) . ' ms';
+		$statistic['latency_max_' . $label] = $maximum == 0 ? 'n.a.' : '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($maximum, 4) . ' ms';
+		$statistic['latency_avg_' . $label] = $average > 0 ? round(($average / $online), 4) . ' ms' : 'n.a.';
+		$statistic['online_' . $label] = $online;
+		$statistic['offline_' . $label] = $offline;
+		$total = $online + $offline;
+		$onlinePercent = $total > 0 && $online > 0 ? round(($online * 100 / $total), 2) : 0;
+		$statistic['online_percent_' . $label] = $onlinePercent . ' %';
+		$statistic['offline_percent_' . $label] = round(100 - $onlinePercent, 2) . ' %';
 	}
-	$statistic['offline_percent_all'] = round((100 - $statistic['online_percent_all']), 2);
-	$statistic['online_percent_all'] = $statistic['online_percent_all'] . ' %';
-	$statistic['offline_percent_all'] = $statistic['offline_percent_all'] . ' %';
-
-	// 1 Day Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM Services_Events
-	  WHERE moneve_URL=\"$service\" AND datetime(moneve_DateTime) >= datetime('now', '-$stat_query_24h hours')
-	  ORDER BY datetime(moneve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_service = 99999999;
-	$max_service = 0;
-	$avg_service = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['moneve_Latency'] != "" && $row['moneve_Latency'] != "99999999") {
-			$online++;
-			if ($row['moneve_Latency'] > $max_service) {$max_service = $row['moneve_Latency'];}
-			if ($row['moneve_Latency'] < $min_service) {$min_service = $row['moneve_Latency'];}
-			$avg_service = $avg_service + $row['moneve_Latency'];
-		} else { $offline++;}
-	}
-	if ($min_service == 99999999) {$statistic['latency_min_24h'] = 'n.a.';} else { $statistic['latency_min_24h'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_service, 4) . ' ms';}
-	if ($max_service == 0) {$statistic['latency_max_24h'] = 'n.a.';} else { $statistic['latency_max_24h'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_service, 4) . ' ms';}
-	if ($avg_service > 0) {$statistic['latency_avg_24h'] = round(($avg_service / $online), 4) . ' ms';} else { $statistic['latency_avg_24h'] = 'n.a.';}
-	$statistic['online_24h'] = $online;
-	$statistic['offline_24h'] = $offline;
-
-	$temp24h = $statistic['online_24h'] + $statistic['offline_24h'];
-	if ($temp24h > 0 && $statistic['online_24h'] > 0) {
-		$statistic['online_percent_24h'] = round(($statistic['online_24h'] * 100 / $temp24h), 2);
-	} else {
-		$statistic['online_percent_24h'] = 0;
-	}
-	$statistic['offline_percent_24h'] = round((100 - $statistic['online_percent_24h']), 2);
-	$statistic['online_percent_24h'] = $statistic['online_percent_24h'] . ' %';
-	$statistic['offline_percent_24h'] = $statistic['offline_percent_24h'] . ' %';
-
-	// 1 Week Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM Services_Events
-	  WHERE moneve_URL=\"$service\" AND datetime(moneve_DateTime) >= datetime('now', '-$stat_query_1w hours')
-	  ORDER BY datetime(moneve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_service = 99999999;
-	$max_service = 0;
-	$avg_service = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['moneve_Latency'] != "" && $row['moneve_Latency'] != "99999999") {
-			$online++;
-			if ($row['moneve_Latency'] > $max_service) {$max_service = $row['moneve_Latency'];}
-			if ($row['moneve_Latency'] < $min_service) {$min_service = $row['moneve_Latency'];}
-			$avg_service = $avg_service + $row['moneve_Latency'];
-		} else { $offline++;}
-	}
-
-	if ($min_service == 99999999) {$statistic['latency_min_1w'] = 'n.a.';} else { $statistic['latency_min_1w'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_service, 4) . ' ms';}
-	if ($max_service == 0) {$statistic['latency_max_1w'] = 'n.a.';} else { $statistic['latency_max_1w'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_service, 4) . ' ms';}
-	if ($avg_service > 0) {$statistic['latency_avg_1w'] = round(($avg_service / $online), 4) . ' ms';} else { $statistic['latency_avg_1w'] = 'n.a.';}
-	$statistic['online_1w'] = $online;
-	$statistic['offline_1w'] = $offline;
-
-	$temp24h = $statistic['online_1w'] + $statistic['offline_1w'];
-	if ($temp24h > 0 && $statistic['online_1w'] > 0) {
-		$statistic['online_percent_1w'] = round(($statistic['online_1w'] * 100 / $temp24h), 2);
-	} else {
-		$statistic['online_percent_1w'] = 0;
-	}
-	$statistic['offline_percent_1w'] = round((100 - $statistic['online_percent_1w']), 2);
-	$statistic['online_percent_1w'] = $statistic['online_percent_1w'] . ' %';
-	$statistic['offline_percent_1w'] = $statistic['offline_percent_1w'] . ' %';
 
 	return $statistic;
 }

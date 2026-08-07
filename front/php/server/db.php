@@ -105,4 +105,54 @@ function OpenDB_Tools () {
   $db_tools->busyTimeout(2000);
   $db_tools->exec('PRAGMA journal_mode = wal;');
 }
+//------------------------------------------------------------------------------
+// Prepared statement helpers
+//------------------------------------------------------------------------------
+function db_sqlite_type($value) {
+  if (is_int($value)) {
+    return SQLITE3_INTEGER;
+  }
+  if (is_null($value)) {
+    return SQLITE3_NULL;
+  }
+  return SQLITE3_TEXT;
+}
+
+// Parameters may be scalar values or [value, SQLITE3_*] pairs.
+function db_execute_prepared($database, $sql, $parameters = array()) {
+  $statement = $database->prepare($sql);
+  if ($statement === false) {
+    return false;
+  }
+
+  foreach ($parameters as $placeholder => $parameter) {
+    $value = $parameter;
+    $type = db_sqlite_type($value);
+    if (is_array($parameter) && count($parameter) === 2) {
+      $value = $parameter[0];
+      $type = $parameter[1];
+    }
+
+    if (!$statement->bindValue($placeholder, $value, $type)) {
+      return false;
+    }
+  }
+
+  return $statement->execute();
+}
+
+// Return a comma-separated placeholder list and its matching parameters.
+// Callers must reject an empty list instead of creating an empty IN clause.
+function db_in_placeholders($prefix, $values, $type = SQLITE3_TEXT) {
+  $placeholders = array();
+  $parameters = array();
+
+  foreach (array_values($values) as $index => $value) {
+    $placeholder = ':' . $prefix . '_' . $index;
+    $placeholders[] = $placeholder;
+    $parameters[$placeholder] = array($value, $type);
+  }
+
+  return array(implode(', ', $placeholders), $parameters);
+}
 ?>

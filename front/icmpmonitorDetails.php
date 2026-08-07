@@ -18,6 +18,7 @@ if (filter_var($_REQUEST['hostip'], FILTER_FLAG_IPV4) || filter_var($_REQUEST['h
 	exit;
 }
 
+require 'php/server/db.php';
 require 'php/templates/header.php';
 require 'php/server/graph.php';
 require 'php/server/journal.php';
@@ -31,8 +32,8 @@ $db->exec('PRAGMA journal_mode = wal;');
 function get_hostip_details($hostip) {
 	global $db;
 
-	$mon_res = $db->query('SELECT * FROM ICMP_Mon WHERE icmp_ip="' . $hostip . '"');
-	$row = $mon_res->fetchArray();
+	$mon_res = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => (string) $hostip));
+	$row = $mon_res ? $mon_res->fetchArray() : false;
 	return $row;
 }
 
@@ -40,12 +41,12 @@ function get_hostip_details($hostip) {
 function get_icmphost_events_table($icmp_ip, $icmpfilter) {
 	global $db;
 	
-	$icmp_res = $db->query('SELECT rowid,* FROM ICMP_Mon WHERE icmp_ip="' . $icmp_ip . '"');
+	$icmp_res = db_execute_prepared($db, 'SELECT rowid, * FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => (string) $icmp_ip));
 	while ($rowa = $icmp_res->fetchArray(SQLITE3_ASSOC)) {
 		$icmp_hostname = $rowa['icmp_hostname'];
 	}
 
-	$icmpeve_res = $db->query('SELECT * FROM ICMP_Mon_Connections WHERE icmpeve_ip="' . $icmp_ip . '" ORDER BY rowid DESC LIMIT 2000');
+	$icmpeve_res = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon_Connections WHERE icmpeve_ip = :ip ORDER BY rowid DESC LIMIT 2000', array(':ip' => (string) $icmp_ip));
 	while ($row = $icmpeve_res->fetchArray()) {
 		if ($icmp_hostname != "" && strlen($icmp_hostname) > 0) {$icmpeve_ip = $icmp_hostname;} else { $icmpeve_ip = $row['icmpeve_ip'];}
 		echo '<tr>
@@ -80,114 +81,62 @@ $Pia_Graph_ICMPHost_Down = $graph_arrays[2];
 function get_host_statistic($hostip) {
 	global $db;
 
-	// Compensate Timezone
-	$stat_query_24h = 24 - (date('Z') / 3600);
-	$stat_query_1w = 168 - (date('Z') / 3600);
+	$params = array(':ip' => (string) $hostip);
+	$scalarQueries = array(
+		'avg_rtt_all' => 'SELECT AVG(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != "" AND icmpeve_ip = :ip',
+		'rtt_max_all' => 'SELECT MAX(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != "" AND icmpeve_ip = :ip',
+		'rtt_min_all' => 'SELECT MIN(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != "" AND icmpeve_ip = :ip',
+		'offline_all' => 'SELECT COUNT(*) FROM ICMP_Mon_Events WHERE icmpeve_Present = 0 AND icmpeve_ip = :ip',
+		'online_all' => 'SELECT COUNT(*) FROM ICMP_Mon_Events WHERE icmpeve_Present = 1 AND icmpeve_ip = :ip',
+	);
+	$values = array();
+	foreach ($scalarQueries as $key => $sql) {
+		$result = db_execute_prepared($db, $sql, $params);
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$values[$key] = $row[0];
+	}
 
 	$statistic = array();
+	$statistic['avg_rtt_all'] = round($values['avg_rtt_all'], 3) . ' ms';
+	$statistic['rtt_max_all'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($values['rtt_max_all'], 3) . ' ms';
+	$statistic['rtt_min_all'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($values['rtt_min_all'], 3) . ' ms';
+	$statistic['offline_all'] = (int) $values['offline_all'];
+	$statistic['online_all'] = (int) $values['online_all'];
+	$total = $statistic['online_all'] + $statistic['offline_all'];
+	$onlinePercent = $statistic['online_all'] > 0 ? round(($statistic['online_all'] * 100 / $total), 2) : 0;
+	$statistic['online_percent_all'] = $onlinePercent . ' %';
+	$statistic['offline_percent_all'] = (100 - $onlinePercent) . ' %';
 
-	$query = "SELECT AVG(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != '' AND icmpeve_ip='$hostip'";
-	$result = $db->querySingle($query);
-	$statistic['avg_rtt_all'] = round($result, 3) . ' ms';
-
-	$query_max = "SELECT MAX(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != '' AND icmpeve_ip='$hostip'";
-	$result_max = $db->querySingle($query_max);
-	$statistic['rtt_max_all'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($result_max, 3) . ' ms';
-
-	$query_min = "SELECT MIN(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != '' AND icmpeve_ip='$hostip'";
-	$result_min = $db->querySingle($query_min);
-	$statistic['rtt_min_all'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($result_min, 3) . ' ms';
-
-	$query = "SELECT COUNT(*) AS row_count FROM ICMP_Mon_Events WHERE icmpeve_Present = 0 AND icmpeve_ip=\"$hostip\"";
-	$result = $db->querySingle($query);
-	$statistic['offline_all'] = $result;
-
-	$query = "SELECT COUNT(*) AS row_count FROM ICMP_Mon_Events WHERE icmpeve_Present = 1 AND icmpeve_ip=\"$hostip\"";
-	$result = $db->querySingle($query);
-	$statistic['online_all'] = $result;
-
-	$temp100 = $statistic['online_all'] + $statistic['offline_all'];
-	// if ($temp100 > 0 && $statistic['online_all'] > 0) {
-	if ($statistic['online_all'] > 0) {
-		$statistic['online_percent_all'] = round(($statistic['online_all'] * 100 / $temp100), 2);
-	} else {
-		$statistic['online_percent_all'] = 0;
+	$windows = array('24h' => 24 - (date('Z') / 3600), '1w' => 168 - (date('Z') / 3600));
+	foreach ($windows as $label => $hours) {
+		$result = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon_Events
+			WHERE icmpeve_ip = :ip AND datetime(icmpeve_DateTime) >= datetime("now", :offset)
+			ORDER BY datetime(icmpeve_DateTime) DESC', array(':ip' => (string) $hostip, ':offset' => '-' . $hours . ' hours'));
+		$offline = 0;
+		$online = 0;
+		$minimum = 99999;
+		$maximum = 0;
+		$average = 0;
+		while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+			if ($row['icmpeve_avgrtt'] != '' && $row['icmpeve_avgrtt'] != '99999') {
+				$online++;
+				$maximum = max($maximum, $row['icmpeve_avgrtt']);
+				$minimum = min($minimum, $row['icmpeve_avgrtt']);
+				$average += $row['icmpeve_avgrtt'];
+			} else {
+				$offline++;
+			}
+		}
+		$statistic['rtt_min_' . $label] = $minimum == 99999 ? 'n.a.' : '<i class="bi bi-speedometer2 text-green"></i> ' . round($minimum, 3) . ' ms';
+		$statistic['rtt_max_' . $label] = $maximum == 0 ? 'n.a.' : '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($maximum, 3) . ' ms';
+		$statistic['rtt_avg_' . $label] = $average > 0 ? round(($average / $online), 3) . ' ms' : 'n.a.';
+		$statistic['online_' . $label] = $online;
+		$statistic['offline_' . $label] = $offline;
+		$total = $online + $offline;
+		$onlinePercent = $online > 0 ? round(($online * 100 / $total), 2) : 0;
+		$statistic['online_percent_' . $label] = $onlinePercent . ' %';
+		$statistic['offline_percent_' . $label] = round(100 - $onlinePercent, 2) . ' %';
 	}
-	$statistic['offline_percent_all'] = 100 - $statistic['online_percent_all'];
-	$statistic['online_percent_all'] = $statistic['online_percent_all'] . ' %';
-	$statistic['offline_percent_all'] = $statistic['offline_percent_all'] . ' %';
-
-	// 1 Day Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM ICMP_Mon_Events
-    WHERE icmpeve_ip=\"$hostip\" AND datetime(icmpeve_DateTime) >= datetime('now', '-$stat_query_24h hours')
-    ORDER BY datetime(icmpeve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_icmprtt = 99999;
-	$max_icmprtt = 0;
-	$avg_icmprtt = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['icmpeve_avgrtt'] != "" && $row['icmpeve_avgrtt'] != "99999") {
-			$online++;
-			if ($row['icmpeve_avgrtt'] > $max_icmprtt) {$max_icmprtt = $row['icmpeve_avgrtt'];}
-			if ($row['icmpeve_avgrtt'] < $min_icmprtt) {$min_icmprtt = $row['icmpeve_avgrtt'];}
-			$avg_icmprtt = $avg_icmprtt + $row['icmpeve_avgrtt'];
-		} else { $offline++;}
-	}
-	if ($min_icmprtt == 99999) {$statistic['rtt_min_24h'] = 'n.a.';} else { $statistic['rtt_min_24h'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_icmprtt, 3) . ' ms';}
-	if ($max_icmprtt == 0) {$statistic['rtt_max_24h'] = 'n.a.';} else { $statistic['rtt_max_24h'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_icmprtt, 3) . ' ms';}
-	if ($avg_icmprtt > 0) {$statistic['rtt_avg_24h'] = round(($avg_icmprtt / $online), 3) . ' ms';} else { $statistic['rtt_avg_24h'] = 'n.a.';}
-	$statistic['online_24h'] = $online;
-	$statistic['offline_24h'] = $offline;
-
-	$temp24h = $statistic['online_24h'] + $statistic['offline_24h'];
-	if ($statistic['online_24h'] > 0) {
-		$statistic['online_percent_24h'] = round(($statistic['online_24h'] * 100 / $temp24h), 2);
-	} else {
-		$statistic['online_percent_24h'] = 0;
-	}
-	$statistic['offline_percent_24h'] = round((100 - $statistic['online_percent_24h']), 2);
-	$statistic['online_percent_24h'] = $statistic['online_percent_24h'] . ' %';
-	$statistic['offline_percent_24h'] = $statistic['offline_percent_24h'] . ' %';
-
-	// 1 Week Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM ICMP_Mon_Events
-    WHERE icmpeve_ip=\"$hostip\" AND datetime(icmpeve_DateTime) >= datetime('now', '-$stat_query_1w hours')
-    ORDER BY datetime(icmpeve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_icmprtt = 99999;
-	$max_icmprtt = 0;
-	$avg_icmprtt = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['icmpeve_avgrtt'] != "" && $row['icmpeve_avgrtt'] != "99999") {
-			$online++;
-			if ($row['icmpeve_avgrtt'] > $max_icmprtt) {$max_icmprtt = $row['icmpeve_avgrtt'];}
-			if ($row['icmpeve_avgrtt'] < $min_icmprtt) {$min_icmprtt = $row['icmpeve_avgrtt'];}
-			$avg_icmprtt = $avg_icmprtt + $row['icmpeve_avgrtt'];
-		} else { $offline++;}
-	}
-	if ($min_icmprtt == 99999) {$statistic['rtt_min_1w'] = 'n.a.';} else { $statistic['rtt_min_1w'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_icmprtt, 3) . ' ms';}
-	if ($max_icmprtt == 0) {$statistic['rtt_max_1w'] = 'n.a.';} else { $statistic['rtt_max_1w'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_icmprtt, 3) . ' ms';}
-	if ($avg_icmprtt > 0) {$statistic['rtt_avg_1w'] = round(($avg_icmprtt / $online), 3) . ' ms';} else { $statistic['rtt_avg_1w'] = 'n.a.';}
-	$statistic['online_1w'] = $online;
-	$statistic['offline_1w'] = $offline;
-
-	$temp1w = $statistic['online_1w'] + $statistic['offline_1w'];
-	if ($statistic['online_1w'] > 0) {
-		$statistic['online_percent_1w'] = round(($statistic['online_1w'] * 100 / $temp1w), 2);
-	} else {
-		$statistic['online_percent_1w'] = 0;
-	}
-	$statistic['offline_percent_1w'] = round((100 - $statistic['online_percent_1w']), 2);
-	$statistic['online_percent_1w'] = $statistic['online_percent_1w'] . ' %';
-	$statistic['offline_percent_1w'] = $statistic['offline_percent_1w'] . ' %';
 
 	return $statistic;
 }
@@ -484,7 +433,6 @@ function get_host_statistic($hostip) {
                 <div style="width:100%; text-align: center;">
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'normal')">Loading...</button>
-                  <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'detail')">Loading...</button>
 
                 </div>
 
@@ -962,7 +910,6 @@ function initToolsSection () {
 setTimeout(function(){
    document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtIP').value +')';
    document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtIP').value +')';
-   document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtIP').value +')';
    showmanualnmapscan(document.getElementById('txtIP').value);
 }, 1000);
 }

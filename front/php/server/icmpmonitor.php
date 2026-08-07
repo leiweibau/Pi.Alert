@@ -130,43 +130,37 @@ function setICMPHostData() {
 	global $db;
 	global $pia_lang;
 
-	if ($_REQUEST['icmp_group'] == '--') {unset($_REQUEST['icmp_group']);}
-	if ($_REQUEST['icmp_type'] == '--') {unset($_REQUEST['icmp_type']);}
-	if ($_REQUEST['icmp_location'] == '--') {unset($_REQUEST['icmp_location']);}
-	if (!is_numeric($_REQUEST['icmp_scanvalid'])) {$_REQUEST['icmp_scanvalid'] = 0;}
-
-	$cleanup = ($_REQUEST['mqttdevice'] == 1) ? 0 : 1;
-
-	$sql = 'UPDATE ICMP_Mon SET
-				icmp_hostname        = "' . quotes($_REQUEST['icmp_hostname']) . '",
-                icmp_type            = "' . quotes($_REQUEST['icmp_type']) . '",
-                icmp_group           = "' . quotes($_REQUEST['icmp_group']) . '",
-                icmp_location        = "' . quotes($_REQUEST['icmp_location']) . '",
-                icmp_owner           = "' . quotes($_REQUEST['icmp_owner']) . '",
-                icmp_notes           = "' . quotes($_REQUEST['icmp_notes']) . '",
-                icmp_Scan_Validation = "' . quotes($_REQUEST['icmp_scanvalid']) . '",
-                icmp_vendor          = "' . quotes($_REQUEST['icmp_vendor']) . '",
-                icmp_model           = "' . quotes($_REQUEST['icmp_model']) . '",
-                icmp_serial          = "' . quotes($_REQUEST['icmp_serial']) . '",
-                icmp_MQTTDevice      = "' . quotes($_REQUEST['mqttdevice']) . '",
-                icmp_MQTTDevice_cleanup   = "' . $cleanup . '",
-                icmp_AlertEvents     = "' . quotes($_REQUEST['alertevents']) . '",
-                icmp_AlertDown       = "' . quotes($_REQUEST['alertdown']) . '",
-                icmp_Favorite        = "' . quotes($_REQUEST['favorit']) . '",
-                icmp_Archived        = "' . quotes($_REQUEST['archived']) . '"
-          WHERE icmp_ip="' . $_REQUEST['icmp_ip'] . '"';
-
-	$result = $db->query($sql);
-
+	$values = array();
+	foreach (array('icmp_hostname', 'icmp_type', 'icmp_group', 'icmp_location', 'icmp_owner', 'icmp_notes', 'icmp_vendor', 'icmp_model', 'icmp_serial', 'alertevents', 'alertdown', 'favorit', 'archived') as $key) {
+		$value = $_REQUEST[$key] ?? '';
+		$values[$key] = is_scalar($value) ? (string)$value : '';
+	}
+	foreach (array('icmp_group', 'icmp_type', 'icmp_location') as $key) {
+		if ($values[$key] === '--') {
+			$values[$key] = '';
+		}
+	}
+	$hostip = $_REQUEST['icmp_ip'] ?? '';
+	if (!is_scalar($hostip) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+		echo $pia_lang['BackICMP_mon_UpdICMPError'];
+		return;
+	}
+	$scanvalid = filter_var($_REQUEST['icmp_scanvalid'] ?? 0, FILTER_VALIDATE_INT);
+	$mqttdevice = filter_var($_REQUEST['mqttdevice'] ?? 0, FILTER_VALIDATE_INT) ? 1 : 0;
+	$cleanup = $mqttdevice ? 0 : 1;
+	$sql = 'UPDATE ICMP_Mon SET icmp_hostname = :hostname, icmp_type = :type, icmp_group = :group_name, icmp_location = :location, icmp_owner = :owner, icmp_notes = :notes, icmp_Scan_Validation = :scanvalid, icmp_vendor = :vendor, icmp_model = :model, icmp_serial = :serial, icmp_MQTTDevice = :mqttdevice, icmp_MQTTDevice_cleanup = :cleanup, icmp_AlertEvents = :alertevents, icmp_AlertDown = :alertdown, icmp_Favorite = :favorite, icmp_Archived = :archived WHERE icmp_ip = :ip';
+	$result = db_execute_prepared($db, $sql, array(
+		':hostname' => $values['icmp_hostname'], ':type' => $values['icmp_type'], ':group_name' => $values['icmp_group'], ':location' => $values['icmp_location'], ':owner' => $values['icmp_owner'], ':notes' => $values['icmp_notes'],
+		':scanvalid' => array($scanvalid === false ? 0 : $scanvalid, SQLITE3_INTEGER), ':vendor' => $values['icmp_vendor'], ':model' => $values['icmp_model'], ':serial' => $values['icmp_serial'], ':mqttdevice' => array($mqttdevice, SQLITE3_INTEGER), ':cleanup' => array($cleanup, SQLITE3_INTEGER), ':alertevents' => $values['alertevents'], ':alertdown' => $values['alertdown'], ':favorite' => $values['favorit'], ':archived' => $values['archived'], ':ip' => (string)$hostip
+	));
 	if ($result == TRUE) {
-		// Logging
-		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $_REQUEST['icmp_ip']);
+		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $hostip);
 		echo $pia_lang['BackICMP_mon_UpdICMP'];
 		echo ("<meta http-equiv='refresh' content='2; URL=./icmpmonitor.php'>");
 	} else {
-		// Logging
-		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $_REQUEST['icmp_ip']);
-		echo $pia_lang['BackICMP_mon_UpdICMPError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $hostip);
+		logServerConsole('ICMP host update failed: ' . $db->lastErrorMsg());
+		echo $pia_lang['BackICMP_mon_UpdICMPError'];
 	}
 }
 
@@ -175,25 +169,24 @@ function deleteICMPHost() {
 	global $db;
 	global $pia_lang;
 
-	$hostip = $_REQUEST['icmp_ip'];
-	if (!filter_var($hostip, FILTER_FLAG_IPV4) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+	$hostip = $_REQUEST['icmp_ip'] ?? '';
+	if (!is_scalar($hostip) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
 		echo $pia_lang['BackICMP_mon_DelICMPError'];
 		return false;
 	}
-	$sql = 'DELETE FROM ICMP_Mon WHERE icmp_ip="' . $hostip . '"';
-	$result = $db->query($sql);
-	$sql = 'DELETE FROM ICMP_Mon_Events WHERE icmpeve_ip="' . $hostip . '"';
-	$result = $db->query($sql);
-
-	if ($result == TRUE) {
-		// Logging
-		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $url);
+	$db->exec('BEGIN');
+	$result = db_execute_prepared($db, 'DELETE FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => (string)$hostip));
+	$result = $result && db_execute_prepared($db, 'DELETE FROM ICMP_Mon_Events WHERE icmpeve_ip = :ip', array(':ip' => (string)$hostip));
+	if ($result) {
+		$db->exec('COMMIT');
+		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $hostip);
 		echo $pia_lang['BackICMP_mon_DelICMP'];
 		echo ("<meta http-equiv='refresh' content='2; URL=./icmpmonitor.php'>");
 	} else {
-		// Logging
-		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $url);
-		echo $pia_lang['BackICMP_mon_DelICMPError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		$db->exec('ROLLBACK');
+		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $hostip);
+		logServerConsole('ICMP host delete failed: ' . $db->lastErrorMsg());
+		echo $pia_lang['BackICMP_mon_DelICMPError'];
 	}
 }
 
@@ -201,29 +194,22 @@ function deleteICMPHost() {
 function insertNewICMPHost() {
 	global $db;
 	global $pia_lang;
-
-	$hostip = $_REQUEST['icmp_ip'];
-	if ($_REQUEST['icmp_hostname'] == "") {$_REQUEST['icmp_hostname'] = $_REQUEST['icmp_ip'];}
-	$check_timestamp = date("Y-m-d H:i:s");
-
-	if (!filter_var($hostip, FILTER_FLAG_IPV4) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+	$hostip = $_REQUEST['icmp_ip'] ?? '';
+	$hostname = $_REQUEST['icmp_hostname'] ?? $hostip;
+	if (!is_scalar($hostip) || !is_scalar($hostname) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
 		echo $pia_lang['BackICMP_mon_InsICMPError'];
 		return false;
 	}
-
-	$sql = 'INSERT INTO ICMP_Mon ("icmp_ip", "icmp_hostname", "icmp_LastScan", "icmp_PresentLastScan", "icmp_avgrtt", "icmp_AlertEvents", "icmp_AlertDown", "icmp_Favorite")
-                         VALUES("' . $hostip . '", "' . $_REQUEST['icmp_hostname'] . '", "' . $check_timestamp . '", "0", "99999", "' . $_REQUEST['alertevents'] . '", "' . $_REQUEST['alertdown'] . '", "' . $_REQUEST['icmp_fav'] . '")';
-	$result = $db->query($sql);
-
+	$sql = 'INSERT INTO ICMP_Mon (icmp_ip, icmp_hostname, icmp_LastScan, icmp_PresentLastScan, icmp_avgrtt, icmp_AlertEvents, icmp_AlertDown, icmp_Favorite) VALUES (:ip, :hostname, :timestamp, 0, 99999, :alertevents, :alertdown, :favorite)';
+	$result = db_execute_prepared($db, $sql, array(':ip' => (string)$hostip, ':hostname' => (string)$hostname, ':timestamp' => date('Y-m-d H:i:s'), ':alertevents' => (string)($_REQUEST['alertevents'] ?? ''), ':alertdown' => (string)($_REQUEST['alertdown'] ?? ''), ':favorite' => (string)($_REQUEST['icmp_fav'] ?? '')));
 	if ($result == TRUE) {
-		// Logging
 		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $hostip);
 		echo $pia_lang['BackICMP_mon_InsICMP'];
 		echo ("<meta http-equiv='refresh' content='2; URL=./icmpmonitor.php'>");
 	} else {
-		// Logging
 		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $hostip);
-		echo $pia_lang['BackICMP_mon_InsICMPError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		logServerConsole('ICMP host insert failed: ' . $db->lastErrorMsg());
+		echo $pia_lang['BackICMP_mon_InsICMPError'];
 	}
 }
 
@@ -250,76 +236,48 @@ function EnableICMPMon() {
 function getEventsTotalsforICMP() {
 	global $db;
 
-	// Request Parameters
-	$hostip = $_REQUEST['hostip'];
-
-	$SQL = 'SELECT icmpeve_DateTime, icmpeve_EventType
-	        FROM ICMP_Mon_Connections
-	        WHERE icmpeve_ip = "' . $hostip . '"
-	        ORDER BY icmpeve_DateTime DESC
-	        LIMIT 1';
-
-    $result = $db->query($SQL);
-	if ($result && $result->num_rows > 0) {
-	    $row = $result->fetch_assoc();
-
-	    if ($row['icmpeve_EventType'] === 'Connected') {
-	        $currentTime = new DateTime();
-	        $recordTime = new DateTime($row['icmpeve_DateTime']);
-
-	        $interval = $currentTime->diff($recordTime);
-	        $hoursDifference = $interval->h + ($interval->days * 24);
-
-	        $eventspresence = $hoursDifference;
-	    } else {
-	        $eventspresence = 0;
-	    }
+	$hostip = $_REQUEST['hostip'] ?? '';
+	if (!is_scalar($hostip) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+		echo json_encode(array(0, 0));
+		return;
+	}
+	$params = array(':host_ip' => (string) $hostip);
+	$result = db_execute_prepared($db, 'SELECT icmpeve_DateTime, icmpeve_EventType
+		FROM ICMP_Mon_Connections WHERE icmpeve_ip = :host_ip
+		ORDER BY icmpeve_DateTime DESC LIMIT 1', $params);
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	if ($row && $row['icmpeve_EventType'] === 'Connected') {
+		$currentTime = new DateTime();
+		$recordTime = new DateTime($row['icmpeve_DateTime']);
+		$interval = $currentTime->diff($recordTime);
+		$eventspresence = $interval->h + ($interval->days * 24);
 	} else {
-	    $eventspresence = 0;
+		$eventspresence = 0;
 	}
 
-	// Down
-	$SQL1 = 'SELECT Count(*)
-           FROM ICMP_Mon_Connections
-           WHERE icmpeve_ip = "' . $hostip . '" AND icmpeve_EventType = "Down"';
-	$result = $db->query($SQL1);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsdown = $row[0];
-	// Return json
-
-	echo (json_encode(array($eventspresence, $eventsdown)));
+	$result = db_execute_prepared($db, 'SELECT Count(*) FROM ICMP_Mon_Connections
+		WHERE icmpeve_ip = :host_ip AND icmpeve_EventType = "Down"', $params);
+	$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+	echo json_encode(array($eventspresence, (int) $row[0]));
 }
 
 //  Bulk Deletion
 function BulkDeletion() {
 	global $db;
 	global $pia_lang;
-
-	$hosts = str_replace("_", ".", '"' . implode('","', $_REQUEST['hosts']) . '"');
-	$journal_hosts = str_replace("_", ".", implode(',', $_REQUEST['hosts']));
-	echo $pia_lang['Device_bulkDel_back_hosts'] . ': ' . str_replace(",", ", ", $hosts) . '<br><br>';
-
-	$sql = "SELECT COUNT(*) AS row_count FROM ICMP_Mon";
-	$result = $db->query($sql);
-
-	$row = $result->fetchArray();
-	$rowCount_before = $row['row_count'];
-
-	$sql = "DELETE FROM ICMP_Mon WHERE icmp_ip IN ($hosts)";
-	$result = $db->query($sql);
-
-	$sql = "SELECT COUNT(*) AS row_count FROM ICMP_Mon";
-	$result = $db->query($sql);
-
-	$row = $result->fetchArray();
-	$rowCount_after = $row['row_count'];
-
-	echo $pia_lang['Device_bulkDel_back_before'] . ': ' . $rowCount_before . '<br>' . $pia_lang['Device_bulkDel_back_after'] . ': ' . $rowCount_after;
+	$hosts = $_REQUEST['hosts'] ?? array();
+	if (!is_array($hosts)) { $hosts = array(); }
+	$hosts = array_values(array_filter(array_map(function ($host) { return is_scalar($host) ? str_replace('_', '.', (string)$host) : ''; }, $hosts), function ($host) { return filter_var($host, FILTER_VALIDATE_IP) || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME); }));
+	list($placeholders, $parameters) = db_in_placeholders('host', $hosts);
+	if ($placeholders === '') { echo $pia_lang['Device_bulkDel_back_hosts'] . ': 0'; return; }
+	$rowCount_before = (int)$db->querySingle('SELECT COUNT(*) FROM ICMP_Mon');
+	$db->exec('BEGIN');
+	$result = db_execute_prepared($db, 'DELETE FROM ICMP_Mon WHERE icmp_ip IN (' . $placeholders . ')', $parameters);
+	if ($result) { $db->exec('COMMIT'); } else { $db->exec('ROLLBACK'); }
+	$rowCount_after = (int)$db->querySingle('SELECT COUNT(*) FROM ICMP_Mon');
+	echo $pia_lang['Device_bulkDel_back_hosts'] . ': ' . implode(', ', $hosts) . '<br><br>' . $pia_lang['Device_bulkDel_back_before'] . ': ' . $rowCount_before . '<br>' . $pia_lang['Device_bulkDel_back_after'] . ': ' . $rowCount_after;
 	echo ("<meta http-equiv='refresh' content='2; URL=./icmpmonitor.php?mod=bulkedit'>");
-
-	// Logging
-	pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $journal_hosts);
-
+	pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', implode(',', $hosts));
 }
 
 ?>

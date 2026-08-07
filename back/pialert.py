@@ -1541,7 +1541,7 @@ def read_fritzbox_active_hosts():
                 try:
                     vendor = MacLookup().lookup(host['mac'])
                 except:
-                    vendor = "Prefix is not registered"
+                    vendor = "(unknown)"
 
                 sql.execute ("INSERT INTO Fritzbox_Network (FB_MAC, FB_IP, FB_Name, FB_Vendor) "+
                              "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )
@@ -1579,7 +1579,7 @@ def read_mikrotik_leases():
                 try:
                     vendor = MacLookup().lookup(mac)
                 except:
-                    vendor = "Prefix is not registered"
+                    vendor = "(unknown)"
 
                 sql.execute ("INSERT INTO Mikrotik_Network (MT_MAC, MT_IP, MT_Name, MT_Vendor) "+
                              "VALUES (?, ?, ?, ?) ", (mac, ip, hostname, vendor) )

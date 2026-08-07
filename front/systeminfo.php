@@ -68,37 +68,180 @@ $network_result = shell_exec("cat /proc/net/dev | tail -n +3 | awk '{print $2}'"
 $net_interfaces_rx = explode("\n", trim($network_result));
 $network_result = shell_exec("cat /proc/net/dev | tail -n +3 | awk '{print $10}'");
 $net_interfaces_tx = explode("\n", trim($network_result));
-//hdd stat
-$hdd_result = shell_exec("sudo df -P"); // -P: POSIX format, easier to parse
-$lines = explode("\n", trim($hdd_result));
-array_shift($lines); // First line is the header
 
-// Initialize arrays
-$hdd_devices = [];
-$hdd_devices_total = [];
-$hdd_devices_used = [];
-$hdd_devices_free = [];
-$hdd_devices_percent = [];
-$hdd_devices_mount = [];
-
-foreach ($lines as $line) {
-    // Split columns cleanly with regular expressions
-    preg_match_all('/\S+/', $line, $matches);
-    $fields = $matches[0];
-
-    if (count($fields) >= 6) {
-        $hdd_devices[] = $fields[0];
-        $hdd_devices_total[] = $fields[1];
-        $hdd_devices_used[] = $fields[2];
-        $hdd_devices_free[] = $fields[3];
-        $hdd_devices_percent[] = $fields[4];
-        $hdd_devices_mount[] = $fields[5];
+// Retrieve IPv4 addresses without invoking the ip command. This is portable
+// across LXC, VMs, and native hosts and avoids the lighttpd AF_NETLINK limit.
+$interface_ipv4_addresses = array();
+$interface_ipv4_masks = array();
+if (function_exists("net_get_interfaces")) {
+    $system_interfaces = @net_get_interfaces();
+    if (is_array($system_interfaces)) {
+        foreach ($system_interfaces as $interfaceName => $interfaceData) {
+            foreach ($interfaceData["unicast"] ?? array() as $addressData) {
+                if (($addressData["family"] ?? null) !== 2 || !isset($addressData["address"]) || filter_var($addressData["address"], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                    continue;
+                }
+                $interface_ipv4_addresses[$interfaceName][] = $addressData["address"];
+                if (isset($addressData["netmask"]) && filter_var($addressData["netmask"], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+                    $interface_ipv4_masks[$interfaceName][$addressData["netmask"]] = true;
+                }
+            }
+        }
     }
 }
 
-//usb devices
-$usb_result = shell_exec("lsusb");
-$usb_devices_mount = explode("\n", trim($usb_result));
+
+// IPv4 subnet masks for the interfaces shown in the Network section.
+// procfs is readable inside the lighttpd sandbox and does not require the
+// AF_NETLINK socket used by the ip command and net_get_interfaces().
+$interface_networks = array();
+$known_interfaces = array();
+foreach ($net_interfaces as $interface) {
+    $interfaceName = trim(str_replace(":", "", $interface));
+    if ($interfaceName !== "" && preg_match("/^[a-zA-Z0-9_.-]+$/", $interfaceName)) {
+        $known_interfaces[$interfaceName] = true;
+    }
+}
+$route_lines = @file("/proc/net/route", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+foreach (array_slice(is_array($route_lines) ? $route_lines : array(), 1) as $routeLine) {
+    $fields = preg_split("/\s+/", trim($routeLine));
+    if (count($fields) < 8 || !isset($known_interfaces[$fields[0]]) || !preg_match("/^[0-9a-fA-F]{8}$/", $fields[1]) || !preg_match("/^[0-9a-fA-F]{8}$/", $fields[7]) || $fields[7] === "00000000") {
+        continue;
+    }
+
+    // Linux stores IPv4 route addresses and masks in little-endian hexadecimal form.
+    $networkValue = (int) hexdec(implode("", array_reverse(str_split($fields[1], 2))));
+    $maskValue = (int) hexdec(implode("", array_reverse(str_split($fields[7], 2))));
+    $prefixLength = substr_count(decbin($maskValue), "1");
+    $interface_networks[] = array(
+        "interface" => $fields[0],
+        "network" => $networkValue,
+        "mask" => $maskValue,
+        "prefix" => $prefixLength,
+    );
+}
+// When net_get_interfaces() is unavailable in the sandbox, identify local IPv4
+// addresses from fib_trie and map them to the most specific interface route.
+$fib_lines = @file("/proc/net/fib_trie", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$local_ipv4_addresses = array();
+$candidateAddress = null;
+foreach (is_array($fib_lines) ? $fib_lines : array() as $fibLine) {
+    $trimmedLine = trim($fibLine);
+    if (preg_match("/\|--\s+([0-9]+(?:\.[0-9]+){3})$/", $trimmedLine, $matches)) {
+        $candidateAddress = $matches[1];
+        continue;
+    }
+    if ($candidateAddress !== null && preg_match("/^\/32\s+host\s+LOCAL$/", $trimmedLine)) {
+        $local_ipv4_addresses[$candidateAddress] = true;
+        $candidateAddress = null;
+    }
+}
+$fallback_interface_masks = array();
+foreach (array_keys($local_ipv4_addresses) as $address) {
+    $addressValue = (int) sprintf("%u", ip2long($address));
+    $bestRoute = null;
+    foreach ($interface_networks as $interfaceNetwork) {
+        if (($addressValue & $interfaceNetwork["mask"]) !== ($interfaceNetwork["network"] & $interfaceNetwork["mask"])) {
+            continue;
+        }
+        if ($bestRoute === null || $interfaceNetwork["prefix"] > $bestRoute["prefix"]) {
+            $bestRoute = $interfaceNetwork;
+        }
+    }
+    $interfaceName = $bestRoute["interface"] ?? (str_starts_with($address, "127.") && isset($known_interfaces["lo"]) ? "lo" : null);
+    if ($interfaceName !== null && !in_array($address, $interface_ipv4_addresses[$interfaceName] ?? array(), true)) {
+        $interface_ipv4_addresses[$interfaceName][] = $address;
+    }
+    if ($interfaceName !== null && $bestRoute !== null) {
+        $fallback_interface_masks[$interfaceName][long2ip($bestRoute["mask"])] = true;
+    } elseif ($interfaceName === "lo") {
+        $fallback_interface_masks[$interfaceName]["255.0.0.0"] = true;
+    }
+}
+
+// Prefer masks configured on the interface itself. Use only the route matching
+// a local address as fallback when the lighttpd sandbox blocks net_get_interfaces().
+$network_subnet_masks = array();
+foreach (array_keys($known_interfaces) as $interfaceName) {
+    if ($interfaceName === "lo") {
+        continue;
+    }
+    $masks = !empty($interface_ipv4_masks[$interfaceName]) ? $interface_ipv4_masks[$interfaceName] : ($fallback_interface_masks[$interfaceName] ?? array());
+    foreach (array_keys($masks) as $subnetMask) {
+        if ($subnetMask === "255.255.255.255") {
+            continue;
+        }
+        $network_subnet_masks[] = array(
+            "interface" => $interfaceName,
+            "mask" => $subnetMask,
+        );
+    }
+}
+
+// Storage usage data
+$hdd_result = shell_exec("/usr/bin/df -P 2>/dev/null"); // -P: POSIX format, easier to parse
+$lines = is_string($hdd_result) ? preg_split("/\r?\n/", trim($hdd_result), -1, PREG_SPLIT_NO_EMPTY) : array();
+if (!empty($lines)) {
+    array_shift($lines); // POSIX df header
+}
+
+// Initialize arrays
+$hdd_devices = array();
+$hdd_devices_total = array();
+$hdd_devices_used = array();
+$hdd_devices_free = array();
+$hdd_devices_percent = array();
+$hdd_devices_mount = array();
+
+foreach ($lines as $line) {
+    $fields = preg_split("/\s+/", trim($line));
+    if (count($fields) < 6 || !is_numeric($fields[1]) || !is_numeric($fields[2]) || !is_numeric($fields[3]) || !preg_match("/^\d+%$/", $fields[4])) {
+        continue;
+    }
+
+    $hdd_devices[] = $fields[0];
+    $hdd_devices_total[] = $fields[1];
+    $hdd_devices_used[] = $fields[2];
+    $hdd_devices_free[] = $fields[3];
+    $hdd_devices_percent[] = $fields[4];
+    $hdd_devices_mount[] = implode(" ", array_slice($fields, 5));
+}
+
+// USB devices: sysfs remains readable inside the lighttpd sandbox,
+// unlike the USB device nodes required by lsusb.
+$usb_devices = array();
+foreach (glob("/sys/bus/usb/devices/*") ?: array() as $usbPath) {
+    $vendorFile = $usbPath . "/idVendor";
+    $productFile = $usbPath . "/idProduct";
+    if (!is_readable($vendorFile) || !is_readable($productFile)) {
+        continue;
+    }
+
+    $vendorId = trim((string) file_get_contents($vendorFile));
+    $productId = trim((string) file_get_contents($productFile));
+    if (!preg_match("/^[0-9a-fA-F]{4}$/", $vendorId) || !preg_match("/^[0-9a-fA-F]{4}$/", $productId)) {
+        continue;
+    }
+
+    $manufacturerFile = $usbPath . "/manufacturer";
+    $productNameFile = $usbPath . "/product";
+    $manufacturer = is_readable($manufacturerFile) ? trim((string) file_get_contents($manufacturerFile)) : "";
+    $productName = is_readable($productNameFile) ? trim((string) file_get_contents($productNameFile)) : "";
+    $deviceId = strtolower($vendorId) . ":" . strtolower($productId);
+    $deviceName = trim($manufacturer . " " . $productName);
+    $deviceDescription = $deviceName === "" ? $deviceId : $deviceName . " (" . $deviceId . ")";
+
+    $busLabel = "USB " . basename($usbPath);
+    $busNumberFile = $usbPath . "/busnum";
+    $deviceNumberFile = $usbPath . "/devnum";
+    $busNumber = is_readable($busNumberFile) ? trim((string) file_get_contents($busNumberFile)) : "";
+    $deviceNumber = is_readable($deviceNumberFile) ? trim((string) file_get_contents($deviceNumberFile)) : "";
+    if (ctype_digit($busNumber) && ctype_digit($deviceNumber)) {
+        $busLabel = sprintf("Bus %03d Dev. %03d", (int) $busNumber, (int) $deviceNumber);
+    }
+
+    $usb_devices[] = array("bus" => $busLabel, "device" => $deviceDescription);
+}
 // count processes
 $stat['process_count'] = shell_exec("ps -e --no-headers | wc -l");
 ?>
@@ -518,18 +661,28 @@ echo '<div class="box box-solid">
             </div>
             <div class="box-body">';
 
+if (!empty($network_subnet_masks)) {
+    echo '<div class="row"><div class="col-sm-12 sysinfo_network_a"><b>Subnet masks</b></div></div>';
+    foreach ($network_subnet_masks as $subnet) {
+        $subnetInterface = htmlspecialchars($subnet["interface"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+        $subnetMask = htmlspecialchars($subnet["mask"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+        echo '<div class="row"><div class="col-sm-2 sysinfo_network_a text-aqua">' . $subnetInterface . '</div><div class="col-sm-4 sysinfo_network_b">' . $subnetMask . '</div></div>';
+    }
+    echo '<hr style="margin: 8px 0; border-color: #bbb;">';
+}
+
 for ($x = 0; $x < sizeof($net_interfaces); $x++) {
-	$interface_name = str_replace(':', '', $net_interfaces[$x]);
-	$interface_ip_temp = exec('ip addr show ' . $interface_name . ' | grep "inet "');
-	$interface_ip_arr = explode(' ', trim($interface_ip_temp));
+    $interface_name = str_replace(":", "", $net_interfaces[$x]);
+    $interface_addresses = $interface_ipv4_addresses[$interface_name] ?? array();
+    $interface_ip = empty($interface_addresses) ? "--" : implode("<br>", array_map(function($address) {
+        return htmlspecialchars($address, ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+    }, $interface_addresses));
 
-	if (!isset($interface_ip_arr[1])) {$interface_ip_arr[1] = '--';}
-
-	if ($net_interfaces_rx[$x] == 0) {$temp_rx = 0;} else { $temp_rx = number_format(round(($net_interfaces_rx[$x] / 1024 / 1024), 2), 2, ',', '.');}
+    if ($net_interfaces_rx[$x] == 0) {$temp_rx = 0;} else { $temp_rx = number_format(round(($net_interfaces_rx[$x] / 1024 / 1024), 2), 2, ',', '.');}
 	if ($net_interfaces_tx[$x] == 0) {$temp_tx = 0;} else { $temp_tx = number_format(round(($net_interfaces_tx[$x] / 1024 / 1024), 2), 2, ',', '.');}
 	echo '<div class="row">';
 	echo '<div class="col-sm-2 sysinfo_network_a">' . $interface_name . '</div>';
-	echo '<div class="col-sm-2 sysinfo_network_b">' . $interface_ip_arr[1] . '</div>';
+	echo '<div class="col-sm-2 sysinfo_network_b">' . $interface_ip . '</div>';
 	echo '<div class="col-sm-3 sysinfo_network_b">RX: <div class="sysinfo_network_value">' . $temp_rx . ' MB</div></div>';
 	echo '<div class="col-sm-3 sysinfo_network_b">TX: <div class="sysinfo_network_value">' . $temp_tx . ' MB</div></div>';
 	echo '</div>';
@@ -575,12 +728,13 @@ echo '<div class="box box-solid">
             <div class="box-body">';
 echo '         <table class="table table-bordered table-hover table-striped dataTable no-footer" style="margin-bottom: 10px;">';
 
-sort($usb_devices_mount);
-for ($x = 0; $x < sizeof($usb_devices_mount); $x++) {
-	$cut_pos = strpos($usb_devices_mount[$x], ':');
-	$usb_bus = substr($usb_devices_mount[$x], 0, $cut_pos);
-	$usb_dev = substr($usb_devices_mount[$x], $cut_pos + 1);
-	echo '<tr><td style="padding: 3px; padding-left: 10px; width: 150px;"><b>' . str_replace('Device', 'Dev.', $usb_bus) . '</b></td><td style="padding: 3px; padding-left: 10px;">' . $usb_dev . '</td></tr>';
+usort($usb_devices, function($left, $right) {
+    return strcmp($left["bus"], $right["bus"]);
+});
+foreach ($usb_devices as $usb_device) {
+    $usb_bus = htmlspecialchars(str_replace("Device", "Dev.", $usb_device["bus"]), ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+    $usb_name = htmlspecialchars($usb_device["device"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+    echo '<tr><td style="padding: 3px; padding-left: 10px; width: 150px;"><b>' . $usb_bus . '</b></td><td style="padding: 3px; padding-left: 10px;">' . $usb_name . '</td></tr>';
 }
 echo '         </table>';
 echo '      </div>

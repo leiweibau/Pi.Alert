@@ -52,29 +52,28 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 }
 function saveParameters($par_ID, $par_Long_Value) {
 	global $db;
-    
-    $result = $db->query("SELECT COUNT(*) as count FROM Parameters WHERE par_ID = '$par_ID'");
-    $row = $result->fetchArray(SQLITE3_ASSOC);
-    
-    if ($row['count'] > 0) {
-        $db->query("UPDATE Parameters SET par_Long_Value = '$par_Long_Value' WHERE par_ID = '$par_ID'");
-    } else {
-        $db->query("INSERT INTO Parameters (par_ID, par_Long_Value) VALUES ('$par_ID', '$par_Long_Value')");
-    }
+
+	$result = db_execute_prepared($db, 'SELECT COUNT(*) AS count FROM Parameters WHERE par_ID = :id', array(':id' => $par_ID));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	if (!$row) {
+		logServerConsole('Parameter lookup failed: ' . $db->lastErrorMsg());
+		return false;
+	}
+
+	if ((int)$row['count'] > 0) {
+		return db_execute_prepared($db, 'UPDATE Parameters SET par_Long_Value = :value WHERE par_ID = :id', array(':value' => $par_Long_Value, ':id' => $par_ID));
+	}
+	return db_execute_prepared($db, 'INSERT INTO Parameters (par_ID, par_Long_Value) VALUES (:id, :value)', array(':id' => $par_ID, ':value' => $par_Long_Value));
 }
 
 //  Get Parameter Value
 function getParameter() {
 	global $db;
 
-	$parameter = $_REQUEST['parameter'];
-	$sql = 'SELECT par_Value FROM Parameters
-          WHERE par_ID="' . quotes($_REQUEST['parameter']) . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$value = $row[0];
-
-	echo (json_encode($value));
+	$parameter = $_REQUEST['parameter'] ?? '';
+	$result = db_execute_prepared($db, 'SELECT par_Value FROM Parameters WHERE par_ID = :id', array(':id' => is_scalar($parameter) ? (string)$parameter : ''));
+	$row = $result ? $result->fetchArray(SQLITE3_NUM) : false;
+	echo json_encode($row ? $row[0] : null);
 }
 
 //  Set Parameter Value
@@ -82,26 +81,25 @@ function setParameter() {
 	global $db;
 	global $pia_lang;
 
-	// Update value
-	$sql = 'UPDATE Parameters SET par_Value="' . quotes($_REQUEST['value']) . '"
-          WHERE par_ID="' . quotes($_REQUEST['parameter']) . '"';
-	$result = $db->query($sql);
-
-	if (!$result == TRUE) {
-		echo $pia_lang['BE_Param_error_update'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+	$parameter = $_REQUEST['parameter'] ?? '';
+	$value = $_REQUEST['value'] ?? '';
+	if (!is_scalar($parameter) || !is_scalar($value)) {
+		echo $pia_lang['BE_Param_error_update'];
 		return;
 	}
 
-	$changes = $db->changes();
-	if ($changes == 0) {
-		// Insert new value
-		$sql = 'INSERT INTO Parameters (par_ID, par_Value)
-            VALUES ("' . quotes($_REQUEST['parameter']) . '",
-                    "' . quotes($_REQUEST['value']) . '")';
-		$result = $db->query($sql);
+	$result = db_execute_prepared($db, 'UPDATE Parameters SET par_Value = :value WHERE par_ID = :id', array(':value' => (string)$value, ':id' => (string)$parameter));
+	if (!$result) {
+		echo $pia_lang['BE_Param_error_update'];
+		logServerConsole('Parameter update failed: ' . $db->lastErrorMsg());
+		return;
+	}
 
-		if (!$result == TRUE) {
-			echo $pia_lang['BE_Param_error_create'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+	if ($db->changes() === 0) {
+		$result = db_execute_prepared($db, 'INSERT INTO Parameters (par_ID, par_Value) VALUES (:id, :value)', array(':id' => (string)$parameter, ':value' => (string)$value));
+		if (!$result) {
+			echo $pia_lang['BE_Param_error_create'];
+			logServerConsole('Parameter insert failed: ' . $db->lastErrorMsg());
 			return;
 		}
 	}

@@ -116,15 +116,7 @@ function getSystemStatus() {
 		$sat_token = $row['sat_token'];
 		$sat_name = $row['sat_name'];
 
-		$result = $db->query(
-			"SELECT
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0) as All_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_PresentLastScan=1) as Online_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_NewDevice=1) as New_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0) as Down_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0) as Offline_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=1) as Archived_Devices
-	   ");
+		$result = db_execute_prepared($db, "SELECT (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0) AS All_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_PresentLastScan=1) AS Online_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_NewDevice=1) AS New_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0) AS Down_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0) AS Offline_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=1) AS Archived_Devices", array(':token' => $row['sat_token']));
 		$subrow = $result->fetchArray(SQLITE3_NUM);
 		$temp_api_online_devices[$sat_name]['All_Devices'] = $subrow[0];
 		$temp_api_online_devices[$sat_name]['Online_Devices'] = $subrow[1];
@@ -163,12 +155,9 @@ function getSystemStatus() {
 //example curl -k -X POST -F 'api-key=key' -F 'get=mac-status' -F 'mac=dc:a6:32:23:06:d3' https://url/pialert/api/
 function getStatusofMAC($query_mac) {
 	global $db;
-	$sql = 'SELECT * FROM Devices WHERE dev_MAC="' . $query_mac . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_ASSOC);
-	$json = json_encode($row);
-	echo $json;
-	echo "\n";
+	$result = db_execute_prepared($db, 'SELECT * FROM Devices WHERE dev_MAC = :mac', array(':mac' => $query_mac));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	echo json_encode($row ?: null) . "\n";
 }
 
 //example curl -k -X POST -F 'api-key=key' -F 'get=all-online' https://url/pialert/api/

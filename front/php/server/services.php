@@ -175,202 +175,109 @@ function EnableWebServiceMon() {
 function getEventsTotalsforService() {
 	global $db;
 
-	// Request Parameters
-	$serviceURL = $_REQUEST['url'];
-
-	// SQL
-	$SQL1 = 'SELECT Count(*)
-           FROM Services_Events
-           WHERE moneve_URL = "' . $serviceURL . '"';
-
-	// All
-	$result = $db->query($SQL1);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsAll = $row[0];
-
-	// 2xx
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "2%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events2xx = $row[0];
-
-	// Missing
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "3%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events3xx = $row[0];
-
-	// Voided
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "4%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events4xx = $row[0];
-
-	// New
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "5%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events5xx = $row[0];
-
-	// Down
-	$result = $db->query($SQL1 . ' AND moneve_Latency LIKE "99999%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsDown = $row[0];
-
-	// Return json
-	echo (json_encode(array($eventsAll, $events2xx, $events3xx, $events4xx, $events5xx, $eventsDown)));
+	$serviceURL = isset($_REQUEST['url']) && is_scalar($_REQUEST['url']) ? (string) $_REQUEST['url'] : '';
+	$queries = array(
+		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url AND moneve_StatusCode LIKE "2%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url AND moneve_StatusCode LIKE "3%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url AND moneve_StatusCode LIKE "4%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url AND moneve_StatusCode LIKE "5%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url AND moneve_Latency LIKE "99999%"',
+	);
+	$totals = array();
+	foreach ($queries as $query) {
+		$result = db_execute_prepared($db, $query, array(':url' => $serviceURL));
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$totals[] = (int) $row[0];
+	}
+	echo json_encode($totals);
 }
 
 //  Query total numbers of Events
 function getEventsTotals() {
 	global $db;
 
-	// Request Parameters
-	$periodDate = getDateFromPeriod();
-
-	$SQL1 = 'SELECT Count(*)
-           FROM Services_Events
-           WHERE moneve_DateTime >= ' . $periodDate;
-
-	// All
-	$result = $db->query($SQL1);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsAll = $row[0];
-
-	// 2xx
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "2%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events2xx = $row[0];
-
-	// Missing
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "3%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events3xx = $row[0];
-
-	// Voided
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "4%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events4xx = $row[0];
-
-	// New
-	$result = $db->query($SQL1 . ' AND moneve_StatusCode LIKE "5%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$events5xx = $row[0];
-
-	// Down
-	$result = $db->query($SQL1 . ' AND moneve_Latency LIKE "99999%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsDown = $row[0];
-
-	// Return json
-	echo (json_encode(array($eventsAll, $events2xx, $events3xx, $events4xx, $events5xx, $eventsDown)));
+	$queries = array(
+		'SELECT Count(*) FROM Services_Events WHERE moneve_DateTime >= :period',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_DateTime >= :period AND moneve_StatusCode LIKE "2%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_DateTime >= :period AND moneve_StatusCode LIKE "3%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_DateTime >= :period AND moneve_StatusCode LIKE "4%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_DateTime >= :period AND moneve_StatusCode LIKE "5%"',
+		'SELECT Count(*) FROM Services_Events WHERE moneve_DateTime >= :period AND moneve_Latency LIKE "99999%"',
+	);
+	$totals = array();
+	foreach ($queries as $query) {
+		$result = db_execute_prepared($db, $query, array(':period' => getDateFromPeriodValue()));
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$totals[] = (int) $row[0];
+	}
+	echo json_encode($totals);
 }
 
 //  Query the List of events
 function getEvents() {
 	global $db;
 
-	// Request Parameters
-	$type = $_REQUEST['type'];
-	$periodDate = getDateFromPeriod();
-
-	$SQL1 = 'SELECT *
-           FROM Services_Events
-           WHERE moneve_DateTime >= ' . $periodDate;
-
-	// SQL Variations for status
+	$type = isset($_REQUEST['type']) && is_scalar($_REQUEST['type']) ? (string) $_REQUEST['type'] : '';
+	$sql = 'SELECT * FROM Services_Events WHERE moneve_DateTime >= :period';
 	switch ($type) {
-	case 'all':$SQL = $SQL1;
+	case 'all':
 		break;
-	case '2':$SQL = $SQL1 . ' AND moneve_StatusCode LIKE "2%" ';
+	case '2':
+		$sql .= ' AND moneve_StatusCode LIKE "2%"';
 		break;
-	case '3':$SQL = $SQL1 . ' AND moneve_StatusCode LIKE "3%" ';
+	case '3':
+		$sql .= ' AND moneve_StatusCode LIKE "3%"';
 		break;
-	case '4':$SQL = $SQL1 . ' AND moneve_StatusCode LIKE "4%" ';
+	case '4':
+		$sql .= ' AND moneve_StatusCode LIKE "4%"';
 		break;
-	case '5':$SQL = $SQL1 . ' AND moneve_StatusCode LIKE "5%" ';
+	case '5':
+		$sql .= ' AND moneve_StatusCode LIKE "5%"';
 		break;
-	case '99999999':$SQL = $SQL1 . ' AND moneve_Latency LIKE "999999%" ';
+	case '99999999':
+		$sql .= ' AND moneve_Latency LIKE "999999%"';
 		break;
-	default:$SQL = $SQL1 . ' AND 1==0 ';
+	default:
+		$sql .= ' AND 1 = 0';
 		break;
 	}
-
-	// Query
-	$result = $db->query($SQL);
-
+	$result = db_execute_prepared($db, $sql, array(':period' => getDateFromPeriodValue()));
 	$tableData = array();
-	while ($row = $result->fetchArray(SQLITE3_NUM)) {
-
+	while ($result && ($row = $result->fetchArray(SQLITE3_NUM))) {
 		$row[1] = formatDate($row[1]);
-		if ($row[3] == "99999999") {$row[3] = "No Response";}
-
-		// IP Order
-		// $row[10] = formatIPlong ($row[9]);
-
+		if ($row[3] == '99999999') {
+			$row[3] = 'No Response';
+		}
 		$tableData['data'][] = $row;
 	}
-
-	// Control no rows
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
-
-	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Set Services Data
 function setServiceData() {
-	global $db;
-	global $pia_lang;
-
-	$sql = 'UPDATE Services SET
-                 mon_Tags           = "' . quotes($_REQUEST['tags']) . '",
-                 mon_MAC            = "' . quotes($_REQUEST['mac']) . '",
-                 mon_AlertDown      = "' . quotes($_REQUEST['alertdown']) . '",
-                 mon_AlertUp        = "' . quotes($_REQUEST['alertup']) . '",
-                 mon_AlertEvents    = "' . quotes($_REQUEST['alertevents']) . '"
-          WHERE mon_URL="' . $_REQUEST['url'] . '"';
-	// update Data
-	$result = $db->query($sql);
-	// check result
-	if ($result == TRUE) {
-		// Logging
-		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $_REQUEST['url']);
-		echo $pia_lang['BE_Webs_UpdServ'];
-	} else {
-		// Logging
-		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $_REQUEST['url']);
-		echo $pia_lang['BE_Webs_UpdServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		//echo $_REQUEST['tags'];
-	}
+	global $db; global $pia_lang;
+	$url = $_REQUEST['url'] ?? '';
+	if (!is_scalar($url)) { echo $pia_lang['BE_Webs_UpdServError']; return; }
+	$sql = 'UPDATE Services SET mon_Tags = :tags, mon_MAC = :mac, mon_AlertDown = :alertdown, mon_AlertUp = :alertup, mon_AlertEvents = :alertevents WHERE mon_URL = :url';
+	$result = db_execute_prepared($db, $sql, array(':tags' => (string)($_REQUEST['tags'] ?? ''), ':mac' => (string)($_REQUEST['mac'] ?? ''), ':alertdown' => (string)($_REQUEST['alertdown'] ?? ''), ':alertup' => (string)($_REQUEST['alertup'] ?? ''), ':alertevents' => (string)($_REQUEST['alertevents'] ?? ''), ':url' => (string)$url));
+	if ($result) { pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $url); echo $pia_lang['BE_Webs_UpdServ']; }
+	else { pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $url); logServerConsole('Service update failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Webs_UpdServError']; }
 }
 
 //  Delete Service
 function deleteService() {
-	global $db;
-	global $pia_lang;
-
-	$url = $_REQUEST['url'];
-	if (!$url || !is_string($url) || !preg_match('/^http(s)?:\/\/[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(\/.*)?$/i', $url)) {
-		return false;
-	}
-
-	$sql = 'DELETE FROM Services WHERE mon_URL="' . $_REQUEST['url'] . '"';
-	// execute sql
-	$result = $db->query($sql);
-	// Remove Events too
-	$sql = 'DELETE FROM Services_Events WHERE moneve_URL="' . $_REQUEST['url'] . '"';
-	// execute sql
-	$result = $db->query($sql);
-	// check result
-	if ($result == TRUE) {
-		// Logging
-		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $url);
-		echo $pia_lang['BE_Webs_DelServ'];
-		echo ("<meta http-equiv='refresh' content='2; URL=./services.php'>");
-	} else {
-		// Logging
-		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $url);
-		echo $pia_lang['BE_Webs_DelServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-	}
+	global $db; global $pia_lang;
+	$url = $_REQUEST['url'] ?? '';
+	if (!$url || !is_string($url) || !filter_var($url, FILTER_VALIDATE_URL)) { return false; }
+	$db->exec('BEGIN');
+	$result = db_execute_prepared($db, 'DELETE FROM Services WHERE mon_URL = :url', array(':url' => $url));
+	$result = $result && db_execute_prepared($db, 'DELETE FROM Services_Events WHERE moneve_URL = :url', array(':url' => $url));
+	if ($result) { $db->exec('COMMIT'); pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $url); echo $pia_lang['BE_Webs_DelServ']; echo ("<meta http-equiv='refresh' content='2; URL=./services.php'>"); }
+	else { $db->exec('ROLLBACK'); pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $url); logServerConsole('Service delete failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Webs_DelServError']; }
 }
 
 //  Insert Service
@@ -398,9 +305,8 @@ function insertNewService() {
 	$http_code = curl_getinfo($checkURL, CURLINFO_HTTP_CODE);
 	curl_close($checkURL);
 
-	$sql = 'INSERT INTO Services ("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_AlertUp", "mon_TargetIP")
-                         VALUES("' . $url . '", "' . $_REQUEST['mac'] . '", "' . $http_code . '", "' . $httpstats['total_time'] . '", "' . $check_timestamp . '", "' . $_REQUEST['tags'] . '", "' . $_REQUEST['alertevents'] . '", "' . $_REQUEST['alertdown'] . '", "' . $_REQUEST['alertup'] . '", "' . $httpstats['primary_ip'] . '")';
-	$result = $db->query($sql);
+	$sql = 'INSERT INTO Services ("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_AlertUp", "mon_TargetIP") VALUES (:url, :mac, :status, :latency, :scan, :tags, :events, :down, :up, :target)';
+	$result = db_execute_prepared($db, $sql, array(':url' => $url, ':mac' => (string)($_REQUEST['mac'] ?? ''), ':status' => array((int)$http_code, SQLITE3_INTEGER), ':latency' => (string)$httpstats['total_time'], ':scan' => $check_timestamp, ':tags' => (string)($_REQUEST['tags'] ?? ''), ':events' => (string)($_REQUEST['alertevents'] ?? ''), ':down' => (string)($_REQUEST['alertdown'] ?? ''), ':up' => (string)($_REQUEST['alertup'] ?? ''), ':target' => (string)$httpstats['primary_ip']));
 	// check result
 	if ($result == TRUE) {
 		// Logging
@@ -410,7 +316,8 @@ function insertNewService() {
 	} else {
 		// Logging
 		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $url);
-		echo $pia_lang['BE_Webs_InsServError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		logServerConsole('Service insert failed: ' . $db->lastErrorMsg());
+		echo $pia_lang['BE_Webs_InsServError'];
 	}
 
 }

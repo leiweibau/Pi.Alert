@@ -50,165 +50,87 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 function getEventsTotals() {
 	global $db;
 
-	// Request Parameters
-	$periodDate = getDateFromPeriod();
+	$parameters = array(':period' => getDateFromPeriodValue());
+	$queries = array(
+		'SELECT Count(*) FROM Events WHERE eve_DateTime >= :period',
+		'SELECT Count(*) FROM Sessions WHERE (ses_DateTimeConnection >= :period OR ses_DateTimeDisconnection >= :period OR ses_StillConnected = 1)',
+		'SELECT Count(*) FROM Sessions WHERE (ses_DateTimeConnection IS NULL AND ses_DateTimeDisconnection >= :period) OR (ses_DateTimeDisconnection IS NULL AND ses_StillConnected = 0 AND ses_DateTimeConnection >= :period)',
+		'SELECT Count(*) FROM Events WHERE eve_DateTime >= :period AND eve_EventType LIKE "VOIDED%"',
+		'SELECT Count(*) FROM Events WHERE eve_DateTime >= :period AND eve_EventType = "New Device"',
+		'SELECT Count(*) FROM Events WHERE eve_DateTime >= :period AND eve_EventType = "Device Down"',
+	);
 
-	// SQL
-	$SQL1 = 'SELECT Count(*)
-           FROM Events
-           WHERE eve_DateTime >= ' . $periodDate;
+	$totals = array();
+	foreach ($queries as $query) {
+		$result = db_execute_prepared($db, $query, $parameters);
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$totals[] = (int) $row[0];
+	}
 
-	$SQL2 = 'SELECT Count(*)
-           FROM Sessions ';
-
-	// All
-	$result = $db->query($SQL1);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsAll = $row[0];
-
-	// Sessions
-	$result = $db->query($SQL2 . ' WHERE (  ses_DateTimeConnection >= ' . $periodDate . '
-                                 OR ses_DateTimeDisconnection >= ' . $periodDate . '
-                                 OR ses_StillConnected = 1 ) ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsSessions = $row[0];
-
-	// Missing
-	$result = $db->query($SQL2 . ' WHERE    (ses_DateTimeConnection IS NULL    AND ses_DateTimeDisconnection >= ' . $periodDate . ' )
-                                 OR (ses_DateTimeDisconnection IS NULL AND ses_StillConnected = 0 AND ses_DateTimeConnection >= ' . $periodDate . ' )');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsMissing = $row[0];
-
-	// Voided
-	$result = $db->query($SQL1 . ' AND eve_EventType LIKE "VOIDED%" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsVoided = $row[0];
-
-	// New
-	$result = $db->query($SQL1 . ' AND eve_EventType LIKE "New Device" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsNew = $row[0];
-
-	// Down
-	$result = $db->query($SQL1 . ' AND eve_EventType LIKE "Device Down" ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$eventsDown = $row[0];
-
-	// Return json
-	echo (json_encode(array($eventsAll, $eventsSessions, $eventsMissing, $eventsVoided, $eventsNew, $eventsDown)));
+	echo json_encode($totals);
 }
 
 //  Query the List of events
 function getEvents() {
 	global $db;
 
-	// Request Parameters
-	$type = $_REQUEST['type'];
-	$periodDate = getDateFromPeriod();
+	$type = isset($_REQUEST['type']) && is_scalar($_REQUEST['type']) ? (string) $_REQUEST['type'] : '';
+	$parameters = array(':period' => getDateFromPeriodValue());
+	$eventsSql = 'SELECT eve_DateTime AS eve_DateTimeOrder, dev_name, dev_owner, eve_DateTime, eve_EventType, NULL, NULL, NULL, NULL, eve_IP, NULL, eve_AdditionalInfo, NULL, Dev_MAC
+		FROM Events_Devices WHERE eve_DateTime >= :period';
+	$sessionsSql = 'SELECT IFNULL(ses_DateTimeConnection, ses_DateTimeDisconnection) ses_DateTimeOrder,
+		dev_name, dev_owner, NULL, NULL, ses_DateTimeConnection, ses_DateTimeDisconnection, NULL, NULL, ses_IP, NULL, ses_AdditionalInfo, ses_StillConnected, Dev_MAC
+		FROM Sessions_Devices';
+	$allSql = $eventsSql . '
+		UNION ALL
+		SELECT icmpeve_DateTime AS eve_DateTimeOrder, icmp_hostname || " **" AS dev_name, icmp_owner AS dev_owner,
+		icmpeve_DateTime AS eve_DateTime, icmpeve_EventType AS eve_EventType, NULL, NULL, NULL, NULL, icmpeve_ip,
+		NULL, icmpeve_AdditionalInfo, NULL, NULL
+		FROM ICMP_Mon_Connections
+		LEFT JOIN ICMP_Mon ON ICMP_Mon_Connections.icmpeve_ip = ICMP_Mon.icmp_ip
+		WHERE icmpeve_DateTime >= :period';
 
-	// SQL
-	$SQL1 = 'SELECT eve_DateTime AS eve_DateTimeOrder, dev_name, dev_owner, eve_DateTime, eve_EventType, NULL, NULL, NULL, NULL, eve_IP, NULL, eve_AdditionalInfo, NULL, Dev_MAC
-           FROM Events_Devices
-           WHERE eve_DateTime >= ' . $periodDate;
-
-	$SQL2 = 'SELECT IFNULL (ses_DateTimeConnection, ses_DateTimeDisconnection) ses_DateTimeOrder,
-                  dev_name, dev_owner, Null, Null, ses_DateTimeConnection, ses_DateTimeDisconnection, NULL, NULL, ses_IP, NULL,  ses_AdditionalInfo, ses_StillConnected, Dev_MAC
-           FROM Sessions_Devices ';
-
-  $SQL3 = '
-SELECT 
-    eve_DateTime AS eve_DateTimeOrder, 
-    dev_name, 
-    dev_owner, 
-    eve_DateTime, 
-    eve_EventType, 
-    NULL AS col6, 
-    NULL AS col7, 
-    NULL AS col8, 
-    NULL AS col9, 
-    eve_IP, 
-    NULL AS col11, 
-    eve_AdditionalInfo, 
-    NULL AS col13, 
-    Dev_MAC
-FROM 
-    Events_Devices
-WHERE 
-    eve_DateTime >= ' . $periodDate . '
-
-UNION ALL
-
-SELECT 
-    icmpeve_DateTime AS eve_DateTimeOrder, 
-    icmp_hostname || " **" AS dev_name, 
-    icmp_owner AS dev_owner, 
-    icmpeve_DateTime AS eve_DateTime, 
-    icmpeve_EventType AS eve_EventType, 
-    NULL AS col6, 
-    NULL AS col7, 
-    NULL AS col8, 
-    NULL AS col9, 
-    icmpeve_ip AS eve_IP, 
-    NULL AS col11, 
-    icmpeve_AdditionalInfo AS eve_AdditionalInfo, 
-    NULL AS col13, 
-    NULL AS Dev_MAC
-FROM 
-    ICMP_Mon_Connections
-LEFT JOIN 
-    ICMP_Mon 
-    ON ICMP_Mon_Connections.icmpeve_ip = ICMP_Mon.icmp_ip
-WHERE 
-    icmpeve_DateTime >= ' . $periodDate;
-
-
-	// SQL Variations for status
 	switch ($type) {
-	case 'all':$SQL = $SQL3;
+	case 'all':
+		$sql = $allSql;
 		break;
 	case 'sessions':
-		$SQL = $SQL2 . ' WHERE (  ses_DateTimeConnection >= ' . $periodDate . ' OR ses_DateTimeDisconnection >= ' . $periodDate . ' OR ses_StillConnected = 1 ) ';
+		$sql = $sessionsSql . ' WHERE (ses_DateTimeConnection >= :period OR ses_DateTimeDisconnection >= :period OR ses_StillConnected = 1)';
 		break;
 	case 'missing':
-		$SQL = $SQL2 . ' WHERE    (ses_DateTimeConnection    IS NULL AND ses_DateTimeDisconnection >= ' . $periodDate . ' )
-                             OR (ses_DateTimeDisconnection IS NULL AND ses_StillConnected = 0 AND ses_DateTimeConnection >= ' . $periodDate . ' )';
+		$sql = $sessionsSql . ' WHERE (ses_DateTimeConnection IS NULL AND ses_DateTimeDisconnection >= :period) OR (ses_DateTimeDisconnection IS NULL AND ses_StillConnected = 0 AND ses_DateTimeConnection >= :period)';
 		break;
-	case 'voided':$SQL = $SQL1 . ' AND eve_EventType LIKE "VOIDED%" ';
+	case 'voided':
+		$sql = $eventsSql . ' AND eve_EventType LIKE "VOIDED%"';
 		break;
-	case 'new':$SQL = $SQL1 . ' AND eve_EventType = "New Device" ';
+	case 'new':
+		$sql = $eventsSql . ' AND eve_EventType = "New Device"';
 		break;
-	case 'down':$SQL = $SQL1 . ' AND eve_EventType = "Device Down" ';
+	case 'down':
+		$sql = $eventsSql . ' AND eve_EventType = "Device Down"';
 		break;
-	default:$SQL = $SQL3 . ' AND 1==0 ';
+	default:
+		$sql = 'SELECT NULL WHERE 1 = 0';
+		$parameters = array();
 		break;
 	}
 
-	// Query
-	$result = $db->query($SQL);
-
+	$result = db_execute_prepared($db, $sql, $parameters);
 	$tableData = array();
-	while ($row = $result->fetchArray(SQLITE3_NUM)) {
+	while ($result && ($row = $result->fetchArray(SQLITE3_NUM))) {
 		if ($type == 'sessions' || $type == 'missing') {
-			// Duration
 			if (!empty($row[5]) && !empty($row[6])) {
 				$row[7] = formatDateDiff($row[5], $row[6]);
 				$row[8] = abs(strtotime($row[6]) - strtotime($row[5]));
 			} elseif ($row[12] == 1) {
 				$row[7] = formatDateDiff($row[5], '');
-				$row[8] = abs(strtotime("now") - strtotime($row[5]));
+				$row[8] = abs(strtotime('now') - strtotime($row[5]));
 			} else {
 				$row[7] = '...';
 				$row[8] = 0;
 			}
 
-			// Connection
-			if (!empty($row[5])) {
-				$row[5] = formatDate($row[5]);
-			} else {
-				$row[5] = '<missing event>';
-			}
-
-			// Disconnection
+			$row[5] = !empty($row[5]) ? formatDate($row[5]) : '<missing event>';
 			if (!empty($row[6])) {
 				$row[6] = formatDate($row[6]);
 			} elseif ($row[12] == 0) {
@@ -216,57 +138,42 @@ WHERE
 			} else {
 				$row[6] = '...';
 			}
-
 		} else {
-			// Event Date
 			$row[3] = formatDate($row[3]);
 		}
 
-		// IP Order
 		$row[10] = formatIPlong($row[9]);
 		$tableData['data'][] = $row;
 	}
 
-	// Control no rows
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
 
-	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query Device Sessions
 function getDeviceSessions() {
 	global $db;
 
-	// Request Parameters
-	$mac = $_REQUEST['mac'];
-	$periodDate = getDateFromPeriod();
+	$mac = isset($_REQUEST['mac']) && is_scalar($_REQUEST['mac']) ? (string) $_REQUEST['mac'] : '';
+	$sql = 'SELECT IFNULL(ses_DateTimeConnection, ses_DateTimeDisconnection) ses_DateTimeOrder,
+		ses_EventTypeConnection, ses_DateTimeConnection, ses_EventTypeDisconnection, ses_DateTimeDisconnection,
+		ses_StillConnected, ses_IP, ses_AdditionalInfo
+		FROM Sessions
+		WHERE ses_MAC = :mac
+		AND (ses_DateTimeConnection >= :period OR ses_DateTimeDisconnection >= :period OR ses_StillConnected = 1)';
+	$result = db_execute_prepared($db, $sql, array(':mac' => $mac, ':period' => getDateFromPeriodValue()));
 
-	// SQL
-	$SQL = 'SELECT IFNULL (ses_DateTimeConnection, ses_DateTimeDisconnection) ses_DateTimeOrder,
-                         ses_EventTypeConnection, ses_DateTimeConnection,
-                         ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_StillConnected,
-                         ses_IP, ses_AdditionalInfo
-          FROM Sessions
-          WHERE ses_MAC="' . $mac . '"
-            AND (  ses_DateTimeConnection >= ' . $periodDate . '
-                OR ses_DateTimeDisconnection >= ' . $periodDate . '
-                OR ses_StillConnected = 1 ) ';
-	$result = $db->query($SQL);
-
-	// arrays of rows
 	$tableData = array();
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		// Connection DateTime
+	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
 		if ($row['ses_EventTypeConnection'] == '<missing event>') {
 			$ini = $row['ses_EventTypeConnection'];
 		} else {
 			$ini = formatDate($row['ses_DateTimeConnection']);
 		}
 
-		// Disconnection DateTime
 		if ($row['ses_StillConnected'] == true) {
 			$end = '...';
 		} elseif ($row['ses_EventTypeDisconnection'] == '<missing event>') {
@@ -275,69 +182,61 @@ function getDeviceSessions() {
 			$end = formatDate($row['ses_DateTimeDisconnection']);
 		}
 
-		// Duration
 		if ($row['ses_EventTypeConnection'] == '<missing event>' || $row['ses_EventTypeDisconnection'] == '<missing event>') {
 			$dur = '...';
 		} elseif ($row['ses_StillConnected'] == true) {
-			$dur = formatDateDiff($row['ses_DateTimeConnection'], ''); //***********
+			$dur = formatDateDiff($row['ses_DateTimeConnection'], '');
 		} else {
 			$dur = formatDateDiff($row['ses_DateTimeConnection'], $row['ses_DateTimeDisconnection']);
 		}
 
-		// Additional Info
 		$info = $row['ses_AdditionalInfo'];
 		if ($row['ses_EventTypeConnection'] == 'New Device') {
 			$info = $row['ses_EventTypeConnection'] . ':   ' . $info;
 		}
-
-		// Push row data
 		$tableData['data'][] = array($row['ses_DateTimeOrder'], $ini, $end, $dur, $row['ses_IP'], $info);
 	}
 
-	// Control no rows
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
-
-	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query Device Presence Calendar
 function getDevicePresence() {
 	global $db;
 
-	// Request Parameters
-	$mac = $_REQUEST['mac'];
-	$periodDate = getDateFromPeriod();
-	$startDate = '"' . formatDateISO($_REQUEST['start']) . '"';
-	$endDate = '"' . formatDateISO($_REQUEST['end']) . '"';
+	$mac = isset($_REQUEST['mac']) && is_scalar($_REQUEST['mac']) ? (string) $_REQUEST['mac'] : '';
+	$start = isset($_REQUEST['start']) && is_scalar($_REQUEST['start']) ? (string) $_REQUEST['start'] : '';
+	$end = isset($_REQUEST['end']) && is_scalar($_REQUEST['end']) ? (string) $_REQUEST['end'] : '';
+	try {
+		$startDate = formatDateISO($start);
+		$endDate = formatDateISO($end);
+	} catch (Exception $exception) {
+		echo json_encode('');
+		return;
+	}
 
-	// SQL
-	$SQL = 'SELECT ses_EventTypeConnection, ses_DateTimeConnection,
-                 ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
+	$sql = 'SELECT ses_EventTypeConnection, ses_DateTimeConnection, ses_EventTypeDisconnection,
+		ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
+		CASE WHEN ses_EventTypeConnection = "<missing event>" THEN
+			IFNULL((SELECT MAX(ses_DateTimeDisconnection) FROM Sessions AS SES2
+				WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),
+				DATETIME(ses_DateTimeDisconnection, "-1 hour"))
+			ELSE ses_DateTimeConnection END AS ses_DateTimeConnectionCorrected,
+		CASE WHEN ses_EventTypeDisconnection = "<missing event>" THEN
+			(SELECT MIN(ses_DateTimeConnection) FROM Sessions AS SES2
+				WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
+			ELSE ses_DateTimeDisconnection END AS ses_DateTimeDisconnectionCorrected
+		FROM Sessions AS SES1
+		WHERE ses_MAC = :mac
+		AND (ses_DateTimeConnectionCorrected <= date(:end)
+		AND (ses_DateTimeDisconnectionCorrected >= date(:start) OR ses_StillConnected = 1))';
+	$result = db_execute_prepared($db, $sql, array(':mac' => $mac, ':start' => $startDate, ':end' => $endDate));
 
-                 CASE
-                   WHEN ses_EventTypeConnection = "<missing event>" THEN
-                        IFNULL ((SELECT MAX(ses_DateTimeDisconnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),  DATETIME(ses_DateTimeDisconnection, "-1 hour"))
-                   ELSE ses_DateTimeConnection
-                 END AS ses_DateTimeConnectionCorrected,
-
-                 CASE
-                   WHEN ses_EventTypeDisconnection = "<missing event>" THEN
-                        (SELECT MIN(ses_DateTimeConnection) FROM Sessions AS SES2 WHERE SES2.ses_MAC = SES1.ses_MAC AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
-                   ELSE ses_DateTimeDisconnection
-                 END AS ses_DateTimeDisconnectionCorrected
-
-          FROM Sessions AS SES1
-          WHERE ses_MAC="' . $mac . '"
-            AND (ses_DateTimeConnectionCorrected    <= date(' . $endDate . ')
-            AND (ses_DateTimeDisconnectionCorrected >= date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
-	$result = $db->query($SQL);
-
-	// arrays of rows
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		// Event color
+	$tableData = array();
+	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
 		if ($row['ses_EventTypeConnection'] == '<missing event>' || $row['ses_EventTypeDisconnection'] == '<missing event>') {
 			$color = '#f39c12';
 		} elseif ($row['ses_StillConnected'] == 1) {
@@ -345,13 +244,9 @@ function getDevicePresence() {
 		} else {
 			$color = '#0073b7';
 		}
-
-		// tooltip
 		$tooltip = 'Connection: ' . formatEventDate($row['ses_DateTimeConnection'], $row['ses_EventTypeConnection']) . chr(13) .
-		'Disconnection: ' . formatEventDate($row['ses_DateTimeDisconnection'], $row['ses_EventTypeDisconnection']) . chr(13) .
+			'Disconnection: ' . formatEventDate($row['ses_DateTimeDisconnection'], $row['ses_EventTypeDisconnection']) . chr(13) .
 			'IP: ' . $row['ses_IP'];
-
-		// Save row data
 		$tableData[] = array(
 			'title' => '',
 			'start' => formatDateISO($row['ses_DateTimeConnectionCorrected']),
@@ -361,58 +256,47 @@ function getDevicePresence() {
 		);
 	}
 
-	// Control no rows
 	if (empty($tableData)) {
 		$tableData = '';
 	}
-
-	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query Presence Calendar for all Devices
 function getEventsCalendar() {
 	global $db;
-	if (!$_REQUEST['scansource']) {$scansource = 'local';} else {$scansource = $_REQUEST['scansource'];}
 
-	// Request Parameters
-	$startDate = '"' . $_REQUEST['start'] . '"';
-	$endDate = '"' . $_REQUEST['end'] . '"';
+	$scanSource = isset($_REQUEST['scansource']) && is_scalar($_REQUEST['scansource']) && $_REQUEST['scansource'] !== '' ? (string) $_REQUEST['scansource'] : 'local';
+	$start = isset($_REQUEST['start']) && is_scalar($_REQUEST['start']) ? (string) $_REQUEST['start'] : '';
+	$end = isset($_REQUEST['end']) && is_scalar($_REQUEST['end']) ? (string) $_REQUEST['end'] : '';
+	try {
+		$startDate = formatDateISO($start);
+		$endDate = formatDateISO($end);
+	} catch (Exception $exception) {
+		echo json_encode('');
+		return;
+	}
 
-	// SQL
-	$SQL = 'SELECT ses_MAC, ses_EventTypeConnection, ses_DateTimeConnection,
-	                 ses_EventTypeDisconnection, ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
+	$sql = 'SELECT ses_MAC, ses_EventTypeConnection, ses_DateTimeConnection, ses_EventTypeDisconnection,
+		ses_DateTimeDisconnection, ses_IP, ses_AdditionalInfo, ses_StillConnected,
+		CASE WHEN ses_EventTypeConnection = "<missing event>" THEN
+			IFNULL((SELECT MAX(ses_DateTimeDisconnection) FROM Sessions AS SES2
+				WHERE LOWER(SES2.ses_MAC) = LOWER(SES1.ses_MAC) AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),
+				DATETIME(ses_DateTimeDisconnection, "-1 hour"))
+			ELSE ses_DateTimeConnection END AS ses_DateTimeConnectionCorrected,
+		CASE WHEN ses_EventTypeDisconnection = "<missing event>" THEN
+			(SELECT MIN(ses_DateTimeConnection) FROM Sessions AS SES2
+				WHERE LOWER(SES2.ses_MAC) = LOWER(SES1.ses_MAC) AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
+			ELSE ses_DateTimeDisconnection END AS ses_DateTimeDisconnectionCorrected
+		FROM Sessions AS SES1
+		JOIN Devices AS DEV ON LOWER(SES1.ses_MAC) = LOWER(DEV.dev_MAC)
+		WHERE DEV.dev_PresencePage = 1 AND DEV.dev_ScanSource = :scan_source
+		AND (ses_DateTimeConnectionCorrected <= date(:end)
+		AND (ses_DateTimeDisconnectionCorrected >= date(:start) OR ses_StillConnected = 1))';
+	$result = db_execute_prepared($db, $sql, array(':scan_source' => $scanSource, ':start' => $startDate, ':end' => $endDate));
 
-	                 CASE
-	                   WHEN ses_EventTypeConnection = "<missing event>" THEN
-	                        IFNULL ((SELECT MAX(ses_DateTimeDisconnection) 
-	                                 FROM Sessions AS SES2 
-	                                 WHERE LOWER(SES2.ses_MAC) = LOWER(SES1.ses_MAC) 
-	                                   AND SES2.ses_DateTimeDisconnection < SES1.ses_DateTimeDisconnection),  
-	                                 DATETIME(ses_DateTimeDisconnection, "-1 hour"))
-	                   ELSE ses_DateTimeConnection
-	                 END AS ses_DateTimeConnectionCorrected,
-
-	                 CASE
-	                   WHEN ses_EventTypeDisconnection = "<missing event>" THEN
-	                        (SELECT MIN(ses_DateTimeConnection) 
-	                         FROM Sessions AS SES2 
-	                         WHERE LOWER(SES2.ses_MAC) = LOWER(SES1.ses_MAC) 
-	                           AND SES2.ses_DateTimeConnection > SES1.ses_DateTimeConnection)
-	                   ELSE ses_DateTimeDisconnection
-	                 END AS ses_DateTimeDisconnectionCorrected
-
-	          FROM Sessions AS SES1
-	          JOIN Devices AS DEV ON LOWER(SES1.ses_MAC) = LOWER(DEV.dev_MAC)
-	          WHERE DEV.dev_PresencePage=1 AND DEV.dev_ScanSource = "' . $scansource . '" 
-	            AND (     ses_DateTimeConnectionCorrected <= Date(' . $endDate . ')
-	                 AND (ses_DateTimeDisconnectionCorrected >= Date(' . $startDate . ') OR ses_StillConnected = 1 )) ';
-
-	$result = $db->query($SQL);
-
-	// arrays of rows
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		// Event color
+	$tableData = array();
+	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
 		if ($row['ses_EventTypeConnection'] == '<missing event>' || $row['ses_EventTypeDisconnection'] == '<missing event>') {
 			$color = '#f39c12';
 		} elseif ($row['ses_StillConnected'] == 1) {
@@ -420,13 +304,9 @@ function getEventsCalendar() {
 		} else {
 			$color = '#0073b7';
 		}
-
-		// tooltip
 		$tooltip = 'Connection: ' . formatEventDate($row['ses_DateTimeConnection'], $row['ses_EventTypeConnection']) . chr(13) .
-		'Disconnection: ' . formatEventDate($row['ses_DateTimeDisconnection'], $row['ses_EventTypeDisconnection']) . chr(13) .
+			'Disconnection: ' . formatEventDate($row['ses_DateTimeDisconnection'], $row['ses_EventTypeDisconnection']) . chr(13) .
 			'IP: ' . $row['ses_IP'];
-
-		// Save row data
 		$tableData[] = array(
 			'resourceId' => strtolower($row['ses_MAC']),
 			'title' => '',
@@ -438,47 +318,40 @@ function getEventsCalendar() {
 		);
 	}
 
-	// Control no rows
 	if (empty($tableData)) {
 		$tableData = '';
 	}
-
-	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 //  Query Device events
 function getDeviceEvents() {
 	global $db;
 
-	// Request Parameters
-	$mac = $_REQUEST['mac'];
-	$periodDate = getDateFromPeriod();
-	$hideConnections = $_REQUEST['hideConnections'];
+	$mac = isset($_REQUEST['mac']) && is_scalar($_REQUEST['mac']) ? (string) $_REQUEST['mac'] : '';
+	$showConnections = isset($_REQUEST['hideConnections']) && is_scalar($_REQUEST['hideConnections']) && $_REQUEST['hideConnections'] === 'false';
+	$sql = 'SELECT eve_DateTime, eve_EventType, eve_IP, eve_AdditionalInfo
+		FROM Events
+		WHERE eve_MAC = :mac AND eve_DateTime >= :period
+		AND ((eve_EventType <> "Connected" AND eve_EventType <> "Disconnected"
+			AND eve_EventType <> "VOIDED - Connected" AND eve_EventType <> "VOIDED - Disconnected")
+		OR :show_connections = 1)';
+	$result = db_execute_prepared($db, $sql, array(
+		':mac' => $mac,
+		':period' => getDateFromPeriodValue(),
+		':show_connections' => array($showConnections ? 1 : 0, SQLITE3_INTEGER),
+	));
 
-	// SQL
-	$SQL = 'SELECT eve_DateTime, eve_EventType, eve_IP, eve_AdditionalInfo
-          FROM Events
-          WHERE eve_MAC="' . $mac . '" AND eve_DateTime >= ' . $periodDate . '
-            AND ( (eve_EventType <> "Connected" AND eve_EventType <> "Disconnected" AND
-                   eve_EventType <> "VOIDED - Connected" AND eve_EventType <> "VOIDED - Disconnected")
-                 OR "' . $hideConnections . '" = "false" ) ';
-	$result = $db->query($SQL);
-
-	// arrays of rows
 	$tableData = array();
-	while ($row = $result->fetchArray(SQLITE3_NUM)) {
+	while ($result && ($row = $result->fetchArray(SQLITE3_NUM))) {
 		$row[0] = formatDate($row[0]);
 		$tableData['data'][] = $row;
 	}
 
-	// Control no rows
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
-
-	// Return json
-	echo (json_encode($tableData));
+	echo json_encode($tableData);
 }
 
 ?>

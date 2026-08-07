@@ -27,11 +27,10 @@ OpenDB_Tools();
 function crosscheckIP($query_ip) {
 	global $db;
 
-	$sql = 'SELECT dev_LastIP FROM Devices WHERE dev_LastIP="' . $query_ip . '" UNION
-        SELECT icmp_ip AS dev_LastIP FROM ICMP_Mon WHERE icmp_ip="' . $query_ip . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_ASSOC);
-	$neededIP = $row['dev_LastIP'];
+	$result = db_execute_prepared($db, 'SELECT dev_LastIP FROM Devices WHERE dev_LastIP = :ip UNION
+        SELECT icmp_ip AS dev_LastIP FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => (string) $query_ip));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	$neededIP = $row ? $row['dev_LastIP'] : null;
 	return $neededIP;
 }
 
@@ -42,7 +41,7 @@ if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 	if (isset($db_crosscheck)) {
 
 		$CSVFILE = '';
-		$results = $db_tools->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC');
+		$results = db_execute_prepared($db_tools, 'SELECT * FROM Tools_Nmap_ManScan WHERE scan_target = :target ORDER BY scan_date DESC', array(':target' => $PIA_HOST_IP));
 		while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
 		    $CSVFILE .= '"' . $row['ID'] . '",';
 		    $CSVFILE .= '"' . $row['scan_date'] . '",';

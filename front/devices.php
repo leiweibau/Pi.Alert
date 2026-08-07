@@ -73,47 +73,49 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 		if ($_REQUEST['en_bulk_owner'] == 'on') {
 			$set_bulk_owner = htmlspecialchars($_REQUEST['bulk_owner'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Owner="' . $set_bulk_owner . '"');}
+			$sql_queue['dev_Owner'] = $set_bulk_owner;}
 		if ($_REQUEST['en_bulk_type'] == 'on') {
 			$set_bulk_type = htmlspecialchars($_REQUEST['bulk_type'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_DeviceType="' . $set_bulk_type . '"');}
+			$sql_queue['dev_DeviceType'] = $set_bulk_type;}
 		if ($_REQUEST['en_bulk_group'] == 'on') {
 			$set_bulk_group = htmlspecialchars($_REQUEST['bulk_group'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Group="' . $set_bulk_group . '"');}
+			$sql_queue['dev_Group'] = $set_bulk_group;}
 		if ($_REQUEST['en_bulk_location'] == 'on') {
 			$set_bulk_location = htmlspecialchars($_REQUEST['bulk_location'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Location="' . $set_bulk_location . '"');}
+			$sql_queue['dev_Location'] = $set_bulk_location;}
 		if ($_REQUEST['en_bulk_comments'] == 'on') {
 			$set_bulk_comments = htmlspecialchars($_REQUEST['bulk_comments'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Comments="' . $set_bulk_comments . '"');}
+			$sql_queue['dev_Comments'] = $set_bulk_comments;}
 		if ($_REQUEST['en_bulk_connectiontype'] == 'on') {
 			$set_bulk_connectiontype = htmlspecialchars($_REQUEST['bulk_connectiontype'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_ConnectionType="' . $set_bulk_connectiontype . '"');}
+			$sql_queue['dev_ConnectionType'] = $set_bulk_connectiontype;}
 		if ($_REQUEST['en_bulk_linkspeed'] == 'on') {
 			$set_bulk_linkspeed = htmlspecialchars($_REQUEST['bulk_linkspeed'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_LinkSpeed="' . $set_bulk_linkspeed . '"');}
+			$sql_queue['dev_LinkSpeed'] = $set_bulk_linkspeed;}
 		if ($_REQUEST['en_bulk_AlertAllEvents'] == 'on') {
 			if ($_REQUEST['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
-			array_push($sql_queue, 'dev_AlertEvents="' . $set_bulk_AlertAllEvents . '"');}
+			$sql_queue['dev_AlertEvents'] = $set_bulk_AlertAllEvents;}
 		if ($_REQUEST['en_bulk_AlertDown'] == 'on') {
 			if ($_REQUEST['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
-			array_push($sql_queue, 'dev_AlertDeviceDown="' . $set_bulk_AlertDown . '"');}
+			$sql_queue['dev_AlertDeviceDown'] = $set_bulk_AlertDown;}
 		if ($_REQUEST['en_bulk_NewDevice'] == 'on') {
 			if ($_REQUEST['bulk_NewDevice'] == 'on') {$set_bulk_NewDevice = 1;} else { $set_bulk_NewDevice = 0;}
-			array_push($sql_queue, 'dev_NewDevice="' . $set_bulk_NewDevice . '"');}
+			$sql_queue['dev_NewDevice'] = $set_bulk_NewDevice;}
 		if ($_REQUEST['en_bulk_Archived'] == 'on') {
 			if ($_REQUEST['bulk_Archived'] == 'on') {$set_bulk_Archived = 1;} else { $set_bulk_Archived = 0;}
-			array_push($sql_queue, 'dev_Archived="' . $set_bulk_Archived . '"');}
+			$sql_queue['dev_Archived'] = $set_bulk_Archived;}
 		if ($_REQUEST['en_bulk_PresencePage'] == 'on') {
 			if ($_REQUEST['bulk_PresencePage'] == 'on') {$set_bulk_PresencePage = 1;} else { $set_bulk_PresencePage = 0;}
-			array_push($sql_queue, 'dev_PresencePage="' . $set_bulk_PresencePage . '"');}
+			$sql_queue['dev_PresencePage'] = $set_bulk_PresencePage;}
 		if ($_REQUEST['en_bulk_MQTTDevice'] == 'on') {
 			if ($_REQUEST['bulk_MQTTDevice'] == 'on') {
 				$set_bulk_MQTTDevice = 1;
-				array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '", dev_MQTTDevice_cleanup="0"');
+				$sql_queue['dev_MQTTDevice'] = $set_bulk_MQTTDevice;
+				$sql_queue['dev_MQTTDevice_cleanup'] = 0;
 			} else { 
 				$set_bulk_MQTTDevice = 0;
-				array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '", dev_MQTTDevice_cleanup="1"');
+				$sql_queue['dev_MQTTDevice'] = $set_bulk_MQTTDevice;
+				$sql_queue['dev_MQTTDevice_cleanup'] = 1;
 			}
 		}
 
@@ -135,9 +137,15 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 					// List modified devices (name)
 					$modified_hosts = $modified_hosts . $row['dev_Name'] . '; ';
 					// Build sql query and update
-					$sql_queue_str = implode(', ', $sql_queue);
-					$sql_update = 'UPDATE Devices SET ' . $sql_queue_str . ' WHERE dev_MAC="' . $row['dev_MAC'] . '"';
-					$results_update = $db->query($sql_update);
+					$assignments = array();
+					$parameters = array(':mac' => $row['dev_MAC']);
+					$index = 0;
+					foreach ($sql_queue as $column => $value) {
+						$placeholder = ':value_' . $index++;
+						$assignments[] = $column . ' = ' . $placeholder;
+						$parameters[$placeholder] = $value;
+					}
+					$results_update = db_execute_prepared($db, 'UPDATE Devices SET ' . implode(', ', $assignments) . ' WHERE dev_MAC = :mac', $parameters);
 				}
 			}
 			// output modified hosts
@@ -583,8 +591,7 @@ function filterDevicesByLabel(searchTerm) {
 </div>
 
 <?php
-	$sql = 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown, dev_PresencePage FROM Devices WHERE dev_ScanSource="'.$SCANSOURCE.'" ORDER BY dev_Name COLLATE NOCASE ASC';
-	$results = $db->query($sql);
+	$results = db_execute_prepared($db, 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown, dev_PresencePage FROM Devices WHERE dev_ScanSource = :scan_source ORDER BY dev_Name COLLATE NOCASE ASC', array(':scan_source' => (string) $SCANSOURCE));
 	while ($row = $results->fetchArray()) {
 		if ($row[2] == 1) {$status_border = 'bulked_online_border';} else { $status_border = 'bulked_offline_border';}
 		if ($row[3] == 1) {$status_box = 'bulked_arc_dev';} elseif ($row[4] == 1) {$status_box = 'bulked_new_dev';} else { $status_box = 'bulked_default_dev';}

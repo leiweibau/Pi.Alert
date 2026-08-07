@@ -107,12 +107,8 @@ function getLogfileContent() {
 
     $table = $map[$logfile];
 
-	// rudimentäre Absicherung des Datums
-    $date = SQLite3::escapeString($date);
-
-    $sql = "SELECT Logfile FROM {$table} WHERE ScanDate = '{$date}' LIMIT 1";
-
-    $result = $db_tools->query($sql);
+	$sql = "SELECT Logfile FROM {$table} WHERE ScanDate = :date LIMIT 1";
+	$result = db_execute_prepared($db_tools, $sql, array(':date' => is_scalar($date) ? (string)$date : ''));
     if (!$result) {
         echo 'Query failed';
         exit;
@@ -193,7 +189,7 @@ function getLocalDeviceStatus() {
         exit;
     }
 
-    $latestScanDate = SQLite3::escapeString($rowLatest['Scan_Date']);
+    $latestScanDate = $rowLatest['Scan_Date'];
 
     $sqlSum = "
         SELECT
@@ -202,11 +198,11 @@ function getLocalDeviceStatus() {
             SUM(All_Devices)      AS total,
             SUM(Archived_Devices) AS archived
         FROM Online_History
-        WHERE Scan_Date   = '{$latestScanDate}'
+        WHERE Scan_Date = :scan_date
           AND data_source LIKE 'main_scan%'
     ";
 
-    $result = $db->query($sqlSum);
+    $result = db_execute_prepared($db, $sqlSum, array(':scan_date' => $latestScanDate));
     if ($result) {
         $row = $result->fetchArray(SQLITE3_ASSOC);
     }
@@ -347,7 +343,7 @@ function getDeviceHistoryChart() {
 
     header('Content-Type: application/json');
     $source = $_GET['source'] ?? 'main_scan';
-    $source = SQLite3::escapeString($source);
+	$source = is_scalar($source) ? (string)$source : 'main_scan';
 
     $labels   = [];
     $online   = [];
@@ -374,20 +370,10 @@ function getDeviceHistoryChart() {
 
     } else {
 
-        $sql = "
-            SELECT
-                Scan_Date,
-                Online_Devices,
-                Down_Devices,
-                Archived_Devices
-            FROM Online_History
-            WHERE Data_Source = '{$source}'
-            ORDER BY Scan_Date DESC
-            LIMIT 144
-        ";
+        $sql = "SELECT Scan_Date, Online_Devices, Down_Devices, Archived_Devices FROM Online_History WHERE Data_Source = :source ORDER BY Scan_Date DESC LIMIT 144";
     }
 
-    $results = $db->query($sql);
+    $results = ($source === 'main_scan') ? $db->query($sql) : db_execute_prepared($db, $sql, array(':source' => $source));
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
         $timePart = explode(' ', $row['Scan_Date'])[1];
         $time     = substr($timePart, 0, 5);

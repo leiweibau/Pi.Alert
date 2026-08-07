@@ -72,39 +72,41 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 		if ($_REQUEST['en_bulk_owner'] == 'on') {
 			$set_bulk_owner = htmlspecialchars($_REQUEST['bulk_owner'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_owner="' . $set_bulk_owner . '"');
+			$sql_queue['icmp_owner'] = $set_bulk_owner;
 		}
 		if ($_REQUEST['en_bulk_type'] == 'on') {
 			$set_bulk_type = htmlspecialchars($_REQUEST['bulk_type'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_type="' . $set_bulk_type . '"');
+			$sql_queue['icmp_type'] = $set_bulk_type;
 		}
 		if ($_REQUEST['en_bulk_group'] == 'on') {
 			$set_bulk_group = htmlspecialchars($_REQUEST['bulk_group'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_group="' . $set_bulk_group . '"');
+			$sql_queue['icmp_group'] = $set_bulk_group;
 		}
 		if ($_REQUEST['en_bulk_location'] == 'on') {
 			$set_bulk_location = htmlspecialchars($_REQUEST['bulk_location'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_location="' . $set_bulk_location . '"');
+			$sql_queue['icmp_location'] = $set_bulk_location;
 		}
 		if ($_REQUEST['en_bulk_comments'] == 'on') {
 			$set_bulk_comments = htmlspecialchars($_REQUEST['bulk_comments'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_Notes="' . $set_bulk_comments . '"');
+			$sql_queue['icmp_Notes'] = $set_bulk_comments;
 		}
 		if ($_REQUEST['en_bulk_AlertAllEvents'] == 'on') {
 			if ($_REQUEST['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
-			array_push($sql_queue, 'icmp_AlertEvents="' . $set_bulk_AlertAllEvents . '"');
+			$sql_queue['icmp_AlertEvents'] = $set_bulk_AlertAllEvents;
 		}
 		if ($_REQUEST['en_bulk_AlertDown'] == 'on') {
 			if ($_REQUEST['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
-			array_push($sql_queue, 'icmp_AlertDown="' . $set_bulk_AlertDown . '"');
+			$sql_queue['icmp_AlertDown'] = $set_bulk_AlertDown;
 		}
     if ($_REQUEST['en_bulk_MQTTDevice'] == 'on') {
       if ($_REQUEST['bulk_MQTTDevice'] == 'on') {
         $set_bulk_MQTTDevice = 1;
-        array_push($sql_queue, 'icmp_MQTTDevice="' . $set_bulk_MQTTDevice . '", icmp_MQTTDevice_cleanup="0"');
+        $sql_queue['icmp_MQTTDevice'] = $set_bulk_MQTTDevice;
+        $sql_queue['icmp_MQTTDevice_cleanup'] = 0;
       } else { 
         $set_bulk_MQTTDevice = 0;
-        array_push($sql_queue, 'icmp_MQTTDevice="' . $set_bulk_MQTTDevice . '", icmp_MQTTDevice_cleanup="1"');
+        $sql_queue['icmp_MQTTDevice'] = $set_bulk_MQTTDevice;
+        $sql_queue['icmp_MQTTDevice_cleanup'] = 1;
       }
     }
 
@@ -126,9 +128,15 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 					// List modified devices (name)
 					$modified_hosts = $modified_hosts . $row['icmp_hostname'] . '; ';
 					// Build sql query and update
-					$sql_queue_str = implode(', ', $sql_queue);
-          $sql_update = 'UPDATE ICMP_Mon SET ' . $sql_queue_str . ' WHERE icmp_ip="' . $row['icmp_ip'] . '"';
-          $results_update = $db->query($sql_update);
+					$assignments = array();
+          $parameters = array(':ip' => $row['icmp_ip']);
+          $index = 0;
+          foreach ($sql_queue as $column => $value) {
+            $placeholder = ':value_' . $index++;
+            $assignments[] = $column . ' = ' . $placeholder;
+            $parameters[$placeholder] = $value;
+          }
+          $results_update = db_execute_prepared($db, 'UPDATE ICMP_Mon SET ' . implode(', ', $assignments) . ' WHERE icmp_ip = :ip', $parameters);
 				}
 			}
 			// output modified hosts

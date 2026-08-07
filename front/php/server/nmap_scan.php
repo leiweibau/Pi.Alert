@@ -1,6 +1,6 @@
 <?php
-ini_set('max_execution_time', '95');
-set_time_limit(95);
+ini_set('max_execution_time', '65');
+set_time_limit(65);
 session_start();
 
 if ($_SESSION["login"] != 1) {
@@ -19,6 +19,11 @@ $PIA_HOST_IP = $_REQUEST['scan'];
 $PIA_SCAN_MODE = $_REQUEST['mode'];
 $PIA_SCAN_TIME = date('Y-m-d H:i:s');
 
+if (!in_array($PIA_SCAN_MODE, array('fast', 'normal', 'view'), true)) {
+	http_response_code(400);
+	exit('Unsupported scan mode');
+}
+
 // Open DB
 OpenDB();
 OpenDB_Tools();
@@ -27,13 +32,9 @@ OpenDB_Tools();
 // Check given host/mac
 function crosscheckIP($query_ip) {
 	global $db;
-
-	$sql = 'SELECT dev_LastIP FROM Devices WHERE dev_LastIP="' . $query_ip . '" UNION
-        SELECT icmp_ip AS dev_LastIP FROM ICMP_Mon WHERE icmp_ip="' . $query_ip . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_ASSOC);
-	$neededIP = $row['dev_LastIP'];
-	return $neededIP;
+	$result = db_execute_prepared($db, 'SELECT dev_LastIP FROM Devices WHERE dev_LastIP = :ip UNION SELECT icmp_ip AS dev_LastIP FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => $query_ip));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	return $row ? $row['dev_LastIP'] : null;
 }
 // Find start and end of the nmap port list
 function nmap_search_portlist($arr) {
@@ -135,8 +136,6 @@ if ($_REQUEST['mode'] != "view") {
 				exec('timeout 60 nmap -F ' . $PIA_HOST_IP, $nmap_scan_results);
 			} elseif ($PIA_SCAN_MODE == 'normal') {
 				exec('timeout 60 nmap ' . $PIA_HOST_IP, $nmap_scan_results);
-			} elseif ($PIA_SCAN_MODE == 'detail') {
-				exec('timeout 90 sudo nmap -sU -sT -p U:53,67-69,111,137,512,514,525,1701,1719,T:1-65535 --max-retries 0 ' . $PIA_HOST_IP, $nmap_scan_results);
 			}
 			// Logging
 			pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0210', '', $PIA_SCAN_MODE . ' Scan: ' . $PIA_HOST_IP);
@@ -155,7 +154,7 @@ if ($_REQUEST['mode'] != "view") {
 
 	echo '<div class="row">';
 	// Show prev. results
-	$res = $db_tools->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC LIMIT 1');
+	$res = db_execute_prepared($db_tools, 'SELECT * FROM Tools_Nmap_ManScan WHERE scan_target = :target ORDER BY scan_date DESC LIMIT 1', array(':target' => $PIA_HOST_IP));
 	$row = $res->fetchArray();
 	if ($row != "") {
 		create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'previous');
@@ -179,8 +178,8 @@ if ($_REQUEST['mode'] != "view") {
 			echo '</div>';
 
 			// Save to db, only if results available
-			$sql = 'INSERT INTO "Tools_Nmap_ManScan" ("scan_date", "scan_target", "scan_type", "scan_result", "reserve_a", "reserve_b", "reserve_c", "reserve_d") VALUES("' . $PIA_SCAN_TIME . '", "' . $PIA_HOST_IP . '", "' . $PIA_SCAN_MODE . '", "' . $PIA_SCAN_RESULT . '", "", "", "", "")';
-			$result = $db_tools->exec($sql);
+			$sql = 'INSERT INTO "Tools_Nmap_ManScan" ("scan_date", "scan_target", "scan_type", "scan_result", "reserve_a", "reserve_b", "reserve_c", "reserve_d") VALUES (:date, :target, :type, :result, :reserve_a, :reserve_b, :reserve_c, :reserve_d)';
+				$result = db_execute_prepared($db_tools, $sql, array(':date' => $PIA_SCAN_TIME, ':target' => $PIA_HOST_IP, ':type' => $PIA_SCAN_MODE, ':result' => $PIA_SCAN_RESULT, ':reserve_a' => '', ':reserve_b' => '', ':reserve_c' => '', ':reserve_d' => ''));
 		} else {
 			echo '<div class="col-md-6">'.$pia_lang['nmap_no_scan_results'].'</div>';
 		}
@@ -191,19 +190,20 @@ if ($_REQUEST['mode'] != "view") {
 		echo '<div class="col-md-6">'.$pia_lang['nmap_no_scan_results'].'</div></div>';
 	}
 
-    $query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
-	$scancounter = $db_tools->querySingle($query);
+    $countResult = db_execute_prepared($db_tools, 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = :target', array(':target' => $PIA_HOST_IP));
+	$scancounter = $countResult ? (int)$countResult->fetchArray(SQLITE3_ASSOC)['count_entries'] : 0;
 	echo $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'];
 
 } elseif ($_REQUEST['mode'] == "view") {
 // Main action (View Mode)-------------------------------------------------------
 	if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
-		$res = $db_tools->query('SELECT * FROM Tools_Nmap_ManScan WHERE scan_target="' . $PIA_HOST_IP . '" ORDER BY scan_date DESC LIMIT 1');
-		$row = $res->fetchArray();
+		$res = db_execute_prepared($db_tools, 'SELECT * FROM Tools_Nmap_ManScan WHERE scan_target = :target ORDER BY scan_date DESC LIMIT 1', array(':target' => $PIA_HOST_IP));
+		$row = $res ? $res->fetchArray() : false;
 
 		if ($row != "") {
-	    	$query = 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = "' . $PIA_HOST_IP . '"';
-	    	$scancounter = $db_tools->querySingle($query);
+	    	$countResult = db_execute_prepared($db_tools, 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = :target', array(':target' => $PIA_HOST_IP));
+	    $countRow = $countResult ? $countResult->fetchArray(SQLITE3_ASSOC) : array('count_entries' => 0);
+	    $scancounter = (int) $countRow['count_entries'];
 
 			echo '<div class="row">';
 			create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'latest');

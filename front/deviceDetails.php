@@ -607,7 +607,6 @@ if ($_REQUEST['mac'] != 'Internet') {
                 <div style="width:100%; text-align: center;">
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'normal')">Loading...</button>
-                  <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'detail')">Loading...</button>
                 </div>
 
                 <div id="scanoutput" style="margin-top: 30px;">
@@ -1768,13 +1767,11 @@ function initToolsSection() {
         // Elemente auswählen
         const $manualFast   = $('#manualnmap_fast');
         const $manualNormal = $('#manualnmap_normal');
-        const $manualDetail = $('#manualnmap_detail');
         const $btnWake      = $('#btnwakeonlan');
 
         // Inhalte nur setzen, wenn Element existiert
         if ($manualFast.length)   $manualFast.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonFast']?> (' + lastIP + ')');
         if ($manualNormal.length) $manualNormal.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault']?> (' + lastIP + ')');
-        if ($manualDetail.length) $manualDetail.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail']?> (' + lastIP + ')');
         if ($btnWake.length)      $btnWake.text('<?=$pia_lang['DevDetail_Tools_WOL']?> ' + lastIP);
 
         // Funktion nur aufrufen, wenn lastIP existiert

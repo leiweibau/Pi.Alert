@@ -42,11 +42,26 @@ function formatIPlong($IP) {
 }
 
 // Others functions
-function getDateFromPeriod() {
-	$period = $_REQUEST['period'];
-	return '"' . date('Y-m-d', strtotime('+1 day -' . $period)) . '"';
+function getDateFromPeriodValue() {
+	$period = $_REQUEST['period'] ?? '1 day';
+	if (!is_scalar($period)) {
+		$period = '1 day';
+	}
+
+	$period = trim((string) $period);
+	if (!preg_match('/^([1-9][0-9]{0,3})\s+(minute|hour|day|week|month|year)s?$/i', $period)) {
+		$period = '1 day';
+	}
+
+	return date('Y-m-d', strtotime('+1 day -' . $period));
 }
 
+function getDateFromPeriod() {
+	return '"' . getDateFromPeriodValue() . '"';
+}
+
+// Deprecated: this legacy formatter is not SQL escaping and must never be used
+// with bound query values. It remains temporarily for external compatibility only.
 function quotes($text) {
 	return str_replace('"', '""', $text);
 }
