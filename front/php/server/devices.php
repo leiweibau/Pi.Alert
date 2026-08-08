@@ -434,9 +434,9 @@ function SetDeviceFilter() {
 
 	$newcolfilter = implode(",", $colfilterarray);
 
-	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
-	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
-	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
+	$filtername = isset($_REQUEST['filtername']) && is_scalar($_REQUEST['filtername']) ? (string) $_REQUEST['filtername'] : '';
+	$filterstring = isset($_REQUEST['filterstring']) && is_scalar($_REQUEST['filterstring']) ? (string) $_REQUEST['filterstring'] : '';
+	$filtergroup = isset($_REQUEST['filtergroup']) && is_scalar($_REQUEST['filtergroup']) ? (string) $_REQUEST['filtergroup'] : '';
 	// Create table if not exist
 	$sql = "CREATE TABLE IF NOT EXISTS Devices_table_filter (
 	            id INTEGER PRIMARY KEY,
@@ -455,10 +455,10 @@ function SetDeviceFilter() {
 			try {
 				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_b", "reserve_c") VALUES (:name, :string, :columns, :group_name)';
 				$result = db_execute_prepared($db, $sql_insert_data, array(':name' => $filtername, ':string' => $filterstring, ':columns' => $newcolfilter, ':group_name' => $filtergroup));
-				echo $pia_lang['BE_Dev_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BE_Dev_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BE_Dev_table_filter_ok_c'];
+				echo $pia_lang['BE_Dev_table_filter_ok_a'] . '"' . h($filtername) . '"' . $pia_lang['BE_Dev_table_filter_ok_b'] . '"' . h($filterstring) . '"' . $pia_lang['BE_Dev_table_filter_ok_c'];
 				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);
 			} catch (Exception $e) {
-				die($pia_lang['BE_Dev_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BE_Dev_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BE_Dev_table_filter_error_c']);
+				die($pia_lang['BE_Dev_table_filter_error_a'] . '"' . h($filtername) . '"' . $pia_lang['BE_Dev_table_filter_error_b'] . '"' . h($filterstring) . '"' . $pia_lang['BE_Dev_table_filter_error_c']);
 				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0041', '', '');
 			}
 		} else {
@@ -474,10 +474,10 @@ function SetDeviceFilter() {
 
 function DeleteDeviceFilter() {
 	global $db; global $pia_lang;
-	$filterstring = $_REQUEST['filterstring'] ?? '';
-	$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE filterstring = :filterstring', array(':filterstring' => is_scalar($filterstring) ? (string)$filterstring : ''));
+	$filterstring = isset($_REQUEST['filterstring']) && is_scalar($_REQUEST['filterstring']) ? (string) $_REQUEST['filterstring'] : '';
+	$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE filterstring = :filterstring', array(':filterstring' => $filterstring));
 	if (!$result) { logServerConsole('Device filter delete failed: ' . $db->lastErrorMsg()); }
-	echo $pia_lang['BE_Dev_table_delfilter_ok'] . $filterstring;
+	echo $pia_lang['BE_Dev_table_delfilter_ok'] . h($filterstring);
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
 }
@@ -733,7 +733,7 @@ function getDevicesListCalendar() {
 	$tableData = array();
 	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
 		if ($row['dev_Favorite'] == 1) {
-			$row['dev_Name'] = '<span class="text-yellow">&#9733</span>&nbsp' . $row['dev_Name'];
+			$row['dev_Name'] = "★ " . $row['dev_Name'];
 		}
 		$tableData[] = array('id' => $row['dev_MAC'], 'title' => $row['dev_Name'], 'favorite' => $row['dev_Favorite']);
 	}
@@ -1067,16 +1067,17 @@ function ListInactiveHosts() {
 	global $pia_lang;
 	global $db;
 
-	$inactive_hosts[0] = "";
+	$inactive_hosts[0] = '';
 
-	$i=1;
+	$i = 1;
 	$sql = 'SELECT * FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day") ORDER BY dev_LastConnection DESC';
 	$result = $db->query($sql);
 	while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-		$inactive_hosts[0] .= $i .'.&nbsp;&nbsp;&nbsp;'.$res['dev_Name'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_MAC'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_LastConnection'] ."<br>";
+		$inactive_hosts[0] .= $i . '.   ' . $res['dev_Name'] . ' / ' . $res['dev_MAC'] . ' / ' . $res['dev_LastConnection'] . "\n";
 		$i++;
 	}
-	echo (json_encode($inactive_hosts));
+	header('Content-Type: application/json; charset=UTF-8');
+	echo json_encode($inactive_hosts);
 }
 
 //  Delete All Notification in WebGUI
@@ -1142,7 +1143,7 @@ function BulkDeletion() {
 	$db->exec('BEGIN'); $result = db_execute_prepared($db, 'DELETE FROM Devices WHERE dev_MAC IN (' . $placeholders . ')', $params);
 	if ($result) { $db->exec('COMMIT'); } else { $db->exec('ROLLBACK'); logServerConsole('Device bulk delete failed: ' . $db->lastErrorMsg()); }
 	$after = (int)$db->querySingle('SELECT COUNT(*) FROM Devices');
-	echo $pia_lang['Device_bulkDel_back_hosts'] . ': ' . implode(', ', $hosts) . '<br><br>' . $pia_lang['Device_bulkDel_back_before'] . ': ' . $before . '<br>' . $pia_lang['Device_bulkDel_back_after'] . ': ' . $after;
+	echo $pia_lang['Device_bulkDel_back_hosts'] . ': ' . h(implode(', ', $hosts)) . '<br><br>' . $pia_lang['Device_bulkDel_back_before'] . ': ' . $before . '<br>' . $pia_lang['Device_bulkDel_back_after'] . ': ' . $after;
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php?mod=bulkedit'>");
 	pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', implode(',', $hosts));
 }

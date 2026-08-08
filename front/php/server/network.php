@@ -97,7 +97,7 @@ function network_device_downlink() {
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
 		if ($value_seperator == "," && $temp_type != "" && $temp_type != $func_res['dev_DeviceType']) {echo '<li class="divider"></li>';}
-		echo '<li><a href="javascript:void(0)" onclick="appendTextValue(\'txtNetworkDeviceDownlinkMac\',\'' . $func_res['dev_MAC'] . $value_seperator .'\')">' . $func_res['dev_Name'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="append" data-target="txtNetworkDeviceDownlinkMac" data-value="' . h($func_res['dev_MAC'] . $value_seperator) . '">' . h($func_res['dev_Name']) . '</a></li>';
 		$temp_type = $func_res['dev_DeviceType'];
 	}
 }
@@ -108,37 +108,44 @@ function NetworkInfrastructure_list() {
 
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtNetworkDeviceName\',\'' . $func_res['dev_Name'] . '\')">' . $func_res['dev_Name'] . '/' . $func_res['dev_DeviceType'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="txtNetworkDeviceName" data-value="' . h($func_res['dev_Name']) . '">' . h($func_res['dev_Name']) . '/' . h($func_res['dev_DeviceType']) . '</a></li>';
 	}
 }
 
 function NetworkDeviceTyp_list() {
-	if ($_REQUEST['mode'] == "add") {$inputfield = "txtNetworkDeviceTyp";}
-	if ($_REQUEST['mode'] == "edit") {$inputfield = "txtNewNetworkDeviceTyp";}
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'0_Internet\')">0. Internet</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'1_Router\')">1. Router</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'2_Switch\')">2. Switch</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'3_WLAN\')">3. WLAN</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'4_Powerline\')">4. Powerline</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'5_Hypervisor\')">5. Hypervisor</a></li>';
+	$mode = network_request_text('mode');
+	$targets = array('add' => 'txtNetworkDeviceTyp', 'edit' => 'txtNewNetworkDeviceTyp');
+	if (!isset($targets[$mode])) {
+		http_response_code(400);
+		return;
+	}
+	$inputfield = $targets[$mode];
+	foreach (array('0_Internet' => '0. Internet', '1_Router' => '1. Router', '2_Switch' => '2. Switch', '3_WLAN' => '3. WLAN', '4_Powerline' => '4. Powerline', '5_Hypervisor' => '5. Hypervisor') as $value => $label) {
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="' . h($inputfield) . '" data-value="' . h($value) . '">' . h($label) . '</a></li>';
+	}
 }
 
 function NetworkGroupName_list() {
 	global $db;
-	if ($_REQUEST['mode'] == "add") {$inputfield = "txtNetworkGroupName";}
-	if ($_REQUEST['mode'] == "edit") {$inputfield = "txtNewNetworkGroupName";}
+	$mode = network_request_text('mode');
+	$targets = array('add' => 'txtNetworkGroupName', 'edit' => 'txtNewNetworkGroupName');
+	if (!isset($targets[$mode])) {
+		http_response_code(400);
+		return;
+	}
+	$inputfield = $targets[$mode];
 
 	$func_sql = 'SELECT "sat_name" FROM "Satellites"';
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'' . $inputfield . '\',\'' . $func_res['sat_name'] . '\')">Satellite ' . $func_res['sat_name'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="' . h($inputfield) . '" data-value="' . h($func_res['sat_name']) . '">Satellite ' . h($func_res['sat_name']) . '</a></li>';
 	}
 	echo '<li class="divider"></li>';
 
 	$func_sql = 'SELECT DISTINCT "net_networkname" FROM "network_infrastructure"';
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'' . $inputfield . '\',\'' . $func_res['net_networkname'] . '\')">Network ' . $func_res['net_networkname'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="' . h($inputfield) . '" data-value="' . h($func_res['net_networkname']) . '">Network ' . h($func_res['net_networkname']) . '</a></li>';
 	}
 }
 

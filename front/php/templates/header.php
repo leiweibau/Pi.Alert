@@ -3,6 +3,7 @@
 $conf_file = '../config/version.conf';
 $conf_data = parse_ini_file($conf_file);
 require 'php/server/timezone.php';
+require_once 'php/server/util.php';
 require 'header_func.php';
 require 'php/templates/language/' . $pia_lang_selected . '.php';
 ?>
@@ -16,7 +17,7 @@ require 'php/templates/language/' . $pia_lang_selected . '.php';
     <meta http-equiv="cache-control" content="max-age=60,private">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="img/manifest.json">
-    <title>Pi.Alert - <?php echo gethostname(); ?></title>
+    <title>Pi.Alert - <?=h(gethostname());?></title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.4.1 -->
     <link rel="stylesheet" href="lib/AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css">
@@ -33,12 +34,12 @@ require 'php/templates/language/' . $pia_lang_selected . '.php';
     <!-- AdminLTE Skins. -->
     <?=$skin_selected_head;?>
     <!-- Pi.Alert CSS -->
-    <link rel="stylesheet" href="css/pialert.css?v=<?=$conf_data['VERSION_DATE'];?>">
+    <link rel="stylesheet" href="css/pialert.css?v=<?=rawurlencode((string) ($conf_data['VERSION_DATE'] ?? ''));?>">
     <!-- Offline Font -->
     <link rel="stylesheet" href="css/offline-font.css">
     <!-- Fav / Homescreen Icon -->
-    <link rel="icon" type="image/x-icon" href="<?=$FRONTEND_FAVICON?>">
-    <link rel="apple-touch-icon" href="<?=$FRONTEND_FAVICON?>">
+    <link rel="icon" type="image/x-icon" href="<?=h(safe_web_url($FRONTEND_FAVICON, 'img/favicons/flat_blue_white.png'));?>">
+    <link rel="apple-touch-icon" href="<?=h(safe_web_url($FRONTEND_FAVICON, 'img/favicons/flat_blue_white.png'));?>">
     <link rel="manifest" href="img/manifest.json">
 <?php
 if ($ENABLED_DARKMODE === True) {echo '<link rel="stylesheet" href="css/dark-patch.css?' . $conf_data['VERSION_DATE'] . '">';}
@@ -92,7 +93,7 @@ insert_back_button();
         <ul class="nav navbar-nav">
           <?php
           if ($FRONTEND_PHBUTTON != '') {
-            echo '<li><a id="navbar-pihole-button" class="a navbar-servertime" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
+            echo '<li><a id="navbar-pihole-button" class="a navbar-servertime" href="' . h(safe_web_url($FRONTEND_PHBUTTON)) . '" role="button" target="_blank" rel="noopener noreferrer"><i class="mdi mdi-pi-hole"></i></a></li>';
           }
           ?>
           <li><a id="navbar-help-button" class="navbar-servertime" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" target="_blank">
@@ -101,7 +102,7 @@ insert_back_button();
           </li>
           <li>
             <div class="a navbar-servertime">
-              <?php echo gethostname(); ?> <span id="PIA_Servertime_place"></span><br>
+              <?=h(gethostname());?> <span id="PIA_Servertime_place"></span><br>
               <span id="nextscancountdown"></span>
             </div>
           </li>
@@ -110,7 +111,7 @@ insert_back_button();
             <!-- Menu Toggle Button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="height: 50px; padding-top: 15px">
               <!-- The user image in the navbar-->
-              <img src="img/<?=$_SESSION['UserLogo'];?>.png" class="user-image" style="border-radius: initial" alt="Pi.Alert Logo">
+              <img src="img/<?=h(in_array($_SESSION['UserLogo'] ?? '', ['pialertLogoBlack', 'pialertLogoWhite'], true) ? $_SESSION['UserLogo'] : 'pialertLogoWhite');?>.png" class="user-image" style="border-radius: initial" alt="Pi.Alert Logo">
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
               <!-- <span class="hidden-xs">Pi.Alert</span> -->
               <span class="label label-danger" id="Menu_Report_Counter_Badge"></span>

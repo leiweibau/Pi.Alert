@@ -166,13 +166,53 @@ function sleep(milliseconds) {
 
 
 // -----------------------------------------------------------------------------
+function escapeHtmlText(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function translateHTMLcodes (text) {
   if (text == null) {
     return null;
   }
-  var text2 = text.replace(new RegExp(' ', 'g'), "&nbsp");
-  text2 = text2.replace(new RegExp('<', 'g'), "&lt");
-  return text2;
+  return escapeHtmlText(text).replace(/ /g, '&nbsp;');
+}
+
+
+// -----------------------------------------------------------------------------
+// Build dropdown entries without parsing database values as HTML or JavaScript.
+function clearElement(element) {
+  if (!element) {
+    return;
+  }
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
+function appendDropdownDivider(menuElement) {
+  const divider = document.createElement('li');
+  divider.className = 'divider';
+  menuElement.appendChild(divider);
+}
+
+function appendSafeDropdownItem(menuElement, label, value, onSelect) {
+  const item = document.createElement('li');
+  const link = document.createElement('a');
+
+  link.href = '#';
+  link.textContent = String(label ?? '');
+  link.addEventListener('click', function(event) {
+    event.preventDefault();
+    onSelect(String(value ?? ''));
+  });
+
+  item.appendChild(link);
+  menuElement.appendChild(item);
 }
 
 
@@ -306,3 +346,156 @@ function copyiptoclipboard() {
         }
     }
 }
+
+function setCellText(td, value, suffix = "") {
+  td.textContent = String(value ?? "") + suffix;
+}
+
+function setCellStrongText(td, value) {
+  const strong = document.createElement("strong");
+  strong.textContent = String(value ?? "");
+  td.replaceChildren(strong);
+}
+
+function setCellLink(td, href, value, className = "", warningSuffix = "") {
+  const link = document.createElement("a");
+  link.href = href;
+  link.className = className;
+
+  const text = String(value ?? "");
+  if (warningSuffix && text.endsWith(warningSuffix)) {
+    link.append(document.createTextNode(text.slice(0, -warningSuffix.length)));
+    const warning = document.createElement("span");
+    warning.className = "text-warning";
+    warning.textContent = warningSuffix;
+    link.append(warning);
+  } else {
+    link.textContent = text;
+  }
+
+  const strong = document.createElement("strong");
+  strong.append(link);
+  td.replaceChildren(strong);
+}
+
+function setCellColoredText(td, value, color, emphasize = false) {
+  const element = document.createElement(emphasize ? "strong" : "span");
+  element.textContent = String(value ?? "");
+  element.style.color = String(color ?? "");
+  td.replaceChildren(element);
+}
+
+
+function sanitizeJournalMarkup(value) {
+  const source = document.createElement("template");
+  source.innerHTML = String(value ?? "");
+
+  const output = document.createElement("div");
+  const allowedSpanClasses = new Set(["text-danger"]);
+
+  function appendSafeNode(node, parent) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      parent.appendChild(document.createTextNode(node.nodeValue ?? ""));
+      return;
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return;
+    }
+
+    const tagName = node.tagName.toLowerCase();
+    if (tagName === "br") {
+      parent.appendChild(document.createElement("br"));
+      return;
+    }
+
+    if (tagName === "span") {
+      const span = document.createElement("span");
+      for (const className of node.classList) {
+        if (allowedSpanClasses.has(className)) {
+          span.classList.add(className);
+        }
+      }
+      for (const child of node.childNodes) {
+        appendSafeNode(child, span);
+      }
+      parent.appendChild(span);
+      return;
+    }
+
+    for (const child of node.childNodes) {
+      appendSafeNode(child, parent);
+    }
+  }
+
+  for (const child of source.content.childNodes) {
+    appendSafeNode(child, output);
+  }
+
+  return output.innerHTML;
+}
+
+function journalMarkupText(value) {
+  const source = document.createElement("template");
+  source.innerHTML = sanitizeJournalMarkup(value);
+
+  let text = "";
+  function appendText(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      text += node.nodeValue ?? "";
+      return;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE && node.tagName.toLowerCase() === "br") {
+      text += "\n";
+      return;
+    }
+    for (const child of node.childNodes) {
+      appendText(child);
+    }
+  }
+
+  for (const child of source.content.childNodes) {
+    appendText(child);
+  }
+  return text;
+}
+
+document.addEventListener("click", function (event) {
+  const source = event.target instanceof Element ? event.target : null;
+  if (!source) {
+    return;
+  }
+
+  const reloadLink = source.closest(".nmap-reload");
+  if (reloadLink && typeof showmanualnmapscan === "function") {
+    event.preventDefault();
+    showmanualnmapscan(String(reloadLink.dataset.target ?? ""));
+    return;
+  }
+
+  const ignoreLink = source.closest(".ignore-list-delete");
+  if (ignoreLink) {
+    event.preventDefault();
+    const value = String(ignoreLink.dataset.value ?? "");
+    if (ignoreLink.dataset.kind === "mac" && typeof askDeleteBlockDeviceMAC === "function") {
+      askDeleteBlockDeviceMAC(value);
+    } else if (ignoreLink.dataset.kind === "ip" && typeof askDeleteBlockDeviceIP === "function") {
+      askDeleteBlockDeviceIP(value);
+    }
+    return;
+  }
+
+  const satelliteButton = source.closest(".satellite-action");
+  if (!satelliteButton) {
+    return;
+  }
+
+  const action = satelliteButton.dataset.action;
+  if (action === "install" && typeof InstallSatellite === "function") {
+    InstallSatellite(String(satelliteButton.dataset.token ?? ""), String(satelliteButton.dataset.password ?? ""));
+  } else if (action === "save" && typeof SaveSatellite === "function") {
+    SaveSatellite(String(satelliteButton.dataset.name ?? ""), String(satelliteButton.dataset.rowId ?? ""));
+  } else if (action === "delete" && typeof DeleteSatellite === "function") {
+    DeleteSatellite(String(satelliteButton.dataset.name ?? ""), String(satelliteButton.dataset.rowId ?? ""));
+  }
+});

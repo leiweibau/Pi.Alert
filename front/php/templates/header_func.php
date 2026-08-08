@@ -214,27 +214,27 @@ function toggle_satellites_submenu() {
 	    if ($result) {
 	        if ($result->numColumns() > 0) {
 	            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-	                array_push($satellite_badges_list, $row['sat_token']);
+	                array_push($satellite_badges_list, (string) $row['sat_token']);
 	                // prepare SubHeadline on devices page
 	                $_SESSION[$row['sat_token']] = $row['sat_name'];
 	                // Create NavBar items
 	                $dev_submenu .= '<li class="custom_filter">
-	                	<a href="devices.php?scansource='.$row['sat_token'].'" class="sidebar-subentries">
+	                	<a href="devices.php?scansource='.rawurlencode((string) $row['sat_token']).'" class="sidebar-subentries">
 	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
-	                		<span>'.$row['sat_name'].'</span>
+	                		<span>'.h($row['sat_name']).'</span>
 	                		<span class="pull-right-container" style="margin-right:-5px">
-				              <small class="label pull-right bg-yellow" id="header_'.$row['sat_token'].'_count_new"></small>
-				              <small class="label pull-right bg-red" id="header_'.$row['sat_token'].'_count_down"></small>
-				              <small class="label pull-right bg-green" id="header_'.$row['sat_token'].'_count_on"></small>
+				              <small class="label pull-right bg-yellow" id="header_'.h($row['sat_token']).'_count_new"></small>
+				              <small class="label pull-right bg-red" id="header_'.h($row['sat_token']).'_count_down"></small>
+				              <small class="label pull-right bg-green" id="header_'.h($row['sat_token']).'_count_on"></small>
 		            		</span>
 		            </a></li>';
 
 		            $pres_submenu .= '<li class="custom_filter">
-	                	<a href="presence.php?scansource='.$row['sat_token'].'" class="sidebar-subentries">
+	                	<a href="presence.php?scansource='.rawurlencode((string) $row['sat_token']).'" class="sidebar-subentries">
 	                		<i class="fa-solid fa-satellite" style="margin-right:5px;"></i>
-	                		<span>'.$row['sat_name'].'</span>
+	                		<span>'.h($row['sat_name']).'</span>
 	                		<span class="pull-right-container" style="margin-right:-5px">
-				              <small class="label pull-right bg-gray" id="header_'.$row['sat_token'].'_presence"></small>
+				              <small class="label pull-right bg-gray" id="header_'.h($row['sat_token']).'_presence"></small>
 		            		</span></a>
 	                	</li>';
 	            }
@@ -342,66 +342,77 @@ function get_devices_filter_list() {
 // Sidebar Menu - Show filter editor from array
 function show_filter_editor() {
 	global $pia_lang;
-	$filter_table = $_SESSION['Filter_Table'];
-	$i=0;
+	$filter_table = $_SESSION['Filter_Table'] ?? [];
+	$i = 0;
 	$listsize = sizeof($filter_table);
+
 	foreach ($filter_table as $row) {
+		$filterId = filter_var($row['id'] ?? null, FILTER_VALIDATE_INT);
+		if ($filterId === false || $filterId < 0) {
+			continue;
+		}
+
 		$i++;
+		$id = (string) $filterId;
 		$spacer = '<div class="row"><div class="col-xs-12"><hr></div></div>';
 		echo '<div class="row">';
-    	echo '<div class="col-md-2 col-md-offset-1">
-    			<div class="form-group" style="text-align: left;">
-    				<label class="control-label">' . $pia_lang['Device_del_table_filtername'] . '</label>
-    				<input class="form-control" id="txt_' . $row['id'] . '_ID" type="hidden" value="' . $row['id'] . '">
-    				<input class="form-control" id="txt_' . $row['id'] . '_name" type="text" value="' . $row['filtername'] . '">
-    			</div>
-    		  </div>';
-    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filterstring'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_string" type="text" value="' . $row['filterstring'] . '"></div></div>';
-    	echo '<div class="col-md-1"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filterindex'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_index" type="text" value="' . $row['reserve_a'] . '"></div></div>';
-    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filtercol'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_column" type="text" value="' . $row['reserve_b'] . '"></div></div>';
-    	echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . $pia_lang['Device_del_table_filtergroup'] . '</label><input class="form-control" id="txt_' . $row['id'] . '_group" type="text" value="' . $row['reserve_c'] . '"></div></div>';
-    	echo '<div class="col-md-1">
-    			<div class="form-group" style="text-align: left;">
-    				<button type="button" class="btn btn-link" id="btnSaveFilter_' . $row['id'] . '" onclick="SaveFilterID_' . $row['id'] . '(\'' . $row['filtername'] . '\',\'' . $row['id'] . '\')" ><i class="bi bi-floppy text-yellow" style="position: relative; font-size: 20px; top: 23px;"></i></button>
-    			</div>
-    		  </div>';
-    	echo '</div>';
-    	if ($i<$listsize) {echo $spacer;}
-    }
+		echo '<div class="col-md-2 col-md-offset-1">
+				<div class="form-group" style="text-align: left;">
+					<label class="control-label">' . h($pia_lang['Device_del_table_filtername']) . '</label>
+					<input class="form-control" id="txt_' . $id . '_ID" type="hidden" value="' . $id . '">
+					<input class="form-control" id="txt_' . $id . '_name" type="text" value="' . h($row['filtername'] ?? '') . '">
+				</div>
+			  </div>';
+		echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . h($pia_lang['Device_del_table_filterstring']) . '</label><input class="form-control" id="txt_' . $id . '_string" type="text" value="' . h($row['filterstring'] ?? '') . '"></div></div>';
+		echo '<div class="col-md-1"><div class="form-group" style="text-align: left;"><label class="control-label">' . h($pia_lang['Device_del_table_filterindex']) . '</label><input class="form-control" id="txt_' . $id . '_index" type="text" value="' . h($row['reserve_a'] ?? '') . '"></div></div>';
+		echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . h($pia_lang['Device_del_table_filtercol']) . '</label><input class="form-control" id="txt_' . $id . '_column" type="text" value="' . h($row['reserve_b'] ?? '') . '"></div></div>';
+		echo '<div class="col-md-2"><div class="form-group" style="text-align: left;"><label class="control-label">' . h($pia_lang['Device_del_table_filtergroup']) . '</label><input class="form-control" id="txt_' . $id . '_group" type="text" value="' . h($row['reserve_c'] ?? '') . '"></div></div>';
+		echo '<div class="col-md-1">
+				<div class="form-group" style="text-align: left;">
+					<button type="button" class="btn btn-link save-device-filter" id="btnSaveFilter_' . $id . '" data-filter-id="' . $id . '"><i class="bi bi-floppy text-yellow" style="position: relative; font-size: 20px; top: 23px;"></i></button>
+				</div>
+			  </div>';
+		echo '</div>';
+		if ($i < $listsize) {
+			echo $spacer;
+		}
+	}
 }
 // Sidebar Menu - Show filter editor from array
 function create_filter_editor_js() {
-	global $pia_lang;
-	$filter_table = $_SESSION['Filter_Table'];
-	foreach ($filter_table as $row) {
-		echo '
-function SaveFilterID_' . $row['id'] . '() {
-	$.get(\'php/server/devices.php?action=SaveFilterID&\'
-    + \'&filterid=\'      + $(\'#txt_' . $row['id'] . '_ID\').val()
-    + \'&filtername=\'    + $(\'#txt_' . $row['id'] . '_name\').val()
-    + \'&filterstring=\'  + $(\'#txt_' . $row['id'] . '_string\').val()
-    + \'&filterindex=\'   + $(\'#txt_' . $row['id'] . '_index\').val()
-    + \'&filtercolumn=\'  + $(\'#txt_' . $row['id'] . '_column\').val()
-    + \'&filtergroup=\'   + $(\'#txt_' . $row['id'] . '_group\').val()
-     , function(msg) {
-     showMessage (msg);
-   });
-}';
-    }
+	echo '
+$(document).on("click", ".save-device-filter", function () {
+	const filterId = String(this.dataset.filterId || "");
+	if (!/^\\d+$/.test(filterId)) {
+		return;
+	}
+
+	$.get("php/server/devices.php", {
+		action: "SaveFilterID",
+		filterid: $("#txt_" + filterId + "_ID").val(),
+		filtername: $("#txt_" + filterId + "_name").val(),
+		filterstring: $("#txt_" + filterId + "_string").val(),
+		filterindex: $("#txt_" + filterId + "_index").val(),
+		filtercolumn: $("#txt_" + filterId + "_column").val(),
+		filtergroup: $("#txt_" + filterId + "_group").val()
+	}, function (msg) {
+		showMessage(msg);
+	});
+});';
 }
 // Sidebar Menu - Show groupless filters in Sidebar from session array
 function show_groupless_filters() {
 	$filter_table = $_SESSION['Filter_Table'];
 	foreach ($filter_table as $row) {
-    	if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
+    	if (($row['filterstring'] ?? '') == ($_REQUEST['predefined_filter'] ?? '')) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
     	if ($row['reserve_c'] == "" || !isset($row['reserve_c'])) {
-        	echo '<li class="custom_filter"><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'" class="sidebar-subentries"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+        	echo '<li class="custom_filter"><a href="devices.php?predefined_filter='.rawurlencode((string) ($row['filterstring'] ?? '')).'&amp;filter_fields='.rawurlencode((string) ($row['reserve_b'] ?? '')).'" class="sidebar-subentries"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'.h($row['filtername'] ?? '').'</a></li>';
     	}
     }
 }
 // Sidebar Menu - Show grouped filters in Sidebar from session array
 function show_group_filters() {
-	if (isset($_REQUEST['g'])) {$active_group = $_REQUEST['g'];}
+	$active_group = isset($_REQUEST['g']) && is_scalar($_REQUEST['g']) ? (int) $_REQUEST['g'] : null;
 	$filter_table = $_SESSION['Filter_Table'];
 	$filter_groups = get_filter_group_list();
 	for ($i = 0; $i < sizeof($filter_groups); $i++) {
@@ -410,7 +421,7 @@ function show_group_filters() {
 		echo '<li class="treeview '.$group_state['menu'].' custom_filter" style="height: auto;">
 				<a href="#" class="sidebar-subentries">
 	    			<i class="fa-solid fa-filter"></i>
-	    			<span style="font-style: italic;">&nbsp;'.$temp_filter_group.'</span>
+	    			<span style="font-style: italic;">&nbsp;'.h($temp_filter_group).'</span>
 	    			<span class="pull-right-container">
 	      				<i class="fa fa-angle-left pull-right"></i>
 	    			</span>
@@ -418,8 +429,8 @@ function show_group_filters() {
 	  			<ul class="treeview-menu" style="display: '.$group_state['list'].';">';
 		foreach ($filter_table as $row) {
 	    	if ($row['reserve_c'] == $temp_filter_group) {
-	    		if ($row['filterstring'] == $_REQUEST['predefined_filter']) {$filterlist_icon = "fa-solid fa-circle"; } else {$filterlist_icon = "fa-regular fa-circle"; }
-	    		echo '<li><a href="devices.php?predefined_filter='.urlencode($row['filterstring']).'&filter_fields='.$row['reserve_b'].'&g='.$i.'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:22px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'. $row['filtername'] .'</a></li>';
+	    		if (($row['filterstring'] ?? '') == ($_REQUEST['predefined_filter'] ?? '')) {$filterlist_icon = "fa-solid fa-circle"; } else {$filterlist_icon = "fa-regular fa-circle"; }
+	    		echo '<li><a href="devices.php?predefined_filter='.rawurlencode((string) ($row['filterstring'] ?? '')).'&amp;filter_fields='.rawurlencode((string) ($row['reserve_b'] ?? '')).'&amp;g='.$i.'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:22px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'.h($row['filtername'] ?? '').'</a></li>';
 	    	}
 	    }
 	    echo '</ul></li>';
@@ -501,5 +512,8 @@ if (file_exists('../config/setting_piholebutton')) {
 	$FRONTEND_PHBUTTON = '';
 }
 // set ScanSource Defaults (Satellite Scans)
-if ($_REQUEST['scansource']) {$SCANSOURCE=$_REQUEST['scansource'];} else {$SCANSOURCE='local';}
+$scanSourceRequest = $_REQUEST['scansource'] ?? 'local';
+$SCANSOURCE = is_string($scanSourceRequest) && preg_match('/^[A-Za-z0-9_.:-]{1,128}$/', $scanSourceRequest)
+	? $scanSourceRequest
+	: 'local';
 ?>

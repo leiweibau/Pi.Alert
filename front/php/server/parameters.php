@@ -235,17 +235,22 @@ function setReportParameter() {
         $old_data = $row['par_Long_Value'];
     } else {$old_data = "";}
 
-	$HeadLineColors = "";
-	// Set Default Colors if unset
-	if ($_POST['HeadLineColors'] != "") {
-		$temp_array = $_POST['HeadLineColors'];
-		if ($temp_array[0] == "") {$temp_array[0] = "#30bbbb";} // Internet
-		if ($temp_array[1] == "") {$temp_array[1] = "#D81B60";} // Devices
-		if ($temp_array[2] == "") {$temp_array[2] = "#00c0ef";} // Services
-		if ($temp_array[3] == "") {$temp_array[3] = "#831CFF";} // ICMP
-		if ($temp_array[4] == "") {$temp_array[4] = "#00a65a";} // Test/System
-		$HeadLineColors = implode(",", $temp_array);
+	$defaults = array("#30bbbb", "#D81B60", "#00c0ef", "#831CFF", "#00a65a");
+	$submittedColors = $_POST['HeadLineColors'] ?? array();
+	if (!is_array($submittedColors)) {
+		$submittedColors = array();
 	}
+
+	$validatedColors = array();
+	foreach ($defaults as $index => $fallback) {
+		$candidate = $submittedColors[$index] ?? '';
+		if (!is_scalar($candidate)) {
+			$candidate = '';
+		}
+		$candidate = trim((string) $candidate);
+		$validatedColors[] = preg_match('/^#[0-9a-f]{6}$/i', $candidate) ? $candidate : $fallback;
+	}
+	$HeadLineColors = implode(",", $validatedColors);
 
     saveParameters('report_headline_colors', $HeadLineColors);
 

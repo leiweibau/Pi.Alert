@@ -60,15 +60,43 @@ function getDateFromPeriod() {
 	return '"' . getDateFromPeriodValue() . '"';
 }
 
-// Deprecated: this legacy formatter is not SQL escaping and must never be used
-// with bound query values. It remains temporarily for external compatibility only.
-function quotes($text) {
-	return str_replace('"', '""', $text);
-}
-
 function logServerConsole($text) {
 	$x = array();
 	$y = $x['__________' . $text . '__________'];
+}
+
+// Encode a value for an HTML text or quoted attribute context.
+function h($value): string {
+	return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+
+function h_with_line_breaks($value): string {
+	$parts = preg_split('/(?:<br\s*\/?>|\r\n|\r|\n)/i', (string) $value);
+	if ($parts === false) {
+		return h($value);
+	}
+
+	return implode('<br>', array_map('h', $parts));
+}
+
+// Allow only HTTP(S) and same-site relative URLs in browser URL attributes.
+function safe_web_url($value, string $fallback = ''): string {
+	if (!is_scalar($value)) {
+		return $fallback;
+	}
+
+	$url = trim((string) $value);
+	if ($url === '' || preg_match('/[\\x00-\\x1F\\x7F]/', $url)) {
+		return $fallback;
+	}
+
+	$scheme = parse_url($url, PHP_URL_SCHEME);
+	if ($scheme !== null) {
+		return in_array(strtolower($scheme), ['http', 'https'], true) ? $url : $fallback;
+	}
+
+	return str_starts_with($url, '//') ? $fallback : $url;
 }
 
 ?>

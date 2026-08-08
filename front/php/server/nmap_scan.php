@@ -10,13 +10,14 @@ if ($_SESSION["login"] != 1) {
 require 'timezone.php';
 require 'db.php';
 require 'journal.php';
+require_once 'util.php';
 require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
 // $DBFILE = '../../../db/pialert.db';
 // $DBFILE_TOOLS = '../../../db/pialert_tools.db';
-$PIA_HOST_IP = $_REQUEST['scan'];
-$PIA_SCAN_MODE = $_REQUEST['mode'];
+$PIA_HOST_IP = isset($_REQUEST['scan']) && is_scalar($_REQUEST['scan']) ? (string) $_REQUEST['scan'] : '';
+$PIA_SCAN_MODE = isset($_REQUEST['mode']) && is_scalar($_REQUEST['mode']) ? (string) $_REQUEST['mode'] : '';
 $PIA_SCAN_TIME = date('Y-m-d H:i:s');
 
 if (!in_array($PIA_SCAN_MODE, array('fast', 'normal', 'view'), true)) {
@@ -69,10 +70,10 @@ function create_portlist_table($portliststring) {
 	for ($i=0;$i<sizeof($temp_array);$i++) {
 		$temp_ports = explode("###", $temp_array[$i]);
 		echo '<div class="row">
-		          <div class="col-xs-2">'.$temp_ports[0] .'</div>
-		          <div class="col-xs-3">'. $temp_ports[1] .'</div>
-		          <div class="col-xs-2">'. $temp_ports[2] . '</div>
-		          <div class="col-xs-5">'. $temp_ports[3] . '</div>
+		          <div class="col-xs-2">'.h($temp_ports[0] ?? '') .'</div>
+		          <div class="col-xs-3">'.h($temp_ports[1] ?? '') .'</div>
+		          <div class="col-xs-2">'.h($temp_ports[2] ?? '') . '</div>
+		          <div class="col-xs-5">'.h($temp_ports[3] ?? '') . '</div>
 		      </div>';
 	}
 }
@@ -83,7 +84,7 @@ function create_scanoutput_box($date, $type, $target, $box_type) {
 	if ($box_type == 'previous') {
 		$headline = $pia_lang['DevDetail_Tools_nmap_head_prev'];
 		$text_color = '';
-		$reloadlink = '<a class="nmappagerelaod" href="#" onclick="showmanualnmapscan(\''.$target.'\')"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
+		$reloadlink = '<a class="nmappagerelaod nmap-reload" href="#" data-target="' . h($target) . '"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
 	elseif ($box_type == 'latest') {
 		$headline = $pia_lang['DevDetail_Tools_nmap_head_latest'];
 		$text_color = '';
@@ -91,7 +92,7 @@ function create_scanoutput_box($date, $type, $target, $box_type) {
 	elseif ($box_type == 'current') {
 		$headline = $pia_lang['DevDetail_Tools_nmap_head_cur'];
 		$text_color = "text-red";
-		$reloadlink = '<a class="nmappagerelaod" href="#" onclick="showmanualnmapscan(\''.$target.'\')"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
+		$reloadlink = '<a class="nmappagerelaod nmap-reload" href="#" data-target="' . h($target) . '"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
 
 	if ($type == 'fast') {
 		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonFast'];}
@@ -106,15 +107,15 @@ function create_scanoutput_box($date, $type, $target, $box_type) {
 			</div>
 			<div class="row" style="padding-bottom:5px;">
 			   <div class="col-xs-4"><b>'.$pia_lang['ookla_devdetails_table_time'].':</b></div>
-			   <div class="col-xs-6 '.$text_color.'">'.$date.'</div>
+			   <div class="col-xs-6 '.$text_color.'">'.h($date).'</div>
 			</div>
 			<div class="row" style="padding-bottom:5px;">
 			   <div class="col-xs-4"><b>'.$pia_lang['nmap_devdetails_scanmode'].':</b></div>
-			   <div class="col-xs-6">'.$type_lang.'</div>
+			   <div class="col-xs-6">'.h($type_lang).'</div>
 			</div>
 			<div class="row" style="padding-bottom:5px;">
 			   <div class="col-xs-4"><b>'.$pia_lang['WEBS_tablehead_TargetIP'].':</b></div>
-			   <div class="col-xs-6">' . $target . '</div>
+			   <div class="col-xs-6">' . h($target) . '</div>
 			</div>
 			<div class="row" style="">
            	   <div class="col-xs-2 text-uppercase"><strong>Port</strong></div>
@@ -126,7 +127,7 @@ function create_scanoutput_box($date, $type, $target, $box_type) {
 
 // Main action (Scan Mode)-------------------------------------------------------
 // Check if IP is valid
-if ($_REQUEST['mode'] != "view") {
+if ($PIA_SCAN_MODE != "view") {
 	if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 
 		// Check if IP is already known and in DB
@@ -194,7 +195,7 @@ if ($_REQUEST['mode'] != "view") {
 	$scancounter = $countResult ? (int)$countResult->fetchArray(SQLITE3_ASSOC)['count_entries'] : 0;
 	echo $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'];
 
-} elseif ($_REQUEST['mode'] == "view") {
+} elseif ($PIA_SCAN_MODE == "view") {
 // Main action (View Mode)-------------------------------------------------------
 	if (filter_var($PIA_HOST_IP, FILTER_VALIDATE_IP)) {
 		$res = db_execute_prepared($db_tools, 'SELECT * FROM Tools_Nmap_ManScan WHERE scan_target = :target ORDER BY scan_date DESC LIMIT 1', array(':target' => $PIA_HOST_IP));
@@ -216,7 +217,7 @@ if ($_REQUEST['mode'] != "view") {
 				  	</div>';
 			echo '	<div class="row">
 						<div class="col-xs-12 text-center" style="margin-top:20px;margin-bottom:20px">
-							<a role="button" class="btn btn-primary pa-btn" href="./download/hostnmapresultscvs.php?host='.$PIA_HOST_IP.'">'.$pia_lang['nmap_devdetails_download'].'</a>
+							<a role="button" class="btn btn-primary pa-btn" href="./download/hostnmapresultscvs.php?host='.rawurlencode($PIA_HOST_IP).'">'.$pia_lang['nmap_devdetails_download'].'</a>
 						</div>
 				  	</div>
 				  </div>';

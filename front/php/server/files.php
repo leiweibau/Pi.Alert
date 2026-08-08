@@ -477,26 +477,24 @@ function GetServerTime() {
 function GetLogfiles() {
 	global $pia_lang;
 
-	$logfiles = ["pialert.1.log", "pialert.IP.log", "pialert.vendors.log", "pialert.cleanup.log", "pialert.webservices.log", "pialert.speedtest.log"];
-	$logmessage = [$pia_lang['MT_Tools_Logviewer_Scan_empty'], $pia_lang['MT_Tools_Logviewer_IPLog_empty'], '', $pia_lang['MT_Tools_Logviewer_Cleanup_empty'], $pia_lang['MT_Tools_Logviewer_WebServices_empty']];
+	$logfiles = array('pialert.1.log', 'pialert.IP.log', 'pialert.vendors.log', 'pialert.cleanup.log', 'pialert.webservices.log', 'pialert.speedtest.log');
+	$logmessages = array(
+		$pia_lang['MT_Tools_Logviewer_Scan_empty'],
+		$pia_lang['MT_Tools_Logviewer_IPLog_empty'],
+		'',
+		$pia_lang['MT_Tools_Logviewer_Cleanup_empty'],
+		$pia_lang['MT_Tools_Logviewer_WebServices_empty'],
+		''
+	);
 
-	$i = 0;
 	$logs = array();
-	while($i < count($logfiles)) {
-		$file = file_get_contents($logfiles[$i], true);
-		if ($file == "") {
-			array_push($logs, $logmessage[$i]);
-		} else {
-			if ($logfiles[$i] == "pialert.webservices.log") {
-				$file = str_replace("Start Services Monitoring\n\n", "Start Services Monitoring\n\n<pre style=\"border: solid 1px #666; background-color: transparent;\">", $file);
-				$file = str_replace("\nServices Monitoring Changes:", "\n</pre>Services Monitoring Changes:", $file);
-			}
-			$templog = str_replace("\n", '<br>', str_replace("    ", '&nbsp;&nbsp;&nbsp;&nbsp;', str_replace("        ", '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', $file)));
-			array_push($logs, $templog);
-		}
-	    $i++;
+	foreach ($logfiles as $index => $logfile) {
+		$file = file_get_contents($logfile, true);
+		$logs[] = $file === false || $file === '' ? $logmessages[$index] : $file;
 	}
-	echo (json_encode($logs));
+
+	header('Content-Type: application/json; charset=UTF-8');
+	echo json_encode($logs);
 }
 
 function convert_bool($val) {

@@ -37,15 +37,15 @@ if ($APIKEY == "") {$APIKEY = $pia_lang['MT_Tool_setapikey_false'];}
 // Get Ignore List ------------------------------------------------------------
 function parse_ignore_list($line, $placeholder_text) {
     if ($line === "" || $line === "[]") {
-        return $placeholder_text;
+        return h($placeholder_text);
     }
     $line = str_replace(["[", "]", "'"], "", $line);
-    return str_replace(",", ", ", $line);
+    return h(str_replace(",", ", ", $line));
 }
 // Create Links to remove entries from list (MAC) ------------------------------
 function add_action_macignore($func_macignorelist, $placeholder_text) {
     if ($func_macignorelist === "" || $func_macignorelist === "[]") {
-        return $placeholder_text;
+        return h($placeholder_text);
     }
     $func_macignorelist = str_replace(["[", "]", "'"], "", $func_macignorelist);
 
@@ -53,7 +53,7 @@ function add_action_macignore($func_macignorelist, $placeholder_text) {
     $actionlist = array();
     foreach ($rawlist as $key => $value) {
         $value = trim($value);
-        array_push($actionlist, '<a href="#" onclick="askDeleteBlockDeviceMAC(\''.$value.'\')">'.$value.'</a>');
+        array_push($actionlist, '<a href="#" class="ignore-list-delete" data-kind="mac" data-value="' . h($value) . '">' . h($value) . '</a>');
     }
     $ignorlist = implode(', ', $actionlist);
     return $ignorlist;
@@ -61,14 +61,14 @@ function add_action_macignore($func_macignorelist, $placeholder_text) {
 // Create Links to remove entries from list (IP) -------------------------------
 function add_action_ipignore($func_ipignorelist, $placeholder_text) {
     if ($func_ipignorelist === "" || $func_ipignorelist === "[]") {
-        return $placeholder_text;
+        return h($placeholder_text);
     }
     $func_ipignorelist = str_replace(["[", "]", "'"], "", $func_ipignorelist);
     $rawlist = explode(",", $func_ipignorelist);
     $actionlist = array();
     foreach ($rawlist as $key => $value) {
         $value = trim($value);
-        array_push($actionlist, '<a href="#" onclick="askDeleteBlockDeviceIP(\''.$value.'\')">'.$value.'</a>');
+        array_push($actionlist, '<a href="#" class="ignore-list-delete" data-kind="ip" data-value="' . h($value) . '">' . h($value) . '</a>');
     }
     $ignorlist = implode(',', $actionlist);
     return $ignorlist;
@@ -735,31 +735,38 @@ function handleMTSelection (value) {
   };
 
   const queryAction = actionMap[value];
+  if (!queryAction) {
+    return;
+  }
 
-  // get data from server
-  $.get('php/server/devices.php?action='+queryAction, function(data) {
-    var listData = JSON.parse(data);
-    var order = 1;
+  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+    const listData = JSON.parse(data);
+    const menu = document.getElementById('dropdownMTColumnContent');
+    let order = 1;
 
-    $('#dropdownMTColumnContent')[0].innerHTML = ''
-    // for each item
-    listData.forEach(function (item, index) {
-      // insert line divisor
-      if (order != item['order']) {
-        $('#dropdownMTColumnContent')[0].innerHTML += '<li class="divider"></li>';
-        order = item['order'];
+    while (menu.firstChild) {
+      menu.removeChild(menu.firstChild);
+    }
+
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        menu.appendChild(divider);
+        order = item.order;
       }
 
-      id = item['name'];
-      // use explicitly specified id (value) if avaliable
-      if(item['id'])
-      {
-        id = item['id'];
-      }
-
-      // add dropdown item
-      $('#dropdownMTColumnContent')[0].innerHTML +=
-        '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtMTColumnContent\',\''+ id +'\')">'+ item['name'] + '</a></li>'
+      const valueToSet = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = '#';
+      link.textContent = String(item.name ?? '');
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue('txtMTColumnContent', String(valueToSet ?? ''));
+      });
+      listItem.appendChild(link);
+      menu.appendChild(listItem);
     });
   });
 }
@@ -933,33 +940,31 @@ function GetAutoBackupStatus() {
   } );
 }
 function GetModalLogContent() {
-  $.get('php/server/files.php?action=GetLogfiles', function(data) {
-    var logcollection = JSON.parse(data);
+  $.getJSON('php/server/files.php?action=GetLogfiles', function(logcollection) {
+    const targets = ['scan', 'iplog', 'vendor', 'cleanup', 'webservices', 'speedtest'];
 
-    $('#modal_scan_content').html(logcollection[0].toLocaleString());
-    $('#modal_iplog_content').html(logcollection[1].toLocaleString());
-    $('#modal_vendor_content').html(logcollection[2].toLocaleString());
-    $('#modal_cleanup_content').html(logcollection[3].toLocaleString());
-    $('#modal_webservices_content').html(logcollection[4].toLocaleString());
-    $('#modal_speedtest_content').html(logcollection[5].toLocaleString());
-  } );
+    targets.forEach(function(target, index) {
+      $('#modal_' + target + '_content')
+        .css('white-space', 'pre-wrap')
+        .text(String(logcollection[index] ?? ''));
+    });
+  });
 }
-// function GetModalInactiveHosts() {
-//   $.get('php/server/devices.php?action=ListInactiveHosts', function(data) {
-//     var logcollection = JSON.parse(data);
 
-//     $('#modal_inactivehosts_content').html(logcollection[0].toLocaleString());
-//   } );
-// }
+$('[id^="modal-logviewer-"]').on('show.bs.modal', function() {
+  if (this.id !== 'modal-logviewer-inactivehosts') {
+    GetModalLogContent();
+  }
+});
+
 function GetModalInactiveHosts() {
   $.get('php/server/devices.php?action=ListInactiveHosts', function(data) {
-    var logcollection = JSON.parse(data);
+    const logcollection = JSON.parse(data);
+    const content = Array.isArray(logcollection) && logcollection.length > 0 ? logcollection[0] : '';
 
-    if (Array.isArray(logcollection) && logcollection.length > 0) {
-      $('#modal_inactivehosts_content').html(logcollection[0].toLocaleString());
-    } else {
-      $('#modal_inactivehosts_content').empty();
-    }
+    $('#modal_inactivehosts_content')
+      .css('white-space', 'pre-wrap')
+      .text(String(content ?? ''));
   });
 }
 

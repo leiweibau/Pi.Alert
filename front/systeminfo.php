@@ -73,6 +73,7 @@ $net_interfaces_tx = explode("\n", trim($network_result));
 // across LXC, VMs, and native hosts and avoids the lighttpd AF_NETLINK limit.
 $interface_ipv4_addresses = array();
 $interface_ipv4_masks = array();
+$interface_ipv4_prefix_lengths = array();
 if (function_exists("net_get_interfaces")) {
     $system_interfaces = @net_get_interfaces();
     if (is_array($system_interfaces)) {
@@ -84,6 +85,8 @@ if (function_exists("net_get_interfaces")) {
                 $interface_ipv4_addresses[$interfaceName][] = $addressData["address"];
                 if (isset($addressData["netmask"]) && filter_var($addressData["netmask"], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
                     $interface_ipv4_masks[$interfaceName][$addressData["netmask"]] = true;
+                    $maskValue = (int) sprintf("%u", ip2long($addressData["netmask"]));
+                    $interface_ipv4_prefix_lengths[$interfaceName][$addressData["address"]] = substr_count(decbin($maskValue), "1");
                 }
             }
         }
@@ -154,8 +157,10 @@ foreach (array_keys($local_ipv4_addresses) as $address) {
     }
     if ($interfaceName !== null && $bestRoute !== null) {
         $fallback_interface_masks[$interfaceName][long2ip($bestRoute["mask"])] = true;
+        $interface_ipv4_prefix_lengths[$interfaceName][$address] = $bestRoute["prefix"];
     } elseif ($interfaceName === "lo") {
         $fallback_interface_masks[$interfaceName]["255.0.0.0"] = true;
+        $interface_ipv4_prefix_lengths[$interfaceName][$address] = 8;
     }
 }
 
@@ -329,7 +334,7 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 	        	$tab_id = 0;
 	            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
 	            	$tab_id++;
-	                $tabs .=  '<li class=""><a href="#tab_'.$tab_id.'" data-toggle="tab" aria-expanded="false">'.$row['sat_name'].'</a></li>';
+	                $tabs .=  '<li class=""><a href="#tab_'.$tab_id.'" data-toggle="tab" aria-expanded="false">'.h($row['sat_name']).'</a></li>';
 
 	                $hostdata = json_decode($row['sat_host_data'], true);
 
@@ -359,23 +364,23 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 	                $tab_content .= '<div class="tab-pane" id="tab_'.$tab_id.'">
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Uptime</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b"><span class="'.htmlspecialchars($spanClass).'">' . str_replace($uptime_search, $uptime_replace, $hostdata['uptime']) . ' ('. $scan_time[0] . ' / '.substr($scan_time[1], 0, -3).')</span></div>
+											  <div class="col-sm-9 sysinfo_gerneral_b"><span class="'.htmlspecialchars($spanClass).'">' . h(str_replace($uptime_search, $uptime_replace, (string) ($hostdata['uptime'] ?? ''))) . ' ('.h($scan_time[0] ?? '').' / '.h(substr((string) ($scan_time[1] ?? ''), 0, -3)).')</span></div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Operating System</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['os_version'] . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . h($hostdata['os_version'] ?? '') . '</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Kernel Architecture:</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['cpu_arch'] . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . h($hostdata['cpu_arch'] ?? '') . '</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">CPU Name:</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['cpu_name'] . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . h($hostdata['cpu_name'] ?? '') . '</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">CPU Cores:</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['cpu_cores'] . ' @ ' . $hostdata['cpu_freq'] . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . h($hostdata['cpu_cores'] ?? '') . ' @ ' . h($hostdata['cpu_freq'] ?? '') . '</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Memory:</div>
@@ -383,15 +388,15 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Running Processes:</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['proc_count'] . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . h($hostdata['proc_count'] ?? '') . '</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Timezone (System):</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">"' . $hostdata['os_timezone'] . '"</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">"' . h($hostdata['os_timezone'] ?? '') . '"</div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Satellite Host:</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">Name: ' . $hostdata['hostname'] . ' / IP: ' . $hostdata['satellite_ip'] . ' / MAC: <a href="./deviceDetails.php?mac=' . $hostdata['satellite_mac'] . '">' . $hostdata['satellite_mac'] . '</a></div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">Name: ' . h($hostdata['hostname'] ?? '') . ' / IP: ' . h($hostdata['satellite_ip'] ?? '') . ' / MAC: <a href="./deviceDetails.php?mac=' . rawurlencode((string) ($hostdata['satellite_mac'] ?? '')) . '">' . h($hostdata['satellite_mac'] ?? '') . '</a></div>
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">Proxy Mode:</div>
@@ -399,7 +404,7 @@ if (($_SESSION['Scan_Satellite'] == True)) {
 											</div>
 											<div class="row">
 											  <div class="col-sm-3 sysinfo_gerneral_a">API Url:</div>
-											  <div class="col-sm-9 sysinfo_gerneral_b">' . $hostdata['satellite_url'] . '</div>
+											  <div class="col-sm-9 sysinfo_gerneral_b">' . h($hostdata['satellite_url'] ?? '') . '</div>
 											</div>
 							            </div>';
 	            }
@@ -550,7 +555,7 @@ echo '<div class="box box-solid">
               <h3 class="box-title sysinfo_headline"><i class="bi bi-list-task"></i> User Crontab</h3>
             </div>
             <div class="box-body">
-            <pre style="background-color: transparent; border: none;">'.$stat['usercron'].'</pre>
+            <pre style="background-color: transparent; border: none;">'.h($stat['usercron']).'</pre>
             </div>
       </div>';
 
@@ -573,22 +578,22 @@ function convert_bool_to_status($status) {
 }
 echo '<tr>
 		<td style="padding: 3px; padding-left: 10px;">Update Check</td>
-		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['AUTO_UPDATE_CHECK_CRON'].'</td>
+		<td style="padding: 3px; padding-left: 10px;">'.h($_SESSION['AUTO_UPDATE_CHECK_CRON'] ?? '').'</td>
 		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['Auto_Update_Check']).'</td>
 	  </tr>';
 echo '<tr>
 		<td style="padding: 3px; padding-left: 10px;">Backup</td>
-		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['AUTO_DB_BACKUP_CRON'].'</td>
+		<td style="padding: 3px; padding-left: 10px;">'.h($_SESSION['AUTO_DB_BACKUP_CRON'] ?? '').'</td>
 		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['AUTO_DB_BACKUP']).'</td>
 	  </tr>';
 echo '<tr>
 		<td style="padding: 3px; padding-left: 10px;">Speedtest</td>
-		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['SPEEDTEST_TASK_CRON'].'</td>
+		<td style="padding: 3px; padding-left: 10px;">'.h($_SESSION['SPEEDTEST_TASK_CRON'] ?? '').'</td>
 		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['SPEEDTEST_TASK_ACTIVE']).'</td>
 	  </tr>';
 echo '<tr>
 		<td style="padding: 3px; padding-left: 10px;">Continuous notifications</td>
-		<td style="padding: 3px; padding-left: 10px;">'.$_SESSION['REPORT_NEW_CONTINUOUS_CRON'].'</td>
+		<td style="padding: 3px; padding-left: 10px;">'.h($_SESSION['REPORT_NEW_CONTINUOUS_CRON'] ?? '').'</td>
 		<td style="padding: 3px; padding-left: 10px;">'.convert_bool_to_status($_SESSION['REPORT_NEW_CONTINUOUS']).'</td>
 	  </tr>';
 echo '      </table>
@@ -661,21 +666,24 @@ echo '<div class="box box-solid">
             </div>
             <div class="box-body">';
 
+
 if (!empty($network_subnet_masks)) {
     echo '<div class="row"><div class="col-sm-12 sysinfo_network_a"><b>Subnet masks</b></div></div>';
     foreach ($network_subnet_masks as $subnet) {
         $subnetInterface = htmlspecialchars($subnet["interface"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
         $subnetMask = htmlspecialchars($subnet["mask"], ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
-        echo '<div class="row"><div class="col-sm-2 sysinfo_network_a text-aqua">' . $subnetInterface . '</div><div class="col-sm-4 sysinfo_network_b">' . $subnetMask . '</div></div>';
+        echo '<div class="row"><div class="col-xs-offset-1 col-xs-2 sysinfo_network_a text-aqua">' . $subnetInterface . ':</div><div class="col-xs-9 sysinfo_network_b">' . $subnetMask . '</div></div>';
     }
-    echo '<hr style="margin: 8px 0; border-color: #bbb;">';
+    echo '<div class="row"><div class="col-xs-2" style="height:20px;"></div></div>';
 }
 
 for ($x = 0; $x < sizeof($net_interfaces); $x++) {
     $interface_name = str_replace(":", "", $net_interfaces[$x]);
     $interface_addresses = $interface_ipv4_addresses[$interface_name] ?? array();
-    $interface_ip = empty($interface_addresses) ? "--" : implode("<br>", array_map(function($address) {
-        return htmlspecialchars($address, ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8");
+    $interface_ip = empty($interface_addresses) ? "--" : implode("<br>", array_map(function($address) use ($interface_name, $interface_ipv4_prefix_lengths) {
+        $prefixLength = $interface_ipv4_prefix_lengths[$interface_name][$address] ?? null;
+        $cidrAddress = $address . ($prefixLength !== null ? "/" . (int) $prefixLength : "");
+        return h($cidrAddress);
     }, $interface_addresses));
 
     if ($net_interfaces_rx[$x] == 0) {$temp_rx = 0;} else { $temp_rx = number_format(round(($net_interfaces_rx[$x] / 1024 / 1024), 2), 2, ',', '.');}
@@ -712,7 +720,7 @@ for ($x = 0; $x < sizeof($running_services); $x++) {
 		$servives_name = $temp_services_arr[0];
 		unset($temp_services_arr[0], $temp_services_arr[1], $temp_services_arr[2], $temp_services_arr[3]);
 		$servives_description = implode(" ", $temp_services_arr);
-		echo '<tr><td style="padding: 3px; padding-left: 10px;">' . substr($servives_name, 0, -8) . '</td><td style="padding: 3px; padding-left: 10px;">' . $servives_description . '</td></tr>';
+		echo '<tr><td style="padding: 3px; padding-left: 10px;">' . h(substr($servives_name, 0, -8)) . '</td><td style="padding: 3px; padding-left: 10px;">' . h($servives_description) . '</td></tr>';
 	}
 }
 echo '</table>';

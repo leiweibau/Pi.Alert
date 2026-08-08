@@ -387,35 +387,41 @@ if ($_REQUEST['mod'] == 'bulkedit') {
     initializeCombo ( $('#dropdownLocation')[0],    'getLocations',       'bulk_location');
   }
   function initializeCombo (HTMLelement, queryAction, txtDataField) {
-    // get data from server
-    $.get('php/server/devices.php?action='+queryAction, function(data) {
-      var listData = JSON.parse(data);
-      var order = 1;
+  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+    const listData = JSON.parse(data);
+    let order = 1;
 
-      HTMLelement.innerHTML = ''
+    while (HTMLelement.firstChild) {
+      HTMLelement.removeChild(HTMLelement.firstChild);
+    }
 
-      listData.forEach(function (item, index) {
-        if (order != item['order']) {
-          HTMLelement.innerHTML += '<li class="divider"></li>';
-          order = item['order'];
-        }
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        HTMLelement.appendChild(divider);
+        order = item.order;
+      }
 
-        id = item['name'];
-        if(item['id'])
-        {
-          id = item['id'];
-        }
-        if (queryAction == "getNetworkNodes") {
-          HTMLelement.innerHTML +=
-            '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-            txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
-        } else {
-          HTMLelement.innerHTML +=
-            '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-            txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
-        }
+      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const label = queryAction === 'getNetworkNodes'
+        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
+        : String(item.name ?? '');
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+
+      link.href = '#';
+      link.textContent = label;
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue(txtDataField, String(value ?? ''));
       });
+
+      listItem.appendChild(link);
+      HTMLelement.appendChild(listItem);
     });
+  });
+});
   }
   initializeCombos();
   initializeiCheck();
@@ -433,9 +439,9 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		if ($row[3] == 1 && $row[4] == 1) {$status_text_color = 'bulked_checkbox_label_alldown';} elseif ($row[3] == 1) {$status_text_color = 'bulked_checkbox_label_all';} elseif ($row[4] == 1) {$status_text_color = 'bulked_checkbox_label_down';} else { $status_text_color = '';}
 		echo '<div class="bulked_dev_box ' . $status_border . '">
              <div class="bulked_dev_chk_cont" style="' . $status_box . '">
-                <input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . str_replace(".", "_", $row[1]) . '" name="' . str_replace(".", "_", $row[1]) . '" type="checkbox">
+                <input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . h(str_replace(".", "_", $row[1])) . '" name="' . h(str_replace(".", "_", $row[1])) . '" type="checkbox">
              </div>
-             <label class="control-label ' . $status_text_color . '" for="' . str_replace(".", "_", $row[1]) . '" style="">' . $row[0] . '</label>
+             <label class="control-label ' . $status_text_color . '" for="' . h(str_replace(".", "_", $row[1])) . '" style="">' . h($row[0]) . '</label>
           </div>';
 	}
 
@@ -776,6 +782,7 @@ function initializeDatatable () {
     'pageLength'   : tableRows,
 
     'columnDefs'   : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {visible:   false,         targets: [6,7,8] },
       {className: 'text-center', targets: [1,2,3,4,5] },
       {className: 'text-left',   targets: [0] },
@@ -792,7 +799,11 @@ function initializeDatatable () {
 	            case 'Offline':   color='transparent';         break;
 	            default:          color='transparent';         break;
 	          };
-            $(td).html ('<b><a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="">'+ cellData +'</a></b>');
+            setCellLink(
+              td,
+              "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[1] ?? "")),
+              cellData
+            );
             $(td).css('min-width', '160px');
 
             let tableWidth = $("#tableDevices").outerWidth();
@@ -821,9 +832,9 @@ function initializeDatatable () {
       {targets: [3],
         'createdCell': function (td, cellData, rowData, row, col) {
           if (cellData == 99999){
-            $(td).html ('TimeOut');
+            setCellText(td, "TimeOut");
           } else {
-            $(td).html (cellData + ' ms');
+            setCellText(td, cellData, " ms");
           }
       } },
       {targets: [5],
@@ -835,7 +846,11 @@ function initializeDatatable () {
             case 'Offline':  color='gray text-white';     statusname='Offline';                       break;
             default:         color='aqua';                statusname=''; 					                   break;
           };
-          $(td).html ('<a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="badge bg-'+ color +'">'+ statusname +'</a>');
+          const statusLink = document.createElement("a");
+          statusLink.href = "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[1] ?? ""));
+          statusLink.className = "badge bg-" + color;
+          statusLink.textContent = statusname;
+          td.replaceChildren(statusLink);
       } },
     ],
 

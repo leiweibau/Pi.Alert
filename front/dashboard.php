@@ -13,6 +13,7 @@ $conf_file = '../config/version.conf';
 $conf_data = parse_ini_file($conf_file);
 
 require 'php/server/timezone.php';
+require_once 'php/server/util.php';
 
 function set_userimage($skinname) {
     if ($skinname == 'skin-black-light' || $skinname == 'skin-black'|| $skinname == 'leiweibau_light') {
@@ -80,12 +81,12 @@ if (file_exists('../config/setting_piholebutton')) {
     <!-- AdminLTE Skins. -->
     <?=$skin_selected_head;?>
     <!-- Pi.Alert CSS -->
-    <link rel="stylesheet" href="css/pialert.css?v=<?=$conf_data['VERSION_DATE'];?>">
+    <link rel="stylesheet" href="css/pialert.css?v=<?=rawurlencode((string) ($conf_data['VERSION_DATE'] ?? ''));?>">
     <!-- Offline Font -->
     <link rel="stylesheet" href="css/offline-font.css">
     <!-- Fav / Homescreen Icon -->
-    <link rel="icon" type="image/x-icon" href="<?=$FRONTEND_FAVICON?>">
-    <link rel="apple-touch-icon" href="<?=$FRONTEND_FAVICON?>">
+    <link rel="icon" type="image/x-icon" href="<?=h(safe_web_url($FRONTEND_FAVICON, 'img/favicons/flat_blue_white.png'));?>">
+    <link rel="apple-touch-icon" href="<?=h(safe_web_url($FRONTEND_FAVICON, 'img/favicons/flat_blue_white.png'));?>">
     <link rel="manifest" href="img/manifest.json">
 <?php
 if ($ENABLED_DARKMODE === True) {echo '<link rel="stylesheet" href="css/dark-patch.css?' . $conf_data['VERSION_DATE'] . '">';} else {$wrapper_color = 'style="background-color:white"';}
@@ -98,6 +99,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
     <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
     <script src="js/hotkeys.js"></script>
+    <script src="js/pialert_common.js?2026"></script>
 </head>
 
 <?=$skin_selected_body;?>
@@ -134,7 +136,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
           </li>
           <?php
           if ($FRONTEND_PHBUTTON != '') {
-            echo '<li><a id="navbar-pihole-button" class="a navbar-servertime navbar-servertime-big" href="'.$FRONTEND_PHBUTTON.'" role="button" target="blank"><i class="mdi mdi-pi-hole"></i></a></li>';
+            echo '<li><a id="navbar-pihole-button" class="a navbar-servertime navbar-servertime-big" href="' . h(safe_web_url($FRONTEND_PHBUTTON)) . '" role="button" target="_blank" rel="noopener noreferrer"><i class="mdi mdi-pi-hole"></i></a></li>';
           }
           ?>
           <li><a id="navbar-help-button" class="navbar-servertime navbar-servertime-big" href="https://github.com/leiweibau/Pi.Alert/tree/main/docs" target="_blank">
@@ -146,7 +148,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
           <li class="dropdown user user-menu">
             <!-- Menu Toggle Button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="height: 50px; padding-top: 15px">
-              <img src="img/<?=$_SESSION['UserLogo'];?>.png" class="user-image" style="border-radius: initial" alt="Pi.Alert Logo">
+              <img src="img/<?=h(in_array($_SESSION['UserLogo'] ?? '', ['pialertLogoBlack', 'pialertLogoWhite'], true) ? $_SESSION['UserLogo'] : 'pialertLogoWhite');?>.png" class="user-image" style="border-radius: initial" alt="Pi.Alert Logo">
               <span class="label label-danger" id="Menu_Report_Counter_Badge"></span>
             </a>
             <ul class="dropdown-menu zoom-menu" style="width: 240px;">
@@ -320,8 +322,8 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
           <h3 class="box-title text-aqua"><i class="bi bi-calendar-event"></i> <?=$pia_lang['Device_Shortcut_OnlineChart_a']?> 12 <?=$pia_lang['Device_Shortcut_OnlineChart_b'] ?></h3>
         </div>
 
-        <div class="box-body" style="padding:0;">
-            <div style="height:160px; width:100%;">
+        <div class="box-body" style="padding:0; padding-top:5px;">
+            <div style="width:100%;">
               <div id="historyChartsContainer"></div>
             </div>
         </div>
@@ -337,7 +339,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
         </div>
 
         <div class="box-body" style="padding:0;">
-          <div style="height:350px; overflow-y:auto; overflow-x:hidden;">
+          <div style="height:380px; overflow-y:auto; overflow-x:hidden;">
             <table id="tableEvents" class="table table-striped table-hover table-condensed" style="width:100%; font-size: 12px;">
               <thead>
                 <tr>
@@ -440,7 +442,6 @@ var historyDataSourceLabels = {
 $(document).ready(function () {
     loadSpeedtestChart(7);
     initializeDatatable();
-    getEvents('all');
     getLocalDeviceStatus();
     getIcmpDeviceStatus();
     // startDashboardRefresh();
@@ -470,12 +471,18 @@ $('#logfileSelect').on('change', function () {
         },
         success: function (data) {
             logfileDates = Array.isArray(data) ? data : [];
-            let html = '<option value="">-- Datum wählen --</option>';
+            const dateSelect = document.getElementById("dateSelect");
+            dateSelect.replaceChildren();
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "-- Select date --";
+            dateSelect.append(placeholder);
             logfileDates.forEach(function (date) {
-                html += '<option value="' + date + '">' + date + '</option>';
+                const option = document.createElement("option");
+                option.value = String(date ?? "");
+                option.textContent = String(date ?? "");
+                dateSelect.append(option);
             });
-
-            $('#dateSelect').html(html);
         },
         error: function () {
             $('#dateSelect').html('<option value="">Fehler beim Laden</option>');
@@ -652,44 +659,44 @@ function renderSpeedtestChart(data) {
 function initializeDatatable () {
 
   eventsTable = $('#tableEvents').DataTable({
+    ajax: {
+      url     : 'php/server/events.php',
+      data    : { action: 'getEvents', type: 'all', period: '1 day' },
+      dataSrc : 'data',
+      cache   : false
+    },
     paging        : false,
     searching     : false,
     info          : false,
     lengthChange  : false,
     ordering      : true,
     order         : [[0, "desc"], [3, "desc"], [5, "desc"]],
-    scrollY       : '310',
+    scrollY       : '330',
     scrollX       : true,
     scrollCollapse: true,
     autoWidth     : false,
     pageLength    : 50,
     columnDefs: [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       { visible: false, targets: [0,2,5,6,7,8,10,11] },
       {targets: [1],
         "createdCell": function (td, cellData, rowData, row, col) {
           if (rowData[13]) {
-              $(td).html('<b><a href="deviceDetails.php?mac=' + rowData[13] + '" class="">' + cellData + '</a></b>');
+              setCellLink(td, "deviceDetails.php?mac=" + encodeURIComponent(String(rowData[13])), cellData);
           } else {
-              
-              if (String(cellData).endsWith("**")) {
-                  const mainText = String(cellData).slice(0, -2);
-
-                  $(td).html(
-                      '<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' +
-                      mainText +
-                      '<span class="text-warning">**</span>' +
-                      '</a></b>'
-                  );
-              } else {
-                  // default
-                  $(td).html('<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' + cellData + '</a></b>');
-              }
+              setCellLink(
+                td,
+                "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[9] ?? "")),
+                cellData,
+                "",
+                "**"
+              );
           }
       } },
       {
         targets: [3,4,5,6,7],
         createdCell: function (td, cellData) {
-          $(td).html(translateHTMLcodes(cellData));
+          setCellText(td, cellData);
         }
       }
     ],
@@ -702,29 +709,20 @@ function initializeDatatable () {
 }
 // --------------------------------------------------------------------------
 function getEvents () {
+  if (!eventsTable) {
+    return;
+  }
 
-  const table = $('#tableEvents').DataTable();
-
-  table.clear();
-  table.order([[0, "desc"], [3, "desc"], [5, "desc"]]);
-
-  table.ajax
-    .url('php/server/events.php?action=getEvents&type=all&period=1 day')
-    .load();
+  eventsTable.order([[0, "desc"], [3, "desc"], [5, "desc"]]);
+  eventsTable.ajax.reload(null, false);
 }
 // --------------------------------------------------------------------------
 function translateHTMLcodes(text)
 {
-    if (typeof text !== 'string') {
+    if (text == null) {
         return text;
     }
-
-    return text
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&')
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'");
+    return escapeHtmlText(text).replace(/ /g, '&nbsp;');
 }
 // --------------------------------------------------------------------------
 function getLocalDeviceStatus() {
@@ -947,21 +945,34 @@ function loadLatestReports() {
                 $('#latestReports').html('<em>No reports found</em>');
                 return;
             }
-            let html = '<ul class="list-unstyled" style="margin-bottom:0;">';
+            const list = document.createElement("ul");
+            list.className = "list-unstyled";
+            list.style.marginBottom = "0";
             data.forEach(function (item) {
-                var displayName = formatReportFilename(item.name);
+                const filename = String(item.name ?? "");
+                const row = document.createElement("li");
+                row.style.display = "flex";
+                row.style.justifyContent = "space-between";
+                row.style.alignItems = "center";
 
-                html +=
-                    '<li style="display:flex; justify-content:space-between; align-items:center;">' +
-                        '<a href="#" onclick="showReportModal(\'' + item.name + '\');return false;">' +
-                            displayName +
-                        '</a>' +
-                        '<small class="text-muted">' + item.time + '</small>' +
-                    '</li>' +
-                    '<hr style="margin:6px 0;">';
+                const link = document.createElement("a");
+                link.href = "#";
+                link.textContent = formatReportFilename(filename);
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    showReportModal(filename);
+                });
+
+                const time = document.createElement("small");
+                time.className = "text-muted";
+                time.textContent = String(item.time ?? "");
+                row.append(link, time);
+
+                const separator = document.createElement("hr");
+                separator.style.margin = "6px 0";
+                list.append(row, separator);
             });
-            html += '</ul>';
-            $('#latestReports').html(html);
+            document.getElementById("latestReports").replaceChildren(list);
         }
     });
 }
@@ -1069,9 +1080,9 @@ function loadHistoryStackedChart(dataSource) {
     if (!document.getElementById(chartId)) {
 
         var html =
-            '<div class="history-chart-wrapper" style="height:160px; margin-bottom:20px;">' +
-                '<h5 style="margin-bottom:8px;"><?=$pia_lang['DASH_charts_history']?>: ' + getHistoryDataSourceLabel(dataSource) + '</h5>' +
-                '<canvas id="' + chartId + '"></canvas>' +
+            '<div class="history-chart-wrapper" style="margin-bottom:20px; box-sizing:border-box;' + (dataSource === 'icmp_scan' ? ' padding-top:6px;' : '') + '">' +
+                '<h5 style="margin:0 0 4px 10px;"><?=$pia_lang['DASH_charts_history']?>: ' + getHistoryDataSourceLabel(dataSource) + '</h5>' +
+                '<div style="height:145px; width:100%;"><canvas id="' + chartId + '"></canvas></div>' +
             '</div>';
 
         $('#historyChartsContainer').append(html);

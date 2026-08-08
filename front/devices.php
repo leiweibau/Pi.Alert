@@ -17,6 +17,24 @@ require 'php/server/journal.php';
 $DBFILE = '../db/pialert.db';
 OpenDB();
 
+$predefined_filter = isset($_REQUEST['predefined_filter']) && is_scalar($_REQUEST['predefined_filter'])
+  ? (string) $_REQUEST['predefined_filter']
+  : '';
+$filter_fields_raw = isset($_REQUEST['filter_fields']) && is_scalar($_REQUEST['filter_fields'])
+  ? (string) $_REQUEST['filter_fields']
+  : '';
+$filter_fields = array();
+foreach (array_filter(explode(',', $filter_fields_raw), 'strlen') as $filter_field) {
+  if (ctype_digit($filter_field)) {
+    $filter_field = (int) $filter_field;
+    if ($filter_field >= 0 && $filter_field <= 17) {
+      $filter_fields[] = $filter_field;
+    }
+  }
+}
+$filter_fields = array_values(array_unique($filter_fields));
+$javascript_json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+
 function print_box_top_element($title) {
 	echo '<div class="row">
         <div class="col-md-12">
@@ -474,35 +492,41 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	  initializeCombo ( $('#dropdownLocation')[0],    'getLocations',       'bulk_location');
 	}
 	function initializeCombo (HTMLelement, queryAction, txtDataField) {
-	  // get data from server
-	  $.get('php/server/devices.php?action='+queryAction, function(data) {
-	    var listData = JSON.parse(data);
-	    var order = 1;
+  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+    const listData = JSON.parse(data);
+    let order = 1;
 
-	    HTMLelement.innerHTML = ''
+    while (HTMLelement.firstChild) {
+      HTMLelement.removeChild(HTMLelement.firstChild);
+    }
 
-	    listData.forEach(function (item, index) {
-	      if (order != item['order']) {
-	        HTMLelement.innerHTML += '<li class="divider"></li>';
-	        order = item['order'];
-	      }
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        HTMLelement.appendChild(divider);
+        order = item.order;
+      }
 
-	      id = item['name'];
-	      if(item['id'])
-	      {
-	        id = item['id'];
-	      }
-	      if (queryAction == "getNetworkNodes") {
-	        HTMLelement.innerHTML +=
-	          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-	          txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
-	      } else {
-	        HTMLelement.innerHTML +=
-	          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-	          txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
-	      }
-	    });
-	  });
+      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const label = queryAction === 'getNetworkNodes'
+        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
+        : String(item.name ?? '');
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+
+      link.href = '#';
+      link.textContent = label;
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue(txtDataField, String(value ?? ''));
+      });
+
+      listItem.appendChild(link);
+      HTMLelement.appendChild(listItem);
+    });
+  });
+});
 	}
 	initializeCombos();
 	initializeiCheck();
@@ -599,9 +623,9 @@ function filterDevicesByLabel(searchTerm) {
 		if ($row[7] == 0) {$underline = 'presence-underlined';} else { $underline = '';}
 		echo '<div class="bulked_dev_box ' . $status_border . '">
              <div class="bulked_dev_chk_cont ' . $status_box . '" style="">
-             		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . $row[1] . '" name="' . str_replace(" ", "_", $row[1]) . '" type="checkbox">
+             		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . h($row[1]) . '" name="' . h(str_replace(" ", "_", $row[1])) . '" type="checkbox">
              </div>
-             <label class="control-label ' . $status_text_color . ' ' . $underline . '" for="' . $row[1] . '">' . $row[0] . '</label>
+             <label class="control-label ' . $status_text_color . ' ' . $underline . '" for="' . h($row[1]) . '">' . h($row[0]) . '</label>
           </div>';
 	}
 ?>
@@ -654,8 +678,8 @@ function filterDevicesByLabel(searchTerm) {
       <h1 id="pageTitle">
            <?php
            echo $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE];
-           if ($_REQUEST['predefined_filter']) {
-           	echo ' ('.$_REQUEST['predefined_filter'].')';
+           if ($predefined_filter !== '') {
+           	echo ' (' . h($predefined_filter) . ')';
            }
            ?>
       </h1>
@@ -800,7 +824,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
             	<h3 id="tableDevicesTitle" class="box-title text-gray"><?=$pia_lang['NAV_Devices']?></h3>
               <?php
               # Create or remove custom filters
-              if (!$_REQUEST['predefined_filter']) {
+              if ($predefined_filter === '') {
               	# no active filter
               	echo '<a href="./devices.php?mod=bulkedit&scansource='.$SCANSOURCE.'" class="btn btn-xs btn-link" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil text-yellow" style="font-size:1.5rem"></i></a>';
               	echo '<a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-predefined-filter" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter text-green" style="font-size:1.5rem"></i></a>';
@@ -1022,7 +1046,7 @@ function initializeDatatable () {
     'lengthChange' : true,
     'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, '<?=$pia_lang['Device_Tablelenght_all'];?>']],
     'searching'    : true,
-    'oSearch'      : {'sSearch': '<?=$_REQUEST['predefined_filter'];?>'},
+    'oSearch'      : {'sSearch': <?=json_encode($predefined_filter, $javascript_json_flags);?>},
 
     'ordering'     : true,
     'info'         : true,
@@ -1034,6 +1058,7 @@ function initializeDatatable () {
     // 'order'       : [[3,'desc'], [0,'asc']],
 
     'columnDefs'   : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {visible:   false,         targets: [<?=$devlistcol_hide;?>14, 15, 16] },
       {className: 'text-center', targets: [4, 9, 10, 11, 13, 17] },
       {width:     '100px',       targets: [7, 8] },
@@ -1041,7 +1066,7 @@ function initializeDatatable () {
       {width:     '0px',         targets: [13] },
       {width:     '20px',         targets: [17] },
       {orderData: [14],          targets: [9] },
-      { "targets": [<?=$_REQUEST['filter_fields'];?>], "searchable": false },
+      { "targets": <?=json_encode($filter_fields);?>, "searchable": false },
 
       // Device Name
       {targets: [0],
@@ -1055,17 +1080,13 @@ function initializeDatatable () {
             case 'Off-line':  color='transparent';         break;
             default:          color='transparent';         break;
           };
-			if (rowData[11].startsWith("Internet")) {
-			    $(td).html(
-			        '<b><a href="deviceDetails.php?mac=' + rowData[11] +
-			        '" class="text-danger">' + cellData + '</a></b>'
-			    );
-			} else {
-			    $(td).html(
-			        '<b><a href="deviceDetails.php?mac=' + rowData[11] +
-			        '" class="">' + cellData + '</a></b>'
-			    );
-			}
+          const macAddress = String(rowData[11] ?? "");
+          setCellLink(
+            td,
+            "deviceDetails.php?mac=" + encodeURIComponent(macAddress),
+            cellData,
+            macAddress.startsWith("Internet") ? "text-danger" : ""
+          );
 
           let tableWidth = $("#tableDevices").outerWidth();
           let viewportWidth = $(window).width() - 50;
@@ -1094,7 +1115,7 @@ function initializeDatatable () {
       // Dates
       {targets: [7, 8],
         'createdCell': function (td, cellData, rowData, row, col) {
-          $(td).html (translateHTMLcodes (cellData));
+          setCellText(td, cellData);
       } },
       // Random MAC
       {targets: [10],
@@ -1110,9 +1131,9 @@ function initializeDatatable () {
 	    'createdCell': function (td, cellData, rowData, row, col) {
 	      if (cellData && cellData.startsWith("Internet")) {
 	         let displayText = cellData.length > 20 ? cellData.slice(0, 20) + "…" : cellData;
-	         $(td).html(displayText);
+	         setCellText(td, displayText);
 	      } else {
-	         $(td).html(cellData);
+	         setCellText(td, cellData);
 	      }
 	  } },
       // Status color
@@ -1120,29 +1141,45 @@ function initializeDatatable () {
         'createdCell': function (td, cellData, rowData, row, col) {
           switch (rowData[13]) {
             case 'Down':      color='red';                 statusname='Down';                          break;
-            case 'NewON':     color='grad-green-yellow';   statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';   break;
-            case 'NewOFF':    color='grad-gray-yellow';    statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';   break;
+            case 'NewON':     color='grad-green-yellow';   statusname='  New  ';   break;
+            case 'NewOFF':    color='grad-gray-yellow';    statusname='  New  ';   break;
             case 'OnlineV':   color='green';               statusname='Online*';                       break;
             case 'On-line':   color='green';               statusname='Online';                        break;
             case 'Off-line':  color='gray text-white';     statusname='Offline';                       break;
             case 'Archived':  color='gray text-white';     statusname='Archived';                      break;
             default:          color='aqua';                statusname=''; 					                   break;
           };
-          $(td).html ('<a href="deviceDetails.php?mac='+ rowData[11] +'" class="badge bg-'+ color +'">'+ statusname +'</a>');
+          const statusLink = document.createElement("a");
+          statusLink.href = "deviceDetails.php?mac=" + encodeURIComponent(String(rowData[11] ?? ""));
+          statusLink.className = "badge bg-" + color;
+          statusLink.textContent = statusname;
+          td.replaceChildren(statusLink);
       } },
       // WakeonLAN
       {targets: -1, // last column
-         data : null,
+         data: null,
          orderable: false,
-         "render": function (data, type, row, meta) {
-         	 // Deactivation of WoL buttons for devices where it probably makes no sense
-         	 var includeValues = ["Mini PC", "Server", "Laptop", "NAS", "PC", "Hypervisor", "VM Guest"];
-
-         	 if (includeValues.indexOf(row[3]) !== -1 && row[11] !== "Internet") {
-              return '<a href="#" onclick="askwakeonlan(\'' + row[11] + '\',\'' + row[9] + '\', \'' + row[0] + '\')"><i class="fa-solid fa-power-off text-red"></i></a>';
-           } else {
-           	return '';
+         createdCell: function (td, cellData, rowData) {
+           const includeValues = ["Mini PC", "Server", "Laptop", "NAS", "PC", "Hypervisor", "VM Guest"];
+           td.replaceChildren();
+           if (includeValues.indexOf(rowData[3]) === -1 || rowData[11] === "Internet") {
+             return;
            }
+
+           const link = document.createElement("a");
+           link.href = "#";
+           const icon = document.createElement("i");
+           icon.className = "fa-solid fa-power-off text-red";
+           link.append(icon);
+           link.addEventListener("click", function (event) {
+             event.preventDefault();
+             askwakeonlan(
+               String(rowData[11] ?? ""),
+               String(rowData[9] ?? ""),
+               String(rowData[0] ?? "")
+             );
+           });
+           td.append(link);
          }
       },
     ],
@@ -1247,9 +1284,12 @@ function askDeleteDeviceFilter() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteDeviceFilter');
 }
 function DeleteDeviceFilter() {
-    $.get('php/server/devices.php?action=DeleteDeviceFilter&filterstring=<?=$_REQUEST['predefined_filter'];?>'
-    , function(msg) {
-    showMessage (msg);
+  const params = new URLSearchParams({
+    action: 'DeleteDeviceFilter',
+    filterstring: <?=json_encode($predefined_filter, $javascript_json_flags);?>
+  });
+  $.get('php/server/devices.php?' + params.toString(), function(msg) {
+    showMessage(msg);
   });
 }
 // --------------------------------------------------------------------------

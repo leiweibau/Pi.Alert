@@ -148,33 +148,38 @@ function print_logviewer_modal_foot() {
 function show_all_satellites_list($satellite) {
     global $pia_lang;
 
+    $rowId = (int) ($satellite['rowid'] ?? 0);
+    $name = (string) ($satellite['name'] ?? '');
+    $token = (string) ($satellite['token'] ?? '');
+    $password = (string) ($satellite['password'] ?? '');
+
     echo '      <div class="db_info_table_row">
                     <div class="col-xs-12 col-md-2 col-lg-2" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatCreate_FORM_Name'].': <br>
-                        <input class="form-control col-xs-12" type="text" id="txtChangedSatelliteName_'.$satellite['rowid'].'" value="'.$satellite['name'].'">
+                        <input class="form-control col-xs-12" type="text" id="txtChangedSatelliteName_'.$rowId.'" value="'.h($name).'">
                     </div>
                     <div class="col-xs-12 col-md-3 col-lg-3" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Token'].': <br>
-                        <input class="form-control col-xs-12" type="text" value="'.$satellite['token'].'" readonly>
+                        <input class="form-control col-xs-12" type="text" value="'.h($token).'" readonly>
                     </div>
                     <div class="col-xs-12 col-md-2 col-lg-3" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Pass'].': <br>
-                        <input class="form-control col-xs-12" type="text" value="'.$satellite['password'].'" readonly>
+                        <input class="form-control col-xs-12" type="text" value="'.h($password).'" readonly>
                     </div>
                     <div class="col-xs-6 col-md-2 col-lg-2" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_LastUpd'].': <br>
-                        <input class="form-control col-xs-12" type="text" value="'.$satellite['last_transmit'].'" readonly>
+                        <input class="form-control col-xs-12" type="text" value="'.h($satellite['last_transmit'] ?? '').'" readonly>
                     </div>
                     <div class="col-xs-6 col-md-3 col-lg-2 text-center" style="padding: 5px;">
                         '.$pia_lang['MT_SET_SatEdit_FORM_Action'].': <br>
-                        <button type="button" class="btn btn-link" id="btnInstallSatellite" onclick="InstallSatellite(\'' . $satellite['token'] . '\',\'' . $satellite['password'] . '\')" ><i class="bi bi-info-circle text-aqua satlist_action_btn_content"></i></button>
-                        <button type="button" class="btn btn-link" id="btnSaveSatellite" onclick="SaveSatellite(\'' . $satellite['name'] . '\',\'' . $satellite['rowid'] . '\')" ><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>
-                        <button type="button" class="btn btn-link" id="btnDeleteSatellite" onclick="DeleteSatellite(\'' . $satellite['name'] . '\',\'' . $satellite['rowid'] . '\')" ><i class="bi bi-trash text-red satlist_action_btn_content"></i></button>
+                        <button type="button" class="btn btn-link satellite-action" data-action="install" data-token="' . h($token) . '" data-password="' . h($password) . '"><i class="bi bi-info-circle text-aqua satlist_action_btn_content"></i></button>
+                        <button type="button" class="btn btn-link satellite-action" data-action="save" data-name="' . h($name) . '" data-row-id="' . $rowId . '"><i class="bi bi-floppy text-yellow satlist_action_btn_content"></i></button>
+                        <button type="button" class="btn btn-link satellite-action" data-action="delete" data-name="' . h($name) . '" data-row-id="' . $rowId . '"><i class="bi bi-trash text-red satlist_action_btn_content"></i></button>
                     </div>
                 </div>';
 
     echo '      <div class="db_info_table_row">
-                    <div class="col-xs-12 col-md-3 col-lg-2 text-muted">Version: '.$satellite['version'].'</div>
+                    <div class="col-xs-12 col-md-3 col-lg-2 text-muted">Version: '.h($satellite['version'] ?? '').'</div>
                     <div class="col-xs-12 col-md-9 col-lg-10 text-muted">
                         <div class="sat_config_list_a"><span class="sat_config_list_meth">arp Scan:</span><span class="sat_config_list_stat '.colorize_state($satellite['scan_arp'],1).'"> '.convert_state($satellite['scan_arp'],0).'</span></div>
                         <div class="sat_config_list_a"><span class="sat_config_list_meth">Fritz!Box:</span><span class="sat_config_list_stat '.colorize_state($satellite['scan_fritzbox'],1).'"> '.convert_state($satellite['scan_fritzbox'],0).'</span></div>

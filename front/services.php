@@ -31,7 +31,7 @@ function getDeviceMacs() {
 	$dev_res = $db->query('SELECT dev_MAC, dev_Name FROM Devices ORDER BY dev_Name ASC');
 	$code_array = array();
 	while ($row = $dev_res->fetchArray()) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'serviceMAC\',\'' . $row['dev_MAC'] . '\')">' . $row['dev_Name'] . '</a></li>';
+		echo '<li><a href="#" class="service-mac-option" data-target="serviceMAC" data-value="' . h($row['dev_MAC']) . '">' . h($row['dev_Name']) . '</a></li>';
 	}
 }
 // -----------------------------------------------------------------------------
@@ -159,16 +159,16 @@ function list_standalone_services() {
 			}
 
 			echo '<div class="servicelist_entry">
-                    <div class="' . $code_icon_color . ' servicebox_httpstat_hover" data-toggle="tooltip" data-placement="top" title="' . $status_description . '">
+                    <div class="' . $code_icon_color . ' servicebox_httpstat_hover" data-toggle="tooltip" data-placement="top" title="' . h($status_description) . '">
                         <div class="servicebox_box">
-                            <div style="display: block; margin-top:5px;"><span class="servicebox_box_prot">' . strtoupper($url_array[0]) . '</span></div>
-                            <div style="display: block;"><span class="servicebox_box_code">' . $row['mon_LastStatus'] . '</span></div>
+                            <div style="display: block; margin-top:5px;"><span class="servicebox_box_prot">' . h(strtoupper($url_array[0] ?? '')) . '</span></div>
+                            <div style="display: block;"><span class="servicebox_box_code">' . h($row['mon_LastStatus']) . '</span></div>
                             <i class="fa fa-globe services_icon"></i>
                         </div>
                     </div>
                     <div class="servicebox_text">
                         <div class="servicebox_text_m">
-                           <table height="20px" width="100%"><tr><td><a href="serviceDetails.php?url=' . $row['mon_URL'] . '"><span class="">' . $url_array[1] . '</span></a></td><td align="right"><span class="servicebox_text_tag">&nbsp;' . $row['mon_Tags'] . '</span></td></tr></table>';
+                           <table height="20px" width="100%"><tr><td><a href="serviceDetails.php?url=' . rawurlencode((string) $row['mon_URL']) . '"><span class="">' . h($url_array[1] ?? $row['mon_URL']) . '</span></a></td><td align="right"><span class="servicebox_text_tag">&nbsp;' . h($row['mon_Tags']) . '</span></td></tr></table>';
 			// Render Progressbar
 			echo '          <div class="progress-segment">';
 
@@ -187,11 +187,11 @@ function list_standalone_services() {
 				if ($for_httpcode == "0") {$codecolor = "bg-red";}
 				if ($func_latency[$x] == '99999999') {$loop_latency = 'offline';} else { $loop_latency = $func_latency[$x] . 's';}
 
-				echo '       <div class="single_scan ' . $codecolor . '" title="' . $func_scans[$x] . ' / HTTP: ' . $for_httpcode . ' / Latency: ' . $loop_latency . '"></div>';
+				echo '       <div class="single_scan ' . $codecolor . '" title="' . h(($func_scans[$x] ?? '') . ' / HTTP: ' . $for_httpcode . ' / Latency: ' . $loop_latency) . '"></div>';
 			}
 
 			echo '         </div>';
-			echo '         <table height="20px" width="100%"><tr><td><span class="progress-description">IP: ' . $row['mon_TargetIP'] . '</span></td><td align="right">' . $notification_type . '</td></tr></table>
+			echo '         <table height="20px" width="100%"><tr><td><span class="progress-description">IP: ' . h($row['mon_TargetIP']) . '</span></td><td align="right">' . $notification_type . '</td></tr></table>
                         </div>
                     </div>
                   </div>';
@@ -240,16 +240,16 @@ function get_service_from_unique_device($func_unique_device) {
 			}
 
 			echo '<div class="servicelist_entry">
-                    <div class="' . $code_icon_color . ' servicebox_httpstat_hover" data-toggle="tooltip" data-placement="top" title="' . $status_description . '">
+                    <div class="' . $code_icon_color . ' servicebox_httpstat_hover" data-toggle="tooltip" data-placement="top" title="' . h($status_description) . '">
                         <div class="servicebox_box">
-                            <div style="display: block; margin-top:5px;"><span class="servicebox_box_prot">' . strtoupper($url_array[0]) . '</span></div>
-                            <div style="display: block;"><span class="servicebox_box_code">' . $row['mon_LastStatus'] . '</span></div>
+                            <div style="display: block; margin-top:5px;"><span class="servicebox_box_prot">' . h(strtoupper($url_array[0] ?? '')) . '</span></div>
+                            <div style="display: block;"><span class="servicebox_box_code">' . h($row['mon_LastStatus']) . '</span></div>
                             <i class="fa fa-globe services_icon"></i>
                         </div>
                     </div>
                     <div class="servicebox_text">
                         <div class="servicebox_text_m">
-                             <table height="20px" width="100%"><tr><td><a href="serviceDetails.php?url=' . $row['mon_URL'] . '"><span class="">' . $url_array[1] . '</span></a></td><td align="right"><span class="servicebox_text_tag">&nbsp;' . $row['mon_Tags'] . '</span></td></tr></table>';
+                             <table height="20px" width="100%"><tr><td><a href="serviceDetails.php?url=' . rawurlencode((string) $row['mon_URL']) . '"><span class="">' . h($url_array[1] ?? $row['mon_URL']) . '</span></a></td><td align="right"><span class="servicebox_text_tag">&nbsp;' . h($row['mon_Tags']) . '</span></td></tr></table>';
 			// Render Progressbar
 			echo '                <div class="progress-segment">';
 
@@ -269,12 +269,12 @@ function get_service_from_unique_device($func_unique_device) {
 
 				if ($func_latency[$x] == '99999999') {$loop_latency = 'offline';} else { $loop_latency = $func_latency[$x] . 's';}
 
-				echo '       <div class="single_scan ' . $codecolor . '" title="' . $func_scans[$x] . ' / HTTP: ' . $for_httpcode . ' / Latency: ' . $loop_latency . '"></div>';
+				echo '       <div class="single_scan ' . $codecolor . '" title="' . h(($func_scans[$x] ?? '') . ' / HTTP: ' . $for_httpcode . ' / Latency: ' . $loop_latency) . '"></div>';
 
 			}
 
 			echo '        </div>';
-			echo '              <table height="20px" width="100%"><tr><td><span class="progress-description">IP: ' . $row['mon_TargetIP'] . '</span></td><td align="right">' . $notification_type . '</td></tr></table>
+			echo '              <table height="20px" width="100%"><tr><td><span class="progress-description">IP: ' . h($row['mon_TargetIP']) . '</span></td><td align="right">' . $notification_type . '</td></tr></table>
                         </div>
                     </div>
                   </div>';
@@ -406,7 +406,7 @@ while ($i < count($unique_devices)) {
 	if ($device_name == "") {$device_name = $pia_lang['WEBS_unknown_Device'] . ' (' . $unique_devices[$i] . ')';}
 	echo '<div class="box">
             <div class="box-header with-border">
-              <h3 class="box-title">' . $device_name . '</h3>
+              <h3 class="box-title">' . h($device_name) . '</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">';
@@ -588,5 +588,13 @@ function insertNewService(refreshCallback='') {
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
 }
+
+$(document).on('click', '.service-mac-option', function(event) {
+  event.preventDefault();
+  const target = this.getAttribute('data-target');
+  if (target && document.getElementById(target)) {
+    setTextValue(target, this.getAttribute('data-value') || '');
+  }
+});
 
 </script>

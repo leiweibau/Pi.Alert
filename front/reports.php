@@ -64,11 +64,13 @@ function get_Report_Headline_Colors() {
 
   $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
   $row = $result->fetchArray(SQLITE3_ASSOC);
-  if ($row) {
-      $responseData = $row['par_Long_Value'];
-      $Headline_Colors = explode(',', $responseData);
-  } else {
-  	$Headline_Colors = array("#30bbbb","#d81b60","#00c0ef","#831cff","#00a65a");
+  $defaults = array("#30bbbb", "#d81b60", "#00c0ef", "#831cff", "#00a65a");
+  $Headline_Colors = $row ? explode(',', (string) $row['par_Long_Value']) : $defaults;
+  foreach ($defaults as $index => $fallback) {
+      $candidate = $Headline_Colors[$index] ?? '';
+      $Headline_Colors[$index] = is_string($candidate) && preg_match('/^#[0-9a-f]{6}$/i', $candidate)
+          ? $candidate
+          : $fallback;
   }
   return $Headline_Colors;
 }
@@ -133,6 +135,7 @@ function get_notification_class($filename) {
 
 function process_standard_notifications($class_name, $event_time, $filename, $directory, $color, $notification_icon) {
 	$lines = file($directory . $filename);
+	$webgui_report = '';
 	$x = 0;
 	foreach ($lines as $line) {
 		$x++;
@@ -149,45 +152,46 @@ function process_standard_notifications($class_name, $event_time, $filename, $di
 				        $mac_text = "Internet\n";
 				    }
 				}
-				$webgui_report .= "\tMAC: <a href=\"./deviceDetails.php?mac=" . $mac_full . "\">" . $mac_text . "</a>";
+				$webgui_report .= "\tMAC: <a href=\"./deviceDetails.php?mac=" . rawurlencode(trim($mac_full)) . "\">" . h($mac_text) . "</a>";
 			} elseif (stristr($line, "Service:")) {
 				// edit Service line - add link
 				$tempmac = explode(": ", $line);
-				$webgui_report .= "Service: <a href=\"./serviceDetails.php?url=" . $tempmac[1] . "\">" . $tempmac[1] . "</a>";
+				$serviceUrl = trim((string) ($tempmac[1] ?? ''));
+				$webgui_report .= "Service: <a href=\"./serviceDetails.php?url=" . rawurlencode($serviceUrl) . "\">" . h($serviceUrl) . "</a>\n";
 			} elseif (stristr($line, "Event:")) {
 				// edit Event line - add color depending on status
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
 				if ($tempmac[1] == "Disconnected") {
-					$webgui_report .= "\tEvent:\t\t<span class=\"text-red\">" . $tempmac[1] . "</span>\n";
+					$webgui_report .= "\tEvent:\t\t<span class=\"text-red\">" . h($tempmac[1]) . "</span>\n";
 				} elseif ($tempmac[1] == "Connected") {
-					$webgui_report .= "\tEvent:\t\t<span class=\"text-green\">" . $tempmac[1] . "</span>\n";
-				} else { $webgui_report .= "\tEvent:\t\t" . $tempmac[1] . "</span>\n";}
+					$webgui_report .= "\tEvent:\t\t<span class=\"text-green\">" . h($tempmac[1]) . "</span>\n";
+				} else { $webgui_report .= "\tEvent:\t\t" . h($tempmac[1]) . "\n";}
 			} elseif (stristr($line, "\tHTTP Status Code:")) {
 				// edit Event line - add color depending on status
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
 				if ($tempmac[1] != "200") {$code_color = 'red';} else {$code_color = 'green';}
-				$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span>\n";
+				$webgui_report .= "\tHTTP Status Code:\t<span class=\"text-".$code_color."\">" . h($tempmac[1]) . "</span>\n";
 			} elseif (stristr($line, "\tSSL Status:")) {
 				// edit Event line - add color depending on status
 				$tempmac = explode(": ", $line);
 				$tempmac[1] = trim($tempmac[1]);
 				if ($tempmac[1] != "0") {$code_color = 'red';} else {$code_color = 'green';}
-				$webgui_report .= "\t<span style=\"cursor:pointer\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"". ssl_code_tooltip($tempmac[1]) . "\">SSL Status:\t\t<span class=\"text-".$code_color."\">" . $tempmac[1] . "</span></span>\n";
+				$webgui_report .= "\t<span style=\"cursor:pointer\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"". h(ssl_code_tooltip($tempmac[1])) . "\">SSL Status:\t\t<span class=\"text-".$code_color."\">" . h($tempmac[1]) . "</span></span>\n";
 			} else {
 				// Default handling
-				$webgui_report .= $line;
+				$webgui_report .= h($line);
 			}
 			//$webgui_report .= $line;
 		} elseif (trim($line) != "") {
-			$webgui_report .= $line;
+			$webgui_report .= h($line);
 		}
 	}
 
 	return '<div class="box box-solid">
 	          <div class="box-header">
-	            <h3 class="box-title" style="color: ' . $color . '"><i class="fa ' . $notification_icon . '"></i>&nbsp;&nbsp;' . $event_time . ' - ' . $class_name . '</h3>
+	            <h3 class="box-title" style="color: ' . h($color) . '"><i class="fa ' . $notification_icon . '"></i>&nbsp;&nbsp;' . h($event_time) . ' - ' . h($class_name) . '</h3>
 	        </div>
 	        <div class="box-body" style="height:250px;"><pre style="background-color: transparent; border: none; overflow: auto; height:240px">' . $webgui_report . '</pre></div>
             <div class="box-footer text-center">
@@ -200,13 +204,14 @@ function report_footer_buttons($source, $filename) {
 	if ($source == './reports/archived/') {$disable = 'disabled'; $report_source = '&report_source=archive';}
 	$bt_a_c = 'style="width: 70px; margin: 0px 5px;"';
 	$bt_b = 'style="width: 70px; margin: 0px 60px;"';
-	return '<a href="./download/report.php?report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-success" target="_blank" role="button" '.$bt_a_c.'><i class="fa fa-fw fa-download"></i></a>
-          <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-danger" role="button" '.$bt_b.'><i class="fa fa-fw fa-trash"></i></a>
-		  <a href="./reports.php?archive_report=' . substr($filename, 0, -4) . $report_source . '" class="btn btn-sm btn-default '.$disable.'" role="button" '.$bt_a_c.'><i class="fa-regular fa-folder"></i></a>';
+	return '<a href="./download/report.php?report=' . rawurlencode(substr($filename, 0, -4)) . $report_source . '" class="btn btn-sm btn-success" target="_blank" role="button" '.$bt_a_c.'><i class="fa fa-fw fa-download"></i></a>
+          <a href="./reports.php?remove_report=' . rawurlencode(substr($filename, 0, -4)) . $report_source . '" class="btn btn-sm btn-danger" role="button" '.$bt_b.'><i class="fa fa-fw fa-trash"></i></a>
+		  <a href="./reports.php?archive_report=' . rawurlencode(substr($filename, 0, -4)) . $report_source . '" class="btn btn-sm btn-default '.$disable.'" role="button" '.$bt_a_c.'><i class="fa-regular fa-folder"></i></a>';
 }
 
 function process_icmp_notifications($class_name, $event_time, $filename, $directory, $color) {
 	$lines = file($directory . $filename);
+	$webgui_report = '';
 	$x = 0;
 	foreach ($lines as $line) {
 		$x++;
@@ -214,7 +219,8 @@ function process_icmp_notifications($class_name, $event_time, $filename, $direct
 			if (stristr($line, "IP:")) {
 				// edit MAC line - add link
 				$tempmac = explode(": ", $line);
-				$webgui_report .= "IP: <a href=\"./icmpmonitorDetails.php?hostip=" . $tempmac[1] . "\">" . $tempmac[1] . "</a>";
+				$hostIp = trim((string) ($tempmac[1] ?? ''));
+				$webgui_report .= "IP: <a href=\"./icmpmonitorDetails.php?hostip=" . rawurlencode($hostIp) . "\">" . h($hostIp) . "</a>\n";
 			} elseif (stristr($line, "Status:")) {
 				// edit Status line - add color depending on status
 				$tempmac = explode(":", $line);
@@ -223,19 +229,19 @@ function process_icmp_notifications($class_name, $event_time, $filename, $direct
 					$webgui_report .= "\tStatus:\t\t<span class=\"text-red\">Disconnected</span>\n";
 				} elseif ($tempmac[1] == "Up") {
 					$webgui_report .= "\tStatus:\t\t<span class=\"text-green\">Connected</span>\n";
-				} else { $webgui_report .= "\tStatus:\t\t" . $tempmac[1] . "</span>\n";}
+				} else { $webgui_report .= "\tStatus:\t\t" . h($tempmac[1]) . "\n";}
 			} else {
 				// Default handling
-				$webgui_report .= $line;
+				$webgui_report .= h($line);
 			}
 		} elseif (trim($line) != "") {
-			$webgui_report .= $line;
+			$webgui_report .= h($line);
 		}
 	}
 
 	return '<div class="box box-solid">
 	          <div class="box-header">
-	            <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-laptop"></i>&nbsp;&nbsp;' . $event_time . ' - ' . $class_name . '</h3>
+	            <h3 class="box-title" style="color: ' . h($color) . '"><i class="fa fa-laptop"></i>&nbsp;&nbsp;' . h($event_time) . ' - ' . h($class_name) . '</h3>
 	          </div>
 	        <div class="box-body" style="height:250px;"><pre style="background-color: transparent; border: none; overflow: auto; height:240px">' . $webgui_report . '</pre></div>
             <div class="box-footer text-center">
@@ -245,11 +251,10 @@ function process_icmp_notifications($class_name, $event_time, $filename, $direct
 }
 
 function process_test_notifications($class_name, $event_time, $filename, $directory, $color) {
-	$webgui_report = file_get_contents($directory . $filename);
-	$webgui_report = str_replace("\n\n\n", "", $webgui_report);
+	$webgui_report = h(str_replace("\n\n\n", "", file_get_contents($directory . $filename)));
 	return '<div class="box box-solid">
             <div class="box-header">
-              <h3 class="box-title" style="color: ' . $color . '"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . $event_time . ' - System Message</h3>
+              <h3 class="box-title" style="color: ' . h($color) . '"><i class="fa fa-regular fa-envelope"></i>&nbsp;&nbsp;' . h($event_time) . ' - System Message</h3>
             </div>
             <div class="box-body" style="height:250px;"><pre style="background-color: transparent; border: none; overflow: auto; height:240px">' . $webgui_report . '</pre></div>
             <div class="box-footer text-center">
@@ -260,14 +265,13 @@ function process_test_notifications($class_name, $event_time, $filename, $direct
 
 function process_rogueDHCP_notifications($class_name, $event_time, $filename, $directory) {
 	global $pia_lang;
-	$webgui_report = file_get_contents($directory . $filename);
-	$webgui_report = str_replace("\n\n\n", "", $webgui_report);
+	$webgui_report = h(str_replace("\n\n\n", "", file_get_contents($directory . $filename)));
 	return '<div class="box box-solid bg-red-active">
             <div class="box-header">
-              <h3 class="box-title"><i class="fa fa-warning"></i>&nbsp;&nbsp;' . $event_time . ' - ' . $class_name . '</h3>
+              <h3 class="box-title"><i class="fa fa-warning"></i>&nbsp;&nbsp;' . h($event_time) . ' - ' . h($class_name) . '</h3>
                 <div class="pull-right">
-                  <a href="./download/report.php?report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-fw fa-download"></i></a>
-                  <a href="./reports.php?remove_report=' . substr($filename, 0, -4) . '" class="btn btn-sm btn-danger" style=" border: solid 1px #ddd;"><i class="fa fa-fw fa-trash"></i></a>
+                  <a href="./download/report.php?report=' . rawurlencode(substr($filename, 0, -4)) . '" class="btn btn-sm btn-success" target="_blank"><i class="fa fa-fw fa-download"></i></a>
+                  <a href="./reports.php?remove_report=' . rawurlencode(substr($filename, 0, -4)) . '" class="btn btn-sm btn-danger" style=" border: solid 1px #ddd;"><i class="fa fa-fw fa-trash"></i></a>
                 </div>
             </div>
             <div class="box-body"><pre style="background-color: transparent; border: none;">' . $webgui_report . '</pre>
@@ -392,23 +396,23 @@ foreach ($scanned_directory as $file) {
                         <div id="Container">
 							<div id="Internet" style="margin-bottom: 5px">
 				                <label style="width: 140px">Internet</label>
-				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[0]?>" data-coloris>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=h($headline_colors[0])?>" data-coloris>
 				            </div>
 							<div id="Device" style="margin-bottom: 5px">
 				                <label style="width: 140px">Devices</label>
-				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[1]?>" data-coloris>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=h($headline_colors[1])?>" data-coloris>
 				            </div>
 							<div id="WebServices" style="margin-bottom: 5px">
 				                <label style="width: 140px">WebServices</label>
-				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[2]?>" data-coloris>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=h($headline_colors[2])?>" data-coloris>
 				            </div>
 							<div id="ICMP_Monitoring" style="margin-bottom: 5px">
 				                <label style="width: 140px">ICMP Monitoring</label>
-				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[3]?>" data-coloris>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=h($headline_colors[3])?>" data-coloris>
 				            </div>
 							<div id="Test" style="margin-bottom: 5px">
 				                <label style="width: 140px">Test / System</label>
-				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=$headline_colors[4]?>" data-coloris>
+				                <input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="<?=h($headline_colors[4])?>" data-coloris>
 				            </div>
                         </div>
 

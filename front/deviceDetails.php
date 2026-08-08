@@ -26,12 +26,12 @@ function get_speedtestresults_table() {
 	$res = $db_tools->query('SELECT * FROM Tools_Speedtest_History');
 	while ($row = $res->fetchArray()) {
 		echo '<tr>
-            <td>' . $row['speed_date'] . '</td>
-            <td>' . $row['speed_isp'] . '</td>
-            <td>' . $row['speed_server'] . '</td>
-            <td style="color: rgb(22, 122, 196)">' . $row['speed_ping'] . '</td>
-            <td style="color: rgb(0, 166, 89)">' . $row['speed_down'] . '</td>
-            <td style="color: rgb(185, 0, 43)">' . $row['speed_up'] . '</td>
+            <td>' . h($row['speed_date']) . '</td>
+            <td>' . h($row['speed_isp']) . '</td>
+            <td>' . h($row['speed_server']) . '</td>
+            <td style="color: rgb(22, 122, 196)">' . h($row['speed_ping']) . '</td>
+            <td style="color: rgb(0, 166, 89)">' . h($row['speed_down']) . '</td>
+            <td style="color: rgb(185, 0, 43)">' . h($row['speed_up']) . '</td>
           </tr>';
 	}
 }
@@ -970,52 +970,60 @@ function initializeCombos () {
 }
 
 function initializeCombo (HTMLelement, queryAction, txtDataField) {
-  // get data from server
-  $.get('php/server/devices.php?action='+queryAction, function(data) {
-    var listData = JSON.parse(data);
-    var order = 1;
+  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+    const listData = JSON.parse(data);
+    let order = 1;
 
-    HTMLelement.innerHTML = ''
-    // for each item
-    listData.forEach(function (item, index) {
-      // insert line divisor
-      if (order != item['order']) {
-        HTMLelement.innerHTML += '<li class="divider"></li>';
-        order = item['order'];
+    while (HTMLelement.firstChild) {
+      HTMLelement.removeChild(HTMLelement.firstChild);
+    }
+
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        HTMLelement.appendChild(divider);
+        order = item.order;
       }
 
-      id = item['name'];
-      // use explicitly specified id (value) if avaliable
-      if(item['id'])
-      {
-        id = item['id'];
-      }
-      if (queryAction == "getNetworkNodes") {
-      // add NetworkNodes dropdown item
-        HTMLelement.innerHTML +=
-          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-          txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
-      } else {
-        // add dropdown item
-        HTMLelement.innerHTML +=
-          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-          txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
-      }
+      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const label = queryAction === 'getNetworkNodes'
+        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
+        : String(item.name ?? '');
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+
+      link.href = '#';
+      link.textContent = label;
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue(txtDataField, String(value ?? ''));
+      });
+
+      listItem.appendChild(link);
+      HTMLelement.appendChild(listItem);
     });
   });
 }
 
 function initializeComboSkipRepeated () {
-  // find dropdown menu element
-  HTMLelement = $('#dropdownSkipRepeated')[0];
-  HTMLelement.innerHTML = ''
+  const dropdownMenu = document.getElementById('dropdownSkipRepeated');
+  if (!dropdownMenu) {
+    return;
+  }
 
-  // for each item
-  skipRepeatedItems.forEach(function (item, index) {
-    // add dropdown item
-    HTMLelement.innerHTML += ' <li><a href="javascript:void(0)" ' +
-      'onclick="setTextValue(\'txtSkipRepeated\',\'' + item + '\');">'+
-      item +'</a></li>';
+  dropdownMenu.replaceChildren();
+  skipRepeatedItems.forEach(function (item) {
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = '#';
+    link.textContent = item;
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      setTextValue('txtSkipRepeated', item);
+    });
+    listItem.appendChild(link);
+    dropdownMenu.appendChild(listItem);
   });
 }
 
@@ -1048,12 +1056,13 @@ function initializeDatatables () {
     'pageLength'  : sessionsRows,
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
         {visible:   false,  targets: [0]},
 
         // Replace HTML codes
         {targets: [1,2,3,5],
           'createdCell': function (td, cellData, rowData, row, col) {
-            $(td).html (translateHTMLcodes (cellData));
+            setCellText(td, cellData);
         } }
     ],
 
@@ -1089,6 +1098,7 @@ function initializeDatatables () {
     'pageLength'  : eventsRows,
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
         // Replace HTML codes
         {targets: [0],
           'createdCell': function (td, cellData, rowData, row, col) {
@@ -1592,20 +1602,21 @@ function initializeSpeedtest () {
       ],
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {className: 'text-center', targets: [3,4,5] },
 
       //Device Name
       {targets: [0],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html ('<b>'+ cellData +'</b>');
+         setCellStrongText(td, cellData);
       } },
       {targets: [3],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html (cellData +' ms');
+         setCellText(td, cellData, " ms");
       } },
       {targets: [4,5],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html (cellData +' Mbps');
+         setCellText(td, cellData, " Mbps");
       } },
 
     ],

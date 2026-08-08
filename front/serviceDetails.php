@@ -11,11 +11,11 @@ if ($_SESSION["login"] != 1) {
 }
 
 # Validate URL
-$_REQUEST['url'] = filter_var($_REQUEST['url'], FILTER_SANITIZE_URL);
+$request_url = isset($_REQUEST['url']) && is_scalar($_REQUEST['url']) ? (string) $_REQUEST['url'] : '';
 
-if (filter_var($_REQUEST['url'], FILTER_VALIDATE_URL)) {
-	$service_details_title = $_REQUEST['url'];
-	$service_details_title_array = explode('://', $_REQUEST['url']);
+if (filter_var($request_url, FILTER_VALIDATE_URL)) {
+	$service_details_title = $request_url;
+	$service_details_title_array = explode('://', $request_url);
 } else {
 	header('Location: ./index.php');
 	exit;
@@ -68,11 +68,11 @@ function get_service_events_table($service_URL, $service_filter) {
 			$func_TargetIP = $row['moneve_TargetIP'];
 			$current_service_IP = $row['moneve_TargetIP'];}
 		echo '<tr>
-              <td>' . $func_TargetIP . '</td>
-              <td>' . $row['moneve_DateTime'] . '</td>
-              <td>' . $row['moneve_StatusCode'] . '</td>
-              <td>' . $row['moneve_Latency'] . '</td>
-              <td>' . $row['moneve_ssl_fc'] . '</td>
+              <td>' . h($func_TargetIP) . '</td>
+              <td>' . h($row['moneve_DateTime']) . '</td>
+              <td>' . h($row['moneve_StatusCode']) . '</td>
+              <td>' . h($row['moneve_Latency']) . '</td>
+              <td>' . h($row['moneve_ssl_fc']) . '</td>
           </tr>';
 	}
 }
@@ -225,7 +225,7 @@ function get_service_statistic($service) {
       <?php require 'php/templates/notification.php';?>
 
       <h1 id="pageTitle">
-        <?='[' . strtoupper($service_details_title_array[0]) . '] ' . $service_details_title_array[1];?>
+        <?=h('[' . strtoupper($service_details_title_array[0]) . '] ' . $service_details_title_array[1]);?>
       </h1>
     </section>
 
@@ -240,7 +240,7 @@ function get_service_statistic($service) {
       <div class="row">
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=all" onclick="javascript: getEventsTotalsforService('all');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=all" >
             <div class="small-box bg-aqua">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsAll"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_All'];?></p>
@@ -251,7 +251,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=2" onclick="javascript: getEventsTotalsforService('2');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=2" >
             <div class="small-box bg-green">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events2xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP2xx'];?></p>
@@ -262,7 +262,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=3" onclick="javascript: getEventsTotalsforService('3');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=3" >
             <div  class="small-box bg-yellow">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events3xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP3xx'];?></p>
@@ -273,7 +273,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=4" onclick="javascript: getEventsTotalsforService('4');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=4" >
             <div  class="small-box bg-yellow">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events4xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP4xx'];?></p>
@@ -284,7 +284,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=5" onclick="javascript: getEventsTotalsforService('5');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=5" >
             <div  class="small-box bg-yellow">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events5xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP5xx'];?></p>
@@ -295,7 +295,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=99999999" onclick="javascript: getEventsTotalsforService('99999999');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=99999999" >
             <div  class="small-box bg-red">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_Down'];?></p>
@@ -331,13 +331,13 @@ function get_service_statistic($service) {
                       <!-- URL -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_URL'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtURL" type="text" readonly value="<?=$servicedetails['mon_URL']?>"></div>
+                        <div class="col-sm-9"><input class="form-control" id="txtURL" type="text" readonly value="<?=h($servicedetails['mon_URL'])?>"></div>
                       </div>
 
                       <!-- Tags -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Tags'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtTags" type="text" value="<?=$servicedetails['mon_Tags']?>"></div>
+                        <div class="col-sm-9"><input class="form-control" id="txtTags" type="text" value="<?=h($servicedetails['mon_Tags'])?>"></div>
                       </div>
 
                       <!-- Mac address -->
@@ -351,20 +351,20 @@ function get_service_statistic($service) {
                               <ul class="dropdown-menu">
 <?php
 if ($servicedetails['mon_MAC'] != "") {
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtMAC\',\'' . $servicedetails['mon_MAC'] . '\')">' . $servicedetails['mon_MAC'] . '</a></li>';
+	echo '<li><a href="#" class="service-mac-option" data-target="txtMAC" data-value="' . h($servicedetails['mon_MAC']) . '">' . h($servicedetails['mon_MAC']) . '</a></li>';
 }
 echo '<li> -----  </li>';
 
 $dev_res = $db->query('SELECT dev_MAC, dev_Name FROM Devices ORDER BY dev_Name ASC');
 $code_array = array();
 while ($row = $dev_res->fetchArray()) {
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtMAC\',\'' . $row['dev_MAC'] . '\')">' . $row['dev_Name'] . '</a></li>';
+	echo '<li><a href="#" class="service-mac-option" data-target="txtMAC" data-value="' . h($row['dev_MAC']) . '">' . h($row['dev_Name']) . '</a></li>';
 }
 ?>
                               </ul>
                             </div>
                             <!-- /btn-group -->
-                            <input type="text" id="txtMAC" class="form-control" data-enpassusermodified="yes" value="<?=$servicedetails['mon_MAC'];?>">
+                            <input type="text" id="txtMAC" class="form-control" data-enpassusermodified="yes" value="<?=h($servicedetails['mon_MAC']);?>">
                           </div>
                         </div>
                       </div>
@@ -372,7 +372,7 @@ while ($row = $dev_res->fetchArray()) {
                       <!-- Notes -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Notes'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=$servicedetails['mon_Notes']?>"></div>
+                        <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=h($servicedetails['mon_Notes'])?>"></div>
                       </div>
 
                     </div>
@@ -386,31 +386,31 @@ while ($row = $dev_res->fetchArray()) {
                       <!-- Last HTTP Status -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_StatusCode'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_LastStatus']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_LastStatus'])?>"></div>
                       </div>
 
                       <!-- Last HTTP Status -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label">SSL Status</label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_fc']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_ssl_fc'])?>"></div>
                       </div>
 
                       <!-- Last IP -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_TargetIP'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastIP" type="text" readonly value="<?=$servicedetails['mon_TargetIP']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastIP" type="text" readonly value="<?=h($servicedetails['mon_TargetIP'])?>"></div>
                       </div>
 
                       <!-- Last Scan -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_ScanTime'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastScan" type="text" readonly value="<?=$servicedetails['mon_LastScan']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastScan" type="text" readonly value="<?=h($servicedetails['mon_LastScan'])?>"></div>
                       </div>
 
                       <!-- Last Latency -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_Response_Time'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastLatency" type="text" readonly value="<?=$servicedetails['mon_LastLatency']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastLatency" type="text" readonly value="<?=h($servicedetails['mon_LastLatency'])?>"></div>
                       </div>
 
                       <!-- Alert events -->
@@ -437,13 +437,13 @@ while ($row = $dev_res->fetchArray()) {
 	                    <h4 class="bottom-border-aqua">SSL Certificate Info</h4>
 	                    <div class="box-body form-horizontal">
 	                        <label class="col-sm-2 control-label">Subject</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_subject']))?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h(str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_subject'])))?>"></div>
 	                        <label class="col-sm-2 control-label">Issuer</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_issuer']))?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h(str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_issuer'])))?>"></div>
 	                        <label class="col-sm-2 control-label">Valid from</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_from']?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_ssl_valid_from'])?>"></div>
 	                        <label class="col-sm-2 control-label">Valid to</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_to']?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_ssl_valid_to'])?>"></div>
 	                    </div>
                    </div>
                 </div>
@@ -583,10 +583,10 @@ if ($output[0] != "######") {
             <div class="col-sm-12" style="font-weight: 600;">' . $pia_lang['WEBS_Stats_Location'] . ': </div>
           </div>
           <div class="row">
-            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IP'] . ':</div> ' . $servicedetails['mon_TargetIP'] . '</div>
+            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IP'] . ':</div> ' . h($servicedetails['mon_TargetIP']) . '</div>
           </div>
           <div class="row">
-            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IPLocation'] . ':</div> ' . $locations[1] . ' (' . $locations[0] . ')</div>
+            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IPLocation'] . ':</div> ' . h($locations[1]) . ' (' . h($locations[0]) . ')</div>
           </div>
           <div class="row">
             <div class="col-sm-12" style="margin-top: 30px;">
@@ -691,7 +691,7 @@ if ($ENABLED_DARKMODE === True) {
 
 // -----------------------------------------------------------------------------
 function main () {
-  url = '<?=$service_details_title;?>'
+  url = <?=json_encode($service_details_title, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
   initializeTabs();
   initializeiCheck();
   getEventsTotalsforService();
@@ -764,7 +764,7 @@ function getEventsTotalsforService() {
   // stopTimerRefreshData();
 
   // get totals and put in boxes
-  $.get('php/server/services.php?action=getEventsTotalsforService&url=<?=$servicedetails['mon_URL']?>', function(data) {
+  $.get('php/server/services.php?action=getEventsTotalsforService&url=' + encodeURIComponent(url), function(data) {
     var totalsEvents = JSON.parse(data);
 
     $('#eventsAll').html      (totalsEvents[0].toLocaleString());
@@ -800,12 +800,13 @@ function initializeDatatable () {
       ],
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {className: 'text-center', targets: [1,2,3,4] },
 
       //Device Name
       {targets: [0],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html ('<b>'+ cellData +'</b>');
+         setCellStrongText(td, cellData);
       } },
 
     ],
@@ -876,7 +877,7 @@ function deleteService () {
   if (url == '') {
     return;
   }
-  $.get('php/server/services.php?action=deleteService&url='+ url, function(msg) {
+  $.get('php/server/services.php?action=deleteService&url=' + encodeURIComponent(url), function(msg) {
     showMessage (msg);
   });
   // Deactivate controls
@@ -887,6 +888,14 @@ function deleteService () {
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
 }
+
+$(document).on('click', '.service-mac-option', function(event) {
+  event.preventDefault();
+  const target = this.getAttribute('data-target');
+  if (target && document.getElementById(target)) {
+    setTextValue(target, this.getAttribute('data-value') || '');
+  }
+});
 
 // Get Cookie (Tab state)
 function getCookie(cookieName) {
