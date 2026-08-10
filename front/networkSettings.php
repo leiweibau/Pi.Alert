@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -43,7 +44,7 @@ OpenDB();
             <!-- Add Device ---------------------------------------------------------- -->
             <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Add'];?></h4>
-            <form role="form" method="post" action="./networkSettings.php">
+            <form role="form" onsubmit="return false;">
               <div class="form-group has-success">
                   <label for="NetworkDeviceName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
                   <div class="input-group">
@@ -94,7 +95,7 @@ OpenDB();
             <!-- Edit Device ---------------------------------------------------------- -->
             <div class="col-md-4">
               <h4 class="box-title"><?=$pia_lang['NET_Man_Edit'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-warning">
               	<label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
                   <select class="form-control" id="UpdNetworkDeviceID" name="UpdNetworkDeviceID" onchange="get_networkdev_values(event)">
@@ -200,7 +201,7 @@ loadNetworkDevices(netdev_type);
             <!-- Del Device ---------------------------------------------------------- -->
            <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Del'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-error">
                 <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
                   <select class="form-control" id="DelNetworkDeviceID" name="DelNetworkDeviceID">
@@ -242,7 +243,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
             <!-- Add Device ---------------------------------------------------------- -->
             <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Add'];?></h4>
-            <form role="form" method="post" action="./networkSettings.php">
+            <form role="form" onsubmit="return false;">
               <!-- /.form-group -->
               <div class="form-group has-success">
                 <label for="NetworkUnmanagedDevName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
@@ -280,7 +281,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
             <!-- Edit Device ---------------------------------------------------------- -->
             <div class="col-md-4">
               <h4 class="box-title"><?=$pia_lang['NET_Man_Edit'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-warning">
                 <label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
                   <select class="form-control" id="NetworkUnmanagedDevID" name="NetworkUnmanagedDevID">
@@ -335,7 +336,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
             <!-- Del Device ---------------------------------------------------------- -->
            <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Del'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-error">
                 <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
                   <select class="form-control" id="DelNetworkUnmanagedDevID" name="DelNetworkUnmanagedDevID">
@@ -451,7 +452,7 @@ function addManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=addManagedDev'
+  pialertPost('php/server/network.php?action=addManagedDev'
     + '&NetworkDeviceName='  + $('#txtNetworkDeviceName').val()
     + '&NetworkDeviceTyp='   + $('#txtNetworkDeviceTyp').val()
     + '&NetworkDevicePort='  + $('#NetworkDevicePort').val()
@@ -471,7 +472,7 @@ function updManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=updManagedDev'
+  pialertPost('php/server/network.php?action=updManagedDev'
     + '&NetworkDeviceID='          + $('#UpdNetworkDeviceID').val()
     + '&NewNetworkDeviceName='     + $('#NewNetworkDeviceName').val()
     + '&NewNetworkDeviceTyp='      + $('#txtNewNetworkDeviceTyp').val()
@@ -493,7 +494,7 @@ function delManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=delManagedDev'
+  pialertPost('php/server/network.php?action=delManagedDev'
     + '&NetworkDeviceID='          + $('#DelNetworkDeviceID').val()
     , function(msg) {
 
@@ -511,7 +512,7 @@ function addUnManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=addUnManagedDev'
+  pialertPost('php/server/network.php?action=addUnManagedDev'
     + '&NetworkUnmanagedDevName='     + $('#txtNetworkUnmanagedDevName').val()
     + '&NetworkUnmanagedDevConnect='  + $('#txtNetworkUnmanagedDevConnect').val()
     + '&NetworkUnmanagedDevPort='     + $('#NetworkUnmanagedDevPort').val()
@@ -531,7 +532,7 @@ function updUnManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=updUnManagedDev'
+  pialertPost('php/server/network.php?action=updUnManagedDev'
     + '&NetworkUnmanagedDevID='          + $('#NetworkUnmanagedDevID').val()
     + '&NewNetworkUnmanagedDevName='     + $('#NewNetworkUnmanagedDevName').val()
     + '&NewNetworkUnmanagedDevConnect='  + $('#NewNetworkUnmanagedDevConnect').val()
@@ -551,7 +552,7 @@ function delUnManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=delUnManagedDev'
+  pialertPost('php/server/network.php?action=delUnManagedDev'
     + '&NetworkUnmanagedDevID='          + $('#DelNetworkUnmanagedDevID').val()
     , function(msg) {
 

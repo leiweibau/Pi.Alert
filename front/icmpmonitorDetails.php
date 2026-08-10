@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -11,7 +12,7 @@ if ($_SESSION["login"] != 1) {
 }
 
 # Validate host
-$request_host = isset($_REQUEST['hostip']) && is_scalar($_REQUEST['hostip']) ? (string) $_REQUEST['hostip'] : '';
+$request_host = isset($_GET['hostip']) && is_scalar($_GET['hostip']) ? (string) $_GET['hostip'] : '';
 if (filter_var($request_host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) || filter_var($request_host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
 	$hostip = $request_host;
 } else {
@@ -419,8 +420,8 @@ function get_host_statistic($hostip) {
                   <div class="col-xs-12">
                     <div class="pull-right">
                         <button type="button" class="btn btn-danger servicedet_button_space"  id="btnDelete"   onclick="deleteICMPHost()"> <?=$pia_lang['Gen_Delete'];?> </button>
-                        <button type="button" class="btn btn-default servicedet_button_space" id="btnRestore"  onclick="location.reload()">  <?=$pia_lang['Gen_Cancel'];?> </button>
-                        <button type="button" class="btn btn-primary servicedet_button_space" id="btnSave"     onclick="setICMPHostData()" >  <?=$pia_lang['Gen_Save'];?> </button>
+                        <button type="button" class="btn btn-default servicedet_button_space" id="btnRestore" onclick="restoreOrCloseICMPHost()"> <?=$pia_lang['Gen_Close'];?> </button>
+                        <button type="button" disabled class="btn btn-primary servicedet_button_space" id="btnSave" onclick="setICMPHostData()"> <?=$pia_lang['Gen_Save'];?> </button>
                     </div>
                   </div>
 
@@ -606,6 +607,10 @@ if ($ENABLED_DARKMODE === True) {
   var parEventsRows       = 'Front_icmpmonitorDetails_Events_Rows';
   var period              = '1 month';
   var tab                 = 'tabDetails'
+  var icmpDetailsDirty    = false;
+  var icmpInitialValues   = {};
+  const icmpCloseLabel    = <?=json_encode($pia_lang['Gen_Close'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+  const icmpCancelLabel   = <?=json_encode($pia_lang['DevDetail_button_Reset'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
   //var eventsRows          = 25;
 
   // Read parameters & Initialize components
@@ -616,12 +621,14 @@ function main () {
   hostip = '<?=$hostip;?>'
   initializeTabs();
   initializeiCheck();
+  captureICMPFormState();
+  deactivateICMPSaveRestoreData();
   getEventsTotalsforICMPHost();
   initializeDatatable();
   initializeCombos();
 	initToolsSection();
 <?php
-if (isset($_REQUEST['icmpfilter'])) {
+if (isset($_GET['icmpfilter'])) {
 	echo "$('.nav-tabs a[id=tabEvents]').tab('show');";
 }
 ?>
@@ -744,7 +751,7 @@ function setICMPHostData(refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/icmpmonitor.php?action=setICMPHostData'
+  pialertPost('php/server/icmpmonitor.php?action=setICMPHostData'
     + '&icmp_ip='         + $('#txtIP').val()
     + '&icmp_hostname='   + $('#txtHostname').val()
     + '&icmp_type='       + $('#txtDeviceType').val()
@@ -764,7 +771,8 @@ function setICMPHostData(refreshCallback='') {
     , function(msg) {
 
     // deactivate button
-    // deactivateSaveRestoreData ();
+    captureICMPFormState();
+    deactivateICMPSaveRestoreData();
     showMessage (msg);
     // Callback fuction
     if (typeof refreshCallback == 'function') {
@@ -797,7 +805,7 @@ function deleteICMPHost () {
   }
 
   // Delete device
-  $.get('php/server/icmpmonitor.php?action=deleteICMPHost&icmp_ip='+ hostip, function(msg) {
+  pialertPost('php/server/icmpmonitor.php?action=deleteICMPHost&icmp_ip='+ hostip, function(msg) {
     showMessage (msg);
   });
 
@@ -808,6 +816,56 @@ function deleteICMPHost () {
 // -----------------------------------------------------------------------------
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
+  activateICMPSaveRestoreData();
+}
+
+$(document).on('input change', '#panDetails input:not([readonly]), #panDetails textarea, #panDetails select', function() {
+  activateICMPSaveRestoreData();
+});
+
+$('#panDetails input[type="checkbox"]').on('ifToggled', function() {
+  activateICMPSaveRestoreData();
+});
+
+function activateICMPSaveRestoreData () {
+  icmpDetailsDirty = true;
+  $('#btnRestore').text(icmpCancelLabel);
+  $('#btnSave').removeAttr('disabled');
+}
+
+function deactivateICMPSaveRestoreData () {
+  icmpDetailsDirty = false;
+  $('#btnRestore').text(icmpCloseLabel);
+  $('#btnSave').attr('disabled', '');
+}
+
+function captureICMPFormState () {
+  icmpInitialValues = {};
+  $('#panDetails input, #panDetails textarea, #panDetails select').each(function() {
+    if (!this.id || this.type === 'button' || this.type === 'submit') return;
+    icmpInitialValues[this.id] = this.type === 'checkbox' ? this.checked : $(this).val();
+  });
+}
+
+function restoreICMPFormState () {
+  Object.keys(icmpInitialValues).forEach(function(id) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    if (element.type === 'checkbox') {
+      $(element).iCheck(icmpInitialValues[id] ? 'check' : 'uncheck');
+    } else {
+      $(element).val(icmpInitialValues[id]);
+    }
+  });
+  deactivateICMPSaveRestoreData();
+}
+
+function restoreOrCloseICMPHost () {
+  if (icmpDetailsDirty) {
+    restoreICMPFormState();
+    return;
+  }
+  window.location.href = './icmpmonitor.php';
 }
 
 // Get Cookie (Tab state)

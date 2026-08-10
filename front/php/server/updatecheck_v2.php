@@ -1,8 +1,8 @@
 <?php
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
 require 'timezone.php';
 require 'db.php';
-require 'journal.php';
 require_once 'util.php';
 
 OpenDB();
@@ -186,7 +186,6 @@ if ($_SESSION['Scan_WebServices'] == True) {
 
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0063', '', '');
 	} elseif ($geolite_cur_version == "###") {
 	// No DB present
 		echo '<div class="box">
@@ -196,7 +195,6 @@ if ($_SESSION['Scan_WebServices'] == True) {
 					<p>' . $pia_lang['GeoLiteDB_Installnotes'] . '</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0065', '', '');
 	} else {
 	// DB present an newer as github version
 		echo '<div class="box">
@@ -205,7 +203,6 @@ if ($_SESSION['Scan_WebServices'] == True) {
 					<p class="text-green updatechk_font_a">' . $pia_lang['Updatecheck_U2D'] . '</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0064', '', '');
 	}
 }
 
@@ -232,7 +229,6 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 				</p>
 			</div>
 		  </div>';
-	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0066', '', '');
 }
 
 // Print Update Box for Pi.Alert
@@ -275,7 +271,6 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
         <a class="btn btn-default pull-left" href="https://leiweibau.net/archive/pialert/" target="_blank">Version History (leiweibau.net)</a>
     </div>
 </div>';
-	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0061', '', '');
 
 }
 
@@ -287,7 +282,6 @@ if ($pialert_cur_version == $pialert_new_version) {
 				<p class="text-green updatechk_font_a">' . $pia_lang['Updatecheck_U2D'] . '</p>
 			</div>
 		  </div>';
-	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0062', '', '');
 }
 if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 	// Print Update Box for Pi.Alert Satellites
@@ -313,7 +307,6 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 					</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0066', '', '');
 	}
 
 	// Print Update Box for Pi.Alert Satellites
@@ -354,7 +347,6 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 	        <a class="btn btn-default pull-left" href="https://leiweibau.net/archive/pialert/" target="_blank">Version History (leiweibau.net)</a>
 	    </div>
 	</div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0068', '', '');
 
 	}
 
@@ -366,7 +358,6 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 					<p class="text-green updatechk_font_a">' . $pia_lang['Updatecheck_U2D'] . '</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0069', '', '');
 	}
 }
 echo '</div>';
@@ -383,8 +374,9 @@ $("#updateDB-button").on(\'click\', function() {
     loader.show();
     // Send an AJAX request to initiate the file download
     $.ajax({
-        url: \'./php/server/services.php?action=updateGeoDB\',
-        method: \'GET\',
+        url: \'./php/server/services.php\',
+        data: { action: \'updateGeoDB\' },
+        method: \'POST\',
         success: function(response) {
             console.log(\'Download complete!\');
         },

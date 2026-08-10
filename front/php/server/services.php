@@ -8,7 +8,9 @@
 //  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -19,6 +21,7 @@ if ($_SESSION["login"] != 1) {
 require 'timezone.php';
 require 'db.php';
 require 'util.php';
+require 'service_url.php';
 require 'journal.php';
 require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
@@ -30,9 +33,16 @@ ini_set('max_execution_time', '60');
 // Open DB
 OpenDB();
 
+pialert_dispatch_action([
+    'getEventsTotals', 'getEvents', 'getEventsTotalsforService',
+    'getServiceMonTotals', 'getServicesJournal'
+], [
+    'setServiceData', 'deleteService', 'insertNewService', 'downloadGeoDB',
+    'deleteGeoDB', 'updateGeoDB', 'EnableWebServiceMon', 'DeleteAllWebServices'
+]);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'getEventsTotals':getEventsTotals();
 		break;
@@ -175,7 +185,7 @@ function EnableWebServiceMon() {
 function getEventsTotalsforService() {
 	global $db;
 
-	$serviceURL = isset($_REQUEST['url']) && is_scalar($_REQUEST['url']) ? (string) $_REQUEST['url'] : '';
+	$serviceURL = isset($GLOBALS["pialert_request"]['url']) && is_scalar($GLOBALS["pialert_request"]['url']) ? (string) $GLOBALS["pialert_request"]['url'] : '';
 	$queries = array(
 		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url',
 		'SELECT Count(*) FROM Services_Events WHERE moneve_URL = :url AND moneve_StatusCode LIKE "2%"',
@@ -218,7 +228,7 @@ function getEventsTotals() {
 function getEvents() {
 	global $db;
 
-	$type = isset($_REQUEST['type']) && is_scalar($_REQUEST['type']) ? (string) $_REQUEST['type'] : '';
+	$type = isset($GLOBALS["pialert_request"]['type']) && is_scalar($GLOBALS["pialert_request"]['type']) ? (string) $GLOBALS["pialert_request"]['type'] : '';
 	$sql = 'SELECT * FROM Services_Events WHERE moneve_DateTime >= :period';
 	switch ($type) {
 	case 'all':
@@ -260,10 +270,10 @@ function getEvents() {
 //  Set Services Data
 function setServiceData() {
 	global $db; global $pia_lang;
-	$url = $_REQUEST['url'] ?? '';
-	if (!is_scalar($url)) { echo $pia_lang['BE_Webs_UpdServError']; return; }
+	$url = $GLOBALS["pialert_request"]['url'] ?? '';
+	if (!is_scalar($url) || !pialert_validate_service_key((string) $url)) { echo $pia_lang['BE_Webs_UpdServError']; return; }
 	$sql = 'UPDATE Services SET mon_Tags = :tags, mon_MAC = :mac, mon_AlertDown = :alertdown, mon_AlertUp = :alertup, mon_AlertEvents = :alertevents WHERE mon_URL = :url';
-	$result = db_execute_prepared($db, $sql, array(':tags' => (string)($_REQUEST['tags'] ?? ''), ':mac' => (string)($_REQUEST['mac'] ?? ''), ':alertdown' => (string)($_REQUEST['alertdown'] ?? ''), ':alertup' => (string)($_REQUEST['alertup'] ?? ''), ':alertevents' => (string)($_REQUEST['alertevents'] ?? ''), ':url' => (string)$url));
+	$result = db_execute_prepared($db, $sql, array(':tags' => (string)($GLOBALS["pialert_request"]['tags'] ?? ''), ':mac' => (string)($GLOBALS["pialert_request"]['mac'] ?? ''), ':alertdown' => (string)($GLOBALS["pialert_request"]['alertdown'] ?? ''), ':alertup' => (string)($GLOBALS["pialert_request"]['alertup'] ?? ''), ':alertevents' => (string)($GLOBALS["pialert_request"]['alertevents'] ?? ''), ':url' => (string)$url));
 	if ($result) { pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $url); echo $pia_lang['BE_Webs_UpdServ']; }
 	else { pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $url); logServerConsole('Service update failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Webs_UpdServError']; }
 }
@@ -271,8 +281,8 @@ function setServiceData() {
 //  Delete Service
 function deleteService() {
 	global $db; global $pia_lang;
-	$url = $_REQUEST['url'] ?? '';
-	if (!$url || !is_string($url) || !filter_var($url, FILTER_VALIDATE_URL)) { return false; }
+	$url = $GLOBALS["pialert_request"]['url'] ?? '';
+	if (!pialert_validate_service_key($url)) { return false; }
 	$db->exec('BEGIN');
 	$result = db_execute_prepared($db, 'DELETE FROM Services WHERE mon_URL = :url', array(':url' => $url));
 	$result = $result && db_execute_prepared($db, 'DELETE FROM Services_Events WHERE moneve_URL = :url', array(':url' => $url));
@@ -285,38 +295,50 @@ function insertNewService() {
 	global $db;
 	global $pia_lang;
 
-	$url = $_REQUEST['url'];
+	$url = $GLOBALS["pialert_request"]['url'] ?? '';
 
-	if (!$url || !is_string($url) || !preg_match('/^http(s)?:\/\/[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(\/.*)?$/i', $url)) {
+	if (!pialert_validate_service_url($url)) {
 		echo $pia_lang['BE_Webs_InsServError'].$pia_lang['BE_Webs_InsServError_a'];
 		return false;
 	}
 
+    $existing = db_execute_prepared($db, 'SELECT 1 FROM Services WHERE mon_URL = :url LIMIT 1', array(':url' => $url));
+    if ($existing && $existing->fetchArray(SQLITE3_NUM)) {
+        echo $pia_lang['BE_Webs_InsServError'];
+        return false;
+    }
+
 	$check_timestamp = date("Y-m-d H:i:s");
 
-	$checkURL = curl_init($url);
-	curl_setopt($checkURL, CURLOPT_HEADER, 1);
-	curl_setopt($checkURL, CURLOPT_NOBODY, 1);
-	curl_setopt($checkURL, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($checkURL, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($checkURL, CURLOPT_TIMEOUT, 10);
-	$output = curl_exec($checkURL);
-	$httpstats = curl_getinfo($checkURL);
-	$http_code = curl_getinfo($checkURL, CURLINFO_HTTP_CODE);
-	curl_close($checkURL);
+    $checkResult = pialert_check_service_url($url);
 
-	$sql = 'INSERT INTO Services ("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_AlertUp", "mon_TargetIP") VALUES (:url, :mac, :status, :latency, :scan, :tags, :events, :down, :up, :target)';
-	$result = db_execute_prepared($db, $sql, array(':url' => $url, ':mac' => (string)($_REQUEST['mac'] ?? ''), ':status' => array((int)$http_code, SQLITE3_INTEGER), ':latency' => (string)$httpstats['total_time'], ':scan' => $check_timestamp, ':tags' => (string)($_REQUEST['tags'] ?? ''), ':events' => (string)($_REQUEST['alertevents'] ?? ''), ':down' => (string)($_REQUEST['alertdown'] ?? ''), ':up' => (string)($_REQUEST['alertup'] ?? ''), ':target' => (string)$httpstats['primary_ip']));
+    $sql = 'INSERT OR IGNORE INTO Services '
+        . '("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_AlertUp", "mon_TargetIP", "mon_ssl_subject", "mon_ssl_issuer", "mon_ssl_valid_from", "mon_ssl_valid_to", "mon_ssl_fc") '
+        . 'VALUES (:url, :mac, :status, :latency, :scan, :tags, :events, :down, :up, :target, :ssl_subject, :ssl_issuer, :ssl_valid_from, :ssl_valid_to, :ssl_fc)';
+    $params = array(
+        ':url' => $url,
+        ':mac' => (string)($GLOBALS["pialert_request"]['mac'] ?? ''),
+        ':status' => array($checkResult['status'], SQLITE3_INTEGER),
+        ':latency' => $checkResult['latency'],
+        ':scan' => $check_timestamp,
+        ':tags' => (string)($GLOBALS["pialert_request"]['tags'] ?? ''),
+        ':events' => (string)($GLOBALS["pialert_request"]['alertevents'] ?? ''),
+        ':down' => (string)($GLOBALS["pialert_request"]['alertdown'] ?? ''),
+        ':up' => (string)($GLOBALS["pialert_request"]['alertup'] ?? ''),
+        ':target' => $checkResult['target_ip'],
+        ':ssl_subject' => $checkResult['ssl_subject'],
+        ':ssl_issuer' => $checkResult['ssl_issuer'],
+        ':ssl_valid_from' => $checkResult['ssl_valid_from'],
+        ':ssl_valid_to' => $checkResult['ssl_valid_to'],
+        ':ssl_fc' => array(0, SQLITE3_INTEGER),
+    );
+    $result = db_execute_prepared($db, $sql, $params);
 	// check result
-	if ($result == TRUE) {
-		// Logging
-		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $url);
+	if ($result !== false && $db->changes() === 1) {
 		echo $pia_lang['BE_Webs_InsServ'];
+        pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $url);
 		echo ("<meta http-equiv='refresh' content='2; URL=./services.php'>");
 	} else {
-		// Logging
-		pialert_logging('a_030', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $url);
-		logServerConsole('Service insert failed: ' . $db->lastErrorMsg());
 		echo $pia_lang['BE_Webs_InsServError'];
 	}
 

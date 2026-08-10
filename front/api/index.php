@@ -1,4 +1,9 @@
 <?php
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    header('Allow: POST');
+    http_response_code(405);
+    exit('Method Not Allowed');
+}
 // Check API Key
 // Print Api-Key for debugging
 // echo $_POST['api-key'];
@@ -11,7 +16,7 @@ if ($config_file_lines_bypass != False) {
 } else {echo "No API-Key is set\n";exit;}
 
 // Exit if API-Key is unequal
-if ($_REQUEST['api-key'] != $pia_apikey) {
+if ($_POST['api-key'] != $pia_apikey) {
 	echo "Wrong API-Key\n";
 	exit;
 }
@@ -26,8 +31,8 @@ $DBFILE = '../../db/pialert.db';
 ini_set('max_execution_time', '30');
 
 // Secure and verify query
-if (isset($_REQUEST['mac'])) {
-	$mac_address = str_replace('-', ':', strtolower($_REQUEST['mac']));
+if (isset($_POST['mac'])) {
+	$mac_address = str_replace('-', ':', strtolower($_POST['mac']));
 	if (filter_var($mac_address, FILTER_VALIDATE_MAC) === False) {echo 'Invalid MAC Address.';exit;}
 }
 
@@ -35,8 +40,8 @@ if (isset($_REQUEST['mac'])) {
 OpenDB();
 
 // Action functions
-if (isset($_REQUEST['get']) && !empty($_REQUEST['get'])) {
-	$action = $_REQUEST['get'];
+if (isset($_POST['get']) && !empty($_POST['get'])) {
+	$action = $_POST['get'];
 	switch ($action) {
 	case 'mac-status':getStatusofMAC($mac_address);
 		break;

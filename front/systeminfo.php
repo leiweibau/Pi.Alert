@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -765,7 +766,7 @@ function askPialertReboot() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'PialertReboot');
 }
 function PialertReboot() {
-	$.get('php/server/commands.php?action=PialertReboot', function(msg) {showMessage (msg);});
+	pialertPost('php/server/commands.php?action=PialertReboot', function(msg) {showMessage (msg);});
 }
 // Pialert Shutdown
 function askPialertShutdown() {
@@ -773,7 +774,7 @@ function askPialertShutdown() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'PialertShutdown');
 }
 function PialertShutdown() {
-	$.get('php/server/commands.php?action=PialertShutdown', function(msg) {showMessage (msg);});
+	pialertPost('php/server/commands.php?action=PialertShutdown', function(msg) {showMessage (msg);});
 }
 
 </script>

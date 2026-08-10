@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -155,7 +156,6 @@ function get_pialert_journal() {
 	}
 }
 ?>
-<script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
 <link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
 <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
@@ -390,7 +390,7 @@ function SetTriggerColors() {
     let triggerNames = $('input[name="triggerNames[]"]').map(function () { return $(this).val(); }).get();
     let triggerColors = $('input[name="triggerColors[]"]').map(function () { return $(this).val(); }).get();
 
-    $.post('php/server/parameters.php', {
+    pialertPost('php/server/parameters.php', {
         action: 'setJournalParameter',
         column: 'trigger',
         triggerNames: triggerNames,
@@ -404,7 +404,7 @@ function SetMethodColors() {
     let methodNames = $('input[name="methodNames[]"]').map(function () { return $(this).val(); }).get();
     let methodColors = $('input[name="methodColors[]"]').map(function () { return $(this).val(); }).get();
 
-    $.post('php/server/parameters.php', {
+    pialertPost('php/server/parameters.php', {
         action: 'setJournalParameter',
         column: 'method',
         methodNames: methodNames,

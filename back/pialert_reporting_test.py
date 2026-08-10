@@ -108,7 +108,7 @@ def recover_sensitive_config_values(config_file, secret_keys):
 recover_sensitive_config_values(f"{PIALERT_PATH}/config/pialert.conf", RAW_CONFIG_SECRET_KEYS)
 try:
   globals().update(validate_loaded_config(
-      {name: globals()[name] for name in ALL_KEYS}, PIALERT_PATH))
+      {name: globals()[name] for name in ALL_KEYS if name in globals()}, PIALERT_PATH))
 except ConfigValidationError as exc:
   print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
   raise SystemExit(1)

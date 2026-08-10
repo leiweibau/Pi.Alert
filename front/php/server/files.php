@@ -8,7 +8,9 @@
 //  leiweibau  2023+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -17,6 +19,7 @@ if ($_SESSION["login"] != 1) {
 
 require 'timezone.php';
 require 'db.php';
+require 'auth.php';
 require 'util.php';
 require 'journal.php';
 require 'language_switch.php';
@@ -50,9 +53,22 @@ $maskKeys = [
 // Open DB
 OpenDB();
 
+pialert_dispatch_action([
+    'getReportTotals', 'GetLogfiles', 'GetServerTime', 'GetUpdateStatus',
+    'GetARPStatus', 'GetAutoBackupStatus', 'GetConfigFile'
+], [
+    'RestoreDBfromArchive', 'PurgeDBBackups', 'EnableDarkmode',
+    'EnableOnlineHistoryGraph', 'SetAPIKey', 'LoginEnable', 'LoginDisable',
+    'deleteAllNotifications', 'deleteAllNotificationsArchive', 'setTheme',
+    'setLanguage', 'setArpTimer', 'setDeviceListCol', 'setListHeaderConfig',
+    'RestoreConfigFile', 'BackupConfigFile', 'BackupDBtoArchive',
+    'BackupDBtoCSV', 'SaveConfigFile', 'setFavIconURL', 'setPiholeURL',
+    'ToggleImport', 'ToggleExtLogging', 'ToggleRogueDHCP', 'BlockDeviceMAC',
+    'DeleteBlockDeviceMAC', 'BlockDeviceIP', 'DeleteBlockDeviceIP'
+]);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'RestoreDBfromArchive':RestoreDBfromArchive();
 		break;
@@ -131,6 +147,7 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 
 function GetConfigFile() {
 	global $maskKeys;
+	global $db;
 
     $configFile = __DIR__ . '/../../../config/pialert.conf';
 
@@ -198,12 +215,12 @@ function DeleteBlockDeviceIP() {
 	global $pia_lang;
     $configfile = '../../../config/pialert.conf';
 
-    if (!isset($_REQUEST['ip'])) {
+    if (!isset($GLOBALS["pialert_request"]['ip'])) {
         echo $pia_lang['BE_Dev_Ignore_a'];
         return;
     }
 
-    $removeIP = trim($_REQUEST['ip']);
+    $removeIP = trim($GLOBALS["pialert_request"]['ip']);
 
     if ($removeIP === '') {
         echo $pia_lang['BE_Dev_Ignore_b'];
@@ -256,12 +273,12 @@ function BlockDeviceIP() {
 	global $pia_lang;
     $configfile = '../../../config/pialert.conf';
 
-    if (!isset($_REQUEST['ip'])) {
+    if (!isset($GLOBALS["pialert_request"]['ip'])) {
         echo $pia_lang['BE_Dev_Ignore_a'] ;
         return;
     }
 
-    $newIP = trim($_REQUEST['ip']);
+    $newIP = trim($GLOBALS["pialert_request"]['ip']);
 
     if ($newIP === '') {
         echo $pia_lang['BE_Dev_Ignore_b'];
@@ -312,12 +329,12 @@ function DeleteBlockDeviceMAC() {
 	global $pia_lang;
     $configfile = '../../../config/pialert.conf';
 
-    if (!isset($_REQUEST['mac'])) {
+    if (!isset($GLOBALS["pialert_request"]['mac'])) {
         echo $pia_lang['BE_Dev_Ignore_h'];
         return;
     }
 
-    $removeMac = strtolower(trim($_REQUEST['mac']));
+    $removeMac = strtolower(trim($GLOBALS["pialert_request"]['mac']));
 
     if (!file_exists($configfile) || !is_readable($configfile)) {
         echo $pia_lang['BE_Dev_Ignore_c'];
@@ -376,12 +393,12 @@ function BlockDeviceMAC() {
 
 	copy($configfile, $laststate);
 
-    if (!isset($_REQUEST['mac'])) {
+    if (!isset($GLOBALS["pialert_request"]['mac'])) {
         echo $pia_lang['BE_Dev_Ignore_h'];
         return;
     }
 
-    $newMac = strtolower(trim($_REQUEST['mac']));
+    $newMac = strtolower(trim($GLOBALS["pialert_request"]['mac']));
 
     if (!file_exists($configfile) || !is_readable($configfile)) {
         echo $pia_lang['BE_Dev_Ignore_c'];
@@ -758,12 +775,13 @@ function safeConfigPath($input, $mustExist = true, $mustBeFile = true) {
 function SaveConfigFile() {
 	global $pia_lang;
 	global $maskKeys;
+	global $db;
 
 	$laststate = '../../../config/pialert-prev.bak';
 	$configfile = '../../../config/pialert.conf';
 
 	try {
-		assert_config_editor_keys($_REQUEST['configfile']);
+		assert_config_editor_keys($GLOBALS["pialert_request"]['configfile']);
 	} catch (Throwable $exception) {
 		pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
 		echo 'ERROR: Invalid configuration';
@@ -778,7 +796,7 @@ function SaveConfigFile() {
 		return;
 	}
 
-	$configContent = preg_replace('/^\s*#.*$/m', '', $_REQUEST['configfile']);
+	$configContent = preg_replace('/^\s*#.*$/m', '', $GLOBALS["pialert_request"]['configfile']);
 	$configArray = parse_ini_string($configContent);
 
     // Get old Values from Backup
@@ -793,7 +811,7 @@ function SaveConfigFile() {
     }
 
     // Read Frontend Input
-    $inputLines = explode("\n", $_REQUEST['configfile']);
+    $inputLines = explode("\n", $GLOBALS["pialert_request"]['configfile']);
     $configArray = [];
 
     foreach ($inputLines as $line) {
@@ -834,6 +852,7 @@ function SaveConfigFile() {
     if (strpos($configArray['DHCP_SERVER_ADDRESS'], '[') === false && strpos($configArray['DHCP_SERVER_ADDRESS'], ']') === false) {
         $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
     }
+
 	// Ignore List Syntax handling start
 	if ($configArray['MAC_IGNORE_LIST'] == "") {$configArray['MAC_IGNORE_LIST'] = "[]";}
 	if ($configArray['IP_IGNORE_LIST'] == "") {$configArray['IP_IGNORE_LIST'] = "[]";}
@@ -1121,6 +1140,9 @@ DAYS_TO_KEEP_EVENTS        = " . ((isset($configArray['DAYS_TO_KEEP_EVENTS']) &&
 		return;
 	}
 
+	if (($oldValues["PIALERT_WEB_PASSWORD"] ?? null) !== ($configArray["PIALERT_WEB_PASSWORD"] ?? null)) {
+		pialert_revoke_all_remember_tokens($db);
+	}
 	echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
 
 	// Logging
@@ -1256,27 +1278,33 @@ function RestoreDBfromArchive() {
 //  Enable Login
 function LoginEnable() {
 	global $pia_lang;
+	global $db;
 
+	pialert_revoke_all_remember_tokens($db);
+	$sessionCookieName = session_name();
+	$_SESSION = array();
 	session_destroy();
-	exec('../../../back/pialert-cli set_login', $output);
-	// Logging
-	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0050', '', '');
-	echo $pia_lang['BE_Dev_Login_enabled'];
-	echo "<meta http-equiv='refresh' content='1; ./index.php?action=logout'>";
+	pialert_delete_auth_cookie($sessionCookieName);
+	exec("../../../back/pialert-cli set_login", $output);
+	pialert_logging("a_005", $_SERVER["REMOTE_ADDR"], "LogStr_0050", "", "");
+	echo $pia_lang["BE_Dev_Login_enabled"];
+	echo "<meta http-equiv='refresh' content='1; ./index.php'>";
 }
 
 //  Disable Login
 function LoginDisable() {
 	global $pia_lang;
+	global $db;
 
-	// Logging
-	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0051', '', '');
-
+	pialert_logging("a_005", $_SERVER["REMOTE_ADDR"], "LogStr_0051", "", "");
+	pialert_revoke_all_remember_tokens($db);
+	$sessionCookieName = session_name();
+	$_SESSION = array();
 	session_destroy();
-	setcookie("PiAlert_SaveLogin", "", time() - 3600);
-	exec('../../../back/pialert-cli unset_login', $output);
-	echo $pia_lang['BE_Dev_Login_disabled'];
-	echo "<meta http-equiv='refresh' content='1; ./index.php?action=logout'>";
+	pialert_delete_auth_cookie($sessionCookieName);
+	exec("../../../back/pialert-cli unset_login", $output);
+	echo $pia_lang["BE_Dev_Login_disabled"];
+	echo "<meta http-equiv='refresh' content='1; ./index.php'>";
 }
 
 //  Set Device List Columns
@@ -1300,10 +1328,10 @@ function setDeviceListCol() {
 	];
 
 	foreach ($param_map as $request_key => $var_name) {
-	    if (!isset($_REQUEST[$request_key]) || !in_array($_REQUEST[$request_key], ['0', '1'], true)) {
+	    if (!isset($GLOBALS["pialert_request"][$request_key]) || !in_array($GLOBALS["pialert_request"][$request_key], ['0', '1'], true)) {
 	        exit("Error. Wrong variable value for $request_key!");
 	    }
-	    $$var_name = $_REQUEST[$request_key]; // dynamische Variable
+	    $$var_name = $GLOBALS["pialert_request"][$request_key]; // dynamische Variable
 	}
 
 	echo $pia_lang['BE_Dev_DevListCol_noti_text'];
@@ -1330,10 +1358,10 @@ function setListHeaderConfig() {
 	$list = [];
 	foreach ($valid_keys as $category => $keys) {
 	    foreach ($keys as $request_key => $subkey) {
-	        if (!isset($_REQUEST[$request_key]) || !in_array($_REQUEST[$request_key], ['0', '1'], true)) {
+	        if (!isset($GLOBALS["pialert_request"][$request_key]) || !in_array($GLOBALS["pialert_request"][$request_key], ['0', '1'], true)) {
 	            exit("Error. Wrong variable value for $request_key!");
 	        }
-	        $list[$category][$subkey] = (int) $_REQUEST[$request_key];
+	        $list[$category][$subkey] = (int) $GLOBALS["pialert_request"][$request_key];
 	    }
 	}
 
@@ -1465,10 +1493,10 @@ function setTheme() {
 	$installed_themes = array('leiweibau_dark',
 		'leiweibau_light');
 
-	if (isset($_REQUEST['SkinSelection'])) {
+	if (isset($GLOBALS["pialert_request"]['SkinSelection'])) {
 		$skin_set_dir = '../../../config/';
 		// echo "Enter Level 1";
-		$skin_selector = htmlspecialchars($_REQUEST['SkinSelection']);
+		$skin_selector = htmlspecialchars($GLOBALS["pialert_request"]['SkinSelection']);
 		if (in_array($skin_selector, $installed_skins)) {
 			// lösche alle vorherigen skins
 			foreach ($installed_skins as $file) {
@@ -1488,7 +1516,7 @@ function setTheme() {
 			}
 			if ($skin_error == False) {
 				$testskin = fopen($skin_set_dir . 'setting_' . $skin_selector, 'w');
-				echo $pia_lang['BE_Dev_Theme_set'] . ': ' . $_REQUEST['SkinSelection'];
+				echo $pia_lang['BE_Dev_Theme_set'] . ': ' . $GLOBALS["pialert_request"]['SkinSelection'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			} else {
 				echo $pia_lang['BE_Dev_Theme_notset'];
@@ -1513,7 +1541,7 @@ function setTheme() {
 			}
 			if ($skin_error == False) {
 				$testskin = fopen($skin_set_dir . 'setting_theme_' . $skin_selector, 'w');
-				echo $pia_lang['BE_Dev_Theme_set'] . ': ' . $_REQUEST['SkinSelection'];
+				echo $pia_lang['BE_Dev_Theme_set'] . ': ' . $GLOBALS["pialert_request"]['SkinSelection'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			} else {
 				echo $pia_lang['BE_Dev_Theme_notset'];
@@ -1545,9 +1573,9 @@ function setLanguage() {
 	    'se_sv',
 	    'ua_uk');
 
-	if (isset($_REQUEST['LangSelection'])) {
+	if (isset($GLOBALS["pialert_request"]['LangSelection'])) {
 		$pia_lang_set_dir = '../../../config/';
-		$pia_lang_selector = htmlspecialchars($_REQUEST['LangSelection']);
+		$pia_lang_selector = htmlspecialchars($GLOBALS["pialert_request"]['LangSelection']);
 		if (in_array($pia_lang_selector, $pia_installed_langs)) {
 			foreach ($pia_installed_langs as $file) {
 				unlink($pia_lang_set_dir . 'setting_language_' . $file);
@@ -1562,7 +1590,7 @@ function setLanguage() {
 			}
 			if ($pia_lang_error == False) {
 				$testlang = fopen($pia_lang_set_dir . 'setting_language_' . $pia_lang_selector, 'w');
-				echo $pia_lang['BE_Dev_Language_set'] . ': ' . $_REQUEST['LangSelection'];
+				echo $pia_lang['BE_Dev_Language_set'] . ': ' . $GLOBALS["pialert_request"]['LangSelection'];
 				echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>";
 			} else {
 				echo $pia_lang['BE_Dev_Language_notset'];
@@ -1578,7 +1606,7 @@ function setLanguage() {
 function setArpTimer() {
 	global $pia_lang;
 
-	if (isset($_REQUEST['ArpTimer'])) {
+	if (isset($GLOBALS["pialert_request"]['ArpTimer'])) {
 		#$pia_lang_set_dir = '../../../config/';
 		$file = '../../../config/setting_stoppialert';
 		if (file_exists($file)) {
@@ -1588,10 +1616,10 @@ function setArpTimer() {
 			exec('../../../back/pialert-cli enable_scan', $output);
 			echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 		} else {
-			if (is_numeric($_REQUEST['ArpTimer'])) {
+			if (is_numeric($GLOBALS["pialert_request"]['ArpTimer'])) {
 				// Logging
-				pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0511', '', $_REQUEST['ArpTimer'] . ' min');
-				exec('../../../back/pialert-cli disable_scan ' . $_REQUEST['ArpTimer'], $output);
+				pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0511', '', $GLOBALS["pialert_request"]['ArpTimer'] . ' min');
+				exec('../../../back/pialert-cli disable_scan ' . $GLOBALS["pialert_request"]['ArpTimer'], $output);
 			} else {
 				// Logging
 				pialert_logging('a_002', $_SERVER['REMOTE_ADDR'], 'LogStr_0512', '', '');
@@ -1643,7 +1671,7 @@ function BackupConfigFile() {
 
 	// Logging
 	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_0007', '1', '');
-	if ($_REQUEST['reload'] == 'yes') {
+	if ($GLOBALS["pialert_request"]['reload'] == 'yes') {
 		echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>";
 	}
 }
@@ -1698,7 +1726,7 @@ function getReportTotals() {
 function setFavIconURL() {
 	global $pia_lang;
 
-	if (isset($_REQUEST['FavIconURL'])) {
+	if (isset($GLOBALS["pialert_request"]['FavIconURL'])) {
 		$iconlist = array();
 		$iconlist['redglass_w_local'] = 'img/favicons/glass_red_white.png';
 		$iconlist['redflat_w_local'] = 'img/favicons/flat_red_white.png';
@@ -1749,7 +1777,7 @@ function setFavIconURL() {
 		$iconlist['whiteglass_b_remote'] = 'https://raw.githubusercontent.com/leiweibau/Pi.Alert/main/front/img/favicons/glass_white_black.png';
 		$iconlist['whiteflat_b_remote'] = 'https://raw.githubusercontent.com/leiweibau/Pi.Alert/main/front/img/favicons/flat_white_black.png';
 
-		$url = $_REQUEST['FavIconURL'];
+		$url = $GLOBALS["pialert_request"]['FavIconURL'];
 
 		if ($iconlist[$url] != "") {
 			$newfavicon_url = $iconlist[$url];
@@ -1771,7 +1799,7 @@ function setFavIconURL() {
 		}
 	}
 	// Logging
-	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0059', '', $_REQUEST['FavIconURL']);
+	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0059', '', $GLOBALS["pialert_request"]['FavIconURL']);
 }
 
 
@@ -1779,8 +1807,8 @@ function setFavIconURL() {
 function setPiholeURL() {
 	global $pia_lang;
 
-	if (isset($_REQUEST['PiholeURL'])) {
-				$url = $_REQUEST['PiholeURL'];
+	if (isset($GLOBALS["pialert_request"]['PiholeURL'])) {
+				$url = $GLOBALS["pialert_request"]['PiholeURL'];
 		$temp_favicon_url = filter_var($url, FILTER_SANITIZE_URL);
 		if (filter_var($temp_favicon_url, FILTER_VALIDATE_URL) && strtolower(substr($temp_favicon_url, 0, 4)) == "http") {
 			$newfavicon_url = $temp_favicon_url;
@@ -1799,7 +1827,7 @@ function setPiholeURL() {
 		}
 	}
 	// Logging
-	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0060', '', $_REQUEST['PiholeURL']);
+	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0060', '', $GLOBALS["pialert_request"]['PiholeURL']);
 }
 
 
@@ -1807,7 +1835,7 @@ function ToggleImport() {
 
     $file_path = '../../../config/pialert.conf';
 
-    if (!isset($_REQUEST['deviceType']) || !isset($_REQUEST['toggleState'])) {
+    if (!isset($GLOBALS["pialert_request"]['deviceType']) || !isset($GLOBALS["pialert_request"]['toggleState'])) {
         echo "Missing Parameter";
         exit;
     }
@@ -1825,8 +1853,8 @@ function ToggleImport() {
         'AG' => 'ADGUARD_ACTIVE',
     ];
 
-    $deviceType = $_REQUEST['deviceType'];
-    $toggleState = filter_var($_REQUEST['toggleState'], FILTER_VALIDATE_BOOLEAN);
+    $deviceType = $GLOBALS["pialert_request"]['deviceType'];
+    $toggleState = filter_var($GLOBALS["pialert_request"]['toggleState'], FILTER_VALIDATE_BOOLEAN);
 
     if (!array_key_exists($deviceType, $deviceMap)) {
         echo 'Invalid device type';
@@ -1866,7 +1894,7 @@ function ToggleImport() {
 function ToggleExtLogging() {
 
     $file_path = '../../../config/pialert.conf';
-	$toggleState = filter_var($_REQUEST['toggleState'], FILTER_VALIDATE_BOOLEAN);
+	$toggleState = filter_var($GLOBALS["pialert_request"]['toggleState'], FILTER_VALIDATE_BOOLEAN);
 
 
     $configKey = 'PRINT_LOG';
@@ -1902,7 +1930,7 @@ function ToggleExtLogging() {
 function ToggleRogueDHCP() {
 
     $file_path = '../../../config/pialert.conf';
-	$toggleState = filter_var($_REQUEST['toggleState'], FILTER_VALIDATE_BOOLEAN);
+	$toggleState = filter_var($GLOBALS["pialert_request"]['toggleState'], FILTER_VALIDATE_BOOLEAN);
 
 
     $configKey = 'SCAN_ROGUE_DHCP';

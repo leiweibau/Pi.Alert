@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -118,19 +119,19 @@ foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE'
 	} else {$buffer_indicator = '';}
 
 // Set Tab --------------------------------------------------------------------
-if ($_REQUEST['tab'] == '1') {
+if ($_GET['tab'] == '1') {
 	$pia_tab_setting = 'active';
 	$pia_tab_tool = $pia_tab_backup = $pia_tab_satellites = $pia_tab_gui = '';
-} elseif ($_REQUEST['tab'] == '2') {
+} elseif ($_GET['tab'] == '2') {
 	$pia_tab_tool = 'active';
 	$pia_tab_setting = $pia_tab_backup = $pia_tab_satellites = $pia_tab_gui = '';
-} elseif ($_REQUEST['tab'] == '3') {
+} elseif ($_GET['tab'] == '3') {
     $pia_tab_backup = 'active';
 	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_gui = '';
-} elseif ($_REQUEST['tab'] == '4') {
+} elseif ($_GET['tab'] == '4') {
     $pia_tab_gui = 'active';
 	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_backup = '';
-} elseif ($_REQUEST['tab'] == '5') {
+} elseif ($_GET['tab'] == '5') {
     $pia_tab_satellites = 'active';
     $pia_tab_setting = $pia_tab_tool = $pia_tab_backup = $pia_tab_gui = '';
 } else {
@@ -485,7 +486,7 @@ function askDeleteDevicesWithEmptyMACs() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteDevicesWithEmptyMACs');
 }
 function deleteDevicesWithEmptyMACs() {
-	$.get('php/server/devices.php?action=deleteAllWithEmptyMACs', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=deleteAllWithEmptyMACs', function(msg) {showMessage (msg);});
 }
 
 // Test Notifications
@@ -494,7 +495,7 @@ function askTestNotificationSystem() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'TestNotificationSystem');
 }
 function TestNotificationSystem() {
-	$.get('php/server/devices.php?action=TestNotificationSystem', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=TestNotificationSystem', function(msg) {showMessage (msg);});
 }
 
 // delete all devices
@@ -503,7 +504,7 @@ function askDeleteAllDevices() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllDevices');
 }
 function deleteAllDevices() {
-	$.get('php/server/devices.php?action=deleteAllDevices', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=deleteAllDevices', function(msg) {showMessage (msg);});
 }
 
 // delete all webservices
@@ -512,7 +513,7 @@ function askDeleteAllWebServices() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteAllWebServices');
 }
 function DeleteAllWebServices() {
-    $.get('php/server/services.php?action=DeleteAllWebServices', function(msg) {showMessage (msg);});
+    pialertPost('php/server/services.php?action=DeleteAllWebServices', function(msg) {showMessage (msg);});
 }
 
 // delete all (unknown) devices
@@ -521,7 +522,7 @@ function askDeleteUnknown() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteUnknownDevices');
 }
 function deleteUnknownDevices() {
-	$.get('php/server/devices.php?action=deleteUnknownDevices', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=deleteUnknownDevices', function(msg) {showMessage (msg);});
 }
 // Toggle Imports
 function askToggleImport(fdeviceType,ftoggleState) {
@@ -533,7 +534,7 @@ function askToggleImport(fdeviceType,ftoggleState) {
 function ToggleImport() {
   var fdeviceType = window.global_fdeviceType;
   var ftoggleState = window.global_ftoggleState;
-  $.get('php/server/files.php?action=ToggleImport'
+  pialertPost('php/server/files.php?action=ToggleImport'
     + '&deviceType='    + fdeviceType
     + '&toggleState='   + ftoggleState
     , function(msg) {
@@ -546,7 +547,7 @@ function askDeleteEvents() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteEvents');
 }
 function deleteEvents() {
-	$.get('php/server/devices.php?action=deleteEvents', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=deleteEvents', function(msg) {showMessage (msg);});
 }
 
 // delete History
@@ -555,7 +556,7 @@ function askDeleteActHistory() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteActHistory');
 }
 function deleteActHistory() {
-	$.get('php/server/devices.php?action=deleteActHistory', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=deleteActHistory', function(msg) {showMessage (msg);});
 }
 
 // delete Speedtest results
@@ -564,7 +565,7 @@ function askDeleteSpeedtestResults() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteSpeedtestResults');
 }
 function DeleteSpeedtestResults() {
-	$.get('php/server/devices.php?action=DeleteSpeedtestResults', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=DeleteSpeedtestResults', function(msg) {showMessage (msg);});
 }
 
 // delete Nmap results
@@ -573,7 +574,7 @@ function askDeleteNmapScansResults() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteNmapScansResults');
 }
 function DeleteNmapScansResults() {
-	$.get('php/server/devices.php?action=DeleteNmapScansResults', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=DeleteNmapScansResults', function(msg) {showMessage (msg);});
 }
 
 // reset VOIDED
@@ -582,7 +583,7 @@ function askresetVoidedEvents() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'resetVoidedEvents');
 }
 function resetVoidedEvents() {
-    $.get('php/server/devices.php?action=resetVoidedEvents', function(msg) {showMessage (msg);});
+    pialertPost('php/server/devices.php?action=resetVoidedEvents', function(msg) {showMessage (msg);});
 }
 
 // Backup DB to Archive
@@ -591,7 +592,7 @@ function askBackupDBtoArchive() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Backup'];?>', 'BackupDBtoArchive');
 }
 function BackupDBtoArchive() {
-	$.get('php/server/files.php?action=BackupDBtoArchive', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=BackupDBtoArchive', function(msg) {showMessage (msg);});
 }
 
 // Restore DB from Archive
@@ -600,7 +601,7 @@ function askRestoreDBfromArchive() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Restore'];?>', 'RestoreDBfromArchive');
 }
 function RestoreDBfromArchive() {
-	$.get('php/server/files.php?action=RestoreDBfromArchive', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=RestoreDBfromArchive', function(msg) {showMessage (msg);});
 }
 
 // Purge Backups
@@ -609,7 +610,7 @@ function askPurgeDBBackups() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Purge'];?>', 'PurgeDBBackups');
 }
 function PurgeDBBackups() {
-	$.get('php/server/files.php?action=PurgeDBBackups', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=PurgeDBBackups', function(msg) {showMessage (msg);});
 }
 
 // Backup DB to CSV
@@ -618,7 +619,7 @@ function askBackupDBtoCSV() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Backup'];?>', 'BackupDBtoCSV');
 }
 function BackupDBtoCSV() {
-	$.get('php/server/files.php?action=BackupDBtoCSV', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=BackupDBtoCSV', function(msg) {showMessage (msg);});
 }
 
 // Switch Darkmode
@@ -627,7 +628,7 @@ function askEnableDarkmode() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableDarkmode');
 }
 function EnableDarkmode() {
-	$.get('php/server/files.php?action=EnableDarkmode', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=EnableDarkmode', function(msg) {showMessage (msg);});
 }
 
 // Switch Web Service Monitor
@@ -636,7 +637,7 @@ function askEnableWebServiceMon() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableWebServiceMon');
 }
 function EnableWebServiceMon() {
-	$.get('php/server/services.php?action=EnableWebServiceMon', function(msg) {showMessage (msg);});
+	pialertPost('php/server/services.php?action=EnableWebServiceMon', function(msg) {showMessage (msg);});
 }
 
 // Switch ICMP Monitor
@@ -645,7 +646,7 @@ function askEnableICMPMon() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableICMPMon');
 }
 function EnableICMPMon() {
-	$.get('php/server/icmpmonitor.php?action=EnableICMPMon', function(msg) {showMessage (msg);});
+	pialertPost('php/server/icmpmonitor.php?action=EnableICMPMon', function(msg) {showMessage (msg);});
 }
 
 // Switch MainScan
@@ -654,7 +655,7 @@ function askEnableMainScan() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableMainScan');
 }
 function EnableMainScan() {
-	$.get('php/server/devices.php?action=EnableMainScan', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=EnableMainScan', function(msg) {showMessage (msg);});
 }
 
 // Switch Satellites
@@ -663,7 +664,7 @@ function askEnableSatelliteScan() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableSatelliteScan');
 }
 function EnableSatelliteScan() {
-    $.get('php/server/devices.php?action=EnableSatelliteScan', function(msg) {showMessage (msg);});
+    pialertPost('php/server/devices.php?action=EnableSatelliteScan', function(msg) {showMessage (msg);});
 }
 
 // Toggle RogueDHCP
@@ -674,7 +675,7 @@ function askEnableRogueDHCPScan(ftoggleState) {
 }
 function EnableRogueDHCPScan() {
     var ftoggleState = window.global_ftoggleState;
-    $.get('php/server/files.php?action=ToggleRogueDHCP'
+    pialertPost('php/server/files.php?action=ToggleRogueDHCP'
         + '&toggleState='   + ftoggleState
         , function(msg) {
         showMessage (msg);
@@ -687,7 +688,7 @@ function askEnableOnlineHistoryGraph() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableOnlineHistoryGraph');
 }
 function EnableOnlineHistoryGraph() {
-	$.get('php/server/files.php?action=EnableOnlineHistoryGraph', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=EnableOnlineHistoryGraph', function(msg) {showMessage (msg);});
 }
 
 // Set API-Key
@@ -696,7 +697,7 @@ function askSetAPIKey() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'SetAPIKey');
 }
 function SetAPIKey() {
-	$.get('php/server/files.php?action=SetAPIKey', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=SetAPIKey', function(msg) {showMessage (msg);});
 }
 
 // Enable Login
@@ -705,7 +706,7 @@ function askPiAlertLoginEnable() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'PiAlertLoginEnable');
 }
 function PiAlertLoginEnable() {
-	$.get('php/server/files.php?action=LoginEnable', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=LoginEnable', function(msg) {showMessage (msg);});
 }
 
 // Disable Login
@@ -714,7 +715,7 @@ function askPiAlertLoginDisable() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'PiAlertLoginDisable');
 }
 function PiAlertLoginDisable() {
-	$.get('php/server/files.php?action=LoginDisable', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=LoginDisable', function(msg) {showMessage (msg);});
 }
 
 function setTextValue (textElement, textValue) {
@@ -773,26 +774,26 @@ function handleMTSelection (value) {
 
 // Set Theme
 function setPiAlertTheme () {
-	$.get('php/server/files.php?action=setTheme&SkinSelection='+ $('#txtSkinSelection').val(), function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=setTheme&SkinSelection='+ $('#txtSkinSelection').val(), function(msg) {showMessage (msg);});
 }
 // Set Language
 function setPiAlertLanguage() {
-	$.get('php/server/files.php?action=setLanguage&LangSelection='+ $('#txtLangSelection').val(), function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=setLanguage&LangSelection='+ $('#txtLangSelection').val(), function(msg) {showMessage (msg);});
 }
 // Set FavIcon
 function setFavIconURL() {
-	$.get('php/server/files.php?action=setFavIconURL&FavIconURL='+ $('#txtFavIconURL').val(), function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=setFavIconURL&FavIconURL='+ $('#txtFavIconURL').val(), function(msg) {showMessage (msg);});
 }
 // Set FavIcon
 function setPiholeURL() {
-    $.get('php/server/files.php?action=setPiholeURL&PiholeURL='+ $('#txtPiholeURL').val(), function(msg) {showMessage (msg);});
+    pialertPost('php/server/files.php?action=setPiholeURL&PiholeURL='+ $('#txtPiholeURL').val(), function(msg) {showMessage (msg);});
 }
 // Set ArpScanTimer
 function setPiAlertArpTimer() {
   $.ajax({
-        method: "GET",
-        url: "./php/server/files.php?action=setArpTimer&ArpTimer=" + $('#txtPiaArpTimer').val(),
-        data: "",
+        method: 'POST',
+        url: './php/server/files.php',
+        data: { action: 'setArpTimer', ArpTimer: $('#txtPiaArpTimer').val() },
         beforeSend: function() { $('#Timeralertspinner').removeClass("disablespinner"); $('#TimeralertText').addClass("disablespinner");  },
         complete: function() { $('#Timeralertspinner').addClass("disablespinner"); $('#TimeralertText').removeClass("disablespinner"); },
         success: function(data, textStatus) {
@@ -803,9 +804,9 @@ function setPiAlertArpTimer() {
 // Backup Configfile
 function BackupConfigFile(reload)  {
 	if (reload == 'yes') {
-		$.get('php/server/files.php?action=BackupConfigFile&reload=yes', function(msg) {showMessage (msg);});
+		pialertPost('php/server/files.php?action=BackupConfigFile&reload=yes', function(msg) {showMessage (msg);});
 	} else {
-		$.get('php/server/files.php?action=BackupConfigFile&reload=no', function(msg) {showMessage (msg);});
+		pialertPost('php/server/files.php?action=BackupConfigFile&reload=no', function(msg) {showMessage (msg);});
 	}
 }
 // Restore Configfile
@@ -814,7 +815,7 @@ function askRestoreConfigFile() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'RestoreConfigFile');
 }
 function RestoreConfigFile() {
-	$.get('php/server/files.php?action=RestoreConfigFile', function(msg) {showMessage (msg);});
+	pialertPost('php/server/files.php?action=RestoreConfigFile', function(msg) {showMessage (msg);});
 }
 // Save Configfile
 function SaveConfigFile() {
@@ -830,7 +831,7 @@ function askDeviceListCol() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'setDeviceListCol');
 }
 function setDeviceListCol() {
-    $.get('php/server/files.php?action=setDeviceListCol&'
+    pialertPost('php/server/files.php?action=setDeviceListCol&'
     + '&connectiontype=' + ($('#chkConnectionType')[0].checked * 1)
     + '&favorite='       + ($('#chkFavorite')[0].checked * 1)
     + '&group='          + ($('#chkGroup')[0].checked * 1)
@@ -854,7 +855,7 @@ function askListHeaderConfig() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'setListHeaderConfig');
 }
 function setListHeaderConfig() {
-    $.get('php/server/files.php?action=setListHeaderConfig&'
+    pialertPost('php/server/files.php?action=setListHeaderConfig&'
     + '&hc_devall='    + ($('#chk_dev_all')[0].checked * 1)
     + '&hc_devcon='    + ($('#chk_dev_con')[0].checked * 1)
     + '&hc_devfav='    + ($('#chk_dev_fav')[0].checked * 1)
@@ -882,7 +883,7 @@ function askDeleteInactiveHosts() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteInactiveHosts');
 }
 function DeleteInactiveHosts() {
-	$.get('php/server/devices.php?action=DeleteInactiveHosts', function(msg) {showMessage (msg);});
+	pialertPost('php/server/devices.php?action=DeleteInactiveHosts', function(msg) {showMessage (msg);});
 }
 // Update Check
 function check_github_for_updates() {
@@ -979,14 +980,14 @@ function askCreateNewSatellite() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'CreateNewSatellite');
 }
 function CreateNewSatellite() {
-    $.get('php/server/devices.php?action=CreateNewSatellite&'
+    pialertPost('php/server/devices.php?action=CreateNewSatellite&'
     + '&new_satellite_name=' + $('#txtNewSatelliteName').val()
     , function(msg) {
     showMessage (msg);
   });
 }
 function SaveSatellite(func_sat_name, func_sat_id) {
-    $.get('php/server/devices.php?action=SaveSatellite&'
+    pialertPost('php/server/devices.php?action=SaveSatellite&'
     + '&changed_satellite_name=' + $('#txtChangedSatelliteName_' + func_sat_id).val()
     + '&satellite_name=' + func_sat_name
     + '&sat_id=' + func_sat_id
@@ -995,7 +996,7 @@ function SaveSatellite(func_sat_name, func_sat_id) {
   });
 }
 function DeleteSatellite(func_sat_name, func_sat_id) {
-    $.get('php/server/devices.php?action=DeleteSatellite&'
+    pialertPost('php/server/devices.php?action=DeleteSatellite&'
     + '&changed_satellite_name=' + $('#txtChangedSatelliteName_' + func_sat_id).val()
     + '&satellite_name=' + func_sat_name
     + '&sat_id=' + func_sat_id
@@ -1009,7 +1010,7 @@ function askMTUpdateColumnContent() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'MTUpdateColumnContent');
 }
 function MTUpdateColumnContent() {
-    $.get('php/server/devices.php?action=MTUpdateColumnContent'
+    pialertPost('php/server/devices.php?action=MTUpdateColumnContent'
     + '&column='     + $('#txtMTTableColumn').val()
     + '&ccontent='   + $('#txtMTColumnContent').val()
     + '&nccontent='  + $('#txtMTNewColumnContent').val()
@@ -1023,7 +1024,7 @@ function askMTDeletColumnContent() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'MTDeletColumnContent');
 }
 function MTDeletColumnContent() {
-    $.get('php/server/devices.php?action=MTDeletColumnContent'
+    pialertPost('php/server/devices.php?action=MTDeletColumnContent'
     + '&column='     + $('#txtMTTableColumn').val()
     + '&ccontent='   + $('#txtMTColumnContent').val()
     + '&nccontent='  + $('#txtMTNewColumnContent').val()
@@ -1044,7 +1045,7 @@ function askToggleExtLogging(ftoggleState) {
 }
 function ToggleExtLogging() {
     var ftoggleState = window.global_ftoggleState;
-    $.get('php/server/files.php?action=ToggleExtLogging'
+    pialertPost('php/server/files.php?action=ToggleExtLogging'
         + '&toggleState='   + ftoggleState
         , function(msg) {
         showMessage (msg);
@@ -1059,7 +1060,7 @@ function askDeleteBlockDeviceMAC(macStep) {
 function DeleteBlockDeviceMAC() {
   if (!window.selectedMACStep) return;
   var macStep = window.selectedMACStep;
-  $.get('php/server/files.php?action=DeleteBlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
+  pialertPost('php/server/files.php?action=DeleteBlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
 }
 // Remove IP Ignorelist
 function askDeleteBlockDeviceIP(ipStep) {
@@ -1070,7 +1071,7 @@ function askDeleteBlockDeviceIP(ipStep) {
 function DeleteBlockDeviceIP() {
   if (!window.selectedIPStep) return;
   var ipStep = window.selectedIPStep;
-  $.get('php/server/files.php?action=DeleteBlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
+  pialertPost('php/server/files.php?action=DeleteBlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
   delete window.selectedIPStep;
 }
 

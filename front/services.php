@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -39,7 +40,9 @@ function getDeviceMacs() {
 function get_latest_data_from_url($service_URL) {
 	global $db;
 	unset($code_array, $i, $moneve_res);
-	$moneve_res = $db->query('SELECT * FROM Services_Events WHERE moneve_URL = "' . $service_URL . '" ORDER BY moneve_DateTime DESC LIMIT 18');
+	$moneve_res = db_execute_prepared($db,
+		'SELECT * FROM Services_Events WHERE moneve_URL = :url ORDER BY moneve_DateTime DESC LIMIT 18',
+		array(':url' => (string) $service_URL));
 	$i = 0;
 	$DateTime_array = array();
 	$StatusCode_array = array();
@@ -75,7 +78,7 @@ function list_all_services() {
 	global $db;
 	$mon_res = $db->query('SELECT mon_URL,mon_MAC,mon_TargetIP FROM Services');
 	while ($row = $mon_res->fetchArray()) {
-		echo $row['mon_URL'] . ' - ' . $row['mon_MAC'] . ' - ' . $row['mon_TargetIP'] . '<br>';
+		echo h($row['mon_URL']) . ' - ' . h($row['mon_MAC']) . ' - ' . h($row['mon_TargetIP']) . '<br>';
 	}
 }
 
@@ -568,16 +571,20 @@ function insertNewService(refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/services.php?action=insertNewService'
-    + '&url='             + $('#serviceURL').val()
-    + '&tags='            + $('#serviceTag').val()
-    + '&mac='             + $('#serviceMAC').val()
-    + '&alertdown='       + ($('#insAlertDown')[0].checked * 1)
-    + '&alertup='         + ($('#insAlertUp')[0].checked * 1)
-    + '&alertevents='     + ($('#insAlertEvents')[0].checked * 1)
-    , function(msg) {
+  pialertPost('php/server/services.php', {
+    action: 'insertNewService',
+    url: $('#serviceURL').val(),
+    tags: $('#serviceTag').val(),
+    mac: $('#serviceMAC').val(),
+    alertdown: ($('#insAlertDown')[0].checked * 1),
+    alertup: ($('#insAlertUp')[0].checked * 1),
+    alertevents: ($('#insAlertEvents')[0].checked * 1)
+  }, function(msg) {
     showMessage (msg);
     // Callback fuction
+    setTimeout(function() {
+      window.location.reload();
+    }, 2000);
     if (typeof refreshCallback == 'function') {
       refreshCallback();
     }

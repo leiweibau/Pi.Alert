@@ -10,6 +10,69 @@
 // -----------------------------------------------------------------------------
 var timerRefreshData = ''
 var modalCallbackFunction = '';
+var pialertPendingPosts = {};
+
+function getCsrfToken () {
+  var tokenElement = document.querySelector('meta[name="csrf-token"]');
+  return tokenElement ? tokenElement.getAttribute('content') || '' : '';
+}
+
+// Add the session-bound token only to same-origin, state-changing requests.
+$(document).ajaxError(function(event, jqXHR) {
+  if (jqXHR.status === 403 && jqXHR.getResponseHeader('X-PiAlert-CSRF') === 'invalid') {
+    window.alert('Your session security token expired. The page will be reloaded.');
+    window.location.reload();
+  }
+});
+
+$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+  var method = String(options.type || options.method || 'GET').toUpperCase();
+  var target = new URL(options.url || window.location.href, window.location.href);
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(method) && target.origin === window.location.origin) {
+    jqXHR.setRequestHeader('X-CSRF-Token', getCsrfToken());
+  }
+});
+
+function pialertPost (url, data, success) {
+  if (typeof data === 'function') {
+    success = data;
+    data = {};
+  }
+  var target = new URL(url, window.location.href);
+  if (target.origin !== window.location.origin) {
+    throw new Error('Cross-origin mutation is not permitted');
+  }
+
+  var payload = Object.assign({}, data || {});
+  var requestKey = target.pathname + '?' + target.searchParams.toString() + '|' + $.param(payload);
+  if (pialertPendingPosts[requestKey]) {
+    return pialertPendingPosts[requestKey];
+  }
+  if (window.crypto && window.crypto.getRandomValues) {
+    var operationBytes = new Uint8Array(16);
+    window.crypto.getRandomValues(operationBytes);
+    payload._operation_id = Array.from(operationBytes, function(value) {
+      return value.toString(16).padStart(2, '0');
+    }).join('');
+  }
+  target.searchParams.forEach(function(value, key) {
+    if (!Object.prototype.hasOwnProperty.call(payload, key)) {
+      payload[key] = value;
+    }
+  });
+
+  var request = $.ajax({
+    url: target.pathname,
+    type: 'POST',
+    data: payload,
+    success: success
+  });
+  pialertPendingPosts[requestKey] = request;
+  request.always(function() {
+    delete pialertPendingPosts[requestKey];
+  });
+  return request;
+}
 
 
 // -----------------------------------------------------------------------------
@@ -134,24 +197,19 @@ function showMessage (textMessage="") {
 
 // -----------------------------------------------------------------------------
 function setParameter (parameter, value) {
-  // Retry
-  $.get('php/server/parameters.php?action=set&parameter=' + parameter +
-    '&value='+ value,
-  function(data) {
-    if (data != "OK") {
-      // Retry
-      sleep (200);
-      $.get('php/server/parameters.php?action=set&parameter=' + parameter +
-        '&value='+ value,
-      function(data) {
-        if (data != "OK") {
-         // alert (data);
-        } else {
-        // alert ("OK. Second attempt");
-        };
-      } );
-    };
-  } );
+  function saveParameter () {
+    return pialertPost('php/server/parameters.php', {
+      action: 'set',
+      parameter: parameter,
+      value: value
+    });
+  }
+
+  saveParameter().done(function(data) {
+    if (data != 'OK') {
+      window.setTimeout(saveParameter, 200);
+    }
+  });
 }
 
 

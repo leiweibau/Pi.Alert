@@ -4,6 +4,7 @@ $conf_file = '../config/version.conf';
 $conf_data = parse_ini_file($conf_file);
 require 'php/server/timezone.php';
 require_once 'php/server/util.php';
+require_once 'php/server/csrf.php';
 require 'header_func.php';
 require 'php/templates/language/' . $pia_lang_selected . '.php';
 ?>
@@ -12,6 +13,7 @@ require 'php/templates/language/' . $pia_lang_selected . '.php';
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="<?=h(pialert_csrf_token());?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="x-dns-prefetch-control" content="off">
     <meta http-equiv="cache-control" content="max-age=60,private">
@@ -132,7 +134,11 @@ insert_back_button();
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./index.php?action=logout" id="custom-menu-logout-button" class="btn btn-danger" style="width:190px;"><i class="fa-solid fa-arrow-right-from-bracket custom-menu-button-icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Exit'];?></div></a>
+                  <form method="post" action="./index.php" style="margin:0;">
+                    <input type="hidden" name="action" value="logout">
+                    <input type="hidden" name="_csrf" value="<?=h(pialert_csrf_token());?>">
+                    <button type="submit" id="custom-menu-logout-button" class="btn btn-danger" style="width:190px;"><i class="fa-solid fa-arrow-right-from-bracket custom-menu-button-icon"></i><span class="custom-menu-button-text"><?=$pia_lang['About_Exit'];?></span></button>
+                  </form>
                 </div>
               </li>
               <li class="user-footer">

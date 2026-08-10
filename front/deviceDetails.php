@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
   header('Location: ./index.php');
@@ -506,7 +507,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                     <div class="pull-right">
                         <button type="button" class="btn btn-warning" id="btnDeleteEvents" onclick="askDeleteDeviceEvents()"><?=$pia_lang['DevDetail_button_DeleteEvents'];?> </button>
                         <button type="button" class="btn btn-danger" id="btnDelete" onclick="askDeleteDevice()"><?=$pia_lang['DevDetail_button_Delete'];?> </button>
-                        <button type="button" class="btn btn-default" id="btnRestore" onclick="getDeviceData(true)"><?=$pia_lang['DevDetail_button_Reset'];?> </button>
+                        <button type="button" class="btn btn-default" id="btnRestore" onclick="restoreOrCloseDevice()"><?=$pia_lang['Gen_Close'];?> </button>
                         <button type="button" disabled class="btn btn-primary" id="btnSave" onclick="setDeviceData()"><?=$pia_lang['DevDetail_button_Save'];?> </button>
                     </div>
                   </div>
@@ -542,7 +543,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 <!-- tab page 3 ------------------------------------------------------------ -->
               <div class="tab-pane fade" id="panNmap">
 <?php
-if ($_REQUEST['mac'] == 'Internet') {
+if ($_GET['mac'] == 'Internet') {
 	?>
                 <h4 class="">Online Speedtest</h4>
                 <div style="width:100%; text-align: center; margin-bottom: 50px; display: inline-block;">
@@ -566,6 +567,7 @@ $speedtest_binary = '../back/speedtest/speedtest';
                       complete: function() { $('#scanoutput').removeClass("ajax_scripts_loading"); },
                       success: function(data, textStatus) {
                           $("#scanoutput").html(data);
+                          refreshSpeedtestHistory();
                       }
                     })
                   }
@@ -591,7 +593,7 @@ $speedtest_binary = '../back/speedtest/speedtest';
 }
 ?>
 <?php
-if ($_REQUEST['mac'] != 'Internet') {
+if ($_GET['mac'] != 'Internet') {
 	?>
                 <h4 class="">Wake-on-LAN</h4>
                 <div style="width:100%; text-align: center;">
@@ -671,7 +673,7 @@ if ($_REQUEST['mac'] != 'Internet') {
               </div>
 
 <?php
-if ($_REQUEST['mac'] == 'Internet') {
+if ($_GET['mac'] == 'Internet') {
 	?>
 <!-- tab page 6 ------------------------------------------------------------ -->
               <div class="tab-pane fade table-responsive" id="panSpeedtest">
@@ -794,13 +796,18 @@ if ($ENABLED_DARKMODE === True) {
   var parTab              = 'Front_Details_Tab';
   var parSessionsRows     = 'Front_Details_Sessions_Rows';
   var parEventsRows       = 'Front_Details_Events_Rows';
+  var parSpeedtestRows    = 'Front_Details_Speedtest_Rows';
   var parEventsHide       = 'Front_Details_Events_Hide';
   var period              = '1 month';
   var tab                 = 'tabDetails'
   var sessionsRows        = 10;
   var eventsRows          = 10;
+  var speedtestRows       = 10;
   var eventsHide          = true;
   var skipRepeatedItems   = ['0 h (notify all events)', '1 h', '8 h', '24 h', '168 h (one week)'];
+  var deviceDetailsDirty  = false;
+  const deviceCloseLabel  = <?=json_encode($pia_lang['Gen_Close'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+  const deviceCancelLabel = <?=json_encode($pia_lang['DevDetail_button_Reset'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
 
   // Read parameters & Initialize components
   main();
@@ -859,6 +866,12 @@ function main () {
                 $('#chkHideConnectionEvents')[0].checked = eval(eventsHide == 'true');
             }
 
+            $.get('php/server/parameters.php?action=get&parameter='+ parSpeedtestRows, function(data) {
+              var result = JSON.parse(data);
+              if (Number.isInteger(result)) {
+                speedtestRows = result;
+              }
+
             // Initialize components with parameters
             initializeTabs();
             initializeiCheck();
@@ -894,6 +907,7 @@ function main () {
               }
             };
 
+            });
           });
         });
       });
@@ -908,6 +922,9 @@ function initializeTabs () {
   // When changed save new current tab
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     setParameter (parTab, $(e.target).attr('id'));
+    if ($(e.target).attr('href') === '#panSpeedtest') {
+      refreshSpeedtestHistory();
+    }
   });
 }
 
@@ -1339,7 +1356,7 @@ function getDeviceData (readAllData=false) {
       // Check if device is deleted o no exists in this session
       if (pos == -1) {
         devicesList = [];
-        $('#pageTitle').html ('Device not found: <small>'+ mac +'</small>');
+        $('#pageTitle').empty().append(document.createTextNode('Device not found: '), $('<small>').text(String(mac ?? '')));
       } else {
         $('#pageTitle').html ('Device deleted');
       }
@@ -1349,13 +1366,13 @@ function getDeviceData (readAllData=false) {
       // Name
       if (deviceData['dev_Owner'] == null || deviceData['dev_Owner'] == '' ||
       (deviceData['dev_Name']).indexOf (deviceData['dev_Owner']) != -1 )  {
-        $('#pageTitle').html (deviceData['dev_Name']);
+        $('#pageTitle').text(deviceData['dev_Name']);
       } else {
-        $('#pageTitle').html (deviceData['dev_Name'] + ' ('+ deviceData['dev_Owner'] +')');
+        $('#pageTitle').text(deviceData['dev_Name'] + ' (' + deviceData['dev_Owner'] + ')');
       }
 
       // Status
-      $('#deviceStatus').html (deviceData['dev_Status'].replace('-', ''));
+      $('#deviceStatus').text (deviceData['dev_Status'].replace('-', ''));
       switch (deviceData['dev_Status']) {
         case 'On-line':   icon='fa fa-check';             color='text-green';   break;
         case 'Off-line':  icon='fa fa-close';             color='text-gray';    break;
@@ -1367,8 +1384,8 @@ function getDeviceData (readAllData=false) {
       $('#deviceStatusIcon')[0].className = icon +' '+ color;
 
       // Totals
-      $('#deviceSessions').html   (deviceData['dev_Sessions'].toLocaleString());
-      $('#deviceDownAlerts').html (deviceData['dev_DownAlerts'].toLocaleString());
+      $('#deviceSessions').text (deviceData['dev_Sessions'].toLocaleString());
+      $('#deviceDownAlerts').text (deviceData['dev_DownAlerts'].toLocaleString());
 
       // Presence
       $('#deviceEventsTitle').html ('Presence');
@@ -1376,7 +1393,7 @@ function getDeviceData (readAllData=false) {
       if (deviceData['dev_PresenceHours'] == null || deviceData['dev_PresenceHours'] < 0) {
         $('#deviceEvents').html ('0 h.');
       } else {
-        $('#deviceEvents').html (deviceData['dev_PresenceHours'].toLocaleString() +' h.');
+        $('#deviceEvents').text (deviceData['dev_PresenceHours'].toLocaleString() +' h.');
       }
 
       // Device info
@@ -1536,7 +1553,7 @@ function setDeviceData (refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/devices.php?action=setDeviceData&mac='+ mac
+  pialertPost('php/server/devices.php?action=setDeviceData&mac='+ mac
     + '&name='            + encodeURIComponent($('#txtName').val())
     + '&owner='           + encodeURIComponent($('#txtOwner').val())
     + '&type='            + $('#txtDeviceType').val()
@@ -1581,7 +1598,10 @@ function setDeviceData (refreshCallback='') {
 }
 
 function initializeSpeedtest () {
-  $('#tableSpeedtest').DataTable({
+  if ($('#tableSpeedtest').length === 0) {
+    return;
+  }
+  const speedtestTable = $('#tableSpeedtest').DataTable({
     'paging'       : true,
     'lengthChange' : true,
     'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, 'All']],
@@ -1590,7 +1610,7 @@ function initializeSpeedtest () {
     'ordering'     : true,
     'info'         : true,
     'autoWidth'    : false,
-    'pageLength'   : 10,
+    'pageLength'   : speedtestRows,
     'order'        : [[0, 'desc']],
     'columns': [
         { "data": 0 },
@@ -1635,7 +1655,55 @@ function initializeSpeedtest () {
       "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     },
   });
+  $('#tableSpeedtest').on('draw.dt.speedtestChart', updateSpeedtestChartFromTable);
+  $('#tableSpeedtest').on('length.dt', function(e, settings, len) {
+    setParameter(parSpeedtestRows, len);
+  });
+  updateSpeedtestChartFromTable();
 };
+
+function speedtestHistoryChartLabel (dateValue) {
+  const value = String(dateValue ?? '');
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  return match ? match[3] + '.' + match[2] + '. ' + match[4] + ':' + match[5] : value;
+}
+
+function speedtestHistoryNumber (value) {
+  const number = Number.parseFloat(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function updateSpeedtestChartFromTable () {
+  if (!$.fn.dataTable.isDataTable('#tableSpeedtest') || typeof graph_speedtest_history !== 'function') {
+    return;
+  }
+
+  const visibleRows = $('#tableSpeedtest').DataTable()
+    .rows({ page: 'current', search: 'applied', order: 'applied' })
+    .data()
+    .toArray();
+
+  graph_speedtest_history(
+    visibleRows.map(function(row) { return speedtestHistoryChartLabel(row[0]); }),
+    visibleRows.map(function(row) { return speedtestHistoryNumber(row[3]); }),
+    visibleRows.map(function(row) { return speedtestHistoryNumber(row[4]); }),
+    visibleRows.map(function(row) { return speedtestHistoryNumber(row[5]); })
+  );
+}
+
+function refreshSpeedtestHistory () {
+  if ($('#tableSpeedtest').length === 0 || typeof graph_speedtest_history !== 'function') {
+    return;
+  }
+
+  $.getJSON('php/server/devices.php?action=getSpeedtestResults', function(data) {
+    const rows = data && Array.isArray(data.rows) ? data.rows : [];
+    const table = $('#tableSpeedtest').DataTable();
+    table.clear();
+    table.rows.add(rows);
+    table.order([0, 'desc']).page('first').draw(false);
+  });
+}
 
 // -----------------------------------------------------------------------------
 function askDeleteDeviceEvents () {
@@ -1652,7 +1720,7 @@ function deleteDeviceEvents () {
     return;
   }
   // Delete device events
-  $.get('php/server/devices.php?action=deleteDeviceEvents&mac='+ mac, function(msg) {
+  pialertPost('php/server/devices.php?action=deleteDeviceEvents&mac='+ mac, function(msg) {
     showMessage (msg);
   });
   // Deactivate controls
@@ -1675,7 +1743,7 @@ function deleteDevice () {
     return;
   }
   // Delete device
-  $.get('php/server/devices.php?action=deleteDevice&mac='+ mac, function(msg) {
+  pialertPost('php/server/devices.php?action=deleteDevice&mac='+ mac, function(msg) {
     showMessage (msg);
   });
   // Deactivate controls
@@ -1709,23 +1777,31 @@ function getDeviceEvents () {
 
 // -----------------------------------------------------------------------------
 // Activate save & restore on any value change
-$(document).on('input', 'input:text', function() {
-  activateSaveRestoreData();
-});
-
-$(document).on('input', 'textarea', function() {
+$(document).on('input change', '#panDetails input:not([readonly]), #panDetails textarea, #panDetails select', function() {
   activateSaveRestoreData();
 });
 
 // -----------------------------------------------------------------------------
 function activateSaveRestoreData () {
+  deviceDetailsDirty = true;
+  $('#btnRestore').text(deviceCancelLabel);
   $('#btnRestore').removeAttr ('disabled');
   $('#btnSave').removeAttr ('disabled');
 }
 
 function deactivateSaveRestoreData () {
-  //$('#btnRestore').attr ('disabled','');
+  deviceDetailsDirty = false;
+  $('#btnRestore').text(deviceCloseLabel);
   $('#btnSave').attr ('disabled','');
+}
+
+function restoreOrCloseDevice () {
+  if (deviceDetailsDirty) {
+    getDeviceData(true);
+    return;
+  }
+
+  window.location.href = $('#sticky-back-link').attr('href') || './devices.php';
 }
 
 // -----------------------------------------------------------------------------
@@ -1747,7 +1823,7 @@ function askwakeonlan() {
 }
 function wakeonlan() {
   // Execute
-  $.get('php/server/devices.php?action=wakeonlan&'
+  pialertPost('php/server/devices.php?action=wakeonlan&'
     + '&mac='         + $('#txtMAC').val()
     + '&ip='          + $('#txtLastIP').val()
     , function(msg) {
@@ -1886,7 +1962,7 @@ function askBlockDeviceMAC(macStep) {
 function BlockDeviceMAC() {
   if (!window.selectedMACStep) return;
   macStep = window.selectedMACStep;
-  $.get('php/server/files.php?action=BlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
+  pialertPost('php/server/files.php?action=BlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
   delete window.selectedMACStep;
 }
 
@@ -1903,7 +1979,7 @@ function askBlockDeviceIP(ipStep) {
 function BlockDeviceIP() {
   if (!window.selectedipStep) return;
   ipStep = window.selectedipStep;
-  $.get('php/server/files.php?action=BlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
+  pialertPost('php/server/files.php?action=BlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
   delete window.selectedipStep;
 }
 

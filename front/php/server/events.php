@@ -10,7 +10,9 @@
 ini_set('memory_limit', '512M');
 ini_set('max_execution_time', '60');
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -25,9 +27,13 @@ require 'util.php';
 // Open DB
 OpenDB();
 
+pialert_dispatch_action([
+    'getEventsTotals', 'getEvents', 'getDeviceSessions', 'getDevicePresence',
+    'getDeviceEvents', 'getEventsCalendar'
+], []);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'getEventsTotals':getEventsTotals();
 		break;
@@ -74,7 +80,7 @@ function getEventsTotals() {
 function getEvents() {
 	global $db;
 
-	$type = isset($_REQUEST['type']) && is_scalar($_REQUEST['type']) ? (string) $_REQUEST['type'] : '';
+	$type = isset($GLOBALS["pialert_request"]['type']) && is_scalar($GLOBALS["pialert_request"]['type']) ? (string) $GLOBALS["pialert_request"]['type'] : '';
 	$parameters = array(':period' => getDateFromPeriodValue());
 	$eventsSql = 'SELECT eve_DateTime AS eve_DateTimeOrder, dev_name, dev_owner, eve_DateTime, eve_EventType, NULL, NULL, NULL, NULL, eve_IP, NULL, eve_AdditionalInfo, NULL, Dev_MAC
 		FROM Events_Devices WHERE eve_DateTime >= :period';
@@ -157,7 +163,7 @@ function getEvents() {
 function getDeviceSessions() {
 	global $db;
 
-	$mac = isset($_REQUEST['mac']) && is_scalar($_REQUEST['mac']) ? (string) $_REQUEST['mac'] : '';
+	$mac = isset($GLOBALS["pialert_request"]['mac']) && is_scalar($GLOBALS["pialert_request"]['mac']) ? (string) $GLOBALS["pialert_request"]['mac'] : '';
 	$sql = 'SELECT IFNULL(ses_DateTimeConnection, ses_DateTimeDisconnection) ses_DateTimeOrder,
 		ses_EventTypeConnection, ses_DateTimeConnection, ses_EventTypeDisconnection, ses_DateTimeDisconnection,
 		ses_StillConnected, ses_IP, ses_AdditionalInfo
@@ -207,9 +213,9 @@ function getDeviceSessions() {
 function getDevicePresence() {
 	global $db;
 
-	$mac = isset($_REQUEST['mac']) && is_scalar($_REQUEST['mac']) ? (string) $_REQUEST['mac'] : '';
-	$start = isset($_REQUEST['start']) && is_scalar($_REQUEST['start']) ? (string) $_REQUEST['start'] : '';
-	$end = isset($_REQUEST['end']) && is_scalar($_REQUEST['end']) ? (string) $_REQUEST['end'] : '';
+	$mac = isset($GLOBALS["pialert_request"]['mac']) && is_scalar($GLOBALS["pialert_request"]['mac']) ? (string) $GLOBALS["pialert_request"]['mac'] : '';
+	$start = isset($GLOBALS["pialert_request"]['start']) && is_scalar($GLOBALS["pialert_request"]['start']) ? (string) $GLOBALS["pialert_request"]['start'] : '';
+	$end = isset($GLOBALS["pialert_request"]['end']) && is_scalar($GLOBALS["pialert_request"]['end']) ? (string) $GLOBALS["pialert_request"]['end'] : '';
 	try {
 		$startDate = formatDateISO($start);
 		$endDate = formatDateISO($end);
@@ -266,9 +272,9 @@ function getDevicePresence() {
 function getEventsCalendar() {
 	global $db;
 
-	$scanSource = isset($_REQUEST['scansource']) && is_scalar($_REQUEST['scansource']) && $_REQUEST['scansource'] !== '' ? (string) $_REQUEST['scansource'] : 'local';
-	$start = isset($_REQUEST['start']) && is_scalar($_REQUEST['start']) ? (string) $_REQUEST['start'] : '';
-	$end = isset($_REQUEST['end']) && is_scalar($_REQUEST['end']) ? (string) $_REQUEST['end'] : '';
+	$scanSource = isset($GLOBALS["pialert_request"]['scansource']) && is_scalar($GLOBALS["pialert_request"]['scansource']) && $GLOBALS["pialert_request"]['scansource'] !== '' ? (string) $GLOBALS["pialert_request"]['scansource'] : 'local';
+	$start = isset($GLOBALS["pialert_request"]['start']) && is_scalar($GLOBALS["pialert_request"]['start']) ? (string) $GLOBALS["pialert_request"]['start'] : '';
+	$end = isset($GLOBALS["pialert_request"]['end']) && is_scalar($GLOBALS["pialert_request"]['end']) ? (string) $GLOBALS["pialert_request"]['end'] : '';
 	try {
 		$startDate = formatDateISO($start);
 		$endDate = formatDateISO($end);
@@ -328,8 +334,8 @@ function getEventsCalendar() {
 function getDeviceEvents() {
 	global $db;
 
-	$mac = isset($_REQUEST['mac']) && is_scalar($_REQUEST['mac']) ? (string) $_REQUEST['mac'] : '';
-	$showConnections = isset($_REQUEST['hideConnections']) && is_scalar($_REQUEST['hideConnections']) && $_REQUEST['hideConnections'] === 'false';
+	$mac = isset($GLOBALS["pialert_request"]['mac']) && is_scalar($GLOBALS["pialert_request"]['mac']) ? (string) $GLOBALS["pialert_request"]['mac'] : '';
+	$showConnections = isset($GLOBALS["pialert_request"]['hideConnections']) && is_scalar($GLOBALS["pialert_request"]['hideConnections']) && $GLOBALS["pialert_request"]['hideConnections'] === 'false';
 	$sql = 'SELECT eve_DateTime, eve_EventType, eve_IP, eve_AdditionalInfo
 		FROM Events
 		WHERE eve_MAC = :mac AND eve_DateTime >= :period

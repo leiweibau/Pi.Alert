@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . "/../php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../index.php');
@@ -18,7 +19,7 @@ require '../php/templates/language/' . $pia_lang_selected . '.php';
 $DBFILE = '../../db/pialert.db';
 $DBFILE_TOOLS = '../../db/pialert_tools.db';
 
-$PIA_HOST_IP = $_REQUEST['host'];
+$PIA_HOST_IP = $_GET['host'];
 $PIA_SCAN_TIME = date('Y-m-d H:i:s');
 
 OpenDB();

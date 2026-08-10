@@ -9,7 +9,9 @@
 //  leiweibau  2024+        https://github.com/leiweibau       GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 error_reporting(0);
 
 if ($_SESSION["login"] != 1) {
@@ -30,9 +32,13 @@ ini_set('max_execution_time', '15');
 // Open DB
 OpenDB();
 
+pialert_dispatch_action(
+    ['get', 'getJournalParameter', 'getReportParameter'],
+    ['set', 'setJournalParameter', 'setReportParameter']
+);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'get':getParameter();
 		break;
@@ -70,7 +76,7 @@ function saveParameters($par_ID, $par_Long_Value) {
 function getParameter() {
 	global $db;
 
-	$parameter = $_REQUEST['parameter'] ?? '';
+	$parameter = $GLOBALS["pialert_request"]['parameter'] ?? '';
 	$result = db_execute_prepared($db, 'SELECT par_Value FROM Parameters WHERE par_ID = :id', array(':id' => is_scalar($parameter) ? (string)$parameter : ''));
 	$row = $result ? $result->fetchArray(SQLITE3_NUM) : false;
 	echo json_encode($row ? $row[0] : null);
@@ -81,8 +87,8 @@ function setParameter() {
 	global $db;
 	global $pia_lang;
 
-	$parameter = $_REQUEST['parameter'] ?? '';
-	$value = $_REQUEST['value'] ?? '';
+	$parameter = $GLOBALS["pialert_request"]['parameter'] ?? '';
+	$value = $GLOBALS["pialert_request"]['value'] ?? '';
 	if (!is_scalar($parameter) || !is_scalar($value)) {
 		echo $pia_lang['BE_Param_error_update'];
 		return;

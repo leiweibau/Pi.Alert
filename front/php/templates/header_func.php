@@ -387,7 +387,7 @@ $(document).on("click", ".save-device-filter", function () {
 		return;
 	}
 
-	$.get("php/server/devices.php", {
+	pialertPost("php/server/devices.php", {
 		action: "SaveFilterID",
 		filterid: $("#txt_" + filterId + "_ID").val(),
 		filtername: $("#txt_" + filterId + "_name").val(),
@@ -404,7 +404,7 @@ $(document).on("click", ".save-device-filter", function () {
 function show_groupless_filters() {
 	$filter_table = $_SESSION['Filter_Table'];
 	foreach ($filter_table as $row) {
-    	if (($row['filterstring'] ?? '') == ($_REQUEST['predefined_filter'] ?? '')) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
+    	if (($row['filterstring'] ?? '') == ($_GET['predefined_filter'] ?? '')) {$filterlist_icon = "fa-solid fa-circle";} else {$filterlist_icon = "fa-regular fa-circle";}
     	if ($row['reserve_c'] == "" || !isset($row['reserve_c'])) {
         	echo '<li class="custom_filter"><a href="devices.php?predefined_filter='.rawurlencode((string) ($row['filterstring'] ?? '')).'&amp;filter_fields='.rawurlencode((string) ($row['reserve_b'] ?? '')).'" class="sidebar-subentries"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'.h($row['filtername'] ?? '').'</a></li>';
     	}
@@ -412,7 +412,7 @@ function show_groupless_filters() {
 }
 // Sidebar Menu - Show grouped filters in Sidebar from session array
 function show_group_filters() {
-	$active_group = isset($_REQUEST['g']) && is_scalar($_REQUEST['g']) ? (int) $_REQUEST['g'] : null;
+	$active_group = isset($_GET['g']) && is_scalar($_GET['g']) ? (int) $_GET['g'] : null;
 	$filter_table = $_SESSION['Filter_Table'];
 	$filter_groups = get_filter_group_list();
 	for ($i = 0; $i < sizeof($filter_groups); $i++) {
@@ -429,7 +429,7 @@ function show_group_filters() {
 	  			<ul class="treeview-menu" style="display: '.$group_state['list'].';">';
 		foreach ($filter_table as $row) {
 	    	if ($row['reserve_c'] == $temp_filter_group) {
-	    		if (($row['filterstring'] ?? '') == ($_REQUEST['predefined_filter'] ?? '')) {$filterlist_icon = "fa-solid fa-circle"; } else {$filterlist_icon = "fa-regular fa-circle"; }
+	    		if (($row['filterstring'] ?? '') == ($_GET['predefined_filter'] ?? '')) {$filterlist_icon = "fa-solid fa-circle"; } else {$filterlist_icon = "fa-regular fa-circle"; }
 	    		echo '<li><a href="devices.php?predefined_filter='.rawurlencode((string) ($row['filterstring'] ?? '')).'&amp;filter_fields='.rawurlencode((string) ($row['reserve_b'] ?? '')).'&amp;g='.$i.'" style="font-size: 14px; height: 30px; line-height:30px;padding:0;padding-left:22px;"><i class="'.$filterlist_icon.'" style="margin-right:5px;"></i>'.h($row['filtername'] ?? '').'</a></li>';
 	    	}
 	    }
@@ -512,7 +512,7 @@ if (file_exists('../config/setting_piholebutton')) {
 	$FRONTEND_PHBUTTON = '';
 }
 // set ScanSource Defaults (Satellite Scans)
-$scanSourceRequest = $_REQUEST['scansource'] ?? 'local';
+$scanSourceRequest = $_GET['scansource'] ?? 'local';
 $SCANSOURCE = is_string($scanSourceRequest) && preg_match('/^[A-Za-z0-9_.:-]{1,128}$/', $scanSourceRequest)
 	? $scanSourceRequest
 	: 'local';

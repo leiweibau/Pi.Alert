@@ -347,3 +347,15 @@ I would like to give a short explanation to the individual points.
 
 
 
+
+### Web service target handling
+
+The web service monitor supports internal and external HTTP and HTTPS URLs without a separate network allowlist. Private IPv4 networks, loopback, link-local addresses, private IPv6 networks, `.local` names, single-label hostnames and public Internet services can therefore be monitored directly.
+
+Every URL is structurally validated before use. Credentials in URLs, fragments, control characters, ambiguous numeric IPv4 forms, invalid ports and invalid percent encoding are rejected. Commas in a path or query remain valid.
+
+DNS is resolved before connecting and the connection is pinned to the validated address. The same validation and DNS resolution are repeated for every redirect, with a maximum of three redirects. Known cloud metadata addresses remain blocked. Response bodies are not downloaded by the monitor.
+
+When a new service is saved, Pi.Alert immediately performs one synchronous check with the same hardened transport used by the periodic monitor. The initial HTTP status, latency and resolved target address are stored with the service. An unreachable target is still stored with status `0` and the offline latency marker so it can recover during a later periodic scan.
+
+For HTTPS services, the certificate subject, issuer, validity start and validity end are captured from the same pinned TLS connection and stored during the initial insert. The initial SSL change flag is `0`, because no previous certificate exists for comparison. HTTP services use empty SSL fields.

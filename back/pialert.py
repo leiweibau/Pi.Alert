@@ -27,8 +27,9 @@ from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, validate_loaded_config
+from service_url_policy import ServiceUrlError, fetch_service_url, get_service_certificate
 from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion, MQTT_ERR_SUCCESS
-import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
+import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading, http.client
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -117,7 +118,7 @@ def recover_sensitive_config_values(config_file, secret_keys):
 recover_sensitive_config_values(PIALERT_PATH + "/config/pialert.conf", RAW_CONFIG_SECRET_KEYS)
 try:
     globals().update(validate_loaded_config(
-        {name: globals()[name] for name in ALL_KEYS}, PIALERT_PATH))
+        {name: globals()[name] for name in ALL_KEYS if name in globals()}, PIALERT_PATH))
 except ConfigValidationError as exc:
     print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
     raise SystemExit(1)
@@ -4564,7 +4565,9 @@ def set_service_update(_mon_URL, _mon_lastScan, _mon_lastStatus, _mon_lastLatenc
 
     ssl_fc = str(_mon_ssl_fc)
 
-    if _mon_Redirect != 200 and _mon_lastStatus == 200:
+    if isinstance(_mon_Redirect, str) and _mon_Redirect.startswith("Blocked: "):
+        _mon_Redirect_Text = _mon_Redirect
+    elif _mon_Redirect != 200 and _mon_lastStatus == 200:
         _mon_Redirect_Text = "Redirected by " + str(_mon_Redirect)
     else:
         _mon_Redirect_Text = ""
@@ -4771,91 +4774,50 @@ def service_monitoring_log(site, status, latency):
         )
 
 # -----------------------------------------------------------------------------
-def check_services_health(site):
+SERVICE_FETCH_RESULTS = {}
+SERVICE_POLICY_FAILURES = {}
 
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+def check_services_health(site):
     try:
-        resp = requests.get(site, verify=False, timeout=10)
-        latency = resp.elapsed
-        latency_str = str(latency)
-        latency_str_seconds = latency_str.split(":")
-        format_latency_str = latency_str_seconds[2]
-        if format_latency_str[0] == "0" and format_latency_str[1] != "." :
-            format_latency_str = format_latency_str[1:]
-        return resp.status_code, format_latency_str
-    except requests.exceptions.SSLError:
-        # Fallback for SSL-errors - necessary after Debian 13 update
-        latency = "99999999"
-        return 0, latency
-    except:
-        # Latency for offline services
-        latency = "99999999"
-        # HTTP Status Code for offline services
-        return 0, latency
+        result = fetch_service_url(site)
+        SERVICE_FETCH_RESULTS[site] = result
+        SERVICE_POLICY_FAILURES.pop(site, None)
+        return result["status"], result["latency"]
+    except ServiceUrlError as exc:
+        SERVICE_FETCH_RESULTS.pop(site, None)
+        SERVICE_POLICY_FAILURES[site] = "Blocked: {}".format(exc)
+        return 0, "99999999"
+    except (OSError, http.client.HTTPException, ssl.SSLError, ValueError):
+        SERVICE_FETCH_RESULTS.pop(site, None)
+        SERVICE_POLICY_FAILURES.pop(site, None)
+        return 0, "99999999"
 
 # -----------------------------------------------------------------------------
 def check_services_redirect(site):
-
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-    try:
-        resp = requests.get(site, verify=False, timeout=10, allow_redirects=False)
-        return resp.status_code
-    except requests.exceptions.SSLError:
-        pass
-    except:
-        # HTTP Status Code for offline services
-        return 0
+    result = SERVICE_FETCH_RESULTS.get(site)
+    return result["initial_status"] if result else 0
 
 # -----------------------------------------------------------------------------
 def get_ssl_cert_info(url, timeout=10):
-    
     try:
-        parsed_url = urlparse(url)
-        hostname = parsed_url.hostname
-        port = parsed_url.port or 443
-
-        socket.setdefaulttimeout(timeout)
-
-        #with socket.create_connection((hostname, 443)) as sock:
-        with socket.create_connection((hostname, port)) as sock:
-            context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE  # Disable certificate verification
-            with context.wrap_socket(sock, server_hostname=hostname, do_handshake_on_connect=False) as ssock:
-                ssock.do_handshake()  # Perform the SSL handshake
-
-                cert_data = ssock.getpeercert(binary_form=True)
-                cert = x509.load_der_x509_certificate(cert_data, default_backend())
-
-                ssl_info = dict()
-                ssl_info['Subject'] = f"""{cert.subject}"""
-                ssl_info['Issuer'] = f"""{cert.issuer}"""
-
-                # Compatibility with new and old cryptography versions
-                if hasattr(cert, 'not_valid_before_utc'):
-                    ssl_info['Valid_from'] = f"""{cert.not_valid_before_utc} (UTC)"""
-                else:
-                    ssl_info['Valid_from'] = f"""{cert.not_valid_before}"""
-
-                if hasattr(cert, 'not_valid_after_utc'):
-                    ssl_info['Valid_to'] = f"""{cert.not_valid_after_utc} (UTC)"""
-                else:
-                    ssl_info['Valid_to'] = f"""{cert.not_valid_after}"""
-
-                return ssl_info
-
-    except socket.timeout:
-        return "SSL certificate could not be found (Timeout)"
-    except socket.gaierror:
-        return "SSL certificate could not be found (Host down or does not exists)"
-        # return 0
-    except ConnectionRefusedError:
-        return "SSL certificate could not be found (Connection Refused)"
-        # return 0
-    except Exception as e:
-        return "SSL certificate could not be found (General Error)"
-        # print(e)
-
+        cert_data = get_service_certificate(url, timeout)
+        if not cert_data:
+            return ""
+        cert = x509.load_der_x509_certificate(cert_data, default_backend())
+        ssl_info = {}
+        ssl_info["Subject"] = str(cert.subject)
+        ssl_info["Issuer"] = str(cert.issuer)
+        if hasattr(cert, "not_valid_before_utc"):
+            ssl_info["Valid_from"] = str(cert.not_valid_before_utc) + " (UTC)"
+        else:
+            ssl_info["Valid_from"] = str(cert.not_valid_before)
+        if hasattr(cert, "not_valid_after_utc"):
+            ssl_info["Valid_to"] = str(cert.not_valid_after_utc) + " (UTC)"
+        else:
+            ssl_info["Valid_to"] = str(cert.not_valid_after)
+        return ssl_info
+    except (ServiceUrlError, OSError, ssl.SSLError, ValueError):
+        return ""
 # -----------------------------------------------------------------------------
 def get_services_list():
 
@@ -5089,11 +5051,11 @@ def service_monitoring():
         for site in sites:
             status, latency = check_services_health(site)
             site_retry = ''
-            if latency == "99999999":
+            if latency == "99999999" and site not in SERVICE_POLICY_FAILURES:
                 # 2. Attempt in case of error in the first run
                 status, latency = check_services_health(site)
                 site_retry = '*'
-                if latency == "99999999":
+                if latency == "99999999" and site not in SERVICE_POLICY_FAILURES:
                     # 3. Attempt in case of error in the second run
                     status, latency = check_services_health(site)
                     site_retry = '**'
@@ -5101,14 +5063,12 @@ def service_monitoring():
             # Hole IP aus der Domain
             if latency != "99999999":
                 redirect_state = check_services_redirect(site)
-                domain = urlparse(site).netloc
-                domain = domain.split(":")[0]
-                domain_ip = socket.gethostbyname(domain)
+                domain_ip = SERVICE_FETCH_RESULTS[site]["target_ip"]
                 # Hole SSL-Informationen
                 ssl_info = get_ssl_cert_info(site)
             else:
                 domain_ip = ""
-                redirect_state = ""
+                redirect_state = SERVICE_POLICY_FAILURES.get(site, "")
                 ssl_info = ""
 
             # Speicherung der Ergebnisse in Listen/Dictionaries

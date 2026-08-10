@@ -8,7 +8,9 @@
 //  leiweibau  2024+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -28,9 +30,16 @@ ini_set('max_execution_time', '30');
 // Open DB
 OpenDB();
 
+pialert_dispatch_action([
+    'network_device_downlink', 'NetworkInfrastructure_list',
+    'NetworkDeviceTyp_list', 'NetworkGroupName_list'
+], [
+    'addManagedDev', 'updManagedDev', 'delManagedDev',
+    'addUnManagedDev', 'updUnManagedDev', 'delUnManagedDev'
+]);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'network_device_downlink':network_device_downlink();
 		break;
@@ -57,23 +66,73 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 	}
 }
 
-function network_request_text($key) {
-	$value = $_REQUEST[$key] ?? '';
-	return is_scalar($value) ? trim((string)$value) : '';
+function network_invalid_request() {
+	http_response_code(400);
+	header("Content-Type: text/plain; charset=UTF-8");
+	echo "Invalid network request";
+	exit;
+}
+
+function network_request_text($key, $maximumLength = 255) {
+	$value = $GLOBALS["pialert_request"][$key] ?? "";
+	if (!is_scalar($value)) {
+		network_invalid_request();
+	}
+	$value = trim((string) $value);
+	if (strlen($value) > $maximumLength || preg_match("/[\x00-\x1F\x7F]/u", $value)) {
+		network_invalid_request();
+	}
+	return $value;
 }
 
 function network_request_id($key) {
-	$value = $_REQUEST[$key] ?? null;
-	if (filter_var($value, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1))) === false) {
-		return null;
+	$value = $GLOBALS["pialert_request"][$key] ?? null;
+	if (filter_var($value, FILTER_VALIDATE_INT, array("options" => array("min_range" => 1))) === false) {
+		network_invalid_request();
 	}
-	return (int)$value;
+	return (int) $value;
+}
+
+function network_request_type($key) {
+	$value = network_request_text($key, 32);
+	if (!in_array($value, array("0_Internet", "1_Router", "2_Switch", "3_WLAN", "4_Powerline", "5_Hypervisor"), true)) {
+		network_invalid_request();
+	}
+	return $value;
+}
+
+function network_request_port_count($key) {
+	$value = network_request_text($key, 4);
+	if ($value === "") {
+		return "";
+	}
+	if (filter_var($value, FILTER_VALIDATE_INT, array("options" => array("min_range" => 0, "max_range" => 1024))) === false) {
+		network_invalid_request();
+	}
+	return (string) (int) $value;
+}
+
+function network_request_target_ports($key) {
+	$value = network_request_text($key, 4096);
+	if ($value === "") {
+		return "";
+	}
+	$ports = array();
+	foreach (explode(",", $value) as $part) {
+		$part = trim($part);
+		if (filter_var($part, FILTER_VALIDATE_INT, array("options" => array("min_range" => 0, "max_range" => 1024))) === false) {
+			network_invalid_request();
+		}
+		$ports[] = (string) (int) $part;
+	}
+	return implode(",", $ports);
 }
 
 function network_device_downlink() {
 	global $db;
-	$node_typ = substr($_REQUEST['nodetyp'],2);
+	$node_typ = substr(network_request_type('nodetyp'), 2);
 	$special_dev = array("Router", "Switch", "AP", "Access Point");
+	$temp_type = "";
 
 	if (in_array($node_typ, $special_dev)) {
 		// $func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet" ORDER BY "dev_DeviceType" ASC';
@@ -153,16 +212,16 @@ function addManagedDev() {
 	global $db;
 	global $pia_lang;
 
-	if (!isset($_REQUEST['NetworkDeviceName']) && !isset($_REQUEST['NetworkDeviceTyp'])) {
-		echo "Test";
-		return;
+	$name = network_request_text("NetworkDeviceName");
+	if ($name === "") {
+		network_invalid_request();
 	}
 
 	$sql = 'INSERT INTO "network_infrastructure" ("net_device_name", "net_device_typ", "net_device_port", "net_networkname") VALUES (:name, :type, :port, :group_name)';
 	$result = db_execute_prepared($db, $sql, array(
-		':name' => network_request_text('NetworkDeviceName'),
-		':type' => network_request_text('NetworkDeviceTyp'),
-		':port' => network_request_text('NetworkDevicePort'),
+		':name' => $name,
+		':type' => network_request_type('NetworkDeviceTyp'),
+		':port' => network_request_port_count('NetworkDevicePort'),
 		':group_name' => network_request_text('NetworkGroupName')
 	));
 
@@ -185,11 +244,11 @@ function updManagedDev() {
 
 	$deviceId = network_request_id('NetworkDeviceID');
 	$result = false;
-	if ($deviceId !== null && isset($_REQUEST['NewNetworkDeviceTyp'])) {
+	if ($deviceId !== null && isset($GLOBALS["pialert_request"]['NewNetworkDeviceTyp'])) {
 		$parameters = array(
-			':type' => network_request_text('NewNetworkDeviceTyp'),
-			':port' => network_request_text('NewNetworkDevicePort'),
-			':downstream' => network_request_text('NetworkDeviceDownlink'),
+			':type' => network_request_type('NewNetworkDeviceTyp'),
+			':port' => network_request_port_count('NewNetworkDevicePort'),
+			':downstream' => network_request_text('NetworkDeviceDownlink', 8192),
 			':group_name' => network_request_text('NewNetworkGroupName'),
 			':id' => array($deviceId, SQLITE3_INTEGER)
 		);
@@ -238,14 +297,18 @@ function addUnManagedDev() {
 	global $db;
 	global $pia_lang;
 
+	$name = network_request_text("NetworkUnmanagedDevName");
+	if ($name === "") {
+		network_invalid_request();
+	}
 	$result = false;
-	if (isset($_REQUEST['NetworkUnmanagedDevName']) && isset($_REQUEST['NetworkUnmanagedDevConnect'])) {
+	if (isset($GLOBALS["pialert_request"]["NetworkUnmanagedDevConnect"])) {
 		$sql = 'INSERT INTO "network_dumb_dev" ("dev_Name", "dev_MAC", "dev_Infrastructure", "dev_Infrastructure_port", "dev_PresentLastScan", "dev_LastIP") VALUES (:name, :mac, :infrastructure, :port, :present, :ip)';
 		$result = db_execute_prepared($db, $sql, array(
-			':name' => network_request_text('NetworkUnmanagedDevName'),
+			':name' => $name,
 			':mac' => 'dumb',
-			':infrastructure' => network_request_text('NetworkUnmanagedDevConnect'),
-			':port' => network_request_text('NetworkUnmanagedDevPort'),
+			':infrastructure' => (string) network_request_id('NetworkUnmanagedDevConnect'),
+			':port' => network_request_target_ports('NetworkUnmanagedDevPort'),
 			':present' => 'dumb',
 			':ip' => 'Unmanaged'
 		));
@@ -268,10 +331,10 @@ function updUnManagedDev() {
 
 	$deviceId = network_request_id('NetworkUnmanagedDevID');
 	$result = false;
-	if ($deviceId !== null && isset($_REQUEST['NewNetworkUnmanagedDevConnect'])) {
+	if ($deviceId !== null && isset($GLOBALS["pialert_request"]['NewNetworkUnmanagedDevConnect'])) {
 		$parameters = array(
-			':infrastructure' => network_request_text('NewNetworkUnmanagedDevConnect'),
-			':port' => network_request_text('NewNetworkUnmanagedDevPort'),
+			':infrastructure' => (string) network_request_id('NewNetworkUnmanagedDevConnect'),
+			':port' => network_request_target_ports('NewNetworkUnmanagedDevPort'),
 			':id' => array($deviceId, SQLITE3_INTEGER)
 		);
 		if (network_request_text('NewNetworkUnmanagedDevName') !== '') {

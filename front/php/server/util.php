@@ -43,7 +43,8 @@ function formatIPlong($IP) {
 
 // Others functions
 function getDateFromPeriodValue() {
-	$period = $_REQUEST['period'] ?? '1 day';
+	$request = function_exists('pialert_request_data') ? pialert_request_data() : $_GET;
+	$period = $request['period'] ?? '1 day';
 	if (!is_scalar($period)) {
 		$period = '1 day';
 	}

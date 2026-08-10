@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
 	exit;
@@ -13,9 +15,15 @@ $DBFILE_TOOLS = '../../../db/pialert_tools.db';
 OpenDB();
 OpenDB_Tools();
 
+pialert_dispatch_action([
+    'getLogfileDatesAsJson', 'getLogfileContent', 'getSpeedtestHistory',
+    'getLocalDeviceStatus', 'getIcmpDeviceStatus', 'getReportsCount',
+    'getReportContent', 'getLatestReports', 'getDeviceHistoryChart',
+    'getServiceStatusSummary'
+], []);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
     switch ($action) {
     case 'getLogfileDatesAsJson':getLogfileDatesAsJson();
         break;
@@ -59,12 +67,12 @@ function getLogfileDatesAsJson()
 
     header('Content-Type: application/json');
 
-    if (!isset($_REQUEST['logfile'])) {
+    if (!isset($GLOBALS["pialert_request"]['logfile'])) {
         echo json_encode([]);
         exit;
     }
 
-    $logfile = $_REQUEST['logfile'];
+    $logfile = $GLOBALS["pialert_request"]['logfile'];
     $map = getLogfileTableMap();
 
     if (!isset($map[$logfile])) {
@@ -94,8 +102,8 @@ function getLogfileDatesAsJson()
 function getLogfileContent() {
 	global $db_tools;
 
-    $logfile = $_REQUEST['logfile'] ?? '';
-    $date    = $_REQUEST['date'] ?? '';
+    $logfile = $GLOBALS["pialert_request"]['logfile'] ?? '';
+    $date    = $GLOBALS["pialert_request"]['date'] ?? '';
 
     header('Content-Type: plain/text');
 

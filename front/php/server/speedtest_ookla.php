@@ -8,7 +8,9 @@
 //  leiweibau  2025+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 ini_set('max_execution_time', '60');
 
 if ($_SESSION["login"] != 1) {
@@ -21,6 +23,8 @@ require 'journal.php';
 require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
+pialert_require_method('POST');
+pialert_validate_csrf();
 // Open DB
 //$DBFILE = '../../../db/pialert.db';
 OpenDB_Tools();
@@ -29,7 +33,7 @@ OpenDB();
 $speedtest_binary = '../../../back/pialert_tools.py';
 $speedtest_option = ' speedtest';
 $supported_arch = array('i386', 'x86_64', 'armel', 'armhf', 'aarch64');
-$mod = $_REQUEST['mod'];
+$mod = $_POST['mod'];
 
 # Checking the web page to determine the current version
 # ------------------------------------------------------------------------------

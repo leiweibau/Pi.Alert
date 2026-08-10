@@ -1,7 +1,9 @@
 <?php
 ini_set('max_execution_time', '65');
 set_time_limit(65);
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -14,10 +16,12 @@ require_once 'util.php';
 require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
+pialert_require_method('POST');
+pialert_validate_csrf();
 // $DBFILE = '../../../db/pialert.db';
 // $DBFILE_TOOLS = '../../../db/pialert_tools.db';
-$PIA_HOST_IP = isset($_REQUEST['scan']) && is_scalar($_REQUEST['scan']) ? (string) $_REQUEST['scan'] : '';
-$PIA_SCAN_MODE = isset($_REQUEST['mode']) && is_scalar($_REQUEST['mode']) ? (string) $_REQUEST['mode'] : '';
+$PIA_HOST_IP = isset($_POST['scan']) && is_scalar($_POST['scan']) ? (string) $_POST['scan'] : '';
+$PIA_SCAN_MODE = isset($_POST['mode']) && is_scalar($_POST['mode']) ? (string) $_POST['mode'] : '';
 $PIA_SCAN_TIME = date('Y-m-d H:i:s');
 
 if (!in_array($PIA_SCAN_MODE, array('fast', 'normal', 'view'), true)) {

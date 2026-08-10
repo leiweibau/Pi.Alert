@@ -3,7 +3,9 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+require_once __DIR__ . "/php/server/service_url.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -11,9 +13,9 @@ if ($_SESSION["login"] != 1) {
 }
 
 # Validate URL
-$request_url = isset($_REQUEST['url']) && is_scalar($_REQUEST['url']) ? (string) $_REQUEST['url'] : '';
+$request_url = isset($_GET['url']) && is_scalar($_GET['url']) ? (string) $_GET['url'] : '';
 
-if (filter_var($request_url, FILTER_VALIDATE_URL)) {
+if (pialert_validate_service_key($request_url)) {
 	$service_details_title = $request_url;
 	$service_details_title_array = explode('://', $request_url);
 } else {
@@ -41,7 +43,7 @@ function get_service_details($service_URL) {
 }
 
 // ----------------- Set Filter of fallback to default--------------------------
-$http_filter = $_REQUEST['filter'];
+$http_filter = $_GET['filter'];
 if (!isset($http_filter)) {$http_filter = 'all';}
 
 function get_service_events_table($service_URL, $service_filter) {
@@ -698,7 +700,7 @@ function main () {
   initializeDatatable();
 
 <?php
-if (isset($_REQUEST['filter'])) {
+if (isset($_GET['filter'])) {
 	echo "$('.nav-tabs a[id=tabEvents]').tab('show');";
 }
 ?>
@@ -835,14 +837,15 @@ function setServiceData(refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/services.php?action=setServiceData'
-    + '&url='             + $('#txtURL').val()
-    + '&tags='            + $('#txtTags').val()
-    + '&mac='             + $('#txtMAC').val()
-    + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
-    + '&alertup='         + ($('#chkAlertUp')[0].checked * 1)
-    + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
-    , function(msg) {
+  pialertPost('php/server/services.php', {
+    action: 'setServiceData',
+    url: $('#txtURL').val(),
+    tags: $('#txtTags').val(),
+    mac: $('#txtMAC').val(),
+    alertdown: ($('#chkAlertDown')[0].checked * 1),
+    alertup: ($('#chkAlertUp')[0].checked * 1),
+    alertevents: ($('#chkAlertEvents')[0].checked * 1)
+  }, function(msg) {
 
     // deactivate button
     // deactivateSaveRestoreData ();
@@ -877,7 +880,7 @@ function deleteService () {
   if (url == '') {
     return;
   }
-  $.get('php/server/services.php?action=deleteService&url=' + encodeURIComponent(url), function(msg) {
+  pialertPost('php/server/services.php?action=deleteService&url=' + encodeURIComponent(url), function(msg) {
     showMessage (msg);
   });
   // Deactivate controls
@@ -938,8 +941,9 @@ $('#downloadDB-button').on('click', function() {
     loader.show();
     // Send an AJAX request to initiate the file download
     $.ajax({
-        url: './php/server/services.php?action=downloadGeoDB',
-        method: 'GET',
+        url: './php/server/services.php',
+        data: { action: 'downloadGeoDB' },
+        method: 'POST',
         success: function(response) {
             console.log('Download complete!');
         },
@@ -960,8 +964,9 @@ $('#downloadDB-button').on('click', function() {
 $('#deleteDB-button').on('click', function() {
     // Send an AJAX request to initiate the file download
     $.ajax({
-        url: './php/server/services.php?action=deleteGeoDB',
-        method: 'GET',
+        url: './php/server/services.php',
+        data: { action: 'deleteGeoDB' },
+        method: 'POST',
         success: function(response) {
             console.log('Delete complete!');
         },

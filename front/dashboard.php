@@ -2,7 +2,9 @@
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
+require_once __DIR__ . '/php/server/csrf.php';
 
 if ($_SESSION["login"] != 1) {
   header('Location: ./index.php');
@@ -58,6 +60,7 @@ if (file_exists('../config/setting_piholebutton')) {
 ?>
 <html>
 <head>
+    <meta name="csrf-token" content="<?=h(pialert_csrf_token());?>">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="x-dns-prefetch-control" content="off">
@@ -175,7 +178,11 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
               </li>
               <li class="user-footer">
                 <div style="text-align: center;">
-                  <a href="./index.php?action=logout" id="custom-menu-logout-button" class="btn btn-danger" style="width:190px;"><i class="fa-solid fa-arrow-right-from-bracket custom-menu-button-icon"></i><div class="custom-menu-button-text"><?=$pia_lang['About_Exit'];?></div></a>
+                  <form method="post" action="./index.php" style="margin:0;">
+                    <input type="hidden" name="action" value="logout">
+                    <input type="hidden" name="_csrf" value="<?=h(pialert_csrf_token());?>">
+                    <button type="submit" id="custom-menu-logout-button" class="btn btn-danger" style="width:190px;"><i class="fa-solid fa-arrow-right-from-bracket custom-menu-button-icon"></i><span class="custom-menu-button-text"><?=$pia_lang['About_Exit'];?></span></button>
+                  </form>
                 </div>
               </li>
               <li class="user-footer">

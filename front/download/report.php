@@ -1,12 +1,13 @@
 <?php
-session_start();
+require_once __DIR__ . "/../php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../index.php');
 	exit;
 }
 
-if ($_REQUEST['report_source'] == "" || $_REQUEST['report_source'] != "archive") {
+if ($_GET['report_source'] == "" || $_GET['report_source'] != "archive") {
 	$directory = '../reports/';
 } else {
 	$directory = '../reports/archived/';
@@ -14,7 +15,7 @@ if ($_REQUEST['report_source'] == "" || $_REQUEST['report_source'] != "archive")
 
 require '../lib/fpdf/fpdf.php';
 $regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
-$filename = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_REQUEST['report']) . '.txt';
+$filename = str_replace(array('\'', '"', ',', ';', '<', '>', '.', '/', '&'), "", $_GET['report']) . '.txt';
 if (preg_match($regex, $filename) == True) {
 	$headtitle = explode("-", $filename);
 	$headeventtype = explode("_", $filename);

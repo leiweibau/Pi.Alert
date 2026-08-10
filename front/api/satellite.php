@@ -68,23 +68,43 @@ $http_response = '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <p>The requested URL was not found on this server.</p>
 </body></html>';
 
+$method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+$request = $method === 'POST' ? $_POST : $_GET;
+$mode = isset($request['mode']) && is_scalar($request['mode']) ? (string) $request['mode'] : '';
+if (($mode === 'direct' || $mode === 'proxy') && $method !== 'POST') {
+    header('Allow: POST');
+    http_response_code(405);
+    exit('Method Not Allowed');
+}
+if ($mode === 'get' && $method !== 'GET') {
+    header('Allow: GET');
+    http_response_code(405);
+    exit('Method Not Allowed');
+}
+if (!in_array($mode, ['direct', 'proxy', 'get'], true)) {
+    http_response_code(400);
+    exit('Unknown mode');
+}
+if ($method === 'POST') {
+    purge_old_results();
+}
 // Check whether mode or token is set, otherwise HTTP 404
-if ($_REQUEST['mode'] == "" || $_REQUEST['token'] == "") {
+if ($request['mode'] == "" || $request['token'] == "") {
 	header('HTTP/1.0 404 Not Found', true, 404);
 	echo $http_response;
 	die();
 }
 // Check if payload is set when usingg direct or proxy mode, otherwise HTTP 404
-if (($_REQUEST['mode'] == "direct" || $_REQUEST['mode'] == "proxy") && !isset($_FILES['encrypted_data'])) {
+if (($request['mode'] == "direct" || $request['mode'] == "proxy") && !isset($_FILES['encrypted_data'])) {
 	header('HTTP/1.0 404 Not Found', true, 404);
 	echo $http_response;
 	die();
 }
 
-$incomming_token = $_REQUEST['token'];
+$incomming_token = $request['token'];
 
 // Procedure for direct API call (Pi.Alert)
-if ($_REQUEST['mode'] == "direct") {
+if ($request['mode'] == "direct") {
 	// Query from the database
 	$satellite_list = get_all_satellites();
 	$satellite_tokens = array();
@@ -140,7 +160,7 @@ if ($_REQUEST['mode'] == "direct") {
 		json_response(3,"Invalid Satellite ID");		
 	}
 
-} elseif ($_REQUEST['mode'] == "proxy") {
+} elseif ($request['mode'] == "proxy") {
     // Procedure for Proxy Mode API call
     // Check if the config file is available, else Error via JSON
     if (!file_exists('config.php')) {
@@ -175,8 +195,7 @@ if ($_REQUEST['mode'] == "direct") {
 		// If the token is invalid
 		json_response(3,"Invalid Satellite ID");	
 	}
-} elseif ($_REQUEST['mode'] == "get") {
-	purge_old_results();
+} elseif ($request['mode'] == "get") {
 
 	$directory = '../satellites';
 	$sat_enc_result = $directory . '/encrypted_'. $incomming_token;

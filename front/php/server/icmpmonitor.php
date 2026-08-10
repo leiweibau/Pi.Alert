@@ -8,7 +8,9 @@
 //  leiweibau  2023        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -28,9 +30,14 @@ ini_set('max_execution_time', '60');
 // Open DB
 OpenDB();
 
+pialert_dispatch_action(
+    ['getDevicesList', 'getICMPHostTotals', 'getEventsTotalsforICMP'],
+    ['setICMPHostData', 'deleteICMPHost', 'insertNewICMPHost',
+     'EnableICMPMon', 'BulkDeletion']
+);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'setICMPHostData':setICMPHostData();
 		break;
@@ -74,7 +81,7 @@ function getICMPHostTotals() {
 function getDevicesList() {
 	global $db;
 
-	$condition = getDeviceCondition($_REQUEST['status']);
+	$condition = getDeviceCondition($GLOBALS["pialert_request"]['status']);
 	$sql = 'SELECT rowid, *, CASE
             WHEN icmp_AlertDown=1 AND icmp_PresentLastScan=0 THEN "Down"
             WHEN icmp_Scan_Validation_State=0 AND icmp_PresentLastScan=1 THEN "Online"
@@ -132,7 +139,7 @@ function setICMPHostData() {
 
 	$values = array();
 	foreach (array('icmp_hostname', 'icmp_type', 'icmp_group', 'icmp_location', 'icmp_owner', 'icmp_notes', 'icmp_vendor', 'icmp_model', 'icmp_serial', 'alertevents', 'alertdown', 'favorit', 'archived') as $key) {
-		$value = $_REQUEST[$key] ?? '';
+		$value = $GLOBALS["pialert_request"][$key] ?? '';
 		$values[$key] = is_scalar($value) ? (string)$value : '';
 	}
 	foreach (array('icmp_group', 'icmp_type', 'icmp_location') as $key) {
@@ -140,13 +147,13 @@ function setICMPHostData() {
 			$values[$key] = '';
 		}
 	}
-	$hostip = $_REQUEST['icmp_ip'] ?? '';
+	$hostip = $GLOBALS["pialert_request"]['icmp_ip'] ?? '';
 	if (!is_scalar($hostip) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
 		echo $pia_lang['BackICMP_mon_UpdICMPError'];
 		return;
 	}
-	$scanvalid = filter_var($_REQUEST['icmp_scanvalid'] ?? 0, FILTER_VALIDATE_INT);
-	$mqttdevice = filter_var($_REQUEST['mqttdevice'] ?? 0, FILTER_VALIDATE_INT) ? 1 : 0;
+	$scanvalid = filter_var($GLOBALS["pialert_request"]['icmp_scanvalid'] ?? 0, FILTER_VALIDATE_INT);
+	$mqttdevice = filter_var($GLOBALS["pialert_request"]['mqttdevice'] ?? 0, FILTER_VALIDATE_INT) ? 1 : 0;
 	$cleanup = $mqttdevice ? 0 : 1;
 	$sql = 'UPDATE ICMP_Mon SET icmp_hostname = :hostname, icmp_type = :type, icmp_group = :group_name, icmp_location = :location, icmp_owner = :owner, icmp_notes = :notes, icmp_Scan_Validation = :scanvalid, icmp_vendor = :vendor, icmp_model = :model, icmp_serial = :serial, icmp_MQTTDevice = :mqttdevice, icmp_MQTTDevice_cleanup = :cleanup, icmp_AlertEvents = :alertevents, icmp_AlertDown = :alertdown, icmp_Favorite = :favorite, icmp_Archived = :archived WHERE icmp_ip = :ip';
 	$result = db_execute_prepared($db, $sql, array(
@@ -169,7 +176,7 @@ function deleteICMPHost() {
 	global $db;
 	global $pia_lang;
 
-	$hostip = $_REQUEST['icmp_ip'] ?? '';
+	$hostip = $GLOBALS["pialert_request"]['icmp_ip'] ?? '';
 	if (!is_scalar($hostip) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
 		echo $pia_lang['BackICMP_mon_DelICMPError'];
 		return false;
@@ -194,14 +201,14 @@ function deleteICMPHost() {
 function insertNewICMPHost() {
 	global $db;
 	global $pia_lang;
-	$hostip = $_REQUEST['icmp_ip'] ?? '';
-	$hostname = $_REQUEST['icmp_hostname'] ?? $hostip;
+	$hostip = $GLOBALS["pialert_request"]['icmp_ip'] ?? '';
+	$hostname = $GLOBALS["pialert_request"]['icmp_hostname'] ?? $hostip;
 	if (!is_scalar($hostip) || !is_scalar($hostname) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
 		echo $pia_lang['BackICMP_mon_InsICMPError'];
 		return false;
 	}
 	$sql = 'INSERT INTO ICMP_Mon (icmp_ip, icmp_hostname, icmp_LastScan, icmp_PresentLastScan, icmp_avgrtt, icmp_AlertEvents, icmp_AlertDown, icmp_Favorite) VALUES (:ip, :hostname, :timestamp, 0, 99999, :alertevents, :alertdown, :favorite)';
-	$result = db_execute_prepared($db, $sql, array(':ip' => (string)$hostip, ':hostname' => (string)$hostname, ':timestamp' => date('Y-m-d H:i:s'), ':alertevents' => (string)($_REQUEST['alertevents'] ?? ''), ':alertdown' => (string)($_REQUEST['alertdown'] ?? ''), ':favorite' => (string)($_REQUEST['icmp_fav'] ?? '')));
+	$result = db_execute_prepared($db, $sql, array(':ip' => (string)$hostip, ':hostname' => (string)$hostname, ':timestamp' => date('Y-m-d H:i:s'), ':alertevents' => (string)($GLOBALS["pialert_request"]['alertevents'] ?? ''), ':alertdown' => (string)($GLOBALS["pialert_request"]['alertdown'] ?? ''), ':favorite' => (string)($GLOBALS["pialert_request"]['icmp_fav'] ?? '')));
 	if ($result == TRUE) {
 		pialert_logging('a_031', $_SERVER['REMOTE_ADDR'], 'LogStr_0001', '', $hostip);
 		echo $pia_lang['BackICMP_mon_InsICMP'];
@@ -236,7 +243,7 @@ function EnableICMPMon() {
 function getEventsTotalsforICMP() {
 	global $db;
 
-	$hostip = $_REQUEST['hostip'] ?? '';
+	$hostip = $GLOBALS["pialert_request"]['hostip'] ?? '';
 	if (!is_scalar($hostip) || (!filter_var($hostip, FILTER_VALIDATE_IP) && !filter_var($hostip, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
 		echo json_encode(array(0, 0));
 		return;
@@ -265,7 +272,7 @@ function getEventsTotalsforICMP() {
 function BulkDeletion() {
 	global $db;
 	global $pia_lang;
-	$hosts = $_REQUEST['hosts'] ?? array();
+	$hosts = $GLOBALS["pialert_request"]['hosts'] ?? array();
 	if (!is_array($hosts)) { $hosts = array(); }
 	$hosts = array_values(array_filter(array_map(function ($host) { return is_scalar($host) ? str_replace('_', '.', (string)$host) : ''; }, $hosts), function ($host) { return filter_var($host, FILTER_VALIDATE_IP) || filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME); }));
 	list($placeholders, $parameters) = db_in_placeholders('host', $hosts);
