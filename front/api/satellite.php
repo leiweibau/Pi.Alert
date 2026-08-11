@@ -38,26 +38,41 @@ function json_response($status_code, $api_message) {
 	$response = array("status" => "$status_code", "message" => "$api_message");
 	echo json_encode($response);
 }
-function purge_old_results() {
-	$directory = '../satellites';
-	$files = scandir($directory);
-	$currentTime = time();
-	$ageLimit = 590; // 9 minutes 50 seconds
 
-	foreach ($files as $file) {
-	    $filePath = $directory . '/' . $file;
-
-	    if ($file === 'readme' || $file === 'readme.txt') {
-	        continue;
-	    }
-
-	    if (is_file($filePath)) {
-	        $fileModificationTime = filemtime($filePath);
-	        if ($currentTime - $fileModificationTime > $ageLimit) {
-	            unlink($filePath);
-	        }
-	    }
+function purge_old_results($directory = null, $currentTime = null, $ageLimit = 590) {
+	$directory = $directory ?? (__DIR__ . '/../satellites');
+	$currentTime = $currentTime ?? time();
+	$files = is_dir($directory) ? scandir($directory) : false;
+	if ($files === false) {
+		return 0;
 	}
+
+	$deleted = 0;
+	foreach ($files as $file) {
+		if (strncmp($file, 'encrypted_', 10) !== 0) {
+			continue;
+		}
+
+		$filePath = $directory . DIRECTORY_SEPARATOR . $file;
+		if (!is_file($filePath) || is_link($filePath)) {
+			continue;
+		}
+
+		$fileModificationTime = filemtime($filePath);
+		if ($fileModificationTime !== false
+			&& $currentTime - $fileModificationTime > $ageLimit
+			&& unlink($filePath)) {
+			$deleted++;
+		}
+	}
+
+	return $deleted;
+}
+
+// Allows the cleanup regression test to load the production function without
+// executing the HTTP endpoint.
+if (defined('PIALERT_SATELLITE_FUNCTIONS_ONLY') && PIALERT_SATELLITE_FUNCTIONS_ONLY === true) {
+	return;
 }
 
 $http_response = '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
@@ -85,11 +100,8 @@ if (!in_array($mode, ['direct', 'proxy', 'get'], true)) {
     http_response_code(400);
     exit('Unknown mode');
 }
-if ($method === 'POST') {
-    purge_old_results();
-}
 // Check whether mode or token is set, otherwise HTTP 404
-if ($request['mode'] == "" || $request['token'] == "") {
+if ($mode === '' || !isset($request['token']) || !is_scalar($request['token']) || (string) $request['token'] === '') {
 	header('HTTP/1.0 404 Not Found', true, 404);
 	echo $http_response;
 	die();
@@ -101,7 +113,7 @@ if (($request['mode'] == "direct" || $request['mode'] == "proxy") && !isset($_FI
 	die();
 }
 
-$incomming_token = $request['token'];
+$incomming_token = (string) $request['token'];
 
 // Procedure for direct API call (Pi.Alert)
 if ($request['mode'] == "direct") {
@@ -196,8 +208,10 @@ if ($request['mode'] == "direct") {
 		json_response(3,"Invalid Satellite ID");	
 	}
 } elseif ($request['mode'] == "get") {
-
-	$directory = '../satellites';
+	// Keep the original proxy behaviour: remove expired transport results
+	// immediately before attempting to serve the requested result.
+	$directory = __DIR__ . '/../satellites';
+	purge_old_results($directory);
 	$sat_enc_result = $directory . '/encrypted_'. $incomming_token;
 
 	if (file_exists($sat_enc_result)) {
