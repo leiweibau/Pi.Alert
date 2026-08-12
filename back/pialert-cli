@@ -954,6 +954,34 @@ EOM
       \"reserve_c\" TEXT,
       \"reserve_d\" TEXT
     );"
+    # Tools_Nmap_Queue
+    echo -e "...Insert new table 'Tools_Nmap_Queue' to DB-Tools"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Nmap_Queue\" (
+      \"queue_id\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"device_mac\" TEXT NOT NULL COLLATE NOCASE,
+      \"target_ip\" TEXT NOT NULL,
+      \"scan_type\" TEXT NOT NULL DEFAULT 'detail',
+      \"source\" TEXT NOT NULL DEFAULT 'manual',
+      \"status\" TEXT NOT NULL DEFAULT 'queued',
+      \"requested_at\" TEXT NOT NULL,
+      \"started_at\" TEXT,
+      \"completed_at\" TEXT,
+      \"attempts\" INTEGER NOT NULL DEFAULT 0,
+      \"last_error\" TEXT,
+      \"result_id\" INTEGER,
+      UNIQUE (\"device_mac\", \"scan_type\")
+    );"
+    # Tools_Nmap_Schedule (prepared for a future opt-in scheduler; not active)
+    echo -e "...Insert new table 'Tools_Nmap_Schedule' to DB-Tools"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Nmap_Schedule\" (
+      \"schedule_id\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"device_mac\" TEXT NOT NULL COLLATE NOCASE UNIQUE,
+      \"scan_type\" TEXT NOT NULL DEFAULT 'detail',
+      \"interval_minutes\" INTEGER NOT NULL,
+      \"next_run_at\" TEXT,
+      \"enabled\" INTEGER NOT NULL DEFAULT 0,
+      \"last_queued_at\" TEXT
+    );"
     # Tools_Speedtest_History
     echo -e "...Insert new table 'Tools_Speedtest_History' to DB"
     sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Speedtest_History\" (

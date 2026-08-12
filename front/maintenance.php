@@ -261,6 +261,7 @@ if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <spa
             <button type="button" id="arzuozhrsfga" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-cleanup"><?=$pia_lang['MT_Tools_Logviewer_Cleanup'];?></button>
             <button type="button" id="erftttwrdwqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices"><?=$pia_lang['MT_Tools_Logviewer_WebServices']?></button>
             <button type="button" id="trivziitsubd" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-speedtest">Speedtest (Cron)</button>
+            <button type="button" id="nmapQueueLog" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-nmap"><?=$pia_lang['MT_Tools_Logviewer_Nmap'];?></button>
             <?php $state = convert_state($_SESSION['PRINT_LOG'], 0);?>
             <button type="button" id="btnextLogging" class="btn btn-danger main_logviwer_button_m" onclick="askToggleExtLogging(<?=$_SESSION['PRINT_LOG'];?>)"><?=$pia_lang['MT_Tools_Logviewer_ext_a']?> (<?=$state;?>)</button>
       	</div>
@@ -287,6 +288,9 @@ if ($_SESSION['Scan_WebServices'] == True) {
 }
 // Speedtest
 print_logviewer_modal_head('speedtest', 'pialert.speedtest.log');
+print_logviewer_modal_foot();
+// Detailed Nmap queue
+print_logviewer_modal_head('nmap', 'pialert.nmap.log');
 print_logviewer_modal_foot();
 // Inactive Hosts
 print_logviewer_modal_head('inactivehosts', 'Inactive Hosts');
@@ -942,7 +946,7 @@ function GetAutoBackupStatus() {
 }
 function GetModalLogContent() {
   $.getJSON('php/server/files.php?action=GetLogfiles', function(logcollection) {
-    const targets = ['scan', 'iplog', 'vendor', 'cleanup', 'webservices', 'speedtest'];
+    const targets = ['scan', 'iplog', 'vendor', 'cleanup', 'webservices', 'speedtest', 'nmap'];
 
     targets.forEach(function(target, index) {
       $('#modal_' + target + '_content')
@@ -1091,4 +1095,3 @@ function GetConfigFile() {
 }
 
 </script>
-

@@ -606,16 +606,28 @@ if ($_GET['mac'] != 'Internet') {
 }
 ?>
                 <h4 class="">Nmap Scans</h4>
-                <div style="width:100%; text-align: center;">
+                <div class="manualnmap-actions">
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'normal')">Loading...</button>
+                  <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'detail')" disabled><?=$pia_lang['DevDetail_Tools_nmap_buttonPending'];?></button>
                 </div>
 
                 <div id="scanoutput" style="margin-top: 30px;">
 
                 </div>
                   <script>
+                  const nmapDetailLabel = <?=json_encode($pia_lang['DevDetail_Tools_nmap_buttonDetail'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  const nmapDetailPendingLabel = <?=json_encode($pia_lang['DevDetail_Tools_nmap_buttonPending'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  const nmapDetailQueuedMessage = <?=json_encode($pia_lang['DevDetail_Tools_nmap_queueAdded'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  const nmapDetailQueueError = <?=json_encode($pia_lang['DevDetail_Tools_nmap_queueError'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  let nmapDetailPollTimer = null;
+                  let nmapDetailWasPending = false;
+
                   function manualnmapscan(targetip, mode) {
+                    if (mode === 'detail') {
+                      queueDetailedNmapScan(targetip);
+                      return;
+                    }
                     $( "#scanoutput" ).empty();
                     $.ajax({
                       method: "POST",
@@ -628,6 +640,87 @@ if ($_GET['mac'] != 'Internet') {
                           $("#scanoutput").html(data);
                       }
                     })
+                  }
+
+                  function setDetailedNmapPending(pending) {
+                    const $button = $('#manualnmap_detail');
+                    if (!$button.length) return;
+                    const lastIP = String($('#txtLastIP').val() || '');
+                    $button.prop('disabled', pending);
+                    $button.text(pending ? nmapDetailPendingLabel : nmapDetailLabel + (lastIP ? ' (' + lastIP + ')' : ''));
+                  }
+
+                  function stopDetailedNmapPolling() {
+                    if (nmapDetailPollTimer !== null) {
+                      window.clearTimeout(nmapDetailPollTimer);
+                      nmapDetailPollTimer = null;
+                    }
+                  }
+
+                  function scheduleDetailedNmapStatusCheck() {
+                    stopDetailedNmapPolling();
+                    nmapDetailPollTimer = window.setTimeout(function() {
+                      checkDetailedNmapQueueStatus(true);
+                    }, 5000);
+                  }
+
+                  function checkDetailedNmapQueueStatus(keepPolling) {
+                    const mac = String($('#txtMAC').val() || '').trim();
+                    if (!mac || mac === '--') return;
+                    $.ajax({
+                      method: 'POST',
+                      url: './php/server/nmap_scan.php',
+                      dataType: 'json',
+                      data: { mode: 'detail_status', mac: mac },
+                      success: function(data) {
+                        const pending = data && data.pending === true;
+                        setDetailedNmapPending(pending);
+                        if (pending) {
+                          nmapDetailWasPending = true;
+                          if (keepPolling !== false) scheduleDetailedNmapStatusCheck();
+                        } else {
+                          stopDetailedNmapPolling();
+                          if (nmapDetailWasPending) {
+                            nmapDetailWasPending = false;
+                            const lastIP = String($('#txtLastIP').val() || '');
+                            if (lastIP) showmanualnmapscan(lastIP);
+                          }
+                        }
+                      },
+                      error: function() {
+                        setDetailedNmapPending(true);
+                        if (keepPolling !== false) scheduleDetailedNmapStatusCheck();
+                      }
+                    });
+                  }
+
+                  function queueDetailedNmapScan(targetip) {
+                    const mac = String($('#txtMAC').val() || '').trim();
+                    const $button = $('#manualnmap_detail');
+                    $button.prop('disabled', true);
+                    $.ajax({
+                      method: 'POST',
+                      url: './php/server/nmap_scan.php',
+                      dataType: 'json',
+                      data: { scan: targetip, mac: mac, mode: 'detail' },
+                      success: function(data) {
+                        if (data && data.pending === true) {
+                          nmapDetailWasPending = true;
+                          setDetailedNmapPending(true);
+                          $('#scanoutput').text(nmapDetailQueuedMessage);
+                          scheduleDetailedNmapStatusCheck();
+                          return;
+                        }
+                        setDetailedNmapPending(true);
+                        $('#scanoutput').text(nmapDetailQueueError);
+                        scheduleDetailedNmapStatusCheck();
+                      },
+                      error: function() {
+                        setDetailedNmapPending(true);
+                        $('#scanoutput').text(nmapDetailQueueError);
+                        scheduleDetailedNmapStatusCheck();
+                      }
+                    });
                   }
                   </script>
               </div>
@@ -987,7 +1080,11 @@ function initializeCombos () {
 }
 
 function initializeCombo (HTMLelement, queryAction, txtDataField) {
-  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+  $.ajax({
+    url: 'php/server/devices.php?action=' + encodeURIComponent(queryAction),
+    method: 'GET',
+    cache: false,
+    success: function(data) {
     const listData = JSON.parse(data);
     let order = 1;
 
@@ -1020,6 +1117,7 @@ function initializeCombo (HTMLelement, queryAction, txtDataField) {
       listItem.appendChild(link);
       HTMLelement.appendChild(listItem);
     });
+    }
   });
 }
 
@@ -1448,7 +1546,12 @@ function getDeviceData (readAllData=false) {
                                                       $('#iconRandomMACinactive').addClass     ('hidden'); }
         else                                         {$('#iconRandomMACactive').addClass       ('hidden');
                                                       $('#iconRandomMACinactive').removeClass  ('hidden'); };
-        if (deviceData['dev_ScanSource'] !== 'local') {$('#DetailsNavTab_tools').addClass       ('hidden'); }
+        const toolsUnavailable = deviceData['dev_ScanSource'] !== 'local';
+        $('#DetailsNavTab_tools').toggleClass('hidden', toolsUnavailable);
+        if (toolsUnavailable && ($('#DetailsNavTab_tools').hasClass('active') || $('#panNmap').hasClass('active'))) {
+          tab = 'tabDetails';
+          $('#tabDetails').tab('show');
+        }
         if (deviceData['dev_MAC'] === 'Internet')     {$('#DetailsNavTab_internet').removeClass ('hidden'); }
         else                                         {$('#DetailsNavTab_internet').addClass    ('hidden'); };
 
@@ -1583,6 +1686,10 @@ function setDeviceData (refreshCallback='') {
     // deactivate button
     deactivateSaveRestoreData();
     showMessage (msg);
+
+    // Custom values saved for this device must immediately become available
+    // in the dropdowns when navigating to another device without a page load.
+    initializeCombos();
 
     // Callback fuction
     if (typeof refreshCallback == 'function') {
@@ -1854,20 +1961,31 @@ function initToolsSection() {
         // Elemente auswählen
         const $manualFast   = $('#manualnmap_fast');
         const $manualNormal = $('#manualnmap_normal');
+        const $manualDetail = $('#manualnmap_detail');
         const $btnWake      = $('#btnwakeonlan');
 
         // Inhalte nur setzen, wenn Element existiert
         if ($manualFast.length)   $manualFast.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonFast']?> (' + lastIP + ')');
         if ($manualNormal.length) $manualNormal.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault']?> (' + lastIP + ')');
+        if ($manualDetail.length) setDetailedNmapPending(true);
         if ($btnWake.length)      $btnWake.text('<?=$pia_lang['DevDetail_Tools_WOL']?> ' + lastIP);
 
         // Funktion nur aufrufen, wenn lastIP existiert
         if (lastIP) {
             showmanualnmapscan(lastIP);
         }
+        checkDetailedNmapQueueStatus(true);
 
     }, 1000);
 }
+
+$(document).on('shown.bs.tab.nmapQueue', 'a[data-toggle="tab"]', function(event) {
+  if (event.target && event.target.id === 'tabNmap') {
+    checkDetailedNmapQueueStatus(true);
+  } else {
+    stopDetailedNmapPolling();
+  }
+});
 
 function generateMACDropdownList() {
   const macInput = document.getElementById('txtMAC');

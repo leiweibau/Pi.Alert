@@ -713,7 +713,7 @@ function getDevicesTotals() {
 
 //  Query the List of devices in a determined Status
 function getDevicesList() {
-	global $db;
+	global $db, $db_tools;
 
 	$status = isset($GLOBALS["pialert_request"]['status']) && is_scalar($GLOBALS["pialert_request"]['status']) ? (string) $GLOBALS["pialert_request"]['status'] : 'all';
 	$scanSource = isset($GLOBALS["pialert_request"]['scansource']) && is_scalar($GLOBALS["pialert_request"]['scansource']) && $GLOBALS["pialert_request"]['scansource'] !== '' ? (string) $GLOBALS["pialert_request"]['scansource'] : 'local';
@@ -725,14 +725,26 @@ function getDevicesList() {
 		WHEN dev_Scan_Validation > 0 AND dev_Scan_Validation_State > 0 AND dev_Scan_Validation_State <= dev_Scan_Validation AND dev_PresentLastScan=1 THEN "OnlineV"
 		WHEN dev_PresentLastScan=1 THEN "On-line" ELSE "Off-line" END AS dev_Status
 		FROM Devices ' . $condition;
+	$queuedDeviceMacs = array();
+	$queueTableExists = $db_tools->querySingle(
+		"SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'Tools_Nmap_Queue'"
+	);
+	if ((int) $queueTableExists > 0) {
+		$queueResult = $db_tools->query('SELECT DISTINCT device_mac FROM Tools_Nmap_Queue');
+		while ($queueResult && ($queueRow = $queueResult->fetchArray(SQLITE3_ASSOC))) {
+			$queuedDeviceMacs[strtolower(trim((string) $queueRow['device_mac']))] = true;
+		}
+	}
 	$result = db_execute_prepared($db, $sql, $parameters);
 	$tableData = array();
 	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+		$isNmapQueued = isset($queuedDeviceMacs[strtolower(trim((string) $row['dev_MAC']))]);
 		$tableData['data'][] = array($row['dev_Name'], $row['dev_ConnectionType'], $row['dev_Owner'],
 			$row['dev_DeviceType'], $row['dev_Favorite'], $row['dev_Group'], $row['dev_Location'],
 			formatDate($row['dev_FirstConnection']), formatDate($row['dev_LastConnection']), $row['dev_LastIP'],
 			(in_array($row['dev_MAC'][1], array('2', '6', 'A', 'E', 'a', 'e')) ? 1 : 0), $row['dev_MAC'],
-			$row['dev_Vendor'], $row['dev_Status'], formatIPlong($row['dev_LastIP']), $row['dev_ScanSource'], $row['rowid']);
+			$row['dev_Vendor'], $row['dev_Status'], formatIPlong($row['dev_LastIP']), $row['dev_ScanSource'], $row['rowid'],
+			null, $isNmapQueued);
 	}
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';

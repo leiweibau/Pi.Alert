@@ -831,6 +831,11 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 }
 ?>
 <!-- datatable ------------------------------------------------------------- -->
+	  <style>
+	    #tableDevices td.nmap-queued-ip {
+	      color: <?=$ENABLED_DARKMODE === True ? '#66b3ff' : '#0066b3';?> !important;
+	    }
+	  </style>
       <div class="row">
         <div class="col-xs-12">
           <div id="tableDevicesBox" class="box">
@@ -986,6 +991,7 @@ if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide .= '17, ';}
                   <th>ScanSource</th>
                   <th><?=$pia_lang['Device_TableHead_Rowid'];?></th>
                   <th><?=$pia_lang['Device_TableHead_WakeOnLAN'];?></th>
+				  <th>NmapQueue</th>
                 </tr>
                 </thead>
               </table>
@@ -1075,7 +1081,7 @@ function initializeDatatable () {
 
     'columnDefs'   : [
       {targets: '_all', render: $.fn.dataTable.render.text()},
-      {visible:   false,         targets: [<?=$devlistcol_hide;?>14, 15, 16] },
+	  {visible:   false,         targets: [<?=$devlistcol_hide;?>14, 15, 16, 18] },
       {className: 'text-center', targets: [4, 9, 10, 11, 13, 17] },
       {width:     '100px',       targets: [7, 8] },
       {width:     '30px',        targets: [10] },
@@ -1133,6 +1139,13 @@ function initializeDatatable () {
         'createdCell': function (td, cellData, rowData, row, col) {
           setCellText(td, cellData);
       } },
+	  // Highlight IPs whose device currently has a detailed Nmap queue entry.
+	  {targets: [9],
+	    'createdCell': function (td, cellData, rowData) {
+	      const isNmapQueued = rowData[18] === true || rowData[18] === 1;
+	      setCellText(td, isNmapQueued ? '* ' + String(cellData ?? '') + ' *' : cellData);
+	      $(td).toggleClass('nmap-queued-ip', isNmapQueued);
+	  } },
       // Random MAC
       {targets: [10],
         'createdCell': function (td, cellData, rowData, row, col) {
@@ -1172,7 +1185,7 @@ function initializeDatatable () {
           td.replaceChildren(statusLink);
       } },
       // WakeonLAN
-      {targets: -1, // last column
+	  {targets: 17,
          data: null,
          orderable: false,
          createdCell: function (td, cellData, rowData) {

@@ -13,7 +13,7 @@ if ($_SESSION["login"] != 1) {
 
 require __DIR__ . '/php/templates/header.php';
 
-$cronFile = __DIR__ . '/php/server/usercron.log';
+$cronFile = __DIR__ . '/../log/usercron.log';
 if (is_readable($cronFile)) {
     $prevVal = file_get_contents($cronFile);
 } else {

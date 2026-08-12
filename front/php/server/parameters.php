@@ -241,7 +241,7 @@ function setReportParameter() {
         $old_data = $row['par_Long_Value'];
     } else {$old_data = "";}
 
-	$defaults = array("#30bbbb", "#D81B60", "#00c0ef", "#831CFF", "#00a65a");
+	$defaults = array("#30bbbb", "#D81B60", "#00c0ef", "#831CFF", "#00a65a", "#cc6600");
 	$submittedColors = $_POST['HeadLineColors'] ?? array();
 	if (!is_array($submittedColors)) {
 		$submittedColors = array();

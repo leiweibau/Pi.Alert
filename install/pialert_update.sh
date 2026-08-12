@@ -498,17 +498,14 @@ update_permissions() {
   sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"                2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/back/speedtest/"                      2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"                 2>&1 >> "$LOG"
-  print_msg "- Create Logfile Symlinks..."
-  sudo touch "$PIALERT_HOME/log/pialert.vendors.log"                     2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.1.log"                           2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.cleanup.log"                     2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.webservices.log"                 2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.speedtest.log"                   2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/usercron.log"                            2>&1 >> "$LOG"
-  src_dir="$INSTALL_DIR/pialert/log"
+  print_msg "- Create Logfiles..."
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
-  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log usercron.log; do
-      sudo ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
+  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log pialert.nmap.log usercron.log; do
+      sudo touch "$PIALERT_HOME/log/$file"                               2>&1 >> "$LOG"
+      sudo chmod 644 "$PIALERT_HOME/log/$file"                           2>&1 >> "$LOG"
+      if [ -L "$dest_dir/$file" ]; then
+          sudo rm -- "$dest_dir/$file"                                   2>&1 >> "$LOG"
+      fi
   done
   print_msg "- Set sudoers..."
 

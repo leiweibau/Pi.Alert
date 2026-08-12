@@ -37,6 +37,7 @@ import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib,
 PIALERT_BACK_PATH = os.path.dirname(os.path.abspath(__file__))
 PIALERT_PATH = PIALERT_BACK_PATH + "/.."
 PIALERT_WEBSERVICES_LOG = PIALERT_PATH + "/log/pialert.webservices.log"
+PIALERT_NMAP_LOG = PIALERT_PATH + "/log/pialert.nmap.log"
 STOPPIALERT = PIALERT_PATH + "/config/setting_stoppialert"
 PIALERT_DB_FILE = PIALERT_PATH + "/db/pialert.db"
 PIALERT_DBTOOLS_FILE = PIALERT_PATH + "/db/pialert_tools.db"
@@ -430,6 +431,10 @@ def write_cycle_logs_to_tables(log_dir=PIALERT_PATH + "/log"):
 #===============================================================================
 def check_internet_IP():
 
+    # Process queued detailed Nmap scans independently of OFFLINE_MODE. The
+    # worker owns its own non-blocking lock, so repeated cron starts are safe.
+    run_nmap_queue_task()
+
     if not OFFLINE_MODE :
         print('\nRetrieving Internet IP...')
         internet_IP = get_internet_IP()
@@ -762,6 +767,30 @@ def run_speedtest_task(start_time, crontab_string):
 
     else:
         print("    Speedtest function was NOT executed.")
+    return 0
+
+#-------------------------------------------------------------------------------
+def run_nmap_queue_task():
+    command = [sys.executable, "-u", PIALERT_BACK_PATH + "/pialert_tools.py", "nmap_scan"]
+    try:
+        with open(PIALERT_NMAP_LOG, "a", encoding="utf-8") as log_file:
+            log_file.write("\n{} Queue worker trigger\n".format(
+                datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            log_file.flush()
+            process = subprocess.Popen(
+                command,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+                close_fds=True
+            )
+        if PRINT_LOG:
+            print("    Nmap queue worker triggered (PID {}, log: {})".format(
+                process.pid, PIALERT_NMAP_LOG))
+        else:
+            print("    Nmap queue worker triggered")
+    except OSError as error:
+        print("    Unable to start Nmap queue worker: {}".format(error))
+        return 1
     return 0
 
 #-------------------------------------------------------------------------------

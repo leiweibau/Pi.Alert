@@ -24,7 +24,7 @@ try:
 except ImportError:
   from urllib.parse import urlparse
 from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, validate_loaded_config
-import sys, subprocess, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob
+import sys, subprocess, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob, sqlite3, html
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -34,6 +34,7 @@ PIALERT_PATH = f"{PIALERT_BACK_PATH}/.."
 PIALERT_WEBSERVICES_LOG = f"{PIALERT_PATH}/log/pialert.webservices.log"
 STOPPIALERT = f"{PIALERT_PATH}/config/setting_stoppialert"
 PIALERT_DB_FILE = f"{PIALERT_PATH}/db/pialert.db"
+PIALERT_DBTOOLS_FILE = f"{PIALERT_PATH}/db/pialert_tools.db"
 REPORTPATH_WEBGUI = f"{PIALERT_PATH}/front/reports/"
 
 if (sys.version_info > (3,0)):
@@ -134,10 +135,14 @@ def main():
     startTime = startTime.replace (second=0, microsecond=0)
 
     # Check parameters
-    if len(sys.argv) != 2 :
-        print ('usage pialert reporting_test' )
+    if len(sys.argv) < 2 :
+        print ('usage pialert_reporting_test.py reporting_test | nmap_scan_complete <queue-id>' )
         return
     cycle = str(sys.argv[1])
+
+    if cycle != 'nmap_scan_complete' and len(sys.argv) != 2:
+        print('Unsupported reporting arguments.', file=sys.stderr)
+        return 1
 
     ## Main Commands
     if cycle == 'reporting_test':
@@ -148,8 +153,15 @@ def main():
         res = sending_notifications_test('noti_Timerstart')
     elif cycle == 'reporting_stoptimer':
         res = sending_notifications_test('noti_Timerstop')
+    elif cycle == 'nmap_scan_complete' and len(sys.argv) == 3 and sys.argv[2].isdigit():
+        notification = load_nmap_scan_notification(int(sys.argv[2]))
+        if notification is None:
+            print('Nmap queue entry not found.', file=sys.stderr)
+            return 1
+        res = sending_notifications_test('Nmap', notification)
     else:
-        res = 0
+        print('Unsupported reporting mode or arguments.', file=sys.stderr)
+        return 1
 
     # Final menssage
     print ('\nDONE!!!\n\n')
@@ -169,7 +181,75 @@ def set_reports_file_permissions():
 #===============================================================================
 # Sending Notifications
 #===============================================================================
-def sending_notifications_test(_Mode):
+def format_nmap_notification_timestamp(value):
+    if value is None or str(value).strip() == '':
+        return '-'
+    return re.sub(r'(\d{2}:\d{2}:\d{2})\.\d+', r'\1', str(value).strip())
+
+
+def load_nmap_scan_notification(queue_id):
+    tools_connection = sqlite3.connect(PIALERT_DBTOOLS_FILE, timeout=5)
+    tools_connection.row_factory = sqlite3.Row
+    try:
+        row = tools_connection.execute(
+            """SELECT q.queue_id, q.device_mac, q.target_ip, q.status,
+                      q.started_at, q.completed_at, q.last_error,
+                      r.scan_result, r.reserve_a
+               FROM Tools_Nmap_Queue q
+               LEFT JOIN Tools_Nmap_ManScan r ON r.ID = q.result_id
+               WHERE q.queue_id = ? LIMIT 1""",
+            (queue_id,)
+        ).fetchone()
+    finally:
+        tools_connection.close()
+    if row is None:
+        return None
+
+    device_name = ''
+    main_connection = sqlite3.connect(PIALERT_DB_FILE, timeout=5)
+    try:
+        device = main_connection.execute(
+            'SELECT dev_Name FROM Devices WHERE dev_MAC = ? COLLATE NOCASE LIMIT 1',
+            (row['device_mac'],)
+        ).fetchone()
+        if device is not None and device[0] is not None:
+            device_name = str(device[0]).strip()
+    finally:
+        main_connection.close()
+
+    tcp_count = 0
+    udp_count = 0
+    for line in str(row['scan_result'] or '').splitlines():
+        fields = line.split('###', 3)
+        if len(fields) < 2:
+            continue
+        if fields[1] == 'tcp':
+            tcp_count += 1
+        elif fields[1] == 'udp':
+            udp_count += 1
+
+    success = row['status'] == 'completed'
+    lines = [
+        'Detailed Nmap scan completed.' if success else 'Detailed Nmap scan failed.',
+        '',
+        'Name: {}'.format(device_name or row['device_mac']),
+        '\tMAC: {}'.format(row['device_mac']),
+        '\tIP: {}'.format(row['target_ip']),
+        '\tStarted: {}'.format(format_nmap_notification_timestamp(row['started_at'])),
+        '\tCompleted: {}'.format(format_nmap_notification_timestamp(row['completed_at'])),
+    ]
+    if success:
+        lines.extend([
+            '\tDuration: {} seconds'.format(row['reserve_a'] if row['reserve_a'] is not None else '-'),
+            '\tTCP findings: {}'.format(tcp_count),
+            '\tUDP findings: {}'.format(udp_count),
+        ])
+    else:
+        lines.append('\tError: {}'.format(str(row['last_error'] or 'Unknown error')[:500]))
+    return '\n'.join(lines)
+
+
+def sending_notifications_test(_Mode, custom_message=None):
     if _Mode == 'Test' :
         notiMessage = "Test-Notification"
     elif _Mode == 'Update' :
@@ -178,11 +258,15 @@ def sending_notifications_test(_Mode):
         notiMessage = "Pi.Alert is paused"
     elif _Mode == 'noti_Timerstop' :
         notiMessage = "Pi.Alert reactivated"
+    elif _Mode == 'Nmap' and custom_message is not None:
+        notiMessage = custom_message
+    else:
+        return 1
 
     print ('\nTest Reporting...')
     if REPORT_MAIL or REPORT_MAIL_WEBMON:
         print ('    Sending report by email...')
-        send_email (notiMessage, notiMessage)
+        send_email(notiMessage, html.escape(notiMessage).replace('\n', '<br>'))
     else :
         print ('    Skip mail...')
     if REPORT_PUSHSAFER or REPORT_PUSHSAFER_WEBMON:
@@ -212,7 +296,7 @@ def sending_notifications_test(_Mode):
         print ('    Skip Discord...')  
     if REPORT_WEBGUI or REPORT_WEBGUI_WEBMON:
         print ('    Save report to file...')
-        send_webgui_test (notiMessage)
+        send_webgui_test(notiMessage, 'Nmap' if _Mode == 'Nmap' else 'Test')
     else :
         print ('    Skip WebGUI...')         
     return 0
@@ -316,13 +400,18 @@ def send_discord_test (_notiMessage):
 #-------------------------------------------------------------------------------
 def send_telegram_test(_notiMessage):
   runningpath = os.path.abspath(os.path.dirname(__file__))
-  stream = os.popen(
-      f'{runningpath}/shoutrrr/{SHOUTRRR_BINARY}/shoutrrr send --url "{TELEGRAM_BOT_TOKEN_URL}" --message "{_notiMessage}" --title "Pi.Alert"'
+  subprocess.run(
+      [f'{runningpath}/shoutrrr/{SHOUTRRR_BINARY}/shoutrrr', 'send',
+       '--url', TELEGRAM_BOT_TOKEN_URL, '--message', _notiMessage,
+       '--title', 'Pi.Alert'],
+      stdout=subprocess.DEVNULL,
+      stderr=subprocess.DEVNULL,
+      check=False
   )
 
 #-------------------------------------------------------------------------------
-def send_webgui_test(_notiMessage):
-  _webgui_filename = time.strftime("%Y%m%d-%H%M%S") + "_Test.txt"
+def send_webgui_test(_notiMessage, filename_tag='Test'):
+  _webgui_filename = time.strftime("%Y%m%d-%H%M%S") + "_" + filename_tag + ".txt"
   if (os.path.exists(REPORTPATH_WEBGUI + _webgui_filename) == False):
     with open(REPORTPATH_WEBGUI + _webgui_filename, "w") as f:
       f.write(_notiMessage)

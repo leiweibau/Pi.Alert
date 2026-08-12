@@ -494,14 +494,24 @@ function GetServerTime() {
 function GetLogfiles() {
 	global $pia_lang;
 
-	$logfiles = array('pialert.1.log', 'pialert.IP.log', 'pialert.vendors.log', 'pialert.cleanup.log', 'pialert.webservices.log', 'pialert.speedtest.log');
+	$logDirectory = dirname(__DIR__, 3) . '/log';
+	$logfiles = array(
+		$logDirectory . '/pialert.1.log',
+		$logDirectory . '/pialert.IP.log',
+		$logDirectory . '/pialert.vendors.log',
+		$logDirectory . '/pialert.cleanup.log',
+		$logDirectory . '/pialert.webservices.log',
+		$logDirectory . '/pialert.speedtest.log',
+		$logDirectory . '/pialert.nmap.log'
+	);
 	$logmessages = array(
 		$pia_lang['MT_Tools_Logviewer_Scan_empty'],
 		$pia_lang['MT_Tools_Logviewer_IPLog_empty'],
 		'',
 		$pia_lang['MT_Tools_Logviewer_Cleanup_empty'],
 		$pia_lang['MT_Tools_Logviewer_WebServices_empty'],
-		''
+		'',
+		$pia_lang['MT_Tools_Logviewer_Nmap_empty']
 	);
 
 	$logs = array();

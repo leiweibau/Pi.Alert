@@ -90,7 +90,7 @@ function get_Report_Headline_Colors() {
 
   $result = $db->query("SELECT par_Long_Value FROM Parameters WHERE par_ID = 'report_headline_colors'");
   $row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
-  $defaults = array("#30bbbb", "#d81b60", "#00c0ef", "#831cff", "#00a65a");
+  $defaults = array("#30bbbb", "#d81b60", "#00c0ef", "#831cff", "#00a65a", "#cc6600");
   $Headline_Colors = $row ? explode(',', (string) $row['par_Long_Value']) : $defaults;
   foreach ($defaults as $index => $fallback) {
       $candidate = $Headline_Colors[$index] ?? '';
@@ -153,6 +153,11 @@ function get_notification_class($filename) {
 	}
 	if ($temp_class[0] == "Test") {
 		$temp_class[1] = 'test';
+		$temp_class[2] = substr($headtitle[0], 6, 2) . '.' . substr($headtitle[0], 4, 2) . '.' . substr($headtitle[0], 2, 2) . '/' . substr($headtitle[1], 0, 2) . ':' . substr($headtitle[1], 2, 2);
+		return $temp_class;
+	}
+	if ($temp_class[0] == "Nmap") {
+		$temp_class[1] = 'nmap';
 		$temp_class[2] = substr($headtitle[0], 6, 2) . '.' . substr($headtitle[0], 4, 2) . '.' . substr($headtitle[0], 2, 2) . '/' . substr($headtitle[1], 0, 2) . ':' . substr($headtitle[1], 2, 2);
 		return $temp_class;
 	}
@@ -382,6 +387,9 @@ foreach ($scanned_directory as $file) {
 		case 'test':
 			$report = process_test_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[4]);
 			break;
+		case 'nmap':
+			$report = process_standard_notifications($notification_class[0], $notification_class[2], $file, $directory, $headline_colors[5], 'fa-search');
+			break;
 		case 'rogueDHCP':
 			$special_notification[] = process_rogueDHCP_notifications($notification_class[0], $notification_class[2], $file, $directory);
 			continue 2;
@@ -414,7 +422,7 @@ foreach ($scanned_directory as $file) {
           <h4>Report Type</h4>
           <div id="Container">
 <?php
-$reportColorLabels = array('Internet', 'Devices', 'WebServices', 'ICMP Monitoring', 'Test / System');
+$reportColorLabels = array('Internet', 'Devices', 'WebServices', 'ICMP Monitoring', 'Test / System', 'Nmap');
 foreach ($reportColorLabels as $index => $label) {
 	echo '<div style="margin-bottom:5px"><label style="width:140px">' . h($label) . '</label>'
 		. '<input type="text" name="HeadLineColors[]" class="report_custom_colors_input" placeholder="Headline Color" value="'
