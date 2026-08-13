@@ -35,7 +35,11 @@ function pialert_session_cookie_options(int $expires = 0): array {
         'path' => pialert_cookie_path(),
         'secure' => pialert_request_is_https(),
         'httponly' => true,
-        'samesite' => 'Strict',
+        // Lax is required for a session restored through the remember-me flow
+        // after the user follows a link from another site. With Strict, the
+        // complete redirect chain can remain cross-site in Firefox, causing
+        // protected page -> login -> protected page redirect loops.
+        'samesite' => 'Lax',
     );
 }
 

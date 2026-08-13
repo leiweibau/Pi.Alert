@@ -239,6 +239,7 @@ if ($ENABLED_THEMEMODE === True) {echo $theme_selected_head;}
                 <option value="pialert.vendors.log"><?=$pia_lang['MT_Tools_Logviewer_Vendor'];?></option>
                 <option value="pialert.webservices.log"><?=$pia_lang['MT_Tools_Logviewer_WebServices']?></option>
                 <option value="pialert.speedtest.log">Speedtest (Cron)</option>
+                <option value="pialert.nmap.log"><?=$pia_lang['MT_Tools_Logviewer_Nmap']?></option>
               </select>
             </div>
             <div class="form-group" style="margin-top: 10px;">

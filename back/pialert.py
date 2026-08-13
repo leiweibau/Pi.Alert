@@ -26,8 +26,9 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, validate_loaded_config
+from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, load_version_config, validate_loaded_config
 from service_url_policy import ServiceUrlError, fetch_service_url, get_service_certificate
+from telegram_notification import send_telegram_message
 from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion, MQTT_ERR_SUCCESS
 import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading, http.client
 
@@ -50,8 +51,8 @@ PIHOLE6_SES_VALID = ""
 PIHOLE6_SES_SID = ""
 PIHOLE6_SES_CSRF = ""
 
-exec(open(PIALERT_PATH + "/config/version.conf").read())
 try:
+    globals().update(load_version_config(PIALERT_PATH + "/config/version.conf"))
     globals().update(load_pialert_config(
         PIALERT_PATH + "/config/pialert.conf", PIALERT_PATH, validate=False))
 except ConfigValidationError as exc:
@@ -88,7 +89,8 @@ def recover_sensitive_config_values(config_file, secret_keys):
         return isinstance(value, str) and any(ord(char) < 32 for char in value)
 
     try:
-        lines = open(config_file, encoding='utf-8').read().splitlines()
+        with open(config_file, encoding='utf-8') as config_handle:
+            lines = config_handle.read().splitlines()
     except OSError:
         return
 
@@ -6385,9 +6387,15 @@ def send_telegram (_Text):
     _telegram_Text = _Text.replace('\n\n\n', '\n\n')
     # extract event type headline to use it in the notification headline
     findsubheadline = _telegram_Text.split('\n')
-    subheadline = findsubheadline[3]
-    runningpath = os.path.abspath(os.path.dirname(__file__))
-    stream = os.popen(runningpath+'/shoutrrr/'+SHOUTRRR_BINARY+'/shoutrrr send --url "'+TELEGRAM_BOT_TOKEN_URL+'" --message "'+_telegram_Text+'" --title "Pi.Alert - '+subheadline+'"')
+    subheadline = findsubheadline[3].strip() if len(findsubheadline) > 3 else 'Alert'
+    title = 'Pi.Alert - {}'.format(subheadline or 'Alert')
+    return send_telegram_message(
+        TELEGRAM_BOT_TOKEN,
+        TELEGRAM_CHAT_IDS,
+        _telegram_Text,
+        title=title,
+        legacy_url=TELEGRAM_BOT_TOKEN_URL,
+    )
 
 #-------------------------------------------------------------------------------
 def send_discord (_Text):

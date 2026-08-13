@@ -145,20 +145,15 @@ I would like to give a short explanation to the individual points.
 :exclamation: If you want to use a token instead of username and password, leave the username blank and use the token as the password.
 
 
-#### :eight_spoked_asterisk: Shoutrrr
+#### :eight_spoked_asterisk: Telegram
 
-| Option               | Description |
-|-----------------|-----------------------------------------------------------------------------------------------------------------------------|
-| SHOUTRRR_BINARY | Here you have to configure which binary of shoutrrr has to be used. This depends on the hardware Pi.Alert was installed on. |
-
-
-#### :eight_spoked_asterisk: Telegram via Shoutrrr
-
-| Option               | Description |
+| Option                 | Description |
 |------------------------|---------------------------------------------------------------------------------------------|
-| REPORT_TELEGRAM        | Enables/disables the notifications about changes in the network via Telegram                |
-| REPORT_TELEGRAM_WEBMON | Enables/disables the notifications about changes in the monitored web services via Telegram |
-| TELEGRAM_BOT_TOKEN_URL | Here the URL created by the shoutrrr setup wizard is entered.                               |
+| REPORT_TELEGRAM        | Enables/disables notifications about changes in the network via Telegram.                   |
+| REPORT_TELEGRAM_WEBMON | Enables/disables notifications about changes in monitored web services via Telegram.        |
+| TELEGRAM_BOT_TOKEN     | Secret bot token issued by BotFather. It is sent directly to the Telegram Bot API.           |
+| TELEGRAM_CHAT_IDS      | List of destination chat IDs. Negative group IDs and `@channelusername` values are supported.|
+| TELEGRAM_BOT_TOKEN_URL | Deprecated compatibility input containing the former Shoutrrr URL. Used only when both new settings are empty; Shoutrrr is not started. |
 
 
 #### :eight_spoked_asterisk: Discord

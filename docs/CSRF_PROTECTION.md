@@ -37,9 +37,14 @@ login. It remains stable during the authenticated session so multiple tabs and
 parallel refresh requests continue to work. Logout validates CSRF before it
 revokes the remember token or destroys the session.
 
-PHP session cookies use `HttpOnly`, `SameSite=Strict`, the application path and
-`Secure` when HTTPS is detected. Remember-me cookies retain `SameSite=Lax` and
-continue to use hashed, rotating bearer tokens; they are independent of CSRF.
+PHP session cookies use `HttpOnly`, `SameSite=Lax`, the application path and
+`Secure` when HTTPS is detected. `Lax` is necessary so a session established by
+the remember-me flow survives the redirect chain after a user follows an
+external link to Pi.Alert. `Strict` can make Firefox omit the new session cookie
+throughout that chain and create a protected-page/login redirect loop.
+Remember-me cookies also use `SameSite=Lax` and continue to use hashed, rotating
+bearer tokens; they are independent of CSRF. State-changing requests remain
+protected by POST-only routing and per-session CSRF validation.
 
 ## Regression checks
 
@@ -52,4 +57,3 @@ php tests/php/test_auth_cookie_security.php
 
 The CSRF test also fails if production PHP code reintroduces `$_REQUEST` or if
 a central dispatcher loses its method-aware allowlist.
-

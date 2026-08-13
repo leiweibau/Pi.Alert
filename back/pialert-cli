@@ -913,6 +913,13 @@ EOM
       \"Logfile\" BLOB,
       PRIMARY KEY(\"ScanDate\")
     );"
+    # Log_History_Nmap
+    echo -e "...Insert new table 'Log_History_Nmap' to DB-Tools"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Log_History_Nmap\" (
+      \"ScanDate\" DATETIME NOT NULL,
+      \"Logfile\" BLOB,
+      PRIMARY KEY(\"ScanDate\")
+    );"
     # Log_History_Scan
     echo -e "...Insert new table 'Log_History_Scan' to DB-Tools"
     sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Log_History_Scan\" (

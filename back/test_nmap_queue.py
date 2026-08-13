@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import importlib
+import datetime
+import os
 import sqlite3
 import sys
 import tempfile
@@ -14,6 +16,8 @@ sys.path.insert(0, str(BACK_PATH))
 
 import config_validation
 
+_original_load_pialert_config = config_validation.load_pialert_config
+_original_validate_loaded_config = config_validation.validate_loaded_config
 config_validation.load_pialert_config = lambda *args, **kwargs: {
     'DB_PATH': ':memory:',
     'PRINT_LOG': False,
@@ -22,6 +26,8 @@ config_validation.validate_loaded_config = lambda values, *args, **kwargs: value
 
 pialert_tools = importlib.import_module('pialert_tools')
 pialert_reporting = importlib.import_module('pialert_reporting_test')
+config_validation.load_pialert_config = _original_load_pialert_config
+config_validation.validate_loaded_config = _original_validate_loaded_config
 
 
 NMAP_XML = '''<?xml version="1.0"?>
@@ -45,6 +51,41 @@ NMAP_XML = '''<?xml version="1.0"?>
 
 
 class NmapQueueTests(unittest.TestCase):
+    def test_nmap_log_is_archived_once_per_day_and_cleared(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            db_path = os.path.join(temp_dir, 'tools.db')
+            log_path = os.path.join(temp_dir, 'pialert.nmap.log')
+            with open(log_path, 'w', encoding='utf-8') as log_file:
+                log_file.write('previous day\n')
+
+            connection = pialert_tools._open_sqlite(db_path)
+            try:
+                rotated = pialert_tools.rotate_nmap_log_if_due(
+                    connection,
+                    datetime.datetime(2026, 8, 13, 0, 0),
+                    log_path
+                )
+                self.assertTrue(rotated)
+                with open(log_path, 'r', encoding='utf-8') as log_file:
+                    self.assertEqual('', log_file.read())
+                row = connection.execute(
+                    'SELECT ScanDate, Logfile FROM Log_History_Nmap'
+                ).fetchone()
+                self.assertEqual('2026-08-13 00:00:00', row['ScanDate'])
+                self.assertEqual('previous day\n', row['Logfile'])
+
+                with open(log_path, 'w', encoding='utf-8') as log_file:
+                    log_file.write('current day\n')
+                self.assertFalse(pialert_tools.rotate_nmap_log_if_due(
+                    connection,
+                    datetime.datetime(2026, 8, 13, 12, 0),
+                    log_path
+                ))
+                with open(log_path, 'r', encoding='utf-8') as log_file:
+                    self.assertEqual('current day\n', log_file.read())
+            finally:
+                connection.close()
+
     def test_detail_command_scans_tcp_and_udp_without_shell(self):
         root_commands = pialert_tools.build_nmap_detail_commands('192.0.2.10', 0)
         tcp_command = root_commands[0][1]

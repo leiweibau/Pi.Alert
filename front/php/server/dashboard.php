@@ -58,6 +58,7 @@ function getLogfileTableMap(): array {
         'pialert.IP.log'          => 'Log_History_InternetIP',
         'pialert.vendors.log'     => 'Log_History_Vendors',
         'pialert.speedtest.log'   => 'Log_History_Speedtest',
+        'pialert.nmap.log'        => 'Log_History_Nmap',
     ];
 }
 // --------------------------------------------------------------------

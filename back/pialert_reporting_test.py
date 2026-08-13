@@ -23,8 +23,9 @@ try:
   from urlparse import urlparse
 except ImportError:
   from urllib.parse import urlparse
-from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, validate_loaded_config
-import sys, subprocess, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob, sqlite3, html
+from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, load_version_config, validate_loaded_config
+from telegram_notification import send_telegram_message
+import sys, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob, sqlite3, html
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -37,11 +38,8 @@ PIALERT_DB_FILE = f"{PIALERT_PATH}/db/pialert.db"
 PIALERT_DBTOOLS_FILE = f"{PIALERT_PATH}/db/pialert_tools.db"
 REPORTPATH_WEBGUI = f"{PIALERT_PATH}/front/reports/"
 
-if (sys.version_info > (3,0)):
-  exec(open(f"{PIALERT_PATH}/config/version.conf").read())
-else:
-  execfile(f"{PIALERT_PATH}/config/version.conf")
 try:
+  globals().update(load_version_config(f"{PIALERT_PATH}/config/version.conf"))
   globals().update(load_pialert_config(
       f"{PIALERT_PATH}/config/pialert.conf", PIALERT_PATH, validate=False))
 except ConfigValidationError as exc:
@@ -78,7 +76,8 @@ def recover_sensitive_config_values(config_file, secret_keys):
         return isinstance(value, str) and any(ord(char) < 32 for char in value)
 
     try:
-        lines = open(config_file, encoding='utf-8').read().splitlines()
+        with open(config_file, encoding='utf-8') as config_handle:
+            lines = config_handle.read().splitlines()
     except OSError:
         return
 
@@ -399,14 +398,12 @@ def send_discord_test (_notiMessage):
 
 #-------------------------------------------------------------------------------
 def send_telegram_test(_notiMessage):
-  runningpath = os.path.abspath(os.path.dirname(__file__))
-  subprocess.run(
-      [f'{runningpath}/shoutrrr/{SHOUTRRR_BINARY}/shoutrrr', 'send',
-       '--url', TELEGRAM_BOT_TOKEN_URL, '--message', _notiMessage,
-       '--title', 'Pi.Alert'],
-      stdout=subprocess.DEVNULL,
-      stderr=subprocess.DEVNULL,
-      check=False
+  return send_telegram_message(
+      TELEGRAM_BOT_TOKEN,
+      TELEGRAM_CHAT_IDS,
+      _notiMessage,
+      title='Pi.Alert',
+      legacy_url=TELEGRAM_BOT_TOKEN_URL,
   )
 
 #-------------------------------------------------------------------------------

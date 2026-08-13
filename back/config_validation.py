@@ -46,7 +46,7 @@ SPEEDTEST_TASK_CRON SMTP_SERVER SMTP_USER SMTP_PASS REPORT_MQTT_BROKER
 REPORT_MQTT_USERNAME REPORT_MQTT_PASSWORD REPORT_FROM REPORT_TO REPORT_DEVICE_URL
 REPORT_DASHBOARD_URL PUSHSAFER_TOKEN PUSHSAFER_DEVICE PUSHOVER_TOKEN PUSHOVER_USER
 PUSHOVER_SOUND NTFY_HOST NTFY_TOPIC NTFY_USER NTFY_PASSWORD NTFY_PRIORITY
-DISCORD_BOT_TOKEN_URL SHOUTRRR_BINARY TELEGRAM_BOT_TOKEN_URL QUERY_MYIP_SERVER
+DISCORD_BOT_TOKEN_URL TELEGRAM_BOT_TOKEN_URL TELEGRAM_BOT_TOKEN QUERY_MYIP_SERVER
 QUERY_MYIP_SERVER_FALLBACK DDNS_DOMAIN DDNS_USER DDNS_PASSWORD DDNS_UPDATE_URL
 PIHOLE_DB PIHOLE6_URL PIHOLE6_PASSWORD DHCP_LEASES FRITZBOX_IP FRITZBOX_USER
 FRITZBOX_PASS MIKROTIK_IP MIKROTIK_USER MIKROTIK_PASS UNIFI_IP UNIFI_API UNIFI_USER
@@ -56,12 +56,22 @@ ADGUARD_USER ADGUARD_PASSWORD SATELLITE_PROXY_URL
 """.split())
 
 LIST_KEYS = frozenset(('MAC_IGNORE_LIST', 'IP_IGNORE_LIST', 'HOSTNAME_IGNORE_LIST',
-                       'PFSENSE_EXCLUDE_INT', 'OPNSENSE_EXCLUDE_INT'))
+                       'PFSENSE_EXCLUDE_INT', 'OPNSENSE_EXCLUDE_INT',
+                       'TELEGRAM_CHAT_IDS'))
 SPECIAL_KEYS = frozenset(('DB_PATH', 'LOG_PATH', 'DHCP_SERVER_ADDRESS', 'SCAN_SUBNETS'))
-OPTIONAL_DEFAULTS = {'SMTP_SSL': False}
+OPTIONAL_DEFAULTS = {
+    'SMTP_SSL': False,
+    'TELEGRAM_BOT_TOKEN': '',
+    'TELEGRAM_CHAT_IDS': [],
+}
 ALL_KEYS = BOOLEAN_KEYS | frozenset(INTEGER_RULES) | STRING_KEYS | LIST_KEYS | SPECIAL_KEYS
+DEPRECATED_KEYS = frozenset(('SHOUTRRR_BINARY',))
+LOADABLE_KEYS = ALL_KEYS | DEPRECATED_KEYS
+VERSION_KEYS = frozenset(('VERSION', 'VERSION_YEAR', 'VERSION_DATE'))
 _MAC = re.compile(r'^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}$')
 _INTERFACE = re.compile(r'^[A-Za-z0-9_.:-]{1,64}$')
+_TELEGRAM_CHAT_ID = re.compile(
+    r'^(?:-?[1-9][0-9]{0,19}|@[A-Za-z][A-Za-z0-9_]{4,31})$')
 
 
 def require_bool(name, value):
@@ -128,11 +138,13 @@ def _matches_expected_path(value, expected):
 
 
 def validate_values(values, expected_pialert_path=None):
+    for name in DEPRECATED_KEYS:
+        values.pop(name, None)
     unknown = set(values) - ALL_KEYS
     if unknown:
         raise ConfigValidationError('unknown configuration key %s' % sorted(unknown)[0])
     for name, default in OPTIONAL_DEFAULTS.items():
-        values.setdefault(name, default)
+        values.setdefault(name, list(default) if isinstance(default, list) else default)
     missing = ALL_KEYS - set(values)
     if missing:
         raise ConfigValidationError('missing required configuration key %s' % sorted(missing)[0])
@@ -143,12 +155,18 @@ def validate_values(values, expected_pialert_path=None):
     for name in STRING_KEYS:
         values[name] = require_string(name, values[name])
     values['SMTP_SERVER'] = require_string('SMTP_SERVER', values['SMTP_SERVER'], False, 255)
+    values['TELEGRAM_BOT_TOKEN'] = require_string(
+        'TELEGRAM_BOT_TOKEN', values['TELEGRAM_BOT_TOKEN'], True, 512)
     for name in LIST_KEYS:
         validator = (_MAC.match if name == 'MAC_IGNORE_LIST' else
                      _is_ip if name == 'IP_IGNORE_LIST' else
+                     _TELEGRAM_CHAT_ID.match if name == 'TELEGRAM_CHAT_IDS' else
                      _INTERFACE.match if name in ('PFSENSE_EXCLUDE_INT', 'OPNSENSE_EXCLUDE_INT') else None)
         values[name] = require_string_list(name, values[name],
-            (lambda item, validator=validator: bool(validator(item))) if validator else None)
+            (lambda item, validator=validator: bool(validator(item))) if validator else None,
+            32 if name == 'TELEGRAM_CHAT_IDS' else 1024)
+    if len(values['TELEGRAM_CHAT_IDS']) != len(set(values['TELEGRAM_CHAT_IDS'])):
+        raise ConfigValidationError('TELEGRAM_CHAT_IDS contains duplicate entries')
     dhcp = values['DHCP_SERVER_ADDRESS']
     if type(dhcp) is str:
         require_string('DHCP_SERVER_ADDRESS', dhcp, False, 45)
@@ -192,9 +210,11 @@ def load_pialert_config(path, expected_pialert_path=None, maximum_size=262144, v
                 not isinstance(statement.targets[0], ast.Name)):
             raise ConfigValidationError('configuration contains a disallowed statement')
         name = statement.targets[0].id
-        if name.startswith('_') or name == '__builtins__' or name not in ALL_KEYS or name in values:
+        if name.startswith('_') or name == '__builtins__' or name not in LOADABLE_KEYS or name in values:
             raise ConfigValidationError('configuration contains an unknown or duplicate key')
         values[name] = _literal(name, statement.value)
+    for name in DEPRECATED_KEYS:
+        values.pop(name, None)
     if validate:
         return validate_loaded_config(values, expected_pialert_path)
     if expected_pialert_path is not None and not _matches_expected_path(
@@ -202,3 +222,37 @@ def load_pialert_config(path, expected_pialert_path=None, maximum_size=262144, v
         raise ConfigValidationError('PIALERT_PATH does not match this installation')
     return values
 
+
+def load_version_config(path, maximum_size=4096):
+    """Load version metadata as literals without executing the file."""
+    try:
+        with open(path, 'r') as handle:
+            source = handle.read(maximum_size + 1)
+    except OSError as exc:
+        raise ConfigValidationError('version file is not readable') from exc
+    if len(source) > maximum_size:
+        raise ConfigValidationError('version file is too large')
+    try:
+        tree = ast.parse(source, filename=path, mode='exec')
+    except SyntaxError as exc:
+        raise ConfigValidationError('version file has invalid syntax') from exc
+
+    values = {}
+    for statement in tree.body:
+        if (not isinstance(statement, ast.Assign) or len(statement.targets) != 1 or
+                not isinstance(statement.targets[0], ast.Name)):
+            raise ConfigValidationError('version file contains a disallowed statement')
+        name = statement.targets[0].id
+        if name not in VERSION_KEYS or name in values:
+            raise ConfigValidationError('version file contains an unknown or duplicate key')
+        value = _literal(name, statement.value)
+        values[name] = require_string(name, value, True, 64)
+
+    missing = VERSION_KEYS - set(values)
+    if missing:
+        raise ConfigValidationError('version file is missing key %s' % sorted(missing)[0])
+    if not re.match(r'^\d{4}$', values['VERSION_YEAR']):
+        raise ConfigValidationError('VERSION_YEAR has an invalid format')
+    if not re.match(r'^\d{4}-\d{2}-\d{2}$', values['VERSION_DATE']):
+        raise ConfigValidationError('VERSION_DATE has an invalid format')
+    return values

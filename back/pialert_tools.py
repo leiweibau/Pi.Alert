@@ -10,7 +10,7 @@ from base64 import b64encode
 from urllib.parse import urlparse
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from config_validation import ConfigValidationError, load_pialert_config
+from config_validation import ConfigValidationError, load_pialert_config, load_version_config
 import sys, subprocess, os, re, datetime, sqlite3, socket, io, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
 import fcntl
 import xml.etree.ElementTree as ET
@@ -32,12 +32,10 @@ NMAP_TCP_PROCESS_TIMEOUT_SECONDS = 660
 NMAP_UDP_PROCESS_TIMEOUT_SECONDS = 360
 NMAP_STALE_JOB_MINUTES = 40
 NMAP_MAX_ATTEMPTS = 3
+NMAP_LOG_FILE = PIALERT_PATH + "/log/pialert.nmap.log"
 
-if (sys.version_info > (3,0)):
-    exec(open(PIALERT_PATH + "/config/version.conf").read())
-else:
-    execfile(PIALERT_PATH + "/config/version.conf")
 try:
+    globals().update(load_version_config(PIALERT_PATH + "/config/version.conf"))
     globals().update(load_pialert_config(
         PIALERT_PATH + "/config/pialert.conf", PIALERT_PATH))
 except ConfigValidationError as exc:
@@ -203,6 +201,58 @@ def ensure_nmap_queue_schema(connection):
             last_queued_at TEXT
         );
     """)
+
+
+def rotate_nmap_log_if_due(connection, now=None, log_path=NMAP_LOG_FILE):
+    """Archive the Nmap log once per local calendar day and remove that snapshot.
+
+    The archive row is committed before the file is shortened.  Removing only
+    the archived prefix also preserves output appended between the snapshot and
+    the rewrite.
+    """
+    rotation_time = now or datetime.datetime.now()
+    archive_date = rotation_time.strftime('%Y-%m-%d 00:00:00')
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS Log_History_Nmap (
+            ScanDate DATETIME NOT NULL,
+            Logfile BLOB,
+            PRIMARY KEY (ScanDate)
+        )
+    """)
+    existing = connection.execute(
+        "SELECT Logfile FROM Log_History_Nmap WHERE ScanDate = ? LIMIT 1",
+        (archive_date,)
+    ).fetchone()
+
+    if existing is None:
+        try:
+            with open(log_path, 'r', encoding='utf-8', errors='replace') as log_file:
+                archived_content = log_file.read()
+        except FileNotFoundError:
+            archived_content = ''
+
+        connection.execute(
+            "INSERT INTO Log_History_Nmap (ScanDate, Logfile) VALUES (?, ?)",
+            (archive_date, archived_content)
+        )
+        connection.commit()
+    else:
+        archived_content = existing['Logfile'] or ''
+
+    if not archived_content:
+        return existing is None
+
+    try:
+        with open(log_path, 'r', encoding='utf-8', errors='replace') as log_file:
+            current_content = log_file.read()
+    except FileNotFoundError:
+        return existing is None
+
+    if current_content.startswith(archived_content):
+        with open(log_path, 'w', encoding='utf-8') as log_file:
+            log_file.write(current_content[len(archived_content):])
+
+    return existing is None
 
 
 def enqueue_due_nmap_schedules(connection, now=None):
@@ -505,8 +555,6 @@ def _process_nmap_job(connection, job):
 
 
 def nmap_scan():
-    print('\n{} Pi.Alert Nmap queue worker'.format(
-        datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')), flush=True)
     lock_handle = open(STATUS_FILE_SCAN, 'a+')
     try:
         try:
@@ -517,6 +565,9 @@ def nmap_scan():
 
         connection = _open_sqlite(PIALERT_DBTOOLS_FILE)
         try:
+            rotate_nmap_log_if_due(connection)
+            print('\n{} Pi.Alert Nmap queue worker'.format(
+                datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')), flush=True)
             ensure_nmap_queue_schema(connection)
             while True:
                 terminal_job = connection.execute(
@@ -545,6 +596,7 @@ def nmap_scan():
         fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
         lock_handle.close()
     return 0
+
 
 def speedtest(retries=3):
     import logging
@@ -705,6 +757,16 @@ def cleanup_database_tools():
 
     print('    Log_History_Speedtest (7)')
     sql_tools.execute("DELETE FROM Log_History_Speedtest WHERE ScanDate <= date('now', '-" + str("7") + " day')")
+
+    sql_tools.execute("""
+        CREATE TABLE IF NOT EXISTS Log_History_Nmap (
+            ScanDate DATETIME NOT NULL,
+            Logfile BLOB,
+            PRIMARY KEY (ScanDate)
+        )
+    """)
+    print('    Log_History_Nmap (14)')
+    sql_tools.execute("DELETE FROM Log_History_Nmap WHERE ScanDate <= date('now', '-14 day')")
 
     print('\nShrink Tools-Database...')
     sql_tools.execute("VACUUM;")
