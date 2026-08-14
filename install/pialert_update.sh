@@ -143,7 +143,10 @@ reset_permissions() {
   sudo chgrp -R www-data $PIALERT_HOME/db                             2>&1 >> "$LOG"
   sudo chmod -R 775 $PIALERT_HOME/db                                  2>&1 >> "$LOG"
   sudo chgrp -R www-data $PIALERT_HOME/config                         2>&1 >> "$LOG"
-  sudo chmod -R 775 $PIALERT_HOME/config                              2>&1 >> "$LOG"
+  sudo chmod 1775 $PIALERT_HOME/config                                2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo chown root:root "$PIALERT_HOME/config/version.conf"           2>&1 >> "$LOG"
+  sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                2>&1 >> "$LOG"
 }
 
 # ------------------------------------------------------------------------------
@@ -294,6 +297,14 @@ update_config() {
 
   print_msg "- Updating config file..."
 
+# 2026-08-13
+# The bundled Shoutrrr binaries remain available as manual setup helpers, but
+# Pi.Alert no longer selects or invokes one through its configuration.
+sed -i -E \
+  -e '/^[[:space:]]*# Shoutrrr[[:space:]]*$/,/^[[:space:]]*# Telegram[[:space:]]*$/ { /^[[:space:]]*# Telegram[[:space:]]*$/!d; }' \
+  -e '/^[[:space:]]*#?[[:space:]]*SHOUTRRR_BINARY[[:space:]]*=/d' \
+  "$PIALERT_HOME/config/pialert.conf"
+
 # 2025-01-28
 if ! grep -Fq "# OpenWRT Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
@@ -431,6 +442,21 @@ SMTP_SSL = False
 EOF
 fi
 
+# 2026-08-13
+if ! grep -Eq '^[[:space:]]*TELEGRAM_BOT_TOKEN[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# Direct Telegram Bot API credentials
+TELEGRAM_BOT_TOKEN = ''
+EOF
+fi
+
+if ! grep -Eq '^[[:space:]]*TELEGRAM_CHAT_IDS[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+TELEGRAM_CHAT_IDS = []
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------
@@ -488,8 +514,11 @@ update_permissions() {
   sudo chmod +x "$PIALERT_HOME/back/pialert-cli"                         2>&1 >> "$LOG"
   sudo chmod +x "$PIALERT_HOME/back/pialert.py"                          2>&1 >> "$LOG"
   sudo chmod +x "$PIALERT_HOME/back/update_vendors.sh"                   2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/config/"                              2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/config"                          2>&1 >> "$LOG"
+  sudo chmod 1775 "$PIALERT_HOME/config"                                 2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo chown root:root "$PIALERT_HOME/config/version.conf"               2>&1 >> "$LOG"
+  sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                    2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                        2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                   2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/php/tmp"                        2>&1 >> "$LOG"

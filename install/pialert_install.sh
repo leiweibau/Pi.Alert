@@ -391,6 +391,22 @@ download_pialert() {
 configure_pialert() {
   print_msg "- Setting Pi.Alert config file"
 
+  # SHOUTRRR_BINARY is no longer a Pi.Alert setting. Keep the binaries only as
+  # manually selected setup helpers and remove the obsolete configuration block.
+  sudo sed -i -E \
+    -e '/^[[:space:]]*# Shoutrrr[[:space:]]*$/,/^[[:space:]]*# Telegram[[:space:]]*$/ { /^[[:space:]]*# Telegram[[:space:]]*$/!d; }' \
+    -e '/^[[:space:]]*#?[[:space:]]*SHOUTRRR_BINARY[[:space:]]*=/d' \
+    "$PIALERT_HOME/config/pialert.conf"
+
+  if ! grep -Eq '^[[:space:]]*TELEGRAM_BOT_TOKEN[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
+    printf "\n# Direct Telegram Bot API credentials\nTELEGRAM_BOT_TOKEN = ''\n" | \
+      sudo tee -a "$PIALERT_HOME/config/pialert.conf" > /dev/null
+  fi
+  if ! grep -Eq '^[[:space:]]*TELEGRAM_CHAT_IDS[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
+    printf "TELEGRAM_CHAT_IDS = []\n" | \
+      sudo tee -a "$PIALERT_HOME/config/pialert.conf" > /dev/null
+  fi
+
   set_pialert_parameter PIALERT_PATH    "'$PIALERT_HOME'"
   set_pialert_parameter DDNS_ACTIVE     "$DDNS_ACTIVE"
   set_pialert_parameter DDNS_DOMAIN     "'$DDNS_DOMAIN'"
@@ -479,7 +495,10 @@ publish_pialert() {
   sudo chmod -R 775 "$PIALERT_HOME/db"                                                                          2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/db/temp"                                                                     2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/config"                                                                 2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/config"                                                                      2>&1 >> "$LOG"
+  sudo chmod 1775 "$PIALERT_HOME/config"                                                                         2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo chown root:root "$PIALERT_HOME/config/version.conf"                                                       2>&1 >> "$LOG"
+  sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                                                           2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                                                          2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                                                               2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/php/tmp"                                                          2>&1 >> "$LOG"
