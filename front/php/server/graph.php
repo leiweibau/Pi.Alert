@@ -8,6 +8,8 @@
 //  leiweibau  2025+       https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
+require_once __DIR__ . '/db.php';
+
 // History Graph Online/Offline/Archive Devices
 function prepare_graph_arrays_history($data_source) {
 	global $db;
@@ -17,7 +19,7 @@ function prepare_graph_arrays_history($data_source) {
 	$Pia_Graph_Device_Online = array();
 	$Pia_Graph_Device_Down = array();
 	$Pia_Graph_Device_Arch = array();
-	$results = $db->query('SELECT Scan_Date, Down_Devices, All_Devices, Online_Devices, Archived_Devices FROM Online_History WHERE Data_Source="main_scan_'.$data_source.'" ORDER BY Scan_Date DESC LIMIT 144');
+	$results = db_execute_prepared($db, 'SELECT Scan_Date, Down_Devices, All_Devices, Online_Devices, Archived_Devices FROM Online_History WHERE Data_Source = :source ORDER BY Scan_Date DESC LIMIT 144', array(':source' => 'main_scan_' . (string) $data_source));
 	while ($row = $results->fetchArray()) {
 		$time_raw = explode(' ', $row['Scan_Date']);
 		$time = explode(':', $time_raw[1]);
@@ -69,7 +71,7 @@ function prepare_graph_arrays_webservice($service_url) {
 	$Pia_Graph_Service_3xx = array();
 	$Pia_Graph_Service_4xx = array();
 	$Pia_Graph_Service_5xx = array();
-	$results = $db->query('SELECT * FROM Services_Events WHERE moneve_URL="' . $service_url . '" ORDER BY moneve_DateTime DESC LIMIT 144');
+	$results = db_execute_prepared($db, 'SELECT * FROM Services_Events WHERE moneve_URL = :url ORDER BY moneve_DateTime DESC LIMIT 144', array(':url' => (string) $service_url));
 	$http2xx = 0;
 	$http3xx = 0;
 	$http4xx = 0;
@@ -133,7 +135,7 @@ function prepare_graph_arrays_ICMPHost($icmp_ip) {
 	$Pia_Graph_ICMPHost_Time = array();
 	$Pia_Graph_ICMPHost_Up = array();
 	$Pia_Graph_ICMPHost_Down = array();
-	$results = $db->query('SELECT * FROM ICMP_Mon_Events WHERE icmpeve_ip="' . $icmp_ip . '" ORDER BY icmpeve_DateTime DESC LIMIT 288');
+	$results = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon_Events WHERE icmpeve_ip = :ip ORDER BY icmpeve_DateTime DESC LIMIT 288', array(':ip' => (string) $icmp_ip));
 	$online = 0;
 	$offline = 0;
 	while ($row = $results->fetchArray()) {

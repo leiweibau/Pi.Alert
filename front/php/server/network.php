@@ -8,7 +8,9 @@
 //  leiweibau  2024+        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -28,9 +30,16 @@ ini_set('max_execution_time', '30');
 // Open DB
 OpenDB();
 
+pialert_dispatch_action([
+    'network_device_downlink', 'NetworkInfrastructure_list',
+    'NetworkDeviceTyp_list', 'NetworkGroupName_list'
+], [
+    'addManagedDev', 'updManagedDev', 'delManagedDev',
+    'addUnManagedDev', 'updUnManagedDev', 'delUnManagedDev'
+]);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'network_device_downlink':network_device_downlink();
 		break;
@@ -57,10 +66,73 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 	}
 }
 
+function network_invalid_request() {
+	http_response_code(400);
+	header("Content-Type: text/plain; charset=UTF-8");
+	echo "Invalid network request";
+	exit;
+}
+
+function network_request_text($key, $maximumLength = 255) {
+	$value = $GLOBALS["pialert_request"][$key] ?? "";
+	if (!is_scalar($value)) {
+		network_invalid_request();
+	}
+	$value = trim((string) $value);
+	if (strlen($value) > $maximumLength || preg_match("/[\x00-\x1F\x7F]/u", $value)) {
+		network_invalid_request();
+	}
+	return $value;
+}
+
+function network_request_id($key) {
+	$value = $GLOBALS["pialert_request"][$key] ?? null;
+	if (filter_var($value, FILTER_VALIDATE_INT, array("options" => array("min_range" => 1))) === false) {
+		network_invalid_request();
+	}
+	return (int) $value;
+}
+
+function network_request_type($key) {
+	$value = network_request_text($key, 32);
+	if (!in_array($value, array("0_Internet", "1_Router", "2_Switch", "3_WLAN", "4_Powerline", "5_Hypervisor"), true)) {
+		network_invalid_request();
+	}
+	return $value;
+}
+
+function network_request_port_count($key) {
+	$value = network_request_text($key, 4);
+	if ($value === "") {
+		return "";
+	}
+	if (filter_var($value, FILTER_VALIDATE_INT, array("options" => array("min_range" => 0, "max_range" => 1024))) === false) {
+		network_invalid_request();
+	}
+	return (string) (int) $value;
+}
+
+function network_request_target_ports($key) {
+	$value = network_request_text($key, 4096);
+	if ($value === "") {
+		return "";
+	}
+	$ports = array();
+	foreach (explode(",", $value) as $part) {
+		$part = trim($part);
+		if (filter_var($part, FILTER_VALIDATE_INT, array("options" => array("min_range" => 0, "max_range" => 1024))) === false) {
+			network_invalid_request();
+		}
+		$ports[] = (string) (int) $part;
+	}
+	return implode(",", $ports);
+}
+
 function network_device_downlink() {
 	global $db;
-	$node_typ = substr($_REQUEST['nodetyp'],2);
+	$node_typ = substr(network_request_type('nodetyp'), 2);
 	$special_dev = array("Router", "Switch", "AP", "Access Point");
+	$temp_type = "";
 
 	if (in_array($node_typ, $special_dev)) {
 		// $func_sql = 'SELECT * FROM "Devices" WHERE "dev_DeviceType" IN ("Router", "Switch", "AP", "Access Point") OR "dev_MAC" = "Internet" ORDER BY "dev_DeviceType" ASC';
@@ -84,7 +156,7 @@ function network_device_downlink() {
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
 		if ($value_seperator == "," && $temp_type != "" && $temp_type != $func_res['dev_DeviceType']) {echo '<li class="divider"></li>';}
-		echo '<li><a href="javascript:void(0)" onclick="appendTextValue(\'txtNetworkDeviceDownlinkMac\',\'' . $func_res['dev_MAC'] . $value_seperator .'\')">' . $func_res['dev_Name'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="append" data-target="txtNetworkDeviceDownlinkMac" data-value="' . h($func_res['dev_MAC'] . $value_seperator) . '">' . h($func_res['dev_Name']) . '</a></li>';
 		$temp_type = $func_res['dev_DeviceType'];
 	}
 }
@@ -95,37 +167,44 @@ function NetworkInfrastructure_list() {
 
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtNetworkDeviceName\',\'' . $func_res['dev_Name'] . '\')">' . $func_res['dev_Name'] . '/' . $func_res['dev_DeviceType'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="txtNetworkDeviceName" data-value="' . h($func_res['dev_Name']) . '">' . h($func_res['dev_Name']) . '/' . h($func_res['dev_DeviceType']) . '</a></li>';
 	}
 }
 
 function NetworkDeviceTyp_list() {
-	if ($_REQUEST['mode'] == "add") {$inputfield = "txtNetworkDeviceTyp";}
-	if ($_REQUEST['mode'] == "edit") {$inputfield = "txtNewNetworkDeviceTyp";}
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'0_Internet\')">0. Internet</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'1_Router\')">1. Router</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'2_Switch\')">2. Switch</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'3_WLAN\')">3. WLAN</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'4_Powerline\')">4. Powerline</a></li>';
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\''.$inputfield.'\',\'5_Hypervisor\')">5. Hypervisor</a></li>';
+	$mode = network_request_text('mode');
+	$targets = array('add' => 'txtNetworkDeviceTyp', 'edit' => 'txtNewNetworkDeviceTyp');
+	if (!isset($targets[$mode])) {
+		http_response_code(400);
+		return;
+	}
+	$inputfield = $targets[$mode];
+	foreach (array('0_Internet' => '0. Internet', '1_Router' => '1. Router', '2_Switch' => '2. Switch', '3_WLAN' => '3. WLAN', '4_Powerline' => '4. Powerline', '5_Hypervisor' => '5. Hypervisor') as $value => $label) {
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="' . h($inputfield) . '" data-value="' . h($value) . '">' . h($label) . '</a></li>';
+	}
 }
 
 function NetworkGroupName_list() {
 	global $db;
-	if ($_REQUEST['mode'] == "add") {$inputfield = "txtNetworkGroupName";}
-	if ($_REQUEST['mode'] == "edit") {$inputfield = "txtNewNetworkGroupName";}
+	$mode = network_request_text('mode');
+	$targets = array('add' => 'txtNetworkGroupName', 'edit' => 'txtNewNetworkGroupName');
+	if (!isset($targets[$mode])) {
+		http_response_code(400);
+		return;
+	}
+	$inputfield = $targets[$mode];
 
 	$func_sql = 'SELECT "sat_name" FROM "Satellites"';
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'' . $inputfield . '\',\'' . $func_res['sat_name'] . '\')">Satellite ' . $func_res['sat_name'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="' . h($inputfield) . '" data-value="' . h($func_res['sat_name']) . '">Satellite ' . h($func_res['sat_name']) . '</a></li>';
 	}
 	echo '<li class="divider"></li>';
 
 	$func_sql = 'SELECT DISTINCT "net_networkname" FROM "network_infrastructure"';
 	$func_result = $db->query($func_sql); //->fetchArray(SQLITE3_ASSOC);
 	while ($func_res = $func_result->fetchArray(SQLITE3_ASSOC)) {
-		echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'' . $inputfield . '\',\'' . $func_res['net_networkname'] . '\')">Network ' . $func_res['net_networkname'] . '</a></li>';
+		echo '<li><a href="#" class="network-value-option" data-action="set" data-target="' . h($inputfield) . '" data-value="' . h($func_res['net_networkname']) . '">Network ' . h($func_res['net_networkname']) . '</a></li>';
 	}
 }
 
@@ -133,13 +212,18 @@ function addManagedDev() {
 	global $db;
 	global $pia_lang;
 
-	if (!isset($_REQUEST['NetworkDeviceName']) && !isset($_REQUEST['NetworkDeviceTyp'])) {
-		echo "Test";
-		return;
+	$name = network_request_text("NetworkDeviceName");
+	if ($name === "") {
+		network_invalid_request();
 	}
 
-	$sql = 'INSERT INTO "network_infrastructure" ("net_device_name", "net_device_typ", "net_device_port", "net_networkname") VALUES("' . $_REQUEST['NetworkDeviceName'] . '", "' . $_REQUEST['NetworkDeviceTyp'] . '", "' . $_REQUEST['NetworkDevicePort'] . '", "' . $_REQUEST['NetworkGroupName'] . '")';
-	$result = $db->query($sql);
+	$sql = 'INSERT INTO "network_infrastructure" ("net_device_name", "net_device_typ", "net_device_port", "net_networkname") VALUES (:name, :type, :port, :group_name)';
+	$result = db_execute_prepared($db, $sql, array(
+		':name' => $name,
+		':type' => network_request_type('NetworkDeviceTyp'),
+		':port' => network_request_port_count('NetworkDevicePort'),
+		':group_name' => network_request_text('NetworkGroupName')
+	));
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_NET_Man_Add'];
@@ -147,7 +231,8 @@ function addManagedDev() {
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0030', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
-		echo $pia_lang['BE_NET_Man_Add_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+		echo $pia_lang['BE_NET_Man_Add_Err'];
+		logServerConsole('Network managed-device insert failed: ' . $db->lastErrorMsg());
 		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0070', '', '');
 	}
@@ -157,23 +242,32 @@ function updManagedDev() {
 	global $db;
 	global $pia_lang;
 
-	if (($_REQUEST['NewNetworkDeviceName'] != "") && isset($_REQUEST['NewNetworkDeviceTyp'])) {
-		$sql = 'UPDATE "network_infrastructure" SET "net_device_name" = "' . $_REQUEST['NewNetworkDeviceName'] . '", "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '", "net_networkname" = "' . $_REQUEST['NewNetworkGroupName'] . '" WHERE "device_id"="' . $_REQUEST['NetworkDeviceID'] . '"';
-		$result = $db->query($sql);
-	}
-	if (($_REQUEST['NewNetworkDeviceName'] == "") && isset($_REQUEST['NewNetworkDeviceTyp'])) {
-		$sql = 'UPDATE "network_infrastructure" SET "net_device_typ" = "' . $_REQUEST['NewNetworkDeviceTyp'] . '", "net_device_port" = "' . $_REQUEST['NewNetworkDevicePort'] . '", "net_downstream_devices" = "' . $_REQUEST['NetworkDeviceDownlink'] . '", "net_networkname" = "' . $_REQUEST['NewNetworkGroupName'] . '" WHERE "device_id "="' . $_REQUEST['NetworkDeviceID'] . '"';
-		$result = $db->query($sql);
+	$deviceId = network_request_id('NetworkDeviceID');
+	$result = false;
+	if ($deviceId !== null && isset($GLOBALS["pialert_request"]['NewNetworkDeviceTyp'])) {
+		$parameters = array(
+			':type' => network_request_type('NewNetworkDeviceTyp'),
+			':port' => network_request_port_count('NewNetworkDevicePort'),
+			':downstream' => network_request_text('NetworkDeviceDownlink', 8192),
+			':group_name' => network_request_text('NewNetworkGroupName'),
+			':id' => array($deviceId, SQLITE3_INTEGER)
+		);
+		if (network_request_text('NewNetworkDeviceName') !== '') {
+			$sql = 'UPDATE "network_infrastructure" SET "net_device_name" = :name, "net_device_typ" = :type, "net_device_port" = :port, "net_downstream_devices" = :downstream, "net_networkname" = :group_name WHERE "device_id" = :id';
+			$parameters[':name'] = network_request_text('NewNetworkDeviceName');
+		} else {
+			$sql = 'UPDATE "network_infrastructure" SET "net_device_typ" = :type, "net_device_port" = :port, "net_downstream_devices" = :downstream, "net_networkname" = :group_name WHERE "device_id" = :id';
+		}
+		$result = db_execute_prepared($db, $sql, $parameters);
 	}
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_NET_Man_Upd'];
-		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0031', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
-		echo $pia_lang['BE_NET_Man_Upd_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_NET_Man_Upd_Err'];
+		logServerConsole('Network managed-device update failed: ' . $db->lastErrorMsg());
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0071', '', '');
 	}
 }
@@ -182,19 +276,19 @@ function delManagedDev() {
 	global $db;
 	global $pia_lang;
 
-	if (isset($_REQUEST['NetworkDeviceID'])) {
-		$sql = 'DELETE FROM "network_infrastructure" WHERE "device_id"="' . $_REQUEST['NetworkDeviceID'] . '"';
-		$result = $db->query($sql);
+	$deviceId = network_request_id('NetworkDeviceID');
+	$result = false;
+	if ($deviceId !== null) {
+		$result = db_execute_prepared($db, 'DELETE FROM "network_infrastructure" WHERE "device_id" = :id', array(':id' => array($deviceId, SQLITE3_INTEGER)));
 	}
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_NET_Man_Del'];
-		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0032', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
-		echo $pia_lang['BE_NET_Man_Del_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_NET_Man_Del_Err'];
+		logServerConsole('Network managed-device delete failed: ' . $db->lastErrorMsg());
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0072', '', '');
 	}
 }
@@ -203,21 +297,30 @@ function addUnManagedDev() {
 	global $db;
 	global $pia_lang;
 
-	if (isset($_REQUEST['NetworkUnmanagedDevName']) && isset($_REQUEST['NetworkUnmanagedDevConnect'])) {
-		$ip = 'Unmanaged';
-		$dumbvar = 'dumb';
-		$sql = 'INSERT INTO "network_dumb_dev" ("dev_Name", "dev_MAC", "dev_Infrastructure", "dev_Infrastructure_port", "dev_PresentLastScan", "dev_LastIP") VALUES("' . $_REQUEST['NetworkUnmanagedDevName'] . '", "' . $dumbvar . '", "' . $_REQUEST['NetworkUnmanagedDevConnect'] . '", "' . $_REQUEST['NetworkUnmanagedDevPort'] . '", "' . $dumbvar . '", "' . $ip . '")';
-		$result = $db->query($sql);
+	$name = network_request_text("NetworkUnmanagedDevName");
+	if ($name === "") {
+		network_invalid_request();
+	}
+	$result = false;
+	if (isset($GLOBALS["pialert_request"]["NetworkUnmanagedDevConnect"])) {
+		$sql = 'INSERT INTO "network_dumb_dev" ("dev_Name", "dev_MAC", "dev_Infrastructure", "dev_Infrastructure_port", "dev_PresentLastScan", "dev_LastIP") VALUES (:name, :mac, :infrastructure, :port, :present, :ip)';
+		$result = db_execute_prepared($db, $sql, array(
+			':name' => $name,
+			':mac' => 'dumb',
+			':infrastructure' => (string) network_request_id('NetworkUnmanagedDevConnect'),
+			':port' => network_request_target_ports('NetworkUnmanagedDevPort'),
+			':present' => 'dumb',
+			':ip' => 'Unmanaged'
+		));
 	}
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_NET_Man_AddUn'];
-		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0033', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
-		echo $pia_lang['BE_NET_Man_AddUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_NET_Man_AddUn_Err'];
+		logServerConsole('Network unmanaged-device insert failed: ' . $db->lastErrorMsg());
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0073', '', '');
 	}
 }
@@ -226,23 +329,30 @@ function updUnManagedDev() {
 	global $db;
 	global $pia_lang;
 
-	if (($_REQUEST['NewNetworkUnmanagedDevName'] != "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
-		$sql = 'UPDATE "network_dumb_dev" SET "dev_Name" = "' . $_REQUEST['NewNetworkUnmanagedDevName'] . '", "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id "="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
-		$result = $db->query($sql);
-	}
-	if (($_REQUEST['NewNetworkUnmanagedDevName'] == "") && isset($_REQUEST['NewNetworkUnmanagedDevConnect']) && isset($_REQUEST['NetworkUnmanagedDevID'])) {
-		$sql = 'UPDATE "network_dumb_dev" SET "dev_Infrastructure" = "' . $_REQUEST['NewNetworkUnmanagedDevConnect'] . '", "dev_Infrastructure_port" = "' . $_REQUEST['NewNetworkUnmanagedDevPort'] . '" WHERE "id"="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
-		$result = $db->query($sql);
+	$deviceId = network_request_id('NetworkUnmanagedDevID');
+	$result = false;
+	if ($deviceId !== null && isset($GLOBALS["pialert_request"]['NewNetworkUnmanagedDevConnect'])) {
+		$parameters = array(
+			':infrastructure' => (string) network_request_id('NewNetworkUnmanagedDevConnect'),
+			':port' => network_request_target_ports('NewNetworkUnmanagedDevPort'),
+			':id' => array($deviceId, SQLITE3_INTEGER)
+		);
+		if (network_request_text('NewNetworkUnmanagedDevName') !== '') {
+			$sql = 'UPDATE "network_dumb_dev" SET "dev_Name" = :name, "dev_Infrastructure" = :infrastructure, "dev_Infrastructure_port" = :port WHERE "id" = :id';
+			$parameters[':name'] = network_request_text('NewNetworkUnmanagedDevName');
+		} else {
+			$sql = 'UPDATE "network_dumb_dev" SET "dev_Infrastructure" = :infrastructure, "dev_Infrastructure_port" = :port WHERE "id" = :id';
+		}
+		$result = db_execute_prepared($db, $sql, $parameters);
 	}
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_NET_Man_UpdUn'];
-		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0034', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
-		echo $pia_lang['BE_NET_Man_UpdUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_NET_Man_UpdUn_Err'];
+		logServerConsole('Network unmanaged-device update failed: ' . $db->lastErrorMsg());
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0074', '', '');
 	}
 }
@@ -251,19 +361,19 @@ function delUnManagedDev() {
 	global $db;
 	global $pia_lang;
 
-	if (isset($_REQUEST['NetworkUnmanagedDevID'])) {
-		$sql = 'DELETE FROM "network_dumb_dev" WHERE "id"="' . $_REQUEST['NetworkUnmanagedDevID'] . '"';
-		$result = $db->query($sql);
+	$deviceId = network_request_id('NetworkUnmanagedDevID');
+	$result = false;
+	if ($deviceId !== null) {
+		$result = db_execute_prepared($db, 'DELETE FROM "network_dumb_dev" WHERE "id" = :id', array(':id' => array($deviceId, SQLITE3_INTEGER)));
 	}
 
 	if ($result == TRUE) {
 		echo $pia_lang['BE_NET_Man_DelUn'];
-		// Logging
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0035', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./networkSettings.php'>");
 	} else {
-		echo $pia_lang['BE_NET_Man_DelUn_Err'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
+		echo $pia_lang['BE_NET_Man_DelUn_Err'];
+		logServerConsole('Network unmanaged-device delete failed: ' . $db->lastErrorMsg());
 		pialert_logging('a_040', $_SERVER['REMOTE_ADDR'], 'LogStr_0075', '', '');
 	}
 }

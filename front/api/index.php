@@ -1,4 +1,9 @@
 <?php
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    header('Allow: POST');
+    http_response_code(405);
+    exit('Method Not Allowed');
+}
 // Check API Key
 // Print Api-Key for debugging
 // echo $_POST['api-key'];
@@ -11,7 +16,7 @@ if ($config_file_lines_bypass != False) {
 } else {echo "No API-Key is set\n";exit;}
 
 // Exit if API-Key is unequal
-if ($_REQUEST['api-key'] != $pia_apikey) {
+if ($_POST['api-key'] != $pia_apikey) {
 	echo "Wrong API-Key\n";
 	exit;
 }
@@ -26,8 +31,8 @@ $DBFILE = '../../db/pialert.db';
 ini_set('max_execution_time', '30');
 
 // Secure and verify query
-if (isset($_REQUEST['mac'])) {
-	$mac_address = str_replace('-', ':', strtolower($_REQUEST['mac']));
+if (isset($_POST['mac'])) {
+	$mac_address = str_replace('-', ':', strtolower($_POST['mac']));
 	if (filter_var($mac_address, FILTER_VALIDATE_MAC) === False) {echo 'Invalid MAC Address.';exit;}
 }
 
@@ -35,8 +40,8 @@ if (isset($_REQUEST['mac'])) {
 OpenDB();
 
 // Action functions
-if (isset($_REQUEST['get']) && !empty($_REQUEST['get'])) {
-	$action = $_REQUEST['get'];
+if (isset($_POST['get']) && !empty($_POST['get'])) {
+	$action = $_POST['get'];
 	switch ($action) {
 	case 'mac-status':getStatusofMAC($mac_address);
 		break;
@@ -116,15 +121,7 @@ function getSystemStatus() {
 		$sat_token = $row['sat_token'];
 		$sat_name = $row['sat_name'];
 
-		$result = $db->query(
-			"SELECT
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0) as All_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_PresentLastScan=1) as Online_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_NewDevice=1) as New_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0) as Down_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0) as Offline_Devices,
-	        (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource='".$row['sat_token']."' AND dev_Archived=1) as Archived_Devices
-	   ");
+		$result = db_execute_prepared($db, "SELECT (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0) AS All_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_PresentLastScan=1) AS Online_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_NewDevice=1) AS New_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0) AS Down_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=0 AND dev_AlertDeviceDown=0 AND dev_PresentLastScan=0) AS Offline_Devices, (SELECT COUNT(*) FROM Devices WHERE dev_ScanSource = :token AND dev_Archived=1) AS Archived_Devices", array(':token' => $row['sat_token']));
 		$subrow = $result->fetchArray(SQLITE3_NUM);
 		$temp_api_online_devices[$sat_name]['All_Devices'] = $subrow[0];
 		$temp_api_online_devices[$sat_name]['Online_Devices'] = $subrow[1];
@@ -163,12 +160,9 @@ function getSystemStatus() {
 //example curl -k -X POST -F 'api-key=key' -F 'get=mac-status' -F 'mac=dc:a6:32:23:06:d3' https://url/pialert/api/
 function getStatusofMAC($query_mac) {
 	global $db;
-	$sql = 'SELECT * FROM Devices WHERE dev_MAC="' . $query_mac . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_ASSOC);
-	$json = json_encode($row);
-	echo $json;
-	echo "\n";
+	$result = db_execute_prepared($db, 'SELECT * FROM Devices WHERE dev_MAC = :mac', array(':mac' => $query_mac));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	echo json_encode($row ?: null) . "\n";
 }
 
 //example curl -k -X POST -F 'api-key=key' -F 'get=all-online' https://url/pialert/api/

@@ -7,7 +7,15 @@
 //------------------------------------------------------------------------------
 //  leiweibau  2024        https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
+if (($_SESSION['login'] ?? 0) != 1) {
+    header('Location: ../../index.php');
+    exit;
+}
+pialert_require_method('POST');
+pialert_validate_csrf();
 require 'timezone.php';
 require 'db.php';
 require 'journal.php';

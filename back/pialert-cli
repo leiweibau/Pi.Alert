@@ -913,6 +913,13 @@ EOM
       \"Logfile\" BLOB,
       PRIMARY KEY(\"ScanDate\")
     );"
+    # Log_History_Nmap
+    echo -e "...Insert new table 'Log_History_Nmap' to DB-Tools"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Log_History_Nmap\" (
+      \"ScanDate\" DATETIME NOT NULL,
+      \"Logfile\" BLOB,
+      PRIMARY KEY(\"ScanDate\")
+    );"
     # Log_History_Scan
     echo -e "...Insert new table 'Log_History_Scan' to DB-Tools"
     sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Log_History_Scan\" (
@@ -953,6 +960,34 @@ EOM
       \"reserve_b\" TEXT,
       \"reserve_c\" TEXT,
       \"reserve_d\" TEXT
+    );"
+    # Tools_Nmap_Queue
+    echo -e "...Insert new table 'Tools_Nmap_Queue' to DB-Tools"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Nmap_Queue\" (
+      \"queue_id\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"device_mac\" TEXT NOT NULL COLLATE NOCASE,
+      \"target_ip\" TEXT NOT NULL,
+      \"scan_type\" TEXT NOT NULL DEFAULT 'detail',
+      \"source\" TEXT NOT NULL DEFAULT 'manual',
+      \"status\" TEXT NOT NULL DEFAULT 'queued',
+      \"requested_at\" TEXT NOT NULL,
+      \"started_at\" TEXT,
+      \"completed_at\" TEXT,
+      \"attempts\" INTEGER NOT NULL DEFAULT 0,
+      \"last_error\" TEXT,
+      \"result_id\" INTEGER,
+      UNIQUE (\"device_mac\", \"scan_type\")
+    );"
+    # Tools_Nmap_Schedule (prepared for a future opt-in scheduler; not active)
+    echo -e "...Insert new table 'Tools_Nmap_Schedule' to DB-Tools"
+    sqlite3 "$PIA_DB_TOOLS_FILE" "CREATE TABLE IF NOT EXISTS \"Tools_Nmap_Schedule\" (
+      \"schedule_id\" INTEGER PRIMARY KEY AUTOINCREMENT,
+      \"device_mac\" TEXT NOT NULL COLLATE NOCASE UNIQUE,
+      \"scan_type\" TEXT NOT NULL DEFAULT 'detail',
+      \"interval_minutes\" INTEGER NOT NULL,
+      \"next_run_at\" TEXT,
+      \"enabled\" INTEGER NOT NULL DEFAULT 0,
+      \"last_queued_at\" TEXT
     );"
     # Tools_Speedtest_History
     echo -e "...Insert new table 'Tools_Speedtest_History' to DB"
@@ -1046,10 +1081,10 @@ EOM
     if [ $CHECK_API -eq 0 ]
     then
         ## Create PIALERT_APIKEY
-        sed -i "/^VENDORS_DB.*/a PIALERT_APIKEY = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
+        sed -i "/^VENDORS_DB.*/a PIALERT_APIKEY             = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
     else
         ## Change PIALERT_APIKEY
-        sed -i "/PIALERT_APIKEY/c\PIALERT_APIKEY = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
+        sed -i "/PIALERT_APIKEY/c\PIALERT_APIKEY             = '$PIA_APIKEY_RAND'" $PIA_CONF_FILE
     fi
     echo "API-Key set"
     ;;

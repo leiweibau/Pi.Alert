@@ -17,7 +17,7 @@ echo 'Version: ' . $conf_data['VERSION_DATE'];
   <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
   <script src="lib/AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="lib/AdminLTE/dist/js/adminlte.min.js"></script>
-  <script src="js/pialert_common.js"></script>
+  <script src="js/pialert_common.js?2026"></script>
 
   <script>
     setDefaultPageTitle();

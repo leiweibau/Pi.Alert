@@ -1,4 +1,7 @@
 <?php
+// Some restricted runtime environments cannot allocate executable memory for PCRE JIT.
+// Disabling it prevents noisy warnings; regular expressions still work normally.
+ini_set('pcre.jit', '0');
 function ValidateTimezone($timezone) {
 	return in_array($timezone, timezone_identifiers_list());
 }

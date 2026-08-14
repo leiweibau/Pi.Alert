@@ -1,9 +1,21 @@
 <?php
+ob_start();
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
+require_once __DIR__ . '/php/server/csrf.php';
+$pageRequest = $_GET;
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    pialert_validate_csrf();
+    $pageRequest = $_POST;
+} elseif (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+    header('Allow: GET, POST');
+    http_response_code(405);
+    exit('Method Not Allowed');
+}
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -54,7 +66,7 @@ $Graph_Device_Arch = $graph_arrays[4];
 
 <?php
 // ################### Start Bulk-Editor #######################################
-if ($_REQUEST['mod'] == 'bulkedit') {
+if ($pageRequest['mod'] == 'bulkedit') {
 	require 'php/templates/notification.php';
 
 	echo '<section class="content-header">
@@ -66,45 +78,47 @@ if ($_REQUEST['mod'] == 'bulkedit') {
         <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
         <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">';
 
-	if ($_REQUEST['savedata'] == 'yes') {
+	if ($pageRequest['savedata'] == 'yes') {
 
 		$sql_queue = array();
 
-		if ($_REQUEST['en_bulk_owner'] == 'on') {
-			$set_bulk_owner = htmlspecialchars($_REQUEST['bulk_owner'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_owner="' . $set_bulk_owner . '"');
+		if ($pageRequest['en_bulk_owner'] == 'on') {
+			$set_bulk_owner = htmlspecialchars($pageRequest['bulk_owner'], ENT_QUOTES);
+			$sql_queue['icmp_owner'] = $set_bulk_owner;
 		}
-		if ($_REQUEST['en_bulk_type'] == 'on') {
-			$set_bulk_type = htmlspecialchars($_REQUEST['bulk_type'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_type="' . $set_bulk_type . '"');
+		if ($pageRequest['en_bulk_type'] == 'on') {
+			$set_bulk_type = htmlspecialchars($pageRequest['bulk_type'], ENT_QUOTES);
+			$sql_queue['icmp_type'] = $set_bulk_type;
 		}
-		if ($_REQUEST['en_bulk_group'] == 'on') {
-			$set_bulk_group = htmlspecialchars($_REQUEST['bulk_group'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_group="' . $set_bulk_group . '"');
+		if ($pageRequest['en_bulk_group'] == 'on') {
+			$set_bulk_group = htmlspecialchars($pageRequest['bulk_group'], ENT_QUOTES);
+			$sql_queue['icmp_group'] = $set_bulk_group;
 		}
-		if ($_REQUEST['en_bulk_location'] == 'on') {
-			$set_bulk_location = htmlspecialchars($_REQUEST['bulk_location'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_location="' . $set_bulk_location . '"');
+		if ($pageRequest['en_bulk_location'] == 'on') {
+			$set_bulk_location = htmlspecialchars($pageRequest['bulk_location'], ENT_QUOTES);
+			$sql_queue['icmp_location'] = $set_bulk_location;
 		}
-		if ($_REQUEST['en_bulk_comments'] == 'on') {
-			$set_bulk_comments = htmlspecialchars($_REQUEST['bulk_comments'], ENT_QUOTES);
-			array_push($sql_queue, 'icmp_Notes="' . $set_bulk_comments . '"');
+		if ($pageRequest['en_bulk_comments'] == 'on') {
+			$set_bulk_comments = htmlspecialchars($pageRequest['bulk_comments'], ENT_QUOTES);
+			$sql_queue['icmp_Notes'] = $set_bulk_comments;
 		}
-		if ($_REQUEST['en_bulk_AlertAllEvents'] == 'on') {
-			if ($_REQUEST['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
-			array_push($sql_queue, 'icmp_AlertEvents="' . $set_bulk_AlertAllEvents . '"');
+		if ($pageRequest['en_bulk_AlertAllEvents'] == 'on') {
+			if ($pageRequest['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
+			$sql_queue['icmp_AlertEvents'] = $set_bulk_AlertAllEvents;
 		}
-		if ($_REQUEST['en_bulk_AlertDown'] == 'on') {
-			if ($_REQUEST['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
-			array_push($sql_queue, 'icmp_AlertDown="' . $set_bulk_AlertDown . '"');
+		if ($pageRequest['en_bulk_AlertDown'] == 'on') {
+			if ($pageRequest['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
+			$sql_queue['icmp_AlertDown'] = $set_bulk_AlertDown;
 		}
-    if ($_REQUEST['en_bulk_MQTTDevice'] == 'on') {
-      if ($_REQUEST['bulk_MQTTDevice'] == 'on') {
+    if ($pageRequest['en_bulk_MQTTDevice'] == 'on') {
+      if ($pageRequest['bulk_MQTTDevice'] == 'on') {
         $set_bulk_MQTTDevice = 1;
-        array_push($sql_queue, 'icmp_MQTTDevice="' . $set_bulk_MQTTDevice . '", icmp_MQTTDevice_cleanup="0"');
+        $sql_queue['icmp_MQTTDevice'] = $set_bulk_MQTTDevice;
+        $sql_queue['icmp_MQTTDevice_cleanup'] = 0;
       } else { 
         $set_bulk_MQTTDevice = 0;
-        array_push($sql_queue, 'icmp_MQTTDevice="' . $set_bulk_MQTTDevice . '", icmp_MQTTDevice_cleanup="1"');
+        $sql_queue['icmp_MQTTDevice'] = $set_bulk_MQTTDevice;
+        $sql_queue['icmp_MQTTDevice_cleanup'] = 1;
       }
     }
 
@@ -122,13 +136,19 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			$sql = 'SELECT icmp_hostname, icmp_ip FROM ICMP_Mon ORDER BY icmp_hostname COLLATE NOCASE ASC';
 			$results = $db->query($sql);
 			while ($row = $results->fetchArray()) {
-				if (isset($_REQUEST[str_replace(".", "_", $row['icmp_ip'])])) {
+				if (isset($pageRequest[str_replace(".", "_", $row['icmp_ip'])])) {
 					// List modified devices (name)
 					$modified_hosts = $modified_hosts . $row['icmp_hostname'] . '; ';
 					// Build sql query and update
-					$sql_queue_str = implode(', ', $sql_queue);
-          $sql_update = 'UPDATE ICMP_Mon SET ' . $sql_queue_str . ' WHERE icmp_ip="' . $row['icmp_ip'] . '"';
-          $results_update = $db->query($sql_update);
+					$assignments = array();
+          $parameters = array(':ip' => $row['icmp_ip']);
+          $index = 0;
+          foreach ($sql_queue as $column => $value) {
+            $placeholder = ':value_' . $index++;
+            $assignments[] = $column . ' = ' . $placeholder;
+            $parameters[$placeholder] = $value;
+          }
+          $results_update = db_execute_prepared($db, 'UPDATE ICMP_Mon SET ' . implode(', ', $assignments) . ' WHERE icmp_ip = :ip', $parameters);
 				}
 			}
 			// output modified hosts
@@ -159,10 +179,14 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 		echo '<a href="./icmpmonitor.php?mod=bulkedit" class="btn btn-default pull-right" role="button" style="margin-bottom: 10px;">' . $pia_lang['Gen_Close'] . '</a>';
 		print_box_bottom_element();
+        header('Location: ./icmpmonitor.php?mod=bulkedit&saved=1', true, 303);
+        ob_end_clean();
+        exit;
 	}
 
 	echo '<form method="post" action="./icmpmonitor.php">
           <input type="hidden" id="mod" name="mod" value="bulkedit">
+          <input type="hidden" name="_csrf" value="'.h(pialert_csrf_token()).'">
           <input type="hidden" id="savedata" name="savedata" value="yes">';
 
   print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
@@ -364,7 +388,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
     const queryParams = new URLSearchParams();
     checkedIds.forEach((id) => queryParams.append('hosts[]', id));
     // Execute
-    $.get('php/server/icmpmonitor.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
+    pialertPost('php/server/icmpmonitor.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
       showMessage (msg);
     });
   }
@@ -379,35 +403,41 @@ if ($_REQUEST['mod'] == 'bulkedit') {
     initializeCombo ( $('#dropdownLocation')[0],    'getLocations',       'bulk_location');
   }
   function initializeCombo (HTMLelement, queryAction, txtDataField) {
-    // get data from server
-    $.get('php/server/devices.php?action='+queryAction, function(data) {
-      var listData = JSON.parse(data);
-      var order = 1;
+  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+    const listData = JSON.parse(data);
+    let order = 1;
 
-      HTMLelement.innerHTML = ''
+    while (HTMLelement.firstChild) {
+      HTMLelement.removeChild(HTMLelement.firstChild);
+    }
 
-      listData.forEach(function (item, index) {
-        if (order != item['order']) {
-          HTMLelement.innerHTML += '<li class="divider"></li>';
-          order = item['order'];
-        }
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        HTMLelement.appendChild(divider);
+        order = item.order;
+      }
 
-        id = item['name'];
-        if(item['id'])
-        {
-          id = item['id'];
-        }
-        if (queryAction == "getNetworkNodes") {
-          HTMLelement.innerHTML +=
-            '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-            txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
-        } else {
-          HTMLelement.innerHTML +=
-            '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-            txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
-        }
+      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const label = queryAction === 'getNetworkNodes'
+        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
+        : String(item.name ?? '');
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+
+      link.href = '#';
+      link.textContent = label;
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue(txtDataField, String(value ?? ''));
       });
+
+      listItem.appendChild(link);
+      HTMLelement.appendChild(listItem);
     });
+  });
+});
   }
   initializeCombos();
   initializeiCheck();
@@ -425,9 +455,9 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		if ($row[3] == 1 && $row[4] == 1) {$status_text_color = 'bulked_checkbox_label_alldown';} elseif ($row[3] == 1) {$status_text_color = 'bulked_checkbox_label_all';} elseif ($row[4] == 1) {$status_text_color = 'bulked_checkbox_label_down';} else { $status_text_color = '';}
 		echo '<div class="bulked_dev_box ' . $status_border . '">
              <div class="bulked_dev_chk_cont" style="' . $status_box . '">
-                <input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . str_replace(".", "_", $row[1]) . '" name="' . str_replace(".", "_", $row[1]) . '" type="checkbox">
+                <input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . h(str_replace(".", "_", $row[1])) . '" name="' . h(str_replace(".", "_", $row[1])) . '" type="checkbox">
              </div>
-             <label class="control-label ' . $status_text_color . '" for="' . str_replace(".", "_", $row[1]) . '" style="">' . $row[0] . '</label>
+             <label class="control-label ' . $status_text_color . '" for="' . h(str_replace(".", "_", $row[1])) . '" style="">' . h($row[0]) . '</label>
           </div>';
 	}
 
@@ -768,6 +798,7 @@ function initializeDatatable () {
     'pageLength'   : tableRows,
 
     'columnDefs'   : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {visible:   false,         targets: [6,7,8] },
       {className: 'text-center', targets: [1,2,3,4,5] },
       {className: 'text-left',   targets: [0] },
@@ -784,7 +815,11 @@ function initializeDatatable () {
 	            case 'Offline':   color='transparent';         break;
 	            default:          color='transparent';         break;
 	          };
-            $(td).html ('<b><a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="">'+ cellData +'</a></b>');
+            setCellLink(
+              td,
+              "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[1] ?? "")),
+              cellData
+            );
             $(td).css('min-width', '160px');
 
             let tableWidth = $("#tableDevices").outerWidth();
@@ -813,9 +848,9 @@ function initializeDatatable () {
       {targets: [3],
         'createdCell': function (td, cellData, rowData, row, col) {
           if (cellData == 99999){
-            $(td).html ('TimeOut');
+            setCellText(td, "TimeOut");
           } else {
-            $(td).html (cellData + ' ms');
+            setCellText(td, cellData, " ms");
           }
       } },
       {targets: [5],
@@ -827,7 +862,11 @@ function initializeDatatable () {
             case 'Offline':  color='gray text-white';     statusname='Offline';                       break;
             default:         color='aqua';                statusname=''; 					                   break;
           };
-          $(td).html ('<a href="icmpmonitorDetails.php?hostip='+ rowData[1] +'" class="badge bg-'+ color +'">'+ statusname +'</a>');
+          const statusLink = document.createElement("a");
+          statusLink.href = "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[1] ?? ""));
+          statusLink.className = "badge bg-" + color;
+          statusLink.textContent = statusname;
+          td.replaceChildren(statusLink);
       } },
     ],
 
@@ -893,7 +932,7 @@ function insertNewICMPHost(refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/icmpmonitor.php?action=insertNewICMPHost'
+  pialertPost('php/server/icmpmonitor.php?action=insertNewICMPHost'
     + '&icmp_ip='         + $('#icmphost_ip').val()
     + '&icmp_hostname='   + $('#icmphost_name').val()
     + '&icmp_fav='        + ($('#insFavorite')[0].checked * 1)

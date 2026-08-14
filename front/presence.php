@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -353,8 +354,14 @@ function initializeCalendar () {
     },
 
     resourceRender: function (resourceObj, labelTds, bodyTds) {
-      labelTds.find('span.fc-cell-text').html (
-      '<b><a href="deviceDetails.php?mac='+ resourceObj.id+ '" class="">'+ resourceObj.title +'</a></b>');
+      const labelCell = labelTds.find('span.fc-cell-text').get(0);
+      if (labelCell) {
+        setCellLink(
+          labelCell,
+          "deviceDetails.php?mac=" + encodeURIComponent(String(resourceObj.id ?? "")),
+          resourceObj.title
+        );
+      }
 
       // Resize heihgt
       // $(".fc-content table tbody tr .fc-widget-content div").addClass('fc-resized-row');
@@ -416,14 +423,14 @@ function getDevicesPresence (status) {
   // Set title and color
   $('#tableDevicesTitle')[0].className = 'box-title text-'+ color;
   $('#tableDevicesBox')[0].className = 'box box-'+ color;
-  $('#tableDevicesTitle').html (tableTitle);
+  $('#tableDevicesTitle').text(tableTitle);
 
   // Define new datasource URL and reload
-  $('#calendar').fullCalendar ('option', 'resources', 'php/server/devices.php?action=getDevicesListCalendar&scansource=<?=$SCANSOURCE?>&status='+ deviceStatus);
+  $('#calendar').fullCalendar ('option', 'resources', 'php/server/devices.php?action=getDevicesListCalendar&scansource=' + encodeURIComponent(<?=json_encode((string) $SCANSOURCE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>) + '&status=' + encodeURIComponent(deviceStatus));
   $('#calendar').fullCalendar ('refetchResources');
 
   $('#calendar').fullCalendar('removeEventSources');
-  $('#calendar').fullCalendar('addEventSource', { url: 'php/server/events.php?action=getEventsCalendar&scansource=<?=$SCANSOURCE?>' });
+  $('#calendar').fullCalendar('addEventSource', { url: 'php/server/events.php?action=getEventsCalendar&scansource=' + encodeURIComponent(<?=json_encode((string) $SCANSOURCE, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>) });
 };
 
 </script>

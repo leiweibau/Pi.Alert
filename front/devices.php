@@ -1,9 +1,21 @@
 <?php
+ob_start();
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
+require_once __DIR__ . '/php/server/csrf.php';
+$pageRequest = $_GET;
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    pialert_validate_csrf();
+    $pageRequest = $_POST;
+} elseif (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+    header('Allow: GET, POST');
+    http_response_code(405);
+    exit('Method Not Allowed');
+}
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -16,6 +28,24 @@ require 'php/server/journal.php';
 
 $DBFILE = '../db/pialert.db';
 OpenDB();
+
+$predefined_filter = isset($pageRequest['predefined_filter']) && is_scalar($pageRequest['predefined_filter'])
+  ? (string) $pageRequest['predefined_filter']
+  : '';
+$filter_fields_raw = isset($pageRequest['filter_fields']) && is_scalar($pageRequest['filter_fields'])
+  ? (string) $pageRequest['filter_fields']
+  : '';
+$filter_fields = array();
+foreach (array_filter(explode(',', $filter_fields_raw), 'strlen') as $filter_field) {
+  if (ctype_digit($filter_field)) {
+    $filter_field = (int) $filter_field;
+    if ($filter_field >= 0 && $filter_field <= 17) {
+      $filter_fields[] = $filter_field;
+    }
+  }
+}
+$filter_fields = array_values(array_unique($filter_fields));
+$javascript_json_flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 
 function print_box_top_element($title) {
 	echo '<div class="row">
@@ -52,7 +82,7 @@ $Graph_Device_Arch = $graph_arrays[4];
 
 <?php
 // ################### Start Bulk-Editor #######################################
-if ($_REQUEST['mod'] == 'bulkedit') {
+if ($pageRequest['mod'] == 'bulkedit') {
 
 	echo '<h1 id="pageTitle">' . $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
           <a href="./devices.php" class="btn btn-success pull-right bulk_editor_quit" role="button">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
@@ -65,55 +95,58 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 
 	echo '<form method="post" action="./devices.php?scansource='.$SCANSOURCE.'">
           <input type="hidden" id="mod" name="mod" value="bulkedit">
+          <input type="hidden" name="_csrf" value="'.h(pialert_csrf_token()).'">
           <input type="hidden" id="savedata" name="savedata" value="yes">';
 
-	if ($_REQUEST['savedata'] == 'yes') {
+	if ($pageRequest['savedata'] == 'yes') {
 
 		$sql_queue = array();
 
-		if ($_REQUEST['en_bulk_owner'] == 'on') {
-			$set_bulk_owner = htmlspecialchars($_REQUEST['bulk_owner'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Owner="' . $set_bulk_owner . '"');}
-		if ($_REQUEST['en_bulk_type'] == 'on') {
-			$set_bulk_type = htmlspecialchars($_REQUEST['bulk_type'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_DeviceType="' . $set_bulk_type . '"');}
-		if ($_REQUEST['en_bulk_group'] == 'on') {
-			$set_bulk_group = htmlspecialchars($_REQUEST['bulk_group'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Group="' . $set_bulk_group . '"');}
-		if ($_REQUEST['en_bulk_location'] == 'on') {
-			$set_bulk_location = htmlspecialchars($_REQUEST['bulk_location'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Location="' . $set_bulk_location . '"');}
-		if ($_REQUEST['en_bulk_comments'] == 'on') {
-			$set_bulk_comments = htmlspecialchars($_REQUEST['bulk_comments'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_Comments="' . $set_bulk_comments . '"');}
-		if ($_REQUEST['en_bulk_connectiontype'] == 'on') {
-			$set_bulk_connectiontype = htmlspecialchars($_REQUEST['bulk_connectiontype'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_ConnectionType="' . $set_bulk_connectiontype . '"');}
-		if ($_REQUEST['en_bulk_linkspeed'] == 'on') {
-			$set_bulk_linkspeed = htmlspecialchars($_REQUEST['bulk_linkspeed'], ENT_QUOTES);
-			array_push($sql_queue, 'dev_LinkSpeed="' . $set_bulk_linkspeed . '"');}
-		if ($_REQUEST['en_bulk_AlertAllEvents'] == 'on') {
-			if ($_REQUEST['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
-			array_push($sql_queue, 'dev_AlertEvents="' . $set_bulk_AlertAllEvents . '"');}
-		if ($_REQUEST['en_bulk_AlertDown'] == 'on') {
-			if ($_REQUEST['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
-			array_push($sql_queue, 'dev_AlertDeviceDown="' . $set_bulk_AlertDown . '"');}
-		if ($_REQUEST['en_bulk_NewDevice'] == 'on') {
-			if ($_REQUEST['bulk_NewDevice'] == 'on') {$set_bulk_NewDevice = 1;} else { $set_bulk_NewDevice = 0;}
-			array_push($sql_queue, 'dev_NewDevice="' . $set_bulk_NewDevice . '"');}
-		if ($_REQUEST['en_bulk_Archived'] == 'on') {
-			if ($_REQUEST['bulk_Archived'] == 'on') {$set_bulk_Archived = 1;} else { $set_bulk_Archived = 0;}
-			array_push($sql_queue, 'dev_Archived="' . $set_bulk_Archived . '"');}
-		if ($_REQUEST['en_bulk_PresencePage'] == 'on') {
-			if ($_REQUEST['bulk_PresencePage'] == 'on') {$set_bulk_PresencePage = 1;} else { $set_bulk_PresencePage = 0;}
-			array_push($sql_queue, 'dev_PresencePage="' . $set_bulk_PresencePage . '"');}
-		if ($_REQUEST['en_bulk_MQTTDevice'] == 'on') {
-			if ($_REQUEST['bulk_MQTTDevice'] == 'on') {
+		if ($pageRequest['en_bulk_owner'] == 'on') {
+			$set_bulk_owner = htmlspecialchars($pageRequest['bulk_owner'], ENT_QUOTES);
+			$sql_queue['dev_Owner'] = $set_bulk_owner;}
+		if ($pageRequest['en_bulk_type'] == 'on') {
+			$set_bulk_type = htmlspecialchars($pageRequest['bulk_type'], ENT_QUOTES);
+			$sql_queue['dev_DeviceType'] = $set_bulk_type;}
+		if ($pageRequest['en_bulk_group'] == 'on') {
+			$set_bulk_group = htmlspecialchars($pageRequest['bulk_group'], ENT_QUOTES);
+			$sql_queue['dev_Group'] = $set_bulk_group;}
+		if ($pageRequest['en_bulk_location'] == 'on') {
+			$set_bulk_location = htmlspecialchars($pageRequest['bulk_location'], ENT_QUOTES);
+			$sql_queue['dev_Location'] = $set_bulk_location;}
+		if ($pageRequest['en_bulk_comments'] == 'on') {
+			$set_bulk_comments = htmlspecialchars($pageRequest['bulk_comments'], ENT_QUOTES);
+			$sql_queue['dev_Comments'] = $set_bulk_comments;}
+		if ($pageRequest['en_bulk_connectiontype'] == 'on') {
+			$set_bulk_connectiontype = htmlspecialchars($pageRequest['bulk_connectiontype'], ENT_QUOTES);
+			$sql_queue['dev_ConnectionType'] = $set_bulk_connectiontype;}
+		if ($pageRequest['en_bulk_linkspeed'] == 'on') {
+			$set_bulk_linkspeed = htmlspecialchars($pageRequest['bulk_linkspeed'], ENT_QUOTES);
+			$sql_queue['dev_LinkSpeed'] = $set_bulk_linkspeed;}
+		if ($pageRequest['en_bulk_AlertAllEvents'] == 'on') {
+			if ($pageRequest['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
+			$sql_queue['dev_AlertEvents'] = $set_bulk_AlertAllEvents;}
+		if ($pageRequest['en_bulk_AlertDown'] == 'on') {
+			if ($pageRequest['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
+			$sql_queue['dev_AlertDeviceDown'] = $set_bulk_AlertDown;}
+		if ($pageRequest['en_bulk_NewDevice'] == 'on') {
+			if ($pageRequest['bulk_NewDevice'] == 'on') {$set_bulk_NewDevice = 1;} else { $set_bulk_NewDevice = 0;}
+			$sql_queue['dev_NewDevice'] = $set_bulk_NewDevice;}
+		if ($pageRequest['en_bulk_Archived'] == 'on') {
+			if ($pageRequest['bulk_Archived'] == 'on') {$set_bulk_Archived = 1;} else { $set_bulk_Archived = 0;}
+			$sql_queue['dev_Archived'] = $set_bulk_Archived;}
+		if ($pageRequest['en_bulk_PresencePage'] == 'on') {
+			if ($pageRequest['bulk_PresencePage'] == 'on') {$set_bulk_PresencePage = 1;} else { $set_bulk_PresencePage = 0;}
+			$sql_queue['dev_PresencePage'] = $set_bulk_PresencePage;}
+		if ($pageRequest['en_bulk_MQTTDevice'] == 'on') {
+			if ($pageRequest['bulk_MQTTDevice'] == 'on') {
 				$set_bulk_MQTTDevice = 1;
-				array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '", dev_MQTTDevice_cleanup="0"');
+				$sql_queue['dev_MQTTDevice'] = $set_bulk_MQTTDevice;
+				$sql_queue['dev_MQTTDevice_cleanup'] = 0;
 			} else { 
 				$set_bulk_MQTTDevice = 0;
-				array_push($sql_queue, 'dev_MQTTDevice="' . $set_bulk_MQTTDevice . '", dev_MQTTDevice_cleanup="1"');
+				$sql_queue['dev_MQTTDevice'] = $set_bulk_MQTTDevice;
+				$sql_queue['dev_MQTTDevice_cleanup'] = 1;
 			}
 		}
 
@@ -131,13 +164,19 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 			$results = $db->query($sql);
 			while ($row = $results->fetchArray()) {
 				$matched_mac = str_replace(" ", "_",$row['dev_MAC']);
-				if (isset($_REQUEST[$matched_mac])) {
+				if (isset($pageRequest[$matched_mac])) {
 					// List modified devices (name)
 					$modified_hosts = $modified_hosts . $row['dev_Name'] . '; ';
 					// Build sql query and update
-					$sql_queue_str = implode(', ', $sql_queue);
-					$sql_update = 'UPDATE Devices SET ' . $sql_queue_str . ' WHERE dev_MAC="' . $row['dev_MAC'] . '"';
-					$results_update = $db->query($sql_update);
+					$assignments = array();
+					$parameters = array(':mac' => $row['dev_MAC']);
+					$index = 0;
+					foreach ($sql_queue as $column => $value) {
+						$placeholder = ':value_' . $index++;
+						$assignments[] = $column . ' = ' . $placeholder;
+						$parameters[$placeholder] = $value;
+					}
+					$results_update = db_execute_prepared($db, 'UPDATE Devices SET ' . implode(', ', $assignments) . ' WHERE dev_MAC = :mac', $parameters);
 				}
 			}
 			// output modified hosts
@@ -172,6 +211,9 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		echo '<a href="./devices.php?mod=bulkedit&scansource='.$SCANSOURCE.'" class="btn btn-default pull-right" role="button" style="margin-bottom: 10px;">' . $pia_lang['Gen_Close'] . '</a>';
 		echo '</div>';
 		print_box_bottom_element();
+        header('Location: ./devices.php?mod=bulkedit&scansource=' . rawurlencode((string) $SCANSOURCE) . '&saved=1', true, 303);
+        ob_end_clean();
+        exit;
 	}
 
 	print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
@@ -444,7 +486,7 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 		const queryParams = new URLSearchParams();
 		checkedIds.forEach((id) => queryParams.append('hosts[]', id));
 	  // Execute
-	  $.get('php/server/devices.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
+	  pialertPost('php/server/devices.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
 	    showMessage (msg);
 	  });
 	}
@@ -466,35 +508,41 @@ if ($_REQUEST['mod'] == 'bulkedit') {
 	  initializeCombo ( $('#dropdownLocation')[0],    'getLocations',       'bulk_location');
 	}
 	function initializeCombo (HTMLelement, queryAction, txtDataField) {
-	  // get data from server
-	  $.get('php/server/devices.php?action='+queryAction, function(data) {
-	    var listData = JSON.parse(data);
-	    var order = 1;
+  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+    const listData = JSON.parse(data);
+    let order = 1;
 
-	    HTMLelement.innerHTML = ''
+    while (HTMLelement.firstChild) {
+      HTMLelement.removeChild(HTMLelement.firstChild);
+    }
 
-	    listData.forEach(function (item, index) {
-	      if (order != item['order']) {
-	        HTMLelement.innerHTML += '<li class="divider"></li>';
-	        order = item['order'];
-	      }
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        HTMLelement.appendChild(divider);
+        order = item.order;
+      }
 
-	      id = item['name'];
-	      if(item['id'])
-	      {
-	        id = item['id'];
-	      }
-	      if (queryAction == "getNetworkNodes") {
-	        HTMLelement.innerHTML +=
-	          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-	          txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
-	      } else {
-	        HTMLelement.innerHTML +=
-	          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-	          txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
-	      }
-	    });
-	  });
+      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const label = queryAction === 'getNetworkNodes'
+        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
+        : String(item.name ?? '');
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+
+      link.href = '#';
+      link.textContent = label;
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue(txtDataField, String(value ?? ''));
+      });
+
+      listItem.appendChild(link);
+      HTMLelement.appendChild(listItem);
+    });
+  });
+});
 	}
 	initializeCombos();
 	initializeiCheck();
@@ -583,8 +631,7 @@ function filterDevicesByLabel(searchTerm) {
 </div>
 
 <?php
-	$sql = 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown, dev_PresencePage FROM Devices WHERE dev_ScanSource="'.$SCANSOURCE.'" ORDER BY dev_Name COLLATE NOCASE ASC';
-	$results = $db->query($sql);
+	$results = db_execute_prepared($db, 'SELECT dev_Name, dev_MAC, dev_PresentLastScan, dev_Archived, dev_NewDevice, dev_AlertEvents, dev_AlertDeviceDown, dev_PresencePage FROM Devices WHERE dev_ScanSource = :scan_source ORDER BY dev_Name COLLATE NOCASE ASC', array(':scan_source' => (string) $SCANSOURCE));
 	while ($row = $results->fetchArray()) {
 		if ($row[2] == 1) {$status_border = 'bulked_online_border';} else { $status_border = 'bulked_offline_border';}
 		if ($row[3] == 1) {$status_box = 'bulked_arc_dev';} elseif ($row[4] == 1) {$status_box = 'bulked_new_dev';} else { $status_box = 'bulked_default_dev';}
@@ -592,9 +639,9 @@ function filterDevicesByLabel(searchTerm) {
 		if ($row[7] == 0) {$underline = 'presence-underlined';} else { $underline = '';}
 		echo '<div class="bulked_dev_box ' . $status_border . '">
              <div class="bulked_dev_chk_cont ' . $status_box . '" style="">
-             		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . $row[1] . '" name="' . str_replace(" ", "_", $row[1]) . '" type="checkbox">
+             		<input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . h($row[1]) . '" name="' . h(str_replace(" ", "_", $row[1])) . '" type="checkbox">
              </div>
-             <label class="control-label ' . $status_text_color . ' ' . $underline . '" for="' . $row[1] . '">' . $row[0] . '</label>
+             <label class="control-label ' . $status_text_color . ' ' . $underline . '" for="' . h($row[1]) . '">' . h($row[0]) . '</label>
           </div>';
 	}
 ?>
@@ -647,8 +694,8 @@ function filterDevicesByLabel(searchTerm) {
       <h1 id="pageTitle">
            <?php
            echo $pia_lang['Device_Title'] . ' / ' . $_SESSION[$SCANSOURCE];
-           if ($_REQUEST['predefined_filter']) {
-           	echo ' ('.$_REQUEST['predefined_filter'].')';
+           if ($predefined_filter !== '') {
+           	echo ' (' . h($predefined_filter) . ')';
            }
            ?>
       </h1>
@@ -784,6 +831,11 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
 }
 ?>
 <!-- datatable ------------------------------------------------------------- -->
+	  <style>
+	    #tableDevices td.nmap-queued-ip {
+	      color: <?=$ENABLED_DARKMODE === True ? '#66b3ff' : '#0066b3';?> !important;
+	    }
+	  </style>
       <div class="row">
         <div class="col-xs-12">
           <div id="tableDevicesBox" class="box">
@@ -793,7 +845,7 @@ If ($ENABLED_HISTOY_GRAPH !== False) {
             	<h3 id="tableDevicesTitle" class="box-title text-gray"><?=$pia_lang['NAV_Devices']?></h3>
               <?php
               # Create or remove custom filters
-              if (!$_REQUEST['predefined_filter']) {
+              if ($predefined_filter === '') {
               	# no active filter
               	echo '<a href="./devices.php?mod=bulkedit&scansource='.$SCANSOURCE.'" class="btn btn-xs btn-link" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil text-yellow" style="font-size:1.5rem"></i></a>';
               	echo '<a href="#" class="btn btn-xs btn-link" role="button" data-toggle="modal" data-target="#modal-set-predefined-filter" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa-solid fa-filter text-green" style="font-size:1.5rem"></i></a>';
@@ -939,6 +991,7 @@ if ($table_config['WakeOnLAN'] == 0) {$devlistcol_hide .= '17, ';}
                   <th>ScanSource</th>
                   <th><?=$pia_lang['Device_TableHead_Rowid'];?></th>
                   <th><?=$pia_lang['Device_TableHead_WakeOnLAN'];?></th>
+				  <th>NmapQueue</th>
                 </tr>
                 </thead>
               </table>
@@ -1015,7 +1068,7 @@ function initializeDatatable () {
     'lengthChange' : true,
     'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, '<?=$pia_lang['Device_Tablelenght_all'];?>']],
     'searching'    : true,
-    'oSearch'      : {'sSearch': '<?=$_REQUEST['predefined_filter'];?>'},
+    'oSearch'      : {'sSearch': <?=json_encode($predefined_filter, $javascript_json_flags);?>},
 
     'ordering'     : true,
     'info'         : true,
@@ -1027,14 +1080,15 @@ function initializeDatatable () {
     // 'order'       : [[3,'desc'], [0,'asc']],
 
     'columnDefs'   : [
-      {visible:   false,         targets: [<?=$devlistcol_hide;?>14, 15, 16] },
+      {targets: '_all', render: $.fn.dataTable.render.text()},
+	  {visible:   false,         targets: [<?=$devlistcol_hide;?>14, 15, 16, 18] },
       {className: 'text-center', targets: [4, 9, 10, 11, 13, 17] },
       {width:     '100px',       targets: [7, 8] },
       {width:     '30px',        targets: [10] },
       {width:     '0px',         targets: [13] },
       {width:     '20px',         targets: [17] },
       {orderData: [14],          targets: [9] },
-      { "targets": [<?=$_REQUEST['filter_fields'];?>], "searchable": false },
+      { "targets": <?=json_encode($filter_fields);?>, "searchable": false },
 
       // Device Name
       {targets: [0],
@@ -1048,17 +1102,13 @@ function initializeDatatable () {
             case 'Off-line':  color='transparent';         break;
             default:          color='transparent';         break;
           };
-			if (rowData[11].startsWith("Internet")) {
-			    $(td).html(
-			        '<b><a href="deviceDetails.php?mac=' + rowData[11] +
-			        '" class="text-danger">' + cellData + '</a></b>'
-			    );
-			} else {
-			    $(td).html(
-			        '<b><a href="deviceDetails.php?mac=' + rowData[11] +
-			        '" class="">' + cellData + '</a></b>'
-			    );
-			}
+          const macAddress = String(rowData[11] ?? "");
+          setCellLink(
+            td,
+            "deviceDetails.php?mac=" + encodeURIComponent(macAddress),
+            cellData,
+            macAddress.startsWith("Internet") ? "text-danger" : ""
+          );
 
           let tableWidth = $("#tableDevices").outerWidth();
           let viewportWidth = $(window).width() - 50;
@@ -1087,8 +1137,15 @@ function initializeDatatable () {
       // Dates
       {targets: [7, 8],
         'createdCell': function (td, cellData, rowData, row, col) {
-          $(td).html (translateHTMLcodes (cellData));
+          setCellText(td, cellData);
       } },
+	  // Highlight IPs whose device currently has a detailed Nmap queue entry.
+	  {targets: [9],
+	    'createdCell': function (td, cellData, rowData) {
+	      const isNmapQueued = rowData[18] === true || rowData[18] === 1;
+	      setCellText(td, isNmapQueued ? '* ' + String(cellData ?? '') + ' *' : cellData);
+	      $(td).toggleClass('nmap-queued-ip', isNmapQueued);
+	  } },
       // Random MAC
       {targets: [10],
         'createdCell': function (td, cellData, rowData, row, col) {
@@ -1103,9 +1160,9 @@ function initializeDatatable () {
 	    'createdCell': function (td, cellData, rowData, row, col) {
 	      if (cellData && cellData.startsWith("Internet")) {
 	         let displayText = cellData.length > 20 ? cellData.slice(0, 20) + "…" : cellData;
-	         $(td).html(displayText);
+	         setCellText(td, displayText);
 	      } else {
-	         $(td).html(cellData);
+	         setCellText(td, cellData);
 	      }
 	  } },
       // Status color
@@ -1113,29 +1170,45 @@ function initializeDatatable () {
         'createdCell': function (td, cellData, rowData, row, col) {
           switch (rowData[13]) {
             case 'Down':      color='red';                 statusname='Down';                          break;
-            case 'NewON':     color='grad-green-yellow';   statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';   break;
-            case 'NewOFF':    color='grad-gray-yellow';    statusname='&nbsp;&nbsp;New&nbsp;&nbsp;';   break;
+            case 'NewON':     color='grad-green-yellow';   statusname='  New  ';   break;
+            case 'NewOFF':    color='grad-gray-yellow';    statusname='  New  ';   break;
             case 'OnlineV':   color='green';               statusname='Online*';                       break;
             case 'On-line':   color='green';               statusname='Online';                        break;
             case 'Off-line':  color='gray text-white';     statusname='Offline';                       break;
             case 'Archived':  color='gray text-white';     statusname='Archived';                      break;
             default:          color='aqua';                statusname=''; 					                   break;
           };
-          $(td).html ('<a href="deviceDetails.php?mac='+ rowData[11] +'" class="badge bg-'+ color +'">'+ statusname +'</a>');
+          const statusLink = document.createElement("a");
+          statusLink.href = "deviceDetails.php?mac=" + encodeURIComponent(String(rowData[11] ?? ""));
+          statusLink.className = "badge bg-" + color;
+          statusLink.textContent = statusname;
+          td.replaceChildren(statusLink);
       } },
       // WakeonLAN
-      {targets: -1, // last column
-         data : null,
+	  {targets: 17,
+         data: null,
          orderable: false,
-         "render": function (data, type, row, meta) {
-         	 // Deactivation of WoL buttons for devices where it probably makes no sense
-         	 var includeValues = ["Mini PC", "Server", "Laptop", "NAS", "PC", "Hypervisor", "VM Guest"];
-
-         	 if (includeValues.indexOf(row[3]) !== -1 && row[11] !== "Internet") {
-              return '<a href="#" onclick="askwakeonlan(\'' + row[11] + '\',\'' + row[9] + '\', \'' + row[0] + '\')"><i class="fa-solid fa-power-off text-red"></i></a>';
-           } else {
-           	return '';
+         createdCell: function (td, cellData, rowData) {
+           const includeValues = ["Mini PC", "Server", "Laptop", "NAS", "PC", "Hypervisor", "VM Guest"];
+           td.replaceChildren();
+           if (includeValues.indexOf(rowData[3]) === -1 || rowData[11] === "Internet") {
+             return;
            }
+
+           const link = document.createElement("a");
+           link.href = "#";
+           const icon = document.createElement("i");
+           icon.className = "fa-solid fa-power-off text-red";
+           link.append(icon);
+           link.addEventListener("click", function (event) {
+             event.preventDefault();
+             askwakeonlan(
+               String(rowData[11] ?? ""),
+               String(rowData[9] ?? ""),
+               String(rowData[0] ?? "")
+             );
+           });
+           td.append(link);
          }
       },
     ],
@@ -1226,7 +1299,7 @@ function askwakeonlan(fmac,fip,fname) {
 function wakeonlan() {
   var fmac = window.global_fmac;
   var fip = window.global_fip;
-  $.get('php/server/devices.php?action=wakeonlan&'
+  pialertPost('php/server/devices.php?action=wakeonlan&'
     + '&mac='         + fmac
     + '&ip='          + fip
     , function(msg) {
@@ -1240,15 +1313,18 @@ function askDeleteDeviceFilter() {
     '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteDeviceFilter');
 }
 function DeleteDeviceFilter() {
-    $.get('php/server/devices.php?action=DeleteDeviceFilter&filterstring=<?=$_REQUEST['predefined_filter'];?>'
-    , function(msg) {
-    showMessage (msg);
+  const params = new URLSearchParams({
+    action: 'DeleteDeviceFilter',
+    filterstring: <?=json_encode($predefined_filter, $javascript_json_flags);?>
+  });
+  pialertPost('php/server/devices.php?' + params.toString(), function(msg) {
+    showMessage(msg);
   });
 }
 // --------------------------------------------------------------------------
 // Set Device Filter
 function SetDeviceFilter() {
-    $.get('php/server/devices.php?action=SetDeviceFilter&'
+    pialertPost('php/server/devices.php?action=SetDeviceFilter&'
     + '&filtername='    + $('#txtFilterName').val()
     + '&filterstring='  + $('#txtFilterString').val()
     + '&filtergroup='   + $('#txtFilterGroup').val()

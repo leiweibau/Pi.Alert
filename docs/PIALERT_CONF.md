@@ -60,9 +60,16 @@ I would like to give a short explanation to the individual points.
 | SMTP_PORT       | The port of the SMTP server. The port may vary depending on the server configuration.                                                             |
 | SMTP_USER       | User name used to authenticate with the SMTP server.                                                                                              |
 | SMTP_PASS       | Password used to authenticate with the SMTP server.                                                                                               |
-| SMTP_SKIP_TLS   | If this entry is set to True, transport encryption of the e-mail is enabled. If the server does not support this, the entry must be set to False. |
+| SMTP_SSL        | Use SSL immediately when connecting to the SMTP server (SMTPS / SSL-on-connect).                                                                  |
+| SMTP_SKIP_TLS   | Skip STARTTLS after connecting with regular SMTP. This setting is ignored when `SMTP_SSL` is True.                                                |
 | SMTP_SKIP_LOGIN | There are SMTP servers which do not require a login. In such a case, this value can be set to True.                                               |
 
+
+**SMTP transport modes:**
+
+- `SMTP_SSL = True`: Connect with SMTPS / SSL-on-connect. STARTTLS is not used.
+- `SMTP_SSL = False` and `SMTP_SKIP_TLS = False`: Connect with SMTP and upgrade the connection with STARTTLS.
+- `SMTP_SSL = False` and `SMTP_SKIP_TLS = True`: Connect with SMTP without TLS.
 
 #### :eight_spoked_asterisk: WebGUI Reporting
 
@@ -138,20 +145,15 @@ I would like to give a short explanation to the individual points.
 :exclamation: If you want to use a token instead of username and password, leave the username blank and use the token as the password.
 
 
-#### :eight_spoked_asterisk: Shoutrrr
+#### :eight_spoked_asterisk: Telegram
 
-| Option               | Description |
-|-----------------|-----------------------------------------------------------------------------------------------------------------------------|
-| SHOUTRRR_BINARY | Here you have to configure which binary of shoutrrr has to be used. This depends on the hardware Pi.Alert was installed on. |
-
-
-#### :eight_spoked_asterisk: Telegram via Shoutrrr
-
-| Option               | Description |
+| Option                 | Description |
 |------------------------|---------------------------------------------------------------------------------------------|
-| REPORT_TELEGRAM        | Enables/disables the notifications about changes in the network via Telegram                |
-| REPORT_TELEGRAM_WEBMON | Enables/disables the notifications about changes in the monitored web services via Telegram |
-| TELEGRAM_BOT_TOKEN_URL | Here the URL created by the shoutrrr setup wizard is entered.                               |
+| REPORT_TELEGRAM        | Enables/disables notifications about changes in the network via Telegram.                   |
+| REPORT_TELEGRAM_WEBMON | Enables/disables notifications about changes in monitored web services via Telegram.        |
+| TELEGRAM_BOT_TOKEN     | Secret bot token issued by BotFather. It is sent directly to the Telegram Bot API.           |
+| TELEGRAM_CHAT_IDS      | List of destination chat IDs. Negative group IDs and `@channelusername` values are supported.|
+| TELEGRAM_BOT_TOKEN_URL | Deprecated compatibility input containing the former Shoutrrr URL. Used only when both new settings are empty; Shoutrrr is not started. |
 
 
 #### :eight_spoked_asterisk: Discord
@@ -340,3 +342,15 @@ I would like to give a short explanation to the individual points.
 
 
 
+
+### Web service target handling
+
+The web service monitor supports internal and external HTTP and HTTPS URLs without a separate network allowlist. Private IPv4 networks, loopback, link-local addresses, private IPv6 networks, `.local` names, single-label hostnames and public Internet services can therefore be monitored directly.
+
+Every URL is structurally validated before use. Credentials in URLs, fragments, control characters, ambiguous numeric IPv4 forms, invalid ports and invalid percent encoding are rejected. Commas in a path or query remain valid.
+
+DNS is resolved before connecting and the connection is pinned to the validated address. The same validation and DNS resolution are repeated for every redirect, with a maximum of three redirects. Known cloud metadata addresses remain blocked. Response bodies are not downloaded by the monitor.
+
+When a new service is saved, Pi.Alert immediately performs one synchronous check with the same hardened transport used by the periodic monitor. The initial HTTP status, latency and resolved target address are stored with the service. An unreachable target is still stored with status `0` and the offline latency marker so it can recover during a later periodic scan.
+
+For HTTPS services, the certificate subject, issuer, validity start and validity end are captured from the same pinned TLS connection and stored during the initial insert. The initial SSL change flag is `0`, because no previous certificate exists for comparison. HTTP services use empty SSL fields.

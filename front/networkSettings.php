@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -43,7 +44,7 @@ OpenDB();
             <!-- Add Device ---------------------------------------------------------- -->
             <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Add'];?></h4>
-            <form role="form" method="post" action="./networkSettings.php">
+            <form role="form" onsubmit="return false;">
               <div class="form-group has-success">
                   <label for="NetworkDeviceName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
                   <div class="input-group">
@@ -94,7 +95,7 @@ OpenDB();
             <!-- Edit Device ---------------------------------------------------------- -->
             <div class="col-md-4">
               <h4 class="box-title"><?=$pia_lang['NET_Man_Edit'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-warning">
               	<label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
                   <select class="form-control" id="UpdNetworkDeviceID" name="UpdNetworkDeviceID" onchange="get_networkdev_values(event)">
@@ -102,22 +103,22 @@ OpenDB();
 <?php
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices", "net_networkname" FROM "network_infrastructure" ORDER BY "net_networkname" ASC, "net_device_typ" ASC';
 $result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
-$netdev_all_ids = array();
+$netdev_data = array();
 while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['device_id'])) {
 		continue;
 	}
-	$temp_name = "netdev_id_" . $res['device_id'];
-	echo '<option value="' . $res['device_id'] . '">'.$res['net_networkname'].' - ' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
-
-	$$temp_name = array();
-	array_push($netdev_all_ids, $temp_name);
-	$$temp_name[0] = $res['device_id'];
-	$$temp_name[1] = $res['net_device_name'];
-	$$temp_name[2] = $res['net_device_typ'];
-	$$temp_name[3] = $res['net_downstream_devices'];
-	$$temp_name[4] = $res['net_device_port'];
-  $$temp_name[5] = $res['net_networkname'];
+	$deviceId = (string) $res['device_id'];
+	$key = 'netdev_id_' . $deviceId;
+	echo '<option value="' . h($deviceId) . '">' . h($res['net_networkname']) . ' - ' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
+	$netdev_data[$key] = array(
+		$deviceId,
+		(string) $res['net_device_name'],
+		(string) $res['net_device_typ'],
+		(string) $res['net_downstream_devices'],
+		(string) $res['net_device_port'],
+		(string) $res['net_networkname'],
+	);
 }
 ?>
                   </select>
@@ -128,20 +129,10 @@ function get_networkdev_values(event) {
     var selectElement = event.target;
     var value = 'netdev_id_' + selectElement.value;
 
-<?php
-foreach ($netdev_all_ids as $key => $value) {
-	echo '    const ' . $value . ' = ["' . $$value[0] . '", "' . $$value[1] . '", "' . $$value[2] . '" , "' . $$value[3] . '", "' . $$value[4] . '", "' . $$value[5] . '"];';
-	echo "\n";
-}
-
-echo '    var netdev_arrays = {';
-echo "\n";
-foreach ($netdev_all_ids as $key => $value) {
-	echo '        "' . $value . '":' . $value . ',';
-	echo "\n";
-}
-echo '    };';
-?>
+    const netdev_arrays = <?=json_encode($netdev_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+    if (!Object.prototype.hasOwnProperty.call(netdev_arrays, value)) {
+        return;
+    }
     var netdev_name = netdev_arrays[value][1];
     $('#NewNetworkDeviceName').val(netdev_name);
     var netdev_type = netdev_arrays[value][2];
@@ -210,7 +201,7 @@ loadNetworkDevices(netdev_type);
             <!-- Del Device ---------------------------------------------------------- -->
            <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Del'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-error">
                 <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
                   <select class="form-control" id="DelNetworkDeviceID" name="DelNetworkDeviceID">
@@ -222,7 +213,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['device_id'])) {
 		continue;
 	}
-	echo '<option value="' . $res['device_id'] . '">'.$res['net_networkname'].' - ' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
+	echo '<option value="' . h($res['device_id']) . '">' . h($res['net_networkname']) . ' - ' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
 }
 ?>
                   </select>
@@ -252,7 +243,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
             <!-- Add Device ---------------------------------------------------------- -->
             <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Add'];?></h4>
-            <form role="form" method="post" action="./networkSettings.php">
+            <form role="form" onsubmit="return false;">
               <!-- /.form-group -->
               <div class="form-group has-success">
                 <label for="NetworkUnmanagedDevName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
@@ -271,7 +262,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['device_id'])) {
 		continue;
 	}
-	echo '<option value="' . $res['device_id'] . '">' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
+	echo '<option value="' . h($res['device_id']) . '">' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
 }
 ?>
                   </select>
@@ -290,7 +281,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
             <!-- Edit Device ---------------------------------------------------------- -->
             <div class="col-md-4">
               <h4 class="box-title"><?=$pia_lang['NET_Man_Edit'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-warning">
                 <label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
                   <select class="form-control" id="NetworkUnmanagedDevID" name="NetworkUnmanagedDevID">
@@ -303,7 +294,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['id'])) {
 		continue;
 	}
-	echo '<option value="' . $res['id'] . '">' . $res['dev_Name'] . '</option>';
+	echo '<option value="' . h($res['id']) . '">' . h($res['dev_Name']) . '</option>';
 }
 ?>
                   </select>
@@ -325,7 +316,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['device_id'])) {
 		continue;
 	}
-	echo '<option value="' . $res['device_id'] . '">' . $res['net_device_name'] . ' / ' . substr($res['net_device_typ'], 2) . '</option>';
+	echo '<option value="' . h($res['device_id']) . '">' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
 }
 ?>
                   </select>
@@ -345,7 +336,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
             <!-- Del Device ---------------------------------------------------------- -->
            <div class="col-md-4">
             <h4 class="box-title"><?=$pia_lang['NET_Man_Del'];?></h4>
-              <form role="form" method="post" action="./networkSettings.php">
+              <form role="form" onsubmit="return false;">
               <div class="form-group has-error">
                 <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
                   <select class="form-control" id="DelNetworkUnmanagedDevID" name="DelNetworkUnmanagedDevID">
@@ -357,7 +348,7 @@ while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
 	if (!isset($res['id'])) {
 		continue;
 	}
-	echo '<option value="' . $res['id'] . '">' . $res['dev_Name'] . '</option>';
+	echo '<option value="' . h($res['id']) . '">' . h($res['dev_Name']) . '</option>';
 }
 ?>
                   </select>
@@ -393,6 +384,23 @@ function appendTextValue(textElement, textValue) {
     var existingText = $('#' + textElement).val();
     $('#' + textElement).val(existingText + textValue);
 }
+
+$(document).on('click', '.network-value-option', function(event) {
+  event.preventDefault();
+
+  const target = this.getAttribute('data-target');
+  const value = this.getAttribute('data-value') || '';
+  const action = this.getAttribute('data-action');
+
+  if (!target || !document.getElementById(target)) {
+    return;
+  }
+  if (action === 'append') {
+    appendTextValue(target, value);
+  } else if (action === 'set') {
+    setTextValue(target, value);
+  }
+});
 
 function loadNetworkDevices(nodetyp) {
   $.get('php/server/network.php?action=network_device_downlink&nodetyp=' + nodetyp, function(data) {
@@ -444,7 +452,7 @@ function addManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=addManagedDev'
+  pialertPost('php/server/network.php?action=addManagedDev'
     + '&NetworkDeviceName='  + $('#txtNetworkDeviceName').val()
     + '&NetworkDeviceTyp='   + $('#txtNetworkDeviceTyp').val()
     + '&NetworkDevicePort='  + $('#NetworkDevicePort').val()
@@ -464,7 +472,7 @@ function updManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=updManagedDev'
+  pialertPost('php/server/network.php?action=updManagedDev'
     + '&NetworkDeviceID='          + $('#UpdNetworkDeviceID').val()
     + '&NewNetworkDeviceName='     + $('#NewNetworkDeviceName').val()
     + '&NewNetworkDeviceTyp='      + $('#txtNewNetworkDeviceTyp').val()
@@ -486,7 +494,7 @@ function delManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=delManagedDev'
+  pialertPost('php/server/network.php?action=delManagedDev'
     + '&NetworkDeviceID='          + $('#DelNetworkDeviceID').val()
     , function(msg) {
 
@@ -504,7 +512,7 @@ function addUnManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=addUnManagedDev'
+  pialertPost('php/server/network.php?action=addUnManagedDev'
     + '&NetworkUnmanagedDevName='     + $('#txtNetworkUnmanagedDevName').val()
     + '&NetworkUnmanagedDevConnect='  + $('#txtNetworkUnmanagedDevConnect').val()
     + '&NetworkUnmanagedDevPort='     + $('#NetworkUnmanagedDevPort').val()
@@ -524,7 +532,7 @@ function updUnManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=updUnManagedDev'
+  pialertPost('php/server/network.php?action=updUnManagedDev'
     + '&NetworkUnmanagedDevID='          + $('#NetworkUnmanagedDevID').val()
     + '&NewNetworkUnmanagedDevName='     + $('#NewNetworkUnmanagedDevName').val()
     + '&NewNetworkUnmanagedDevConnect='  + $('#NewNetworkUnmanagedDevConnect').val()
@@ -544,7 +552,7 @@ function delUnManagedDev(refreshCallback='') {
     return;
   }
 
-  $.get('php/server/network.php?action=delUnManagedDev'
+  pialertPost('php/server/network.php?action=delUnManagedDev'
     + '&NetworkUnmanagedDevID='          + $('#DelNetworkUnmanagedDevID').val()
     , function(msg) {
 

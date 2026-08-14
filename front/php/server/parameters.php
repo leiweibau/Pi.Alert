@@ -9,7 +9,9 @@
 //  leiweibau  2024+        https://github.com/leiweibau       GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 error_reporting(0);
 
 if ($_SESSION["login"] != 1) {
@@ -30,9 +32,13 @@ ini_set('max_execution_time', '15');
 // Open DB
 OpenDB();
 
+pialert_dispatch_action(
+    ['get', 'getJournalParameter', 'getReportParameter'],
+    ['set', 'setJournalParameter', 'setReportParameter']
+);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'get':getParameter();
 		break;
@@ -52,29 +58,28 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 }
 function saveParameters($par_ID, $par_Long_Value) {
 	global $db;
-    
-    $result = $db->query("SELECT COUNT(*) as count FROM Parameters WHERE par_ID = '$par_ID'");
-    $row = $result->fetchArray(SQLITE3_ASSOC);
-    
-    if ($row['count'] > 0) {
-        $db->query("UPDATE Parameters SET par_Long_Value = '$par_Long_Value' WHERE par_ID = '$par_ID'");
-    } else {
-        $db->query("INSERT INTO Parameters (par_ID, par_Long_Value) VALUES ('$par_ID', '$par_Long_Value')");
-    }
+
+	$result = db_execute_prepared($db, 'SELECT COUNT(*) AS count FROM Parameters WHERE par_ID = :id', array(':id' => $par_ID));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	if (!$row) {
+		logServerConsole('Parameter lookup failed: ' . $db->lastErrorMsg());
+		return false;
+	}
+
+	if ((int)$row['count'] > 0) {
+		return db_execute_prepared($db, 'UPDATE Parameters SET par_Long_Value = :value WHERE par_ID = :id', array(':value' => $par_Long_Value, ':id' => $par_ID));
+	}
+	return db_execute_prepared($db, 'INSERT INTO Parameters (par_ID, par_Long_Value) VALUES (:id, :value)', array(':id' => $par_ID, ':value' => $par_Long_Value));
 }
 
 //  Get Parameter Value
 function getParameter() {
 	global $db;
 
-	$parameter = $_REQUEST['parameter'];
-	$sql = 'SELECT par_Value FROM Parameters
-          WHERE par_ID="' . quotes($_REQUEST['parameter']) . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$value = $row[0];
-
-	echo (json_encode($value));
+	$parameter = $GLOBALS["pialert_request"]['parameter'] ?? '';
+	$result = db_execute_prepared($db, 'SELECT par_Value FROM Parameters WHERE par_ID = :id', array(':id' => is_scalar($parameter) ? (string)$parameter : ''));
+	$row = $result ? $result->fetchArray(SQLITE3_NUM) : false;
+	echo json_encode($row ? $row[0] : null);
 }
 
 //  Set Parameter Value
@@ -82,26 +87,25 @@ function setParameter() {
 	global $db;
 	global $pia_lang;
 
-	// Update value
-	$sql = 'UPDATE Parameters SET par_Value="' . quotes($_REQUEST['value']) . '"
-          WHERE par_ID="' . quotes($_REQUEST['parameter']) . '"';
-	$result = $db->query($sql);
-
-	if (!$result == TRUE) {
-		echo $pia_lang['BE_Param_error_update'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+	$parameter = $GLOBALS["pialert_request"]['parameter'] ?? '';
+	$value = $GLOBALS["pialert_request"]['value'] ?? '';
+	if (!is_scalar($parameter) || !is_scalar($value)) {
+		echo $pia_lang['BE_Param_error_update'];
 		return;
 	}
 
-	$changes = $db->changes();
-	if ($changes == 0) {
-		// Insert new value
-		$sql = 'INSERT INTO Parameters (par_ID, par_Value)
-            VALUES ("' . quotes($_REQUEST['parameter']) . '",
-                    "' . quotes($_REQUEST['value']) . '")';
-		$result = $db->query($sql);
+	$result = db_execute_prepared($db, 'UPDATE Parameters SET par_Value = :value WHERE par_ID = :id', array(':value' => (string)$value, ':id' => (string)$parameter));
+	if (!$result) {
+		echo $pia_lang['BE_Param_error_update'];
+		logServerConsole('Parameter update failed: ' . $db->lastErrorMsg());
+		return;
+	}
 
-		if (!$result == TRUE) {
-			echo $pia_lang['BE_Param_error_create'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
+	if ($db->changes() === 0) {
+		$result = db_execute_prepared($db, 'INSERT INTO Parameters (par_ID, par_Value) VALUES (:id, :value)', array(':id' => (string)$parameter, ':value' => (string)$value));
+		if (!$result) {
+			echo $pia_lang['BE_Param_error_create'];
+			logServerConsole('Parameter insert failed: ' . $db->lastErrorMsg());
 			return;
 		}
 	}
@@ -237,17 +241,22 @@ function setReportParameter() {
         $old_data = $row['par_Long_Value'];
     } else {$old_data = "";}
 
-	$HeadLineColors = "";
-	// Set Default Colors if unset
-	if ($_POST['HeadLineColors'] != "") {
-		$temp_array = $_POST['HeadLineColors'];
-		if ($temp_array[0] == "") {$temp_array[0] = "#30bbbb";} // Internet
-		if ($temp_array[1] == "") {$temp_array[1] = "#D81B60";} // Devices
-		if ($temp_array[2] == "") {$temp_array[2] = "#00c0ef";} // Services
-		if ($temp_array[3] == "") {$temp_array[3] = "#831CFF";} // ICMP
-		if ($temp_array[4] == "") {$temp_array[4] = "#00a65a";} // Test/System
-		$HeadLineColors = implode(",", $temp_array);
+	$defaults = array("#30bbbb", "#D81B60", "#00c0ef", "#831CFF", "#00a65a", "#cc6600");
+	$submittedColors = $_POST['HeadLineColors'] ?? array();
+	if (!is_array($submittedColors)) {
+		$submittedColors = array();
 	}
+
+	$validatedColors = array();
+	foreach ($defaults as $index => $fallback) {
+		$candidate = $submittedColors[$index] ?? '';
+		if (!is_scalar($candidate)) {
+			$candidate = '';
+		}
+		$candidate = trim((string) $candidate);
+		$validatedColors[] = preg_match('/^#[0-9a-f]{6}$/i', $candidate) ? $candidate : $fallback;
+	}
+	$HeadLineColors = implode(",", $validatedColors);
 
     saveParameters('report_headline_colors', $HeadLineColors);
 

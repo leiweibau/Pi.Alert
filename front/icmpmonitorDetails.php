@@ -3,21 +3,24 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
 	exit;
 }
 
-# Validate URL
-if (filter_var($_REQUEST['hostip'], FILTER_FLAG_IPV4) || filter_var($_REQUEST['hostip'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-	$hostip = $_REQUEST['hostip'];
+# Validate host
+$request_host = isset($_GET['hostip']) && is_scalar($_GET['hostip']) ? (string) $_GET['hostip'] : '';
+if (filter_var($request_host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) || filter_var($request_host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+	$hostip = $request_host;
 } else {
 	header('Location: ./index.php');
 	exit;
 }
 
+require 'php/server/db.php';
 require 'php/templates/header.php';
 require 'php/server/graph.php';
 require 'php/server/journal.php';
@@ -31,8 +34,8 @@ $db->exec('PRAGMA journal_mode = wal;');
 function get_hostip_details($hostip) {
 	global $db;
 
-	$mon_res = $db->query('SELECT * FROM ICMP_Mon WHERE icmp_ip="' . $hostip . '"');
-	$row = $mon_res->fetchArray();
+	$mon_res = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => (string) $hostip));
+	$row = $mon_res ? $mon_res->fetchArray() : false;
 	return $row;
 }
 
@@ -40,18 +43,18 @@ function get_hostip_details($hostip) {
 function get_icmphost_events_table($icmp_ip, $icmpfilter) {
 	global $db;
 	
-	$icmp_res = $db->query('SELECT rowid,* FROM ICMP_Mon WHERE icmp_ip="' . $icmp_ip . '"');
+	$icmp_res = db_execute_prepared($db, 'SELECT rowid, * FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => (string) $icmp_ip));
 	while ($rowa = $icmp_res->fetchArray(SQLITE3_ASSOC)) {
 		$icmp_hostname = $rowa['icmp_hostname'];
 	}
 
-	$icmpeve_res = $db->query('SELECT * FROM ICMP_Mon_Connections WHERE icmpeve_ip="' . $icmp_ip . '" ORDER BY rowid DESC LIMIT 2000');
+	$icmpeve_res = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon_Connections WHERE icmpeve_ip = :ip ORDER BY rowid DESC LIMIT 2000', array(':ip' => (string) $icmp_ip));
 	while ($row = $icmpeve_res->fetchArray()) {
 		if ($icmp_hostname != "" && strlen($icmp_hostname) > 0) {$icmpeve_ip = $icmp_hostname;} else { $icmpeve_ip = $row['icmpeve_ip'];}
 		echo '<tr>
-              <td>' . $icmpeve_ip . '</td>
-              <td>' . $row['icmpeve_DateTime'] . '</td>
-              <td>' . $row['icmpeve_EventType'] . '</td>
+              <td>' . h($icmpeve_ip) . '</td>
+              <td>' . h($row['icmpeve_DateTime']) . '</td>
+              <td>' . h($row['icmpeve_EventType']) . '</td>
           </tr>';
 	}
 }
@@ -80,114 +83,62 @@ $Pia_Graph_ICMPHost_Down = $graph_arrays[2];
 function get_host_statistic($hostip) {
 	global $db;
 
-	// Compensate Timezone
-	$stat_query_24h = 24 - (date('Z') / 3600);
-	$stat_query_1w = 168 - (date('Z') / 3600);
+	$params = array(':ip' => (string) $hostip);
+	$scalarQueries = array(
+		'avg_rtt_all' => 'SELECT AVG(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != "" AND icmpeve_ip = :ip',
+		'rtt_max_all' => 'SELECT MAX(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != "" AND icmpeve_ip = :ip',
+		'rtt_min_all' => 'SELECT MIN(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != "" AND icmpeve_ip = :ip',
+		'offline_all' => 'SELECT COUNT(*) FROM ICMP_Mon_Events WHERE icmpeve_Present = 0 AND icmpeve_ip = :ip',
+		'online_all' => 'SELECT COUNT(*) FROM ICMP_Mon_Events WHERE icmpeve_Present = 1 AND icmpeve_ip = :ip',
+	);
+	$values = array();
+	foreach ($scalarQueries as $key => $sql) {
+		$result = db_execute_prepared($db, $sql, $params);
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$values[$key] = $row[0];
+	}
 
 	$statistic = array();
+	$statistic['avg_rtt_all'] = round($values['avg_rtt_all'], 3) . ' ms';
+	$statistic['rtt_max_all'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($values['rtt_max_all'], 3) . ' ms';
+	$statistic['rtt_min_all'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($values['rtt_min_all'], 3) . ' ms';
+	$statistic['offline_all'] = (int) $values['offline_all'];
+	$statistic['online_all'] = (int) $values['online_all'];
+	$total = $statistic['online_all'] + $statistic['offline_all'];
+	$onlinePercent = $statistic['online_all'] > 0 ? round(($statistic['online_all'] * 100 / $total), 2) : 0;
+	$statistic['online_percent_all'] = $onlinePercent . ' %';
+	$statistic['offline_percent_all'] = (100 - $onlinePercent) . ' %';
 
-	$query = "SELECT AVG(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != '' AND icmpeve_ip='$hostip'";
-	$result = $db->querySingle($query);
-	$statistic['avg_rtt_all'] = round($result, 3) . ' ms';
-
-	$query_max = "SELECT MAX(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != '' AND icmpeve_ip='$hostip'";
-	$result_max = $db->querySingle($query_max);
-	$statistic['rtt_max_all'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($result_max, 3) . ' ms';
-
-	$query_min = "SELECT MIN(icmpeve_avgrtt) FROM ICMP_Mon_Events WHERE icmpeve_avgrtt != 99999 AND icmpeve_avgrtt != '' AND icmpeve_ip='$hostip'";
-	$result_min = $db->querySingle($query_min);
-	$statistic['rtt_min_all'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($result_min, 3) . ' ms';
-
-	$query = "SELECT COUNT(*) AS row_count FROM ICMP_Mon_Events WHERE icmpeve_Present = 0 AND icmpeve_ip=\"$hostip\"";
-	$result = $db->querySingle($query);
-	$statistic['offline_all'] = $result;
-
-	$query = "SELECT COUNT(*) AS row_count FROM ICMP_Mon_Events WHERE icmpeve_Present = 1 AND icmpeve_ip=\"$hostip\"";
-	$result = $db->querySingle($query);
-	$statistic['online_all'] = $result;
-
-	$temp100 = $statistic['online_all'] + $statistic['offline_all'];
-	// if ($temp100 > 0 && $statistic['online_all'] > 0) {
-	if ($statistic['online_all'] > 0) {
-		$statistic['online_percent_all'] = round(($statistic['online_all'] * 100 / $temp100), 2);
-	} else {
-		$statistic['online_percent_all'] = 0;
+	$windows = array('24h' => 24 - (date('Z') / 3600), '1w' => 168 - (date('Z') / 3600));
+	foreach ($windows as $label => $hours) {
+		$result = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon_Events
+			WHERE icmpeve_ip = :ip AND datetime(icmpeve_DateTime) >= datetime("now", :offset)
+			ORDER BY datetime(icmpeve_DateTime) DESC', array(':ip' => (string) $hostip, ':offset' => '-' . $hours . ' hours'));
+		$offline = 0;
+		$online = 0;
+		$minimum = 99999;
+		$maximum = 0;
+		$average = 0;
+		while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+			if ($row['icmpeve_avgrtt'] != '' && $row['icmpeve_avgrtt'] != '99999') {
+				$online++;
+				$maximum = max($maximum, $row['icmpeve_avgrtt']);
+				$minimum = min($minimum, $row['icmpeve_avgrtt']);
+				$average += $row['icmpeve_avgrtt'];
+			} else {
+				$offline++;
+			}
+		}
+		$statistic['rtt_min_' . $label] = $minimum == 99999 ? 'n.a.' : '<i class="bi bi-speedometer2 text-green"></i> ' . round($minimum, 3) . ' ms';
+		$statistic['rtt_max_' . $label] = $maximum == 0 ? 'n.a.' : '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($maximum, 3) . ' ms';
+		$statistic['rtt_avg_' . $label] = $average > 0 ? round(($average / $online), 3) . ' ms' : 'n.a.';
+		$statistic['online_' . $label] = $online;
+		$statistic['offline_' . $label] = $offline;
+		$total = $online + $offline;
+		$onlinePercent = $online > 0 ? round(($online * 100 / $total), 2) : 0;
+		$statistic['online_percent_' . $label] = $onlinePercent . ' %';
+		$statistic['offline_percent_' . $label] = round(100 - $onlinePercent, 2) . ' %';
 	}
-	$statistic['offline_percent_all'] = 100 - $statistic['online_percent_all'];
-	$statistic['online_percent_all'] = $statistic['online_percent_all'] . ' %';
-	$statistic['offline_percent_all'] = $statistic['offline_percent_all'] . ' %';
-
-	// 1 Day Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM ICMP_Mon_Events
-    WHERE icmpeve_ip=\"$hostip\" AND datetime(icmpeve_DateTime) >= datetime('now', '-$stat_query_24h hours')
-    ORDER BY datetime(icmpeve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_icmprtt = 99999;
-	$max_icmprtt = 0;
-	$avg_icmprtt = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['icmpeve_avgrtt'] != "" && $row['icmpeve_avgrtt'] != "99999") {
-			$online++;
-			if ($row['icmpeve_avgrtt'] > $max_icmprtt) {$max_icmprtt = $row['icmpeve_avgrtt'];}
-			if ($row['icmpeve_avgrtt'] < $min_icmprtt) {$min_icmprtt = $row['icmpeve_avgrtt'];}
-			$avg_icmprtt = $avg_icmprtt + $row['icmpeve_avgrtt'];
-		} else { $offline++;}
-	}
-	if ($min_icmprtt == 99999) {$statistic['rtt_min_24h'] = 'n.a.';} else { $statistic['rtt_min_24h'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_icmprtt, 3) . ' ms';}
-	if ($max_icmprtt == 0) {$statistic['rtt_max_24h'] = 'n.a.';} else { $statistic['rtt_max_24h'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_icmprtt, 3) . ' ms';}
-	if ($avg_icmprtt > 0) {$statistic['rtt_avg_24h'] = round(($avg_icmprtt / $online), 3) . ' ms';} else { $statistic['rtt_avg_24h'] = 'n.a.';}
-	$statistic['online_24h'] = $online;
-	$statistic['offline_24h'] = $offline;
-
-	$temp24h = $statistic['online_24h'] + $statistic['offline_24h'];
-	if ($statistic['online_24h'] > 0) {
-		$statistic['online_percent_24h'] = round(($statistic['online_24h'] * 100 / $temp24h), 2);
-	} else {
-		$statistic['online_percent_24h'] = 0;
-	}
-	$statistic['offline_percent_24h'] = round((100 - $statistic['online_percent_24h']), 2);
-	$statistic['online_percent_24h'] = $statistic['online_percent_24h'] . ' %';
-	$statistic['offline_percent_24h'] = $statistic['offline_percent_24h'] . ' %';
-
-	// 1 Week Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM ICMP_Mon_Events
-    WHERE icmpeve_ip=\"$hostip\" AND datetime(icmpeve_DateTime) >= datetime('now', '-$stat_query_1w hours')
-    ORDER BY datetime(icmpeve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_icmprtt = 99999;
-	$max_icmprtt = 0;
-	$avg_icmprtt = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['icmpeve_avgrtt'] != "" && $row['icmpeve_avgrtt'] != "99999") {
-			$online++;
-			if ($row['icmpeve_avgrtt'] > $max_icmprtt) {$max_icmprtt = $row['icmpeve_avgrtt'];}
-			if ($row['icmpeve_avgrtt'] < $min_icmprtt) {$min_icmprtt = $row['icmpeve_avgrtt'];}
-			$avg_icmprtt = $avg_icmprtt + $row['icmpeve_avgrtt'];
-		} else { $offline++;}
-	}
-	if ($min_icmprtt == 99999) {$statistic['rtt_min_1w'] = 'n.a.';} else { $statistic['rtt_min_1w'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_icmprtt, 3) . ' ms';}
-	if ($max_icmprtt == 0) {$statistic['rtt_max_1w'] = 'n.a.';} else { $statistic['rtt_max_1w'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_icmprtt, 3) . ' ms';}
-	if ($avg_icmprtt > 0) {$statistic['rtt_avg_1w'] = round(($avg_icmprtt / $online), 3) . ' ms';} else { $statistic['rtt_avg_1w'] = 'n.a.';}
-	$statistic['online_1w'] = $online;
-	$statistic['offline_1w'] = $offline;
-
-	$temp1w = $statistic['online_1w'] + $statistic['offline_1w'];
-	if ($statistic['online_1w'] > 0) {
-		$statistic['online_percent_1w'] = round(($statistic['online_1w'] * 100 / $temp1w), 2);
-	} else {
-		$statistic['online_percent_1w'] = 0;
-	}
-	$statistic['offline_percent_1w'] = round((100 - $statistic['online_percent_1w']), 2);
-	$statistic['online_percent_1w'] = $statistic['online_percent_1w'] . ' %';
-	$statistic['offline_percent_1w'] = $statistic['offline_percent_1w'] . ' %';
 
 	return $statistic;
 }
@@ -201,7 +152,7 @@ function get_host_statistic($hostip) {
       <?php require 'php/templates/notification.php';?>
 
       <h1 id="pageTitle">
-        <?php echo $icmpmonitorDetails['icmp_hostname'] . ' (' . $hostip .')';?>
+        <?php echo h($icmpmonitorDetails['icmp_hostname']) . ' (' . h($hostip) . ')';?>
       </h1>
     </section>
 
@@ -277,7 +228,7 @@ function get_host_statistic($hostip) {
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['ICMPMonitor_label_IP'];?></label>
                         <div class="col-sm-9">
-                          <input class="form-control" id="txtIP" type="text" readonly value="<?=$icmpmonitorDetails['icmp_ip']?>">
+                          <input class="form-control" id="txtIP" type="text" readonly value="<?=h($icmpmonitorDetails['icmp_ip'])?>">
                         </div>
                       </div>
 
@@ -285,7 +236,7 @@ function get_host_statistic($hostip) {
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['ICMPMonitor_label_Hostname'];?></label>
                         <div class="col-sm-9">
-                          <input class="form-control" id="txtHostname" type="text" value="<?=$icmpmonitorDetails['icmp_hostname']?>">
+                          <input class="form-control" id="txtHostname" type="text" value="<?=h($icmpmonitorDetails['icmp_hostname'])?>">
                         </div>
                       </div>
 
@@ -294,7 +245,7 @@ function get_host_statistic($hostip) {
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Owner'];?></label>
                         <div class="col-sm-7">
                           <div class="input-group">
-                            <input class="form-control" id="txtOwner" type="text" value="<?=$icmpmonitorDetails['icmp_owner']?>">
+                            <input class="form-control" id="txtOwner" type="text" value="<?=h($icmpmonitorDetails['icmp_owner'])?>">
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-caret-down"></span></button>
@@ -310,7 +261,7 @@ function get_host_statistic($hostip) {
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Type'];?></label>
                         <div class="col-sm-7">
                           <div class="input-group">
-                            <input class="form-control" id="txtDeviceType" type="text" value="<?=$icmpmonitorDetails['icmp_type']?>">
+                            <input class="form-control" id="txtDeviceType" type="text" value="<?=h($icmpmonitorDetails['icmp_type'])?>">
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" >
                                 <span class="fa fa-caret-down"></span></button>
@@ -328,19 +279,19 @@ function get_host_statistic($hostip) {
                       <!-- Vendor -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Vendor'];?></label>
-                        <div class="col-sm-7"><input class="form-control" id="txtVendor" type="text" value="<?=$icmpmonitorDetails['icmp_vendor']?>"></div>
+                        <div class="col-sm-7"><input class="form-control" id="txtVendor" type="text" value="<?=h($icmpmonitorDetails['icmp_vendor'])?>"></div>
                       </div>
 
                       <!-- Model -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Model'];?></label>
-                        <div class="col-sm-7"><input class="form-control" id="txtModel" type="text" value="<?=$icmpmonitorDetails['icmp_model']?>"></div>
+                        <div class="col-sm-7"><input class="form-control" id="txtModel" type="text" value="<?=h($icmpmonitorDetails['icmp_model'])?>"></div>
                       </div>
 
                       <!-- Serialnumber -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Serialnumber'];?></label>
-                        <div class="col-sm-7"><input class="form-control" id="txtSerialnumber" type="text" value="<?=$icmpmonitorDetails['icmp_serial']?>"></div>
+                        <div class="col-sm-7"><input class="form-control" id="txtSerialnumber" type="text" value="<?=h($icmpmonitorDetails['icmp_serial'])?>"></div>
                       </div>
 
                       <!-- Group -->
@@ -348,7 +299,7 @@ function get_host_statistic($hostip) {
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Group'];?></label>
                         <div class="col-sm-7">
                           <div class="input-group">
-                            <input class="form-control" id="txtGroup" type="text" value="<?=$icmpmonitorDetails['icmp_group']?>">
+                            <input class="form-control" id="txtGroup" type="text" value="<?=h($icmpmonitorDetails['icmp_group'])?>">
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-caret-down"></span></button>
@@ -369,7 +320,7 @@ function get_host_statistic($hostip) {
                         <label class="col-sm-3 control-label"><?=$pia_lang['DevDetail_MainInfo_Location'];?></label>
                         <div class="col-sm-7">
                           <div class="input-group">
-                            <input class="form-control" id="txtLocation" type="text" value="<?=$icmpmonitorDetails['icmp_location']?>">
+                            <input class="form-control" id="txtLocation" type="text" value="<?=h($icmpmonitorDetails['icmp_location'])?>">
                             <div class="input-group-btn">
                               <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span class="fa fa-caret-down"></span></button>
@@ -391,7 +342,7 @@ function get_host_statistic($hostip) {
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Notes'];?></label>
                         <div class="col-sm-9">
-                          <input class="form-control" id="txtNotes" type="text" value="<?=$icmpmonitorDetails['icmp_Notes']?>">
+                          <input class="form-control" id="txtNotes" type="text" value="<?=h($icmpmonitorDetails['icmp_Notes'])?>">
                         </div>
                       </div>
 
@@ -407,7 +358,7 @@ function get_host_statistic($hostip) {
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_ScanTime'];?></label>
                         <div class="col-sm-8">
-                          <input class="form-control" id="txtLastScan" type="text" readonly value="<?=$icmpmonitorDetails['icmp_LastScan']?>">
+                          <input class="form-control" id="txtLastScan" type="text" readonly value="<?=h($icmpmonitorDetails['icmp_LastScan'])?>">
                         </div>
                       </div>
 
@@ -415,14 +366,14 @@ function get_host_statistic($hostip) {
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['ICMPMonitor_label_RTT'];?></label>
                         <div class="col-sm-8">
-                          <input class="form-control" id="txtavgrtt" type="text" readonly value="<?=$icmpmonitorDetails['icmp_avgrtt']?>">
+                          <input class="form-control" id="txtavgrtt" type="text" readonly value="<?=h($icmpmonitorDetails['icmp_avgrtt'])?>">
                         </div>
                       </div>
 
                       <!-- Scan Validation -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_EveandAl_ScanValid'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtScanValidation" type="text" value="<?=$icmpmonitorDetails['icmp_Scan_Validation']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtScanValidation" type="text" value="<?=h($icmpmonitorDetails['icmp_Scan_Validation'])?>"></div>
                       </div>
 
                       <div class="form-group">
@@ -469,8 +420,8 @@ function get_host_statistic($hostip) {
                   <div class="col-xs-12">
                     <div class="pull-right">
                         <button type="button" class="btn btn-danger servicedet_button_space"  id="btnDelete"   onclick="deleteICMPHost()"> <?=$pia_lang['Gen_Delete'];?> </button>
-                        <button type="button" class="btn btn-default servicedet_button_space" id="btnRestore"  onclick="location.reload()">  <?=$pia_lang['Gen_Cancel'];?> </button>
-                        <button type="button" class="btn btn-primary servicedet_button_space" id="btnSave"     onclick="setICMPHostData()" >  <?=$pia_lang['Gen_Save'];?> </button>
+                        <button type="button" class="btn btn-default servicedet_button_space" id="btnRestore" onclick="restoreOrCloseICMPHost()"> <?=$pia_lang['Gen_Close'];?> </button>
+                        <button type="button" disabled class="btn btn-primary servicedet_button_space" id="btnSave" onclick="setICMPHostData()"> <?=$pia_lang['Gen_Save'];?> </button>
                     </div>
                   </div>
 
@@ -484,7 +435,6 @@ function get_host_statistic($hostip) {
                 <div style="width:100%; text-align: center;">
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'normal')">Loading...</button>
-                  <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;" onclick="manualnmapscan(document.getElementById('txtIP').value, 'detail')">Loading...</button>
 
                 </div>
 
@@ -657,6 +607,10 @@ if ($ENABLED_DARKMODE === True) {
   var parEventsRows       = 'Front_icmpmonitorDetails_Events_Rows';
   var period              = '1 month';
   var tab                 = 'tabDetails'
+  var icmpDetailsDirty    = false;
+  var icmpInitialValues   = {};
+  const icmpCloseLabel    = <?=json_encode($pia_lang['Gen_Close'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+  const icmpCancelLabel   = <?=json_encode($pia_lang['DevDetail_button_Reset'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
   //var eventsRows          = 25;
 
   // Read parameters & Initialize components
@@ -667,12 +621,14 @@ function main () {
   hostip = '<?=$hostip;?>'
   initializeTabs();
   initializeiCheck();
+  captureICMPFormState();
+  deactivateICMPSaveRestoreData();
   getEventsTotalsforICMPHost();
   initializeDatatable();
   initializeCombos();
 	initToolsSection();
 <?php
-if (isset($_REQUEST['icmpfilter'])) {
+if (isset($_GET['icmpfilter'])) {
 	echo "$('.nav-tabs a[id=tabEvents]').tab('show');";
 }
 ?>
@@ -730,7 +686,8 @@ function getEventsTotalsforICMPHost() {
   // stopTimerRefreshData();
 
   // get totals and put in boxes
-  $.get('php/server/icmpmonitor.php?action=getEventsTotalsforICMP&hostip=<?=$icmpmonitorDetails['icmp_ip']?>', function(data) {
+  const hostIp = <?=json_encode($icmpmonitorDetails['icmp_ip'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+  $.get('php/server/icmpmonitor.php?action=getEventsTotalsforICMP&hostip=' + encodeURIComponent(hostIp), function(data) {
     var totalsEvents = JSON.parse(data);
 
     $('#eventspresence').html   (totalsEvents[0].toLocaleString() + ' h.');
@@ -759,13 +716,14 @@ function initializeDatatable () {
       ],
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {className: 'text-left', targets: [1,2] },
       {targets: [2],
         'createdCell': function (td, cellData, rowData, row, col) {
           if (cellData == 99999){
-            $(td).html ('TimeOut');
+            setCellText(td, "TimeOut");
           } else {
-            $(td).html (cellData);
+            setCellText(td, cellData);
           }
       } },
     ],
@@ -793,7 +751,7 @@ function setICMPHostData(refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/icmpmonitor.php?action=setICMPHostData'
+  pialertPost('php/server/icmpmonitor.php?action=setICMPHostData'
     + '&icmp_ip='         + $('#txtIP').val()
     + '&icmp_hostname='   + $('#txtHostname').val()
     + '&icmp_type='       + $('#txtDeviceType').val()
@@ -813,7 +771,8 @@ function setICMPHostData(refreshCallback='') {
     , function(msg) {
 
     // deactivate button
-    // deactivateSaveRestoreData ();
+    captureICMPFormState();
+    deactivateICMPSaveRestoreData();
     showMessage (msg);
     // Callback fuction
     if (typeof refreshCallback == 'function') {
@@ -846,7 +805,7 @@ function deleteICMPHost () {
   }
 
   // Delete device
-  $.get('php/server/icmpmonitor.php?action=deleteICMPHost&icmp_ip='+ hostip, function(msg) {
+  pialertPost('php/server/icmpmonitor.php?action=deleteICMPHost&icmp_ip='+ hostip, function(msg) {
     showMessage (msg);
   });
 
@@ -857,6 +816,56 @@ function deleteICMPHost () {
 // -----------------------------------------------------------------------------
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
+  activateICMPSaveRestoreData();
+}
+
+$(document).on('input change', '#panDetails input:not([readonly]), #panDetails textarea, #panDetails select', function() {
+  activateICMPSaveRestoreData();
+});
+
+$('#panDetails input[type="checkbox"]').on('ifToggled', function() {
+  activateICMPSaveRestoreData();
+});
+
+function activateICMPSaveRestoreData () {
+  icmpDetailsDirty = true;
+  $('#btnRestore').text(icmpCancelLabel);
+  $('#btnSave').removeAttr('disabled');
+}
+
+function deactivateICMPSaveRestoreData () {
+  icmpDetailsDirty = false;
+  $('#btnRestore').text(icmpCloseLabel);
+  $('#btnSave').attr('disabled', '');
+}
+
+function captureICMPFormState () {
+  icmpInitialValues = {};
+  $('#panDetails input, #panDetails textarea, #panDetails select').each(function() {
+    if (!this.id || this.type === 'button' || this.type === 'submit') return;
+    icmpInitialValues[this.id] = this.type === 'checkbox' ? this.checked : $(this).val();
+  });
+}
+
+function restoreICMPFormState () {
+  Object.keys(icmpInitialValues).forEach(function(id) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    if (element.type === 'checkbox') {
+      $(element).iCheck(icmpInitialValues[id] ? 'check' : 'uncheck');
+    } else {
+      $(element).val(icmpInitialValues[id]);
+    }
+  });
+  deactivateICMPSaveRestoreData();
+}
+
+function restoreOrCloseICMPHost () {
+  if (icmpDetailsDirty) {
+    restoreICMPFormState();
+    return;
+  }
+  window.location.href = './icmpmonitor.php';
 }
 
 // Get Cookie (Tab state)
@@ -916,31 +925,38 @@ function initializeComboSkipRepeated () {
 }
 
 function initializeCombo (HTMLelement, queryAction, txtDataField) {
-  // get data from server
-  $.get('php/server/devices.php?action='+queryAction, function(data) {
-    var listData = JSON.parse(data);
-    var order = 1;
+  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
+    const listData = JSON.parse(data);
+    let order = 1;
 
-    HTMLelement.innerHTML = ''
-    // for each item
-    listData.forEach(function (item, index) {
-      // insert line divisor
-      if (order != item['order']) {
-        HTMLelement.innerHTML += '<li class="divider"></li>';
-        order = item['order'];
+    while (HTMLelement.firstChild) {
+      HTMLelement.removeChild(HTMLelement.firstChild);
+    }
+
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        HTMLelement.appendChild(divider);
+        order = item.order;
       }
 
-      id = item['name'];
-      // use explicitly specified id (value) if avaliable
-      if(item['id'])
-      {
-        id = item['id'];
-      }
+      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const label = queryAction === 'getNetworkNodes'
+        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
+        : String(item.name ?? '');
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
 
-      // add dropdown item
-      HTMLelement.innerHTML +=
-        '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-        txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'
+      link.href = '#';
+      link.textContent = label;
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue(txtDataField, String(value ?? ''));
+      });
+
+      listItem.appendChild(link);
+      HTMLelement.appendChild(listItem);
     });
   });
 }
@@ -960,9 +976,8 @@ function showmanualnmapscan(targetip) {
 
 function initToolsSection () {
 setTimeout(function(){
-   document.getElementById('manualnmap_fast').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtIP').value +')';
-   document.getElementById('manualnmap_normal').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtIP').value +')';
-   document.getElementById('manualnmap_detail').innerHTML='<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail'];?> (' + document.getElementById('txtIP').value +')';
+   document.getElementById('manualnmap_fast').textContent='<?=$pia_lang['DevDetail_Tools_nmap_buttonFast'];?> (' + document.getElementById('txtIP').value +')';
+   document.getElementById('manualnmap_normal').textContent='<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault'];?> (' + document.getElementById('txtIP').value +')';
    showmanualnmapscan(document.getElementById('txtIP').value);
 }, 1000);
 }

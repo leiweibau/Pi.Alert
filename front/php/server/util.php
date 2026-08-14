@@ -42,18 +42,62 @@ function formatIPlong($IP) {
 }
 
 // Others functions
-function getDateFromPeriod() {
-	$period = $_REQUEST['period'];
-	return '"' . date('Y-m-d', strtotime('+1 day -' . $period)) . '"';
+function getDateFromPeriodValue() {
+	$request = function_exists('pialert_request_data') ? pialert_request_data() : $_GET;
+	$period = $request['period'] ?? '1 day';
+	if (!is_scalar($period)) {
+		$period = '1 day';
+	}
+
+	$period = trim((string) $period);
+	if (!preg_match('/^([1-9][0-9]{0,3})\s+(minute|hour|day|week|month|year)s?$/i', $period)) {
+		$period = '1 day';
+	}
+
+	return date('Y-m-d', strtotime('+1 day -' . $period));
 }
 
-function quotes($text) {
-	return str_replace('"', '""', $text);
+function getDateFromPeriod() {
+	return '"' . getDateFromPeriodValue() . '"';
 }
 
 function logServerConsole($text) {
 	$x = array();
 	$y = $x['__________' . $text . '__________'];
+}
+
+// Encode a value for an HTML text or quoted attribute context.
+function h($value): string {
+	return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+
+function h_with_line_breaks($value): string {
+	$parts = preg_split('/(?:<br\s*\/?>|\r\n|\r|\n)/i', (string) $value);
+	if ($parts === false) {
+		return h($value);
+	}
+
+	return implode('<br>', array_map('h', $parts));
+}
+
+// Allow only HTTP(S) and same-site relative URLs in browser URL attributes.
+function safe_web_url($value, string $fallback = ''): string {
+	if (!is_scalar($value)) {
+		return $fallback;
+	}
+
+	$url = trim((string) $value);
+	if ($url === '' || preg_match('/[\\x00-\\x1F\\x7F]/', $url)) {
+		return $fallback;
+	}
+
+	$scheme = parse_url($url, PHP_URL_SCHEME);
+	if ($scheme !== null) {
+		return in_array(strtolower($scheme), ['http', 'https'], true) ? $url : $fallback;
+	}
+
+	return str_starts_with($url, '//') ? $fallback : $url;
 }
 
 ?>

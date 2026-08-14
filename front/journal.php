@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -135,23 +136,26 @@ function get_pialert_journal() {
 
 	$pia_journal = $db->query('SELECT * FROM pialert_journal ORDER BY Journal_DateTime DESC Limit 500');
 	while ($row = $pia_journal->fetchArray()) {
-		if ($row['LogClass'] == "a_000") {$full_additional_info = $pia_journ_lang[$row['LogString']] . '<br>' . $pia_journ_lang['File_hash'] . ': <span class="text-danger">' . $row['Hash'] . '</span>';} else { $full_additional_info = $pia_journ_lang[$row['LogString']];}
-		$full_additional_info = $full_additional_info . '<br>' . $row['Additional_Info'];
+		$logString = h_with_line_breaks($pia_journ_lang[$row['LogString']] ?? $row['LogString'] ?? '');
+		$logClass = h($pia_journ_lang[$row['LogClass']] ?? $row['LogClass'] ?? '');
+		$hash = h($row['Hash'] ?? '');
+		$fullAdditionalInfo = $logString;
 
-		$logcode = "";
-		$logclass = "";
+		if (($row['LogClass'] ?? '') === 'a_000') {
+			$fullAdditionalInfo .= '<br>' . h($pia_journ_lang['File_hash'] ?? 'File hash') . ': <span class="text-danger">' . $hash . '</span>';
+		}
+		$fullAdditionalInfo .= '<br>' . h_with_line_breaks($row['Additional_Info'] ?? '');
 
 		echo '<tr>
-              <td>' . $row['Journal_DateTime'] . '</td>
-              <td style="white-space: nowrap;">' . $pia_journ_lang[$row['LogClass']] . '</td>
-              <td>' . $row['Trigger'] . '</td>
-              <td>' . $row['Hash'] . '</td>
-              <td>' . $full_additional_info . '</td>
+              <td>' . h($row['Journal_DateTime'] ?? '') . '</td>
+              <td style="white-space: nowrap;">' . $logClass . '</td>
+              <td>' . h($row['Trigger'] ?? '') . '</td>
+              <td>' . $hash . '</td>
+              <td>' . $fullAdditionalInfo . '</td>
           </tr>';
 	}
 }
 ?>
-<script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
 <link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
 <script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
@@ -179,26 +183,12 @@ function get_pialert_journal() {
 
     $(document).ready(function () {
         $('#addTrigger').click(function () {
-            triggerIndex++;
-            $('#triggerContainer').append(
-                `<div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
-                    <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}">
-                    <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Color ${triggerIndex}" data-coloris>
-                    <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
-                </div>`
-            );
+            addTriggerRow("", "");
             Coloris.init();
         });
 
         $('#addMethod').click(function () {
-            methodIndex++;
-            $('#methodContainer').append(
-                `<div id="method_${methodIndex}" style="margin-bottom: 5px">
-                    <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}">
-                    <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Color ${methodIndex}" data-coloris>
-                    <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
-                </div>`
-            );
+            addMethodRow("", "");
             Coloris.init();
         });
 
@@ -245,16 +235,42 @@ function addTriggerRows() {
     }
 }
 // --------------------------------------------------------------------------
-function addTriggerRow(Name, Color) {
+function appendJournalColorRow(kind, index, name, color) {
+    const container = document.getElementById(kind + "Container");
+    const row = document.createElement("div");
+    row.id = kind + "_" + index;
+    row.style.marginBottom = "5px";
+
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.name = kind + "Names[]";
+    nameInput.className = "journal_custom_colors_input";
+    nameInput.placeholder = (kind === "trigger" ? "Trigger Name " : "Method Name ") + index;
+    nameInput.value = String(name ?? "");
+
+    const colorInput = document.createElement("input");
+    colorInput.type = "text";
+    colorInput.name = kind + "Colors[]";
+    colorInput.className = "journal_custom_colors_input";
+    colorInput.placeholder = (kind === "trigger" ? "Trigger Color " : "Method Color ") + index;
+    colorInput.value = String(color ?? "");
+    colorInput.setAttribute("data-coloris", "");
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "btn btn-danger";
+    removeButton.textContent = "-";
+    removeButton.addEventListener("click", function () {
+        row.remove();
+    });
+
+    row.append(nameInput, colorInput, removeButton);
+    container.append(row);
+}
+
+function addTriggerRow(name, color) {
     triggerIndex++;
-    var newFields = `
-        <div id="trigger_${triggerIndex}" style="margin-bottom: 5px">
-                <input type="text" name="triggerNames[]" class="journal_custom_colors_input" placeholder="Trigger Name ${triggerIndex}" value="${Name}">
-                <input type="text" name="triggerColors[]" class="journal_custom_colors_input" placeholder="Trigger Color ${triggerIndex}" value="${Color}" data-coloris>
-                <button type="button" onclick="removeField('#trigger_${triggerIndex}')" class="btn btn-danger">-</button>
-        </div>
-    `;
-    $('#triggerContainer').append(newFields);
+    appendJournalColorRow("trigger", triggerIndex, name, color);
 }
 // --------------------------------------------------------------------------
 function addMethodRows() {
@@ -263,16 +279,9 @@ function addMethodRows() {
     }
 }
 // --------------------------------------------------------------------------
-function addMethodRow(Name, Color) {
+function addMethodRow(name, color) {
     methodIndex++;
-    var newFields = `
-        <div id="method_${methodIndex}" style="margin-bottom: 5px">
-                <input type="text" name="methodNames[]" class="journal_custom_colors_input" placeholder="Method Name ${methodIndex}" value="${Name}">
-                <input type="text" name="methodColors[]" class="journal_custom_colors_input" placeholder="Method Color ${methodIndex}" value="${Color}" data-coloris>
-                <button type="button" onclick="removeField('#method_${methodIndex}')" class="btn btn-danger">-</button>
-        </div>
-    `;
-    $('#methodContainer').append(newFields);
+    appendJournalColorRow("method", methodIndex, name, color);
 }
 // --------------------------------------------------------------------------
 function initializeDatatable () {
@@ -296,6 +305,12 @@ function initializeDatatable () {
       ],
 
     'columnDefs'  : [
+      {targets: [4],
+        render: function (data, type) {
+          return type === "display" ? sanitizeJournalMarkup(data) : journalMarkupText(data);
+        }
+      },
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       { "width": "120px", "targets": [0] },
       { "width": "150px", "targets": [1] },
 
@@ -306,14 +321,14 @@ function initializeDatatable () {
       },
       {targets: [1],
         "createdCell": function (td, cellData, rowData, row, col) {
-            color_scheme = custom_journal_color_method(cellData);
-            $(td).html('<span style="' + color_scheme + '">' + cellData + '</span>');
+            const color = custom_journal_color_method(cellData);
+            setCellColoredText(td, cellData, color);
         }
       },
       {targets: [2],
         "createdCell": function (td, cellData, rowData, row, col) {
-            color_scheme = custom_journal_color_trigger(cellData);
-            $(td).html('<span style="' + color_scheme + '">' + cellData + '</span>');
+            const color = custom_journal_color_trigger(cellData);
+            setCellColoredText(td, cellData, color);
         }
       },
       {targets: [3],
@@ -340,10 +355,10 @@ function initializeDatatable () {
 function custom_journal_color_trigger(trigger) {
     for (let i = 0; i < journalTriggerFilter.length; i++) {
         if (journalTriggerFilter[i] === trigger) {
-            return 'color:' + journalTriggerFilterColor[i] + ';';
+            return journalTriggerFilterColor[i];
         }
     }
-    return " ";
+    return "";
 }
 // --------------------------------------------------------------------------
 function custom_journal_color_datetime(cellData, td) {
@@ -352,19 +367,20 @@ function custom_journal_color_datetime(cellData, td) {
     var oneHourAgo = new Date(currentTime.getTime() - (60 * 60 * 1000));
     var today = new Date();
     today.setHours(0, 0, 0, 0);
+    const displayValue = String(cellData ?? "").replace(/ /g, "\u00a0\u00a0\u00a0\u00a0");
     if (createdAtValue.getTime() >= today.getTime() && oneHourAgo > createdAtValue) {
-        $(td).html('<b style="color:' + date_time_colors[0] + ';">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
+        setCellColoredText(td, displayValue, date_time_colors[0], true);
     } else if (createdAtValue >= oneHourAgo) {
-        $(td).html('<b style="color:' + date_time_colors[1] + ';">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
+        setCellColoredText(td, displayValue, date_time_colors[1], true);
     } else {
-        $(td).html('<b style="">' + cellData.replace(/ /g, '&nbsp;&nbsp;&nbsp;&nbsp;') + '</b>');
+        setCellColoredText(td, displayValue, "", true);
     }
 }
 // --------------------------------------------------------------------------
 function custom_journal_color_method(method) {
     for (let i = 0; i < journalMethodFilter.length; i++) {
         if (journalMethodFilter[i] === method) {
-            return 'color:' + journalMethodFilterColor[i] + ';';
+            return journalMethodFilterColor[i];
         }
     }
     return " ";
@@ -374,7 +390,7 @@ function SetTriggerColors() {
     let triggerNames = $('input[name="triggerNames[]"]').map(function () { return $(this).val(); }).get();
     let triggerColors = $('input[name="triggerColors[]"]').map(function () { return $(this).val(); }).get();
 
-    $.post('php/server/parameters.php', {
+    pialertPost('php/server/parameters.php', {
         action: 'setJournalParameter',
         column: 'trigger',
         triggerNames: triggerNames,
@@ -388,7 +404,7 @@ function SetMethodColors() {
     let methodNames = $('input[name="methodNames[]"]').map(function () { return $(this).val(); }).get();
     let methodColors = $('input[name="methodColors[]"]').map(function () { return $(this).val(); }).get();
 
-    $.post('php/server/parameters.php', {
+    pialertPost('php/server/parameters.php', {
         action: 'setJournalParameter',
         column: 'method',
         methodNames: methodNames,

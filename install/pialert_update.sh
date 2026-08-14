@@ -143,7 +143,10 @@ reset_permissions() {
   sudo chgrp -R www-data $PIALERT_HOME/db                             2>&1 >> "$LOG"
   sudo chmod -R 775 $PIALERT_HOME/db                                  2>&1 >> "$LOG"
   sudo chgrp -R www-data $PIALERT_HOME/config                         2>&1 >> "$LOG"
-  sudo chmod -R 775 $PIALERT_HOME/config                              2>&1 >> "$LOG"
+  sudo chmod 1775 $PIALERT_HOME/config                                2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo chown root:root "$PIALERT_HOME/config/version.conf"           2>&1 >> "$LOG"
+  sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                2>&1 >> "$LOG"
 }
 
 # ------------------------------------------------------------------------------
@@ -294,6 +297,14 @@ update_config() {
 
   print_msg "- Updating config file..."
 
+# 2026-08-13
+# The bundled Shoutrrr binaries remain available as manual setup helpers, but
+# Pi.Alert no longer selects or invokes one through its configuration.
+sed -i -E \
+  -e '/^[[:space:]]*# Shoutrrr[[:space:]]*$/,/^[[:space:]]*# Telegram[[:space:]]*$/ { /^[[:space:]]*# Telegram[[:space:]]*$/!d; }' \
+  -e '/^[[:space:]]*#?[[:space:]]*SHOUTRRR_BINARY[[:space:]]*=/d' \
+  "$PIALERT_HOME/config/pialert.conf"
+
 # 2025-01-28
 if ! grep -Fq "# OpenWRT Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
   cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
@@ -422,6 +433,30 @@ ADGUARD_QUERY_LIMIT       = 1000
 EOF
 fi
 
+# 2026-07-15
+if ! grep -Fq "SMTP_SSL" "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# Use SSL immediately when connecting to the SMTP server (SMTPS / SSL-on-connect)
+SMTP_SSL = False
+EOF
+fi
+
+# 2026-08-13
+if ! grep -Eq '^[[:space:]]*TELEGRAM_BOT_TOKEN[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+
+# Direct Telegram Bot API credentials
+TELEGRAM_BOT_TOKEN = ''
+EOF
+fi
+
+if ! grep -Eq '^[[:space:]]*TELEGRAM_CHAT_IDS[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
+  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
+TELEGRAM_CHAT_IDS = []
+EOF
+fi
+
 }
 
 # ------------------------------------------------------------------------------
@@ -479,8 +514,11 @@ update_permissions() {
   sudo chmod +x "$PIALERT_HOME/back/pialert-cli"                         2>&1 >> "$LOG"
   sudo chmod +x "$PIALERT_HOME/back/pialert.py"                          2>&1 >> "$LOG"
   sudo chmod +x "$PIALERT_HOME/back/update_vendors.sh"                   2>&1 >> "$LOG"
-  sudo chmod -R 775 "$PIALERT_HOME/config/"                              2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/config"                          2>&1 >> "$LOG"
+  sudo chmod 1775 "$PIALERT_HOME/config"                                 2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo chown root:root "$PIALERT_HOME/config/version.conf"               2>&1 >> "$LOG"
+  sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                    2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                        2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                   2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/php/tmp"                        2>&1 >> "$LOG"
@@ -489,17 +527,14 @@ update_permissions() {
   sudo chgrp -R www-data "$PIALERT_HOME/front/satellites"                2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/back/speedtest/"                      2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/back/speedtest/"                 2>&1 >> "$LOG"
-  print_msg "- Create Logfile Symlinks..."
-  sudo touch "$PIALERT_HOME/log/pialert.vendors.log"                     2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.1.log"                           2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.cleanup.log"                     2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.webservices.log"                 2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/pialert.speedtest.log"                   2>&1 >> "$LOG"
-  sudo touch "$PIALERT_HOME/log/usercron.log"                            2>&1 >> "$LOG"
-  src_dir="$INSTALL_DIR/pialert/log"
+  print_msg "- Create Logfiles..."
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
-  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log usercron.log; do
-      sudo ln -s "$src_dir/$file" "$dest_dir/$file" 2>&1 >> "$LOG"
+  for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log pialert.nmap.log usercron.log; do
+      sudo touch "$PIALERT_HOME/log/$file"                               2>&1 >> "$LOG"
+      sudo chmod 644 "$PIALERT_HOME/log/$file"                           2>&1 >> "$LOG"
+      if [ -L "$dest_dir/$file" ]; then
+          sudo rm -- "$dest_dir/$file"                                   2>&1 >> "$LOG"
+      fi
   done
   print_msg "- Set sudoers..."
 

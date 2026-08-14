@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . "/../server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
     header('Location: ../../index.php');

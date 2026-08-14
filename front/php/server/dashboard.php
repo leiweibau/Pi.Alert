@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
 	exit;
@@ -13,9 +15,15 @@ $DBFILE_TOOLS = '../../../db/pialert_tools.db';
 OpenDB();
 OpenDB_Tools();
 
+pialert_dispatch_action([
+    'getLogfileDatesAsJson', 'getLogfileContent', 'getSpeedtestHistory',
+    'getLocalDeviceStatus', 'getIcmpDeviceStatus', 'getReportsCount',
+    'getReportContent', 'getLatestReports', 'getDeviceHistoryChart',
+    'getServiceStatusSummary'
+], []);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
     switch ($action) {
     case 'getLogfileDatesAsJson':getLogfileDatesAsJson();
         break;
@@ -50,6 +58,7 @@ function getLogfileTableMap(): array {
         'pialert.IP.log'          => 'Log_History_InternetIP',
         'pialert.vendors.log'     => 'Log_History_Vendors',
         'pialert.speedtest.log'   => 'Log_History_Speedtest',
+        'pialert.nmap.log'        => 'Log_History_Nmap',
     ];
 }
 // --------------------------------------------------------------------
@@ -59,12 +68,12 @@ function getLogfileDatesAsJson()
 
     header('Content-Type: application/json');
 
-    if (!isset($_REQUEST['logfile'])) {
+    if (!isset($GLOBALS["pialert_request"]['logfile'])) {
         echo json_encode([]);
         exit;
     }
 
-    $logfile = $_REQUEST['logfile'];
+    $logfile = $GLOBALS["pialert_request"]['logfile'];
     $map = getLogfileTableMap();
 
     if (!isset($map[$logfile])) {
@@ -94,8 +103,8 @@ function getLogfileDatesAsJson()
 function getLogfileContent() {
 	global $db_tools;
 
-    $logfile = $_REQUEST['logfile'] ?? '';
-    $date    = $_REQUEST['date'] ?? '';
+    $logfile = $GLOBALS["pialert_request"]['logfile'] ?? '';
+    $date    = $GLOBALS["pialert_request"]['date'] ?? '';
 
     header('Content-Type: plain/text');
 
@@ -107,12 +116,8 @@ function getLogfileContent() {
 
     $table = $map[$logfile];
 
-	// rudimentäre Absicherung des Datums
-    $date = SQLite3::escapeString($date);
-
-    $sql = "SELECT Logfile FROM {$table} WHERE ScanDate = '{$date}' LIMIT 1";
-
-    $result = $db_tools->query($sql);
+	$sql = "SELECT Logfile FROM {$table} WHERE ScanDate = :date LIMIT 1";
+	$result = db_execute_prepared($db_tools, $sql, array(':date' => is_scalar($date) ? (string)$date : ''));
     if (!$result) {
         echo 'Query failed';
         exit;
@@ -193,7 +198,7 @@ function getLocalDeviceStatus() {
         exit;
     }
 
-    $latestScanDate = SQLite3::escapeString($rowLatest['Scan_Date']);
+    $latestScanDate = $rowLatest['Scan_Date'];
 
     $sqlSum = "
         SELECT
@@ -202,11 +207,11 @@ function getLocalDeviceStatus() {
             SUM(All_Devices)      AS total,
             SUM(Archived_Devices) AS archived
         FROM Online_History
-        WHERE Scan_Date   = '{$latestScanDate}'
+        WHERE Scan_Date = :scan_date
           AND data_source LIKE 'main_scan%'
     ";
 
-    $result = $db->query($sqlSum);
+    $result = db_execute_prepared($db, $sqlSum, array(':scan_date' => $latestScanDate));
     if ($result) {
         $row = $result->fetchArray(SQLITE3_ASSOC);
     }
@@ -347,7 +352,7 @@ function getDeviceHistoryChart() {
 
     header('Content-Type: application/json');
     $source = $_GET['source'] ?? 'main_scan';
-    $source = SQLite3::escapeString($source);
+	$source = is_scalar($source) ? (string)$source : 'main_scan';
 
     $labels   = [];
     $online   = [];
@@ -374,20 +379,10 @@ function getDeviceHistoryChart() {
 
     } else {
 
-        $sql = "
-            SELECT
-                Scan_Date,
-                Online_Devices,
-                Down_Devices,
-                Archived_Devices
-            FROM Online_History
-            WHERE Data_Source = '{$source}'
-            ORDER BY Scan_Date DESC
-            LIMIT 144
-        ";
+        $sql = "SELECT Scan_Date, Online_Devices, Down_Devices, Archived_Devices FROM Online_History WHERE Data_Source = :source ORDER BY Scan_Date DESC LIMIT 144";
     }
 
-    $results = $db->query($sql);
+    $results = ($source === 'main_scan') ? $db->query($sql) : db_execute_prepared($db, $sql, array(':source' => $source));
     while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
         $timePart = explode(' ', $row['Scan_Date'])[1];
         $time     = substr($timePart, 0, 5);

@@ -1,8 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
 require 'timezone.php';
 require 'db.php';
-require 'journal.php';
+require_once 'util.php';
 
 OpenDB();
 
@@ -132,6 +133,16 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 	$different_sat_versions = array_diff($satellite_cur_versions, $to_remove);
 }
 //---------------------------------------------------------------------------------------------------------------------------------------
+// Treat configuration, database and remote API values as text before composing the trusted UI markup.
+$pialert_cur_version = h($pialert_cur_version ?? '');
+$pialert_new_version = h($pialert_new_version ?? '');
+$geolite_cur_version = h($geolite_cur_version ?? '');
+$geolite_new_version = h($geolite_new_version ?? '');
+$local_pialert_time = h($local_pialert_time ?? '');
+$local_sat_time = h($local_sat_time ?? '');
+$satellite_new_version = h($satellite_new_version ?? '');
+$satellite_cur_versions = array_map('h', $satellite_cur_versions ?? []);
+
 // Print Update Box for GeoIP
 if ($_SESSION['Scan_WebServices'] == True) {
 	if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_version != "###")) {
@@ -175,7 +186,6 @@ if ($_SESSION['Scan_WebServices'] == True) {
 
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0063', '', '');
 	} elseif ($geolite_cur_version == "###") {
 	// No DB present
 		echo '<div class="box">
@@ -185,7 +195,6 @@ if ($_SESSION['Scan_WebServices'] == True) {
 					<p>' . $pia_lang['GeoLiteDB_Installnotes'] . '</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0065', '', '');
 	} else {
 	// DB present an newer as github version
 		echo '<div class="box">
@@ -194,7 +203,6 @@ if ($_SESSION['Scan_WebServices'] == True) {
 					<p class="text-green updatechk_font_a">' . $pia_lang['Updatecheck_U2D'] . '</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0064', '', '');
 	}
 }
 
@@ -221,7 +229,6 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 				</p>
 			</div>
 		  </div>';
-	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0066', '', '');
 }
 
 // Print Update Box for Pi.Alert
@@ -231,23 +238,24 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 		<h4 class="text-aqua" style="text-align: center;">' . $pia_lang['Updatecheck_RN'] . '</h4><div>';
 // Transform release notes
 	foreach ($updatenotes_array as $row) {
-		$row = str_replace("BREAKING CHANGES", "<span class=\"text-red\">BREAKING CHANGES</span>", $row);
+		$safeRow = h($row);
+		$safeRow = str_replace("BREAKING CHANGES", "<span class=\"text-red\">BREAKING CHANGES</span>", $safeRow);
 		if (stristr($row, "Update Notes: ")) {
-			echo '<span class="updatechk_font_a" style="text-decoration: underline;">' . $row . '</span><br>';
+			echo '<span class="updatechk_font_a" style="text-decoration: underline;">' . $safeRow . '</span><br>';
 		} elseif (stristr($row, "New:")) {
-			echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+			echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 		} elseif (stristr($row, "Fixed:")) {
-			echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+			echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 		} elseif (stristr($row, "Updated:")) {
-			echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+			echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 		} elseif (stristr($row, "Changed:")) {
-			echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+			echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 		} elseif (stristr($row, "Note:")) {
-			echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+			echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 		} elseif (stristr($row, "Removed:")) {
-			echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+			echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 		} else {
-			echo '<div style="display: list-item; margin-left : 2em;">' . str_replace('* ', '', $row) . '</div>';
+			echo '<div style="display: list-item; margin-left : 2em;">' . str_replace('* ', '', $safeRow) . '</div>';
 		}
 	}
 
@@ -263,7 +271,6 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
         <a class="btn btn-default pull-left" href="https://leiweibau.net/archive/pialert/" target="_blank">Version History (leiweibau.net)</a>
     </div>
 </div>';
-	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0061', '', '');
 
 }
 
@@ -275,7 +282,6 @@ if ($pialert_cur_version == $pialert_new_version) {
 				<p class="text-green updatechk_font_a">' . $pia_lang['Updatecheck_U2D'] . '</p>
 			</div>
 		  </div>';
-	pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0062', '', '');
 }
 if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 	// Print Update Box for Pi.Alert Satellites
@@ -301,7 +307,6 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 					</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0066', '', '');
 	}
 
 	// Print Update Box for Pi.Alert Satellites
@@ -311,23 +316,24 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 			<h4 class="text-aqua" style="text-align: center;">' . $pia_lang['Updatecheck_Sat_RN'] . '</h4><div>';
 	// Transform release notes
 		foreach ($updatenotes_sat_array as $row) {
-			$row = str_replace("BREAKING CHANGES", "<span class=\"text-red\">BREAKING CHANGES</span>", $row);
+			$safeRow = h($row);
+		$safeRow = str_replace("BREAKING CHANGES", "<span class=\"text-red\">BREAKING CHANGES</span>", $safeRow);
 			if (stristr($row, "Update Notes: ")) {
-				echo '<span class="updatechk_font_a" style="text-decoration: underline;">' . $row . '</span><br>';
+				echo '<span class="updatechk_font_a" style="text-decoration: underline;">' . $safeRow . '</span><br>';
 			} elseif (stristr($row, "New:")) {
-				echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+				echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 			} elseif (stristr($row, "Fixed:")) {
-				echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+				echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 			} elseif (stristr($row, "Updated:")) {
-				echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+				echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 			} elseif (stristr($row, "Changed:")) {
-				echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+				echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 			} elseif (stristr($row, "Note:")) {
-				echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+				echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 			} elseif (stristr($row, "Removed:")) {
-				echo '<br><span class="updatechk_font_a">' . $row . '</span><br>';
+				echo '<br><span class="updatechk_font_a">' . $safeRow . '</span><br>';
 			} else {
-				echo '<div style="display: list-item; margin-left : 2em;">' . str_replace('* ', '', $row) . '</div>';
+				echo '<div style="display: list-item; margin-left : 2em;">' . str_replace('* ', '', $safeRow) . '</div>';
 			}
 		}
 		$updatecommand = 'bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert-Satellite/raw/main/install/pialert_satellite_update.sh)&quot;';
@@ -341,7 +347,6 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 	        <a class="btn btn-default pull-left" href="https://leiweibau.net/archive/pialert/" target="_blank">Version History (leiweibau.net)</a>
 	    </div>
 	</div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0068', '', '');
 
 	}
 
@@ -353,7 +358,6 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 					<p class="text-green updatechk_font_a">' . $pia_lang['Updatecheck_U2D'] . '</p>
 				</div>
 			  </div>';
-		pialert_logging('a_060', $_SERVER['REMOTE_ADDR'], 'LogStr_0069', '', '');
 	}
 }
 echo '</div>';
@@ -370,8 +374,9 @@ $("#updateDB-button").on(\'click\', function() {
     loader.show();
     // Send an AJAX request to initiate the file download
     $.ajax({
-        url: \'./php/server/services.php?action=updateGeoDB\',
-        method: \'GET\',
+        url: \'./php/server/services.php\',
+        data: { action: \'updateGeoDB\' },
+        method: \'POST\',
         success: function(response) {
             console.log(\'Download complete!\');
         },

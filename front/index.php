@@ -3,22 +3,34 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+require_once __DIR__ . '/php/server/csrf.php';
+pialert_start_session();
 
 require 'php/server/db.php';
+require "php/server/auth.php";
 require 'php/server/journal.php';
 
 $DBFILE = '../db/pialert.db';
 OpenDB();
 
 // Processing Logout
-if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'logout') {
-	// Logging
-	pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9002', '', '');
-
-	session_destroy();
-	setcookie("PiAlert_SaveLogin", "", time() - 3600);
-	header('Location: ./index.php');
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    header('Allow: POST');
+    http_response_code(405);
+    echo 'Method Not Allowed';
+    exit;
+}
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['action'] ?? '') === 'logout') {
+    pialert_validate_csrf();
+    pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9002', '', '');
+    pialert_revoke_current_remember_token($db);
+    $_SESSION = array();
+    $sessionCookieName = session_name();
+    session_destroy();
+    pialert_delete_auth_cookie($sessionCookieName);
+    header('Location: ./index.php', true, 303);
+    exit;
 }
 
 // Login Processing start
@@ -38,6 +50,9 @@ $protection_line = explode("=", $config_file_lines_bypass[0]);
 $Pia_WebProtection = strtolower(trim($protection_line[1]));
 
 if ($Pia_WebProtection != 'true') {
+	if (($_SESSION['login'] ?? 0) != 1) {
+		pialert_csrf_rotate();
+	}
 	header('Location: ./devices.php');
 	$_SESSION['login'] = 1;
 	$_SESSION['WebProtection'] = $Pia_WebProtection;
@@ -49,31 +64,49 @@ $config_file_lines = array_values(preg_grep('/^PIALERT_WEB_PASSWORD\s.*/', $conf
 $password_line = explode("'", $config_file_lines[0]);
 $Pia_Password = $password_line[1];
 
-// Password without Cookie check -> pass and set initial cookie
-if ($Pia_Password == hash('sha256', $_POST["loginpassword"])) {
-	header('Location: ./devices.php');
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['loginpassword'])) {
+    pialert_validate_csrf();
+}
+$submittedPassword = $_POST["loginpassword"] ?? null;
+$passwordLogin = is_string($submittedPassword)
+	&& hash_equals((string) $Pia_Password, hash("sha256", $submittedPassword));
+
+if ($passwordLogin) {
+	session_regenerate_id(true);
+	pialert_csrf_rotate();
 	$_SESSION["login"] = 1;
-	$_SESSION['WebProtection'] = $Pia_WebProtection;
-	if (isset($_POST['PWRemember'])) {setcookie("PiAlert_SaveLogin", hash('sha256', $_POST["loginpassword"]), time() + 604800);}
-	// Logging
-	pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9001', '', '');
+	$_SESSION["WebProtection"] = $Pia_WebProtection;
+	if (isset($_POST["PWRemember"])) {
+		pialert_issue_remember_token($db);
+	} else {
+		pialert_revoke_current_remember_token($db);
+	}
+	pialert_logging("a_001", $_SERVER["REMOTE_ADDR"], "LogStr_9001", "", "");
+	header('Location: ./devices.php', true, 303);
+	exit;
 }
 
-// active Session or valid cookie (cookie not extends)
-if (($_SESSION["login"] == 1) || ($Pia_Password === $_COOKIE["PiAlert_SaveLogin"])) {
-	if ($_SESSION["login"] != 1) {
-		pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9004', '', '');
-	}
-	header('Location: ./devices.php');
+if (($_SESSION["login"] ?? 0) == 1) {
+	header("Location: ./devices.php");
+	exit;
+}
+
+if (pialert_consume_remember_token($db)) {
+	session_regenerate_id(true);
+	pialert_csrf_rotate();
 	$_SESSION["login"] = 1;
-	$_SESSION['WebProtection'] = $Pia_WebProtection;
+	$_SESSION["WebProtection"] = $Pia_WebProtection;
+	pialert_logging("a_001", $_SERVER["REMOTE_ADDR"], "LogStr_9004", "", "");
+	header("Location: ./devices.php");
+	exit;
 }
 
 // no active session, cookie not checked
 if ($_SESSION["login"] != 1) {
-	if ($_SESSION["login"] != 1 && isset($_POST["loginpassword"])) {
-		// Logging
+	if ($_SESSION['login'] != 1 && isset($_POST['loginpassword'])) {
 		pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9003', '', '');
+		header('Location: ./index.php?login=failed', true, 303);
+		exit;
 	}
 	if (file_exists('../config/setting_darkmode')) {$ENABLED_DARKMODE = True;}
 	if ($Pia_Password == '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92') {
@@ -127,6 +160,7 @@ if ($ENABLED_DARKMODE === True) {
   <div class="login-box-body">
     <p class="login-box-msg"><?=$pia_lang['Login_Box'];?></p>
       <form action="./index.php" method="post">
+        <input type="hidden" name="_csrf" value="<?=htmlspecialchars(pialert_csrf_token(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');?>">
       <div class="form-group has-feedback">
         <input type="password" class="form-control" placeholder="<?=$pia_lang['Login_Psw-box'];?>" name="loginpassword">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>

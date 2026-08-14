@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -218,6 +219,7 @@ function initializeDatatable () {
     'pageLength'   : tableRows,
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {visible:   false,         targets: [0,5,6,7,8,10] },
       {className: 'text-center', targets: [] },
       {orderData: [8],           targets: 7 },
@@ -227,29 +229,22 @@ function initializeDatatable () {
       {targets: [1],
         "createdCell": function (td, cellData, rowData, row, col) {
           if (rowData[13]) {
-              $(td).html('<b><a href="deviceDetails.php?mac=' + rowData[13] + '" class="">' + cellData + '</a></b>');
+              setCellLink(td, "deviceDetails.php?mac=" + encodeURIComponent(String(rowData[13])), cellData);
           } else {
-              
-              if (String(cellData).endsWith("**")) {
-                  const mainText = String(cellData).slice(0, -2);
-
-                  $(td).html(
-                      '<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' +
-                      mainText +
-                      '<span class="text-warning">**</span>' +
-                      '</a></b>'
-                  );
-              } else {
-                  // default
-                  $(td).html('<b><a href="icmpmonitorDetails.php?hostip=' + rowData[9] + '" class="">' + cellData + '</a></b>');
-              }
+              setCellLink(
+                td,
+                "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[9] ?? "")),
+                cellData,
+                "",
+                "**"
+              );
           }
       } },
 
       // Replace HTML codes
       {targets: [3,4,5,6,7],
         "createdCell": function (td, cellData, rowData, row, col) {
-          $(td).html (translateHTMLcodes (cellData));
+          setCellText(td, cellData);
       } }
     ],
 

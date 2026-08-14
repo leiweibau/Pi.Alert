@@ -1,161 +1,178 @@
-# Table of Contents
-
-* [Introduction](#pialert)
-* [Scan Methodes](#scan-methods)
-* [Backend](#backend-back)
-* [Frontend](#frontend-front)
-* [Installation](#installation)
-* [Update](#update)
-* Additional information
-  * [Guide for the first start](docs/FIRST_START_GUIDE.md)
-  * [FAQ](docs/HELP_FAQ.md), [Troubleshooting](docs/TROUBLESHOOTING.md)
-  * [Screenshots](docs/SCREENSHOTS.md), [Favicons/Homescreen icons](docs/ICONS.md)
-  * [Device Management](docs/DEVICE_MANAGEMENT.md)
-  * [Bulk Editor](docs/BULKEDITOR.md)
-  * [pialert-cli](docs/PIALERTCLI.md), [pialert.conf](docs/PIALERT_CONF.md)
-  * [Network Relationship](docs/NETWORK_RELATIONSHIP.md)
-  * [Web service monitoring](docs/WEBSERVICES.md)
-  * [Satellite Config](docs/SATELLITES.md)
-  * [Uninstall Pi.Alert](docs/UNINSTALL.md)
-* [Closing words](#closing-words)
-
-
 # Pi.Alert
-<!--- --------------------------------------------------------------------- --->
 
-WIFI / LAN intruder detector with web service monitoring. The main functions are as follows:
+Pi.Alert keeps an eye on your Wi-Fi and LAN and lets you know when something
+changes. It discovers devices on your network, tracks their availability, and
+provides a web interface for managing everything in one place.
 
-- Scan your WIFI/LAN-connected devices and receive alerts for unknown device connections. 
-- Receive notifications when a new device appears on the network or when a known device loses connection, depending on your notification settings.
-- Assess web service availability by evaluating the HTTP status code, SSL certificate, and service response time. 
-- Receive notifications if the SSL certificate changes, the HTTP status code changes, or if the service becomes unreachable. 
-- Detect unwanted/foreign DHCP servers 
-- Device monitoring using the ping command, for devices outside your own subnet
+![Pi.Alert main screen][main]
 
-There is also a companion script, [Pi.Alert-Satellite](https://github.com/leiweibau/Pi.Alert-Satellite), 
-which performs its own scans and the results can be sent to an existing Pi.Alert instance.
+## What Pi.Alert can do
 
-![Main screen][main]
-[Compare this fork with the main project](docs/VERSIONCOMPARE.md)
+- Discover devices connected to your Wi-Fi or LAN.
+- Notify you when an unknown device appears or a known device goes offline.
+- Monitor devices outside the local subnet using ICMP.
+- Detect unwanted or foreign DHCP servers.
+- Monitor internal and external web services by checking HTTP status, response
+  time, and SSL certificate information.
+- Alert you when a monitored service becomes unavailable or its status or
+  certificate changes.
+- Run manual Nmap scans and send Wake-on-LAN commands.
+- Show how devices are connected through routers, switches, and other network
+  infrastructure.
 
+Need visibility into another network segment? The companion
+[Pi.Alert-Satellite](https://github.com/leiweibau/Pi.Alert-Satellite) project
+can scan independently and send its results to an existing Pi.Alert instance.
 
-### Scan Methods and Imports
+[See how this version compares with the original project](docs/VERSIONCOMPARE.md).
 
-<ins>**arp-scan**</ins> (system utility to search for devices using arp frames), 
-<ins>**Pi-hole DNS**</ins> (v5 or v6), <ins>**Pi-hole DHCP**</ins>. (v5 or v6),
-<ins>**Fritzbox**</ins> (active Hosts), <ins>**Mikrotik**</ins> (DHCP leases), <ins>**UniFi**</ins> (Client Devices), <ins>**OpenWRT**</ins> (active hosts), 
-<ins>**AsusWRT**</ins> (active hosts), <ins>**pfSense**</ins> (active hosts, DHCP leases, ARP Table), <ins>**OPNSense**</ins> (active hosts, DHCP leases, ARP Table),
-<ins>**Adguard Home**</ins> (DHCP leases, "Active Hosts" - Detection using the latest DNS queries),
-<ins>**Satellite Scan**</ins> (arp-scan, Pi-hole v6 DNS, Pi-hole v6 DHCP, Mikrotik, UniFi, OpenWRT, AsusWRT, pfSense, OPNSense, Adguard Home)
+## Scan methods and imports
 
-### Backend (back)
+Pi.Alert can collect device information from several sources:
 
-The backend is controlled via the operating system's own cron service and is executed at 5-minute intervals. The task of the backend is to execute the 
-various scans and imports, save the results in the database and send notifications according to the settings. In addition to host detection, it is also 
-possible to check the availability of manually entered hosts or websites for their reachability and to receive notifications in the event of status changes. 
-Various services are available for the notifications (Frontend, Mail ([Guide](docs/NOTIFICATION_MAIL.md)), [Pushsafer](https://www.pushsafer.com/), 
-[Pushover](https://pushover.net/), ntfy and Telegram through shoutrrrr ([Guide](docs/NOTIFICATION_SHOUTRRR.md))).
+- **arp-scan** for local network discovery
+- **Pi-hole 5 and 6** for DNS and DHCP data
+- **FRITZ!Box** for active hosts
+- **MikroTik** for DHCP leases
+- **UniFi** for client devices
+- **OpenWrt** and **AsusWRT** for active hosts
+- **pfSense** and **OPNsense** for active hosts, DHCP leases, and ARP tables
+- **AdGuard Home** for DHCP leases and hosts detected through recent DNS queries
+- **Pi.Alert-Satellite** using arp-scan, Pi-hole 6, MikroTik, UniFi, OpenWrt,
+  AsusWRT, pfSense, OPNsense, or AdGuard Home
 
-### Frontend (front)
+## How it works
 
-The frontend is used to manage the host information determined and for general management. You can store additional information for each device, view the historical 
-history, perform manual nmap scans or send Wake-on-LAN commands. You also have the option of assigning individual devices to other network devices such as routers and 
-switches in order to maintain an overview of the relationships between the devices. A settings page allows you to configure individual parts of the frontend, while a 
-config file editor allows you to configure the backend. The user interface, which is available in English, German, Spanish, French, Italian, Polish, Danish, Dutch, Czech, 
-Finnish, Swedish, Norwegian, Lithuanian, Ukrainian, and Russian, is protected by a login; the password is randomly generated during installation and displayed at the end 
-of the installation process. You can change this using the CLI tool [pialert-cli](docs/PIALERTCLI.md).
+### Backend
 
-New [Favicons/Homescreen icons](docs/ICONS.md) have been created based on the original design, tailored to different skins. To ensure compatibility with 
-iOS devices, icons can be directly linked from the repository, as iOS devices may not load homescreen icons from insecure sources (without SSL or self-signed SSL).
+The backend is normally started by the operating system's cron service every
+five minutes. It runs the configured scans and imports, stores their results,
+and sends notifications when relevant changes are detected. It also monitors
+manually configured hosts and web services.
 
-It is possible to send various requests to the backend with the help of an [API](docs/API-USAGE.md). The API can also be used to create an integration in Home Assistant 
-or [Homepage](https://github.com/gethomepage/homepage).
+Notifications can be delivered through the frontend, email
+([setup guide](docs/NOTIFICATION_MAIL.md)),
+[Pushsafer](https://www.pushsafer.com/), [Pushover](https://pushover.net/),
+ntfy, or Telegram through the Telegram Bot API. Shoutrrr remains available as
+an optional discovery helper ([setup guide](docs/NOTIFICATION_TELEGRAM.md)).
 
+### Web interface
 
-# Installation
-<!--- --------------------------------------------------------------------- --->
-Initially designed to run on a Raspberry Pi, probably it can run on some other
-Linux distributions which use the "apt" package manager. Check "[Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md)" before using 
-Pi.Alert with another Debian based distribution like DietPi or Ubuntu Server to see, if there are any special notes to follow.
+The web interface gives you a central place to:
 
-<table>
-  <thead>
-    <tr><th align="left">Installation</th></tr>
-  </thead>
-  <tbody>
-  <tr><td>
+- review current and historical device information;
+- add owners, locations, groups, notes, and other device metadata;
+- organize network relationships;
+- configure the frontend and edit backend settings;
+- view events, reports, journals, and scan results;
+- use the API with integrations such as
+  [Home Assistant](docs/API-USAGE.md) or
+  [Homepage](https://github.com/gethomepage/homepage).
 
-```
+The interface is available in English, German, Spanish, French, Italian,
+Polish, Danish, Dutch, Czech, Finnish, Swedish, Norwegian, Lithuanian,
+Ukrainian, and Russian. Login protection is enabled during installation with a
+randomly generated password. You can change it later with
+[`pialert-cli`](docs/PIALERTCLI.md).
+
+Skin-specific [favicons and home-screen icons](docs/ICONS.md) are included.
+They can also be linked directly from this repository when iOS refuses to load
+icons from an HTTP or self-signed HTTPS installation.
+
+## Installation
+
+Pi.Alert was originally designed for the Raspberry Pi and targets Debian-based
+systems using `apt`. Before installing it on DietPi, Ubuntu Server, or another
+Debian-based distribution, check the
+[distribution notes](docs/LINUX-DISTRIBUTIONS.md).
+
+Run the installer as root:
+
+```bash
 sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_install.sh)"
 ```
-  </td></tr>
-  </tbody>
-</table>
 
-- [Guide for the first start](docs/FIRST_START_GUIDE.md)
-- If you want to use **Pi.Alert as LXC container**, feel free to check out the [Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE) (originally [tteck/Proxmox (archived)](https://github.com/tteck/Proxmox)). I also support this version, as this Pi.Alert version is used with the exception of initial container creation. Updates to the LXC version are also installed from this repository. A separate update command is used for this purpose.
+Once installation is complete, continue with the
+[first-start guide](docs/FIRST_START_GUIDE.md).
 
-:bulb: <ins>Additional components and information</ins>
+### Proxmox LXC
 
- - [Things to keep in mind when using different Linux distributions](docs/LINUX-DISTRIBUTIONS.md) (will be updated if necessary)
- - An initial fork but now independent version of Pi.Alert named NetAlertX based on Docker can be found here: [jokob-sk/NetAlertX](https://github.com/jokob-sk/NetAlertX)
- - The original, but unmaintained, Pi.Alert can be found here [pucherot/Pi.Alert](https://github.com/pucherot/Pi.Alert/)
+For an LXC installation, take a look at the
+[Proxmox VE Helper-Scripts](https://github.com/community-scripts/ProxmoxVE),
+originally provided by the now archived
+[tteck/Proxmox](https://github.com/tteck/Proxmox) repository. This installation
+method uses the Pi.Alert version from this repository after the container has
+been created and provides its own update command.
 
-# Update
-<!--- --------------------------------------------------------------------- --->
-You can always check for a new release using the "Update Check" button in the sidebar. This check will show you if the GeoLite2 DB is 
-installed or up to date and which new features, fixes or changes are available in the new Pi.Alert release, if you are not already using the latest version.
+## Updating
 
-<table>
-  <thead>
-    <tr><th align="left">Updater</th></tr>
-  </thead>
-  <tbody>
-  <tr><td>
+The **Update Check** entry in the sidebar shows available Pi.Alert releases,
+their changes, and the status of the GeoLite2 database.
 
-```
+To update an existing installation, run:
+
+```bash
 sudo bash -c "$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)"
 ```
-  </td></tr>
-  </tbody>
-</table>
 
-🟢 Help with migrating to the new installation path [Here](docs/MIGRATION_HOME_TO_OPT.md)
+If your installation still uses the previous home-directory layout, follow the
+[migration guide](docs/MIGRATION_HOME_TO_OPT.md).
 
-An archive of older versions can be found at [https://leiweibau.net/archive/pialert](https://leiweibau.net/archive/pialert/). This archive contains all release notes of my fork.
+Older releases and their release notes are available from the
+[Pi.Alert release archive](https://leiweibau.net/archive/pialert/).
 
-# Closing words
-<!--- --------------------------------------------------------------------- --->
+## Documentation
 
-### Support
+- [First-start guide](docs/FIRST_START_GUIDE.md)
+- [FAQ](docs/HELP_FAQ.md) and [troubleshooting](docs/TROUBLESHOOTING.md)
+- [Screenshots](docs/SCREENSHOTS.md)
+- [Device management](docs/DEVICE_MANAGEMENT.md) and
+  [bulk editor](docs/BULKEDITOR.md)
+- [`pialert-cli`](docs/PIALERTCLI.md) and
+  [`pialert.conf`](docs/PIALERT_CONF.md)
+- [Network relationships](docs/NETWORK_RELATIONSHIP.md)
+- [Web service monitoring](docs/WEBSERVICES.md)
+- [Satellite configuration](docs/SATELLITES.md)
+- [API usage](docs/API-USAGE.md)
+- [Favicons and home-screen icons](docs/ICONS.md)
+- [Uninstallation](docs/UNINSTALL.md)
 
-  If you would like to support me and my work, I offer the following options.
+## Related projects
 
-  | [<img src="https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/githubsponsor.png" height="30px">](https://github.com/sponsors/leiweibau) | [<img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" height="30px">](https://www.buymeacoffee.com/leiweibau) |
-  | ---- | ---- |
+- [NetAlertX](https://github.com/jokob-sk/NetAlertX) began as a Pi.Alert fork
+  and is now an independent, Docker-based project.
+- [pucherot/Pi.Alert](https://github.com/pucherot/Pi.Alert/) is the original,
+  currently unmaintained project.
 
-  <ins>**:pray: A personal thank you to every sponsor of this project.**</ins>
+## Support and thanks
 
-  <ins>**:pray: A big thank you also goes to everyone who contributed directly or indirectly.**</ins>
+If Pi.Alert is useful to you and you would like to support its development:
 
-### Additionally used components and services
-[Animated GIF (Loading Animation)](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif), 
-[Selfhosted Fonts](https://github.com/adobe-fonts/source-sans), 
-[Bootstrap Icons](https://github.com/twbs/icons), 
-[Material Design Icons](https://github.com/Pictogrammers), 
-[For final processing of background images](https://www.imgonline.com.ua/eng/make-seamless-texture.php), 
-[DeepL](https://www.deepl.com), 
-[ChatGPT](https://chat.openai.com)
+| GitHub Sponsors | Buy Me a Coffee |
+| --- | --- |
+| [<img src="https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/githubsponsor.png" height="30" alt="Sponsor on GitHub">](https://github.com/sponsors/leiweibau) | [<img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" height="30" alt="Buy Me a Coffee">](https://www.buymeacoffee.com/leiweibau) |
 
+Thank you to everyone who sponsors, contributes to, tests, translates, or
+otherwise supports the project.
 
-### License
-  GPL 3.0
-  [Read more here](LICENSE.txt)
+## License
 
-### Contact
+Pi.Alert is released under the [GNU General Public License 3.0](LICENSE.txt).
 
-  leiweibau@gmail.com
+## Contact
 
-<!--- --------------------------------------------------------------------- --->
-[main]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main_da_li.png          "Main screen"
+Questions and feedback are welcome at `leiweibau@gmail.com`.
 
+## Credits
+
+Pi.Alert also uses or has benefited from the following projects and services:
+
+- [Loading animation](https://commons.wikimedia.org/wiki/File:Loading_Animation.gif)
+- [Adobe Fonts](https://github.com/adobe-fonts/source-sans)
+- [Bootstrap Icons](https://github.com/twbs/icons)
+- [Material Design Icons](https://github.com/Pictogrammers)
+- [IMGonline seamless texture tool](https://www.imgonline.com.ua/eng/make-seamless-texture.php)
+- [DeepL](https://www.deepl.com)
+- [ChatGPT](https://chat.openai.com)
+
+[main]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main_da_li.png "Pi.Alert main screen"

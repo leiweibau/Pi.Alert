@@ -10,7 +10,9 @@
 //  leiweibau  2025+       https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
-session_start();
+require_once __DIR__ . "/session.php";
+pialert_start_session();
+require_once __DIR__ . '/csrf.php';
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ../../index.php');
@@ -18,7 +20,7 @@ if ($_SESSION["login"] != 1) {
 }
 
 // if ($_SESSION["login"] != 1) {
-// 	if ($_REQUEST['action'] != "getDevicesTotals") {
+// 	if ($GLOBALS["pialert_request"]['action'] != "getDevicesTotals") {
 // 	header('Location: ../../index.php');
 // 	exit;
 // 	}
@@ -38,9 +40,24 @@ ini_set('max_execution_time', '30');
 OpenDB();
 OpenDB_Tools();
 
+pialert_dispatch_action([
+    'getDeviceData', 'getNetworkNodes', 'ListInactiveHosts',
+    'getDevicesTotals', 'getDevicesList', 'getDevicesListCalendar',
+    'getOwners', 'getDeviceTypes', 'getGroups', 'getLocations',
+    'getLinkSpeed', 'getConnectionType', 'getSpeedtestResults'
+], [
+    'setDeviceData', 'deleteDevice', 'deleteAllWithEmptyMACs',
+    'deleteAllDevices', 'deleteUnknownDevices', 'TestNotificationSystem',
+    'deleteEvents', 'deleteActHistory', 'deleteDeviceEvents',
+    'DeleteInactiveHosts', 'wakeonlan', 'BulkDeletion', 'EnableMainScan',
+    'EnableSatelliteScan', 'DeleteDeviceFilter', 'SetDeviceFilter',
+    'DeleteSpeedtestResults', 'DeleteNmapScansResults', 'SaveFilterID',
+    'CreateNewSatellite', 'SaveSatellite', 'DeleteSatellite',
+    'resetVoidedEvents', 'MTUpdateColumnContent', 'MTDeletColumnContent'
+]);
 // Action functions
-if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
-	$action = $_REQUEST['action'];
+if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_request"]['action'])) {
+	$action = $GLOBALS["pialert_request"]['action'];
 	switch ($action) {
 	case 'getDeviceData':getDeviceData();
 		break;
@@ -90,6 +107,8 @@ if (isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
 		break;
 	case 'getConnectionType':getConnectionType();
 		break;
+	case 'getSpeedtestResults':getSpeedtestResults();
+		break;
 	case 'EnableMainScan':EnableMainScan();
 		break;
 	case 'EnableSatelliteScan':EnableSatelliteScan();
@@ -125,9 +144,9 @@ function MTDeletColumnContent() {
 	global $db;
 	global $pia_lang;
 
-	$column = htmlspecialchars($_REQUEST['column']) ?? '';
-	$column_content = htmlspecialchars($_REQUEST['ccontent']) ?? '';
-	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
+	$column = htmlspecialchars($GLOBALS["pialert_request"]['column']) ?? '';
+	$column_content = htmlspecialchars($GLOBALS["pialert_request"]['ccontent']) ?? '';
+	$new_column_content = htmlspecialchars($GLOBALS["pialert_request"]['nccontent']) ?? '';
 
 	if ($new_column_content !== '') {
 	    die($pia_lang['BE_Dev_ColumnErr_a']);
@@ -197,9 +216,9 @@ function MTUpdateColumnContent() {
 	global $db;
 	global $pia_lang;
 
-	$column = htmlspecialchars($_REQUEST['column']) ?? '';
-	$column_content = htmlspecialchars($_REQUEST['ccontent']) ?? '';
-	$new_column_content = htmlspecialchars($_REQUEST['nccontent']) ?? '';
+	$column = htmlspecialchars($GLOBALS["pialert_request"]['column']) ?? '';
+	$column_content = htmlspecialchars($GLOBALS["pialert_request"]['ccontent']) ?? '';
+	$new_column_content = htmlspecialchars($GLOBALS["pialert_request"]['nccontent']) ?? '';
 
 	$columnMap = [
 	    'Group'       => ['Devices' => 'dev_Group',        'ICMP_Mon' => 'icmp_group'],
@@ -267,9 +286,9 @@ function SaveSatellite() {
 
 	$currentDateTime = date('Y-m-d H:i');
 
-	$satellite_name        = $_REQUEST['satellite_name'] ?? '';
-	$new_satellite_name    = $_REQUEST['changed_satellite_name'] ?? '';
-	$satellite_id          = $_REQUEST['sat_id'] ?? '';
+	$satellite_name        = $GLOBALS["pialert_request"]['satellite_name'] ?? '';
+	$new_satellite_name    = $GLOBALS["pialert_request"]['changed_satellite_name'] ?? '';
+	$satellite_id          = $GLOBALS["pialert_request"]['sat_id'] ?? '';
 
 	if ($satellite_name === '' || $new_satellite_name === '' || $satellite_id === '') {
 	    echo $pia_lang['BE_Dev_SatUpdateError'] . '<br>Ungültige Eingabedaten.';
@@ -311,8 +330,8 @@ function DeleteSatellite() {
 	global $db;
 	global $pia_lang;
 
-	$satellite_name = $_REQUEST['satellite_name'] ?? '';
-	$satellite_id   = $_REQUEST['sat_id'] ?? '';
+	$satellite_name = $GLOBALS["pialert_request"]['satellite_name'] ?? '';
+	$satellite_id   = $GLOBALS["pialert_request"]['sat_id'] ?? '';
 
 	// 1. Geräte löschen, deren ScanSource dem sat_token des Satelliten entspricht
 	$sql1 = 'DELETE FROM Devices
@@ -369,7 +388,7 @@ function CreateNewSatellite() {
 
 	$currentDateTime = date('Y-m-d H:i');
 
-	$satellite_name = ($_REQUEST['new_satellite_name'] === '') ? 'Satellite' : $_REQUEST['new_satellite_name'];
+	$satellite_name = ($GLOBALS["pialert_request"]['new_satellite_name'] === '') ? 'Satellite' : $GLOBALS["pialert_request"]['new_satellite_name'];
 
 	// Token und Passwort generieren
 	$satellite_token = generateRandomString(48);
@@ -407,35 +426,13 @@ function CreateNewSatellite() {
 
 
 function SaveFilterID() {
-	global $db;
-	global $pia_lang;
-
-	$filterid = htmlspecialchars($_REQUEST['filterid']);
-	$filtername = htmlspecialchars($_REQUEST['filtername']);
-	$filterstring = htmlspecialchars($_REQUEST['filterstring']);
-	$filterindex = htmlspecialchars($_REQUEST['filterindex']);
-	$filtercolumn = htmlspecialchars($_REQUEST['filtercolumn']);
-	$filtergroup = htmlspecialchars($_REQUEST['filtergroup']);
-
-	// sql
-	$sql = 'UPDATE Devices_table_filter SET
-                 filtername      = "' . quotes($filtername) . '",
-                 filterstring    = "' . quotes($filterstring) . '",
-                 reserve_a       = "' . quotes($filterindex) . '",
-                 reserve_b       = "' . quotes($filtercolumn) . '",
-                 reserve_c       = "' . quotes($filtergroup) . '"
-          WHERE id="' . $filterid . '"';
-	$result = $db->query($sql);
-
-	if ($result == TRUE) {
-		echo $pia_lang['BE_Dev_Upd_Filter'];
-		// Logging
-		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid);
-	} else {
-		echo $pia_lang['BE_Dev_Upd_FilterError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
-		pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid);
-	}
+	global $db; global $pia_lang;
+	$filterid = filter_var($GLOBALS["pialert_request"]['filterid'] ?? null, FILTER_VALIDATE_INT);
+	if ($filterid === false || $filterid === null) { echo $pia_lang['BE_Dev_Upd_FilterError']; return; }
+	$params = array(':name' => (string)($GLOBALS["pialert_request"]['filtername'] ?? ''), ':string' => (string)($GLOBALS["pialert_request"]['filterstring'] ?? ''), ':index' => (string)($GLOBALS["pialert_request"]['filterindex'] ?? ''), ':column' => (string)($GLOBALS["pialert_request"]['filtercolumn'] ?? ''), ':group' => (string)($GLOBALS["pialert_request"]['filtergroup'] ?? ''), ':id' => array((int)$filterid, SQLITE3_INTEGER));
+	$result = db_execute_prepared($db, 'UPDATE Devices_table_filter SET filtername=:name, filterstring=:string, reserve_a=:index, reserve_b=:column, reserve_c=:group WHERE id=:id', $params);
+	if ($result) { echo $pia_lang['BE_Dev_Upd_Filter']; pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid); }
+	else { logServerConsole('Device filter update failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Dev_Upd_FilterError']; pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid); }
 	echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=4'>");
 }
 
@@ -444,21 +441,21 @@ function SetDeviceFilter() {
 	global $pia_lang;
 
 	$colfilterarray = array();
-	if ($_REQUEST['fname'] == 0) {array_push($colfilterarray, "0");}
-	if ($_REQUEST['fowner'] == 0) {array_push($colfilterarray, "2");}
-	if ($_REQUEST['fgroup'] == 0) {array_push($colfilterarray, "5");}
-	if ($_REQUEST['flocation'] == 0) {array_push($colfilterarray, "6");}
-	if ($_REQUEST['ftype'] == 0) {array_push($colfilterarray, "3");}
-	if ($_REQUEST['fip'] == 0) {array_push($colfilterarray, "9");}
-	if ($_REQUEST['fmac'] == 0) {array_push($colfilterarray, "11");}
-	if ($_REQUEST['fvendor'] == 0) {array_push($colfilterarray, "12");}
-	if ($_REQUEST['fconnectiont'] == 0) {array_push($colfilterarray, "1");}
+	if ($GLOBALS["pialert_request"]['fname'] == 0) {array_push($colfilterarray, "0");}
+	if ($GLOBALS["pialert_request"]['fowner'] == 0) {array_push($colfilterarray, "2");}
+	if ($GLOBALS["pialert_request"]['fgroup'] == 0) {array_push($colfilterarray, "5");}
+	if ($GLOBALS["pialert_request"]['flocation'] == 0) {array_push($colfilterarray, "6");}
+	if ($GLOBALS["pialert_request"]['ftype'] == 0) {array_push($colfilterarray, "3");}
+	if ($GLOBALS["pialert_request"]['fip'] == 0) {array_push($colfilterarray, "9");}
+	if ($GLOBALS["pialert_request"]['fmac'] == 0) {array_push($colfilterarray, "11");}
+	if ($GLOBALS["pialert_request"]['fvendor'] == 0) {array_push($colfilterarray, "12");}
+	if ($GLOBALS["pialert_request"]['fconnectiont'] == 0) {array_push($colfilterarray, "1");}
 
 	$newcolfilter = implode(",", $colfilterarray);
 
-	$filtername = filter_var($_REQUEST['filtername'], FILTER_SANITIZE_STRING);
-	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
-	$filtergroup = filter_var($_REQUEST['filtergroup'], FILTER_SANITIZE_STRING);
+	$filtername = isset($GLOBALS["pialert_request"]['filtername']) && is_scalar($GLOBALS["pialert_request"]['filtername']) ? (string) $GLOBALS["pialert_request"]['filtername'] : '';
+	$filterstring = isset($GLOBALS["pialert_request"]['filterstring']) && is_scalar($GLOBALS["pialert_request"]['filterstring']) ? (string) $GLOBALS["pialert_request"]['filterstring'] : '';
+	$filtergroup = isset($GLOBALS["pialert_request"]['filtergroup']) && is_scalar($GLOBALS["pialert_request"]['filtergroup']) ? (string) $GLOBALS["pialert_request"]['filtergroup'] : '';
 	// Create table if not exist
 	$sql = "CREATE TABLE IF NOT EXISTS Devices_table_filter (
 	            id INTEGER PRIMARY KEY,
@@ -475,14 +472,12 @@ function SetDeviceFilter() {
 		
 		if ($filtername != "" && $filterstring != "") {
 			try {
-				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_b", "reserve_c") 
-		                               VALUES ("' . $filtername . '", "' . $filterstring . '", "' . $newcolfilter . '", "' . $filtergroup . '")';
-
-				$result = $db->query($sql_insert_data);
-				echo $pia_lang['BE_Dev_table_filter_ok_a'] . '"' .$filtername . '"' . $pia_lang['BE_Dev_table_filter_ok_b'] . '"' .$filterstring . '"' . $pia_lang['BE_Dev_table_filter_ok_c'];
+				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_b", "reserve_c") VALUES (:name, :string, :columns, :group_name)';
+				$result = db_execute_prepared($db, $sql_insert_data, array(':name' => $filtername, ':string' => $filterstring, ':columns' => $newcolfilter, ':group_name' => $filtergroup));
+				echo $pia_lang['BE_Dev_table_filter_ok_a'] . '"' . h($filtername) . '"' . $pia_lang['BE_Dev_table_filter_ok_b'] . '"' . h($filterstring) . '"' . $pia_lang['BE_Dev_table_filter_ok_c'];
 				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);
 			} catch (Exception $e) {
-				die($pia_lang['BE_Dev_table_filter_error_a'] . '"' .$filtername . '"' . $pia_lang['BE_Dev_table_filter_error_b'] . '"' .$filterstring . '"' . $pia_lang['BE_Dev_table_filter_error_c']);
+				die($pia_lang['BE_Dev_table_filter_error_a'] . '"' . h($filtername) . '"' . $pia_lang['BE_Dev_table_filter_error_b'] . '"' . h($filterstring) . '"' . $pia_lang['BE_Dev_table_filter_error_c']);
 				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0041', '', '');
 			}
 		} else {
@@ -497,15 +492,11 @@ function SetDeviceFilter() {
 }
 
 function DeleteDeviceFilter() {
-	global $db;
-	global $pia_lang;
-
-	$filterstring = filter_var($_REQUEST['filterstring'], FILTER_SANITIZE_STRING);
-	$sql = 'DELETE FROM Devices_table_filter WHERE filterstring="' . $filterstring . '"';
-	// execute sql
-	$result = $db->query($sql);
-
-	echo $pia_lang['BE_Dev_table_delfilter_ok'] . $filterstring;
+	global $db; global $pia_lang;
+	$filterstring = isset($GLOBALS["pialert_request"]['filterstring']) && is_scalar($GLOBALS["pialert_request"]['filterstring']) ? (string) $GLOBALS["pialert_request"]['filterstring'] : '';
+	$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE filterstring = :filterstring', array(':filterstring' => $filterstring));
+	if (!$result) { logServerConsole('Device filter delete failed: ' . $db->lastErrorMsg()); }
+	echo $pia_lang['BE_Dev_table_delfilter_ok'] . h($filterstring);
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php'>");
 }
@@ -514,20 +505,20 @@ function DeleteDeviceFilter() {
 function getDeviceData() {
 	global $db;
 
-	// Request Parameters
-	$periodDate = getDateFromPeriod();
-	$mac = $_REQUEST['mac'];
-	// Device Data
-	$sql = 'SELECT rowid, *,
-            CASE WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
-                 WHEN dev_PresentLastScan=1 THEN "On-line"
-                 ELSE "Off-line" END as dev_Status
-          FROM Devices
-          WHERE dev_MAC="' . $mac . '" or cast(rowid as text)="' . $mac . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_ASSOC);
+	$identifier = isset($GLOBALS["pialert_request"]['mac']) && is_scalar($GLOBALS["pialert_request"]['mac']) ? (string) $GLOBALS["pialert_request"]['mac'] : '';
+	$result = db_execute_prepared($db, 'SELECT rowid, *,
+		CASE WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
+		WHEN dev_PresentLastScan=1 THEN "On-line" ELSE "Off-line" END AS dev_Status
+		FROM Devices WHERE dev_MAC = :identifier OR CAST(rowid AS TEXT) = :identifier', array(':identifier' => $identifier));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	if (!$row) {
+		echo json_encode(null);
+		return;
+	}
+
 	$deviceData = $row;
 	$mac = $deviceData['dev_MAC'];
+	$periodDate = getDateFromPeriodValue();
 	$deviceData['dev_Name'] = strval($deviceData['dev_Name']);
 	$deviceData['dev_Owner'] = strval($deviceData['dev_Owner']);
 	$deviceData['dev_Model'] = strval($deviceData['dev_Model']);
@@ -535,114 +526,55 @@ function getDeviceData() {
 	$deviceData['dev_Serialnumber'] = strval($deviceData['dev_Serialnumber']);
 	$deviceData['dev_Network_Node_MAC'] = $row['dev_Infrastructure'];
 	$deviceData['dev_Network_Node_port'] = $row['dev_Infrastructure_port'];
-	$deviceData['dev_FirstConnection'] = formatDate($row['dev_FirstConnection']); // Date formated
-	$deviceData['dev_LastConnection'] = formatDate($row['dev_LastConnection']); // Date formated
-	$deviceData['dev_RandomMAC'] = (in_array($mac[1], array("2", "6", "A", "E", "a", "e")) ? 1 : 0);
-	// Count Totals
-	$condition = ' WHERE eve_MAC="' . $mac . '" AND eve_DateTime >= ' . $periodDate;
-	// Connections
-	$sql = 'SELECT COUNT(*) FROM Sessions
-          WHERE ses_MAC="' . $mac . '"
-          AND (   ses_DateTimeConnection    >= ' . $periodDate . '
-               OR ses_DateTimeDisconnection >= ' . $periodDate . '
-               OR ses_StillConnected = 1 )';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$deviceData['dev_Sessions'] = $row[0];
-	// Events
-	$sql = 'SELECT COUNT(*) FROM Events ' . $condition . ' AND eve_EventType <> "Connected" AND eve_EventType <> "Disconnected" ';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$deviceData['dev_Events'] = $row[0];
-	// Down Alerts
-	$sql = 'SELECT COUNT(*) FROM Events ' . $condition . ' AND eve_EventType = "Device Down"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_NUM);
-	$deviceData['dev_DownAlerts'] = $row[0];
-	// Presence hours
-	$sql = 'SELECT CAST(( MAX (0, SUM (julianday (IFNULL (ses_DateTimeDisconnection, DATETIME("now","localtime")))
-                                     - julianday (CASE WHEN ses_DateTimeConnection < ' . $periodDate . ' THEN ' . $periodDate . '
-                                                       ELSE ses_DateTimeConnection END)) *24 )) AS INT)
-          FROM Sessions
-          WHERE ses_MAC="' . $mac . '"
-            AND ses_DateTimeConnection IS NOT NULL
-            AND (ses_DateTimeDisconnection IS NOT NULL OR ses_StillConnected = 1 )
-            AND (   ses_DateTimeConnection    >= ' . $periodDate . '
-                 OR ses_DateTimeDisconnection >= ' . $periodDate . '
-                 OR ses_StillConnected = 1 )';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_NUM);
+	$deviceData['dev_FirstConnection'] = formatDate($row['dev_FirstConnection']);
+	$deviceData['dev_LastConnection'] = formatDate($row['dev_LastConnection']);
+	$deviceData['dev_RandomMAC'] = in_array($mac[1], array('2', '6', 'A', 'E', 'a', 'e')) ? 1 : 0;
+	$params = array(':mac' => $mac, ':period' => $periodDate);
+
+	$result = db_execute_prepared($db, 'SELECT COUNT(*) FROM Sessions WHERE ses_MAC = :mac
+		AND (ses_DateTimeConnection >= :period OR ses_DateTimeDisconnection >= :period OR ses_StillConnected = 1)', $params);
+	$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+	$deviceData['dev_Sessions'] = (int) $row[0];
+
+	$result = db_execute_prepared($db, 'SELECT COUNT(*) FROM Events WHERE eve_MAC = :mac AND eve_DateTime >= :period
+		AND eve_EventType <> "Connected" AND eve_EventType <> "Disconnected"', $params);
+	$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+	$deviceData['dev_Events'] = (int) $row[0];
+
+	$result = db_execute_prepared($db, 'SELECT COUNT(*) FROM Events WHERE eve_MAC = :mac AND eve_DateTime >= :period
+		AND eve_EventType = "Device Down"', $params);
+	$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+	$deviceData['dev_DownAlerts'] = (int) $row[0];
+
+	$result = db_execute_prepared($db, 'SELECT CAST((MAX(0, SUM(julianday(IFNULL(ses_DateTimeDisconnection, DATETIME("now", "localtime")))
+		- julianday(CASE WHEN ses_DateTimeConnection < :period THEN :period ELSE ses_DateTimeConnection END)) * 24)) AS INT)
+		FROM Sessions WHERE ses_MAC = :mac AND ses_DateTimeConnection IS NOT NULL
+		AND (ses_DateTimeDisconnection IS NOT NULL OR ses_StillConnected = 1)
+		AND (ses_DateTimeConnection >= :period OR ses_DateTimeDisconnection >= :period OR ses_StillConnected = 1)', $params);
+	$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
 	$deviceData['dev_PresenceHours'] = round($row[0]);
-	// Return json
 	echo json_encode($deviceData);
 }
 
 //  Update Device Data
 function setDeviceData() {
-	global $db;
-	global $pia_lang;
-
-	$cleanup = ($_REQUEST['mqttdevice'] == 1) ? 0 : 1;
-	// sql
-	$sql = 'UPDATE Devices SET
-                 dev_Name                 = "' . quotes($_REQUEST['name']) . '",
-                 dev_Owner                = "' . quotes($_REQUEST['owner']) . '",
-                 dev_DeviceType           = "' . quotes($_REQUEST['type']) . '",
-                 dev_Vendor               = "' . quotes($_REQUEST['vendor']) . '",
-                 dev_Model                = "' . quotes($_REQUEST['model']) . '",
-                 dev_Serialnumber         = "' . quotes($_REQUEST['serialnumber']) . '",
-                 dev_Favorite             = "' . quotes($_REQUEST['favorite']) . '",
-                 dev_PresencePage         = "' . quotes($_REQUEST['showpresence']) . '",
-                 dev_Group                = "' . quotes($_REQUEST['group']) . '",
-                 dev_Location             = "' . quotes($_REQUEST['location']) . '",
-                 dev_Comments             = "' . quotes($_REQUEST['comments']) . '",
-                 dev_Infrastructure       = "' . quotes($_REQUEST['networknode']) . '",
-                 dev_Infrastructure_port  = "' . quotes($_REQUEST['networknodeport']) . '",
-                 dev_ConnectionType       = "' . quotes($_REQUEST['connectiontype']) . '",
-                 dev_LinkSpeed            = "' . quotes($_REQUEST['linkspeed']) . '",
-                 dev_StaticIP             = "' . quotes($_REQUEST['staticIP']) . '",
-                 dev_MQTTDevice           = "' . quotes($_REQUEST['mqttdevice']) . '",
-                 dev_MQTTDevice_cleanup   = "' . $cleanup . '",
-                 dev_ScanCycle            = "' . quotes($_REQUEST['scancycle']) . '",
-                 dev_AlertEvents          = "' . quotes($_REQUEST['alertevents']) . '",
-                 dev_AlertDeviceDown      = "' . quotes($_REQUEST['alertdown']) . '",
-                 dev_SkipRepeated         = "' . quotes($_REQUEST['skiprepeated']) . '",
-                 dev_Scan_Validation      = "' . quotes($_REQUEST['scanvalid']) . '",
-                 dev_NewDevice            = "' . quotes($_REQUEST['newdevice']) . '",
-                 dev_Archived             = "' . quotes($_REQUEST['archived']) . '"
-          WHERE dev_MAC="' . $_REQUEST['mac'] . '"';
-	$result = $db->query($sql);
-
-	if ($result == TRUE) {
-		echo $pia_lang['BE_Dev_DBTools_UpdDev'];
-		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $_REQUEST['mac']);
-	} else {
-		echo $pia_lang['BE_Dev_DBTools_UpdDevError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $_REQUEST['mac']);
-	}
+	global $db; global $pia_lang;
+	$mac = $GLOBALS["pialert_request"]['mac'] ?? ''; if (!is_scalar($mac) || !filter_var(str_replace('-', ':', $mac), FILTER_VALIDATE_MAC)) { echo $pia_lang['BE_Dev_DBTools_UpdDevError']; return; }
+	$keys = array('name','owner','type','vendor','model','serialnumber','favorite','showpresence','group','location','comments','networknode','networknodeport','connectiontype','linkspeed','staticIP','mqttdevice','scancycle','alertevents','alertdown','skiprepeated','scanvalid','newdevice','archived');
+	$params = array(':mac' => (string)$mac); foreach ($keys as $key) { $value = $GLOBALS["pialert_request"][$key] ?? ''; $params[':'.$key] = is_scalar($value) ? (string)$value : ''; }
+	$params[':cleanup'] = array($params[':mqttdevice'] === '1' ? 0 : 1, SQLITE3_INTEGER);
+	$sql = 'UPDATE Devices SET dev_Name=:name, dev_Owner=:owner, dev_DeviceType=:type, dev_Vendor=:vendor, dev_Model=:model, dev_Serialnumber=:serialnumber, dev_Favorite=:favorite, dev_PresencePage=:showpresence, dev_Group=:group, dev_Location=:location, dev_Comments=:comments, dev_Infrastructure=:networknode, dev_Infrastructure_port=:networknodeport, dev_ConnectionType=:connectiontype, dev_LinkSpeed=:linkspeed, dev_StaticIP=:staticIP, dev_MQTTDevice=:mqttdevice, dev_MQTTDevice_cleanup=:cleanup, dev_ScanCycle=:scancycle, dev_AlertEvents=:alertevents, dev_AlertDeviceDown=:alertdown, dev_SkipRepeated=:skiprepeated, dev_Scan_Validation=:scanvalid, dev_NewDevice=:newdevice, dev_Archived=:archived WHERE dev_MAC=:mac';
+	$result = db_execute_prepared($db, $sql, $params);
+	if ($result) { echo $pia_lang['BE_Dev_DBTools_UpdDev']; pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $mac); }
+	else { logServerConsole('Device update failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Dev_DBTools_UpdDevError']; pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0004', '', $mac); }
 }
 
 //  Delete Device
 function deleteDevice() {
-	global $db;
-	global $pia_lang;
-
-	// sql
-	$sql = 'DELETE FROM Devices WHERE dev_MAC="' . $_REQUEST['mac'] . '"';
-	// execute sql
-	$result = $db->query($sql);
-	// check result
-	if ($result == TRUE) {
-		echo $pia_lang['BE_Dev_DBTools_DelDev_a'];
-		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $_REQUEST['mac']);
-	} else {
-		echo $pia_lang['BE_Dev_DBTools_DelDevError_a'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $_REQUEST['mac']);
-	}
+	global $db; global $pia_lang;
+	$mac = $GLOBALS["pialert_request"]['mac'] ?? ''; $result = is_scalar($mac) ? db_execute_prepared($db, 'DELETE FROM Devices WHERE dev_MAC=:mac', array(':mac' => (string)$mac)) : false;
+	if ($result) { echo $pia_lang['BE_Dev_DBTools_DelDev_a']; pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $mac); }
+	else { logServerConsole('Device delete failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Dev_DBTools_DelDevError_a']; pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0005', '', $mac); }
 }
 
 //  Delete all devices with empty MAC addresses
@@ -686,21 +618,10 @@ function deleteUnknownDevices() {
 
 //  Delete Device Events
 function deleteDeviceEvents() {
-	global $db;
-	global $pia_lang;
-
-	$sql = 'DELETE FROM Events WHERE eve_MAC="' . $_REQUEST['mac'] . '"';
-	$result = $db->query($sql);
-
-	if ($result == TRUE) {
-		echo $pia_lang['BE_Dev_DBTools_DelEvents'];
-		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0020', '', $_REQUEST['mac']);
-	} else {
-		echo $pia_lang['BE_Dev_DBTools_DelEventsError'] . "\n\n$sql \n\n" . $db->lastErrorMsg();
-		// Logging
-		pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0021', '', $_REQUEST['mac']);
-	}
+	global $db; global $pia_lang;
+	$mac = $GLOBALS["pialert_request"]['mac'] ?? ''; $result = is_scalar($mac) ? db_execute_prepared($db, 'DELETE FROM Events WHERE eve_MAC=:mac', array(':mac' => (string)$mac)) : false;
+	if ($result) { echo $pia_lang['BE_Dev_DBTools_DelEvents']; pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0020', '', $mac); }
+	else { logServerConsole('Device event delete failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Dev_DBTools_DelEventsError']; pialert_logging('a_020', $_SERVER['REMOTE_ADDR'], 'LogStr_0021', '', $mac); }
 }
 
 //  Delete all devices
@@ -778,98 +699,56 @@ function TestNotificationSystem() {
 function getDevicesTotals() {
 	global $db;
 
-	// Default
-	$scansource = 'local';
-
-	if (!empty($_REQUEST['scansource'])) {
-		$input = $_REQUEST['scansource'];
-
-		if ($input === 'local') {
-			$scansource = 'local';
-		} else {
-			// Optional: Formatprüfung (empfohlen)
-			if (preg_match('/^[a-zA-Z0-9_\-]{10,250}$/', $input)) {
-
-				// Escapen für sichere Query
-				$escaped = SQLite3::escapeString($input);
-
-				$res = $db->query("SELECT 1 FROM Satellites WHERE sat_token = '$escaped' LIMIT 1");
-
-				if ($res && $res->fetchArray()) {
-					$scansource = $input; // Original übernehmen
-				}
-			}
-		}
+	$scanSource = isset($GLOBALS["pialert_request"]['scansource']) && is_scalar($GLOBALS["pialert_request"]['scansource']) && $GLOBALS["pialert_request"]['scansource'] !== '' ? (string) $GLOBALS["pialert_request"]['scansource'] : 'local';
+	$totals = array();
+	foreach (array('all', 'connected', 'favorites', 'new', 'down', 'archived', 'presence') as $status) {
+		list($condition, $parameters) = getDeviceCondition($status, $scanSource);
+		$result = db_execute_prepared($db, 'SELECT COUNT(*) FROM Devices ' . $condition, $parameters);
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$totals[] = (int) $row[0];
 	}
-
-	// combined query
-	$result = $db->query(
-		'SELECT
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('all',$scansource) . ') as devices,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('connected',$scansource) . ') as connected,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('favorites',$scansource) . ') as favorites,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('new',$scansource) . ') as new,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('down',$scansource) . ') as down,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('archived',$scansource) . ') as archived,
-        (SELECT COUNT(*) FROM Devices ' . getDeviceCondition('presence',$scansource) . ') as presence
-   ');
-	$row = $result->fetchArray(SQLITE3_NUM);
-	echo json_encode(array($row[0], $row[1], $row[2], $row[3], $row[4], $row[5], $row[6]));
+	echo json_encode($totals);
 }
 
 
 //  Query the List of devices in a determined Status
 function getDevicesList() {
-	global $db;
+	global $db, $db_tools;
 
-	$status = $_REQUEST['status'] ?? 'all';
-	$scansource = $_REQUEST['scansource'] ?? 'local';
-
-	// minimale Absicherung
-	if ($scansource === '' || $scansource === null) {
-		$scansource = 'local';
-	}
-
-	$condition = getDeviceCondition($status, $scansource);
-
-	// $condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
+	$status = isset($GLOBALS["pialert_request"]['status']) && is_scalar($GLOBALS["pialert_request"]['status']) ? (string) $GLOBALS["pialert_request"]['status'] : 'all';
+	$scanSource = isset($GLOBALS["pialert_request"]['scansource']) && is_scalar($GLOBALS["pialert_request"]['scansource']) && $GLOBALS["pialert_request"]['scansource'] !== '' ? (string) $GLOBALS["pialert_request"]['scansource'] : 'local';
+	list($condition, $parameters) = getDeviceCondition($status, $scanSource);
 	$sql = 'SELECT rowid, *, CASE
-            WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
-            WHEN dev_NewDevice=1 AND dev_PresentLastScan=1 THEN "NewON"
-            WHEN dev_NewDevice=1 AND dev_PresentLastScan=0 THEN "NewOFF"
-            WHEN dev_Scan_Validation > 0 AND dev_Scan_Validation_State > 0 AND dev_Scan_Validation_State <= dev_Scan_Validation AND dev_PresentLastScan=1 THEN "OnlineV"
-            WHEN dev_PresentLastScan=1 THEN "On-line"
-            ELSE "Off-line"
-          END AS dev_Status
-          FROM Devices ' . $condition;
-	$result = $db->query($sql);
-	// arrays of rows
-	$tableData = array();
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		$tableData['data'][] = array($row['dev_Name'],
-			$row['dev_ConnectionType'],
-			$row['dev_Owner'],
-			$row['dev_DeviceType'],
-			$row['dev_Favorite'],
-			$row['dev_Group'],
-			$row['dev_Location'],
-			formatDate($row['dev_FirstConnection']),
-			formatDate($row['dev_LastConnection']),
-			$row['dev_LastIP'],
-			(in_array($row['dev_MAC'][1], array("2", "6", "A", "E", "a", "e")) ? 1 : 0),
-			$row['dev_MAC'], // MAC (hidden)
-			$row['dev_Vendor'],
-			$row['dev_Status'],
-			formatIPlong($row['dev_LastIP']), // IP orderable
-			$row['dev_ScanSource'],
-			$row['rowid'], // Rowid (hidden)
-		);
+		WHEN dev_AlertDeviceDown=1 AND dev_PresentLastScan=0 THEN "Down"
+		WHEN dev_NewDevice=1 AND dev_PresentLastScan=1 THEN "NewON"
+		WHEN dev_NewDevice=1 AND dev_PresentLastScan=0 THEN "NewOFF"
+		WHEN dev_Scan_Validation > 0 AND dev_Scan_Validation_State > 0 AND dev_Scan_Validation_State <= dev_Scan_Validation AND dev_PresentLastScan=1 THEN "OnlineV"
+		WHEN dev_PresentLastScan=1 THEN "On-line" ELSE "Off-line" END AS dev_Status
+		FROM Devices ' . $condition;
+	$queuedDeviceMacs = array();
+	$queueTableExists = $db_tools->querySingle(
+		"SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'Tools_Nmap_Queue'"
+	);
+	if ((int) $queueTableExists > 0) {
+		$queueResult = $db_tools->query('SELECT DISTINCT device_mac FROM Tools_Nmap_Queue');
+		while ($queueResult && ($queueRow = $queueResult->fetchArray(SQLITE3_ASSOC))) {
+			$queuedDeviceMacs[strtolower(trim((string) $queueRow['device_mac']))] = true;
+		}
 	}
-	// Control no rows
+	$result = db_execute_prepared($db, $sql, $parameters);
+	$tableData = array();
+	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+		$isNmapQueued = isset($queuedDeviceMacs[strtolower(trim((string) $row['dev_MAC']))]);
+		$tableData['data'][] = array($row['dev_Name'], $row['dev_ConnectionType'], $row['dev_Owner'],
+			$row['dev_DeviceType'], $row['dev_Favorite'], $row['dev_Group'], $row['dev_Location'],
+			formatDate($row['dev_FirstConnection']), formatDate($row['dev_LastConnection']), $row['dev_LastIP'],
+			(in_array($row['dev_MAC'][1], array('2', '6', 'A', 'E', 'a', 'e')) ? 1 : 0), $row['dev_MAC'],
+			$row['dev_Vendor'], $row['dev_Status'], formatIPlong($row['dev_LastIP']), $row['dev_ScanSource'], $row['rowid'],
+			null, $isNmapQueued);
+	}
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
-	// Return json
 	echo json_encode($tableData);
 }
 
@@ -877,21 +756,18 @@ function getDevicesList() {
 function getDevicesListCalendar() {
 	global $db;
 
-	$condition = getDeviceCondition($_REQUEST['status'],$_REQUEST['scansource']);
-	$result = $db->query('SELECT * FROM Devices ' . $condition . ' AND dev_PresencePage=1');
+	$status = isset($GLOBALS["pialert_request"]['status']) && is_scalar($GLOBALS["pialert_request"]['status']) ? (string) $GLOBALS["pialert_request"]['status'] : 'all';
+	$scanSource = isset($GLOBALS["pialert_request"]['scansource']) && is_scalar($GLOBALS["pialert_request"]['scansource']) && $GLOBALS["pialert_request"]['scansource'] !== '' ? (string) $GLOBALS["pialert_request"]['scansource'] : 'local';
+	list($condition, $parameters) = getDeviceCondition($status, $scanSource);
+	$result = db_execute_prepared($db, 'SELECT * FROM Devices ' . $condition . ' AND dev_PresencePage = 1', $parameters);
 
-	// arrays of rows
 	$tableData = array();
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
 		if ($row['dev_Favorite'] == 1) {
-			$row['dev_Name'] = '<span class="text-yellow">&#9733</span>&nbsp' . $row['dev_Name'];
+			$row['dev_Name'] = "★ " . $row['dev_Name'];
 		}
-
-		$tableData[] = array('id' => $row['dev_MAC'],
-			'title' => $row['dev_Name'],
-			'favorite' => $row['dev_Favorite']);
+		$tableData[] = array('id' => $row['dev_MAC'], 'title' => $row['dev_Name'], 'favorite' => $row['dev_Favorite']);
 	}
-	// Return json
 	echo json_encode($tableData);
 }
 
@@ -1156,61 +1032,36 @@ function getNetworkNodes() {
 }
 
 //  Status Where conditions
-function getDeviceCondition($deviceStatus, $scansource) {
+function getDeviceCondition($deviceStatus, $scanSource) {
 	global $db;
 
-	// NICHTS ist Spezialfall → alles ist Filter
-	if ($scansource === '' || $scansource === null) {
-		$scansource = 'local';
+	if (!is_scalar($scanSource) || $scanSource === '') {
+		$scanSource = 'local';
+	}
+	$scanSource = (string) $scanSource;
+	if (!preg_match('/^[a-zA-Z0-9_-]{1,250}$/', $scanSource)) {
+		return array('WHERE 1 = 0', array());
 	}
 
-	// Sicherheit
-	if (!preg_match('/^[a-zA-Z0-9_\-]{1,250}$/', $scansource)) {
-		return "WHERE 1=0";
+	$sourceResult = db_execute_prepared($db, 'SELECT 1 FROM Devices WHERE dev_ScanSource = :scan_source LIMIT 1', array(':scan_source' => $scanSource));
+	if (!$sourceResult || !$sourceResult->fetchArray()) {
+		return array('WHERE 1 = 0', array());
 	}
 
-	$escaped = SQLite3::escapeString($scansource);
-
-	// Validierung: existiert entweder local oder satellite token
-	$res = $db->query("
-		SELECT 1
-		FROM Devices
-		WHERE dev_ScanSource = '$escaped'
-		LIMIT 1
-	");
-
-	if (!$res || !$res->fetchArray()) {
-		return "WHERE 1=0";
+	$statusConditions = array(
+		'all' => 'dev_Archived = 0',
+		'connected' => 'dev_Archived = 0 AND dev_PresentLastScan = 1',
+		'favorites' => 'dev_Archived = 0 AND dev_Favorite = 1',
+		'new' => 'dev_Archived = 0 AND dev_NewDevice = 1',
+		'down' => 'dev_Archived = 0 AND dev_AlertDeviceDown = 1 AND dev_PresentLastScan = 0',
+		'archived' => 'dev_Archived = 1',
+		'presence' => 'dev_Archived = 0 AND dev_PresencePage = 1',
+	);
+	if (!isset($statusConditions[$deviceStatus])) {
+		return array('WHERE 1 = 0', array());
 	}
 
-	$filter = 'dev_ScanSource="'.$escaped.'" AND ';
-
-	switch ($deviceStatus) {
-
-	case 'all':
-		return 'WHERE '.$filter.'dev_Archived=0';
-
-	case 'connected':
-		return 'WHERE '.$filter.'dev_Archived=0 AND dev_PresentLastScan=1';
-
-	case 'favorites':
-		return 'WHERE '.$filter.'dev_Archived=0 AND dev_Favorite=1';
-
-	case 'new':
-		return 'WHERE '.$filter.'dev_Archived=0 AND dev_NewDevice=1';
-
-	case 'down':
-		return 'WHERE '.$filter.'dev_Archived=0 AND dev_AlertDeviceDown=1 AND dev_PresentLastScan=0';
-
-	case 'archived':
-		return 'WHERE '.$filter.'dev_Archived=1';
-
-	case 'presence':
-		return 'WHERE '.$filter.'dev_Archived=0 AND dev_PresencePage=1';
-
-	default:
-		return 'WHERE 1=0';
-	}
+	return array('WHERE dev_ScanSource = :scan_source AND ' . $statusConditions[$deviceStatus], array(':scan_source' => $scanSource));
 }
 
 //  Delete Inactive Hosts
@@ -1218,22 +1069,26 @@ function DeleteInactiveHosts() {
 	global $pia_lang;
 	global $db;
 
-	$sql = 'SELECT * FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day")';
-	$result = $db->query($sql);
-	while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-		$sql_dev = 'DELETE FROM Devices WHERE dev_MAC="' . $res['dev_MAC'] . '"';
-		$result_dev = $db->query($sql_dev);
-		$sql_evt = 'DELETE FROM Events WHERE eve_MAC="' . $res['dev_MAC'] . '"';
-		$result_evt = $db->query($sql_evt);
+	$result = db_execute_prepared($db, 'SELECT dev_MAC FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day")');
+	$success = $result !== false;
+	if ($success) {
+		$db->exec('BEGIN');
+		while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
+			$params = array(':mac' => $res['dev_MAC']);
+			if (!db_execute_prepared($db, 'DELETE FROM Devices WHERE dev_MAC = :mac', $params)
+				|| !db_execute_prepared($db, 'DELETE FROM Events WHERE eve_MAC = :mac', $params)) {
+				$success = false;
+				break;
+			}
+		}
+		$db->exec($success ? 'COMMIT' : 'ROLLBACK');
 	}
-	//check result
-	if ($result_dev == TRUE && $result_evt == TRUE) {
+	if ($success) {
 		echo $pia_lang['BE_Dev_DBTools_DelInactHosts'];
-		// Logging
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0015', '', '');
 	} else {
-		echo $pia_lang['BE_Dev_DBTools_DelInactHostsError'] . '<br>' . "\n\n" . $db->lastErrorMsg();
-		// Logging
+		logServerConsole('Inactive device deletion failed: ' . $db->lastErrorMsg());
+		echo $pia_lang['BE_Dev_DBTools_DelInactHostsError'];
 		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0014', '', '');
 	}
 }
@@ -1243,16 +1098,17 @@ function ListInactiveHosts() {
 	global $pia_lang;
 	global $db;
 
-	$inactive_hosts[0] = "";
+	$inactive_hosts[0] = '';
 
-	$i=1;
+	$i = 1;
 	$sql = 'SELECT * FROM Devices WHERE dev_PresentLastScan = 0 AND dev_LastConnection <= date("now", "-30 day") ORDER BY dev_LastConnection DESC';
 	$result = $db->query($sql);
 	while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-		$inactive_hosts[0] .= $i .'.&nbsp;&nbsp;&nbsp;'.$res['dev_Name'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_MAC'] . '&nbsp;&nbsp;/&nbsp;&nbsp;' . $res['dev_LastConnection'] ."<br>";
+		$inactive_hosts[0] .= $i . '.   ' . $res['dev_Name'] . ' / ' . $res['dev_MAC'] . ' / ' . $res['dev_LastConnection'] . "\n";
 		$i++;
 	}
-	echo (json_encode($inactive_hosts));
+	header('Content-Type: application/json; charset=UTF-8');
+	echo json_encode($inactive_hosts);
 }
 
 //  Delete All Notification in WebGUI
@@ -1277,10 +1133,9 @@ function deleteAllNotifications() {
 //  Wake-on-LAN 1/2
 function crosscheckMAC($query_mac) {
 	global $db;
-	$sql = 'SELECT * FROM Devices WHERE dev_MAC="' . $query_mac . '"';
-	$result = $db->query($sql);
-	$row = $result->fetchArray(SQLITE3_ASSOC);
-	return $row['dev_MAC'];
+	$result = db_execute_prepared($db, 'SELECT dev_MAC FROM Devices WHERE dev_MAC = :mac', array(':mac' => (string) $query_mac));
+	$row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+	return $row ? $row['dev_MAC'] : '';
 }
 
 //  Wake-on-LAN 2/2
@@ -1288,8 +1143,8 @@ function wakeonlan() {
 	global $pia_lang;
 	global $db;
 
-	$WOL_HOST_IP = $_REQUEST['ip'];
-	$WOL_HOST_MAC = $_REQUEST['mac'];
+	$WOL_HOST_IP = $GLOBALS["pialert_request"]['ip'];
+	$WOL_HOST_MAC = $GLOBALS["pialert_request"]['mac'];
 
 	if (!filter_var($WOL_HOST_IP, FILTER_VALIDATE_IP)) {
 		echo "Invalid IP! " . $pia_lang['BackDevDetail_Tools_WOL_error'];exit;
@@ -1310,34 +1165,18 @@ function wakeonlan() {
 
 //  Bulk Deletion
 function BulkDeletion() {
-	global $db;
-	global $pia_lang;
-
-	$hosts = '"' . implode('","', $_REQUEST['hosts']) . '"';
-	$journal_hosts = implode(',', $_REQUEST['hosts']);
-	echo $pia_lang['Device_bulkDel_back_hosts'] . ': ' . str_replace(",", ", ", $hosts) . '<br><br>';
-
-	$sql = "SELECT COUNT(*) AS row_count FROM Devices";
-	$result = $db->query($sql);
-
-	$row = $result->fetchArray();
-	$rowCount_before = $row['row_count'];
-
-	$sql = "DELETE FROM Devices WHERE dev_MAC IN ($hosts)";
-	$result = $db->query($sql);
-
-	$sql = "SELECT COUNT(*) AS row_count FROM Devices";
-	$result = $db->query($sql);
-
-	$row = $result->fetchArray();
-	$rowCount_after = $row['row_count'];
-
-	echo $pia_lang['Device_bulkDel_back_before'] . ': ' . $rowCount_before . '<br>' . $pia_lang['Device_bulkDel_back_after'] . ': ' . $rowCount_after;
+	global $db; global $pia_lang;
+	$hosts = $GLOBALS["pialert_request"]['hosts'] ?? array(); if (!is_array($hosts)) { $hosts = array(); }
+	$hosts = array_values(array_filter($hosts, 'is_scalar'));
+	list($placeholders, $params) = db_in_placeholders('mac', $hosts);
+	if ($placeholders === '') { echo $pia_lang['Device_bulkDel_back_hosts'] . ': 0'; return; }
+	$before = (int)$db->querySingle('SELECT COUNT(*) FROM Devices');
+	$db->exec('BEGIN'); $result = db_execute_prepared($db, 'DELETE FROM Devices WHERE dev_MAC IN (' . $placeholders . ')', $params);
+	if ($result) { $db->exec('COMMIT'); } else { $db->exec('ROLLBACK'); logServerConsole('Device bulk delete failed: ' . $db->lastErrorMsg()); }
+	$after = (int)$db->querySingle('SELECT COUNT(*) FROM Devices');
+	echo $pia_lang['Device_bulkDel_back_hosts'] . ': ' . h(implode(', ', $hosts)) . '<br><br>' . $pia_lang['Device_bulkDel_back_before'] . ': ' . $before . '<br>' . $pia_lang['Device_bulkDel_back_after'] . ': ' . $after;
 	echo ("<meta http-equiv='refresh' content='2; URL=./devices.php?mod=bulkedit'>");
-
-	// Logging
-	pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', $journal_hosts);
-
+	pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0003', '', implode(',', $hosts));
 }
 
 //  Toggle Satellites
@@ -1376,6 +1215,50 @@ function EnableMainScan() {
 		pialert_logging('a_032', $_SERVER['REMOTE_ADDR'], 'LogStr_9991', '', '');
 		echo ("<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=1'>");
 	}
+}
+
+//  Return the current Speedtest table and chart data without reloading the page
+function getSpeedtestResults() {
+	global $db_tools;
+
+	header('Content-Type: application/json');
+	$response = array(
+		'rows' => array(),
+		'chart' => array('labels' => array(), 'ping' => array(), 'down' => array(), 'up' => array())
+	);
+	$result = $db_tools->query(
+		'SELECT speed_date, speed_isp, speed_server, speed_ping, speed_down, speed_up '
+		. 'FROM Tools_Speedtest_History ORDER BY speed_date DESC'
+	);
+	if ($result === false) {
+		http_response_code(500);
+		echo json_encode($response);
+		return;
+	}
+
+	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$response['rows'][] = array(
+			(string) ($row['speed_date'] ?? ''),
+			(string) ($row['speed_isp'] ?? ''),
+			(string) ($row['speed_server'] ?? ''),
+			(string) ($row['speed_ping'] ?? ''),
+			(string) ($row['speed_down'] ?? ''),
+			(string) ($row['speed_up'] ?? '')
+		);
+
+		if (count($response['chart']['labels']) < 20) {
+			$dateParts = preg_split('/[- :]/', (string) ($row['speed_date'] ?? ''));
+			$label = count($dateParts) >= 5
+				? $dateParts[2] . '.' . $dateParts[1] . '. ' . $dateParts[3] . ':' . $dateParts[4]
+				: (string) ($row['speed_date'] ?? '');
+			$response['chart']['labels'][] = $label;
+			$response['chart']['ping'][] = (float) ($row['speed_ping'] ?? 0);
+			$response['chart']['down'][] = (float) ($row['speed_down'] ?? 0);
+			$response['chart']['up'][] = (float) ($row['speed_up'] ?? 0);
+		}
+	}
+
+	echo json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE);
 }
 
 //  Delete all Speedtests

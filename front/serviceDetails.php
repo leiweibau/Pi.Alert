@@ -3,7 +3,9 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+require_once __DIR__ . "/php/server/service_url.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
 	header('Location: ./index.php');
@@ -11,16 +13,17 @@ if ($_SESSION["login"] != 1) {
 }
 
 # Validate URL
-$_REQUEST['url'] = filter_var($_REQUEST['url'], FILTER_SANITIZE_URL);
+$request_url = isset($_GET['url']) && is_scalar($_GET['url']) ? (string) $_GET['url'] : '';
 
-if (filter_var($_REQUEST['url'], FILTER_VALIDATE_URL)) {
-	$service_details_title = $_REQUEST['url'];
-	$service_details_title_array = explode('://', $_REQUEST['url']);
+if (pialert_validate_service_key($request_url)) {
+	$service_details_title = $request_url;
+	$service_details_title_array = explode('://', $request_url);
 } else {
 	header('Location: ./index.php');
 	exit;
 }
 
+require 'php/server/db.php';
 require 'php/templates/header.php';
 require 'php/server/graph.php';
 require 'php/server/journal.php';
@@ -34,13 +37,13 @@ $db->exec('PRAGMA journal_mode = wal;');
 function get_service_details($service_URL) {
 	global $db;
 
-	$mon_res = $db->query('SELECT * FROM Services WHERE mon_URL="' . $service_URL . '"');
-	$row = $mon_res->fetchArray();
+	$mon_res = db_execute_prepared($db, 'SELECT * FROM Services WHERE mon_URL = :url', array(':url' => (string) $service_URL));
+	$row = $mon_res ? $mon_res->fetchArray() : false;
 	return $row;
 }
 
 // ----------------- Set Filter of fallback to default--------------------------
-$http_filter = $_REQUEST['filter'];
+$http_filter = $_GET['filter'];
 if (!isset($http_filter)) {$http_filter = 'all';}
 
 function get_service_events_table($service_URL, $service_filter) {
@@ -61,17 +64,17 @@ function get_service_events_table($service_URL, $service_filter) {
 		$filter_sql = 'AND moneve_Latency="99999999"';
 	}
 
-	$moneve_res = $db->query('SELECT * FROM Services_Events WHERE moneve_URL="' . $service_URL . '"' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000');
+	$moneve_res = db_execute_prepared($db, 'SELECT * FROM Services_Events WHERE moneve_URL = :url ' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000', array(':url' => (string) $service_URL));
 	while ($row = $moneve_res->fetchArray()) {
 		if ($row['moneve_TargetIP'] == '') {$func_TargetIP = 'n.a.';} else {
 			$func_TargetIP = $row['moneve_TargetIP'];
 			$current_service_IP = $row['moneve_TargetIP'];}
 		echo '<tr>
-              <td>' . $func_TargetIP . '</td>
-              <td>' . $row['moneve_DateTime'] . '</td>
-              <td>' . $row['moneve_StatusCode'] . '</td>
-              <td>' . $row['moneve_Latency'] . '</td>
-              <td>' . $row['moneve_ssl_fc'] . '</td>
+              <td>' . h($func_TargetIP) . '</td>
+              <td>' . h($row['moneve_DateTime']) . '</td>
+              <td>' . h($row['moneve_StatusCode']) . '</td>
+              <td>' . h($row['moneve_Latency']) . '</td>
+              <td>' . h($row['moneve_ssl_fc']) . '</td>
           </tr>';
 	}
 }
@@ -154,108 +157,62 @@ function parse_location_array($LOCATION_ARRAY) {
 function get_service_statistic($service) {
 	global $db;
 
-	// Compensate Timezone
-	$stat_query_24h = 24 - (date('Z') / 3600);
-	$stat_query_1w = 168 - (date('Z') / 3600);
+	$params = array(':service' => (string) $service);
+	$scalarQueries = array(
+		'latency_avg' => 'SELECT AVG(moneve_Latency) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL = :service',
+		'latency_max' => 'SELECT MAX(moneve_Latency) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL = :service',
+		'latency_min' => 'SELECT MIN(moneve_Latency) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL = :service',
+		'offline' => 'SELECT COUNT(*) FROM Services_Events WHERE moneve_Latency = 99999999 AND moneve_URL = :service',
+		'online' => 'SELECT COUNT(*) FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_URL = :service',
+	);
+	$values = array();
+	foreach ($scalarQueries as $key => $sql) {
+		$result = db_execute_prepared($db, $sql, $params);
+		$row = $result ? $result->fetchArray(SQLITE3_NUM) : array(0);
+		$values[$key] = $row[0];
+	}
 
 	$statistic = array();
-	$query = "SELECT AVG(moneve_Latency) AS average_latency FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL=\"$service\"";
-	$result = $db->querySingle($query);
-	$statistic['latency_avg'] = round($result, 4) . ' ms';
-	$query_max = "SELECT MAX(moneve_Latency) AS max_latency FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL=\"$service\"";
-	$query_min = "SELECT MIN(moneve_Latency) AS min_latency FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_Latency IS NOT NULL AND moneve_URL=\"$service\"";
-	$result_max = $db->querySingle($query_max);
-	$statistic['latency_max'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($result_max, 4) . ' ms';
-	$result_min = $db->querySingle($query_min);
-	$statistic['latency_min'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($result_min, 4) . ' ms';
-	$query = "SELECT COUNT(*) AS row_count FROM Services_Events WHERE moneve_Latency == 99999999 AND moneve_URL=\"$service\"";
-	$result = $db->querySingle($query);
-	$statistic['offline'] = $result;
-	$query = "SELECT COUNT(*) AS row_count FROM Services_Events WHERE moneve_Latency != 99999999 AND moneve_URL=\"$service\"";
-	$result = $db->querySingle($query);
-	$statistic['online'] = $result;
-	$temp100 = $statistic['online'] + $statistic['offline'];
-	if ($temp100 > 0 && $statistic['online'] > 0) {
-		$statistic['online_percent_all'] = round(($statistic['online'] * 100 / $temp100), 2);
-	} else {
-		$statistic['online_percent_all'] = 0;
+	$statistic['latency_avg'] = round($values['latency_avg'], 4) . ' ms';
+	$statistic['latency_max'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($values['latency_max'], 4) . ' ms';
+	$statistic['latency_min'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($values['latency_min'], 4) . ' ms';
+	$statistic['offline'] = (int) $values['offline'];
+	$statistic['online'] = (int) $values['online'];
+	$total = $statistic['online'] + $statistic['offline'];
+	$onlinePercent = $total > 0 && $statistic['online'] > 0 ? round(($statistic['online'] * 100 / $total), 2) : 0;
+	$statistic['online_percent_all'] = $onlinePercent . ' %';
+	$statistic['offline_percent_all'] = round(100 - $onlinePercent, 2) . ' %';
+
+	$windows = array('24h' => 24 - (date('Z') / 3600), '1w' => 168 - (date('Z') / 3600));
+	foreach ($windows as $label => $hours) {
+		$result = db_execute_prepared($db, 'SELECT * FROM Services_Events
+			WHERE moneve_URL = :service AND datetime(moneve_DateTime) >= datetime("now", :offset)
+			ORDER BY datetime(moneve_DateTime) DESC', array(':service' => (string) $service, ':offset' => '-' . $hours . ' hours'));
+		$offline = 0;
+		$online = 0;
+		$minimum = 99999999;
+		$maximum = 0;
+		$average = 0;
+		while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+			if ($row['moneve_Latency'] != '' && $row['moneve_Latency'] != '99999999') {
+				$online++;
+				$maximum = max($maximum, $row['moneve_Latency']);
+				$minimum = min($minimum, $row['moneve_Latency']);
+				$average += $row['moneve_Latency'];
+			} else {
+				$offline++;
+			}
+		}
+		$statistic['latency_min_' . $label] = $minimum == 99999999 ? 'n.a.' : '<i class="bi bi-speedometer2 text-green"></i> ' . round($minimum, 4) . ' ms';
+		$statistic['latency_max_' . $label] = $maximum == 0 ? 'n.a.' : '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($maximum, 4) . ' ms';
+		$statistic['latency_avg_' . $label] = $average > 0 ? round(($average / $online), 4) . ' ms' : 'n.a.';
+		$statistic['online_' . $label] = $online;
+		$statistic['offline_' . $label] = $offline;
+		$total = $online + $offline;
+		$onlinePercent = $total > 0 && $online > 0 ? round(($online * 100 / $total), 2) : 0;
+		$statistic['online_percent_' . $label] = $onlinePercent . ' %';
+		$statistic['offline_percent_' . $label] = round(100 - $onlinePercent, 2) . ' %';
 	}
-	$statistic['offline_percent_all'] = round((100 - $statistic['online_percent_all']), 2);
-	$statistic['online_percent_all'] = $statistic['online_percent_all'] . ' %';
-	$statistic['offline_percent_all'] = $statistic['offline_percent_all'] . ' %';
-
-	// 1 Day Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM Services_Events
-	  WHERE moneve_URL=\"$service\" AND datetime(moneve_DateTime) >= datetime('now', '-$stat_query_24h hours')
-	  ORDER BY datetime(moneve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_service = 99999999;
-	$max_service = 0;
-	$avg_service = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['moneve_Latency'] != "" && $row['moneve_Latency'] != "99999999") {
-			$online++;
-			if ($row['moneve_Latency'] > $max_service) {$max_service = $row['moneve_Latency'];}
-			if ($row['moneve_Latency'] < $min_service) {$min_service = $row['moneve_Latency'];}
-			$avg_service = $avg_service + $row['moneve_Latency'];
-		} else { $offline++;}
-	}
-	if ($min_service == 99999999) {$statistic['latency_min_24h'] = 'n.a.';} else { $statistic['latency_min_24h'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_service, 4) . ' ms';}
-	if ($max_service == 0) {$statistic['latency_max_24h'] = 'n.a.';} else { $statistic['latency_max_24h'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_service, 4) . ' ms';}
-	if ($avg_service > 0) {$statistic['latency_avg_24h'] = round(($avg_service / $online), 4) . ' ms';} else { $statistic['latency_avg_24h'] = 'n.a.';}
-	$statistic['online_24h'] = $online;
-	$statistic['offline_24h'] = $offline;
-
-	$temp24h = $statistic['online_24h'] + $statistic['offline_24h'];
-	if ($temp24h > 0 && $statistic['online_24h'] > 0) {
-		$statistic['online_percent_24h'] = round(($statistic['online_24h'] * 100 / $temp24h), 2);
-	} else {
-		$statistic['online_percent_24h'] = 0;
-	}
-	$statistic['offline_percent_24h'] = round((100 - $statistic['online_percent_24h']), 2);
-	$statistic['online_percent_24h'] = $statistic['online_percent_24h'] . ' %';
-	$statistic['offline_percent_24h'] = $statistic['offline_percent_24h'] . ' %';
-
-	// 1 Week Stats
-	// ---------------------------------------------------
-	$query = "SELECT * FROM Services_Events
-	  WHERE moneve_URL=\"$service\" AND datetime(moneve_DateTime) >= datetime('now', '-$stat_query_1w hours')
-	  ORDER BY datetime(moneve_DateTime) DESC";
-
-	$result = $db->query($query);
-	$offline = 0;
-	$online = 0;
-	$min_service = 99999999;
-	$max_service = 0;
-	$avg_service = 0;
-	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-		if ($row['moneve_Latency'] != "" && $row['moneve_Latency'] != "99999999") {
-			$online++;
-			if ($row['moneve_Latency'] > $max_service) {$max_service = $row['moneve_Latency'];}
-			if ($row['moneve_Latency'] < $min_service) {$min_service = $row['moneve_Latency'];}
-			$avg_service = $avg_service + $row['moneve_Latency'];
-		} else { $offline++;}
-	}
-
-	if ($min_service == 99999999) {$statistic['latency_min_1w'] = 'n.a.';} else { $statistic['latency_min_1w'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($min_service, 4) . ' ms';}
-	if ($max_service == 0) {$statistic['latency_max_1w'] = 'n.a.';} else { $statistic['latency_max_1w'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($max_service, 4) . ' ms';}
-	if ($avg_service > 0) {$statistic['latency_avg_1w'] = round(($avg_service / $online), 4) . ' ms';} else { $statistic['latency_avg_1w'] = 'n.a.';}
-	$statistic['online_1w'] = $online;
-	$statistic['offline_1w'] = $offline;
-
-	$temp24h = $statistic['online_1w'] + $statistic['offline_1w'];
-	if ($temp24h > 0 && $statistic['online_1w'] > 0) {
-		$statistic['online_percent_1w'] = round(($statistic['online_1w'] * 100 / $temp24h), 2);
-	} else {
-		$statistic['online_percent_1w'] = 0;
-	}
-	$statistic['offline_percent_1w'] = round((100 - $statistic['online_percent_1w']), 2);
-	$statistic['online_percent_1w'] = $statistic['online_percent_1w'] . ' %';
-	$statistic['offline_percent_1w'] = $statistic['offline_percent_1w'] . ' %';
 
 	return $statistic;
 }
@@ -270,7 +227,7 @@ function get_service_statistic($service) {
       <?php require 'php/templates/notification.php';?>
 
       <h1 id="pageTitle">
-        <?='[' . strtoupper($service_details_title_array[0]) . '] ' . $service_details_title_array[1];?>
+        <?=h('[' . strtoupper($service_details_title_array[0]) . '] ' . $service_details_title_array[1]);?>
       </h1>
     </section>
 
@@ -285,7 +242,7 @@ function get_service_statistic($service) {
       <div class="row">
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=all" onclick="javascript: getEventsTotalsforService('all');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=all" >
             <div class="small-box bg-aqua">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsAll"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_All'];?></p>
@@ -296,7 +253,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=2" onclick="javascript: getEventsTotalsforService('2');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=2" >
             <div class="small-box bg-green">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events2xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP2xx'];?></p>
@@ -307,7 +264,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=3" onclick="javascript: getEventsTotalsforService('3');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=3" >
             <div  class="small-box bg-yellow">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events3xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP3xx'];?></p>
@@ -318,7 +275,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=4" onclick="javascript: getEventsTotalsforService('4');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=4" >
             <div  class="small-box bg-yellow">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events4xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP4xx'];?></p>
@@ -329,7 +286,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=5" onclick="javascript: getEventsTotalsforService('5');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=5" >
             <div  class="small-box bg-yellow">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="events5xx"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_HTTP5xx'];?></p>
@@ -340,7 +297,7 @@ function get_service_statistic($service) {
         </div>
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="./serviceDetails.php?url=<?=$service_details_title?>&filter=99999999" onclick="javascript: getEventsTotalsforService('99999999');">
+          <a href="./serviceDetails.php?url=<?=rawurlencode($service_details_title)?>&amp;filter=99999999" >
             <div  class="small-box bg-red">
               <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsDown"> -- </h3>
                 <p class="infobox_label"><?=$pia_lang['WEBS_EVE_Shortcut_Down'];?></p>
@@ -376,13 +333,13 @@ function get_service_statistic($service) {
                       <!-- URL -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_URL'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtURL" type="text" readonly value="<?=$servicedetails['mon_URL']?>"></div>
+                        <div class="col-sm-9"><input class="form-control" id="txtURL" type="text" readonly value="<?=h($servicedetails['mon_URL'])?>"></div>
                       </div>
 
                       <!-- Tags -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Tags'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtTags" type="text" value="<?=$servicedetails['mon_Tags']?>"></div>
+                        <div class="col-sm-9"><input class="form-control" id="txtTags" type="text" value="<?=h($servicedetails['mon_Tags'])?>"></div>
                       </div>
 
                       <!-- Mac address -->
@@ -396,20 +353,20 @@ function get_service_statistic($service) {
                               <ul class="dropdown-menu">
 <?php
 if ($servicedetails['mon_MAC'] != "") {
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtMAC\',\'' . $servicedetails['mon_MAC'] . '\')">' . $servicedetails['mon_MAC'] . '</a></li>';
+	echo '<li><a href="#" class="service-mac-option" data-target="txtMAC" data-value="' . h($servicedetails['mon_MAC']) . '">' . h($servicedetails['mon_MAC']) . '</a></li>';
 }
 echo '<li> -----  </li>';
 
 $dev_res = $db->query('SELECT dev_MAC, dev_Name FROM Devices ORDER BY dev_Name ASC');
 $code_array = array();
 while ($row = $dev_res->fetchArray()) {
-	echo '<li><a href="javascript:void(0)" onclick="setTextValue(\'txtMAC\',\'' . $row['dev_MAC'] . '\')">' . $row['dev_Name'] . '</a></li>';
+	echo '<li><a href="#" class="service-mac-option" data-target="txtMAC" data-value="' . h($row['dev_MAC']) . '">' . h($row['dev_Name']) . '</a></li>';
 }
 ?>
                               </ul>
                             </div>
                             <!-- /btn-group -->
-                            <input type="text" id="txtMAC" class="form-control" data-enpassusermodified="yes" value="<?=$servicedetails['mon_MAC'];?>">
+                            <input type="text" id="txtMAC" class="form-control" data-enpassusermodified="yes" value="<?=h($servicedetails['mon_MAC']);?>">
                           </div>
                         </div>
                       </div>
@@ -417,7 +374,7 @@ while ($row = $dev_res->fetchArray()) {
                       <!-- Notes -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Notes'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=$servicedetails['mon_Notes']?>"></div>
+                        <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=h($servicedetails['mon_Notes'])?>"></div>
                       </div>
 
                     </div>
@@ -431,31 +388,31 @@ while ($row = $dev_res->fetchArray()) {
                       <!-- Last HTTP Status -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_StatusCode'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_LastStatus']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_LastStatus'])?>"></div>
                       </div>
 
                       <!-- Last HTTP Status -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label">SSL Status</label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_fc']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_ssl_fc'])?>"></div>
                       </div>
 
                       <!-- Last IP -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_TargetIP'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastIP" type="text" readonly value="<?=$servicedetails['mon_TargetIP']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastIP" type="text" readonly value="<?=h($servicedetails['mon_TargetIP'])?>"></div>
                       </div>
 
                       <!-- Last Scan -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_ScanTime'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastScan" type="text" readonly value="<?=$servicedetails['mon_LastScan']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastScan" type="text" readonly value="<?=h($servicedetails['mon_LastScan'])?>"></div>
                       </div>
 
                       <!-- Last Latency -->
                       <div class="form-group">
                         <label class="col-sm-4 control-label"><?=$pia_lang['WEBS_label_Response_Time'];?></label>
-                        <div class="col-sm-8"><input class="form-control" id="txtLastLatency" type="text" readonly value="<?=$servicedetails['mon_LastLatency']?>"></div>
+                        <div class="col-sm-8"><input class="form-control" id="txtLastLatency" type="text" readonly value="<?=h($servicedetails['mon_LastLatency'])?>"></div>
                       </div>
 
                       <!-- Alert events -->
@@ -482,13 +439,13 @@ while ($row = $dev_res->fetchArray()) {
 	                    <h4 class="bottom-border-aqua">SSL Certificate Info</h4>
 	                    <div class="box-body form-horizontal">
 	                        <label class="col-sm-2 control-label">Subject</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_subject']))?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h(str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_subject'])))?>"></div>
 	                        <label class="col-sm-2 control-label">Issuer</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_issuer']))?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h(str_replace("<Name(", "", str_replace(")>", "", $servicedetails['mon_ssl_issuer'])))?>"></div>
 	                        <label class="col-sm-2 control-label">Valid from</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_from']?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_ssl_valid_from'])?>"></div>
 	                        <label class="col-sm-2 control-label">Valid to</label>
-	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=$servicedetails['mon_ssl_valid_to']?>"></div>
+	                        <div class="col-sm-10"><input class="form-control" id="txtLastStatus" type="text" readonly value="<?=h($servicedetails['mon_ssl_valid_to'])?>"></div>
 	                    </div>
                    </div>
                 </div>
@@ -628,10 +585,10 @@ if ($output[0] != "######") {
             <div class="col-sm-12" style="font-weight: 600;">' . $pia_lang['WEBS_Stats_Location'] . ': </div>
           </div>
           <div class="row">
-            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IP'] . ':</div> ' . $servicedetails['mon_TargetIP'] . '</div>
+            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IP'] . ':</div> ' . h($servicedetails['mon_TargetIP']) . '</div>
           </div>
           <div class="row">
-            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IPLocation'] . ':</div> ' . $locations[1] . ' (' . $locations[0] . ')</div>
+            <div class="col-sm-12" style="padding-left: 40px;"><div style="display: inline-block; width: 130px;">' . $pia_lang['WEBS_Stats_IPLocation'] . ':</div> ' . h($locations[1]) . ' (' . h($locations[0]) . ')</div>
           </div>
           <div class="row">
             <div class="col-sm-12" style="margin-top: 30px;">
@@ -736,14 +693,14 @@ if ($ENABLED_DARKMODE === True) {
 
 // -----------------------------------------------------------------------------
 function main () {
-  url = '<?=$service_details_title;?>'
+  url = <?=json_encode($service_details_title, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
   initializeTabs();
   initializeiCheck();
   getEventsTotalsforService();
   initializeDatatable();
 
 <?php
-if (isset($_REQUEST['filter'])) {
+if (isset($_GET['filter'])) {
 	echo "$('.nav-tabs a[id=tabEvents]').tab('show');";
 }
 ?>
@@ -809,7 +766,7 @@ function getEventsTotalsforService() {
   // stopTimerRefreshData();
 
   // get totals and put in boxes
-  $.get('php/server/services.php?action=getEventsTotalsforService&url=<?=$servicedetails['mon_URL']?>', function(data) {
+  $.get('php/server/services.php?action=getEventsTotalsforService&url=' + encodeURIComponent(url), function(data) {
     var totalsEvents = JSON.parse(data);
 
     $('#eventsAll').html      (totalsEvents[0].toLocaleString());
@@ -845,12 +802,13 @@ function initializeDatatable () {
       ],
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {className: 'text-center', targets: [1,2,3,4] },
 
       //Device Name
       {targets: [0],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html ('<b>'+ cellData +'</b>');
+         setCellStrongText(td, cellData);
       } },
 
     ],
@@ -879,14 +837,15 @@ function setServiceData(refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/services.php?action=setServiceData'
-    + '&url='             + $('#txtURL').val()
-    + '&tags='            + $('#txtTags').val()
-    + '&mac='             + $('#txtMAC').val()
-    + '&alertdown='       + ($('#chkAlertDown')[0].checked * 1)
-    + '&alertup='         + ($('#chkAlertUp')[0].checked * 1)
-    + '&alertevents='     + ($('#chkAlertEvents')[0].checked * 1)
-    , function(msg) {
+  pialertPost('php/server/services.php', {
+    action: 'setServiceData',
+    url: $('#txtURL').val(),
+    tags: $('#txtTags').val(),
+    mac: $('#txtMAC').val(),
+    alertdown: ($('#chkAlertDown')[0].checked * 1),
+    alertup: ($('#chkAlertUp')[0].checked * 1),
+    alertevents: ($('#chkAlertEvents')[0].checked * 1)
+  }, function(msg) {
 
     // deactivate button
     // deactivateSaveRestoreData ();
@@ -921,7 +880,7 @@ function deleteService () {
   if (url == '') {
     return;
   }
-  $.get('php/server/services.php?action=deleteService&url='+ url, function(msg) {
+  pialertPost('php/server/services.php?action=deleteService&url=' + encodeURIComponent(url), function(msg) {
     showMessage (msg);
   });
   // Deactivate controls
@@ -932,6 +891,14 @@ function deleteService () {
 function setTextValue (textElement, textValue) {
   $('#'+textElement).val (textValue);
 }
+
+$(document).on('click', '.service-mac-option', function(event) {
+  event.preventDefault();
+  const target = this.getAttribute('data-target');
+  if (target && document.getElementById(target)) {
+    setTextValue(target, this.getAttribute('data-value') || '');
+  }
+});
 
 // Get Cookie (Tab state)
 function getCookie(cookieName) {
@@ -974,8 +941,9 @@ $('#downloadDB-button').on('click', function() {
     loader.show();
     // Send an AJAX request to initiate the file download
     $.ajax({
-        url: './php/server/services.php?action=downloadGeoDB',
-        method: 'GET',
+        url: './php/server/services.php',
+        data: { action: 'downloadGeoDB' },
+        method: 'POST',
         success: function(response) {
             console.log('Download complete!');
         },
@@ -996,8 +964,9 @@ $('#downloadDB-button').on('click', function() {
 $('#deleteDB-button').on('click', function() {
     // Send an AJAX request to initiate the file download
     $.ajax({
-        url: './php/server/services.php?action=deleteGeoDB',
-        method: 'GET',
+        url: './php/server/services.php',
+        data: { action: 'deleteGeoDB' },
+        method: 'POST',
         success: function(response) {
             console.log('Delete complete!');
         },

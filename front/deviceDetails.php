@@ -3,7 +3,8 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
+require_once __DIR__ . "/php/server/session.php";
+pialert_start_session();
 
 if ($_SESSION["login"] != 1) {
   header('Location: ./index.php');
@@ -26,12 +27,12 @@ function get_speedtestresults_table() {
 	$res = $db_tools->query('SELECT * FROM Tools_Speedtest_History');
 	while ($row = $res->fetchArray()) {
 		echo '<tr>
-            <td>' . $row['speed_date'] . '</td>
-            <td>' . $row['speed_isp'] . '</td>
-            <td>' . $row['speed_server'] . '</td>
-            <td style="color: rgb(22, 122, 196)">' . $row['speed_ping'] . '</td>
-            <td style="color: rgb(0, 166, 89)">' . $row['speed_down'] . '</td>
-            <td style="color: rgb(185, 0, 43)">' . $row['speed_up'] . '</td>
+            <td>' . h($row['speed_date']) . '</td>
+            <td>' . h($row['speed_isp']) . '</td>
+            <td>' . h($row['speed_server']) . '</td>
+            <td style="color: rgb(22, 122, 196)">' . h($row['speed_ping']) . '</td>
+            <td style="color: rgb(0, 166, 89)">' . h($row['speed_down']) . '</td>
+            <td style="color: rgb(185, 0, 43)">' . h($row['speed_up']) . '</td>
           </tr>';
 	}
 }
@@ -154,7 +155,9 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                     <div class="box-body form-horizontal">
 
                       <div class="form-group">
-                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?></label>
+                        <label class="col-sm-4 control-label"><?=$pia_lang['DevDetail_MainInfo_mac'];?> 
+                            <a href="#" type="button" class="text-aqua" onclick="copymactoclipboard(); return false;" style="margin-left: 8px"><i class="bi bi-clipboard"></i></a>
+                        </label>
                         <div class="col-sm-8">
                           <div class="input-group">
                             <div class="input-group-btn">
@@ -314,7 +317,9 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 
                       <!-- Last IP -->
                       <div class="form-group">
-                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?></label>
+                        <label class="col-sm-5 control-label"><?=$pia_lang['DevDetail_SessionInfo_LastIP'];?>
+                           <a href="#" type="button" class="text-aqua" style="margin-left: 8px" onclick="copyiptoclipboard(); return false;"><i class="bi bi-clipboard"></i></a>
+                        </label>
                         <div class="col-sm-7">
                           <div class="input-group">
                             <div class="input-group-btn">
@@ -502,7 +507,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
                     <div class="pull-right">
                         <button type="button" class="btn btn-warning" id="btnDeleteEvents" onclick="askDeleteDeviceEvents()"><?=$pia_lang['DevDetail_button_DeleteEvents'];?> </button>
                         <button type="button" class="btn btn-danger" id="btnDelete" onclick="askDeleteDevice()"><?=$pia_lang['DevDetail_button_Delete'];?> </button>
-                        <button type="button" class="btn btn-default" id="btnRestore" onclick="getDeviceData(true)"><?=$pia_lang['DevDetail_button_Reset'];?> </button>
+                        <button type="button" class="btn btn-default" id="btnRestore" onclick="restoreOrCloseDevice()"><?=$pia_lang['Gen_Close'];?> </button>
                         <button type="button" disabled class="btn btn-primary" id="btnSave" onclick="setDeviceData()"><?=$pia_lang['DevDetail_button_Save'];?> </button>
                     </div>
                   </div>
@@ -538,7 +543,7 @@ $Speedtest_Graph_Up = $speedtest_graph_array[3];
 <!-- tab page 3 ------------------------------------------------------------ -->
               <div class="tab-pane fade" id="panNmap">
 <?php
-if ($_REQUEST['mac'] == 'Internet') {
+if ($_GET['mac'] == 'Internet') {
 	?>
                 <h4 class="">Online Speedtest</h4>
                 <div style="width:100%; text-align: center; margin-bottom: 50px; display: inline-block;">
@@ -562,6 +567,7 @@ $speedtest_binary = '../back/speedtest/speedtest';
                       complete: function() { $('#scanoutput').removeClass("ajax_scripts_loading"); },
                       success: function(data, textStatus) {
                           $("#scanoutput").html(data);
+                          refreshSpeedtestHistory();
                       }
                     })
                   }
@@ -587,7 +593,7 @@ $speedtest_binary = '../back/speedtest/speedtest';
 }
 ?>
 <?php
-if ($_REQUEST['mac'] != 'Internet') {
+if ($_GET['mac'] != 'Internet') {
 	?>
                 <h4 class="">Wake-on-LAN</h4>
                 <div style="width:100%; text-align: center;">
@@ -600,17 +606,28 @@ if ($_REQUEST['mac'] != 'Internet') {
 }
 ?>
                 <h4 class="">Nmap Scans</h4>
-                <div style="width:100%; text-align: center;">
+                <div class="manualnmap-actions">
                   <button type="button" id="manualnmap_fast" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'fast')">Loading...</button>
                   <button type="button" id="manualnmap_normal" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'normal')">Loading...</button>
-                  <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'detail')">Loading...</button>
+                  <button type="button" id="manualnmap_detail" class="btn btn-primary pa-btn" onclick="manualnmapscan(document.getElementById('txtLastIP').value, 'detail')" disabled><?=$pia_lang['DevDetail_Tools_nmap_buttonPending'];?></button>
                 </div>
 
                 <div id="scanoutput" style="margin-top: 30px;">
 
                 </div>
                   <script>
+                  const nmapDetailLabel = <?=json_encode($pia_lang['DevDetail_Tools_nmap_buttonDetail'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  const nmapDetailPendingLabel = <?=json_encode($pia_lang['DevDetail_Tools_nmap_buttonPending'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  const nmapDetailQueuedMessage = <?=json_encode($pia_lang['DevDetail_Tools_nmap_queueAdded'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  const nmapDetailQueueError = <?=json_encode($pia_lang['DevDetail_Tools_nmap_queueError'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+                  let nmapDetailPollTimer = null;
+                  let nmapDetailWasPending = false;
+
                   function manualnmapscan(targetip, mode) {
+                    if (mode === 'detail') {
+                      queueDetailedNmapScan(targetip);
+                      return;
+                    }
                     $( "#scanoutput" ).empty();
                     $.ajax({
                       method: "POST",
@@ -623,6 +640,87 @@ if ($_REQUEST['mac'] != 'Internet') {
                           $("#scanoutput").html(data);
                       }
                     })
+                  }
+
+                  function setDetailedNmapPending(pending) {
+                    const $button = $('#manualnmap_detail');
+                    if (!$button.length) return;
+                    const lastIP = String($('#txtLastIP').val() || '');
+                    $button.prop('disabled', pending);
+                    $button.text(pending ? nmapDetailPendingLabel : nmapDetailLabel + (lastIP ? ' (' + lastIP + ')' : ''));
+                  }
+
+                  function stopDetailedNmapPolling() {
+                    if (nmapDetailPollTimer !== null) {
+                      window.clearTimeout(nmapDetailPollTimer);
+                      nmapDetailPollTimer = null;
+                    }
+                  }
+
+                  function scheduleDetailedNmapStatusCheck() {
+                    stopDetailedNmapPolling();
+                    nmapDetailPollTimer = window.setTimeout(function() {
+                      checkDetailedNmapQueueStatus(true);
+                    }, 5000);
+                  }
+
+                  function checkDetailedNmapQueueStatus(keepPolling) {
+                    const mac = String($('#txtMAC').val() || '').trim();
+                    if (!mac || mac === '--') return;
+                    $.ajax({
+                      method: 'POST',
+                      url: './php/server/nmap_scan.php',
+                      dataType: 'json',
+                      data: { mode: 'detail_status', mac: mac },
+                      success: function(data) {
+                        const pending = data && data.pending === true;
+                        setDetailedNmapPending(pending);
+                        if (pending) {
+                          nmapDetailWasPending = true;
+                          if (keepPolling !== false) scheduleDetailedNmapStatusCheck();
+                        } else {
+                          stopDetailedNmapPolling();
+                          if (nmapDetailWasPending) {
+                            nmapDetailWasPending = false;
+                            const lastIP = String($('#txtLastIP').val() || '');
+                            if (lastIP) showmanualnmapscan(lastIP);
+                          }
+                        }
+                      },
+                      error: function() {
+                        setDetailedNmapPending(true);
+                        if (keepPolling !== false) scheduleDetailedNmapStatusCheck();
+                      }
+                    });
+                  }
+
+                  function queueDetailedNmapScan(targetip) {
+                    const mac = String($('#txtMAC').val() || '').trim();
+                    const $button = $('#manualnmap_detail');
+                    $button.prop('disabled', true);
+                    $.ajax({
+                      method: 'POST',
+                      url: './php/server/nmap_scan.php',
+                      dataType: 'json',
+                      data: { scan: targetip, mac: mac, mode: 'detail' },
+                      success: function(data) {
+                        if (data && data.pending === true) {
+                          nmapDetailWasPending = true;
+                          setDetailedNmapPending(true);
+                          $('#scanoutput').text(nmapDetailQueuedMessage);
+                          scheduleDetailedNmapStatusCheck();
+                          return;
+                        }
+                        setDetailedNmapPending(true);
+                        $('#scanoutput').text(nmapDetailQueueError);
+                        scheduleDetailedNmapStatusCheck();
+                      },
+                      error: function() {
+                        setDetailedNmapPending(true);
+                        $('#scanoutput').text(nmapDetailQueueError);
+                        scheduleDetailedNmapStatusCheck();
+                      }
+                    });
                   }
                   </script>
               </div>
@@ -668,7 +766,7 @@ if ($_REQUEST['mac'] != 'Internet') {
               </div>
 
 <?php
-if ($_REQUEST['mac'] == 'Internet') {
+if ($_GET['mac'] == 'Internet') {
 	?>
 <!-- tab page 6 ------------------------------------------------------------ -->
               <div class="tab-pane fade table-responsive" id="panSpeedtest">
@@ -791,13 +889,18 @@ if ($ENABLED_DARKMODE === True) {
   var parTab              = 'Front_Details_Tab';
   var parSessionsRows     = 'Front_Details_Sessions_Rows';
   var parEventsRows       = 'Front_Details_Events_Rows';
+  var parSpeedtestRows    = 'Front_Details_Speedtest_Rows';
   var parEventsHide       = 'Front_Details_Events_Hide';
   var period              = '1 month';
   var tab                 = 'tabDetails'
   var sessionsRows        = 10;
   var eventsRows          = 10;
+  var speedtestRows       = 10;
   var eventsHide          = true;
   var skipRepeatedItems   = ['0 h (notify all events)', '1 h', '8 h', '24 h', '168 h (one week)'];
+  var deviceDetailsDirty  = false;
+  const deviceCloseLabel  = <?=json_encode($pia_lang['Gen_Close'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
+  const deviceCancelLabel = <?=json_encode($pia_lang['DevDetail_button_Reset'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
 
   // Read parameters & Initialize components
   main();
@@ -856,6 +959,12 @@ function main () {
                 $('#chkHideConnectionEvents')[0].checked = eval(eventsHide == 'true');
             }
 
+            $.get('php/server/parameters.php?action=get&parameter='+ parSpeedtestRows, function(data) {
+              var result = JSON.parse(data);
+              if (Number.isInteger(result)) {
+                speedtestRows = result;
+              }
+
             // Initialize components with parameters
             initializeTabs();
             initializeiCheck();
@@ -891,6 +1000,7 @@ function main () {
               }
             };
 
+            });
           });
         });
       });
@@ -905,6 +1015,9 @@ function initializeTabs () {
   // When changed save new current tab
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     setParameter (parTab, $(e.target).attr('id'));
+    if ($(e.target).attr('href') === '#panSpeedtest') {
+      refreshSpeedtestHistory();
+    }
   });
 }
 
@@ -967,52 +1080,65 @@ function initializeCombos () {
 }
 
 function initializeCombo (HTMLelement, queryAction, txtDataField) {
-  // get data from server
-  $.get('php/server/devices.php?action='+queryAction, function(data) {
-    var listData = JSON.parse(data);
-    var order = 1;
+  $.ajax({
+    url: 'php/server/devices.php?action=' + encodeURIComponent(queryAction),
+    method: 'GET',
+    cache: false,
+    success: function(data) {
+    const listData = JSON.parse(data);
+    let order = 1;
 
-    HTMLelement.innerHTML = ''
-    // for each item
-    listData.forEach(function (item, index) {
-      // insert line divisor
-      if (order != item['order']) {
-        HTMLelement.innerHTML += '<li class="divider"></li>';
-        order = item['order'];
+    while (HTMLelement.firstChild) {
+      HTMLelement.removeChild(HTMLelement.firstChild);
+    }
+
+    listData.forEach(function(item) {
+      if (order != item.order) {
+        const divider = document.createElement('li');
+        divider.className = 'divider';
+        HTMLelement.appendChild(divider);
+        order = item.order;
       }
 
-      id = item['name'];
-      // use explicitly specified id (value) if avaliable
-      if(item['id'])
-      {
-        id = item['id'];
-      }
-      if (queryAction == "getNetworkNodes") {
-      // add NetworkNodes dropdown item
-        HTMLelement.innerHTML +=
-          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-          txtDataField +'\',\''+ id +'\')">'+ item['name'] + ' [' + id + ']</a></li>'
-      } else {
-        // add dropdown item
-        HTMLelement.innerHTML +=
-          '<li><a href="javascript:void(0)" onclick="setTextValue(\''+
-          txtDataField +'\',\''+ id +'\')">'+ item['name'] + '</a></li>'        
-      }
+      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
+      const label = queryAction === 'getNetworkNodes'
+        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
+        : String(item.name ?? '');
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+
+      link.href = '#';
+      link.textContent = label;
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        setTextValue(txtDataField, String(value ?? ''));
+      });
+
+      listItem.appendChild(link);
+      HTMLelement.appendChild(listItem);
     });
+    }
   });
 }
 
 function initializeComboSkipRepeated () {
-  // find dropdown menu element
-  HTMLelement = $('#dropdownSkipRepeated')[0];
-  HTMLelement.innerHTML = ''
+  const dropdownMenu = document.getElementById('dropdownSkipRepeated');
+  if (!dropdownMenu) {
+    return;
+  }
 
-  // for each item
-  skipRepeatedItems.forEach(function (item, index) {
-    // add dropdown item
-    HTMLelement.innerHTML += ' <li><a href="javascript:void(0)" ' +
-      'onclick="setTextValue(\'txtSkipRepeated\',\'' + item + '\');">'+
-      item +'</a></li>';
+  dropdownMenu.replaceChildren();
+  skipRepeatedItems.forEach(function (item) {
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = '#';
+    link.textContent = item;
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      setTextValue('txtSkipRepeated', item);
+    });
+    listItem.appendChild(link);
+    dropdownMenu.appendChild(listItem);
   });
 }
 
@@ -1045,12 +1171,13 @@ function initializeDatatables () {
     'pageLength'  : sessionsRows,
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
         {visible:   false,  targets: [0]},
 
         // Replace HTML codes
         {targets: [1,2,3,5],
           'createdCell': function (td, cellData, rowData, row, col) {
-            $(td).html (translateHTMLcodes (cellData));
+            setCellText(td, cellData);
         } }
     ],
 
@@ -1086,6 +1213,7 @@ function initializeDatatables () {
     'pageLength'  : eventsRows,
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
         // Replace HTML codes
         {targets: [0],
           'createdCell': function (td, cellData, rowData, row, col) {
@@ -1326,7 +1454,7 @@ function getDeviceData (readAllData=false) {
       // Check if device is deleted o no exists in this session
       if (pos == -1) {
         devicesList = [];
-        $('#pageTitle').html ('Device not found: <small>'+ mac +'</small>');
+        $('#pageTitle').empty().append(document.createTextNode('Device not found: '), $('<small>').text(String(mac ?? '')));
       } else {
         $('#pageTitle').html ('Device deleted');
       }
@@ -1336,13 +1464,13 @@ function getDeviceData (readAllData=false) {
       // Name
       if (deviceData['dev_Owner'] == null || deviceData['dev_Owner'] == '' ||
       (deviceData['dev_Name']).indexOf (deviceData['dev_Owner']) != -1 )  {
-        $('#pageTitle').html (deviceData['dev_Name']);
+        $('#pageTitle').text(deviceData['dev_Name']);
       } else {
-        $('#pageTitle').html (deviceData['dev_Name'] + ' ('+ deviceData['dev_Owner'] +')');
+        $('#pageTitle').text(deviceData['dev_Name'] + ' (' + deviceData['dev_Owner'] + ')');
       }
 
       // Status
-      $('#deviceStatus').html (deviceData['dev_Status'].replace('-', ''));
+      $('#deviceStatus').text (deviceData['dev_Status'].replace('-', ''));
       switch (deviceData['dev_Status']) {
         case 'On-line':   icon='fa fa-check';             color='text-green';   break;
         case 'Off-line':  icon='fa fa-close';             color='text-gray';    break;
@@ -1354,8 +1482,8 @@ function getDeviceData (readAllData=false) {
       $('#deviceStatusIcon')[0].className = icon +' '+ color;
 
       // Totals
-      $('#deviceSessions').html   (deviceData['dev_Sessions'].toLocaleString());
-      $('#deviceDownAlerts').html (deviceData['dev_DownAlerts'].toLocaleString());
+      $('#deviceSessions').text (deviceData['dev_Sessions'].toLocaleString());
+      $('#deviceDownAlerts').text (deviceData['dev_DownAlerts'].toLocaleString());
 
       // Presence
       $('#deviceEventsTitle').html ('Presence');
@@ -1363,7 +1491,7 @@ function getDeviceData (readAllData=false) {
       if (deviceData['dev_PresenceHours'] == null || deviceData['dev_PresenceHours'] < 0) {
         $('#deviceEvents').html ('0 h.');
       } else {
-        $('#deviceEvents').html (deviceData['dev_PresenceHours'].toLocaleString() +' h.');
+        $('#deviceEvents').text (deviceData['dev_PresenceHours'].toLocaleString() +' h.');
       }
 
       // Device info
@@ -1418,7 +1546,12 @@ function getDeviceData (readAllData=false) {
                                                       $('#iconRandomMACinactive').addClass     ('hidden'); }
         else                                         {$('#iconRandomMACactive').addClass       ('hidden');
                                                       $('#iconRandomMACinactive').removeClass  ('hidden'); };
-        if (deviceData['dev_ScanSource'] !== 'local') {$('#DetailsNavTab_tools').addClass       ('hidden'); }
+        const toolsUnavailable = deviceData['dev_ScanSource'] !== 'local';
+        $('#DetailsNavTab_tools').toggleClass('hidden', toolsUnavailable);
+        if (toolsUnavailable && ($('#DetailsNavTab_tools').hasClass('active') || $('#panNmap').hasClass('active'))) {
+          tab = 'tabDetails';
+          $('#tabDetails').tab('show');
+        }
         if (deviceData['dev_MAC'] === 'Internet')     {$('#DetailsNavTab_internet').removeClass ('hidden'); }
         else                                         {$('#DetailsNavTab_internet').addClass    ('hidden'); };
 
@@ -1523,7 +1656,7 @@ function setDeviceData (refreshCallback='') {
   }
 
   // update data to server
-  $.get('php/server/devices.php?action=setDeviceData&mac='+ mac
+  pialertPost('php/server/devices.php?action=setDeviceData&mac='+ mac
     + '&name='            + encodeURIComponent($('#txtName').val())
     + '&owner='           + encodeURIComponent($('#txtOwner').val())
     + '&type='            + $('#txtDeviceType').val()
@@ -1554,6 +1687,10 @@ function setDeviceData (refreshCallback='') {
     deactivateSaveRestoreData();
     showMessage (msg);
 
+    // Custom values saved for this device must immediately become available
+    // in the dropdowns when navigating to another device without a page load.
+    initializeCombos();
+
     // Callback fuction
     if (typeof refreshCallback == 'function') {
       refreshCallback();
@@ -1568,7 +1705,10 @@ function setDeviceData (refreshCallback='') {
 }
 
 function initializeSpeedtest () {
-  $('#tableSpeedtest').DataTable({
+  if ($('#tableSpeedtest').length === 0) {
+    return;
+  }
+  const speedtestTable = $('#tableSpeedtest').DataTable({
     'paging'       : true,
     'lengthChange' : true,
     'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, 'All']],
@@ -1577,7 +1717,7 @@ function initializeSpeedtest () {
     'ordering'     : true,
     'info'         : true,
     'autoWidth'    : false,
-    'pageLength'   : 10,
+    'pageLength'   : speedtestRows,
     'order'        : [[0, 'desc']],
     'columns': [
         { "data": 0 },
@@ -1589,20 +1729,21 @@ function initializeSpeedtest () {
       ],
 
     'columnDefs'  : [
+      {targets: '_all', render: $.fn.dataTable.render.text()},
       {className: 'text-center', targets: [3,4,5] },
 
       //Device Name
       {targets: [0],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html ('<b>'+ cellData +'</b>');
+         setCellStrongText(td, cellData);
       } },
       {targets: [3],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html (cellData +' ms');
+         setCellText(td, cellData, " ms");
       } },
       {targets: [4,5],
        "createdCell": function (td, cellData, rowData, row, col) {
-         $(td).html (cellData +' Mbps');
+         setCellText(td, cellData, " Mbps");
       } },
 
     ],
@@ -1621,7 +1762,55 @@ function initializeSpeedtest () {
       "info":           "<?=$pia_lang['EVE_Table_info'];?>",
     },
   });
+  $('#tableSpeedtest').on('draw.dt.speedtestChart', updateSpeedtestChartFromTable);
+  $('#tableSpeedtest').on('length.dt', function(e, settings, len) {
+    setParameter(parSpeedtestRows, len);
+  });
+  updateSpeedtestChartFromTable();
 };
+
+function speedtestHistoryChartLabel (dateValue) {
+  const value = String(dateValue ?? '');
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  return match ? match[3] + '.' + match[2] + '. ' + match[4] + ':' + match[5] : value;
+}
+
+function speedtestHistoryNumber (value) {
+  const number = Number.parseFloat(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function updateSpeedtestChartFromTable () {
+  if (!$.fn.dataTable.isDataTable('#tableSpeedtest') || typeof graph_speedtest_history !== 'function') {
+    return;
+  }
+
+  const visibleRows = $('#tableSpeedtest').DataTable()
+    .rows({ page: 'current', search: 'applied', order: 'applied' })
+    .data()
+    .toArray();
+
+  graph_speedtest_history(
+    visibleRows.map(function(row) { return speedtestHistoryChartLabel(row[0]); }),
+    visibleRows.map(function(row) { return speedtestHistoryNumber(row[3]); }),
+    visibleRows.map(function(row) { return speedtestHistoryNumber(row[4]); }),
+    visibleRows.map(function(row) { return speedtestHistoryNumber(row[5]); })
+  );
+}
+
+function refreshSpeedtestHistory () {
+  if ($('#tableSpeedtest').length === 0 || typeof graph_speedtest_history !== 'function') {
+    return;
+  }
+
+  $.getJSON('php/server/devices.php?action=getSpeedtestResults', function(data) {
+    const rows = data && Array.isArray(data.rows) ? data.rows : [];
+    const table = $('#tableSpeedtest').DataTable();
+    table.clear();
+    table.rows.add(rows);
+    table.order([0, 'desc']).page('first').draw(false);
+  });
+}
 
 // -----------------------------------------------------------------------------
 function askDeleteDeviceEvents () {
@@ -1638,7 +1827,7 @@ function deleteDeviceEvents () {
     return;
   }
   // Delete device events
-  $.get('php/server/devices.php?action=deleteDeviceEvents&mac='+ mac, function(msg) {
+  pialertPost('php/server/devices.php?action=deleteDeviceEvents&mac='+ mac, function(msg) {
     showMessage (msg);
   });
   // Deactivate controls
@@ -1661,7 +1850,7 @@ function deleteDevice () {
     return;
   }
   // Delete device
-  $.get('php/server/devices.php?action=deleteDevice&mac='+ mac, function(msg) {
+  pialertPost('php/server/devices.php?action=deleteDevice&mac='+ mac, function(msg) {
     showMessage (msg);
   });
   // Deactivate controls
@@ -1695,23 +1884,31 @@ function getDeviceEvents () {
 
 // -----------------------------------------------------------------------------
 // Activate save & restore on any value change
-$(document).on('input', 'input:text', function() {
-  activateSaveRestoreData();
-});
-
-$(document).on('input', 'textarea', function() {
+$(document).on('input change', '#panDetails input:not([readonly]), #panDetails textarea, #panDetails select', function() {
   activateSaveRestoreData();
 });
 
 // -----------------------------------------------------------------------------
 function activateSaveRestoreData () {
+  deviceDetailsDirty = true;
+  $('#btnRestore').text(deviceCancelLabel);
   $('#btnRestore').removeAttr ('disabled');
   $('#btnSave').removeAttr ('disabled');
 }
 
 function deactivateSaveRestoreData () {
-  //$('#btnRestore').attr ('disabled','');
+  deviceDetailsDirty = false;
+  $('#btnRestore').text(deviceCloseLabel);
   $('#btnSave').attr ('disabled','');
+}
+
+function restoreOrCloseDevice () {
+  if (deviceDetailsDirty) {
+    getDeviceData(true);
+    return;
+  }
+
+  window.location.href = $('#sticky-back-link').attr('href') || './devices.php';
 }
 
 // -----------------------------------------------------------------------------
@@ -1733,7 +1930,7 @@ function askwakeonlan() {
 }
 function wakeonlan() {
   // Execute
-  $.get('php/server/devices.php?action=wakeonlan&'
+  pialertPost('php/server/devices.php?action=wakeonlan&'
     + '&mac='         + $('#txtMAC').val()
     + '&ip='          + $('#txtLastIP').val()
     , function(msg) {
@@ -1770,16 +1967,25 @@ function initToolsSection() {
         // Inhalte nur setzen, wenn Element existiert
         if ($manualFast.length)   $manualFast.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonFast']?> (' + lastIP + ')');
         if ($manualNormal.length) $manualNormal.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonDefault']?> (' + lastIP + ')');
-        if ($manualDetail.length) $manualDetail.text('<?=$pia_lang['DevDetail_Tools_nmap_buttonDetail']?> (' + lastIP + ')');
+        if ($manualDetail.length) setDetailedNmapPending(true);
         if ($btnWake.length)      $btnWake.text('<?=$pia_lang['DevDetail_Tools_WOL']?> ' + lastIP);
 
         // Funktion nur aufrufen, wenn lastIP existiert
         if (lastIP) {
             showmanualnmapscan(lastIP);
         }
+        checkDetailedNmapQueueStatus(true);
 
     }, 1000);
 }
+
+$(document).on('shown.bs.tab.nmapQueue', 'a[data-toggle="tab"]', function(event) {
+  if (event.target && event.target.id === 'tabNmap') {
+    checkDetailedNmapQueueStatus(true);
+  } else {
+    stopDetailedNmapPolling();
+  }
+});
 
 function generateMACDropdownList() {
   const macInput = document.getElementById('txtMAC');
@@ -1874,7 +2080,7 @@ function askBlockDeviceMAC(macStep) {
 function BlockDeviceMAC() {
   if (!window.selectedMACStep) return;
   macStep = window.selectedMACStep;
-  $.get('php/server/files.php?action=BlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
+  pialertPost('php/server/files.php?action=BlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
   delete window.selectedMACStep;
 }
 
@@ -1891,7 +2097,7 @@ function askBlockDeviceIP(ipStep) {
 function BlockDeviceIP() {
   if (!window.selectedipStep) return;
   ipStep = window.selectedipStep;
-  $.get('php/server/files.php?action=BlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
+  pialertPost('php/server/files.php?action=BlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
   delete window.selectedipStep;
 }
 
