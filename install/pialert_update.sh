@@ -291,172 +291,19 @@ download_pialert() {
 # ------------------------------------------------------------------------------
 update_config() {
   print_msg "- Config backup..."
-  # to force write permission, will be reverted later
-  sudo chmod 777 "$PIALERT_HOME/config/pialert.conf"
-  cp "$PIALERT_HOME/config/pialert.conf" "$PIALERT_HOME/config/pialert.conf.back"  2>&1 >> "$LOG"
+  sudo cp -p "$PIALERT_HOME/config/pialert.conf" \
+    "$PIALERT_HOME/config/pialert.conf.back" 2>&1 >> "$LOG"
 
   print_msg "- Updating config file..."
-
-# 2026-08-13
-# The bundled Shoutrrr binaries remain available as manual setup helpers, but
-# Pi.Alert no longer selects or invokes one through its configuration.
-sed -i -E \
-  -e '/^[[:space:]]*# Shoutrrr[[:space:]]*$/,/^[[:space:]]*# Telegram[[:space:]]*$/ { /^[[:space:]]*# Telegram[[:space:]]*$/!d; }' \
-  -e '/^[[:space:]]*#?[[:space:]]*SHOUTRRR_BINARY[[:space:]]*=/d' \
-  "$PIALERT_HOME/config/pialert.conf"
-
-# 2025-01-28
-if ! grep -Fq "# OpenWRT Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# OpenWRT Configuration
-# ----------------------
-OPENWRT_ACTIVE            = False
-OPENWRT_IP                = '192.168.1.1'
-OPENWRT_USER              = 'root'
-OPENWRT_PASS              = ''
-EOF
-fi
-
-# 2025-05-01
-if ! grep -Fq "# AsusWRT Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# AsusWRT Configuration
-# ----------------------
-ASUSWRT_ACTIVE            = False
-ASUSWRT_IP                = '192.168.1.1'
-ASUSWRT_USER              = 'root'
-ASUSWRT_PASS              = ''
-ASUSWRT_SSL               = False
-EOF
-fi
-
-# 2025-06-12
-if ! grep -Fq "HOSTNAME_IGNORE_LIST" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-HOSTNAME_IGNORE_LIST    = []
-EOF
-fi
-
-# 2025-07-23
-if ! grep -Fq "# MQTT Reporting" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# MQTT Reporting
-# ----------------------
-REPORT_TO_MQTT             = False
-REPORT_MQTT_BROKER         = 'mqtt.example.com'
-REPORT_MQTT_PORT           = 1883
-REPORT_MQTT_USERNAME       = 'yourusername'
-REPORT_MQTT_PASSWORD       = 'yourpassword'
-REPORT_MQTT_TLS            = False
-PUBLISH_MQTT_STATUS        = False
-EOF
-fi
-
-# 2025-10-30
-if ! grep -Fq "# pfsense Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# pfsense Configuration
-# ----------------------
-PFSENSE_ACTIVE            = False
-PFSENSE_IP                = '192.168.1.1'
-PFSENSE_APIKEY            = ''
-PFSENSE_SSL               = False
-EOF
-fi
-
-# 2025-10-31
-if ! grep -Fq "PFSENSE_EXCLUDE_INT" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-PFSENSE_EXCLUDE_INT       = ['WAN']
-EOF
-fi
-
-# 2025-10-31
-if ! grep -Fq "PFSENSE_PORT" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-PFSENSE_PORT              = 80
-EOF
-fi
-
-# 2026-01-01
-if ! grep -Fq "# Discord" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# Discord
-# ----------------------
-REPORT_DISCORD            = False
-REPORT_DISCORD_WEBMON     = False
-DISCORD_BOT_TOKEN_URL     = "https://discord.com/api/webhooks/XXXXXXX/XXXXXX"
-EOF
-fi
-
-# 2026-03-25
-if ! grep -Fq "QUERY_MYIP_SERVER_FALLBACK" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-QUERY_MYIP_SERVER_FALLBACK = 'https://api.ipify.org/?format=json'
-
-# OPNsense Configuration
-# ----------------------
-OPNSENSE_ACTIVE           = False
-OPNSENSE_IP               = '192.168.1.1'
-OPNSENSE_PORT             = 443
-OPNSENSE_APIKEY           = ''
-OPNSENSE_APISECRET        = ''
-OPNSENSE_SSL              = True
-OPNSENSE_EXCLUDE_INT      = ['WAN']
-EOF
-fi
-
-# 2026-03-29
-if ! grep -Fq "# AdGuard Configuration" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# AdGuard Configuration
-# ---------------------
-ADGUARD_ACTIVE            = False
-ADGUARD_IP                = '192.168.1.1'
-ADGUARD_PORT              = 80
-ADGUARD_USER              = 'AdGuard-Admin'
-ADGUARD_PASSWORD          = ''
-ADGUARD_SSL               = False
-ADGUARD_QUERY_MINUTES     = 5
-ADGUARD_ACTIVITY_MINUTES  = 10
-ADGUARD_QUERY_LIMIT       = 1000
-EOF
-fi
-
-# 2026-07-15
-if ! grep -Fq "SMTP_SSL" "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# Use SSL immediately when connecting to the SMTP server (SMTPS / SSL-on-connect)
-SMTP_SSL = False
-EOF
-fi
-
-# 2026-08-13
-if ! grep -Eq '^[[:space:]]*TELEGRAM_BOT_TOKEN[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-
-# Direct Telegram Bot API credentials
-TELEGRAM_BOT_TOKEN = ''
-EOF
-fi
-
-if ! grep -Eq '^[[:space:]]*TELEGRAM_CHAT_IDS[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
-  cat << EOF >> "$PIALERT_HOME/config/pialert.conf"
-TELEGRAM_CHAT_IDS = []
-EOF
-fi
-
+  # Migrate by assignment name. Comments, section names, and section order are
+  # intentionally irrelevant. The helper writes atomically and validates the
+  # complete candidate before replacing the live configuration.
+  if ! sudo "$PYTHON_BIN" "$PIALERT_HOME/install/migrate_pialert_config.py" \
+      "$PIALERT_HOME/config/pialert.conf" \
+      "$PIALERT_HOME" >> "$LOG" 2>&1; then
+    print_msg "- Configuration migration failed; pialert.conf was not changed."
+    process_error "Invalid configuration after migration"
+  fi
 }
 
 # ------------------------------------------------------------------------------
