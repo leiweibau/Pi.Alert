@@ -301,8 +301,9 @@ update_config() {
   if ! sudo "$PYTHON_BIN" "$PIALERT_HOME/install/migrate_pialert_config.py" \
       "$PIALERT_HOME/config/pialert.conf" \
       "$PIALERT_HOME" >> "$LOG" 2>&1; then
-    print_msg "- Configuration migration failed; pialert.conf was not changed."
-    process_error "Invalid configuration after migration"
+    print_msg "- WARNING: Configuration migration failed; continuing update."
+    print_msg "  pialert.conf was not changed. Backup: config/pialert.conf.back"
+    log "Configuration migration failed. The update continues so that files, permissions, and services are finalized."
   fi
 }
 
