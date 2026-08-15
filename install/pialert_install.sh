@@ -391,21 +391,10 @@ download_pialert() {
 configure_pialert() {
   print_msg "- Setting Pi.Alert config file"
 
-  # SHOUTRRR_BINARY is no longer a Pi.Alert setting. Keep the binaries only as
-  # manually selected setup helpers and remove the obsolete configuration block.
-  sudo sed -i -E \
-    -e '/^[[:space:]]*# Shoutrrr[[:space:]]*$/,/^[[:space:]]*# Telegram[[:space:]]*$/ { /^[[:space:]]*# Telegram[[:space:]]*$/!d; }' \
-    -e '/^[[:space:]]*#?[[:space:]]*SHOUTRRR_BINARY[[:space:]]*=/d' \
-    "$PIALERT_HOME/config/pialert.conf"
-
-  if ! grep -Eq '^[[:space:]]*TELEGRAM_BOT_TOKEN[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
-    printf "\n# Direct Telegram Bot API credentials\nTELEGRAM_BOT_TOKEN = ''\n" | \
-      sudo tee -a "$PIALERT_HOME/config/pialert.conf" > /dev/null
-  fi
-  if ! grep -Eq '^[[:space:]]*TELEGRAM_CHAT_IDS[[:space:]]*=' "$PIALERT_HOME/config/pialert.conf" ; then
-    printf "TELEGRAM_CHAT_IDS = []\n" | \
-      sudo tee -a "$PIALERT_HOME/config/pialert.conf" > /dev/null
-  fi
+  # Use the same order-independent, validated migration as the updater.
+  sudo "$PYTHON_BIN" "$PIALERT_HOME/install/migrate_pialert_config.py" \
+    "$PIALERT_HOME/config/pialert.conf" \
+    "$PIALERT_HOME" 2>&1 >> "$LOG"
 
   set_pialert_parameter PIALERT_PATH    "'$PIALERT_HOME'"
   set_pialert_parameter DDNS_ACTIVE     "$DDNS_ACTIVE"
@@ -427,7 +416,8 @@ set_pialert_parameter() {
     VALUE="$2"
   fi
   
-  sudo sed -i "/^$1.*=/s|=.*|= $VALUE|" $PIALERT_HOME/config/pialert.conf                             2>&1 >> "$LOG"
+  sudo sed -i -E "/^[[:space:]]*$1[[:space:]]*=/s|=.*|= $VALUE|" \
+    "$PIALERT_HOME/config/pialert.conf" 2>&1 >> "$LOG"
 }
 
 # ------------------------------------------------------------------------------

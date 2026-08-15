@@ -13,7 +13,8 @@ and accepted by the Python validator.
 Use an uppercase name such as `EXAMPLE_SETTING`. For every new setting,
 complete the applicable steps below.
 
-1. Add its default to `config/pialert.conf`.
+1. Add its default to both `config/pialert.conf` and the standalone
+   `config/pialert.example.conf`.
 2. Add a user-facing row to `docs/PIALERT_CONF.md` when users may configure it.
 3. Add the key and its type to `get_config_schema()` in
    `front/php/server/files.php`.
@@ -27,6 +28,16 @@ complete the applicable steps below.
 The PHP and Python allowlists must always contain the same setting names and
 types. The Python validator rejects unknown keys, duplicate keys, missing
 required keys, invalid AST nodes, and invalid values.
+
+The example must contain every key in `ALL_KEYS` exactly once, but it is never
+read by the updater, installer, backend, or WebGUI. It is a standalone file for
+users and can be copied to `pialert.conf` manually.
+
+The updater does not depend on section headings or setting order. It preserves
+every existing assignment and adds missing keys from the internal defaults in
+`install/migrate_pialert_config.py`. Add every new setting there as well.
+Deprecated keys are removed by their exact assignment name; never remove a
+range between two comment headings.
 
 ## Choose the Correct Type
 
@@ -178,10 +189,11 @@ python3 -m py_compile back/config_validation.py back/validate_pialert_config.py
 python3 -m unittest back/test_config_validation.py
 python3 back/validate_pialert_config.py \\
   config/pialert.conf --expected-pialert-path /opt/pialert
+python3 back/validate_pialert_config.py \\
+  config/pialert.example.conf --expected-pialert-path /opt/pialert
 ```
 
 Finally, save a harmless value through the web editor and confirm that the
 generated `config/pialert.conf` contains the expected Python literal. Never
 use production secrets in tests or paste them into logs, issue reports, or
 diffs.
-

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import ast
+import contextlib
+import io
 import re
 import sys
 import tempfile
@@ -8,6 +10,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'install'))
 from config_validation import (
     ALL_KEYS,
     ConfigValidationError,
@@ -18,10 +21,12 @@ from config_validation import (
     require_int,
     require_string_list,
 )
+from migrate_pialert_config import default_assignment_lines, migrate_config
 
 
 ROOT = Path(__file__).resolve().parent.parent
 ACTIVE_CONFIG = ROOT / 'config' / 'pialert.conf'
+EXAMPLE_CONFIG = ROOT / 'config' / 'pialert.example.conf'
 
 
 def readable_config_path():
@@ -77,6 +82,92 @@ class ConfigValidationTests(unittest.TestCase):
         values = load_pialert_config(str(CONFIG), str(ROOT))
         self.assertEqual(type(values['SMTP_SSL']), bool)
         self.assertEqual(type(values['SMTP_PORT']), int)
+
+    def test_example_configuration_is_complete_and_valid(self):
+        values = load_pialert_config(str(EXAMPLE_CONFIG), str(ROOT))
+        self.assertEqual(set(values), set(ALL_KEYS))
+        self.assertFalse(values['PIALERT_WEB_PROTECTION'])
+        self.assertFalse(values['REPORT_MAIL'])
+        self.assertNotIn('SHOUTRRR_BINARY', EXAMPLE_CONFIG.read_text())
+
+        # Its validity must not depend on the special example filename.
+        with tempfile.TemporaryDirectory() as directory:
+            renamed = Path(directory) / 'pialert.conf'
+            renamed.write_text(EXAMPLE_CONFIG.read_text())
+            renamed_values = load_pialert_config(str(renamed), str(ROOT))
+            self.assertEqual(values, renamed_values)
+
+    def test_update_migration_is_independent_of_sections_and_key_order(self):
+        source = EXAMPLE_CONFIG.read_text()
+        smtp_line = "SMTP_SERVER                = 'smtp.example.com'\n"
+        self.assertIn(smtp_line, source)
+        source = source.replace(smtp_line, '', 1)
+        source = "SMTP_SERVER = 'custom.example.net'\n" + source
+        for key in ('OPNSENSE_APISECRET', 'REPORT_MQTT_TLS', 'TELEGRAM_CHAT_IDS'):
+            source, count = re.subn(
+                r'^[ \t]*' + key + r'[ \t]*=.*\n?', '', source,
+                count=1, flags=re.MULTILINE)
+            self.assertEqual(count, 1)
+        source = (
+            '# Telegram\n# ----------------------\n'
+            '# Shoutrrr\n# ----------------------\n'
+            "SHOUTRRR_BINARY = 'arm64'\n"
+            "# SHOUTRRR_BINARY = 'x86'\n" + source)
+
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(source)
+            candidate.chmod(0o640)
+            with contextlib.redirect_stdout(io.StringIO()):
+                migrate_config(str(candidate), str(ROOT))
+            migrated_source = candidate.read_text()
+            values = load_pialert_config(str(candidate), str(ROOT))
+
+            self.assertEqual(values['SMTP_SERVER'], 'custom.example.net')
+            self.assertEqual(values['OPNSENSE_APISECRET'], '')
+            self.assertFalse(values['REPORT_MQTT_TLS'])
+            self.assertEqual(values['TELEGRAM_CHAT_IDS'], [])
+            self.assertIn('# General Settings', migrated_source)
+            self.assertIn('DAYS_TO_KEEP_EVENTS', migrated_source)
+            self.assertNotIn('SHOUTRRR_BINARY', migrated_source)
+            self.assertEqual(candidate.stat().st_mode & 0o777, 0o640)
+
+    def test_failed_update_migration_does_not_replace_configuration(self):
+        source = EXAMPLE_CONFIG.read_text() + '\nUNSUPPORTED_SETTING = True\n'
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(source)
+            with self.assertRaises(ConfigValidationError):
+                migrate_config(str(candidate), str(ROOT))
+            self.assertEqual(candidate.read_text(), source)
+
+    def test_update_migration_defaults_cover_the_complete_schema(self):
+        self.assertEqual(set(default_assignment_lines()), set(ALL_KEYS))
+
+    def test_update_script_uses_key_based_config_migration(self):
+        source = (ROOT / 'install' / 'pialert_update.sh').read_text()
+        self.assertIn('migrate_pialert_config.py', source)
+        self.assertNotIn('grep -Fq "# OpenWRT Configuration"', source)
+        self.assertNotIn('# Shoutrrr[[:space:]]*$/', source)
+        self.assertNotIn('chmod 777 "$PIALERT_HOME/config/pialert.conf"', source)
+
+    def test_install_and_update_packages_deliver_example_configuration(self):
+        installer = (ROOT / 'install' / 'pialert_install.sh').read_text()
+        updater = (ROOT / 'install' / 'pialert_update.sh').read_text()
+        helper = (ROOT / 'install' / 'migrate_pialert_config.py').read_text()
+        self.assertNotIn('pialert.example.conf', installer)
+        self.assertNotIn('pialert.example.conf', updater)
+        self.assertNotIn('pialert.example.conf', helper)
+        self.assertIn('--exclude=pialert/config/pialert.conf', updater)
+        self.assertNotIn('--exclude=pialert/config/pialert.example.conf', updater)
+
+    def test_example_configuration_is_not_treated_as_a_backup(self):
+        source = (ROOT / 'front' / 'php' / 'server' / 'files.php').read_text()
+        self.assertRegex(
+            source,
+            r"array_diff\(scandir\(\$Pia_Archive_Path.*?"
+            r"'pialert\.conf', 'pialert\.example\.conf', 'version\.conf'",
+        )
 
     def test_disallowed_ast_payloads_are_rejected(self):
         source = CONFIG.read_text()
