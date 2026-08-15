@@ -141,6 +141,38 @@ class ConfigValidationTests(unittest.TestCase):
                 migrate_config(str(candidate), str(ROOT))
             self.assertEqual(candidate.read_text(), source)
 
+    def test_update_migrates_legacy_report_from_without_runtime_expressions(self):
+        source = EXAMPLE_CONFIG.read_text()
+        source = re.sub(
+            r'^SMTP_USER\s*=.*$', "SMTP_USER = 'sender@example.com'",
+            source, count=1, flags=re.MULTILINE)
+        source, count = re.subn(
+            r'^REPORT_FROM\s*=.*$',
+            "REPORT_FROM = 'Test <' + SMTP_USER + '>'",
+            source, count=1, flags=re.MULTILINE)
+        self.assertEqual(count, 1)
+
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(source)
+            with self.assertRaises(ConfigValidationError):
+                load_pialert_config(str(candidate), str(ROOT))
+            with contextlib.redirect_stdout(io.StringIO()):
+                migrate_config(str(candidate), str(ROOT))
+            migrated = candidate.read_text()
+            values = load_pialert_config(str(candidate), str(ROOT))
+            self.assertEqual(
+                values['REPORT_FROM'], 'Test <sender@example.com>')
+            report_line = next(
+                line for line in migrated.splitlines()
+                if line.startswith('REPORT_FROM'))
+            self.assertEqual(
+                report_line, "REPORT_FROM = 'Test <sender@example.com>'")
+
+        php_source = (ROOT / 'front' / 'php' / 'server' / 'files.php').read_text()
+        self.assertNotIn('<+SMTP_USER+>', php_source)
+        self.assertNotIn("<' + SMTP_USER + '>", php_source)
+
     def test_update_migration_defaults_cover_the_complete_schema(self):
         self.assertEqual(set(default_assignment_lines()), set(ALL_KEYS))
 
@@ -150,6 +182,8 @@ class ConfigValidationTests(unittest.TestCase):
         self.assertNotIn('grep -Fq "# OpenWRT Configuration"', source)
         self.assertNotIn('# Shoutrrr[[:space:]]*$/', source)
         self.assertNotIn('chmod 777 "$PIALERT_HOME/config/pialert.conf"', source)
+        self.assertIn('Configuration migration failed; continuing update.', source)
+        self.assertNotIn('process_error "Invalid configuration after migration"', source)
 
     def test_install_and_update_packages_deliver_example_configuration(self):
         installer = (ROOT / 'install' / 'pialert_install.sh').read_text()
@@ -201,6 +235,30 @@ class ConfigValidationTests(unittest.TestCase):
         for value in (('a',), ['a', 1], "['a']"):
             with self.assertRaises(ConfigValidationError):
                 require_string_list('TEST', value)
+
+    def test_ignore_lists_accept_documented_address_prefixes(self):
+        values = load_pialert_config(str(CONFIG), str(ROOT), validate=False)
+        values['MAC_IGNORE_LIST'] = ['40:22:d8:', 'aa:bb:cc:dd:ee:ff']
+        values['IP_IGNORE_LIST'] = ['172.17.', '172.31.', '192.168.1.10',
+                                    '2001:db8::1']
+        validated = validate_loaded_config(values, str(ROOT))
+        self.assertEqual(validated['MAC_IGNORE_LIST'], values['MAC_IGNORE_LIST'])
+        self.assertEqual(validated['IP_IGNORE_LIST'], values['IP_IGNORE_LIST'])
+
+    def test_ignore_lists_reject_malformed_address_prefixes(self):
+        invalid_values = {
+            'MAC_IGNORE_LIST': ('gg:', 'aa::bb', 'aa:bb:%',
+                                'aa:bb:cc:dd:ee:ff:'),
+            'IP_IGNORE_LIST': ('172..', '172.256.', '0172.17.',
+                               '172.17.%', '172.17.0.0/16'),
+        }
+        for name, candidates in invalid_values.items():
+            for candidate in candidates:
+                values = load_pialert_config(str(CONFIG), str(ROOT), validate=False)
+                values[name] = [candidate]
+                with self.assertRaises(ConfigValidationError):
+                    validate_loaded_config(values, str(ROOT))
+
     def test_secret_recovery_precedes_type_validation(self):
         source = CONFIG.read_text()
         candidate, count = re.subn(
