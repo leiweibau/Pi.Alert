@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import argparse
+import ast
 import os
 import re
 import stat
@@ -23,6 +24,7 @@ from config_validation import (  # noqa: E402
 
 
 ASSIGNMENT_RE = re.compile(r'^[ \t]*([A-Z][A-Z0-9_]*)[ \t]*=', re.MULTILINE)
+MIGRATION_REMOVED_KEYS = DEPRECATED_KEYS | frozenset(('REPORTS_FROM',))
 
 # These migration defaults are deliberately internal to the installer. The
 # standalone example configuration is distribution content and is never read
@@ -203,11 +205,11 @@ def default_assignment_lines():
 
 
 def remove_deprecated_assignments(source):
-    """Remove only deprecated assignment lines, never surrounding sections."""
+    """Remove only known obsolete assignment lines, never surrounding sections."""
     removed = []
     kept = []
     deprecated_line = re.compile(
-        r'^[ \t]*#?[ \t]*(' + '|'.join(re.escape(key) for key in DEPRECATED_KEYS) +
+        r'^[ \t]*#?[ \t]*(' + '|'.join(re.escape(key) for key in MIGRATION_REMOVED_KEYS) +
         r')[ \t]*=')
     for line in source.splitlines(keepends=True):
         match = deprecated_line.match(line)
@@ -218,8 +220,60 @@ def remove_deprecated_assignments(source):
     return ''.join(kept), removed
 
 
+def _literal_string_assignment(source, key):
+    match = re.search(
+        r'^[ \t]*' + re.escape(key) + r'[ \t]*=[ \t]*(.*?)[ \t]*$',
+        source, re.MULTILINE)
+    if not match:
+        return ''
+    try:
+        node = ast.parse(match.group(1), mode='eval').body
+    except SyntaxError:
+        return ''
+    return node.value if isinstance(node, ast.Constant) and type(node.value) is str else ''
+
+
+def _resolve_legacy_report_from(node, smtp_user):
+    if isinstance(node, ast.Constant) and type(node.value) is str:
+        return node.value
+    if isinstance(node, ast.Name) and node.id == 'SMTP_USER':
+        return smtp_user
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        return (_resolve_legacy_report_from(node.left, smtp_user) +
+                _resolve_legacy_report_from(node.right, smtp_user))
+    raise ValueError('unsupported REPORT_FROM expression')
+
+
+def normalize_legacy_report_from(source):
+    """Convert a legacy expression once; runtime config remains literal-only."""
+    pattern = re.compile(
+        r'^(?P<indent>[ \t]*)REPORT_FROM[ \t]*=[ \t]*(?P<value>.*?)(?P<newline>\r?\n|$)',
+        re.MULTILINE)
+    match = pattern.search(source)
+    if not match:
+        return source, False
+    try:
+        node = ast.parse(match.group('value').strip(), mode='eval').body
+    except SyntaxError:
+        return source, False
+    if isinstance(node, ast.Constant) and type(node.value) is str:
+        return source, False
+
+    # Only the former SMTP_USER concatenation is resolved. Any other name or
+    # expression becomes the safe REPORT_FROM default and is never executed.
+    try:
+        value = _resolve_legacy_report_from(
+            node, _literal_string_assignment(source, 'SMTP_USER'))
+    except ValueError:
+        value = ''
+    replacement = '{}REPORT_FROM = {}{}'.format(
+        match.group('indent'), repr(value), match.group('newline'))
+    return source[:match.start()] + replacement + source[match.end():], True
+
+
 def build_candidate(source, defaults):
     source, removed = remove_deprecated_assignments(source)
+    source, normalized_report_from = normalize_legacy_report_from(source)
     existing = set(ASSIGNMENT_RE.findall(source))
     missing = sorted(ALL_KEYS - existing)
     if missing:
@@ -228,14 +282,14 @@ def build_candidate(source, defaults):
         source += '\n# Settings added by the Pi.Alert update\n'
         source += '# Existing settings and their order were left unchanged.\n'
         source += '\n'.join(defaults[key] for key in missing) + '\n'
-    return source, missing, removed
+    return source, missing, removed, normalized_report_from
 
 
 def migrate_config(config_path, expected_pialert_path):
     config_path = Path(config_path)
     defaults = default_assignment_lines()
     source = config_path.read_text(encoding='utf-8')
-    candidate, added, removed = build_candidate(source, defaults)
+    candidate, added, removed, normalized_report_from = build_candidate(source, defaults)
 
     file_stat = config_path.stat()
     temporary_path = None
@@ -263,7 +317,9 @@ def migrate_config(config_path, expected_pialert_path):
         print('Added missing settings: {}'.format(', '.join(added)))
     if removed:
         print('Removed deprecated settings: {}'.format(', '.join(sorted(set(removed)))))
-    if not added and not removed:
+    if normalized_report_from:
+        print('Converted legacy REPORT_FROM expression to a static value.')
+    if not added and not removed and not normalized_report_from:
         print('Configuration is already up to date.')
 
 
