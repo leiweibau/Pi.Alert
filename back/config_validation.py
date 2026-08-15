@@ -69,6 +69,7 @@ DEPRECATED_KEYS = frozenset(('SHOUTRRR_BINARY',))
 LOADABLE_KEYS = ALL_KEYS | DEPRECATED_KEYS
 VERSION_KEYS = frozenset(('VERSION', 'VERSION_YEAR', 'VERSION_DATE'))
 _MAC = re.compile(r'^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}$')
+_MAC_PREFIX = re.compile(r'^[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){0,4}:?$')
 _INTERFACE = re.compile(r'^[A-Za-z0-9_.:-]{1,64}$')
 _TELEGRAM_CHAT_ID = re.compile(
     r'^(?:-?[1-9][0-9]{0,19}|@[A-Za-z][A-Za-z0-9_]{4,31})$')
@@ -118,6 +119,24 @@ def _is_ip(value):
         return False
 
 
+def _is_ip_or_prefix(value):
+    if _is_ip(value):
+        return True
+    if not value.endswith('.'):
+        return False
+    parts = value[:-1].split('.')
+    if not 1 <= len(parts) <= 3:
+        return False
+    return all(
+        part.isdigit() and (part == '0' or not part.startswith('0')) and
+        0 <= int(part) <= 255
+        for part in parts)
+
+
+def _is_mac_or_prefix(value):
+    return bool(_MAC.match(value) or _MAC_PREFIX.match(value))
+
+
 def _literal(name, node):
     if name in ('DB_PATH', 'LOG_PATH'):
         suffix = {'DB_PATH': '/db/pialert.db', 'LOG_PATH': '/log'}[name]
@@ -158,8 +177,8 @@ def validate_values(values, expected_pialert_path=None):
     values['TELEGRAM_BOT_TOKEN'] = require_string(
         'TELEGRAM_BOT_TOKEN', values['TELEGRAM_BOT_TOKEN'], True, 512)
     for name in LIST_KEYS:
-        validator = (_MAC.match if name == 'MAC_IGNORE_LIST' else
-                     _is_ip if name == 'IP_IGNORE_LIST' else
+        validator = (_is_mac_or_prefix if name == 'MAC_IGNORE_LIST' else
+                     _is_ip_or_prefix if name == 'IP_IGNORE_LIST' else
                      _TELEGRAM_CHAT_ID.match if name == 'TELEGRAM_CHAT_IDS' else
                      _INTERFACE.match if name in ('PFSENSE_EXCLUDE_INT', 'OPNSENSE_EXCLUDE_INT') else None)
         values[name] = require_string_list(name, values[name],
