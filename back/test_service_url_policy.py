@@ -44,6 +44,17 @@ class ServiceUrlPolicyTests(unittest.TestCase):
             with self.assertRaisesRegex(ServiceUrlError, 'blocked'):
                 resolve_service_target(validate_service_url('http://example.com'))
 
+    def test_first_of_multiple_valid_dns_answers_is_pinned(self):
+        records = [
+            (2, 1, 6, '', ('10.0.0.20', 8080)),
+            (2, 1, 6, '', ('10.0.0.21', 8080)),
+        ]
+        with patch('service_url_policy.socket.getaddrinfo', return_value=records):
+            address, port = resolve_service_target(
+                validate_service_url('http://service.example.lan:8080/status'))
+        self.assertEqual(address, '10.0.0.20')
+        self.assertEqual(port, 8080)
+
     def test_metadata_addresses_are_always_blocked(self):
         self.assertFalse(address_allowed(ipaddress.ip_address('169.254.169.254')))
         self.assertFalse(address_allowed(ipaddress.ip_address('100.100.100.200')))

@@ -13,7 +13,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'install'))
 from config_validation import (
     ALL_KEYS,
+    MAX_CONFIG_BYTES,
     ConfigValidationError,
+    build_arpscan_arguments,
     load_pialert_config,
     load_version_config,
     require_bool,
@@ -197,11 +199,9 @@ class ConfigValidationTests(unittest.TestCase):
 
     def test_example_configuration_is_not_treated_as_a_backup(self):
         source = (ROOT / 'front' / 'php' / 'server' / 'files.php').read_text()
-        self.assertRegex(
-            source,
-            r"array_diff\(scandir\(\$Pia_Archive_Path.*?"
-            r"'pialert\.conf', 'pialert\.example\.conf', 'version\.conf'",
-        )
+        self.assertIn("glob($Pia_Archive_Path . '/pialert-20*.bak')", source)
+        self.assertNotRegex(
+            source, r"unlink\([^\n]*pialert\.example\.conf")
 
     def test_disallowed_ast_payloads_are_rejected(self):
         source = CONFIG.read_text()
@@ -235,6 +235,89 @@ class ConfigValidationTests(unittest.TestCase):
         for value in (('a',), ['a', 1], "['a']"):
             with self.assertRaises(ConfigValidationError):
                 require_string_list('TEST', value)
+
+    def test_scan_subnets_accepts_all_documented_forms_and_interface_names(self):
+        valid = (
+            ('--localnet', [['--localnet']]),
+            ('--localnet --interface=wlp2s0',
+             [['--localnet', '--interface=wlp2s0']]),
+            ([
+                '192.168.1.0/24 --interface=eth0',
+                '192.168.2.0/24 --interface=ens18',
+                '192.168.3.0/24 --interface=custom_bridge-42.100',
+                '192.168.4.0/24 --interface=eth0:1',
+             ], [
+                ['192.168.1.0/24', '--interface=eth0'],
+                ['192.168.2.0/24', '--interface=ens18'],
+                ['192.168.3.0/24', '--interface=custom_bridge-42.100'],
+                ['192.168.4.0/24', '--interface=eth0:1'],
+             ]),
+        )
+        for value, expected in valid:
+            self.assertEqual(build_arpscan_arguments(value), expected)
+
+    def test_scan_subnets_rejects_invalid_or_ambiguous_arguments(self):
+        invalid = (
+            '', [], '--localnet;id', '--localnet --help',
+            ['not a subnet'],
+            ['192.168.1.0/24'],
+            ['192.168.1.0/24 --interface=bad/name'],
+            ['192.168.1.0/33 --interface=eth0'],
+            ['2001:db8::/64 --interface=eth0'],
+            ['192.168.1.0/24 --interface=eth0',
+             '192.168.1.1/24 --interface=eth0'],
+        )
+        for value in invalid:
+            with self.assertRaises(ConfigValidationError, msg=repr(value)):
+                build_arpscan_arguments(value)
+
+    def test_scan_subnets_enforces_the_bounded_pair_count(self):
+        entries = [
+            '10.{}.{}.0/24 --interface=scan{}'.format(
+                index // 256, index % 256, index)
+            for index in range(1024)
+        ]
+        self.assertEqual(len(build_arpscan_arguments(entries)), 1024)
+        with self.assertRaises(ConfigValidationError):
+            build_arpscan_arguments(entries + [
+                '10.4.0.0/24 --interface=overflow'])
+
+        target = '192.168.0.0/24'
+        interface = '--interface=eth0'
+        at_limit = target + (' ' * (512 - len(target) - len(interface))) + interface
+        self.assertEqual(len(at_limit), 512)
+        self.assertEqual(
+            build_arpscan_arguments([at_limit]), [[target, interface]])
+        with self.assertRaises(ConfigValidationError):
+            build_arpscan_arguments([at_limit + ' '])
+
+    def test_configuration_size_limit_is_measured_in_utf8_bytes(self):
+        source = EXAMPLE_CONFIG.read_bytes()
+        padding_length = MAX_CONFIG_BYTES - len(source) - 2
+        self.assertGreater(padding_length, 0)
+        exact = source + b'\n#' + (b'x' * padding_length)
+        self.assertEqual(len(exact), MAX_CONFIG_BYTES)
+        with tempfile.NamedTemporaryFile('wb', delete=False) as handle:
+            handle.write(exact)
+            path = handle.name
+        try:
+            load_pialert_config(path, str(ROOT))
+            with open(path, 'ab') as handle:
+                handle.write(b'x')
+            with self.assertRaises(ConfigValidationError):
+                load_pialert_config(path, str(ROOT))
+        finally:
+            Path(path).unlink()
+
+        unicode_source = source + '# ä\n'.encode('utf-8')
+        with tempfile.NamedTemporaryFile('wb', delete=False) as handle:
+            handle.write(unicode_source)
+            unicode_path = handle.name
+        try:
+            self.assertGreater(len(unicode_source), len(unicode_source.decode('utf-8')))
+            load_pialert_config(unicode_path, str(ROOT))
+        finally:
+            Path(unicode_path).unlink()
 
     def test_ignore_lists_accept_documented_address_prefixes(self):
         values = load_pialert_config(str(CONFIG), str(ROOT), validate=False)
@@ -358,39 +441,31 @@ class ConfigValidationTests(unittest.TestCase):
             finally:
                 Path(path).unlink()
 
-    def test_php_and_python_config_schema_keys_match(self):
+    def test_web_editor_uses_the_shared_non_executing_parser(self):
         php_source = (ROOT / 'front' / 'php' / 'server' / 'files.php').read_text()
-        schema_match = re.search(
-            r'\$groups\s*=\s*\[(.*?)\n\s*\];', php_source, re.DOTALL)
-        self.assertIsNotNone(schema_match)
-        groups = re.findall(
-            r"'(?:bool|int|string|list|special)'\s*=>\s*'([^']*)'",
-            schema_match.group(1))
-        php_keys = set()
-        for group in groups:
-            php_keys.update(group.split())
-        self.assertEqual(set(ALL_KEYS), php_keys)
-
-    def test_php_masks_and_escapes_telegram_secrets(self):
-        php_source = (ROOT / 'front' / 'php' / 'server' / 'files.php').read_text()
-        mask_match = re.search(
-            r'\$maskKeys\s*=\s*\[(.*?)\n\];', php_source, re.DOTALL)
-        self.assertIsNotNone(mask_match)
-        self.assertIn("'TELEGRAM_BOT_TOKEN'", mask_match.group(1))
-        self.assertIn("'TELEGRAM_BOT_TOKEN_URL'", mask_match.group(1))
+        php_helper = (ROOT / 'front' / 'php' / 'server' / 'config_file.php').read_text()
+        python_helper = (ROOT / 'back' / 'config_editor.py').read_text()
+        self.assertIn("require_once __DIR__ . '/config_file.php'", php_source)
+        self.assertIn('pialert_prepare_editor_candidate(', php_source)
+        self.assertIn('config_editor.py', php_helper)
         self.assertIn(
-            "escape_python_config_string($telegramBotToken)", php_source)
-        self.assertIn(
-            "escape_python_config_string($configArray['TELEGRAM_BOT_TOKEN_URL'])",
-            php_source)
+            "define('PIALERT_CONFIG_MAX_BYTES', {});".format(MAX_CONFIG_BYTES),
+            php_helper)
+        self.assertIn('load_pialert_config_source(', python_helper)
+        self.assertIn('MASKED_SECRET_KEYS', python_helper)
+        self.assertNotIn('parse_ini_string($configContent)', php_source)
+        self.assertNotIn('function serializeList(', php_source)
+        self.assertNotIn('$config_template =', php_source)
 
     def test_obsolete_shoutrrr_setting_is_not_emitted_or_documented(self):
         php_source = (ROOT / 'front' / 'php' / 'server' / 'files.php').read_text()
+        editor_source = (ROOT / 'back' / 'config_editor.py').read_text()
         values = load_pialert_config(str(CONFIG), str(ROOT))
         self.assertNotIn('SHOUTRRR_BINARY', values)
         self.assertNotIn('SHOUTRRR_BINARY', ALL_KEYS)
         self.assertNotIn(
             "SHOUTRRR_BINARY            = '", php_source)
+        self.assertIn('_remove_deprecated_assignments', editor_source)
         self.assertNotIn(
             'SHOUTRRR_BINARY',
             (ROOT / 'docs' / 'PIALERT_CONF.md').read_text())

@@ -827,7 +827,11 @@ function SaveConfigFile() {
 		action: 'SaveConfigFile',
 		configfile: $('#ConfigFileEditor').val()
 	};
-	$.post('php/server/files.php', postData, function(msg) {showMessage(msg);});
+	$.post('php/server/files.php', postData)
+		.done(function(msg) { showMessage(msg); })
+		.fail(function(xhr) {
+			showMessage(xhr.responseText || <?=json_encode($pia_lang['BE_Dev_ConfEditor_SaveError']);?>);
+		});
 }
 // Set Device List Column
 function askDeviceListCol() {

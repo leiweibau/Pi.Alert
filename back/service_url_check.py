@@ -5,14 +5,21 @@ import sys
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from service_url_policy import ServiceUrlError, fetch_service_url
+from service_url_policy import check_service_url
 
 
 def empty_result():
     return {
         'status': 0,
+        'initial_status': 0,
         'latency': '99999999',
         'target_ip': '',
+        'final_url': '',
+        'redirect_count': 0,
+        'error_code': 'connection_error',
+        'error_message': 'Service check failed',
+        'note': 'Service check failed',
+        'diagnostic': 'connection_error:',
         'ssl_subject': '',
         'ssl_issuer': '',
         'ssl_valid_from': '',
@@ -45,15 +52,23 @@ def certificate_fields(certificate_data):
 
 def check(url):
     try:
-        result = fetch_service_url(url)
+        result = check_service_url(url)
+        history = result.get('redirect_history', ())
         output = {
             'status': int(result['status']),
+            'initial_status': int(result['initial_status']),
             'latency': str(result['latency']),
             'target_ip': str(result['target_ip']),
+            'final_url': str(history[-1]['url']) if history else '',
+            'redirect_count': int(result['redirect_count']),
+            'error_code': str(result['error_code']),
+            'error_message': str(result['error_message']),
+            'note': str(result['note']),
+            'diagnostic': str(result['diagnostic']),
         }
         output.update(certificate_fields(result.get('certificate')))
         return output
-    except (ServiceUrlError, OSError, ValueError):
+    except (OSError, TypeError, ValueError):
         return empty_result()
 
 

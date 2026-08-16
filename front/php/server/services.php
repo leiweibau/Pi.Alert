@@ -313,8 +313,8 @@ function insertNewService() {
     $checkResult = pialert_check_service_url($url);
 
     $sql = 'INSERT OR IGNORE INTO Services '
-        . '("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_AlertUp", "mon_TargetIP", "mon_ssl_subject", "mon_ssl_issuer", "mon_ssl_valid_from", "mon_ssl_valid_to", "mon_ssl_fc") '
-        . 'VALUES (:url, :mac, :status, :latency, :scan, :tags, :events, :down, :up, :target, :ssl_subject, :ssl_issuer, :ssl_valid_from, :ssl_valid_to, :ssl_fc)';
+        . '("mon_URL", "mon_MAC", "mon_LastStatus", "mon_LastLatency", "mon_LastScan", "mon_Tags", "mon_AlertEvents", "mon_AlertDown", "mon_AlertUp", "mon_TargetIP", "mon_Notes", "mon_ssl_subject", "mon_ssl_issuer", "mon_ssl_valid_from", "mon_ssl_valid_to", "mon_ssl_fc") '
+        . 'VALUES (:url, :mac, :status, :latency, :scan, :tags, :events, :down, :up, :target, :notes, :ssl_subject, :ssl_issuer, :ssl_valid_from, :ssl_valid_to, :ssl_fc)';
     $params = array(
         ':url' => $url,
         ':mac' => (string)($GLOBALS["pialert_request"]['mac'] ?? ''),
@@ -326,6 +326,7 @@ function insertNewService() {
         ':down' => (string)($GLOBALS["pialert_request"]['alertdown'] ?? ''),
         ':up' => (string)($GLOBALS["pialert_request"]['alertup'] ?? ''),
         ':target' => $checkResult['target_ip'],
+        ':notes' => $checkResult['note'],
         ':ssl_subject' => $checkResult['ssl_subject'],
         ':ssl_issuer' => $checkResult['ssl_issuer'],
         ':ssl_valid_from' => $checkResult['ssl_valid_from'],

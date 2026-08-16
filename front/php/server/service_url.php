@@ -41,8 +41,15 @@ function pialert_validate_service_key($value) {
 function pialert_check_service_url($url) {
     $fallback = array(
         'status' => 0,
+        'initial_status' => 0,
         'latency' => '99999999',
         'target_ip' => '',
+        'final_url' => '',
+        'redirect_count' => 0,
+        'error_code' => 'connection_error',
+        'error_message' => 'Service check failed',
+        'note' => 'Service check failed',
+        'diagnostic' => 'connection_error:',
         'ssl_subject' => '',
         'ssl_issuer' => '',
         'ssl_valid_from' => '',
@@ -59,7 +66,7 @@ function pialert_check_service_url($url) {
         return $fallback;
     }
     fclose($pipes[0]);
-    $stdout = stream_get_contents($pipes[1], 16384);
+    $stdout = stream_get_contents($pipes[1], 32768);
     $stderr = stream_get_contents($pipes[2], 4096);
     fclose($pipes[1]);
     fclose($pipes[2]);
@@ -69,21 +76,46 @@ function pialert_check_service_url($url) {
     }
 
     $result = json_decode($stdout, true);
-    $stringKeys = array('target_ip', 'ssl_subject', 'ssl_issuer', 'ssl_valid_from', 'ssl_valid_to');
+    $stringLimits = array(
+        'target_ip' => 64,
+        'final_url' => PIALERT_SERVICE_URL_MAX_LENGTH,
+        'error_code' => 64,
+        'error_message' => 256,
+        'note' => 256,
+        'diagnostic' => 8192,
+        'ssl_subject' => 4096,
+        'ssl_issuer' => 4096,
+        'ssl_valid_from' => 128,
+        'ssl_valid_to' => 128,
+    );
     if (!is_array($result) || !isset($result['status'], $result['latency']) ||
         !is_int($result['status']) || $result['status'] < 0 || $result['status'] > 599 ||
-        !is_scalar($result['latency'])) {
+        !is_scalar($result['latency']) || !isset($result['initial_status'], $result['redirect_count']) ||
+        !is_int($result['initial_status']) || $result['initial_status'] < 0 || $result['initial_status'] > 599 ||
+        !is_int($result['redirect_count']) || $result['redirect_count'] < 0 || $result['redirect_count'] > 10) {
         return $fallback;
     }
-    foreach ($stringKeys as $key) {
-        if (!isset($result[$key]) || !is_string($result[$key]) || strlen($result[$key]) > 4096) {
+    foreach ($stringLimits as $key => $maximumLength) {
+        if (!isset($result[$key]) || !is_string($result[$key]) || strlen($result[$key]) > $maximumLength) {
             return $fallback;
         }
     }
+    $allowedErrors = array('', 'invalid_url', 'dns_error', 'connection_error', 'tls_error',
+        'blocked_by_policy', 'redirect_loop', 'redirect_limit');
+    if (!in_array($result['error_code'], $allowedErrors, true)) {
+        return $fallback;
+    }
     return array(
         'status' => $result['status'],
+        'initial_status' => $result['initial_status'],
         'latency' => (string) $result['latency'],
         'target_ip' => $result['target_ip'],
+        'final_url' => $result['final_url'],
+        'redirect_count' => $result['redirect_count'],
+        'error_code' => $result['error_code'],
+        'error_message' => $result['error_message'],
+        'note' => $result['note'],
+        'diagnostic' => $result['diagnostic'],
         'ssl_subject' => $result['ssl_subject'],
         'ssl_issuer' => $result['ssl_issuer'],
         'ssl_valid_from' => $result['ssl_valid_from'],
