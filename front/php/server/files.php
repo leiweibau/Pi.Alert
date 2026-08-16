@@ -22,35 +22,13 @@ require 'db.php';
 require 'auth.php';
 require 'util.php';
 require 'journal.php';
+require_once __DIR__ . '/config_file.php';
 require 'language_switch.php';
 require '../templates/language/' . $pia_lang_selected . '.php';
 
 // Action selector
 // Set maximum execution time to 15 seconds
 ini_set('max_execution_time', '30');
-$maskKeys = [
-    'PIALERT_APIKEY',
-    'PIALERT_WEB_PASSWORD',
-    'FRITZBOX_PASS',
-    'PUSHSAFER_TOKEN',
-    'NTFY_PASSWORD',
-    'MIKROTIK_PASS',
-    'UNIFI_PASS',
-    'OPENWRT_PASS',
-    'ASUSWRT_PASS',
-    'SMTP_PASS',
-    'REPORT_MQTT_PASSWORD',
-    'PUSHOVER_TOKEN',
-    'PUSHOVER_USER',
-    'PFSENSE_APIKEY',
-    'OPNSENSE_APIKEY',
-    'OPNSENSE_APISECRET',
-    'ADGUARD_PASSWORD',
-    'PIHOLE6_PASSWORD',
-    'DDNS_PASSWORD',
-    'TELEGRAM_BOT_TOKEN',
-    'TELEGRAM_BOT_TOKEN_URL'
-];
 
 // Open DB
 OpenDB();
@@ -148,9 +126,6 @@ if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_req
 }
 
 function GetConfigFile() {
-	global $maskKeys;
-	global $db;
-
     $configFile = __DIR__ . '/../../../config/pialert.conf';
 
     if (!file_exists($configFile) || !is_readable($configFile)) {
@@ -159,57 +134,16 @@ function GetConfigFile() {
         exit;
     }
 
-    $lines = file($configFile, FILE_IGNORE_NEW_LINES);
-
-    if ($lines === false) {
+    try {
+        $content = pialert_mask_config_for_editor($configFile);
+    } catch (Throwable $exception) {
         http_response_code(500);
         echo 'ERROR: Unable to read config file';
         exit;
     }
 
-    foreach ($lines as &$line) {
-
-        // skipp comments
-        if (preg_match('/^\s*#/', $line) || trim($line) === '') {
-            continue;
-        }
-
-        foreach ($maskKeys as $key) {
-            // Match: KEY = VALUE (mit optionalen Quotes)
-            if (preg_match(
-                '/^(\s*' . preg_quote($key, '/') . '\s*=\s*)([\'"]?)(.*?)(\2)\s*$/',
-                $line,
-                $matches
-            )) {
-                $prefix = $matches[1];
-                $quote  = $matches[2]; // ' oder "
-                $value  = decode_python_config_string($matches[3], $quote);
-
-                $trimmedValue = trim($value);
-
-                // not mask: empty, "password"
-                if ($trimmedValue === '' || strtolower($trimmedValue) === 'password') {
-                    break;
-                }
-
-                $len = strlen($trimmedValue);
-
-                // mask
-                if ($len > 2) {
-                    $maskedValue =
-                        $trimmedValue[0] .
-                        str_repeat('*', $len - 2) .
-                        $trimmedValue[$len - 1];
-
-                    $line = $prefix . $quote . $maskedValue . $quote;
-                }
-                break; // Schlüssel gefunden, nächster Line
-            }
-        }
-    }
-
     header('Content-Type: text/plain; charset=utf-8');
-    echo implode(PHP_EOL, $lines);
+    echo $content;
     exit;
 }
 
@@ -390,10 +324,7 @@ function DeleteBlockDeviceMAC() {
 
 function BlockDeviceMAC() {
 	global $pia_lang;
-	$laststate = '../../../config/pialert-prev.bak';
 	$configfile = '../../../config/pialert.conf';
-
-	copy($configfile, $laststate);
 
     if (!isset($GLOBALS["pialert_request"]['mac'])) {
         echo $pia_lang['BE_Dev_Ignore_h'];
@@ -526,645 +457,66 @@ function GetLogfiles() {
 	echo json_encode($logs);
 }
 
-function convert_bool($val) {
-    if (is_bool($val)) return $val ? 'True' : 'False';
-    if (!is_string($val)) {
-        throw new InvalidArgumentException('Invalid boolean value');
-    }
-    $val_lower = strtolower(trim($val));
-    if ($val_lower === 'true') return 'True';
-    if ($val_lower === 'false') return 'False';
-    throw new InvalidArgumentException('Invalid boolean value');
-}
 
-function validate_and_replace_pialert_config($configfile, $content) {
-    $directory = realpath(dirname($configfile));
-    $validator = realpath(__DIR__ . '/../../../back/validate_pialert_config.py');
-    if ($directory === false || $validator === false || strlen($content) > 262144) {
-        throw new RuntimeException('Unable to prepare configuration update');
-    }
-    $temporary = tempnam($directory, '.pialert.conf.');
-    if ($temporary === false) {
-        throw new RuntimeException('Unable to create temporary configuration');
-    }
-    try {
-        if (file_put_contents($temporary, $content, LOCK_EX) !== strlen($content)) {
-            throw new RuntimeException('Unable to write temporary configuration');
-        }
-        $command = 'python3 ' . escapeshellarg($validator) . ' ' . escapeshellarg($temporary) .
-            ' --expected-pialert-path ' . escapeshellarg(dirname($directory));
-        exec($command, $output, $status);
-        if ($status !== 0) {
-            throw new InvalidArgumentException('Invalid configuration');
-        }
-        if (file_exists($configfile) && !copy($configfile, $directory . '/pialert-prev.bak')) {
-            throw new RuntimeException('Unable to back up configuration');
-        }
-        if (!rename($temporary, $configfile)) {
-            throw new RuntimeException('Unable to replace configuration');
-        }
-        $temporary = null;
-    } finally {
-        if ($temporary !== null && file_exists($temporary)) {
-            unlink($temporary);
-        }
-    }
-}
-
-function get_config_schema() {
-    static $schema = null;
-    if ($schema !== null) return $schema;
-    $groups = [
-        'bool' => 'PRINT_LOG PIALERT_WEB_PROTECTION AUTO_UPDATE_CHECK AUTO_DB_BACKUP REPORT_NEW_CONTINUOUS NEW_DEVICE_PRESET_EVENTS NEW_DEVICE_PRESET_DOWN OFFLINE_MODE SCAN_WEBSERVICES ICMPSCAN_ACTIVE SATELLITES_ACTIVE SCAN_ROGUE_DHCP SMTP_SSL SMTP_SKIP_TLS SMTP_SKIP_LOGIN REPORT_WEBGUI REPORT_WEBGUI_WEBMON REPORT_TO_MQTT REPORT_MQTT_TLS PUBLISH_MQTT_STATUS REPORT_MAIL REPORT_MAIL_WEBMON REPORT_PUSHSAFER REPORT_PUSHSAFER_WEBMON REPORT_PUSHOVER REPORT_PUSHOVER_WEBMON REPORT_NTFY REPORT_NTFY_WEBMON NTFY_CLICKABLE REPORT_DISCORD REPORT_DISCORD_WEBMON REPORT_TELEGRAM REPORT_TELEGRAM_WEBMON DDNS_ACTIVE SPEEDTEST_TASK_ACTIVE ARPSCAN_ACTIVE PIHOLE_ACTIVE DHCP_ACTIVE DHCP_INCL_SELF_TO_LEASES FRITZBOX_ACTIVE MIKROTIK_ACTIVE UNIFI_ACTIVE OPENWRT_ACTIVE ASUSWRT_ACTIVE ASUSWRT_SSL PFSENSE_ACTIVE PFSENSE_SSL OPNSENSE_ACTIVE OPNSENSE_SSL ADGUARD_ACTIVE ADGUARD_SSL SATELLITE_PROXY_MODE',
-        'int' => 'AUTO_DB_BACKUP_KEEP REPORT_TO_ARCHIVE SMTP_PORT REPORT_MQTT_PORT PUSHSAFER_PRIO PUSHSAFER_SOUND PUSHOVER_PRIO ICMP_ONLINE_TEST ICMP_GET_AVG_RTT PIHOLE_VERSION PIHOLE6_API_MAXCLIENTS PFSENSE_PORT OPNSENSE_PORT ADGUARD_PORT ADGUARD_QUERY_MINUTES ADGUARD_ACTIVITY_MINUTES ADGUARD_QUERY_LIMIT DAYS_TO_KEEP_ONLINEHISTORY DAYS_TO_KEEP_EVENTS',
-        'string' => 'PIALERT_PATH VENDORS_DB PIALERT_APIKEY PIALERT_WEB_PASSWORD NETWORK_DNS_SERVER SYSTEM_TIMEZONE AUTO_UPDATE_CHECK_CRON AUTO_DB_BACKUP_CRON REPORT_NEW_CONTINUOUS_CRON SPEEDTEST_TASK_CRON SMTP_SERVER SMTP_USER SMTP_PASS REPORT_MQTT_BROKER REPORT_MQTT_USERNAME REPORT_MQTT_PASSWORD REPORT_FROM REPORT_TO REPORT_DEVICE_URL REPORT_DASHBOARD_URL PUSHSAFER_TOKEN PUSHSAFER_DEVICE PUSHOVER_TOKEN PUSHOVER_USER PUSHOVER_SOUND NTFY_HOST NTFY_TOPIC NTFY_USER NTFY_PASSWORD NTFY_PRIORITY DISCORD_BOT_TOKEN_URL TELEGRAM_BOT_TOKEN_URL TELEGRAM_BOT_TOKEN QUERY_MYIP_SERVER QUERY_MYIP_SERVER_FALLBACK DDNS_DOMAIN DDNS_USER DDNS_PASSWORD DDNS_UPDATE_URL PIHOLE_DB PIHOLE6_URL PIHOLE6_PASSWORD DHCP_LEASES FRITZBOX_IP FRITZBOX_USER FRITZBOX_PASS MIKROTIK_IP MIKROTIK_USER MIKROTIK_PASS UNIFI_IP UNIFI_API UNIFI_USER UNIFI_PASS OPENWRT_IP OPENWRT_USER OPENWRT_PASS ASUSWRT_IP ASUSWRT_USER ASUSWRT_PASS PFSENSE_IP PFSENSE_APIKEY OPNSENSE_IP OPNSENSE_APIKEY OPNSENSE_APISECRET ADGUARD_IP ADGUARD_USER ADGUARD_PASSWORD SATELLITE_PROXY_URL',
-        'list' => 'MAC_IGNORE_LIST IP_IGNORE_LIST HOSTNAME_IGNORE_LIST PFSENSE_EXCLUDE_INT OPNSENSE_EXCLUDE_INT TELEGRAM_CHAT_IDS',
-        'special' => 'DB_PATH LOG_PATH DHCP_SERVER_ADDRESS SCAN_SUBNETS',
-    ];
-    $schema = [];
-    foreach ($groups as $type => $keys) {
-        foreach (explode(' ', $keys) as $key) {
-            $schema[$key] = ['type' => $type, 'required' => true];
-        }
-    }
-    $schema['SMTP_SSL']['required'] = false;
-    $schema['SMTP_SSL']['default'] = false;
-    $schema['TELEGRAM_BOT_TOKEN']['required'] = false;
-    $schema['TELEGRAM_BOT_TOKEN']['default'] = '';
-    $schema['TELEGRAM_CHAT_IDS']['required'] = false;
-    $schema['TELEGRAM_CHAT_IDS']['default'] = [];
-    return $schema;
-}
-
-function assert_config_editor_keys($content) {
-    if (!is_string($content) || strlen($content) > 262144) {
-        throw new InvalidArgumentException('Invalid configuration input');
-    }
-    $schema = get_config_schema();
-    $deprecatedKeys = ['SHOUTRRR_BINARY'];
-    $seen = [];
-    foreach (preg_split('/\R/', $content) as $line) {
-        $line = trim($line);
-        if ($line === '' || strpos($line, '#') === 0) continue;
-        if (!preg_match('/^([A-Z][A-Z0-9_]*)\s*=/', $line, $matches)) {
-            throw new InvalidArgumentException('Invalid configuration statement');
-        }
-        $key = $matches[1];
-        if ((!isset($schema[$key]) && !in_array($key, $deprecatedKeys, true)) || isset($seen[$key])) {
-            throw new InvalidArgumentException('Unknown or duplicate configuration key');
-        }
-        $seen[$key] = true;
-    }
-    foreach ($schema as $key => $rule) {
-        if ($rule['required'] && !isset($seen[$key])) {
-            throw new InvalidArgumentException('Missing required configuration key');
-        }
-    }
-}
-function escape_python_config_string($val) {
-    return str_replace(
-        ["\\", "'"],
-        ["\\\\", "\\'"],
-        (string)$val
-    );
-}
-
-function decode_python_config_string($val, $quote = "'") {
-    $decoded = str_replace("\\\\", "\\", (string)$val);
-
-    if ($quote === "'") {
-        $decoded = str_replace("\\'", "'", $decoded);
-    } elseif ($quote === '"') {
-        $decoded = str_replace('\\"', '"', $decoded);
-    }
-
-    return $decoded;
-}
-
-function serializeList($listString) {
-    $listString = trim($listString, " \t\n\r\0\x0B[]");
-
-    if ($listString === '') { return '[]'; }
-
-    $items = preg_split('/\s*,\s*/', $listString);
-    $result = [];
-
-    foreach ($items as $item) {
-        $item = trim($item, " \t\n\r\0\x0B'\"");
-        if ($item === '') {
-            continue;
-        }
-
-        $item = preg_replace('/\s+/', ' ', $item);
-        $result[] = "'" . escape_python_config_string($item) . "'";
-    }
-
-    return '[' . implode(',', $result) . ']';
-}
-
-// Get pialert root
-function find_pialert_root($startDir = __DIR__) {
-    $dir = realpath($startDir);
-
-    while ($dir !== '/' && $dir !== false) {
-
-        if (
-            file_exists($dir . '/config') &&
-            file_exists($dir . '/front') &&
-            file_exists($dir . '/back')
-        ) {
-            return $dir;
-        }
-
-        $dir = dirname($dir);
-    }
-
-    throw new Exception("Pi.Alert Root not found");
-}
-
-// Secure the path specification for the configuration file
-// Layer 1: Basic sanitization (removes obvious injection vectors)
-function pialert_sanitize_input($input) {
-
-    if (!is_string($input) || trim($input) === '') {
-        throw new Exception("Invalid input");
-    }
-
-    // Decode common encodings
-    $input = urldecode($input);
-    $input = html_entity_decode($input, ENT_QUOTES | ENT_HTML5);
-
-    // Split injection chains early
-    $input = preg_split('/[;\r\n]+/', $input)[0];
-
-    // Remove dangerous control characters
-    $input = str_replace(["\r", "\n", "\0"], '', $input);
-
-    return trim($input);
-}
-
-// Layer 2: Structural validation (must LOOK like a path)
-function pialert_validate_path_shape($path) {
-
-    // Must contain at least one slash (absolute or relative path)
-    if (strpos($path, '/') === false) {
-        return false;
-    }
-
-    // Reject obvious command patterns (ls, rm, etc.)
-    if (preg_match('#(^|\s)(ls|rm|cat|echo|bash|sh|wget|curl)\b#i', $path)) {
-        return false;
-    }
-
-    // Only allow safe filesystem characters
-    if (!preg_match('#^[a-zA-Z0-9_./\-\s\'"]+$#', $path)) {
-        return false;
-    }
-
-    return true;
-}
-
-// Layer 3: Filesystem resolution + type validation
-function pialert_resolve_path($path, $mustExist = true, $mustBeFile = true) {
-
-    $realPath = realpath($path);
-
-    if ($mustExist) {
-
-        if ($realPath === false) {
-            return false;
-        }
-
-        if ($mustBeFile && !is_file($realPath)) {
-            return false;
-        }
-
-        if (!$mustBeFile && !is_dir($realPath)) {
-            return false;
-        }
-
-        return $realPath;
-    }
-
-    return $path;
-}
-
-// MAIN FUNCTION: Secure path resolver
-function safeConfigPath($input, $mustExist = true, $mustBeFile = true) {
-
-    // 1. sanitize raw input
-    $clean = pialert_sanitize_input($input);
-
-    // 2. split into segments (injection chain support)
-    $segments = preg_split('/[;\r\n]+/', $clean);
-
-    foreach ($segments as $segment) {
-
-        $segment = trim($segment);
-
-        if ($segment === '') {
-            continue;
-        }
-
-        // 3. structural validation
-        if (!pialert_validate_path_shape($segment)) {
-            continue;
-        }
-
-        // 4. filesystem validation
-        $resolved = pialert_resolve_path($segment, $mustExist, $mustBeFile);
-
-        if ($resolved === false) {
-            continue;
-        }
-
-        // 5. FINAL NORMALIZATION STEP (IMPORTANT)
-        // Removes leftover quotes from INI or earlier processing layers
-        $resolved = trim($resolved, " \t\n\r\0\x0B'\"");
-
-        return $resolved;
-    }
-
-    throw new Exception("No valid path found in input");
-}
 
 //  Save Config
 function SaveConfigFile() {
-	global $pia_lang;
-	global $maskKeys;
-	global $db;
+    global $pia_lang;
+    global $db;
 
-	$laststate = '../../../config/pialert-prev.bak';
-	$configfile = '../../../config/pialert.conf';
+    $configfile = __DIR__ . '/../../../config/pialert.conf';
+    $laststate = __DIR__ . '/../../../config/pialert-prev.bak';
+    $content = isset($GLOBALS['pialert_request']['configfile'])
+        ? $GLOBALS['pialert_request']['configfile'] : null;
 
-	try {
-		assert_config_editor_keys($GLOBALS["pialert_request"]['configfile']);
-	} catch (Throwable $exception) {
-		pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
-		echo 'ERROR: Invalid configuration';
-		return;
-	}
+    if (!is_string($content) || strlen($content) > PIALERT_CONFIG_MAX_BYTES) {
+        http_response_code(400);
+        pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+        echo isset($pia_lang['BE_Dev_ConfEditor_Invalid'])
+            ? $pia_lang['BE_Dev_ConfEditor_Invalid'] : 'Invalid configuration';
+        return;
+    }
 
-	// Always preserve the current configuration before processing a save.
-	// copy() intentionally replaces an existing pialert-prev.bak.
-	if (!copy($configfile, $laststate)) {
-		pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
-		echo 'ERROR: Unable to back up current configuration';
-		return;
-	}
+    $lockHandle = null;
+    try {
+        $lockHandle = pialert_acquire_config_lock($configfile);
+        pialert_create_verified_config_backup($configfile, $laststate);
+    } catch (Throwable $exception) {
+        pialert_release_config_lock($lockHandle);
+        http_response_code(500);
+        pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+        echo $pia_lang['BE_Dev_ConfEditor_CopError'];
+        return;
+    }
 
-	$configContent = preg_replace('/^\s*#.*$/m', '', $GLOBALS["pialert_request"]['configfile']);
-	$configArray = parse_ini_string($configContent);
+    try {
+        $prepared = pialert_prepare_editor_candidate(
+            $content, $laststate, $configfile);
+        validate_and_replace_pialert_config(
+            $configfile, $prepared['content'], false, $lockHandle);
 
-    // Get old Values from Backup
-    $oldLines = file($laststate, FILE_IGNORE_NEW_LINES) ?: [];
-    $oldValues = [];
-    foreach ($oldLines as $line) {
-        foreach ($maskKeys as $key) {
-            if (preg_match('/^\s*' . preg_quote($key, '/') . '\s*=\s*([\'"]?)(.*)\1\s*$/', $line, $matches)) {
-                $oldValues[$key] = decode_python_config_string($matches[2], $matches[1]);
-            }
+        if (!empty($prepared['metadata']['password_changed'])) {
+            pialert_revoke_all_remember_tokens($db);
         }
+    } catch (InvalidArgumentException $exception) {
+        http_response_code(400);
+        pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+        echo isset($pia_lang['BE_Dev_ConfEditor_Invalid'])
+            ? $pia_lang['BE_Dev_ConfEditor_Invalid'] : 'Invalid configuration';
+        return;
+    } catch (Throwable $exception) {
+        http_response_code(500);
+        pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
+        echo isset($pia_lang['BE_Dev_ConfEditor_SaveError'])
+            ? $pia_lang['BE_Dev_ConfEditor_SaveError'] : 'Unable to save configuration';
+        return;
+    } finally {
+        pialert_release_config_lock($lockHandle);
     }
 
-    // Read Frontend Input
-    $inputLines = explode("\n", $GLOBALS["pialert_request"]['configfile']);
-    $configArray = [];
-
-    foreach ($inputLines as $line) {
-        if (preg_match('/^\s*([A-Z0-9_]+)\s*=\s*([\'"]?)(.*)\2\s*$/', trim($line), $matches)) {
-            $key = $matches[1];
-            $value = $matches[3];
-
-            // Masked values
-            if (in_array($key, $maskKeys) && isset($oldValues[$key])) {
-                $lenOld = strlen($oldValues[$key]);
-                $lenFront = strlen($value);
-                $firstOld = substr($oldValues[$key], 0, 1);
-                $lastOld = substr($oldValues[$key], -1);
-                $firstFront = substr($value, 0, 1);
-                $lastFront = substr($value, -1);
-                $middleFront = substr($value, 1, -1);
-
-                if ($lenOld == $lenFront && $firstOld == $firstFront && $lastOld == $lastFront && preg_match('/^\*+$/', $middleFront)) {
-                    $value = $oldValues[$key];
-                }
-            }
-
-            $configArray[$key] = $value;
-        }
-    }
-
-	// Handle some special entries
-	$Mail_Reort = str_replace(" ", "", $configArray['REPORT_FROM']);
-	if (stristr($Mail_Reort, "<+SMTP_USER+>")) {
-		$mail_parts = array();
-		$mail_parts = explode("<", $configArray['REPORT_FROM']);
-		$mail_parts[1] = '<' . $mail_parts[1];
-		$mail_parts[1] = str_replace(" ", "", $mail_parts[1]);
-		$mail_parts[1] = str_replace("<+SMTP_USER+>", "<' + SMTP_USER + '>", $mail_parts[1]);
-		$configArray['REPORT_FROM'] = $mail_parts[0] . $mail_parts[1];
-	}
-	
-    if (strpos($configArray['DHCP_SERVER_ADDRESS'], '[') === false && strpos($configArray['DHCP_SERVER_ADDRESS'], ']') === false) {
-        $configArray['DHCP_SERVER_ADDRESS'] = "'" . $configArray['DHCP_SERVER_ADDRESS'] . "'";
-    }
-
-	// Ignore List Syntax handling start
-	if ($configArray['MAC_IGNORE_LIST'] == "") {$configArray['MAC_IGNORE_LIST'] = "[]";}
-	if ($configArray['IP_IGNORE_LIST'] == "") {$configArray['IP_IGNORE_LIST'] = "[]";}
-	if ($configArray['HOSTNAME_IGNORE_LIST'] == "") {$configArray['HOSTNAME_IGNORE_LIST'] = "[]";}
-	if ($configArray['PFSENSE_EXCLUDE_INT'] == "") {$configArray['PFSENSE_EXCLUDE_INT'] = "[]";}
-    if ($configArray['OPNSENSE_EXCLUDE_INT'] == "") {$configArray['OPNSENSE_EXCLUDE_INT'] = "[]";}
-
-    // Ignore List Syntax handling stop
-    $scanSubnets = trim($configArray['SCAN_SUBNETS']);
-    if (substr($scanSubnets, 0, 2) === '--') {
-        $scanSubnets = preg_replace('/\s+/', ' ', $scanSubnets);
-        $configArray['SCAN_SUBNETS'] = "'" . trim($scanSubnets, "'\" ") . "'";
-    } else {
-        $configArray['SCAN_SUBNETS'] = serializeList($scanSubnets);
-    }
-	
-	$configArray['NETWORK_DNS_SERVER'] = str_replace(" ", "", $configArray['NETWORK_DNS_SERVER']);
-	if ($configArray['NETWORK_DNS_SERVER'] == "") {
-		$configArray['NETWORK_DNS_SERVER'] = "localhost";
-	} else {
-		if (filter_var(gethostbyname($configArray['NETWORK_DNS_SERVER']), FILTER_VALIDATE_IP)) {
-		    $configArray['NETWORK_DNS_SERVER'] = $configArray['NETWORK_DNS_SERVER'];
-		} else {$configArray['NETWORK_DNS_SERVER'] = "localhost";}
-	}
-
-    $PIALERT_PATH = find_pialert_root();
-    $VENDORS_DB = safeConfigPath($configArray['VENDORS_DB'], true, true);
-    $PIHOLE_DB = safeConfigPath($configArray['PIHOLE_DB'], false, true);
-    $DHCP_LEASES = safeConfigPath($configArray['DHCP_LEASES'], false, true);
-
-    $smtpSsl = isset($configArray['SMTP_SSL']) ? $configArray['SMTP_SSL'] : false;
-    $telegramBotToken = isset($configArray['TELEGRAM_BOT_TOKEN'])
-        ? $configArray['TELEGRAM_BOT_TOKEN'] : '';
-    $telegramChatIds = isset($configArray['TELEGRAM_CHAT_IDS'])
-        ? serializeList($configArray['TELEGRAM_CHAT_IDS']) : '[]';
-	$config_template = "# General Settings
-# ----------------------
-PIALERT_PATH               = '" . $PIALERT_PATH . "'
-DB_PATH                    = PIALERT_PATH + '/db/pialert.db'
-LOG_PATH                   = PIALERT_PATH + '/log'
-PRINT_LOG                  = " . convert_bool($configArray['PRINT_LOG']) . "
-VENDORS_DB                 = '" . $VENDORS_DB . "'
-PIALERT_APIKEY             = '" . escape_python_config_string($configArray['PIALERT_APIKEY']) . "'
-PIALERT_WEB_PROTECTION     = " . convert_bool($configArray['PIALERT_WEB_PROTECTION']) . "
-PIALERT_WEB_PASSWORD       = '" . escape_python_config_string($configArray['PIALERT_WEB_PASSWORD']) . "'
-NETWORK_DNS_SERVER         = '" . $configArray['NETWORK_DNS_SERVER'] . "'
-AUTO_UPDATE_CHECK          = " . convert_bool($configArray['AUTO_UPDATE_CHECK']) . "
-AUTO_DB_BACKUP             = " . convert_bool($configArray['AUTO_DB_BACKUP']) . "
-AUTO_DB_BACKUP_KEEP        = " . ((isset($configArray['AUTO_DB_BACKUP_KEEP']) && is_numeric($configArray['AUTO_DB_BACKUP_KEEP'])) ? $configArray['AUTO_DB_BACKUP_KEEP'] : 5) . "
-REPORT_NEW_CONTINUOUS      = " . convert_bool($configArray['REPORT_NEW_CONTINUOUS']) . "
-NEW_DEVICE_PRESET_EVENTS   = " . convert_bool($configArray['NEW_DEVICE_PRESET_EVENTS']) . "
-NEW_DEVICE_PRESET_DOWN     = " . convert_bool($configArray['NEW_DEVICE_PRESET_DOWN']) . "
-SYSTEM_TIMEZONE            = '" . $configArray['SYSTEM_TIMEZONE'] . "'
-OFFLINE_MODE               = " . convert_bool($configArray['OFFLINE_MODE']) . "
-
-# Other Modules
-# ----------------------
-SCAN_WEBSERVICES           = " . convert_bool($configArray['SCAN_WEBSERVICES']) . "
-ICMPSCAN_ACTIVE            = " . convert_bool($configArray['ICMPSCAN_ACTIVE']) . "
-SATELLITES_ACTIVE          = " . convert_bool($configArray['SATELLITES_ACTIVE']) . "
-
-# Special Protocol Scanning
-# ----------------------
-SCAN_ROGUE_DHCP            = " . convert_bool($configArray['SCAN_ROGUE_DHCP']) . "
-DHCP_SERVER_ADDRESS        = " . $configArray['DHCP_SERVER_ADDRESS'] . "
-# DHCP_SERVER_ADDRESS        = '192.168.1.1'
-# DHCP_SERVER_ADDRESS        = ['192.168.1.1','10.0.0.1']
-
-# Custom Cronjobs
-# ----------------------
-# The shortest interval is 3 minutes. All larger intervals must be integer multiples of 3 minutes.
-AUTO_UPDATE_CHECK_CRON     = '" . $configArray['AUTO_UPDATE_CHECK_CRON'] . "'
-AUTO_DB_BACKUP_CRON        = '" . $configArray['AUTO_DB_BACKUP_CRON'] . "'
-REPORT_NEW_CONTINUOUS_CRON = '" . $configArray['REPORT_NEW_CONTINUOUS_CRON'] . "'
-SPEEDTEST_TASK_CRON        = '" . $configArray['SPEEDTEST_TASK_CRON'] . "'
-
-# Mail-Account Settings
-# ----------------------
-SMTP_SERVER                = '" . $configArray['SMTP_SERVER'] . "'
-SMTP_PORT                  = " . ((isset($configArray['SMTP_PORT']) && is_numeric($configArray['SMTP_PORT'])) ? $configArray['SMTP_PORT'] : 587) . "
-SMTP_USER                  = '" . $configArray['SMTP_USER'] . "'
-SMTP_PASS                  = '" . escape_python_config_string($configArray['SMTP_PASS']) . "'
-SMTP_SSL                   = " . convert_bool($smtpSsl) . "
-SMTP_SKIP_TLS	           = " . convert_bool($configArray['SMTP_SKIP_TLS']) . "
-SMTP_SKIP_LOGIN	           = " . convert_bool($configArray['SMTP_SKIP_LOGIN']) . "
-
-# WebGUI Reporting
-# ----------------------
-REPORT_WEBGUI              = " . convert_bool($configArray['REPORT_WEBGUI']) . "
-REPORT_WEBGUI_WEBMON       = " . convert_bool($configArray['REPORT_WEBGUI_WEBMON']) . "
-REPORT_TO_ARCHIVE          = " . ((isset($configArray['REPORT_TO_ARCHIVE']) && is_numeric($configArray['REPORT_TO_ARCHIVE'])) ? $configArray['REPORT_TO_ARCHIVE'] : 12) . "
-# Number of hours after which a report is moved to the archive. The value 0 disables the feature
-
-# MQTT Reporting
-# ----------------------
-REPORT_TO_MQTT             = " . convert_bool($configArray['REPORT_TO_MQTT']) . "
-REPORT_MQTT_BROKER         = '" . $configArray['REPORT_MQTT_BROKER'] . "'
-REPORT_MQTT_PORT           = " . ((isset($configArray['REPORT_MQTT_PORT']) && is_numeric($configArray['REPORT_MQTT_PORT'])) ? $configArray['REPORT_MQTT_PORT'] : 1883) . "
-REPORT_MQTT_USERNAME       = '" . $configArray['REPORT_MQTT_USERNAME'] . "'
-REPORT_MQTT_PASSWORD       = '" . escape_python_config_string($configArray['REPORT_MQTT_PASSWORD']) . "'
-REPORT_MQTT_TLS            = " . convert_bool($configArray['REPORT_MQTT_TLS']) . "
-PUBLISH_MQTT_STATUS        = " . convert_bool($configArray['PUBLISH_MQTT_STATUS']) . "
-
-# Mail Reporting
-# ----------------------
-REPORT_MAIL                = " . convert_bool($configArray['REPORT_MAIL']) . "
-REPORT_MAIL_WEBMON         = " . convert_bool($configArray['REPORT_MAIL_WEBMON']) . "
-REPORT_FROM                = '" . $configArray['REPORT_FROM'] . "'
-REPORT_TO                  = '" . $configArray['REPORT_TO'] . "'
-REPORT_DEVICE_URL          = '" . $configArray['REPORT_DEVICE_URL'] . "'
-REPORT_DASHBOARD_URL       = '" . $configArray['REPORT_DASHBOARD_URL'] . "'
-
-# Pushsafer
-# ----------------------
-REPORT_PUSHSAFER           = " . convert_bool($configArray['REPORT_PUSHSAFER']) . "
-REPORT_PUSHSAFER_WEBMON    = " . convert_bool($configArray['REPORT_PUSHSAFER_WEBMON']) . "
-PUSHSAFER_TOKEN            = '" . escape_python_config_string($configArray['PUSHSAFER_TOKEN']) . "'
-PUSHSAFER_DEVICE           = '" . $configArray['PUSHSAFER_DEVICE'] . "'
-PUSHSAFER_PRIO             = " . ((isset($configArray['PUSHSAFER_PRIO']) && is_numeric($configArray['PUSHSAFER_PRIO'])) ? $configArray['PUSHSAFER_PRIO'] : 0) . "
-PUSHSAFER_SOUND            = " . ((isset($configArray['PUSHSAFER_SOUND']) && is_numeric($configArray['PUSHSAFER_SOUND'])) ? $configArray['PUSHSAFER_SOUND'] : 22) . "
-
-# Pushover
-# ----------------------
-REPORT_PUSHOVER            = " . convert_bool($configArray['REPORT_PUSHOVER']) . "
-REPORT_PUSHOVER_WEBMON     = " . convert_bool($configArray['REPORT_PUSHOVER_WEBMON']) . "
-PUSHOVER_TOKEN             = '" . escape_python_config_string($configArray['PUSHOVER_TOKEN']) . "'
-PUSHOVER_USER              = '" . escape_python_config_string($configArray['PUSHOVER_USER']) . "'
-PUSHOVER_PRIO              = " . ((isset($configArray['PUSHOVER_PRIO']) && is_numeric($configArray['PUSHOVER_PRIO'])) ? $configArray['PUSHOVER_PRIO'] : 0) . "
-PUSHOVER_SOUND             = '" . $configArray['PUSHOVER_SOUND'] . "'
-
-# NTFY
-#---------------------------
-REPORT_NTFY                = " . convert_bool($configArray['REPORT_NTFY']) . "
-REPORT_NTFY_WEBMON         = " . convert_bool($configArray['REPORT_NTFY_WEBMON']) . "
-NTFY_HOST                  = '" . $configArray['NTFY_HOST'] . "'
-NTFY_TOPIC                 = '" . $configArray['NTFY_TOPIC'] . "'
-NTFY_USER                  = '" . $configArray['NTFY_USER'] . "'
-NTFY_PASSWORD	           = '" . escape_python_config_string($configArray['NTFY_PASSWORD']) . "'
-NTFY_PRIORITY 	           = '" . $configArray['NTFY_PRIORITY'] . "'
-NTFY_CLICKABLE 	           = " . convert_bool($configArray['NTFY_CLICKABLE']) . "
-
-# Discord
-# ----------------------
-REPORT_DISCORD             = " . convert_bool($configArray['REPORT_DISCORD']) . "
-REPORT_DISCORD_WEBMON      = " . convert_bool($configArray['REPORT_DISCORD_WEBMON']) . "
-DISCORD_BOT_TOKEN_URL      = '" . $configArray['DISCORD_BOT_TOKEN_URL'] . "'
-
-# Telegram
-# ----------------------
-REPORT_TELEGRAM            = " . convert_bool($configArray['REPORT_TELEGRAM']) . "
-REPORT_TELEGRAM_WEBMON     = " . convert_bool($configArray['REPORT_TELEGRAM_WEBMON']) . "
-TELEGRAM_BOT_TOKEN         = '" . escape_python_config_string($telegramBotToken) . "'
-TELEGRAM_CHAT_IDS          = " . $telegramChatIds . "
-# Deprecated compatibility input. Shoutrrr is not used to send notifications.
-TELEGRAM_BOT_TOKEN_URL     = '" . escape_python_config_string($configArray['TELEGRAM_BOT_TOKEN_URL']) . "'
-
-# DynDNS and IP
-# ----------------------
-QUERY_MYIP_SERVER          = '" . $configArray['QUERY_MYIP_SERVER'] . "'
-QUERY_MYIP_SERVER_FALLBACK = '" . $configArray['QUERY_MYIP_SERVER_FALLBACK'] . "'
-DDNS_ACTIVE                = " . convert_bool($configArray['DDNS_ACTIVE']) . "
-DDNS_DOMAIN                = '" . $configArray['DDNS_DOMAIN'] . "'
-DDNS_USER                  = '" . $configArray['DDNS_USER'] . "'
-DDNS_PASSWORD              = '" . escape_python_config_string($configArray['DDNS_PASSWORD']) . "'
-DDNS_UPDATE_URL            = '" . $configArray['DDNS_UPDATE_URL'] . "'
-
-# Automatic Speedtest
-# ----------------------
-SPEEDTEST_TASK_ACTIVE      = " . convert_bool($configArray['SPEEDTEST_TASK_ACTIVE']) . "
-
-# Arp-scan Options & Samples
-# ----------------------
-ARPSCAN_ACTIVE             = " . convert_bool($configArray['ARPSCAN_ACTIVE']) . "
-MAC_IGNORE_LIST            = " . $configArray['MAC_IGNORE_LIST'] . "
-IP_IGNORE_LIST             = " . $configArray['IP_IGNORE_LIST'] . "
-HOSTNAME_IGNORE_LIST       = " . $configArray['HOSTNAME_IGNORE_LIST'] . "
-SCAN_SUBNETS               = " . $configArray['SCAN_SUBNETS'] . "
-# SCAN_SUBNETS               = '--localnet'
-# SCAN_SUBNETS               = '--localnet --interface=eth0'
-# SCAN_SUBNETS               = ['192.168.1.0/24 --interface=eth0','192.168.2.0/24 --interface=eth1']
-
-# ICMP Monitoring Options
-# ----------------------
-ICMP_ONLINE_TEST           = " . ((isset($configArray['ICMP_ONLINE_TEST']) && is_numeric($configArray['ICMP_ONLINE_TEST'])) ? $configArray['ICMP_ONLINE_TEST'] : 2) . "
-ICMP_GET_AVG_RTT           = " . ((isset($configArray['ICMP_GET_AVG_RTT']) && is_numeric($configArray['ICMP_GET_AVG_RTT'])) ? $configArray['ICMP_GET_AVG_RTT'] : 3) . "
-
-# Pi-hole Configuration
-# ----------------------
-PIHOLE_ACTIVE              = " . convert_bool($configArray['PIHOLE_ACTIVE']) . "
-PIHOLE_VERSION             = " . ((isset($configArray['PIHOLE_VERSION']) && is_numeric($configArray['PIHOLE_VERSION'])) ? $configArray['PIHOLE_VERSION'] : 6) . "
-PIHOLE_DB                  = '" . $PIHOLE_DB . "'
-PIHOLE6_URL                = '" . $configArray['PIHOLE6_URL'] . "'
-PIHOLE6_PASSWORD           = '" . escape_python_config_string($configArray['PIHOLE6_PASSWORD']) . "'
-PIHOLE6_API_MAXCLIENTS     = " . ((isset($configArray['PIHOLE6_API_MAXCLIENTS']) && is_numeric($configArray['PIHOLE6_API_MAXCLIENTS'])) ? $configArray['PIHOLE6_API_MAXCLIENTS'] : 150) . "
-DHCP_ACTIVE                = " . convert_bool($configArray['DHCP_ACTIVE']) . "
-DHCP_LEASES                = '" . $DHCP_LEASES . "'
-DHCP_INCL_SELF_TO_LEASES   = " . convert_bool($configArray['DHCP_INCL_SELF_TO_LEASES']) . "
-
-# Fritzbox Configuration
-# ----------------------
-FRITZBOX_ACTIVE            = " . convert_bool($configArray['FRITZBOX_ACTIVE']) . "
-FRITZBOX_IP                = '" . $configArray['FRITZBOX_IP'] . "'
-FRITZBOX_USER              = '" . $configArray['FRITZBOX_USER'] . "'
-FRITZBOX_PASS              = '" . escape_python_config_string($configArray['FRITZBOX_PASS']) . "'
-
-# Mikrotik Configuration
-# ----------------------
-MIKROTIK_ACTIVE            = " . convert_bool($configArray['MIKROTIK_ACTIVE']) . "
-MIKROTIK_IP                = '" . $configArray['MIKROTIK_IP'] . "'
-MIKROTIK_USER              = '" . $configArray['MIKROTIK_USER'] . "'
-MIKROTIK_PASS              = '" . escape_python_config_string($configArray['MIKROTIK_PASS']) . "'
-
-# UniFi Configuration
-# -------------------
-UNIFI_ACTIVE               = " . convert_bool($configArray['UNIFI_ACTIVE']) . "
-UNIFI_IP                   = '" . $configArray['UNIFI_IP'] . "'
-UNIFI_API                  = '" . $configArray['UNIFI_API'] . "'
-UNIFI_USER                 = '" . $configArray['UNIFI_USER'] . "'
-UNIFI_PASS                 = '" . escape_python_config_string($configArray['UNIFI_PASS']) . "'
-# Possible UNIFI APIs are v4, v5, unifiOS, UDMP-unifiOS, default
-
-# OpenWRT Configuration
-# ----------------------
-OPENWRT_ACTIVE            = " . convert_bool($configArray['OPENWRT_ACTIVE']) . "
-OPENWRT_IP                = '" . $configArray['OPENWRT_IP'] . "'
-OPENWRT_USER              = '" . $configArray['OPENWRT_USER'] . "'
-OPENWRT_PASS              = '" . escape_python_config_string($configArray['OPENWRT_PASS']) . "'
-
-# AsusWRT Configuration
-# ----------------------
-ASUSWRT_ACTIVE            = " . convert_bool($configArray['ASUSWRT_ACTIVE']) . "
-ASUSWRT_IP                = '" . $configArray['ASUSWRT_IP'] . "'
-ASUSWRT_USER              = '" . $configArray['ASUSWRT_USER'] . "'
-ASUSWRT_PASS              = '" . escape_python_config_string($configArray['ASUSWRT_PASS']) . "'
-ASUSWRT_SSL               = " . convert_bool($configArray['ASUSWRT_SSL']) . "
-
-# pfsense Configuration
-# ----------------------
-PFSENSE_ACTIVE            = " . convert_bool($configArray['PFSENSE_ACTIVE']) . "
-PFSENSE_IP                = '" . $configArray['PFSENSE_IP'] . "'
-PFSENSE_PORT              = " . ((isset($configArray['PFSENSE_PORT']) && is_numeric($configArray['PFSENSE_PORT'])) ? $configArray['PFSENSE_PORT'] : 443) . "
-PFSENSE_APIKEY            = '" . escape_python_config_string($configArray['PFSENSE_APIKEY']) . "'
-PFSENSE_SSL               = " . convert_bool($configArray['PFSENSE_SSL']) . "
-PFSENSE_EXCLUDE_INT       = " . $configArray['PFSENSE_EXCLUDE_INT'] . "
-
-# OPNsense Configuration
-# ----------------------
-OPNSENSE_ACTIVE            = " . convert_bool($configArray['OPNSENSE_ACTIVE']) . "
-OPNSENSE_IP                = '" . $configArray['OPNSENSE_IP'] . "'
-OPNSENSE_PORT              = " . ((isset($configArray['OPNSENSE_PORT']) && is_numeric($configArray['OPNSENSE_PORT'])) ? $configArray['OPNSENSE_PORT'] : 443) . "
-OPNSENSE_APIKEY            = '" . escape_python_config_string($configArray['OPNSENSE_APIKEY']) . "'
-OPNSENSE_APISECRET         = '" . escape_python_config_string($configArray['OPNSENSE_APISECRET']) . "'
-OPNSENSE_SSL               = " . convert_bool($configArray['OPNSENSE_SSL']) . "
-OPNSENSE_EXCLUDE_INT       = " . $configArray['OPNSENSE_EXCLUDE_INT'] . "
-
-# AdGuard Configuration
-# ---------------------
-ADGUARD_ACTIVE            = " . convert_bool($configArray['ADGUARD_ACTIVE']) . "
-ADGUARD_IP                = '" . escape_python_config_string($configArray['ADGUARD_IP']) . "'
-ADGUARD_PORT              = " . ((isset($configArray['ADGUARD_PORT']) && is_numeric($configArray['ADGUARD_PORT'])) ? $configArray['ADGUARD_PORT'] : 80) . "
-ADGUARD_USER              = '" . escape_python_config_string($configArray['ADGUARD_USER']) . "'
-ADGUARD_PASSWORD          = '" . escape_python_config_string($configArray['ADGUARD_PASSWORD']) . "'
-ADGUARD_SSL               = " . convert_bool($configArray['ADGUARD_SSL']) . "
-ADGUARD_QUERY_MINUTES     = " . ((isset($configArray['ADGUARD_QUERY_MINUTES']) && is_numeric($configArray['ADGUARD_QUERY_MINUTES'])) ? $configArray['ADGUARD_QUERY_MINUTES'] : 5) . "
-ADGUARD_ACTIVITY_MINUTES  = " . ((isset($configArray['ADGUARD_ACTIVITY_MINUTES']) && is_numeric($configArray['ADGUARD_ACTIVITY_MINUTES'])) ? $configArray['ADGUARD_ACTIVITY_MINUTES'] : 10) . "
-ADGUARD_QUERY_LIMIT       = " . ((isset($configArray['ADGUARD_QUERY_LIMIT']) && is_numeric($configArray['ADGUARD_QUERY_LIMIT'])) ? $configArray['ADGUARD_QUERY_LIMIT'] : 1000) . "
-
-# Satellite Configuration
-# -----------------------
-SATELLITE_PROXY_MODE       = " . convert_bool($configArray['SATELLITE_PROXY_MODE']) . "
-SATELLITE_PROXY_URL        = '" . $configArray['SATELLITE_PROXY_URL'] . "'
-
-# Maintenance Tasks Cron
-# ----------------------
-DAYS_TO_KEEP_ONLINEHISTORY = " . ((isset($configArray['DAYS_TO_KEEP_ONLINEHISTORY']) && is_numeric($configArray['DAYS_TO_KEEP_ONLINEHISTORY'])) ? $configArray['DAYS_TO_KEEP_ONLINEHISTORY'] : 60) . "
-DAYS_TO_KEEP_EVENTS        = " . ((isset($configArray['DAYS_TO_KEEP_EVENTS']) && is_numeric($configArray['DAYS_TO_KEEP_EVENTS'])) ? $configArray['DAYS_TO_KEEP_EVENTS'] : 0) . "
-";
-
-	try {
-		validate_and_replace_pialert_config($configfile, $config_template);
-	} catch (Throwable $exception) {
-		pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9998', '1', '');
-		echo 'ERROR: Invalid configuration';
-		echo "<meta http-equiv='refresh' content='2; URL=./index.php'>";
-		return;
-	}
-
-	if (($oldValues["PIALERT_WEB_PASSWORD"] ?? null) !== ($configArray["PIALERT_WEB_PASSWORD"] ?? null)) {
-		pialert_revoke_all_remember_tokens($db);
-	}
-	echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
-
-	// Logging
-	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
-	echo "<meta http-equiv='refresh' content='2; URL=./index.php'>";
+    echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
+    pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_9999', '1', '');
+    echo "<meta http-equiv='refresh' content='2; URL=./index.php'>";
 }
 
 //  Backup DB to Archiv
@@ -1415,12 +767,9 @@ function PurgeDBBackups() {
 	// Clean Config Backups
 	unset($Pia_Backupfiles);
 	$Pia_Archive_Path = '../../../config';
-	$Pia_Backupfiles = array();
-	$files = array_diff(scandir($Pia_Archive_Path, SCANDIR_SORT_DESCENDING), array('.', '..', 'pialert.conf', 'pialert.example.conf', 'version.conf', 'pialert-prev.bak', 'pialert.conf.back'));
-	foreach ($files as &$item) {
-		$item = $Pia_Archive_Path . '/' . $item;
-		if (stristr($item, 'setting_') == '') {array_push($Pia_Backupfiles, $item);}
-	}
+	// Only timestamped backups are purge candidates. Lock files, temporary
+	// atomic-write files, examples, settings and active configurations are not.
+	$Pia_Backupfiles = glob($Pia_Archive_Path . '/pialert-20*.bak') ?: array();
 	if (sizeof($Pia_Backupfiles) > 3) {
 		rsort($Pia_Backupfiles);
 		unset($Pia_Backupfiles[0], $Pia_Backupfiles[1], $Pia_Backupfiles[2]);
@@ -1650,47 +999,56 @@ function setArpTimer() {
 
 //  Restore Config File
 function RestoreConfigFile() {
-	global $pia_lang;
+    global $pia_lang;
 
-	$file = '../../../config/pialert.conf';
-	$laststate = '../../../config/pialert-prev.bak';
-	// Restore only a structurally valid backup through the atomic writer.
-	try {
-		$content = file_get_contents($laststate);
-		if ($content === false) {
-			throw new RuntimeException('Unable to read configuration backup');
-		}
-		validate_and_replace_pialert_config($file, $content);
-		echo $pia_lang['BE_Dev_ConfEditor_RestoreOkay'];
-	} catch (Throwable $exception) {
-		echo $pia_lang['BE_Dev_ConfEditor_RestoreError'];
-	}
-	// Logging
-	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_0006', '1', '');
-	echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
+    $file = __DIR__ . '/../../../config/pialert.conf';
+    $laststate = __DIR__ . '/../../../config/pialert-prev.bak';
+    $lockHandle = null;
+
+    try {
+        $lockHandle = pialert_acquire_config_lock($file);
+        $content = file_get_contents($laststate);
+        if ($content === false) {
+            throw new RuntimeException('Unable to read configuration backup');
+        }
+        validate_and_replace_pialert_config($file, $content, true, $lockHandle);
+        echo $pia_lang['BE_Dev_ConfEditor_RestoreOkay'];
+    } catch (Throwable $exception) {
+        http_response_code(500);
+        echo $pia_lang['BE_Dev_ConfEditor_RestoreError'];
+    } finally {
+        pialert_release_config_lock($lockHandle);
+    }
+
+    pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_0006', '1', '');
+    echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php'>";
 }
 
 //  Backup Config File
 function BackupConfigFile() {
-	global $pia_lang;
+    global $pia_lang;
 
-	// prepare fast Backup
-	$file = '../../../config/pialert.conf';
-	$newfile = '../../../config/pialert-' . date("Ymd_His") . '.bak';
-	$laststate = '../../../config/pialert-prev.bak';
-	if (!copy($file, $newfile)) {
-		echo $pia_lang['BE_Dev_ConfEditor_CopError'];
-	} else {
-		echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
-	}
-	// copy files as a fast Backup
-	copy($file, $laststate);
+    $file = __DIR__ . '/../../../config/pialert.conf';
+    $newfile = __DIR__ . '/../../../config/pialert-' . date('Ymd_His') . '.bak';
+    $laststate = __DIR__ . '/../../../config/pialert-prev.bak';
+    $lockHandle = null;
 
-	// Logging
-	pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_0007', '1', '');
-	if ($GLOBALS["pialert_request"]['reload'] == 'yes') {
-		echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>";
-	}
+    try {
+        $lockHandle = pialert_acquire_config_lock($file);
+        pialert_create_verified_config_backup($file, $newfile);
+        pialert_create_verified_config_backup($file, $laststate);
+        echo $pia_lang['BE_Dev_ConfEditor_CopOkay'];
+    } catch (Throwable $exception) {
+        http_response_code(500);
+        echo $pia_lang['BE_Dev_ConfEditor_CopError'];
+    } finally {
+        pialert_release_config_lock($lockHandle);
+    }
+
+    pialert_logging('a_000', $_SERVER['REMOTE_ADDR'], 'LogStr_0007', '1', '');
+    if ($GLOBALS['pialert_request']['reload'] == 'yes') {
+        echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>";
+    }
 }
 
 //  Delete All Notification in WebGUI

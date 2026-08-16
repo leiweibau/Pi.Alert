@@ -5,11 +5,14 @@ import ast
 import ipaddress
 import os
 import re
+import warnings
 
 
 class ConfigValidationError(ValueError):
     pass
 
+
+MAX_CONFIG_BYTES = 524288
 
 BOOLEAN_KEYS = frozenset("""
 PRINT_LOG PIALERT_WEB_PROTECTION AUTO_UPDATE_CHECK AUTO_DB_BACKUP
@@ -68,6 +71,14 @@ ALL_KEYS = BOOLEAN_KEYS | frozenset(INTEGER_RULES) | STRING_KEYS | LIST_KEYS | S
 DEPRECATED_KEYS = frozenset(('SHOUTRRR_BINARY',))
 LOADABLE_KEYS = ALL_KEYS | DEPRECATED_KEYS
 VERSION_KEYS = frozenset(('VERSION', 'VERSION_YEAR', 'VERSION_DATE'))
+MASKED_SECRET_KEYS = frozenset((
+    'PIALERT_APIKEY', 'PIALERT_WEB_PASSWORD', 'FRITZBOX_PASS',
+    'PUSHSAFER_TOKEN', 'NTFY_PASSWORD', 'MIKROTIK_PASS', 'UNIFI_PASS',
+    'OPENWRT_PASS', 'ASUSWRT_PASS', 'SMTP_PASS', 'REPORT_MQTT_PASSWORD',
+    'PUSHOVER_TOKEN', 'PUSHOVER_USER', 'PFSENSE_APIKEY', 'OPNSENSE_APIKEY',
+    'OPNSENSE_APISECRET', 'ADGUARD_PASSWORD', 'PIHOLE6_PASSWORD',
+    'DDNS_PASSWORD', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_BOT_TOKEN_URL',
+))
 _MAC = re.compile(r'^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}$')
 _MAC_PREFIX = re.compile(r'^[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){0,4}:?$')
 _INTERFACE = re.compile(r'^[A-Za-z0-9_.:-]{1,64}$')
@@ -137,6 +148,49 @@ def _is_mac_or_prefix(value):
     return bool(_MAC.match(value) or _MAC_PREFIX.match(value))
 
 
+def build_arpscan_arguments(value):
+    """Validate SCAN_SUBNETS and return one argv fragment per scan."""
+    if type(value) is str:
+        require_string('SCAN_SUBNETS', value, False, 512)
+        tokens = value.split()
+        if not tokens or tokens[0] != '--localnet' or len(tokens) > 2:
+            raise ConfigValidationError('SCAN_SUBNETS is invalid')
+        if len(tokens) == 2:
+            if not tokens[1].startswith('--interface='):
+                raise ConfigValidationError('SCAN_SUBNETS is invalid')
+            interface = tokens[1][len('--interface='):]
+            if not _INTERFACE.match(interface):
+                raise ConfigValidationError('SCAN_SUBNETS has an invalid interface')
+        return [tokens]
+
+    entries = require_string_list('SCAN_SUBNETS', value)
+    if not entries:
+        raise ConfigValidationError('SCAN_SUBNETS must not be empty')
+
+    result = []
+    seen = set()
+    for index, entry in enumerate(entries):
+        tokens = entry.split()
+        if len(tokens) != 2 or not tokens[1].startswith('--interface='):
+            raise ConfigValidationError('SCAN_SUBNETS[%d] is invalid' % index)
+        target = tokens[0]
+        interface = tokens[1][len('--interface='):]
+        if '/' not in target or not _INTERFACE.match(interface):
+            raise ConfigValidationError('SCAN_SUBNETS[%d] is invalid' % index)
+        try:
+            network = ipaddress.ip_network(target, strict=False)
+        except ValueError:
+            raise ConfigValidationError('SCAN_SUBNETS[%d] is invalid' % index)
+        if network.version != 4:
+            raise ConfigValidationError('SCAN_SUBNETS[%d] must be an IPv4 network' % index)
+        identity = (network.with_prefixlen, interface)
+        if identity in seen:
+            raise ConfigValidationError('SCAN_SUBNETS contains duplicate entries')
+        seen.add(identity)
+        result.append(tokens)
+    return result
+
+
 def _literal(name, node):
     if name in ('DB_PATH', 'LOG_PATH'):
         suffix = {'DB_PATH': '/db/pialert.db', 'LOG_PATH': '/log'}[name]
@@ -193,13 +247,7 @@ def validate_values(values, expected_pialert_path=None):
             raise ConfigValidationError('DHCP_SERVER_ADDRESS is invalid')
     else:
         values['DHCP_SERVER_ADDRESS'] = require_string_list('DHCP_SERVER_ADDRESS', dhcp, _is_ip)
-    scan = values['SCAN_SUBNETS']
-    if type(scan) is str:
-        require_string('SCAN_SUBNETS', scan, False, 512)
-        if not scan.startswith('--'):
-            raise ConfigValidationError('SCAN_SUBNETS is invalid')
-    else:
-        values['SCAN_SUBNETS'] = require_string_list('SCAN_SUBNETS', scan)
+    build_arpscan_arguments(values['SCAN_SUBNETS'])
     if expected_pialert_path is not None and not _matches_expected_path(values['PIALERT_PATH'], expected_pialert_path):
         raise ConfigValidationError('PIALERT_PATH does not match this installation')
     values['DB_PATH'] = values['PIALERT_PATH'] + values['DB_PATH']
@@ -211,16 +259,26 @@ def validate_loaded_config(values, expected_pialert_path=None):
     return validate_values(dict(values), expected_pialert_path)
 
 
-def load_pialert_config(path, expected_pialert_path=None, maximum_size=262144, validate=True):
+def _read_utf8_file(path, maximum_size, label):
     try:
-        with open(path, 'r') as handle:
-            source = handle.read(maximum_size + 1)
+        with open(path, 'rb') as handle:
+            source_bytes = handle.read(maximum_size + 1)
     except OSError as exc:
-        raise ConfigValidationError('configuration file is not readable') from exc
-    if len(source) > maximum_size:
-        raise ConfigValidationError('configuration file is too large')
+        raise ConfigValidationError('%s file is not readable' % label) from exc
+    if len(source_bytes) > maximum_size:
+        raise ConfigValidationError('%s file is too large' % label)
     try:
-        tree = ast.parse(source, filename=path, mode='exec')
+        return source_bytes.decode('utf-8')
+    except UnicodeDecodeError as exc:
+        raise ConfigValidationError('%s file is not valid UTF-8' % label) from exc
+
+
+def load_pialert_config_source(source, path='<configuration>',
+                               expected_pialert_path=None, validate=True):
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', SyntaxWarning)
+            tree = ast.parse(source, filename=path, mode='exec')
     except SyntaxError as exc:
         raise ConfigValidationError('configuration file has invalid syntax') from exc
     values = {}
@@ -242,17 +300,20 @@ def load_pialert_config(path, expected_pialert_path=None, maximum_size=262144, v
     return values
 
 
+def load_pialert_config(path, expected_pialert_path=None,
+                        maximum_size=MAX_CONFIG_BYTES, validate=True):
+    source = _read_utf8_file(path, maximum_size, 'configuration')
+    return load_pialert_config_source(
+        source, path, expected_pialert_path, validate)
+
+
 def load_version_config(path, maximum_size=4096):
     """Load version metadata as literals without executing the file."""
+    source = _read_utf8_file(path, maximum_size, 'version')
     try:
-        with open(path, 'r') as handle:
-            source = handle.read(maximum_size + 1)
-    except OSError as exc:
-        raise ConfigValidationError('version file is not readable') from exc
-    if len(source) > maximum_size:
-        raise ConfigValidationError('version file is too large')
-    try:
-        tree = ast.parse(source, filename=path, mode='exec')
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', SyntaxWarning)
+            tree = ast.parse(source, filename=path, mode='exec')
     except SyntaxError as exc:
         raise ConfigValidationError('version file has invalid syntax') from exc
 

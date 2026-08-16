@@ -42,6 +42,29 @@ function get_service_details($service_URL) {
 	return $row;
 }
 
+// Translate monitor-generated notes while preserving unknown or legacy text.
+function localize_service_note($note) {
+	global $pia_lang;
+	$noteMap = array(
+		'Invalid service URL' => 'WEBS_Note_InvalidURL',
+		'DNS resolution failed' => 'WEBS_Note_DNSFailed',
+		'Connection failed' => 'WEBS_Note_ConnectionFailed',
+		'TLS connection failed' => 'WEBS_Note_TLSFailed',
+		'Blocked by network policy' => 'WEBS_Note_Blocked',
+		'Redirect loop detected' => 'WEBS_Note_RedirectLoop',
+		'Redirect limit exceeded' => 'WEBS_Note_RedirectLimit',
+		'Service check failed' => 'WEBS_Note_CheckFailed',
+	);
+	if (isset($noteMap[$note], $pia_lang[$noteMap[$note]])) {
+		return $pia_lang[$noteMap[$note]];
+	}
+	if (preg_match('/^Redirected by ([1-5][0-9]{2}) \(([0-9]+) redirects?\)$/D', $note, $matches) &&
+		isset($pia_lang['WEBS_Note_Redirected'])) {
+		return sprintf($pia_lang['WEBS_Note_Redirected'], $matches[1], (int)$matches[2]);
+	}
+	return $note;
+}
+
 // ----------------- Set Filter of fallback to default--------------------------
 $http_filter = $_GET['filter'];
 if (!isset($http_filter)) {$http_filter = 'all';}
@@ -99,6 +122,7 @@ function set_table_headline($service_filter) {
 }
 
 $servicedetails = get_service_details($service_details_title);
+$service_note_display = localize_service_note((string)($servicedetails['mon_Notes'] ?? ''));
 
 // ----------------- Get Online Graph Arrays -----------------------------------
 $graph_arrays = array();
@@ -374,7 +398,7 @@ while ($row = $dev_res->fetchArray()) {
                       <!-- Notes -->
                       <div class="form-group">
                         <label class="col-sm-3 control-label"><?=$pia_lang['WEBS_label_Notes'];?></label>
-                        <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=h($servicedetails['mon_Notes'])?>"></div>
+                        <div class="col-sm-9"><input class="form-control" id="txtNotes" type="text" readonly value="<?=h($service_note_display)?>"></div>
                       </div>
 
                     </div>

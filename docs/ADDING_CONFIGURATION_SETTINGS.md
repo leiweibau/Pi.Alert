@@ -1,199 +1,203 @@
 # Adding a Configuration Setting
 
 This document describes every code change required when adding a setting to
-`config/pialert.conf`. Pi.Alert configuration is Python syntax, but it is
-treated as untrusted input: it is parsed and validated without execution.
+`config/pialert.conf`. Pi.Alert configuration uses a deliberately restricted
+subset of Python syntax. It is always parsed as untrusted data and is never
+executed.
 
-Do not add a setting in only one place. A setting written by the web editor
-must be declared in the PHP allowlist, rendered in the configuration template,
-and accepted by the Python validator.
+The Python schema and validator in `back/config_validation.py` are the source
+of truth for both the backend and the raw WebEditor. The WebEditor must not
+maintain a second PHP type map or rebuild values with regular expressions.
 
 ## Checklist
 
-Use an uppercase name such as `EXAMPLE_SETTING`. For every new setting,
-complete the applicable steps below.
+Use an uppercase name such as `EXAMPLE_SETTING`. For every new setting:
 
-1. Add its default to both `config/pialert.conf` and the standalone
+1. Add its default to the installation configuration and to the standalone
    `config/pialert.example.conf`.
-2. Add a user-facing row to `docs/PIALERT_CONF.md` when users may configure it.
-3. Add the key and its type to `get_config_schema()` in
-   `front/php/server/files.php`.
-4. Add the rendered assignment to the `$config_template` in
-   `SaveConfigFile()` in the same PHP file.
-5. Add the key to the corresponding allowlist in
-   `back/config_validation.py`.
-6. Add or extend regression tests in `back/test_config_validation.py`.
-7. Run the validation and syntax checks listed at the end of this document.
+2. Add the same default to `DEFAULT_ASSIGNMENTS_SOURCE` in
+   `install/migrate_pialert_config.py`.
+3. Add a user-facing row to `docs/PIALERT_CONF.md` when users may configure it.
+4. Add the key to exactly one typed group in `back/config_validation.py`.
+5. Add bounds or a domain-specific value validator.
+6. If the setting is optional for old installations, add its safe default to
+   `OPTIONAL_DEFAULTS`.
+7. If it is a secret displayed by the WebEditor, add it to
+   `MASKED_SECRET_KEYS`.
+8. Add or extend regression tests in `back/test_config_validation.py` and,
+   when editor behavior is relevant, `back/test_config_editor.py`.
+9. Run all checks listed at the end of this document.
 
-The PHP and Python allowlists must always contain the same setting names and
-types. The Python validator rejects unknown keys, duplicate keys, missing
-required keys, invalid AST nodes, and invalid values.
+The example configuration must contain every key in `ALL_KEYS` exactly once.
+It is never read, modified, backed up, migrated, or deleted by the updater,
+backend, or WebGUI. Users may manually copy it to `pialert.conf`.
 
-The example must contain every key in `ALL_KEYS` exactly once, but it is never
-read by the updater, installer, backend, or WebGUI. It is a standalone file for
-users and can be copied to `pialert.conf` manually.
+The updater does not depend on section headings or key order. It preserves
+existing assignments and adds missing keys from its internal defaults.
+Deprecated settings are removed by exact assignment name, never by deleting a
+range between comment headings.
 
-The updater does not depend on section headings or setting order. It preserves
-every existing assignment and adds missing keys from the internal defaults in
-`install/migrate_pialert_config.py`. Add every new setting there as well.
-Deprecated keys are removed by their exact assignment name; never remove a
-range between two comment headings.
+## Supported Configuration Syntax
 
-## Choose the Correct Type
+The loader accepts comments, blank lines, and one assignment per known key.
+Values are limited to the types documented below. General expressions,
+function calls, imports, attribute access, comprehensions, dictionaries,
+tuples, f-strings, and string concatenation are rejected.
+
+The complete file is limited to 524,288 bytes (512 KiB), measured before UTF-8
+decoding. Invalid UTF-8 is rejected.
 
 ### Boolean
 
-Use a boolean only for a true/false setting.
+Use a boolean only for a true/false setting:
 
 ```python
 EXAMPLE_ENABLED = False
 ```
 
-* PHP: add the key to the `bool` group in `get_config_schema()`.
-* PHP template: render it with `convert_bool(...)`.
-* Python: add it to `BOOLEAN_KEYS`.
-
-Do not accept `1`, `0`, `yes`, `no`, strings, or arbitrary Python
-expressions. Only Python `True` and `False` are valid.
+Add the key to `BOOLEAN_KEYS`. Only the Python literals `True` and `False`
+are valid. Do not accept numbers or strings such as `1`, `0`, `yes`, or
+`no`.
 
 ### Integer
 
-Use an integer for counters, limits, durations, and ports.
+Use an integer for counters, limits, durations, and ports:
 
 ```python
 EXAMPLE_PORT = 1234
 ```
 
-* PHP: add the key to the `int` group.
-* PHP template: emit only the validated decimal integer, never quote it.
-* Python: add `'EXAMPLE_PORT': (minimum, maximum)` to `INTEGER_RULES`.
-
-Select meaningful bounds. Ports must use `1..65535`; an integer setting must
-not accidentally accept booleans, floats, exponent notation, or hexadecimal
-values.
+Add the key and meaningful inclusive bounds to `INTEGER_RULES`. Ports use
+`1..65535`. The validator must not accidentally accept booleans, floats,
+exponent notation, or hexadecimal notation.
 
 ### String
 
-Use a string for text, paths, host names, URLs, identifiers, and secrets.
+Use a string for text, paths, host names, URLs, identifiers, and secrets:
 
 ```python
 EXAMPLE_SERVER = 'example.invalid'
 ```
 
-* PHP: add the key to the `string` group.
-* PHP template: quote the value as a Python string literal and escape it with
-  `escape_python_config_string()`; never concatenate an unescaped request
-  value into the template.
-* Python: add the key to `STRING_KEYS`.
+Add the key to `STRING_KEYS` and add narrower length or content checks where
+the domain requires them. Strings may not contain NUL bytes or line breaks.
+Do not trim, case-normalize, or otherwise transform opaque secrets.
 
-Strings must not introduce a new Python statement. The Python validator
-rejects NUL bytes and line breaks. Do not trim, case-normalize, whitelist
-characters, or otherwise transform secrets such as passwords, API keys, and
-tokens.
+The WebEditor preserves a valid string literal as data. Quotes, backslashes,
+commas, equal signs, hash characters, and Unicode must survive a complete
+editor save/load round trip with the same runtime value.
 
 ### List of strings
 
-Use a list only when the setting is genuinely a collection.
+Use a list only for a genuine collection:
 
 ```python
-EXAMPLE_IGNORE_LIST = ['one', 'two']
+EXAMPLE_LIST = ['one', 'two']
 ```
 
-* PHP: add the key to the `list` group and parse every item as data, not as
-  a Python expression.
-* PHP template: serialize every item as a separately quoted Python string.
-* Python: add the key to `LIST_KEYS`.
-* Python: add a dedicated item validator in `validate_values()` when items
-  have a domain-specific format, for example MAC addresses, IP addresses, or
-  interface names.
-
-Never accept a prebuilt Python list from the request. Enforce item count and
-item length limits.
+Add the key to `LIST_KEYS`. Use `require_string_list()` and provide a
+specific item validator for domain formats such as IP addresses, MAC addresses,
+Telegram destinations, or interface names. Enforce item-count and item-length
+limits. Every element remains an independent string; a comma inside an element
+must never be treated as a separator by PHP.
 
 ### Special syntax
 
-Only use `SPECIAL_KEYS` when a setting needs a deliberately restricted
-syntax, such as `DHCP_SERVER_ADDRESS` or `SCAN_SUBNETS`. Implement matching
-PHP parsing/rendering and Python AST/type validation together. Do not allow
-arbitrary expressions as a shortcut.
+Use `SPECIAL_KEYS` only when a setting intentionally accepts more than one
+type or has a restricted grammar. Examples are `DHCP_SERVER_ADDRESS` and
+`SCAN_SUBNETS`.
 
-The only currently allowed non-literal expressions are the exact compatibility
-expressions for `DB_PATH` and `LOG_PATH`. New compatibility expressions
-require an explicit, narrowly scoped AST check in `_literal()`.
+Implement the grammar once in `back/config_validation.py` and reuse the same
+parser or argument builder at runtime. The WebEditor invokes this validator and
+therefore does not need matching PHP parsing code.
 
-## Required PHP Changes
+The only allowed non-literal expressions are the exact compatibility
+expressions for `DB_PATH` and `LOG_PATH`. Any new compatibility expression
+requires a narrowly scoped AST check in `_literal()`.
 
-`front/php/server/files.php` is the web editor's configuration write path.
+Duplicate keys are normally invalid. The sole editor-side compatibility
+exception is `SCAN_SUBNETS`: if the submitted editor text contains several
+active assignments, `back/config_editor.py` keeps the last semantically valid
+assignment from that submitted text and removes the others before normal
+validation. It must never take this value from the pre-save backup. Do not
+copy or generalize this exception for new settings.
 
-1. Add the setting to `get_config_schema()` with the correct type. Required
-   settings must be present in a saved editor document. If a setting must be
-   optional for old installations, set `required` to `false`, provide a
-   safe default, and add the same default to Python's `OPTIONAL_DEFAULTS`.
-2. Add one assignment to `$config_template`, placed in the appropriate
-   section. Keep the generated file valid Python syntax.
-3. Do not bypass `validate_and_replace_pialert_config()`. It writes a
-   temporary file, invokes the AST validator, creates a backup, and atomically
-   replaces the active configuration only after validation succeeds.
-4. If a dedicated endpoint modifies this setting, route it through the same
-   helper. Do not use `file_put_contents(... pialert.conf ...)` directly.
-5. Preserve masked secret values exactly as the existing secret handling does;
-   do not log the value or include it in an HTTP error.
+## WebEditor and Atomic Storage
 
-The raw configuration editor is intentionally protected by
-`assert_config_editor_keys()`. Adding a key to the template without adding it
-to the schema makes editor saves fail.
+`front/php/server/config_file.php` contains the shared PHP filesystem and
+editor helpers. `front/php/server/files.php` only coordinates the authenticated
+request.
 
-## Required Python Changes
+A normal new setting requires no PHP schema or output-template change. The
+editor submits the complete file to `back/config_editor.py`, which uses the
+same non-executing parser as the backend. Do not reintroduce `parse_ini_string()`,
+line-oriented value regular expressions, comma splitting, or a PHP
+configuration template.
 
-`back/config_validation.py` is the source of truth for safe loading.
+Every configuration write must use
+`validate_and_replace_pialert_config()`. It validates a temporary candidate
+and atomically replaces the active file. Dedicated endpoints that modify one
+setting must use the same helper rather than writing `pialert.conf` directly.
 
-1. Add the key to exactly one of `BOOLEAN_KEYS`, `INTEGER_RULES`,
-   `STRING_KEYS`, `LIST_KEYS`, or `SPECIAL_KEYS`.
-2. Add type-specific bounds or item validation in `validate_values()`.
-3. If the setting is optional, add its safe default to `OPTIONAL_DEFAULTS`.
-4. Do not add it to `ALL_KEYS` manually; that set is composed from the
-   typed allowlists.
+The raw editor save has an additional mandatory sequence:
 
-The independent entry points `back/pialert.py`,
-`back/pialert_reporting_test.py`, and `back/pialert_tools.py` already use
-the shared loader. No per-script validation code is normally needed for a new
-generic setting.
+1. acquire the configuration write lock;
+2. create and verify a byte-identical backup of the current
+   `pialert.conf` as `pialert-prev.bak`, replacing an existing backup;
+3. abort without changing the active file if any backup step fails;
+4. restore unchanged masked secrets only from that newly created backup;
+5. validate the complete candidate with the shared Python validator;
+6. atomically replace the active file while still holding the same lock.
 
-If a setting is a secret used by `pialert.py` or
-`pialert_reporting_test.py`, keep the existing order intact:
+A stale backup must never be used as a fallback for masked values.
 
-1. structurally load the configuration;
-2. run `recover_sensitive_config_values()`;
-3. call `validate_loaded_config()`.
+## Secrets
 
-Only add a secret name to an existing recovery list when it requires the same
-legacy backslash compatibility. Secrets are opaque strings: do not trim,
-normalize, or print them.
+Add every secret shown by the WebEditor to `MASKED_SECRET_KEYS` in
+`back/config_validation.py`. The mask shown in the browser is not a valid
+replacement secret. When the submitted value exactly matches the mask derived
+from the newly verified backup, `back/config_editor.py` restores the real
+value before validation and storage.
+
+New secret values are serialized as Python string data. Neither real values nor
+masks may appear in HTTP errors, journals, server logs, test output, or diffs.
+
+If a secret is consumed by `pialert.py` or `pialert_reporting_test.py` and
+requires the legacy opaque-backslash compatibility layer, add it to the
+corresponding runtime recovery list. Preserve this order:
+
+1. structurally parse the configuration;
+2. recover the legacy opaque value;
+3. run typed validation.
 
 ## Tests
 
-Extend `back/test_config_validation.py` with at least:
+For every new setting, add at least:
 
-* one valid configuration case containing the new setting;
-* invalid type cases;
-* invalid range cases for integers;
-* invalid item cases for lists;
-* an AST payload such as a function call instead of a literal;
-* a default-value case when the setting is optional.
+- a valid value;
+- invalid type cases;
+- invalid range or length cases;
+- invalid list-item cases where applicable;
+- an AST payload such as a function call;
+- an optional-default case when applicable;
+- a WebEditor round trip when the value can be changed there;
+- masked-secret retention and replacement cases for secrets.
 
-Run these checks from the Pi.Alert root:
+Run from the Pi.Alert root:
 
 ```bash
+php -l front/php/server/config_file.php
 php -l front/php/server/files.php
-python3 -m py_compile back/config_validation.py back/validate_pialert_config.py
-python3 -m unittest back/test_config_validation.py
-python3 back/validate_pialert_config.py \\
+python3 -m py_compile \
+  back/config_validation.py back/config_editor.py back/validate_pialert_config.py
+python3 -m unittest back/test_config_validation.py back/test_config_editor.py
+php tests/php/test_config_editor_roundtrip.php
+python3 back/validate_pialert_config.py \
   config/pialert.conf --expected-pialert-path /opt/pialert
-python3 back/validate_pialert_config.py \\
+python3 back/validate_pialert_config.py \
   config/pialert.example.conf --expected-pialert-path /opt/pialert
 ```
 
-Finally, save a harmless value through the web editor and confirm that the
-generated `config/pialert.conf` contains the expected Python literal. Never
-use production secrets in tests or paste them into logs, issue reports, or
-diffs.
+Automated editor tests must use temporary files and must never modify the
+active `config/pialert.conf`. Never use production secrets in fixtures or
+paste them into logs, issue reports, or diffs.

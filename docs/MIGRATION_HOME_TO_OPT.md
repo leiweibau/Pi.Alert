@@ -1,5 +1,35 @@
 ## Pi.Alert Migration / Reinstallation Guide
 
+### Automated move without reinstallation
+
+The supplied `install/pialert_migrate_home_to_opt.sh` script can move an
+existing `$HOME/pialert` installation directly to `/opt/pialert`. It does not
+download, update, uninstall, or reinstall Pi.Alert. Run it from the existing
+installation after pausing Pi.Alert and confirming that no scan is active:
+
+```
+sudo bash "$HOME/pialert/install/pialert_migrate_home_to_opt.sh"
+```
+
+The script creates a complete timestamped backup under `/opt`, moves the full
+installation directory, updates `PIALERT_PATH`, adjusts existing Pi.Alert path
+references in crontabs, sudoers files, and shell completion, and recreates the
+`/var/www/html/pialert` WebRoot symlink. For older installations, existing log
+symlinks under `front/php/server` are detected and recreated with their new
+targets. The script refuses to overwrite an existing `/opt/pialert` directory
+or a non-symlink WebRoot entry. Pi.Alert remains paused afterwards and must be
+verified and resumed through the WebGUI.
+
+For a source directory other than `$HOME/pialert`, use:
+
+```
+sudo PIALERT_HOME_OVERRIDE=/path/to/pialert \
+  bash /path/to/pialert/install/pialert_migrate_home_to_opt.sh
+```
+
+The manual reinstallation procedure below remains available as an alternative.
+
+### Manual reinstallation
 
 1. Pause Pi.Alert via the web interface:
 

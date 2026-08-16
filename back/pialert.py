@@ -26,11 +26,11 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, load_version_config, validate_loaded_config
-from service_url_policy import ServiceUrlError, fetch_service_url, get_service_certificate
+from config_validation import ALL_KEYS, ConfigValidationError, build_arpscan_arguments, load_pialert_config, load_version_config, validate_loaded_config
+from service_url_policy import check_service_url, service_result_diagnostic, service_url_for_log
 from telegram_notification import send_telegram_message
 from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion, MQTT_ERR_SUCCESS
-import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading, http.client
+import hashlib, sys, subprocess, os, re, datetime, sqlite3, socket, io, smtplib, csv, requests, time, pwd, glob, ipaddress, ssl, json, tzlocal, asyncio, aiohttp, threading
 
 #===============================================================================
 # CONFIG CONSTANTS
@@ -1285,16 +1285,11 @@ def execute_arpscan():
 
     # output of possible multiple interfaces
     arpscan_output = ""
-
-    # multiple interfaces
-    if type(SCAN_SUBNETS) is list:
-        print("        ...arp-scan: Multiple interfaces")
-        for interface in SCAN_SUBNETS :
-            arpscan_output += execute_arpscan_on_interface (interface)
-    # one interface only
-    else:
-        print("        ...arp-scan: One interface")
-        arpscan_output += execute_arpscan_on_interface (SCAN_SUBNETS)
+    scan_arguments = build_arpscan_arguments(SCAN_SUBNETS)
+    print("        ...arp-scan: {} interface configuration(s)".format(
+        len(scan_arguments)))
+    for arguments in scan_arguments:
+        arpscan_output += execute_arpscan_on_interface(arguments)
 
     # Search IP + MAC + Vendor as regular expresion
     re_ip = r'(?P<ip>((2[0-5]|1[0-9]|[0-9])?[0-9]\.){3}((2[0-5]|1[0-9]|[0-9])?[0-9]))'
@@ -1318,9 +1313,9 @@ def execute_arpscan():
     return unique_devices
 
 #-------------------------------------------------------------------------------
-def execute_arpscan_on_interface(SCAN_SUBNETS):
-    # Prepare command arguments
-    subnets = SCAN_SUBNETS.strip().split()
+def execute_arpscan_on_interface(scan_arguments):
+    # scan_arguments is already a validated argv fragment.
+    subnets = list(scan_arguments)
     # Retry is 6 to avoid false offline devices
     arpscan_args = ['sudo', 'arp-scan', '--ignoredups', '--bandwidth=256k', '--retry=6'] + subnets
 
@@ -4580,7 +4575,7 @@ def rogue_dhcp_notification():
 #===============================================================================
 # Services Monitoring
 #===============================================================================
-def set_service_update(_mon_URL, _mon_lastScan, _mon_lastStatus, _mon_lastLatence, _mon_TargetIP, _mon_Redirect, _mon_ssl_info, _mon_ssl_fc):
+def set_service_update(_mon_URL, _mon_lastScan, _mon_lastStatus, _mon_lastLatence, _mon_TargetIP, _mon_Note, _mon_ssl_info, _mon_ssl_fc):
 
     # SSL Info change
     if len(_mon_ssl_info) == 4 :
@@ -4596,16 +4591,9 @@ def set_service_update(_mon_URL, _mon_lastScan, _mon_lastStatus, _mon_lastLatenc
 
     ssl_fc = str(_mon_ssl_fc)
 
-    if isinstance(_mon_Redirect, str) and _mon_Redirect.startswith("Blocked: "):
-        _mon_Redirect_Text = _mon_Redirect
-    elif _mon_Redirect != 200 and _mon_lastStatus == 200:
-        _mon_Redirect_Text = "Redirected by " + str(_mon_Redirect)
-    else:
-        _mon_Redirect_Text = ""
-
     sqlite_insert = """UPDATE Services SET mon_LastScan=?, mon_LastStatus=?, mon_LastLatency=?, mon_TargetIP=?, mon_Notes=?, mon_ssl_subject=?, mon_ssl_issuer=?, mon_ssl_valid_from=?, mon_ssl_valid_to=?, mon_ssl_fc=? WHERE mon_URL=?;"""
 
-    table_data = (_mon_lastScan, _mon_lastStatus, _mon_lastLatence, _mon_TargetIP, _mon_Redirect_Text, _mon_ssl_subject, _mon_ssl_issuer, _mon_ssl_valid_from, _mon_ssl_valid_to, ssl_fc, _mon_URL)
+    table_data = (_mon_lastScan, _mon_lastStatus, _mon_lastLatence, _mon_TargetIP, _mon_Note, _mon_ssl_subject, _mon_ssl_issuer, _mon_ssl_valid_from, _mon_ssl_valid_to, ssl_fc, _mon_URL)
     sql.execute(sqlite_insert, table_data)
     sql_connection.commit()
 
@@ -4795,7 +4783,7 @@ def set_services_current_scan(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Lat
     set_services_events(_cur_URL, _cur_DateTime, _cur_StatusCode, _cur_Latency, _cur_TargetIP, _cur_ssl_fc)
     
 # -----------------------------------------------------------------------------
-def service_monitoring_log(site, status, latency):
+def service_monitoring_log(site, status, latency, diagnostic=''):
     status_str = str(status)
 
     # Log status message to log file
@@ -4803,35 +4791,28 @@ def service_monitoring_log(site, status, latency):
         monitor_logfile.write("{} |        {} |     {} | {}\n".format(strftime("%Y-%m-%d %H:%M:%S"),
                                 status_str.zfill(3), latency, site)
         )
+        if diagnostic:
+            monitor_logfile.write("    {}\n".format(diagnostic))
 
 # -----------------------------------------------------------------------------
 SERVICE_FETCH_RESULTS = {}
-SERVICE_POLICY_FAILURES = {}
+SERVICE_RETRYABLE_ERRORS = frozenset((
+    'dns_error', 'connection_error', 'tls_error'
+))
 
 def check_services_health(site):
-    try:
-        result = fetch_service_url(site)
-        SERVICE_FETCH_RESULTS[site] = result
-        SERVICE_POLICY_FAILURES.pop(site, None)
-        return result["status"], result["latency"]
-    except ServiceUrlError as exc:
-        SERVICE_FETCH_RESULTS.pop(site, None)
-        SERVICE_POLICY_FAILURES[site] = "Blocked: {}".format(exc)
-        return 0, "99999999"
-    except (OSError, http.client.HTTPException, ssl.SSLError, ValueError):
-        SERVICE_FETCH_RESULTS.pop(site, None)
-        SERVICE_POLICY_FAILURES.pop(site, None)
-        return 0, "99999999"
+    result = check_service_url(site)
+    SERVICE_FETCH_RESULTS[site] = result
+    return result["status"], result["latency"]
 
 # -----------------------------------------------------------------------------
-def check_services_redirect(site):
-    result = SERVICE_FETCH_RESULTS.get(site)
-    return result["initial_status"] if result else 0
+def service_check_is_retryable(site):
+    result = SERVICE_FETCH_RESULTS.get(site, {})
+    return result.get('error_code', '') in SERVICE_RETRYABLE_ERRORS
 
 # -----------------------------------------------------------------------------
-def get_ssl_cert_info(url, timeout=10):
+def get_ssl_cert_info(cert_data):
     try:
-        cert_data = get_service_certificate(url, timeout)
         if not cert_data:
             return ""
         cert = x509.load_der_x509_certificate(cert_data, default_backend())
@@ -4847,7 +4828,7 @@ def get_ssl_cert_info(url, timeout=10):
         else:
             ssl_info["Valid_to"] = str(cert.not_valid_after)
         return ssl_info
-    except (ServiceUrlError, OSError, ssl.SSLError, ValueError):
+    except (OSError, ssl.SSLError, ValueError):
         return ""
 # -----------------------------------------------------------------------------
 def get_services_list():
@@ -5082,30 +5063,26 @@ def service_monitoring():
         for site in sites:
             status, latency = check_services_health(site)
             site_retry = ''
-            if latency == "99999999" and site not in SERVICE_POLICY_FAILURES:
+            if latency == "99999999" and service_check_is_retryable(site):
                 # 2. Attempt in case of error in the first run
                 status, latency = check_services_health(site)
                 site_retry = '*'
-                if latency == "99999999" and site not in SERVICE_POLICY_FAILURES:
+                if latency == "99999999" and service_check_is_retryable(site):
                     # 3. Attempt in case of error in the second run
                     status, latency = check_services_health(site)
                     site_retry = '**'
 
-            # Hole IP aus der Domain
-            if latency != "99999999":
-                redirect_state = check_services_redirect(site)
-                domain_ip = SERVICE_FETCH_RESULTS[site]["target_ip"]
-                # Hole SSL-Informationen
-                ssl_info = get_ssl_cert_info(site)
-            else:
-                domain_ip = ""
-                redirect_state = SERVICE_POLICY_FAILURES.get(site, "")
-                ssl_info = ""
+            result = SERVICE_FETCH_RESULTS[site]
+            domain_ip = result.get("target_ip", "")
+            service_note = result.get("note", "")
+            ssl_info = get_ssl_cert_info(result.get("certificate"))
+            diagnostic = service_result_diagnostic(result) if result.get('error_code') else ''
 
             # Speicherung der Ergebnisse in Listen/Dictionaries
-            results_log.append((site + ' ' + site_retry, status, latency))
+            results_log.append((service_url_for_log(site) + ' ' + site_retry,
+                                status, latency, diagnostic))
             scan_data.append((site, scantime, status, latency, domain_ip, ssl_info))
-            update_data.append((site, scantime, status, latency, domain_ip, redirect_state, ssl_info, ""))
+            update_data.append((site, scantime, status, latency, domain_ip, service_note, ssl_info, ""))
 
         # OpenDB to save Scan Results
         openDB()
