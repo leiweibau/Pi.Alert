@@ -2,12 +2,14 @@
 import ast
 import contextlib
 import io
+import os
 import re
 import sys
 import tempfile
 import warnings
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'install'))
@@ -17,6 +19,7 @@ from config_validation import (
     ConfigValidationError,
     build_arpscan_arguments,
     load_pialert_config,
+    load_pialert_config_source,
     load_version_config,
     require_bool,
     validate_loaded_config,
@@ -90,6 +93,11 @@ class ConfigValidationTests(unittest.TestCase):
         self.assertEqual(set(values), set(ALL_KEYS))
         self.assertFalse(values['PIALERT_WEB_PROTECTION'])
         self.assertFalse(values['REPORT_MAIL'])
+        self.assertTrue(values['OPENWRT_SSL'])
+        self.assertEqual(values['OPENWRT_PORT'], 443)
+        self.assertEqual(values['PUSHOVER_RETRY'], 60)
+        self.assertEqual(values['PUSHOVER_EXPIRE'], 3600)
+        self.assertFalse(values['PUBLISH_MQTT_SUBNET_STATUS'])
         self.assertNotIn('SHOUTRRR_BINARY', EXAMPLE_CONFIG.read_text())
 
         # Its validity must not depend on the special example filename.
@@ -134,6 +142,34 @@ class ConfigValidationTests(unittest.TestCase):
             self.assertNotIn('SHOUTRRR_BINARY', migrated_source)
             self.assertEqual(candidate.stat().st_mode & 0o777, 0o640)
 
+    def test_update_migration_preserves_owner_and_group_on_atomic_replace(self):
+        source = EXAMPLE_CONFIG.read_text()
+        source, count = re.subn(
+            r'^PUBLISH_MQTT_SUBNET_STATUS\s*=.*\n?', '', source,
+            count=1, flags=re.MULTILINE)
+        self.assertEqual(count, 1)
+
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(source)
+            original_stat = candidate.stat()
+            real_chown = os.chown
+
+            with mock.patch(
+                    'migrate_pialert_config.os.chown',
+                    side_effect=real_chown) as chown:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    migrate_config(str(candidate), str(ROOT))
+
+            chown.assert_called_once()
+            self.assertEqual(
+                chown.call_args.args[1:],
+                (original_stat.st_uid, original_stat.st_gid))
+            migrated_stat = candidate.stat()
+            self.assertEqual(
+                (migrated_stat.st_uid, migrated_stat.st_gid),
+                (original_stat.st_uid, original_stat.st_gid))
+
     def test_failed_update_migration_does_not_replace_configuration(self):
         source = EXAMPLE_CONFIG.read_text() + '\nUNSUPPORTED_SETTING = True\n'
         with tempfile.TemporaryDirectory() as directory:
@@ -176,7 +212,90 @@ class ConfigValidationTests(unittest.TestCase):
         self.assertNotIn("<' + SMTP_USER + '>", php_source)
 
     def test_update_migration_defaults_cover_the_complete_schema(self):
-        self.assertEqual(set(default_assignment_lines()), set(ALL_KEYS))
+        defaults = default_assignment_lines()
+        self.assertEqual(set(defaults), set(ALL_KEYS))
+        self.assertEqual(defaults['OPENWRT_SSL'], 'OPENWRT_SSL = False')
+        self.assertEqual(defaults['OPENWRT_PORT'], 'OPENWRT_PORT = 80')
+        install_defaults = default_assignment_lines(new_install=True)
+        self.assertEqual(
+            install_defaults['OPENWRT_SSL'], 'OPENWRT_SSL = True')
+        self.assertEqual(
+            install_defaults['OPENWRT_PORT'], 'OPENWRT_PORT = 443')
+
+    def test_installer_selects_new_openwrt_defaults_without_using_example(self):
+        installer = (ROOT / 'install' / 'pialert_install.sh').read_text()
+        updater = (ROOT / 'install' / 'pialert_update.sh').read_text()
+        self.assertIn('--new-install', installer)
+        self.assertNotIn('--new-install', updater)
+        self.assertNotIn('pialert.example.conf', installer)
+
+    def test_update_adds_compatible_openwrt_and_pushover_defaults(self):
+        source = EXAMPLE_CONFIG.read_text()
+        for key in ('OPENWRT_SSL', 'OPENWRT_PORT', 'PUSHOVER_RETRY',
+                    'PUSHOVER_EXPIRE', 'PUBLISH_MQTT_SUBNET_STATUS'):
+            source, count = re.subn(
+                r'^' + key + r'\s*=.*\n?', '', source,
+                count=1, flags=re.MULTILINE)
+            self.assertEqual(count, 1)
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(source)
+            with contextlib.redirect_stdout(io.StringIO()):
+                migrate_config(str(candidate), str(ROOT))
+            values = load_pialert_config(str(candidate), str(ROOT))
+        self.assertFalse(values['OPENWRT_SSL'])
+        self.assertEqual(values['OPENWRT_PORT'], 80)
+        self.assertEqual(values['PUSHOVER_RETRY'], 60)
+        self.assertEqual(values['PUSHOVER_EXPIRE'], 3600)
+        self.assertFalse(values['PUBLISH_MQTT_SUBNET_STATUS'])
+
+    def test_new_install_adds_https_openwrt_defaults(self):
+        source = EXAMPLE_CONFIG.read_text()
+        for key in ('OPENWRT_SSL', 'OPENWRT_PORT'):
+            source = re.sub(
+                r'^' + key + r'\s*=.*\n?', '', source,
+                count=1, flags=re.MULTILINE)
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(source)
+            with contextlib.redirect_stdout(io.StringIO()):
+                migrate_config(str(candidate), str(ROOT), new_install=True)
+            values = load_pialert_config(str(candidate), str(ROOT))
+        self.assertTrue(values['OPENWRT_SSL'])
+        self.assertEqual(values['OPENWRT_PORT'], 443)
+
+    def test_migration_accepts_existing_negative_pushover_priority(self):
+        source = re.sub(
+            r'^PUSHOVER_PRIO\s*=.*$', 'PUSHOVER_PRIO = -2',
+            EXAMPLE_CONFIG.read_text(), count=1, flags=re.MULTILINE)
+        for key in ('PUSHOVER_RETRY', 'PUSHOVER_EXPIRE'):
+            source = re.sub(
+                r'^' + key + r'\s*=.*\n?', '', source,
+                count=1, flags=re.MULTILINE)
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(source)
+            with contextlib.redirect_stdout(io.StringIO()):
+                migrate_config(str(candidate), str(ROOT))
+            values = load_pialert_config(str(candidate), str(ROOT))
+        self.assertEqual(values['PUSHOVER_PRIO'], -2)
+        self.assertEqual(values['PUSHOVER_RETRY'], 60)
+        self.assertEqual(values['PUSHOVER_EXPIRE'], 3600)
+
+    def test_legacy_configs_receive_optional_runtime_defaults(self):
+        source = EXAMPLE_CONFIG.read_text()
+        for key in ('OPENWRT_SSL', 'OPENWRT_PORT', 'PUSHOVER_RETRY',
+                    'PUSHOVER_EXPIRE', 'PUBLISH_MQTT_SUBNET_STATUS'):
+            source = re.sub(
+                r'^' + key + r'\s*=.*\n?', '', source,
+                count=1, flags=re.MULTILINE)
+        values = load_pialert_config_source(
+            source, expected_pialert_path=str(ROOT))
+        self.assertFalse(values['OPENWRT_SSL'])
+        self.assertEqual(values['OPENWRT_PORT'], 80)
+        self.assertEqual(values['PUSHOVER_RETRY'], 60)
+        self.assertEqual(values['PUSHOVER_EXPIRE'], 3600)
+        self.assertFalse(values['PUBLISH_MQTT_SUBNET_STATUS'])
 
     def test_update_script_uses_key_based_config_migration(self):
         source = (ROOT / 'install' / 'pialert_update.sh').read_text()
@@ -236,6 +355,68 @@ class ConfigValidationTests(unittest.TestCase):
             with self.assertRaises(ConfigValidationError):
                 require_string_list('TEST', value)
 
+    def test_negative_notification_priorities_reach_range_validation(self):
+        source = EXAMPLE_CONFIG.read_text()
+        for key in ('PUSHOVER_PRIO', 'PUSHSAFER_PRIO'):
+            for value in range(-2, 3):
+                candidate = re.sub(
+                    r'^' + key + r'\s*=.*$', '{} = {}'.format(key, value),
+                    source, count=1, flags=re.MULTILINE)
+                values = load_pialert_config_source(
+                    candidate, expected_pialert_path=str(ROOT))
+                self.assertEqual(values[key], value)
+            for value in (-3, 3):
+                candidate = re.sub(
+                    r'^' + key + r'\s*=.*$', '{} = {}'.format(key, value),
+                    source, count=1, flags=re.MULTILINE)
+                with self.assertRaises(ConfigValidationError):
+                    load_pialert_config_source(
+                        candidate, expected_pialert_path=str(ROOT))
+
+    def test_negative_integer_parser_remains_expression_free(self):
+        source = EXAMPLE_CONFIG.read_text()
+        for literal in ('-True', '--2', '-(1 + 1)', '-2.0', '+2'):
+            candidate = re.sub(
+                r'^PUSHOVER_PRIO\s*=.*$',
+                'PUSHOVER_PRIO = ' + literal, source,
+                count=1, flags=re.MULTILINE)
+            with self.assertRaises(ConfigValidationError):
+                load_pialert_config_source(candidate)
+        candidate = re.sub(
+            r'^REPORT_FROM\s*=.*$', 'REPORT_FROM = -2', source,
+            count=1, flags=re.MULTILINE)
+        with self.assertRaises(ConfigValidationError):
+            load_pialert_config_source(candidate)
+
+    def test_pushover_emergency_timing_is_cross_validated(self):
+        source = EXAMPLE_CONFIG.read_text()
+        source = re.sub(
+            r'^PUSHOVER_RETRY\s*=.*$', 'PUSHOVER_RETRY = 120', source,
+            count=1, flags=re.MULTILINE)
+        source = re.sub(
+            r'^PUSHOVER_EXPIRE\s*=.*$', 'PUSHOVER_EXPIRE = 60', source,
+            count=1, flags=re.MULTILINE)
+        with self.assertRaises(ConfigValidationError):
+            load_pialert_config_source(source)
+
+    def test_openwrt_host_rejects_schemes_and_embedded_ports(self):
+        source = EXAMPLE_CONFIG.read_text()
+        for host in ('router.lan', 'router_local', '192.168.1.1',
+                     '2001:db8::1'):
+            candidate = re.sub(
+                r'^OPENWRT_IP\s*=.*$', 'OPENWRT_IP = {!r}'.format(host),
+                source, count=1, flags=re.MULTILINE)
+            values = load_pialert_config_source(candidate)
+            self.assertEqual(values['OPENWRT_IP'], host)
+        for host in ('', 'https://router.lan', 'router.lan:443',
+                     'user@router.lan', 'router/luci', 'router..lan',
+                     ('a' * 64) + '.lan'):
+            candidate = re.sub(
+                r'^OPENWRT_IP\s*=.*$', 'OPENWRT_IP = {!r}'.format(host),
+                source, count=1, flags=re.MULTILINE)
+            with self.assertRaises(ConfigValidationError):
+                load_pialert_config_source(candidate)
+
     def test_scan_subnets_accepts_all_documented_forms_and_interface_names(self):
         valid = (
             ('--localnet', [['--localnet']]),
@@ -290,6 +471,26 @@ class ConfigValidationTests(unittest.TestCase):
             build_arpscan_arguments([at_limit]), [[target, interface]])
         with self.assertRaises(ConfigValidationError):
             build_arpscan_arguments([at_limit + ' '])
+
+    def test_arpscan_runtime_uses_validated_argv_without_shell(self):
+        source = (ROOT / 'back' / 'pialert.py').read_text()
+        tree = ast.parse(source)
+        function = next(
+            node for node in tree.body
+            if isinstance(node, ast.FunctionDef) and
+            node.name == 'execute_arpscan_on_interface')
+        segment = ast.get_source_segment(source, function)
+        self.assertIn("+ subnets", segment)
+        self.assertIn('subprocess.check_output', segment)
+        self.assertNotIn('shell=True', segment)
+        self.assertEqual(
+            build_arpscan_arguments([
+                '192.168.68.0/24 --interface=eth0.68',
+                '192.168.123.0/24 --interface=eth0:1',
+            ]), [
+                ['192.168.68.0/24', '--interface=eth0.68'],
+                ['192.168.123.0/24', '--interface=eth0:1'],
+            ])
 
     def test_configuration_size_limit_is_measured_in_utf8_bytes(self):
         source = EXAMPLE_CONFIG.read_bytes()
@@ -352,19 +553,14 @@ class ConfigValidationTests(unittest.TestCase):
             handle.write(candidate)
             path = handle.name
         try:
-            values = load_pialert_config(path, str(ROOT), validate=False)
+            values = load_pialert_config(path, str(ROOT))
+            self.assertEqual(values['SMTP_PASS'], r'line\ntext')
+            validator_source = (ROOT / 'back' / 'config_validation.py').read_text()
+            self.assertIn('_recover_legacy_secret_value', validator_source)
             for script in ('pialert.py', 'pialert_reporting_test.py'):
-                tree = ast.parse((ROOT / 'back' / script).read_text())
-                function = next(node for node in tree.body
-                                if isinstance(node, ast.FunctionDef) and
-                                node.name == 'recover_sensitive_config_values')
-                namespace = {'re': re}
-                namespace.update(values)
-                exec(compile(ast.Module(body=[function], type_ignores=[]), script, 'exec'), namespace)
-                namespace['recover_sensitive_config_values'](path, ['SMTP_PASS'])
-                validated = validate_loaded_config(
-                    {name: namespace[name] for name in values}, str(ROOT))
-                self.assertEqual(validated['SMTP_PASS'], r'line\ntext')
+                script_source = (ROOT / 'back' / script).read_text()
+                self.assertNotIn('recover_sensitive_config_values', script_source)
+                self.assertNotIn('validate=False', script_source)
         finally:
             Path(path).unlink()
 
@@ -383,6 +579,61 @@ class ConfigValidationTests(unittest.TestCase):
                     load_pialert_config(path, str(ROOT))
             finally:
                 Path(path).unlink()
+
+    def test_all_python_consumers_use_the_shared_validating_loader(self):
+        for script in ('pialert.py', 'pialert_reporting_test.py',
+                       'pialert_tools.py', 'validate_pialert_config.py'):
+            source = (ROOT / 'back' / script).read_text()
+            self.assertIn('load_pialert_config(', source)
+            self.assertNotIn('execfile(', source)
+            self.assertNotRegex(
+                source, r'load_pialert_config\([^)]*validate\s*=\s*False')
+        editor = (ROOT / 'back' / 'config_editor.py').read_text()
+        migration = (ROOT / 'install' / 'migrate_pialert_config.py').read_text()
+        self.assertIn('load_pialert_config_source(', editor)
+        self.assertNotIn('def _legacy_secret_value', editor)
+        self.assertIn('load_pialert_config(', migration)
+
+    def test_migration_normalizes_only_former_pushsafer_integer_values(self):
+        for old_priority in (-10, -3, 3, 10):
+            source = re.sub(
+                r'^PUSHSAFER_PRIO\s*=.*$',
+                'PUSHSAFER_PRIO = {}'.format(old_priority),
+                EXAMPLE_CONFIG.read_text(), count=1, flags=re.MULTILINE)
+            with tempfile.TemporaryDirectory() as directory:
+                candidate = Path(directory) / 'pialert.conf'
+                candidate.write_text(source)
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    migrate_config(str(candidate), str(ROOT))
+                values = load_pialert_config(str(candidate), str(ROOT))
+                self.assertEqual(values['PUSHSAFER_PRIO'], 0)
+                self.assertIn('PUSHSAFER_PRIO', output.getvalue())
+
+        for old_sound in (63, 1000):
+            source = re.sub(
+                r'^PUSHSAFER_SOUND\s*=.*$',
+                'PUSHSAFER_SOUND = {}'.format(old_sound),
+                EXAMPLE_CONFIG.read_text(), count=1, flags=re.MULTILINE)
+            with tempfile.TemporaryDirectory() as directory:
+                candidate = Path(directory) / 'pialert.conf'
+                candidate.write_text(source)
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    migrate_config(str(candidate), str(ROOT))
+                values = load_pialert_config(str(candidate), str(ROOT))
+                self.assertEqual(values['PUSHSAFER_SOUND'], 22)
+                self.assertIn('PUSHSAFER_SOUND', output.getvalue())
+
+        invalid = re.sub(
+            r'^PUSHSAFER_PRIO\s*=.*$', "PUSHSAFER_PRIO = '3'",
+            EXAMPLE_CONFIG.read_text(), count=1, flags=re.MULTILINE)
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pialert.conf'
+            candidate.write_text(invalid)
+            with self.assertRaises(ConfigValidationError):
+                migrate_config(str(candidate), str(ROOT))
+            self.assertEqual(candidate.read_text(), invalid)
 
     def test_telegram_settings_are_optional_for_legacy_configs(self):
         values = load_pialert_config(str(CONFIG), str(ROOT), validate=False)

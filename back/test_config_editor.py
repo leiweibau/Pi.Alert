@@ -129,6 +129,75 @@ class ConfigEditorTests(unittest.TestCase):
         self.assertNotIn('SHOUTRRR_BINARY', candidate)
         self.assertIn('# Settings added by the Pi.Alert configuration editor', candidate)
 
+    def test_openwrt_and_pushover_settings_survive_editor_round_trip(self):
+        backup = self.backup_source()
+        submitted = replace_assignment(
+            mask_config_source(backup), 'OPENWRT_SSL', 'False')
+        submitted = replace_assignment(submitted, 'OPENWRT_PORT', '8443')
+        submitted = replace_assignment(submitted, 'PUSHOVER_PRIO', '-2')
+        submitted = replace_assignment(submitted, 'PUSHOVER_RETRY', '120')
+        submitted = replace_assignment(submitted, 'PUSHOVER_EXPIRE', '7200')
+        candidate, _ = prepare_editor_candidate(
+            submitted, backup, str(ROOT))
+        values = load_pialert_config_source(
+            candidate, expected_pialert_path=str(ROOT))
+        self.assertFalse(values['OPENWRT_SSL'])
+        self.assertEqual(values['OPENWRT_PORT'], 8443)
+        self.assertEqual(values['PUSHOVER_PRIO'], -2)
+        self.assertEqual(values['PUSHOVER_RETRY'], 120)
+        self.assertEqual(values['PUSHOVER_EXPIRE'], 7200)
+
+    def test_editor_adds_legacy_compatibility_defaults(self):
+        backup = self.backup_source()
+        for key in ('OPENWRT_SSL', 'OPENWRT_PORT', 'PUSHOVER_RETRY',
+                    'PUSHOVER_EXPIRE', 'PUBLISH_MQTT_SUBNET_STATUS'):
+            backup = re.sub(
+                r'^' + key + r'\s*=.*\n?', '', backup,
+                count=1, flags=re.MULTILINE)
+        submitted = mask_config_source(backup)
+        candidate, _ = prepare_editor_candidate(
+            submitted, backup, str(ROOT))
+        values = load_pialert_config_source(
+            candidate, expected_pialert_path=str(ROOT))
+        self.assertFalse(values['OPENWRT_SSL'])
+        self.assertEqual(values['OPENWRT_PORT'], 80)
+        self.assertEqual(values['PUSHOVER_RETRY'], 60)
+        self.assertEqual(values['PUSHOVER_EXPIRE'], 3600)
+        self.assertFalse(values['PUBLISH_MQTT_SUBNET_STATUS'])
+
+    def test_editor_accepts_only_boolean_subnet_mqtt_setting(self):
+        backup = self.backup_source()
+        for literal, expected in (("True", True), ("False", False)):
+            submitted = replace_assignment(
+                mask_config_source(backup), 'PUBLISH_MQTT_SUBNET_STATUS', literal)
+            candidate, _ = prepare_editor_candidate(submitted, backup, str(ROOT))
+            values = load_pialert_config_source(
+                candidate, expected_pialert_path=str(ROOT))
+            self.assertIs(values['PUBLISH_MQTT_SUBNET_STATUS'], expected)
+        for literal in ("'True'", "1", "None", "not False"):
+            submitted = replace_assignment(
+                mask_config_source(backup), 'PUBLISH_MQTT_SUBNET_STATUS', literal)
+            with self.assertRaises(ConfigValidationError):
+                prepare_editor_candidate(submitted, backup, str(ROOT))
+
+    def test_editor_rejects_invalid_openwrt_and_priority_values(self):
+        backup = self.backup_source()
+        invalid_assignments = (
+            ('OPENWRT_SSL', "'true'"),
+            ('OPENWRT_PORT', '0'),
+            ('OPENWRT_PORT', '65536'),
+            ('OPENWRT_IP', "'https://router.lan'"),
+            ('PUSHOVER_PRIO', '-3'),
+            ('PUSHSAFER_PRIO', '3'),
+            ('PUSHSAFER_SOUND', '63'),
+            ('PUSHOVER_RETRY', '29'),
+        )
+        for key, literal in invalid_assignments:
+            submitted = replace_assignment(
+                mask_config_source(backup), key, literal)
+            with self.assertRaises(ConfigValidationError, msg=key):
+                prepare_editor_candidate(submitted, backup, str(ROOT))
+
     def test_invalid_scan_value_is_rejected_before_candidate_output(self):
         backup = self.backup_source()
         submitted = replace_assignment(

@@ -19,24 +19,26 @@ PRINT_LOG PIALERT_WEB_PROTECTION AUTO_UPDATE_CHECK AUTO_DB_BACKUP
 REPORT_NEW_CONTINUOUS NEW_DEVICE_PRESET_EVENTS NEW_DEVICE_PRESET_DOWN OFFLINE_MODE
 SCAN_WEBSERVICES ICMPSCAN_ACTIVE SATELLITES_ACTIVE SCAN_ROGUE_DHCP SMTP_SSL
 SMTP_SKIP_TLS SMTP_SKIP_LOGIN REPORT_WEBGUI REPORT_WEBGUI_WEBMON REPORT_TO_MQTT
-REPORT_MQTT_TLS PUBLISH_MQTT_STATUS REPORT_MAIL REPORT_MAIL_WEBMON REPORT_PUSHSAFER
+REPORT_MQTT_TLS PUBLISH_MQTT_STATUS PUBLISH_MQTT_SUBNET_STATUS REPORT_MAIL REPORT_MAIL_WEBMON REPORT_PUSHSAFER
 REPORT_PUSHSAFER_WEBMON REPORT_PUSHOVER REPORT_PUSHOVER_WEBMON REPORT_NTFY
 REPORT_NTFY_WEBMON NTFY_CLICKABLE REPORT_DISCORD REPORT_DISCORD_WEBMON
 REPORT_TELEGRAM REPORT_TELEGRAM_WEBMON DDNS_ACTIVE SPEEDTEST_TASK_ACTIVE
 ARPSCAN_ACTIVE PIHOLE_ACTIVE DHCP_ACTIVE DHCP_INCL_SELF_TO_LEASES FRITZBOX_ACTIVE
 MIKROTIK_ACTIVE UNIFI_ACTIVE OPENWRT_ACTIVE ASUSWRT_ACTIVE ASUSWRT_SSL
 PFSENSE_ACTIVE PFSENSE_SSL OPNSENSE_ACTIVE OPNSENSE_SSL ADGUARD_ACTIVE ADGUARD_SSL
-SATELLITE_PROXY_MODE
+SATELLITE_PROXY_MODE OPENWRT_SSL
 """.split())
 
 INTEGER_RULES = {
     'AUTO_DB_BACKUP_KEEP': (0, 3650), 'REPORT_TO_ARCHIVE': (0, 87600),
     'SMTP_PORT': (1, 65535), 'REPORT_MQTT_PORT': (1, 65535),
-    'PUSHSAFER_PRIO': (-10, 10), 'PUSHSAFER_SOUND': (0, 1000),
-    'PUSHOVER_PRIO': (-2, 2), 'ICMP_ONLINE_TEST': (0, 100),
+    'PUSHSAFER_PRIO': (-2, 2), 'PUSHSAFER_SOUND': (0, 62),
+    'PUSHOVER_PRIO': (-2, 2), 'PUSHOVER_RETRY': (30, 10800),
+    'PUSHOVER_EXPIRE': (30, 10800), 'ICMP_ONLINE_TEST': (0, 100),
     'ICMP_GET_AVG_RTT': (0, 100), 'PIHOLE_VERSION': (5, 6),
     'PIHOLE6_API_MAXCLIENTS': (1, 100000), 'PFSENSE_PORT': (1, 65535),
-    'OPNSENSE_PORT': (1, 65535), 'ADGUARD_PORT': (1, 65535),
+    'OPNSENSE_PORT': (1, 65535), 'OPENWRT_PORT': (1, 65535),
+    'ADGUARD_PORT': (1, 65535),
     'ADGUARD_QUERY_MINUTES': (1, 10080), 'ADGUARD_ACTIVITY_MINUTES': (1, 10080),
     'ADGUARD_QUERY_LIMIT': (1, 1000000), 'DAYS_TO_KEEP_ONLINEHISTORY': (0, 36500),
     'DAYS_TO_KEEP_EVENTS': (0, 36500),
@@ -63,9 +65,14 @@ LIST_KEYS = frozenset(('MAC_IGNORE_LIST', 'IP_IGNORE_LIST', 'HOSTNAME_IGNORE_LIS
                        'TELEGRAM_CHAT_IDS'))
 SPECIAL_KEYS = frozenset(('DB_PATH', 'LOG_PATH', 'DHCP_SERVER_ADDRESS', 'SCAN_SUBNETS'))
 OPTIONAL_DEFAULTS = {
+    'PUBLISH_MQTT_SUBNET_STATUS': False,
     'SMTP_SSL': False,
     'TELEGRAM_BOT_TOKEN': '',
     'TELEGRAM_CHAT_IDS': [],
+    'OPENWRT_SSL': False,
+    'OPENWRT_PORT': 80,
+    'PUSHOVER_RETRY': 60,
+    'PUSHOVER_EXPIRE': 3600,
 }
 ALL_KEYS = BOOLEAN_KEYS | frozenset(INTEGER_RULES) | STRING_KEYS | LIST_KEYS | SPECIAL_KEYS
 DEPRECATED_KEYS = frozenset(('SHOUTRRR_BINARY',))
@@ -82,6 +89,8 @@ MASKED_SECRET_KEYS = frozenset((
 _MAC = re.compile(r'^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}$')
 _MAC_PREFIX = re.compile(r'^[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){0,4}:?$')
 _INTERFACE = re.compile(r'^[A-Za-z0-9_.:-]{1,64}$')
+_OPENWRT_HOST_LABEL = re.compile(
+    r'^[A-Za-z0-9_](?:[A-Za-z0-9_-]{0,61}[A-Za-z0-9_])?$')
 _TELEGRAM_CHAT_ID = re.compile(
     r'^(?:-?[1-9][0-9]{0,19}|@[A-Za-z][A-Za-z0-9_]{4,31})$')
 
@@ -148,6 +157,15 @@ def _is_mac_or_prefix(value):
     return bool(_MAC.match(value) or _MAC_PREFIX.match(value))
 
 
+def _is_openwrt_hostname(value):
+    if not value or len(value) > 253:
+        return False
+    hostname = value[:-1] if value.endswith('.') else value
+    labels = hostname.split('.')
+    return bool(labels) and all(
+        _OPENWRT_HOST_LABEL.match(label) for label in labels)
+
+
 def build_arpscan_arguments(value):
     """Validate SCAN_SUBNETS and return one argv fragment per scan."""
     if type(value) is str:
@@ -191,7 +209,25 @@ def build_arpscan_arguments(value):
     return result
 
 
-def _literal(name, node):
+def _recover_legacy_secret_value(source, node, parsed_value):
+    """Preserve old manually escaped secrets as opaque string data."""
+    if (not isinstance(parsed_value, str) or
+            not any(ord(char) < 32 for char in parsed_value)):
+        return parsed_value
+    segment = ast.get_source_segment(source, node)
+    if not segment:
+        return parsed_value
+    match = re.match(r"^(['\"])(.*)\1$", segment, re.DOTALL)
+    if not match:
+        return parsed_value
+    quote = match.group(1)
+    recovered = match.group(2).replace('\\\\', '\\')
+    if quote == "'":
+        return recovered.replace("\\'", "'")
+    return recovered.replace('\\"', '"')
+
+
+def _literal(name, node, source=None):
     if name in ('DB_PATH', 'LOG_PATH'):
         suffix = {'DB_PATH': '/db/pialert.db', 'LOG_PATH': '/log'}[name]
         if (not isinstance(node, ast.BinOp) or not isinstance(node.op, ast.Add) or
@@ -200,9 +236,17 @@ def _literal(name, node):
             raise ConfigValidationError('%s must use its approved compatibility expression' % name)
         return suffix
     if isinstance(node, ast.Constant):
-        return node.value
+        value = node.value
+        if source is not None and name in MASKED_SECRET_KEYS:
+            value = _recover_legacy_secret_value(source, node, value)
+        return value
+    if (name in INTEGER_RULES and isinstance(node, ast.UnaryOp) and
+            isinstance(node.op, ast.USub) and
+            isinstance(node.operand, ast.Constant) and
+            type(node.operand.value) is int):
+        return -node.operand.value
     if isinstance(node, ast.List):
-        return [_literal('_item', item) for item in node.elts]
+        return [_literal('_item', item, source) for item in node.elts]
     raise ConfigValidationError('%s contains a disallowed expression' % name)
 
 
@@ -225,11 +269,22 @@ def validate_values(values, expected_pialert_path=None):
         values[name] = require_bool(name, values[name])
     for name, bounds in INTEGER_RULES.items():
         values[name] = require_int(name, values[name], bounds[0], bounds[1])
+    if values['PUSHOVER_EXPIRE'] < values['PUSHOVER_RETRY']:
+        raise ConfigValidationError(
+            'PUSHOVER_EXPIRE must be greater than or equal to PUSHOVER_RETRY')
     for name in STRING_KEYS:
         values[name] = require_string(name, values[name])
     values['SMTP_SERVER'] = require_string('SMTP_SERVER', values['SMTP_SERVER'], False, 255)
     values['TELEGRAM_BOT_TOKEN'] = require_string(
         'TELEGRAM_BOT_TOKEN', values['TELEGRAM_BOT_TOKEN'], True, 512)
+    openwrt_host = require_string(
+        'OPENWRT_IP', values['OPENWRT_IP'], False, 253)
+    try:
+        ipaddress.ip_address(openwrt_host)
+    except ValueError:
+        if not _is_openwrt_hostname(openwrt_host):
+            raise ConfigValidationError(
+                'OPENWRT_IP must be an IP address or host name without scheme or port')
     for name in LIST_KEYS:
         validator = (_is_mac_or_prefix if name == 'MAC_IGNORE_LIST' else
                      _is_ip_or_prefix if name == 'IP_IGNORE_LIST' else
@@ -289,7 +344,7 @@ def load_pialert_config_source(source, path='<configuration>',
         name = statement.targets[0].id
         if name.startswith('_') or name == '__builtins__' or name not in LOADABLE_KEYS or name in values:
             raise ConfigValidationError('configuration contains an unknown or duplicate key')
-        values[name] = _literal(name, statement.value)
+        values[name] = _literal(name, statement.value, source)
     for name in DEPRECATED_KEYS:
         values.pop(name, None)
     if validate:
@@ -325,7 +380,7 @@ def load_version_config(path, maximum_size=4096):
         name = statement.targets[0].id
         if name not in VERSION_KEYS or name in values:
             raise ConfigValidationError('version file contains an unknown or duplicate key')
-        value = _literal(name, statement.value)
+        value = _literal(name, statement.value, source)
         values[name] = require_string(name, value, True, 64)
 
     missing = VERSION_KEYS - set(values)

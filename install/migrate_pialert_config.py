@@ -72,6 +72,7 @@ REPORT_MQTT_USERNAME = ''
 REPORT_MQTT_PASSWORD = ''
 REPORT_MQTT_TLS = False
 PUBLISH_MQTT_STATUS = False
+PUBLISH_MQTT_SUBNET_STATUS = False
 REPORT_MAIL = False
 REPORT_MAIL_WEBMON = False
 REPORT_FROM = ''
@@ -89,6 +90,8 @@ REPORT_PUSHOVER_WEBMON = False
 PUSHOVER_TOKEN = ''
 PUSHOVER_USER = ''
 PUSHOVER_PRIO = 0
+PUSHOVER_RETRY = 60
+PUSHOVER_EXPIRE = 3600
 PUSHOVER_SOUND = 'siren'
 REPORT_NTFY = False
 REPORT_NTFY_WEBMON = False
@@ -147,6 +150,8 @@ OPENWRT_ACTIVE = False
 OPENWRT_IP = '192.168.1.1'
 OPENWRT_USER = 'root'
 OPENWRT_PASS = ''
+OPENWRT_SSL = False
+OPENWRT_PORT = 80
 ASUSWRT_ACTIVE = False
 ASUSWRT_IP = '192.168.1.1'
 ASUSWRT_USER = ''
@@ -181,7 +186,7 @@ DAYS_TO_KEEP_EVENTS = 180
 """
 
 
-def default_assignment_lines():
+def default_assignment_lines(new_install=False):
     """Return the built-in assignment used for every supported key."""
     assignments = {}
     for line in DEFAULT_ASSIGNMENTS_SOURCE.splitlines():
@@ -201,6 +206,9 @@ def default_assignment_lines():
     if extra:
         raise ConfigValidationError(
             'migration defaults contain unsupported key {}'.format(sorted(extra)[0]))
+    if new_install:
+        assignments['OPENWRT_SSL'] = 'OPENWRT_SSL = True'
+        assignments['OPENWRT_PORT'] = 'OPENWRT_PORT = 443'
     return assignments
 
 
@@ -271,9 +279,35 @@ def normalize_legacy_report_from(source):
     return source[:match.start()] + replacement + source[match.end():], True
 
 
+def normalize_legacy_integer_range(source, key, old_minimum, old_maximum,
+                                   new_minimum, new_maximum, default):
+    """Reset only a formerly valid, now unsupported integer literal."""
+    pattern = re.compile(
+        r'^(?P<indent>[ \t]*)' + re.escape(key) +
+        r'(?P<spacing>[ \t]*=[ \t]*)(?P<value>-?[0-9]+)'
+        r'(?P<trailing>[ \t]*(?:#.*)?)(?P<newline>\r?\n|$)',
+        re.MULTILINE)
+    match = pattern.search(source)
+    if not match:
+        return source, False
+    value = int(match.group('value'))
+    if new_minimum <= value <= new_maximum:
+        return source, False
+    if not old_minimum <= value <= old_maximum:
+        return source, False
+    replacement = '{}{}{}{}{}'.format(
+        match.group('indent'), key, match.group('spacing'), default,
+        match.group('trailing') + match.group('newline'))
+    return source[:match.start()] + replacement + source[match.end():], True
+
+
 def build_candidate(source, defaults):
     source, removed = remove_deprecated_assignments(source)
     source, normalized_report_from = normalize_legacy_report_from(source)
+    source, normalized_pushsafer_prio = normalize_legacy_integer_range(
+        source, 'PUSHSAFER_PRIO', -10, 10, -2, 2, 0)
+    source, normalized_pushsafer_sound = normalize_legacy_integer_range(
+        source, 'PUSHSAFER_SOUND', 0, 1000, 0, 62, 22)
     existing = set(ASSIGNMENT_RE.findall(source))
     missing = sorted(ALL_KEYS - existing)
     if missing:
@@ -282,14 +316,17 @@ def build_candidate(source, defaults):
         source += '\n# Settings added by the Pi.Alert update\n'
         source += '# Existing settings and their order were left unchanged.\n'
         source += '\n'.join(defaults[key] for key in missing) + '\n'
-    return source, missing, removed, normalized_report_from
+    return (source, missing, removed, normalized_report_from,
+            normalized_pushsafer_prio, normalized_pushsafer_sound)
 
 
-def migrate_config(config_path, expected_pialert_path):
+def migrate_config(config_path, expected_pialert_path, new_install=False):
     config_path = Path(config_path)
-    defaults = default_assignment_lines()
+    defaults = default_assignment_lines(new_install)
     source = config_path.read_text(encoding='utf-8')
-    candidate, added, removed, normalized_report_from = build_candidate(source, defaults)
+    (candidate, added, removed, normalized_report_from,
+     normalized_pushsafer_prio,
+     normalized_pushsafer_sound) = build_candidate(source, defaults)
 
     file_stat = config_path.stat()
     temporary_path = None
@@ -300,6 +337,19 @@ def migrate_config(config_path, expected_pialert_path):
             handle.write(candidate)
             handle.flush()
             os.fsync(handle.fileno())
+        try:
+            os.chown(temporary_path, file_stat.st_uid, file_stat.st_gid)
+        except PermissionError:
+            # A non-root editor normally creates the temporary file with the
+            # same owner and group already. Only tolerate a denied no-op;
+            # replacing a differently owned configuration would make the web
+            # interface unable to read a mode-0600 pialert.conf.
+            temporary_stat = os.stat(temporary_path)
+            if (temporary_stat.st_uid, temporary_stat.st_gid) != (
+                    file_stat.st_uid, file_stat.st_gid):
+                raise
+        # Apply the mode after chown because chown may clear special mode bits
+        # on some filesystems.
         os.chmod(temporary_path, stat.S_IMODE(file_stat.st_mode))
 
         # The live file is replaced only after the complete candidate validates.
@@ -319,7 +369,12 @@ def migrate_config(config_path, expected_pialert_path):
         print('Removed deprecated settings: {}'.format(', '.join(sorted(set(removed)))))
     if normalized_report_from:
         print('Converted legacy REPORT_FROM expression to a static value.')
-    if not added and not removed and not normalized_report_from:
+    if normalized_pushsafer_prio:
+        print('Reset an obsolete PUSHSAFER_PRIO value to 0.')
+    if normalized_pushsafer_sound:
+        print('Reset an obsolete PUSHSAFER_SOUND value to 22.')
+    if (not added and not removed and not normalized_report_from and
+            not normalized_pushsafer_prio and not normalized_pushsafer_sound):
         print('Configuration is already up to date.')
 
 
@@ -327,9 +382,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('config_path')
     parser.add_argument('expected_pialert_path')
+    parser.add_argument('--new-install', action='store_true')
     args = parser.parse_args()
     try:
-        migrate_config(args.config_path, args.expected_pialert_path)
+        migrate_config(
+            args.config_path, args.expected_pialert_path, args.new_install)
     except (ConfigValidationError, OSError, UnicodeError) as exc:
         print('Configuration migration failed: {}'.format(exc), file=sys.stderr)
         return 1

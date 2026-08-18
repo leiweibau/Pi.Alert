@@ -394,7 +394,7 @@ configure_pialert() {
   # Use the same order-independent, validated migration as the updater.
   sudo "$PYTHON_BIN" "$PIALERT_HOME/install/migrate_pialert_config.py" \
     "$PIALERT_HOME/config/pialert.conf" \
-    "$PIALERT_HOME" 2>&1 >> "$LOG"
+    "$PIALERT_HOME" --new-install 2>&1 >> "$LOG"
 
   set_pialert_parameter PIALERT_PATH    "'$PIALERT_HOME'"
   set_pialert_parameter DDNS_ACTIVE     "$DDNS_ACTIVE"
