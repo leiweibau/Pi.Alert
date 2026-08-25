@@ -167,7 +167,7 @@ def _is_openwrt_hostname(value):
 
 
 def build_arpscan_arguments(value):
-    """Validate SCAN_SUBNETS and return one argv fragment per scan."""
+    """Validate SCAN_SUBNETS and return options-first argv per scan."""
     if type(value) is str:
         require_string('SCAN_SUBNETS', value, False, 512)
         tokens = value.split()
@@ -179,6 +179,7 @@ def build_arpscan_arguments(value):
             interface = tokens[1][len('--interface='):]
             if not _INTERFACE.match(interface):
                 raise ConfigValidationError('SCAN_SUBNETS has an invalid interface')
+            return [[tokens[1], tokens[0]]]
         return [tokens]
 
     entries = require_string_list('SCAN_SUBNETS', value)
@@ -189,11 +190,29 @@ def build_arpscan_arguments(value):
     seen = set()
     for index, entry in enumerate(entries):
         tokens = entry.split()
-        if len(tokens) != 2 or not tokens[1].startswith('--interface='):
+        if len(tokens) not in (2, 3):
             raise ConfigValidationError('SCAN_SUBNETS[%d] is invalid' % index)
         target = tokens[0]
-        interface = tokens[1][len('--interface='):]
-        if '/' not in target or not _INTERFACE.match(interface):
+        interface = None
+        vlan = None
+        for selector in tokens[1:]:
+            if selector.startswith('--interface='):
+                candidate = selector[len('--interface='):]
+                if interface is not None or not _INTERFACE.match(candidate):
+                    raise ConfigValidationError(
+                        'SCAN_SUBNETS[%d] has an invalid interface' % index)
+                interface = candidate
+            elif selector.startswith('--vlan='):
+                candidate = selector[len('--vlan='):]
+                if (vlan is not None or not re.match(r'^\d{1,4}$', candidate) or
+                        not 0 <= int(candidate) <= 4095):
+                    raise ConfigValidationError(
+                        'SCAN_SUBNETS[%d] has an invalid VLAN id' % index)
+                vlan = int(candidate)
+            else:
+                raise ConfigValidationError(
+                    'SCAN_SUBNETS[%d] is invalid' % index)
+        if '/' not in target:
             raise ConfigValidationError('SCAN_SUBNETS[%d] is invalid' % index)
         try:
             network = ipaddress.ip_network(target, strict=False)
@@ -201,11 +220,20 @@ def build_arpscan_arguments(value):
             raise ConfigValidationError('SCAN_SUBNETS[%d] is invalid' % index)
         if network.version != 4:
             raise ConfigValidationError('SCAN_SUBNETS[%d] must be an IPv4 network' % index)
-        identity = (network.with_prefixlen, interface)
+        identity = (network.with_prefixlen, interface, vlan)
         if identity in seen:
             raise ConfigValidationError('SCAN_SUBNETS contains duplicate entries')
         seen.add(identity)
-        result.append(tokens)
+        # arp-scan documents "arp-scan [options] [hosts...]". Keep all
+        # validated options before the target instead of relying on GNU getopt
+        # to reorder arguments after the first host expression.
+        arguments = []
+        if interface is not None:
+            arguments.append('--interface=' + interface)
+        if vlan is not None:
+            arguments.append('--vlan=' + str(vlan))
+        arguments.append(target)
+        result.append(arguments)
     return result
 
 

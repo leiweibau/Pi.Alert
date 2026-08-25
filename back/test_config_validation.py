@@ -421,17 +421,21 @@ class ConfigValidationTests(unittest.TestCase):
         valid = (
             ('--localnet', [['--localnet']]),
             ('--localnet --interface=wlp2s0',
-             [['--localnet', '--interface=wlp2s0']]),
+             [['--interface=wlp2s0', '--localnet']]),
             ([
                 '192.168.1.0/24 --interface=eth0',
                 '192.168.2.0/24 --interface=ens18',
                 '192.168.3.0/24 --interface=custom_bridge-42.100',
                 '192.168.4.0/24 --interface=eth0:1',
+                '192.168.5.0/24 --vlan=0',
+                '192.168.6.0/24 --vlan=4095',
              ], [
-                ['192.168.1.0/24', '--interface=eth0'],
-                ['192.168.2.0/24', '--interface=ens18'],
-                ['192.168.3.0/24', '--interface=custom_bridge-42.100'],
-                ['192.168.4.0/24', '--interface=eth0:1'],
+                ['--interface=eth0', '192.168.1.0/24'],
+                ['--interface=ens18', '192.168.2.0/24'],
+                ['--interface=custom_bridge-42.100', '192.168.3.0/24'],
+                ['--interface=eth0:1', '192.168.4.0/24'],
+                ['--vlan=0', '192.168.5.0/24'],
+                ['--vlan=4095', '192.168.6.0/24'],
              ]),
         )
         for value, expected in valid:
@@ -443,6 +447,12 @@ class ConfigValidationTests(unittest.TestCase):
             ['not a subnet'],
             ['192.168.1.0/24'],
             ['192.168.1.0/24 --interface=bad/name'],
+            ['192.168.1.0/24 --vlan=-1'],
+            ['192.168.1.0/24 --vlan=4096'],
+            ['192.168.1.0/24 --vlan=1;id'],
+            ['192.168.1.0/24 --interface=eth0 --interface=eth1'],
+            ['192.168.1.0/24 --vlan=1 --vlan=2'],
+            ['192.168.1.0/24 --interface=eth0 --vlan=1 --retry=1'],
             ['192.168.1.0/33 --interface=eth0'],
             ['2001:db8::/64 --interface=eth0'],
             ['192.168.1.0/24 --interface=eth0',
@@ -468,7 +478,7 @@ class ConfigValidationTests(unittest.TestCase):
         at_limit = target + (' ' * (512 - len(target) - len(interface))) + interface
         self.assertEqual(len(at_limit), 512)
         self.assertEqual(
-            build_arpscan_arguments([at_limit]), [[target, interface]])
+            build_arpscan_arguments([at_limit]), [[interface, target]])
         with self.assertRaises(ConfigValidationError):
             build_arpscan_arguments([at_limit + ' '])
 
@@ -480,17 +490,62 @@ class ConfigValidationTests(unittest.TestCase):
             if isinstance(node, ast.FunctionDef) and
             node.name == 'execute_arpscan_on_interface')
         segment = ast.get_source_segment(source, function)
-        self.assertIn("+ subnets", segment)
-        self.assertIn('subprocess.check_output', segment)
+        self.assertIn("+ arguments", segment)
+        self.assertIn('subprocess.run', segment)
         self.assertNotIn('shell=True', segment)
         self.assertEqual(
             build_arpscan_arguments([
                 '192.168.68.0/24 --interface=eth0.68',
                 '192.168.123.0/24 --interface=eth0:1',
+                '192.168.35.0/24 --vlan=35',
+                '192.168.42.0/24 --vlan=42 --interface=eth0',
             ]), [
-                ['192.168.68.0/24', '--interface=eth0.68'],
-                ['192.168.123.0/24', '--interface=eth0:1'],
+                ['--interface=eth0.68', '192.168.68.0/24'],
+                ['--interface=eth0:1', '192.168.123.0/24'],
+                ['--vlan=35', '192.168.35.0/24'],
+                ['--interface=eth0', '--vlan=42', '192.168.42.0/24'],
             ])
+
+        calls = []
+
+        class FakeSubprocess:
+            PIPE = object()
+
+            @staticmethod
+            def run(arguments, **kwargs):
+                calls.append((arguments, kwargs))
+                return type('Completed', (), {
+                    'stdout': '192.168.42.10\t00:11:22:33:44:55\tVendor\n',
+                    'stderr': '',
+                    'returncode': 0,
+                })()
+
+        module = ast.Module(body=[function], type_ignores=[])
+        ast.fix_missing_locations(module)
+        extended_log = []
+        namespace = {
+            'subprocess': FakeSubprocess,
+            'print_log': extended_log.append,
+        }
+        exec(compile(module, '<execute_arpscan_on_interface>', 'exec'), namespace)
+        with contextlib.redirect_stdout(io.StringIO()):
+            output = namespace['execute_arpscan_on_interface'](
+                ['--interface=eth0', '--vlan=42', '192.168.42.0/24'])
+
+        self.assertEqual(output,
+                         '192.168.42.10\t00:11:22:33:44:55\tVendor\n')
+        self.assertEqual(calls[0][0], [
+            'sudo', 'arp-scan', '--ignoredups', '--plain',
+            '--format=${ip}\t${mac}\t${vendor}',
+            '--bandwidth=256k', '--retry=6',
+            '--interface=eth0', '--vlan=42', '192.168.42.0/24',
+        ])
+        self.assertNotIn('shell', calls[0][1])
+        self.assertEqual(extended_log, [
+            'arp-scan command: arp-scan --ignoredups --plain '
+            '--format=${ip}\t${mac}\t${vendor} --bandwidth=256k --retry=6 '
+            '--interface=eth0 --vlan=42 192.168.42.0/24'
+        ])
 
     def test_configuration_size_limit_is_measured_in_utf8_bytes(self):
         source = EXAMPLE_CONFIG.read_bytes()

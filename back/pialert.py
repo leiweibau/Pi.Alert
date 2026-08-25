@@ -1255,20 +1255,35 @@ def execute_arpscan():
 
 #-------------------------------------------------------------------------------
 def execute_arpscan_on_interface(scan_arguments):
-    # scan_arguments is already a validated argv fragment.
-    subnets = list(scan_arguments)
+    # scan_arguments is already a validated, options-first argv fragment.
+    arguments = list(scan_arguments)
     # Retry is 6 to avoid false offline devices
-    arpscan_args = ['sudo', 'arp-scan', '--ignoredups', '--bandwidth=256k', '--retry=6'] + subnets
+    arpscan_args = [
+        'sudo', 'arp-scan', '--ignoredups', '--plain',
+        '--format=${ip}\t${mac}\t${vendor}',
+        '--bandwidth=256k', '--retry=6'
+    ] + arguments
+
+    print_log('arp-scan command: {}'.format(' '.join(arpscan_args[1:])))
 
     try:
-        # try runnning a subprocess
-        result = subprocess.check_output (arpscan_args, universal_newlines=True)
-    except subprocess.CalledProcessError as e:
-        # An error occured, handle it
-        print(e.output)
-        result = ""
+        completed = subprocess.run(
+            arpscan_args, universal_newlines=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except OSError as error:
+        print_log('arp-scan could not be started: {}'.format(error))
+        return ""
 
-    return result
+    if completed.stderr:
+        for line in completed.stderr.rstrip().splitlines():
+            print_log('arp-scan stderr: {}'.format(line))
+    if completed.returncode != 0:
+        print_log('arp-scan failed with exit code {} for {}'.format(
+            completed.returncode, ' '.join(arguments)))
+
+    # Preserve any valid device rows that arp-scan wrote before returning a
+    # non-zero status; the caller's strict IP/MAC parser ignores other output.
+    return completed.stdout or ""
 
 #-------------------------------------------------------------------------------
 def copy_pihole_network():

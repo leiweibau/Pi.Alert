@@ -294,6 +294,20 @@ class ConfigEditorTests(unittest.TestCase):
             '192.168.20.0/24 --interface=wlan0',
         ])
 
+    def test_vlan_scan_list_survives_editor(self):
+        backup = self.backup_source()
+        value = [
+            '192.168.65.0/24 --vlan=1',
+            '192.168.42.0/24 --interface=eth0 --vlan=42',
+            '192.168.35.0/24 --vlan=35',
+        ]
+        submitted = replace_assignment(
+            mask_config_source(backup), 'SCAN_SUBNETS', repr(value))
+        candidate, _ = prepare_editor_candidate(submitted, backup, str(ROOT))
+        values = load_pialert_config_source(
+            candidate, expected_pialert_path=str(ROOT))
+        self.assertEqual(values['SCAN_SUBNETS'], value)
+
     def test_both_localnet_string_forms_survive_editor(self):
         backup = self.backup_source()
         for value in ('--localnet', '--localnet --interface=wlan0'):
