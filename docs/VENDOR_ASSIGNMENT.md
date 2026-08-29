@@ -3,7 +3,7 @@ arp-scan uses a regularly updated database to assign a manufacturer to a MAC add
 within the script, which has its own database that is also updated regularly.
 
 If a vendor is not assigned to a device when it is first detected by Pi.Alert, "(unknown)" is entered in the Vendor field. As long as this 
-string is in the field, or the field is completely empty, a new search is triggerd in the VendorDB with every scan, in case there has been an 
+string is in the field, or the field is completely empty, a new search is triggered in the VendorDB with every scan, in case there has been an 
 update in the meantime and an assignment is now possible.
 
 ## Individual entries:
