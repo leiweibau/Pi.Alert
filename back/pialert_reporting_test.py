@@ -23,7 +23,8 @@ try:
   from urlparse import urlparse
 except ImportError:
   from urllib.parse import urlparse
-from config_validation import ALL_KEYS, ConfigValidationError, load_pialert_config, load_version_config, validate_loaded_config
+from config_validation import ConfigValidationError, load_pialert_config, load_version_config
+from notification_http import send_pushsafer_notification, send_pushover_notification
 from telegram_notification import send_telegram_message
 import sys, os, re, datetime, socket, io, smtplib, requests, time, pwd, glob, sqlite3, html
 
@@ -41,74 +42,7 @@ REPORTPATH_WEBGUI = f"{PIALERT_PATH}/front/reports/"
 try:
   globals().update(load_version_config(f"{PIALERT_PATH}/config/version.conf"))
   globals().update(load_pialert_config(
-      f"{PIALERT_PATH}/config/pialert.conf", PIALERT_PATH, validate=False))
-except ConfigValidationError as exc:
-  print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
-  raise SystemExit(1)
-
-RAW_CONFIG_SECRET_KEYS = [
-    'PIALERT_APIKEY',
-    'PIALERT_WEB_PASSWORD',
-    'SMTP_PASS',
-    'REPORT_MQTT_PASSWORD',
-    'PUSHSAFER_TOKEN',
-    'PUSHOVER_TOKEN',
-    'PUSHOVER_USER',
-    'NTFY_PASSWORD',
-    'FRITZBOX_PASS',
-    'MIKROTIK_PASS',
-    'UNIFI_PASS',
-    'OPENWRT_PASS',
-    'ASUSWRT_PASS',
-    'PFSENSE_APIKEY',
-    'OPNSENSE_APIKEY',
-    'OPNSENSE_APISECRET',
-    'ADGUARD_PASSWORD',
-    'PIHOLE6_PASSWORD',
-    'DDNS_PASSWORD',
-]
-
-#-------------------------------------------------------------------------------
-# Compatibility layer for existing manually maintained secret values.
-# Must run after loading pialert.conf and before type validation.
-def recover_sensitive_config_values(config_file, secret_keys):
-    def contains_control_characters(value):
-        return isinstance(value, str) and any(ord(char) < 32 for char in value)
-
-    try:
-        with open(config_file, encoding='utf-8') as config_handle:
-            lines = config_handle.read().splitlines()
-    except OSError:
-        return
-
-    for line in lines:
-        match = re.match(r"^\s*([A-Z0-9_]+)\s*=\s*(['\"])(.*)\2\s*$", line)
-        if not match:
-            continue
-
-        key = match.group(1)
-        quote = match.group(2)
-        raw_value = match.group(3)
-
-        if key not in secret_keys:
-            continue
-
-        current_value = globals().get(key, '')
-        if not contains_control_characters(current_value):
-            continue
-
-        recovered_value = raw_value.replace("\\\\", "\\")
-        if quote == "'":
-            recovered_value = recovered_value.replace("\\'", "'")
-        else:
-            recovered_value = recovered_value.replace('\\"', '"')
-
-        globals()[key] = recovered_value
-
-recover_sensitive_config_values(f"{PIALERT_PATH}/config/pialert.conf", RAW_CONFIG_SECRET_KEYS)
-try:
-  globals().update(validate_loaded_config(
-      {name: globals()[name] for name in ALL_KEYS if name in globals()}, PIALERT_PATH))
+      f"{PIALERT_PATH}/config/pialert.conf", PIALERT_PATH))
 except ConfigValidationError as exc:
   print("[Config] Invalid configuration: {}".format(exc), file=sys.stderr)
   raise SystemExit(1)
@@ -262,42 +196,36 @@ def sending_notifications_test(_Mode, custom_message=None):
     else:
         return 1
 
+    channels = [
+        (REPORT_MAIL or REPORT_MAIL_WEBMON, 'email',
+         lambda: send_email(
+             notiMessage, html.escape(notiMessage).replace('\n', '<br>'))),
+        (REPORT_PUSHSAFER or REPORT_PUSHSAFER_WEBMON, 'PUSHSAFER',
+         lambda: send_pushsafer_test(notiMessage)),
+        (REPORT_PUSHOVER or REPORT_PUSHOVER_WEBMON, 'PUSHOVER',
+         lambda: send_pushover_test(notiMessage)),
+        (REPORT_TELEGRAM or REPORT_TELEGRAM_WEBMON, 'Telegram',
+         lambda: send_telegram_test(notiMessage)),
+        (REPORT_NTFY or REPORT_NTFY_WEBMON, 'NTFY',
+         lambda: send_ntfy_test(notiMessage)),
+        (REPORT_DISCORD or REPORT_DISCORD_WEBMON, 'Discord',
+         lambda: send_discord_test(notiMessage)),
+        (REPORT_WEBGUI or REPORT_WEBGUI_WEBMON, 'WebGUI',
+         lambda: send_webgui_test(
+             notiMessage, 'Nmap' if _Mode == 'Nmap' else 'Test')),
+    ]
+
     print ('\nTest Reporting...')
-    if REPORT_MAIL or REPORT_MAIL_WEBMON:
-        print ('    Sending report by email...')
-        send_email(notiMessage, html.escape(notiMessage).replace('\n', '<br>'))
-    else :
-        print ('    Skip mail...')
-    if REPORT_PUSHSAFER or REPORT_PUSHSAFER_WEBMON:
-        print ('    Sending report by PUSHSAFER...')
-        send_pushsafer_test (notiMessage)
-    else :
-        print ('    Skip PUSHSAFER...')
-    if REPORT_PUSHOVER or REPORT_PUSHOVER_WEBMON:
-        print ('    Sending report by PUSHOVER...')
-        send_pushover_test (notiMessage)
-    else :
-        print ('    Skip PUSHOVER...')
-    if REPORT_TELEGRAM or REPORT_TELEGRAM_WEBMON:
-        print ('    Sending report by Telegram...')
-        send_telegram_test (notiMessage)
-    else :
-        print ('    Skip Telegram...')
-    if REPORT_NTFY or REPORT_NTFY_WEBMON:
-        print ('    Sending report by NTFY...')
-        send_ntfy_test (notiMessage)
-    else :
-        print ('    Skip NTFY...')
-    if REPORT_DISCORD or REPORT_DISCORD_WEBMON:
-        print ('    Sending report by Discord...')
-        send_discord_test (notiMessage)
-    else :
-        print ('    Skip Discord...')  
-    if REPORT_WEBGUI or REPORT_WEBGUI_WEBMON:
-        print ('    Save report to file...')
-        send_webgui_test(notiMessage, 'Nmap' if _Mode == 'Nmap' else 'Test')
-    else :
-        print ('    Skip WebGUI...')         
+    for enabled, name, action in channels:
+        if not enabled:
+            print('    Skip {}...'.format(name))
+            continue
+        print('    Sending report by {}...'.format(name))
+        try:
+            action()
+            print('    {} sent successfully'.format(name))
+        except Exception as exc:
+            print('    ERROR sending via {}: {}'.format(name, exc))
     return 0
 
 #-------------------------------------------------------------------------------
@@ -324,59 +252,15 @@ def send_ntfy_test(_notiMessage):
 
 #-------------------------------------------------------------------------------
 def send_pushsafer_test(_notiMessage):
-    try:
-        notification_target = PUSHSAFER_DEVICE
-    except NameError:
-        notification_target = "a"
-
-    try:
-        result = PUSHSAFER_PRIO
-    except NameError:
-        PUSHSAFER_PRIO = 0
-
-    try:
-        notification_sound = PUSHSAFER_SOUND
-    except NameError:
-        notification_sound = 22
-
-    url = 'https://www.pushsafer.com/api'
-    post_fields = {
-        "t" : 'Pi.Alert Message',
-        "m" : _notiMessage,
-        "s" : notification_sound,
-        "v" : 3,
-        "i" : 148,
-        "c" : '#ef7f7f',
-        "d" : notification_target,
-        "u" : REPORT_DASHBOARD_URL,
-        "ut" : 'Open Pi.Alert',
-        "k" : PUSHSAFER_TOKEN,
-        "pr" : PUSHSAFER_PRIO,
-        }
-    requests.post(url, data=post_fields)
+    return send_pushsafer_notification(
+        _notiMessage, 'Pi.Alert Message', REPORT_DASHBOARD_URL,
+        PUSHSAFER_TOKEN, PUSHSAFER_DEVICE, PUSHSAFER_PRIO, PUSHSAFER_SOUND)
 
 #-------------------------------------------------------------------------------
 def send_pushover_test(_notiMessage):
-    try:
-        result = PUSHOVER_PRIO
-    except NameError:
-        PUSHOVER_PRIO = 0
-
-    try:
-        notification_sound = PUSHOVER_SOUND
-    except NameError:
-        notification_sound = 'siren'
-
-    url = 'https://api.pushover.net/1/messages.json'
-    post_fields = {
-        "token": PUSHOVER_TOKEN,
-        "user": PUSHOVER_USER,
-        "title" : 'Pi.Alert Message',
-        "message" : _notiMessage,
-        "priority" : PUSHOVER_PRIO,
-        "sound" : notification_sound,
-        }
-    requests.post(url, data=post_fields)
+    return send_pushover_notification(
+        _notiMessage, 'Pi.Alert Message', PUSHOVER_TOKEN, PUSHOVER_USER,
+        PUSHOVER_PRIO, PUSHOVER_SOUND, PUSHOVER_RETRY, PUSHOVER_EXPIRE)
 #-------------------------------------------------------------------------------
 def send_discord_test (_notiMessage):
     # block = _Text.replace('\n\n\n', '\n\n')
@@ -471,7 +355,7 @@ def send_email(pText, pHTML):
 
 #-------------------------------------------------------------------------------
 def SafeParseGlobalBool(boolVariable):
-  return eval(boolVariable) if boolVariable in globals() else False
+  return globals().get(boolVariable, False) is True
 
 #===============================================================================
 # UTIL

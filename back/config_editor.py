@@ -161,29 +161,9 @@ def normalize_editor_scan_subnets(source, path='<editor>'):
     return _replace_byte_spans(source, replacements), len(replacements)
 
 
-def _legacy_secret_value(source, node, parsed_value):
-    if not isinstance(parsed_value, str) or not any(ord(char) < 32 for char in parsed_value):
-        return parsed_value
-    segment = ast.get_source_segment(source, node.value)
-    if not segment:
-        return parsed_value
-    match = re.match(r"^(['\"])(.*)\1$", segment, re.DOTALL)
-    if not match:
-        return parsed_value
-    quote = match.group(1)
-    recovered = match.group(2).replace('\\\\', '\\')
-    if quote == "'":
-        return recovered.replace("\\'", "'")
-    return recovered.replace('\\"', '"')
-
-
 def _editor_values(source, path='<configuration>'):
     values = load_pialert_config_source(source, path, validate=False)
     nodes = _assignment_nodes(source, path)
-    values = dict(values)
-    for key in MASKED_SECRET_KEYS:
-        if key in values and key in nodes:
-            values[key] = _legacy_secret_value(source, nodes[key], values[key])
     return values, nodes
 
 

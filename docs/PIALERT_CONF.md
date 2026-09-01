@@ -91,7 +91,32 @@ I would like to give a short explanation to the individual points.
 | REPORT_MQTT_PASSWORD | Password for logging in to the MQTT server. If no authentication is used, leave this field blank. |
 | REPORT_MQTT_TLS      | Enable or disable SSL/TLS.            |
 | PUBLISH_MQTT_STATUS  | Activation or deactivation of general information about the Pi.Alert installation. The following sensors are created: “Pi.Alert Status”, “Pi.Alert local”, “Pi.Alert \<Satellite Name\>”           |
+| PUBLISH_MQTT_SUBNET_STATUS | Publishes per-local-IPv4-subnet counters when `REPORT_TO_MQTT` is also `True`. This switch is independent of `PUBLISH_MQTT_STATUS` and defaults to `False`. |
 
+When subnet status is enabled, Pi.Alert discovers directly attached IPv4
+networks from active local interfaces without root privileges. IPv6 networks
+are not included. Each valid managed Device and ICMP target is assigned to
+exactly one network; when networks overlap, the longest (most specific) prefix
+wins.
+
+For example, `192.168.0.0/24` uses the identifier `192168000000` and publishes
+retained values below `pi_alert/subnet_192168000000/`. The nine value names are
+`all`, `online`, `new`, `down`, `offline`, `archive`, `icmp_all`,
+`icmp_online`, and `icmp_offline`. The first six have the same meaning as the
+general Device counters. The ICMP counters include only non-archived targets.
+Home Assistant discovery sensors are published for every value. If two local
+CIDRs have the same network address, their identifiers receive a `_p<prefix>`
+suffix to avoid collisions.
+
+All Pi.Alert MQTT values and discovery configurations are retained. Pi.Alert
+records their topic names in `db/mqtt_published_topics.json`. Turning off a
+subordinate switch removes only that group's retained topics. Turning off
+`REPORT_TO_MQTT` removes every recorded Pi.Alert state and discovery topic on
+the next main run; failed removals remain recorded and are retried. Disabling
+MQTT for an individual Device or ICMP target likewise removes its four state
+topics (`online`, `ip`, `location`, and `scansource`) and four discovery
+topics. A fresh installation with MQTT disabled does not contact the default
+broker merely to remove speculative legacy topics.
 
 #### :eight_spoked_asterisk: Mail Reporting
 
@@ -113,8 +138,8 @@ I would like to give a short explanation to the individual points.
 | REPORT_PUSHSAFER_WEBMON | Enables/disables notifications about changes in the monitored web services via Pushsafer.                                                                                        |
 | PUSHSAFER_TOKEN         | This is the private key that can be viewed on the pushsafer page.                                                                                                                |
 | PUSHSAFER_DEVICE        | The device ID to which the message will be sent. &lsquo;a&rsquo; means the message will be sent to all configuring devices and will consume a corresponding number of API calls. |
-| PUSHSAFER_PRIO          | Priority level of the message.                                                                                                                                                   |
-| PUSHSAFER_SOUND         | Notification sound (integer).                                                                                                                                                    |
+| PUSHSAFER_PRIO          | Integer priority accepted by the [Pushsafer API](https://www.pushsafer.com/de/pushapi_ext#API-PR), from `-2` through `2`.                                                                          |
+| PUSHSAFER_SOUND         | Pushsafer sound ID from `0` (silent) through `62`.                                                                                                                               |
 
 
 #### :eight_spoked_asterisk: Pushover
@@ -125,7 +150,9 @@ I would like to give a short explanation to the individual points.
 | REPORT_PUSHOVER_WEBMON | Enables/disables the notifications about changes in the monitored web services via Pushover. |
 | PUSHOVER_TOKEN         | Also called "APP TOKEN" or "API TOKEN". This token can be queried on the pushover page.      |
 | PUSHOVER_USER          | Also called "USER KEY". This key is displayed right after login on the start page.           |
-| PUSHOVER_PRIO          | Priority level of the message.                                                               |
+| PUSHOVER_PRIO          | Integer [Pushover priority](https://pushover.net/api#priority) from `-2` through `2`. Priority `2` uses the emergency retry and expiration settings below. |
+| PUSHOVER_RETRY         | Retry interval in seconds for emergency-priority messages (`30..10800`, default `60`).                            |
+| PUSHOVER_EXPIRE        | Maximum retry period in seconds for emergency messages (`30..10800`, default `3600`); it must not be smaller than `PUSHOVER_RETRY`. |
 | PUSHOVER_SOUND         | Notification sound.                                                                          |
 
 
@@ -192,7 +219,7 @@ I would like to give a short explanation to the individual points.
 | MAC_IGNORE_LIST       | [&apos;MAC-Address 1&apos;, &apos;MAC-Address 2&apos;]<br> This MAC address(es) (save with small letters) will be filtered out from the scan results. It is also possible to specify only the beginning of a MAC address. All addresses with the same prefix will also be filtered out                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | IP_IGNORE_LIST        | [&apos;IP-Address 1&apos;, &apos;IP-Address 2&apos;]<br>   This IP address(es) will be filtered out from the scan results. It is also possible to specify only the beginning of a IP address. All addresses with the same prefix will also be filtered out. A syntax such as “172.17.0.0/24” does not lead to success. In this case, use an entry such as “172.17.”                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | HOSTNAME_IGNORE_LIST  | [&apos;Hostname&apos;, &apos;Host*&apos;, &apos;\*stna*&apos;, &apos;\*stname&apos;]<br>   If no “\*” is specified, the exact host name is searched for. “\*”, however, serves as a wildcard. No distinction is made between upper and lower case letters.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| SCAN_SUBNETS          | `--localnet` scans the automatically detected local network. `--localnet --interface=<name>` selects a specific interface. To scan several networks, use a list such as `['192.168.1.0/24 --interface=eth0','192.168.2.0/24 --interface=wlp2s0','192.168.3.0/24 --interface=custom_bridge-42.100','192.168.4.0/24 --interface=eth0:1']`. Every list entry contains one IPv4 network in CIDR notation and one interface. Interface names are not restricted to `eth*`; classic, predictable, WLAN, bridge, bond, VLAN, virtual, alias, and custom valid Linux names are supported. Interface existence is checked by the scan at runtime, not while parsing the configuration. A saved configuration must contain exactly one active assignment. If the WebEditor submission contains several, it keeps the last semantically valid assignment from the newly edited text and removes the others; the backup is never used to choose this value. Direct backend loading remains strict and rejects duplicate keys. |
+| SCAN_SUBNETS          | `--localnet` scans the automatically detected local network. `--localnet --interface=<name>` selects a specific interface. To scan several networks, use a list. Each entry starts with an IPv4 network in CIDR notation and then uses `--interface=<name>`, `--vlan=<id>`, or both. For an existing Linux VLAN interface use, for example, `'192.168.123.0/24 --interface=eth0.123'`; the kernel handles the VLAN tag. To make `arp-scan` add an 802.1Q tag on a parent interface, use `'192.168.123.0/24 --interface=eth0 --vlan=123'`. Do not combine a VLAN subinterface such as `eth0.123` with `--vlan=123`, because that can produce double tagging. The shorter form `'192.168.123.0/24 --vlan=123'` is supported, but then `arp-scan` automatically selects an interface and may choose the wrong one on multi-interface systems. VLAN IDs from 0 through 4095 are accepted, matching `arp-scan`. Options are passed before the target network in the generated command. Interface names are not restricted to `eth*`; classic, predictable, WLAN, bridge, bond, VLAN, virtual, alias, and custom valid Linux names are supported. Interface existence and VLAN availability are checked by the scan at runtime, not while parsing the configuration. A saved configuration must contain exactly one active assignment. If the WebEditor submission contains several, it keeps the last semantically valid assignment from the newly edited text and removes the others; the backup is never used to choose this value. Direct backend loading remains strict and rejects duplicate keys. |
 
 
 #### :eight_spoked_asterisk: ICMP Monitoring Options
@@ -253,10 +280,12 @@ I would like to give a short explanation to the individual points.
 
 | Option         | Description |
 |----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OPENWRT_ACTIVE | The package `luci-mod-rpc`need to be installed, on your OpenWrt router. If a OpenWRT router is used in the network, it can be used as a data source. This can be activated or deactivated at this point. |
-| OPENWRT_IP     | IP address or host name of the OpenWRT router.                                                                                                                                                    |
-| OPENWRT_USER   | User name used to authenticate with the OpenWRT router.                                                                                                                                           |
-| OPENWRT_PASS   | Password used to authenticate with the OpenWRT router.                                                                                                                                            |
+| OPENWRT_ACTIVE | Enables the OpenWrt data source. The `luci-mod-rpc` package must be installed on the router. |
+| OPENWRT_IP     | IP address or host name without a URL scheme or embedded port. IPv4, IPv6 and host names are supported. |
+| OPENWRT_USER   | User name used to authenticate with the OpenWrt router. |
+| OPENWRT_PASS   | Password used to authenticate with the OpenWrt router. |
+| OPENWRT_SSL    | `True` first uses HTTPS and accepts self-signed certificates without verification. TLS, connection and timeout failures trigger one HTTP retry on port 80. `False` uses HTTP directly. New installations default to `True`; migrated installations retain the previous behavior with `False`. |
+| OPENWRT_PORT   | Port for the explicitly selected primary transport (`1..65535`). New installations default to `443`; migrated installations default to `80`. The automatic HTTP fallback always uses port 80. |
 
 
 #### :eight_spoked_asterisk: Asus Configuration
