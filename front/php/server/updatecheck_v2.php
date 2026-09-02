@@ -336,7 +336,7 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 				echo '<div style="display: list-item; margin-left : 2em;">' . str_replace('* ', '', $safeRow) . '</div>';
 			}
 		}
-		$updatecommand = 'bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert-Satellite/raw/main/install/pialert_satellite_update.sh)&quot;';
+		$updatecommand = 'sudo bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert-Satellite/raw/main/install/pialert_satellite_update.sh)&quot;';
 		
 		echo '<br><br>
 				<lable for="bashupdatecommand" class="text-red"><i>Update command:</i></lable>
