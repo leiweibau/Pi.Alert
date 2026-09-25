@@ -1,7 +1,3 @@
 <?php
-$pia_lang_selected = "";
-foreach (glob("../../../config/setting_language*") as $filename) {
-	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
-}
-if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
-?>
+require_once __DIR__ . '/../language-selection.php';
+$pia_lang_selected = pialert_selected_language();

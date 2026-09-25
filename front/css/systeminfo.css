@@ -1,0 +1,83 @@
+.pialert-systeminfo > .card {
+  margin-bottom: 1rem;
+}
+
+.pialert-system-action {
+  align-items: center;
+  display: flex;
+  gap: .75rem;
+  justify-content: center;
+  margin-inline: auto;
+  min-height: 3.25rem;
+  width: min(100%, 20rem);
+}
+
+.pialert-system-action .fa-power-off {
+  font-size: 1.35rem;
+}
+
+.pialert-sysinfo-card-title {
+  color: var(--bs-info-text-emphasis);
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: .75rem 1rem .35rem;
+}
+
+.pialert-sysinfo-row {
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color-translucent);
+  overflow-wrap: anywhere;
+  padding-block: .45rem;
+}
+
+.pialert-sysinfo-row:last-child {
+  border-bottom: 0;
+}
+
+.pialert-sysinfo-row dt {
+  padding-right: 1rem;
+}
+
+.pialert-sysinfo-scroll {
+  max-height: 18rem;
+  overflow: auto;
+}
+
+.pialert-sysinfo-pre {
+  background: transparent;
+  color: inherit;
+  max-height: 18rem;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.pialert-systeminfo .table {
+  --bs-table-bg: transparent;
+  min-width: 34rem;
+}
+
+/* The common dialog is appended to body, outside the page section. AdminLTE's
+   inherited modal variable can otherwise leave it translucent in this view. */
+.modal-content {
+  background-color: var(--bs-body-bg);
+}
+
+.modal-header .modal-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767.98px) {
+  .pialert-systeminfo .nav-tabs { max-width: 100%; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding-bottom: 1px; -webkit-overflow-scrolling: touch; }
+  .pialert-systeminfo .nav-tabs > .nav-item { flex: 0 0 auto; }
+  .pialert-systeminfo .nav-tabs .nav-link { white-space: nowrap; }
+}
+
+@media (max-width: 575.98px) {
+  .pialert-sysinfo-row dt {
+    margin-bottom: .15rem;
+  }
+
+  .pialert-systeminfo .card-body {
+    padding: .85rem;
+  }
+}

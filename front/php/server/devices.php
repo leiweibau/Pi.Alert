@@ -30,7 +30,8 @@ require 'db.php';
 require 'util.php';
 require 'journal.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
+require_once __DIR__ . '/../entity-actions.php';
 
 // Action selector
 // Set maximum execution time to 15 seconds
@@ -737,7 +738,9 @@ function getDevicesList() {
 	}
 	$result = db_execute_prepared($db, $sql, $parameters);
 	$tableData = array();
+	$actionKeys = array();
 	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+		$actionKeys[] = (string) $row['dev_MAC'];
 		$isNmapQueued = isset($queuedDeviceMacs[strtolower(trim((string) $row['dev_MAC']))]);
 		$tableData['data'][] = array($row['dev_Name'], $row['dev_ConnectionType'], $row['dev_Owner'],
 			$row['dev_DeviceType'], $row['dev_Favorite'], $row['dev_Group'], $row['dev_Location'],
@@ -749,6 +752,7 @@ function getDevicesList() {
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
+	$tableData['actions'] = entity_actions_map($db, 'device', $actionKeys);
 	echo json_encode($tableData);
 }
 

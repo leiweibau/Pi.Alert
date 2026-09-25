@@ -3,577 +3,158 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-require_once __DIR__ . "/php/server/session.php";
-pialert_start_session();
-
-if ($_SESSION["login"] != 1) {
-	header('Location: ./index.php');
-	exit;
+define('PIALERT_V4_PUBLIC_ENTRY', true);
+require_once __DIR__ . '/php/bootstrap.php';
+pialert_v4_start_session();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+    header('Allow: GET');
+    http_response_code(405);
+    exit('Method Not Allowed');
 }
-
-require 'php/templates/header.php';
-require 'php/server/db.php';
-require 'php/server/journal.php';
-
+if (($_SESSION['login'] ?? 0) != 1) {
+    header('Location: ' . pialert_v4_route('login'));
+    exit;
+}
+pialert_v4_load_language();
+require_once __DIR__ . '/php/shell.php';
+require_once __DIR__ . '/php/server/db.php';
+require_once __DIR__ . '/php/server/journal.php';
 $DBFILE = '../db/pialert.db';
 OpenDB();
-?>
 
-<div class="content-wrapper">
+function pialert_v4_network_rows($result): array {
+    $rows = array();
+    if ($result !== false) {
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $rows[] = $row;
+    }
+    return $rows;
+}
 
-    <section class="content-header">
-    <?php require 'php/templates/notification.php';?>
-      <h1 id="pageTitle">
-         <?=$pia_lang['NetworkSettings_Title'];?>
-         <a href="./network.php" class="btn btn-success pull-right" role="button" style="position: absolute; display: inline-block; top: 5px; right: 15px;"><?=$pia_lang['Gen_Close'];?></a>
-      </h1>
-    </section>
-
-    <section class="content">
-
-    <!-- Manage Devices ---------------------------------------------------------- -->
-		<div class="box "> <!-- collapsed-box -->
-        <div class="box-header">
-          <h3 class="box-title" id="netedit"><?=$pia_lang['NET_Man_Devices'];?></h3>
-        </div>
-        <!-- /.box-header -->
-
-        <div class="box-body" style="">
-          <p><?=$pia_lang['NET_Man_Devices_Intro'];?></p>
-          <div class="row">
-            <!-- Add Device ---------------------------------------------------------- -->
-            <div class="col-md-4">
-            <h4 class="box-title"><?=$pia_lang['NET_Man_Add'];?></h4>
-            <form role="form" onsubmit="return false;">
-              <div class="form-group has-success">
-                  <label for="NetworkDeviceName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
-                  <div class="input-group">
-                      <input class="form-control" id="txtNetworkDeviceName" name="NetworkDeviceName" type="text" placeholder="<?=$pia_lang['NET_Man_Add_Name_text'];?>">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkNodeMac">
-                                <span class="fa fa-caret-down"></span>
-                            </button>
-                            <ul id="dropdownNetworkNodeMac" class="dropdown-menu dropdown-menu-right"></ul>
-                          </div>
-                  </div>
-              </div>
-              <div class="form-group has-success">
-                  <label for="NetworkDeviceTyp"><?=$pia_lang['NET_Man_Add_Type'];?>:</label>
-                  <div class="input-group">
-                      <input class="form-control" id="txtNetworkDeviceTyp" name="NetworkDeviceTyp" type="text" readonly placeholder="<?=$pia_lang['NET_Man_Add_Type_text'];?>">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkDeviceTyp">
-                                <span class="fa fa-caret-down"></span>
-                            </button>
-                            <ul id="dropdownNetworkDeviceTyp" class="dropdown-menu dropdown-menu-right"></ul>
-                          </div>
-                  </div>
-              </div>
-              <div class="form-group has-success">
-                <label for="NetworkDevicePort"><?=$pia_lang['NET_Man_Add_Port'];?>:</label>
-                <input type="text" class="form-control" id="NetworkDevicePort" name="NetworkDevicePort" placeholder="<?=$pia_lang['NET_Man_Add_Port_text'];?>">
-              </div>
-              <div class="form-group has-success">
-                  <label for="NetworkGroupName"><?=$pia_lang['NET_Man_Add_NetName'];?>:</label>
-                  <div class="input-group">
-                      <input class="form-control" id="txtNetworkGroupName" name="NetworkGroupName" type="text" placeholder="<?=$pia_lang['NET_Man_Add_NetName_text'];?>">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkGroupName">
-                                <span class="fa fa-caret-down"></span>
-                            </button>
-                            <ul id="dropdownNetworkGroupName" class="dropdown-menu dropdown-menu-right"></ul>
-                          </div>
-                  </div>
-              </div>
-              <div class="form-group">
-              <button type="button" class="btn btn-success" name="Networkinsert" onclick="addManagedDev()"><?=$pia_lang['NET_Man_Add_Submit'];?></button>
-          	  </div>
-          </form>
-              <!-- /.form-group -->
-            </div>
-            <!-- /.col -->
-            <!-- Edit Device ---------------------------------------------------------- -->
-            <div class="col-md-4">
-              <h4 class="box-title"><?=$pia_lang['NET_Man_Edit'];?></h4>
-              <form role="form" onsubmit="return false;">
-              <div class="form-group has-warning">
-              	<label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
-                  <select class="form-control" id="UpdNetworkDeviceID" name="UpdNetworkDeviceID" onchange="get_networkdev_values(event)">
-                    <option value=""><?=$pia_lang['NET_Man_Edit_ID_text'];?></option>
-<?php
+// Keep the six queries and their ordering from networkSettings.php.
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices", "net_networkname" FROM "network_infrastructure" ORDER BY "net_networkname" ASC, "net_device_typ" ASC';
-$result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
-$netdev_data = array();
-while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-	if (!isset($res['device_id'])) {
-		continue;
-	}
-	$deviceId = (string) $res['device_id'];
-	$key = 'netdev_id_' . $deviceId;
-	echo '<option value="' . h($deviceId) . '">' . h($res['net_networkname']) . ' - ' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
-	$netdev_data[$key] = array(
-		$deviceId,
-		(string) $res['net_device_name'],
-		(string) $res['net_device_typ'],
-		(string) $res['net_downstream_devices'],
-		(string) $res['net_device_port'],
-		(string) $res['net_networkname'],
-	);
-}
-?>
-                  </select>
-              </div>
-<!-- Autofill "Edit" Input fields ---------------------------------------------------------- -->
-<script>
-function get_networkdev_values(event) {
-    var selectElement = event.target;
-    var value = 'netdev_id_' + selectElement.value;
-
-    const netdev_arrays = <?=json_encode($netdev_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);?>;
-    if (!Object.prototype.hasOwnProperty.call(netdev_arrays, value)) {
-        return;
-    }
-    var netdev_name = netdev_arrays[value][1];
-    $('#NewNetworkDeviceName').val(netdev_name);
-    var netdev_type = netdev_arrays[value][2];
-    $('#txtNewNetworkDeviceTyp').val(netdev_type);
-    var port_config = netdev_arrays[value][3];
-    $('#txtNetworkDeviceDownlinkMac').val(port_config);
-    var port_count = netdev_arrays[value][4];
-    $('#NewNetworkDevicePort').val(port_count);
-    var networkgroup = netdev_arrays[value][5];
-    $('#txtNewNetworkGroupName').val(networkgroup);
-
-loadNetworkDevices(netdev_type);
-};
-</script>
-              <div class="form-group has-warning">
-                <label for="NetworkDeviceName"><?=$pia_lang['NET_Man_Edit_Name'];?>:</label>
-                <input type="text" class="form-control" id="NewNetworkDeviceName" name="NewNetworkDeviceName" placeholder="<?=$pia_lang['NET_Man_Edit_Name_text'];?>">
-              </div>
-              <div class="form-group has-warning">
-                  <label for="NewNetworkDeviceTyp"><?=$pia_lang['NET_Man_Edit_Type'];?>:</label>
-                  <div class="input-group">
-                      <input class="form-control" id="txtNewNetworkDeviceTyp" name="NewNetworkDeviceTyp" type="text" readonly placeholder="<?=$pia_lang['NET_Man_Edit_Type_text'];?>">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNewNetworkDeviceTyp">
-                                <span class="fa fa-caret-down"></span>
-                            </button>
-                            <ul id="dropdownNewNetworkDeviceTyp" class="dropdown-menu dropdown-menu-right"></ul>
-                          </div>
-                  </div>
-              </div>
-              <div class="form-group has-warning">
-                  <label for="NewNetworkGroupName"><?=$pia_lang['NET_Man_Edit_NetName'];?>:</label>
-                  <div class="input-group">
-                      <input class="form-control" id="txtNewNetworkGroupName" name="NewNetworkGroupName" type="text" placeholder="<?=$pia_lang['NET_Man_Add_NetName_text'];?>">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNewNetworkGroupName">
-                                <span class="fa fa-caret-down"></span>
-                            </button>
-                            <ul id="dropdownNewNetworkGroupName" class="dropdown-menu dropdown-menu-right"></ul>
-                          </div>
-                  </div>
-              </div>
-              <div class="form-group has-warning">
-                <label for="NetworkDevicePort"><?=$pia_lang['NET_Man_Edit_Port'];?>:</label>
-                <input type="text" class="form-control" id="NewNetworkDevicePort" name="NewNetworkDevicePort" placeholder="<?=$pia_lang['NET_Man_Edit_Port_text'];?>">
-              </div>
-              <div class="form-group has-warning">
-                  <label for="NetworkDeviceDownlink"><?=$pia_lang['NET_Man_Edit_Downlink'];?>:</label>
-                  <div class="input-group">
-                      <input class="form-control" id="txtNetworkDeviceDownlinkMac" name="NetworkDeviceDownlink" type="text" placeholder="<?=$pia_lang['NET_Man_Edit_Downlink_text'];?>">
-                          <div class="input-group-btn">
-                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="buttonNetworkDeviceDownlinkMac">
-                                <span class="fa fa-caret-down"></span>
-                            </button>
-                            <ul id="dropdownNetworkDeviceDownlinkMac" class="dropdown-menu dropdown-menu-right"></ul>
-                          </div>
-                  </div>
-              </div>
-              <div class="form-group">
-                <button type="button" class="btn btn-warning" name="Networkedit" onclick="updManagedDev()"><?=$pia_lang['NET_Man_Edit_Submit'];?></button>
-              </div>
-         	 </form>
-              <!-- /.form-group -->
-            </div>
-            <!-- /.col -->
-            <!-- Del Device ---------------------------------------------------------- -->
-           <div class="col-md-4">
-            <h4 class="box-title"><?=$pia_lang['NET_Man_Del'];?></h4>
-              <form role="form" onsubmit="return false;">
-              <div class="form-group has-error">
-                <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
-                  <select class="form-control" id="DelNetworkDeviceID" name="DelNetworkDeviceID">
-                    <option value=""><?=$pia_lang['NET_Man_Del_Name_text'];?></option>
-<?php
+$managedEdit = pialert_v4_network_rows($db->query($sql));
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_networkname" FROM "network_infrastructure" ORDER BY "net_networkname" ASC, "net_device_typ" ASC';
-$result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
-while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-	if (!isset($res['device_id'])) {
-		continue;
-	}
-	echo '<option value="' . h($res['device_id']) . '">' . h($res['net_networkname']) . ' - ' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
-}
-?>
-                  </select>
-              </div>
-              <!-- /.form-group -->
-              <div class="form-group">
-                <button type="button" class="btn btn-danger" name="Networkdelete" onclick="delManagedDev()"><?=$pia_lang['NET_Man_Del_Submit'];?></button>
-              </div>
-           </form>
-              <!-- /.form-group -->
-            </div>
-          </div>
-          <!-- /.row -->
-        </div>
-        <!-- /.box-body -->
-      </div>
-
-    <div class="box ">
-        <div class="box-header">
-          <h3 class="box-title" id="hostedit"><?=$pia_lang['NET_UnMan_Devices'];?></h3>
-        </div>
-        <!-- /.box-header -->
-
-        <div class="box-body" style="">
-          <p><?=$pia_lang['NET_UnMan_Devices_Intro'];?></p>
-          <div class="row">
-            <!-- Add Device ---------------------------------------------------------- -->
-            <div class="col-md-4">
-            <h4 class="box-title"><?=$pia_lang['NET_Man_Add'];?></h4>
-            <form role="form" onsubmit="return false;">
-              <!-- /.form-group -->
-              <div class="form-group has-success">
-                <label for="NetworkUnmanagedDevName"><?=$pia_lang['NET_Man_Add_Name'];?>:</label>
-                <input type="text" class="form-control" id="txtNetworkUnmanagedDevName" name="NetworkUnmanagedDevName" placeholder="<?=$pia_lang['NET_Man_Add_Name_text'];?>">
-              </div>
-
-              <div class="form-group has-success">
-                <label><?=$pia_lang['NET_UnMan_Devices_Connected'];?>:</label>
-                  <select class="form-control" id="txtNetworkUnmanagedDevConnect" name="NetworkUnmanagedDevConnect">
-                    <option value=""><?=$pia_lang['NET_UnMan_Devices_Connected_text'];?></option>
-<?php
+$managedDelete = pialert_v4_network_rows($db->query($sql));
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
-$result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
-$netdev_all_ids = array();
-while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-	if (!isset($res['device_id'])) {
-		continue;
-	}
-	echo '<option value="' . h($res['device_id']) . '">' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
-}
-?>
-                  </select>
-              </div>
-              <div class="form-group has-success">
-                <label for="NetworkUnmanagedDevPort"><?=$pia_lang['NET_UnMan_Devices_Port'];?>:</label>
-                <input type="text" class="form-control" id="NetworkUnmanagedDevPort" name="NetworkUnmanagedDevPort" placeholder="<?=$pia_lang['NET_UnMan_Devices_Port_text'];?>">
-              </div>
-              <div class="form-group">
-              <button type="button" class="btn btn-success" name="NetworkUnmanagedDevinsert" onclick="addUnManagedDev()"><?=$pia_lang['NET_Man_Add_Submit'];?></button>
-              </div>
-          </form>
-              <!-- /.form-group -->
-            </div>
-            <!-- /.col -->
-            <!-- Edit Device ---------------------------------------------------------- -->
-            <div class="col-md-4">
-              <h4 class="box-title"><?=$pia_lang['NET_Man_Edit'];?></h4>
-              <form role="form" onsubmit="return false;">
-              <div class="form-group has-warning">
-                <label><?=$pia_lang['NET_Man_Edit_ID'];?>:</label>
-                  <select class="form-control" id="NetworkUnmanagedDevID" name="NetworkUnmanagedDevID">
-                    <option value=""><?=$pia_lang['NET_Man_Edit_ID_text'];?></option>
-<?php
+$managedConnectAdd = pialert_v4_network_rows($db->query($sql));
 $sql = 'SELECT * FROM "network_dumb_dev" ORDER BY "dev_Name" ASC';
-$result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
-$netdev_all_ids = array();
-while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-	if (!isset($res['id'])) {
-		continue;
-	}
-	echo '<option value="' . h($res['id']) . '">' . h($res['dev_Name']) . '</option>';
-}
-?>
-                  </select>
-              </div>
-              <div class="form-group has-warning">
-                <label for="NewNetworkUnmanagedDevName"><?=$pia_lang['NET_Man_Edit_Name'];?>:</label>
-                <input type="text" class="form-control" id="NewNetworkUnmanagedDevName" name="NewNetworkUnmanagedDevName" placeholder="<?=$pia_lang['NET_Man_Edit_Name_text'];?>">
-              </div>
-
-              <div class="form-group has-warning">
-                <label><?=$pia_lang['NET_UnMan_Devices_Connected'];?>:</label>
-                  <select class="form-control" id="NewNetworkUnmanagedDevConnect" name="NewNetworkUnmanagedDevConnect">
-                    <option value=""><?=$pia_lang['NET_UnMan_Devices_Connected_text'];?></option>
-<?php
+$unmanagedEdit = pialert_v4_network_rows($db->query($sql));
 $sql = 'SELECT "device_id", "net_device_name", "net_device_typ", "net_device_port", "net_downstream_devices" FROM "network_infrastructure" ORDER BY "net_device_typ" ASC';
-$result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
-$netdev_all_ids = array();
-while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-	if (!isset($res['device_id'])) {
-		continue;
-	}
-	echo '<option value="' . h($res['device_id']) . '">' . h($res['net_device_name']) . ' / ' . h(substr((string) $res['net_device_typ'], 2)) . '</option>';
-}
-?>
-                  </select>
-              </div>
-              <div class="form-group has-warning">
-                <label for="NetworkDevicePort"><?=$pia_lang['NET_UnMan_Devices_Port'];?>:</label>
-                <input type="text" class="form-control" id="NewNetworkUnmanagedDevPort" name="NewNetworkUnmanagedDevPort" placeholder="<?=$pia_lang['NET_UnMan_Devices_Port_text'];?>">
-              </div>
-
-              <div class="form-group">
-                <button type="button" class="btn btn-warning" name="NetworkUnmanagedDevedit" onclick="updUnManagedDev()"><?=$pia_lang['NET_Man_Edit_Submit'];?></button>
-              </div>
-           </form>
-              <!-- /.form-group -->
-            </div>
-            <!-- /.col -->
-            <!-- Del Device ---------------------------------------------------------- -->
-           <div class="col-md-4">
-            <h4 class="box-title"><?=$pia_lang['NET_Man_Del'];?></h4>
-              <form role="form" onsubmit="return false;">
-              <div class="form-group has-error">
-                <label><?=$pia_lang['NET_Man_Del_Name'];?>:</label>
-                  <select class="form-control" id="DelNetworkUnmanagedDevID" name="DelNetworkUnmanagedDevID">
-                    <option value=""><?=$pia_lang['NET_Man_Del_Name_text'];?></option>
-<?php
+$managedConnectEdit = pialert_v4_network_rows($db->query($sql));
 $sql = 'SELECT "id", "dev_Name" FROM "network_dumb_dev" ORDER BY "dev_Name" ASC';
-$result = $db->query($sql); //->fetchArray(SQLITE3_ASSOC);
-while ($res = $result->fetchArray(SQLITE3_ASSOC)) {
-	if (!isset($res['id'])) {
-		continue;
-	}
-	echo '<option value="' . h($res['id']) . '">' . h($res['dev_Name']) . '</option>';
+$unmanagedDelete = pialert_v4_network_rows($db->query($sql));
+
+$managedEditData = array();
+foreach ($managedEdit as $row) {
+    if (!isset($row['device_id'])) continue;
+    $managedEditData[(string) $row['device_id']] = array(
+        (string) $row['net_device_name'], (string) $row['net_device_typ'],
+        (string) $row['net_downstream_devices'], (string) $row['net_device_port'],
+        (string) $row['net_networkname']
+    );
 }
+$unmanagedEditData = array();
+foreach ($unmanagedEdit as $row) {
+    if (!isset($row['id'])) continue;
+    $unmanagedEditData[(string) $row['id']] = array(
+        (string) $row['dev_Name'], (string) $row['dev_Infrastructure'],
+        (string) $row['dev_Infrastructure_port']
+    );
+}
+$settingsData = json_encode(array('managed' => $managedEditData, 'unmanaged' => $unmanagedEditData), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+pialert_v4_shell_start($pia_lang['NetworkSettings_Title'] ?? 'Network settings', 'network', array('css/network.css'));
 ?>
-                  </select>
-              </div>
-              <!-- /.form-group -->
-              <div class="form-group">
-                <button type="button" class="btn btn-danger" name="NetworkUnmanagedDevdelete" onclick="delUnManagedDev()"><?=$pia_lang['NET_Man_Del_Submit'];?></button>
-              </div>
-           </form>
-              <!-- /.form-group -->
-            </div>
-          </div>
-          <!-- /.row -->
-        </div>
-        <!-- /.box-body -->
+<section id="network-settings-page" data-downlink-placeholder="<?= h($pia_lang['NET_Man_Edit_Downlink_text'] ?? 'MAC,port'); ?>" data-downlink-alt-placeholder="<?= h($pia_lang['NET_Man_Edit_Downlink_alttext'] ?? 'MAC;'); ?>">
+  <div class="d-flex justify-content-end mb-3"><a class="btn btn-outline-secondary" href="./network.php"><?= h($pia_lang['Gen_Close'] ?? 'Close'); ?></a></div>
+  <script type="application/json" id="network-settings-data"><?= $settingsData ?: '{}'; ?></script>
+
+  <div class="card mb-4" id="netedit">
+    <div class="card-header"><h2 class="h5 mb-0"><?= h($pia_lang['NET_Man_Devices'] ?? 'Managed devices'); ?></h2></div>
+    <div class="card-body">
+      <p><?= h(strip_tags($pia_lang['NET_Man_Devices_Intro'] ?? '')); ?></p>
+      <div class="row g-4">
+        <div class="col-lg-4"><form id="network-managed-add" class="h-100">
+          <h3 class="h6"><?= h($pia_lang['NET_Man_Add'] ?? 'Add'); ?></h3>
+          <label class="form-label" for="txtNetworkDeviceName"><?= h($pia_lang['NET_Man_Add_Name'] ?? 'Name'); ?></label>
+          <div class="input-group mb-3"><input class="form-control" id="txtNetworkDeviceName" type="text" maxlength="255" placeholder="<?= h($pia_lang['NET_Man_Add_Name_text'] ?? ''); ?>" required><button class="btn btn-outline-secondary dropdown-toggle" id="buttonNetworkNodeMac" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?= h($pia_lang['V4_Select_Device']); ?>"></button><div id="dropdownNetworkNodeMac" class="dropdown-menu dropdown-menu-end"></div></div>
+          <label class="form-label" for="txtNetworkDeviceTyp"><?= h($pia_lang['NET_Man_Add_Type'] ?? 'Type'); ?></label>
+          <div class="input-group mb-3"><input class="form-control" id="txtNetworkDeviceTyp" type="text" readonly required placeholder="<?= h($pia_lang['NET_Man_Add_Type_text'] ?? ''); ?>"><button class="btn btn-outline-secondary dropdown-toggle" id="buttonNetworkDeviceTyp" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?= h($pia_lang['V4_Select_Type']); ?>"></button><div id="dropdownNetworkDeviceTyp" class="dropdown-menu dropdown-menu-end"></div></div>
+          <label class="form-label" for="NetworkDevicePort"><?= h($pia_lang['NET_Man_Add_Port'] ?? 'Ports'); ?></label><input class="form-control mb-3" id="NetworkDevicePort" type="number" min="0" max="1024" placeholder="<?= h($pia_lang['NET_Man_Add_Port_text'] ?? ''); ?>">
+          <label class="form-label" for="txtNetworkGroupName"><?= h($pia_lang['NET_Man_Add_NetName'] ?? 'Network'); ?></label>
+          <div class="input-group mb-3"><input class="form-control" id="txtNetworkGroupName" type="text" maxlength="255" placeholder="<?= h($pia_lang['NET_Man_Add_NetName_text'] ?? ''); ?>"><button class="btn btn-outline-secondary dropdown-toggle" id="buttonNetworkGroupName" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?= h($pia_lang['V4_Select_Network']); ?>"></button><div id="dropdownNetworkGroupName" class="dropdown-menu dropdown-menu-end"></div></div>
+          <button class="btn btn-success" type="submit"><?= h($pia_lang['NET_Man_Add_Submit'] ?? 'Add'); ?></button>
+        </form></div>
+
+        <div class="col-lg-4"><form id="network-managed-edit" class="h-100">
+          <h3 class="h6"><?= h($pia_lang['NET_Man_Edit'] ?? 'Edit'); ?></h3>
+          <label class="form-label" for="UpdNetworkDeviceID"><?= h($pia_lang['NET_Man_Edit_ID'] ?? 'Device'); ?></label>
+          <select class="form-select mb-3" id="UpdNetworkDeviceID" required><option value=""><?= h($pia_lang['NET_Man_Edit_ID_text'] ?? 'Select'); ?></option>
+            <?php foreach ($managedEdit as $row): if (!isset($row['device_id'])) continue; ?><option value="<?= h($row['device_id']); ?>"><?= h($row['net_networkname']); ?> - <?= h($row['net_device_name']); ?> / <?= h(substr((string) $row['net_device_typ'], 2)); ?></option><?php endforeach; ?>
+          </select>
+          <label class="form-label" for="NewNetworkDeviceName"><?= h($pia_lang['NET_Man_Edit_Name'] ?? 'Name'); ?></label><input class="form-control mb-3" id="NewNetworkDeviceName" type="text" maxlength="255">
+          <label class="form-label" for="txtNewNetworkDeviceTyp"><?= h($pia_lang['NET_Man_Edit_Type'] ?? 'Type'); ?></label>
+          <div class="input-group mb-3"><input class="form-control" id="txtNewNetworkDeviceTyp" type="text" readonly required><button class="btn btn-outline-secondary dropdown-toggle" id="buttonNewNetworkDeviceTyp" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?= h($pia_lang['V4_Select_Type']); ?>"></button><div id="dropdownNewNetworkDeviceTyp" class="dropdown-menu dropdown-menu-end"></div></div>
+          <label class="form-label" for="txtNewNetworkGroupName"><?= h($pia_lang['NET_Man_Edit_NetName'] ?? 'Network'); ?></label>
+          <div class="input-group mb-3"><input class="form-control" id="txtNewNetworkGroupName" type="text" maxlength="255"><button class="btn btn-outline-secondary dropdown-toggle" id="buttonNewNetworkGroupName" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?= h($pia_lang['V4_Select_Network']); ?>"></button><div id="dropdownNewNetworkGroupName" class="dropdown-menu dropdown-menu-end"></div></div>
+          <label class="form-label" for="NewNetworkDevicePort"><?= h($pia_lang['NET_Man_Edit_Port'] ?? 'Ports'); ?></label><input class="form-control mb-3" id="NewNetworkDevicePort" type="number" min="0" max="1024">
+          <label class="form-label" for="txtNetworkDeviceDownlinkMac"><?= h($pia_lang['NET_Man_Edit_Downlink'] ?? 'Downlink'); ?></label>
+          <div class="input-group mb-3"><input class="form-control" id="txtNetworkDeviceDownlinkMac" type="text" maxlength="8192"><button class="btn btn-outline-secondary dropdown-toggle" id="buttonNetworkDeviceDownlinkMac" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?= h($pia_lang['V4_Select_Downlink']); ?>"></button><div id="dropdownNetworkDeviceDownlinkMac" class="dropdown-menu dropdown-menu-end"></div></div>
+          <button class="btn btn-warning" type="submit"><?= h($pia_lang['NET_Man_Edit_Submit'] ?? 'Save'); ?></button>
+        </form></div>
+
+        <div class="col-lg-4"><form id="network-managed-delete">
+          <h3 class="h6"><?= h($pia_lang['NET_Man_Del'] ?? 'Delete'); ?></h3>
+          <label class="form-label" for="DelNetworkDeviceID"><?= h($pia_lang['NET_Man_Del_Name'] ?? 'Device'); ?></label>
+          <select class="form-select mb-3" id="DelNetworkDeviceID" required><option value=""><?= h($pia_lang['NET_Man_Del_Name_text'] ?? 'Select'); ?></option>
+            <?php foreach ($managedDelete as $row): if (!isset($row['device_id'])) continue; ?><option value="<?= h($row['device_id']); ?>"><?= h($row['net_networkname']); ?> - <?= h($row['net_device_name']); ?> / <?= h(substr((string) $row['net_device_typ'], 2)); ?></option><?php endforeach; ?>
+          </select>
+          <button class="btn btn-danger" type="submit"><?= h($pia_lang['NET_Man_Del_Submit'] ?? 'Delete'); ?></button>
+        </form></div>
       </div>
-
-  <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
-<script>
-function main(){
-  NetworkInfrastructure_list();
-  NetworkDeviceTyp_list("add");
-  NetworkDeviceTyp_list("edit");
-  NetworkGroupName_list("add");
-  NetworkGroupName_list("edit");
-}
-
-function setTextValue (textElement, textValue) {
-  $('#'+textElement).val(textValue);
-}
-
-function appendTextValue(textElement, textValue) {
-    var existingText = $('#' + textElement).val();
-    $('#' + textElement).val(existingText + textValue);
-}
-
-$(document).on('click', '.network-value-option', function(event) {
-  event.preventDefault();
-
-  const target = this.getAttribute('data-target');
-  const value = this.getAttribute('data-value') || '';
-  const action = this.getAttribute('data-action');
-
-  if (!target || !document.getElementById(target)) {
-    return;
-  }
-  if (action === 'append') {
-    appendTextValue(target, value);
-  } else if (action === 'set') {
-    setTextValue(target, value);
-  }
-});
-
-function loadNetworkDevices(nodetyp) {
-  $.get('php/server/network.php?action=network_device_downlink&nodetyp=' + nodetyp, function(data) {
-    $("#dropdownNetworkDeviceDownlinkMac").html(data);
-  } );
-  set_placeholder("txtNetworkDeviceDownlinkMac", nodetyp);
-}
-
-function NetworkInfrastructure_list() {
-  $.get('php/server/network.php?action=NetworkInfrastructure_list', function(data) {
-    $("#dropdownNetworkNodeMac").html(data);
-  } );
-}
-
-function NetworkDeviceTyp_list(mode) {
-  $.get('php/server/network.php?action=NetworkDeviceTyp_list&mode=' + mode, function(data) {
-    if (mode == "add") {
-      $("#dropdownNetworkDeviceTyp").html(data);
-    }
-    if (mode == "edit") {
-      $("#dropdownNewNetworkDeviceTyp").html(data);
-    }
-  } );
-}
-function NetworkGroupName_list(mode) {
-  $.get('php/server/network.php?action=NetworkGroupName_list&mode=' + mode, function(data) {
-    if (mode == "add") {
-      $("#dropdownNetworkGroupName").html(data);
-    }
-    if (mode == "edit") {
-      $("#dropdownNewNetworkGroupName").html(data);
-    }
-  } );
-}
-// Function to set placeholder
-function set_placeholder(inputId, typ) {
-    var placeholders = ["3_WLAN","4_Powerline","5_Hypervisor"];
-    var inputElement = document.getElementById(inputId);
-
-    if (placeholders.includes(typ)) {
-        inputElement.placeholder = "<?=$pia_lang['NET_Man_Edit_Downlink_alttext'];?>";
-    } else {
-        inputElement.placeholder = "<?=$pia_lang['NET_Man_Edit_Downlink_text'];?>";
-    }
-}
-// -----------------------------------------------------------------------------
-function addManagedDev(refreshCallback='') {
-  if ($('#txtNetworkDeviceName').val() == '') {
-    return;
-  }
-
-  pialertPost('php/server/network.php?action=addManagedDev'
-    + '&NetworkDeviceName='  + $('#txtNetworkDeviceName').val()
-    + '&NetworkDeviceTyp='   + $('#txtNetworkDeviceTyp').val()
-    + '&NetworkDevicePort='  + $('#NetworkDevicePort').val()
-    + '&NetworkGroupName='   + $('#txtNetworkGroupName').val()
-    , function(msg) {
-
-    showMessage (msg);
-    // Callback fuction
-    if (typeof refreshCallback == 'function') {
-      refreshCallback();
-    }
-  });
-}
-// -----------------------------------------------------------------------------
-function updManagedDev(refreshCallback='') {
-  if ($('#UpdNetworkDeviceID').val() == '') {
-    return;
-  }
-
-  pialertPost('php/server/network.php?action=updManagedDev'
-    + '&NetworkDeviceID='          + $('#UpdNetworkDeviceID').val()
-    + '&NewNetworkDeviceName='     + $('#NewNetworkDeviceName').val()
-    + '&NewNetworkDeviceTyp='      + $('#txtNewNetworkDeviceTyp').val()
-    + '&NewNetworkDevicePort='     + $('#NewNetworkDevicePort').val()
-    + '&NewNetworkGroupName='      + $('#txtNewNetworkGroupName').val()
-    + '&NetworkDeviceDownlink='    + $('#txtNetworkDeviceDownlinkMac').val()
-    , function(msg) {
-
-    showMessage (msg);
-    // Callback fuction
-    if (typeof refreshCallback == 'function') {
-      refreshCallback();
-    }
-  });
-}
-// -----------------------------------------------------------------------------
-function delManagedDev(refreshCallback='') {
-  if ($('#DelNetworkDeviceID').val() == '') {
-    return;
-  }
-
-  pialertPost('php/server/network.php?action=delManagedDev'
-    + '&NetworkDeviceID='          + $('#DelNetworkDeviceID').val()
-    , function(msg) {
-
-    showMessage (msg);
-    // Callback fuction
-    if (typeof refreshCallback == 'function') {
-      refreshCallback();
-    }
-  });
-}
-
-// -----------------------------------------------------------------------------
-function addUnManagedDev(refreshCallback='') {
-  if ($('#txtNetworkUnmanagedDevName').val() == '') {
-    return;
-  }
-
-  pialertPost('php/server/network.php?action=addUnManagedDev'
-    + '&NetworkUnmanagedDevName='     + $('#txtNetworkUnmanagedDevName').val()
-    + '&NetworkUnmanagedDevConnect='  + $('#txtNetworkUnmanagedDevConnect').val()
-    + '&NetworkUnmanagedDevPort='     + $('#NetworkUnmanagedDevPort').val()
-    , function(msg) {
-
-    showMessage (msg);
-    // Callback fuction
-    if (typeof refreshCallback == 'function') {
-      refreshCallback();
-    }
-  });
-}
-
-// -----------------------------------------------------------------------------
-function updUnManagedDev(refreshCallback='') {
-  if ($('#NetworkUnmanagedDevID').val() == '') {
-    return;
-  }
-
-  pialertPost('php/server/network.php?action=updUnManagedDev'
-    + '&NetworkUnmanagedDevID='          + $('#NetworkUnmanagedDevID').val()
-    + '&NewNetworkUnmanagedDevName='     + $('#NewNetworkUnmanagedDevName').val()
-    + '&NewNetworkUnmanagedDevConnect='  + $('#NewNetworkUnmanagedDevConnect').val()
-    + '&NewNetworkUnmanagedDevPort='     + $('#NewNetworkUnmanagedDevPort').val()
-    , function(msg) {
-
-    showMessage (msg);
-    // Callback fuction
-    if (typeof refreshCallback == 'function') {
-      refreshCallback();
-    }
-  });
-}
-// -----------------------------------------------------------------------------
-function delUnManagedDev(refreshCallback='') {
-  if ($('#DelNetworkUnmanagedDevID').val() == '') {
-    return;
-  }
-
-  pialertPost('php/server/network.php?action=delUnManagedDev'
-    + '&NetworkUnmanagedDevID='          + $('#DelNetworkUnmanagedDevID').val()
-    , function(msg) {
-
-    showMessage (msg);
-    // Callback fuction
-    if (typeof refreshCallback == 'function') {
-      refreshCallback();
-    }
-  });
-}
-
-main();
-</script>
-  <div style="width: 100%; height: 20px;"></div>
-</section>
-
-    <!-- /.content -->
+    </div>
   </div>
-  <!-- /.content-wrapper -->
 
-<!-- ----------------------------------------------------------------------- -->
-<?php
-require 'php/templates/footer.php';
-?>
+  <div class="card mb-4" id="hostedit">
+    <div class="card-header"><h2 class="h5 mb-0"><?= h($pia_lang['NET_UnMan_Devices'] ?? 'Unmanaged devices'); ?></h2></div>
+    <div class="card-body">
+      <p><?= h(strip_tags($pia_lang['NET_UnMan_Devices_Intro'] ?? '')); ?></p>
+      <div class="row g-4">
+        <div class="col-lg-4"><form id="network-unmanaged-add">
+          <h3 class="h6"><?= h($pia_lang['NET_Man_Add'] ?? 'Add'); ?></h3>
+          <label class="form-label" for="txtNetworkUnmanagedDevName"><?= h($pia_lang['NET_Man_Add_Name'] ?? 'Name'); ?></label><input class="form-control mb-3" id="txtNetworkUnmanagedDevName" type="text" maxlength="255" required>
+          <label class="form-label" for="txtNetworkUnmanagedDevConnect"><?= h($pia_lang['NET_UnMan_Devices_Connected'] ?? 'Connected to'); ?></label>
+          <select class="form-select mb-3" id="txtNetworkUnmanagedDevConnect" required><option value=""><?= h($pia_lang['NET_UnMan_Devices_Connected_text'] ?? 'Select'); ?></option>
+            <?php foreach ($managedConnectAdd as $row): if (!isset($row['device_id'])) continue; ?><option value="<?= h($row['device_id']); ?>"><?= h($row['net_device_name']); ?> / <?= h(substr((string) $row['net_device_typ'], 2)); ?></option><?php endforeach; ?>
+          </select>
+          <label class="form-label" for="NetworkUnmanagedDevPort"><?= h($pia_lang['NET_UnMan_Devices_Port'] ?? 'Port'); ?></label><input class="form-control mb-3" id="NetworkUnmanagedDevPort" type="text" maxlength="4096" placeholder="<?= h($pia_lang['NET_UnMan_Devices_Port_text'] ?? ''); ?>">
+          <button class="btn btn-success" type="submit"><?= h($pia_lang['NET_Man_Add_Submit'] ?? 'Add'); ?></button>
+        </form></div>
+
+        <div class="col-lg-4"><form id="network-unmanaged-edit">
+          <h3 class="h6"><?= h($pia_lang['NET_Man_Edit'] ?? 'Edit'); ?></h3>
+          <label class="form-label" for="NetworkUnmanagedDevID"><?= h($pia_lang['NET_Man_Edit_ID'] ?? 'Device'); ?></label>
+          <select class="form-select mb-3" id="NetworkUnmanagedDevID" required><option value=""><?= h($pia_lang['NET_Man_Edit_ID_text'] ?? 'Select'); ?></option>
+            <?php foreach ($unmanagedEdit as $row): if (!isset($row['id'])) continue; ?><option value="<?= h($row['id']); ?>"><?= h($row['dev_Name']); ?></option><?php endforeach; ?>
+          </select>
+          <label class="form-label" for="NewNetworkUnmanagedDevName"><?= h($pia_lang['NET_Man_Edit_Name'] ?? 'Name'); ?></label><input class="form-control mb-3" id="NewNetworkUnmanagedDevName" type="text" maxlength="255">
+          <label class="form-label" for="NewNetworkUnmanagedDevConnect"><?= h($pia_lang['NET_UnMan_Devices_Connected'] ?? 'Connected to'); ?></label>
+          <select class="form-select mb-3" id="NewNetworkUnmanagedDevConnect" required><option value=""><?= h($pia_lang['NET_UnMan_Devices_Connected_text'] ?? 'Select'); ?></option>
+            <?php foreach ($managedConnectEdit as $row): if (!isset($row['device_id'])) continue; ?><option value="<?= h($row['device_id']); ?>"><?= h($row['net_device_name']); ?> / <?= h(substr((string) $row['net_device_typ'], 2)); ?></option><?php endforeach; ?>
+          </select>
+          <label class="form-label" for="NewNetworkUnmanagedDevPort"><?= h($pia_lang['NET_UnMan_Devices_Port'] ?? 'Port'); ?></label><input class="form-control mb-3" id="NewNetworkUnmanagedDevPort" type="text" maxlength="4096">
+          <button class="btn btn-warning" type="submit"><?= h($pia_lang['NET_Man_Edit_Submit'] ?? 'Save'); ?></button>
+        </form></div>
+
+        <div class="col-lg-4"><form id="network-unmanaged-delete">
+          <h3 class="h6"><?= h($pia_lang['NET_Man_Del'] ?? 'Delete'); ?></h3>
+          <label class="form-label" for="DelNetworkUnmanagedDevID"><?= h($pia_lang['NET_Man_Del_Name'] ?? 'Device'); ?></label>
+          <select class="form-select mb-3" id="DelNetworkUnmanagedDevID" required><option value=""><?= h($pia_lang['NET_Man_Del_Name_text'] ?? 'Select'); ?></option>
+            <?php foreach ($unmanagedDelete as $row): if (!isset($row['id'])) continue; ?><option value="<?= h($row['id']); ?>"><?= h($row['dev_Name']); ?></option><?php endforeach; ?>
+          </select>
+          <button class="btn btn-danger" type="submit"><?= h($pia_lang['NET_Man_Del_Submit'] ?? 'Delete'); ?></button>
+        </form></div>
+      </div>
+    </div>
+  </div>
+</section>
+<?php pialert_v4_shell_end(array('js/network-settings.js')); ?>

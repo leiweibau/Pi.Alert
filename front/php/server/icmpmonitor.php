@@ -21,7 +21,8 @@ require 'db.php';
 require 'util.php';
 require 'journal.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
+require_once __DIR__ . '/../entity-actions.php';
 
 // Action selector
 // Set maximum execution time to 1 minute
@@ -92,7 +93,9 @@ function getDevicesList() {
 	$result = $db->query($sql);
 	// arrays of rows
 	$tableData = array();
+	$actionKeys = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$actionKeys[] = (string) $row['icmp_ip'];
 		if ($row['icmp_hostname'] == '') {$row['icmp_hostname'] = $row['icmp_ip'];}
 		$tableData['data'][] = array(
 			$row['icmp_hostname'],
@@ -110,6 +113,7 @@ function getDevicesList() {
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
+	$tableData['actions'] = entity_actions_map($db, 'icmp', $actionKeys);
 	// Return json
 	echo (json_encode($tableData));
 }

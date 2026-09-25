@@ -7,14 +7,12 @@ if ($_SESSION["login"] != 1) {
 	exit;
 }
 
-foreach (glob("../config/setting_language*") as $filename) {
-	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
-}
-if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
+require_once __DIR__ . '/../php/language-selection.php';
+$pia_lang_selected = pialert_selected_language();
 
 require '../php/server/db.php';
 require '../php/server/journal.php';
-require '../php/templates/language/' . $pia_lang_selected . '.php';
+require '../php/language/' . $pia_lang_selected . '.php';
 
 $DBFILE = '../../db/pialert.db';
 $DBFILE_TOOLS = '../../db/pialert_tools.db';

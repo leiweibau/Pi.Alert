@@ -16,7 +16,8 @@ BRANCH="main"
 INSTALL_DIR="/opt"
 EXEC_USER="$(whoami)"
 PIALERT_HOME="$INSTALL_DIR/pialert"
-LOG="pialert_update_`date +"%Y-%m-%d_%H-%M"`.log"
+LOG_DIR="$PIALERT_HOME/log"
+LOG="$LOG_DIR/pialert_update_$(date +"%Y-%m-%d_%H-%M").log"
 PYTHON_BIN=python3
 #PIHOLE_MOVED=false
 
@@ -24,6 +25,8 @@ PYTHON_BIN=python3
 # Main
 # ------------------------------------------------------------------------------
 main() {
+  initialize_update_log
+  trap finish_update_log EXIT
   update_warning
   print_superheader "Pi.Alert Update"
   log "`date`"
@@ -60,7 +63,6 @@ main() {
   # fi
   print_msg ""
 
-  move_logfile
 }
 
 # ------------------------------------------------------------------------------
@@ -144,9 +146,13 @@ reset_permissions() {
   sudo chmod -R 775 $PIALERT_HOME/db                                  2>&1 >> "$LOG"
   sudo chgrp -R www-data $PIALERT_HOME/config                         2>&1 >> "$LOG"
   sudo chmod 1775 $PIALERT_HOME/config                                2>&1 >> "$LOG"
-  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf ! -name setting_ui_v4.default.json -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
   sudo chown root:root "$PIALERT_HOME/config/version.conf"           2>&1 >> "$LOG"
   sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                2>&1 >> "$LOG"
+  if [ -f "$PIALERT_HOME/config/setting_ui_v4.default.json" ] && [ ! -L "$PIALERT_HOME/config/setting_ui_v4.default.json" ]; then
+    sudo chown root:root "$PIALERT_HOME/config/setting_ui_v4.default.json" 2>&1 >> "$LOG"
+    sudo chmod 0644 "$PIALERT_HOME/config/setting_ui_v4.default.json"      2>&1 >> "$LOG"
+  fi
 }
 
 # ------------------------------------------------------------------------------
@@ -158,22 +164,38 @@ create_backup() {
   rm -f "$INSTALL_DIR/"pialert_update_backup_*.tar
   print_msg "- Creating new Pi.Alert backup..."
   cd "$INSTALL_DIR"
-  tar cvf "$INSTALL_DIR"/pialert_update_backup_`date +"%Y-%m-%d_%H-%M"`.tar pialert --checkpoint=100 --checkpoint-action="ttyout=."     2>&1 >> "$LOG"
+  tar cvf "$INSTALL_DIR"/pialert_update_backup_`date +"%Y-%m-%d_%H-%M"`.tar \
+    --exclude='pialert/log/pialert_update_*.log' pialert \
+    --checkpoint=100 --checkpoint-action="ttyout=."                       2>&1 >> "$LOG"
   echo ""
 }
 
 # ------------------------------------------------------------------------------
-# Move files to the temp directory
+# Preserve runtime files; migrate only settings still read from config.
 # ------------------------------------------------------------------------------
 move_files() {
   if [ -e "$PIALERT_HOME/back/speedtest/speedtest" ] ; then
     echo "- Moving speedtest to temporary directory..."
     mv "$PIALERT_HOME/back/speedtest" "$PIALERT_HOME/config"
   fi
-  if ls "$PIALERT_HOME/db/setting_"* 1> /dev/null 2>&1; then
-    echo "- Moving setting-files to new directory..."
-    mv -f "$PIALERT_HOME/db/setting_"* "$PIALERT_HOME/config/"
-  fi
+  local name source target
+  for name in setting_stoppialert; do
+    source="$PIALERT_HOME/db/$name"
+    target="$PIALERT_HOME/config/$name"
+    if [ -L "$source" ]; then
+      echo "- Skipping symlink in db: $name"
+      continue
+    fi
+    if [ ! -f "$source" ]; then
+      continue
+    fi
+    if [ -e "$target" ] || [ -L "$target" ]; then
+      echo "- Keeping existing config/$name; db copy remains untouched."
+      continue
+    fi
+    echo "- Moving db/$name to config/$name..."
+    mv -n -- "$source" "$target"
+  done
 }
 
 # ------------------------------------------------------------------------------
@@ -257,6 +279,7 @@ download_pialert() {
 
   EXCLUDES=(
     --exclude=pialert/config/pialert.conf
+    --exclude=pialert/config/setting_ui_v4.json
     --exclude=pialert/db/pialert.db
     --exclude=pialert/log/*
   )
@@ -364,9 +387,13 @@ update_permissions() {
   sudo chmod +x "$PIALERT_HOME/back/update_vendors.sh"                   2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/config"                          2>&1 >> "$LOG"
   sudo chmod 1775 "$PIALERT_HOME/config"                                 2>&1 >> "$LOG"
-  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf ! -name setting_ui_v4.default.json -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
   sudo chown root:root "$PIALERT_HOME/config/version.conf"               2>&1 >> "$LOG"
   sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                    2>&1 >> "$LOG"
+  if [ -f "$PIALERT_HOME/config/setting_ui_v4.default.json" ] && [ ! -L "$PIALERT_HOME/config/setting_ui_v4.default.json" ]; then
+    sudo chown root:root "$PIALERT_HOME/config/setting_ui_v4.default.json" 2>&1 >> "$LOG"
+    sudo chmod 0644 "$PIALERT_HOME/config/setting_ui_v4.default.json"      2>&1 >> "$LOG"
+  fi
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                        2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                   2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/php/tmp"                        2>&1 >> "$LOG"
@@ -378,18 +405,21 @@ update_permissions() {
   print_msg "- Create Logfiles..."
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
   for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log pialert.nmap.log usercron.log; do
-      sudo touch "$PIALERT_HOME/log/$file"                               2>&1 >> "$LOG"
-      sudo chmod 644 "$PIALERT_HOME/log/$file"                           2>&1 >> "$LOG"
+      sudo touch "$LOG_DIR/$file"                                        2>&1 >> "$LOG"
       if [ -L "$dest_dir/$file" ]; then
           sudo rm -- "$dest_dir/$file"                                   2>&1 >> "$LOG"
       fi
   done
+  set_log_permissions
   print_msg "- Set sudoers..."
 
   sudo $PIALERT_HOME/back/pialert-cli set_sudoers --lxc             2>&1 >> "$LOG"
 
   print_msg "- Patch DB..."
-  $PIALERT_HOME/back/pialert-cli update_db
+  if ! "$PIALERT_HOME/back/pialert-cli" update_db >> "$LOG" 2>&1; then
+    print_msg "- Database update failed; see $LOG"
+    return 1
+  fi
 
 }
 
@@ -474,16 +504,83 @@ check_python_version() {
 }
 
 # ------------------------------------------------------------------------------
-# Move Logfile
+# Initialize Update Log
 # ------------------------------------------------------------------------------
-move_logfile() {
-  NEWLOG="$PIALERT_HOME/log/$LOG"
+initialize_update_log() {
+  if [ ! -d "$PIALERT_HOME" ]; then
+    printf 'Pi.Alert directory does not exist: %s\n' "$PIALERT_HOME" >&2
+    exit 1
+  fi
+  if ! mkdir -p -- "$LOG_DIR" || ! touch -- "$LOG"; then
+    printf 'Unable to create update log: %s\n' "$LOG" >&2
+    exit 1
+  fi
+  set_log_permissions
+}
 
-  mkdir -p "$PIALERT_HOME/log"
-  mv $LOG $NEWLOG
+# ------------------------------------------------------------------------------
+# Keep the current update log and the four newest other update logs.
+# Filename timestamps sort chronologically; unrelated logs and symlinks stay put.
+# This runs on exit so failed updates are retained and counted as well.
+# ------------------------------------------------------------------------------
+cleanup_update_logs() {
+  if [ ! -d "$LOG_DIR" ] || [ "$LOG_DIR" = / ]; then
+    return 1
+  fi
 
-  LOG="$NEWLOG"
-  NEWLOG=""
+  local file name
+  local -a update_logs=()
+  for file in "$LOG_DIR"/pialert_update_*.log; do
+    [ -f "$file" ] && [ ! -L "$file" ] || continue
+    name=${file##*/}
+    [[ "$name" =~ ^pialert_update_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}\.log$ ]] || continue
+    update_logs+=("$file")
+  done
+
+  if [ "${#update_logs[@]}" -le 5 ]; then
+    return 0
+  fi
+
+  local keep_other=5 kept_other=0 failed=0
+  for file in "${update_logs[@]}"; do
+    if [ "$file" = "$LOG" ]; then
+      keep_other=4
+      break
+    fi
+  done
+
+  local -a newest_first=()
+  mapfile -t newest_first < <(printf '%s\n' "${update_logs[@]}" | LC_ALL=C sort -r)
+  for file in "${newest_first[@]}"; do
+    [ "$file" = "$LOG" ] && continue
+    if [ "$kept_other" -lt "$keep_other" ]; then
+      kept_other=$((kept_other + 1))
+      continue
+    fi
+    rm -f -- "$file" || failed=1
+  done
+  return "$failed"
+}
+
+finish_update_log() {
+  local status=$?
+  trap - EXIT
+  if ! cleanup_update_logs; then
+    printf 'Warning: Could not clean up old update logs in %s\n' "$LOG_DIR" >&2
+  fi
+  exit "$status"
+}
+
+# ------------------------------------------------------------------------------
+# Set restrictive shared log permissions
+# ------------------------------------------------------------------------------
+set_log_permissions() {
+  sudo chown root:www-data -- "$LOG_DIR"                                  2>&1 >> "$LOG"
+  sudo chmod 2750 -- "$LOG_DIR"                                           2>&1 >> "$LOG"
+  sudo find "$LOG_DIR" -maxdepth 1 -type f \
+    -exec chown root:www-data -- {} +                                      2>&1 >> "$LOG"
+  sudo find "$LOG_DIR" -maxdepth 1 -type f \
+    -exec chmod 0640 -- {} +                                               2>&1 >> "$LOG"
 }
 
 # ------------------------------------------------------------------------------

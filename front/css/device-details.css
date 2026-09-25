@@ -1,0 +1,32 @@
+.device-summary{cursor:pointer}
+.device-summary:hover,.device-summary:focus-visible{filter:brightness(.92)}
+#deviceDetailsTabs{margin-bottom:0;border-bottom:0}
+#deviceDetailsTabs .nav-link{white-space:nowrap}
+#device-details-page .tab-content{min-height:25rem}
+.device-detail-control{min-width:0}
+.device-detail-options{max-height:20rem;overflow-y:auto}
+@media(min-width:768px){.device-detail-field{display:grid;grid-template-columns:minmax(0,34%) minmax(0,1fr);align-items:center;column-gap:.5rem}.device-detail-field>.form-label{text-align:right;margin-bottom:0}}
+.device-detail-alert-info-content{display:flex;align-items:center;gap:.5rem;min-width:0}
+.device-detail-alert-info-action{display:flex;align-items:center}
+@media(min-width:768px){.device-detail-alert-switches .device-detail-field{grid-template-columns:minmax(0,9fr) minmax(0,3fr);column-gap:.75rem}.device-detail-alert-switches .device-detail-field>.form-label{white-space:nowrap}.device-detail-alert-switches .device-detail-control{justify-self:start}.device-detail-alert-info-content{justify-content:flex-end;white-space:nowrap}}
+@media(max-width:767px){.device-detail-alert-info{display:flex;align-items:center;gap:.75rem}}
+.device-tool-output{min-height:4rem;max-width:100%;overflow-wrap:anywhere}
+.device-tool-output pre{max-width:100%;overflow-x:auto}
+.device-tool-output>.row{margin-bottom:1rem}
+.device-tool-output .row{display:flex;flex-wrap:wrap}
+.device-tool-output .col-xs-2{width:16.666667%}
+.device-tool-output .col-xs-3{width:25%}
+.device-tool-output .col-xs-4{width:33.333333%}
+.device-tool-output .col-xs-5{width:41.666667%}
+.device-tool-output .col-xs-6{width:50%}
+.device-tool-output .col-xs-12{width:100%}
+.device-tool-output .col-md-6{width:100%}
+@media(min-width:768px){.device-tool-output .col-md-6{width:50%}}
+.device-speed-chart{height:15rem}
+#calendar .fc-event{cursor:default}
+[data-bs-theme=dark] #calendar .fc-unthemed td,[data-bs-theme=dark] #calendar .fc-unthemed th,[data-bs-theme=dark] #calendar .fc-unthemed .fc-divider,[data-bs-theme=dark] #calendar .fc-unthemed .fc-list-heading td{border-color:var(--bs-border-color)}
+[data-bs-theme=dark] #calendar .fc-unthemed .fc-today{background:rgba(13,110,253,.12)}
+[data-bs-theme=dark] #calendar .fc-state-default{background:var(--bs-secondary-bg);border-color:var(--bs-border-color);color:var(--bs-body-color);text-shadow:none;box-shadow:none}
+[data-bs-theme=dark] #calendar .fc-state-active,[data-bs-theme=dark] #calendar .fc-state-hover{background:var(--bs-tertiary-bg);color:var(--bs-body-color)}
+[data-bs-theme=dark] #calendar .fc-widget-header,[data-bs-theme=dark] #calendar .fc-list-empty{background:var(--bs-secondary-bg);color:var(--bs-body-color)}
+@media(max-width:767.98px){#deviceDetailsTabs{width:100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:1px;-webkit-overflow-scrolling:touch}#deviceDetailsTabs>.nav-item{flex:0 0 auto}#deviceDetailsTabs .nav-link{padding:.5rem .6rem}#device-details-page .card-header .btn-group{margin-left:auto}}

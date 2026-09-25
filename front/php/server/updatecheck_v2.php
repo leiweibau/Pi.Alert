@@ -8,7 +8,7 @@ require_once 'util.php';
 OpenDB();
 
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
 
 // Get Version from version.conf
 $conf_file = '../../../config/version.conf';
@@ -155,34 +155,14 @@ if ($_SESSION['Scan_WebServices'] == True) {
 					' . $pia_lang['GeoLiteDB_new'] . ': 	<span class="text-red">		' . $geolite_new_version . '</span> <span style="font-weight: normal;">('.$geolite_update_filesize.' MB)</span>
 					</p>
 
-	          <div class="row" style="margin-top: 30px;">
-	            <style>
-	                .downloader {
-	                    border: 6px solid #f3f3f3; /* Light gray */
-	                    border-top: 6px solid #3498db; /* Blue */
-	                    border-radius: 50%;
-	                    width: 32px;
-	                    height: 32px;
-	                    animation: spin 2s linear infinite;
-	                    margin-left: 50px;
-	                }
-
-	                @keyframes spin {
-	                    0% { transform: rotate(0deg); }
-	                    100% { transform: rotate(360deg); }
-	                }
-	            </style>
-	            <div class="col-sm-12" style="">
-	              <div style="height: 60px;">
-	                <div class="downloader" id="downloader" style="display: none;"></div>';
+	          <div class="pialert-geodb-action mt-4">
+	            <span class="spinner-border text-primary" id="downloader" role="status" aria-label="' . h($pia_lang['GeoLiteDB_button_upd']) . '" hidden></span>';
 	    if ($geolite_update_filesize > 0) {
-	        echo '<button class="btn btn-default" id="updateDB-button">' . $pia_lang['GeoLiteDB_button_upd'] . '</button>';
+	        echo '<button type="button" class="btn btn-primary" id="updateDB-button">' . h($pia_lang['GeoLiteDB_button_upd']) . '</button>';
 	    } else {
 	    	echo '<span class="text-danger">Download not possible (Filsize ZERO)</span>';
 	    }
-	    echo ' </div>
-	            </div>
-	          </div>
+	    echo '</div>
 
 				</div>
 			  </div>';
@@ -363,36 +343,4 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 echo '</div>';
 echo '</div>';
 
-echo '
-<script>
-$("#updateDB-button").on(\'click\', function() {
-    var loader = $("#downloader");
-    var downloadButton = $(this);
-    // Hide the download button
-    downloadButton.hide();
-    // Display the loading animation
-    loader.show();
-    // Send an AJAX request to initiate the file download
-    $.ajax({
-        url: \'./php/server/services.php\',
-        data: { action: \'updateGeoDB\' },
-        method: \'POST\',
-        success: function(response) {
-            console.log(\'Download complete!\');
-        },
-        // error: function() {
-        //     console.error(\'Download error!\');
-        // },
-        complete: function() {
-            // Show the download button again
-            setTimeout(function () {
-              location.reload(true);
-            }, 1000);
-        }
-    });
-});
-</script>';
-
 ?>
-
-

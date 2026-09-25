@@ -1,0 +1,70 @@
+#reports-page .pialert-report .card { border-top-width: 3px; }
+
+#reports-page .card-title { font-size: 1rem; line-height: 1.4; }
+
+.pialert-report-body {
+  min-height: 15.625rem;
+  max-height: 15.625rem;
+  overflow: auto;
+}
+
+.pialert-report-body pre {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+}
+
+.pialert-report-tooltip { cursor: help; }
+
+.pialert-report-action-form { display: inline-flex; }
+
+.pialert-report-action-form .btn,
+.pialert-report-download { min-width: 4.375rem; }
+
+.report-color-list { display: grid; gap: 0.65rem; }
+
+.report-color-row {
+  display: grid;
+  grid-template-columns: minmax(8.75rem, 1fr) minmax(10rem, 1.2fr);
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.report-color-row .clr-field,
+.report-color-row .clr-field input { width: 100%; }
+
+.report-color-row .clr-field input { padding-right: 2.5rem; }
+
+@media print {
+  .app-header,
+  .app-sidebar,
+  .app-footer,
+  #report-filter-panel,
+  #ShowArchivedReports,
+  #report-color-settings,
+  #RemoveAllNotifications,
+  .pialert-report .card-footer { display: none !important; }
+
+  .app-wrapper,
+  .app-main,
+  .app-content,
+  .container-fluid { display: block !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+  .pialert-report { break-inside: avoid; width: 100% !important; }
+  .pialert-report-body { min-height: 0; max-height: none; overflow: visible; }
+}
+
+@media (max-width: 575.98px) {
+  .report-color-row { grid-template-columns: 1fr; gap: 0.25rem; }
+  .clr-picker.clr-pill {
+    width: calc(100vw - 1rem);
+    max-width: 380px;
+    padding-left: min(47.368%, 180px);
+  }
+  .clr-pill .clr-gradient { width: min(47.368%, 180px); }
+}

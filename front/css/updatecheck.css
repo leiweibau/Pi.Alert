@@ -1,0 +1,72 @@
+.pialert-update-results > .box,
+.pialert-update-results > .card {
+  margin-block: 1rem;
+}
+
+.pialert-update-results .box {
+  --bs-card-spacer-y: 1rem;
+  --bs-card-spacer-x: 1rem;
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color-translucent);
+  border-radius: var(--bs-border-radius);
+}
+
+.pialert-update-results .box-body {
+  padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
+}
+
+.pialert-update-results .box-footer {
+  padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x);
+  background-color: var(--bs-tertiary-bg);
+  border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+}
+
+.text-aqua {
+  color: var(--bs-info-text-emphasis) !important;
+}
+
+.text-green {
+  color: var(--bs-success-text-emphasis) !important;
+}
+
+.text-red {
+  color: var(--bs-danger-text-emphasis) !important;
+}
+
+.text-yellow {
+  color: var(--bs-warning-text-emphasis) !important;
+}
+
+.updatechk_font_a {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.pialert-update-note-item {
+  display: list-item;
+  margin-left: 2rem;
+}
+
+#bashupdatecommand {
+  width: 100%;
+}
+
+#updatecheck.ajax_scripts_loading {
+  min-height: 2.5rem;
+}
+
+.pialert-update-spinner[hidden] {
+  display: none;
+}
+
+.pialert-geodb-action {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.pialert-geodb-action > [hidden] {
+  display: none !important;
+}

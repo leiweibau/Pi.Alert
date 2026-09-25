@@ -11,12 +11,13 @@ from service_url_policy import (
     ServiceUrlError,
     address_allowed,
     resolve_service_target,
+    resolve_service_targets,
     validate_service_url,
 )
 
 
 ROOT = Path(__file__).resolve().parent.parent
-FIXTURES = json.loads((ROOT / 'tests/fixtures/service_url_policy.json').read_text())
+FIXTURES = json.loads((ROOT / '_workspace/tests/fixtures/service_url_policy.json').read_text())
 
 
 class ServiceUrlPolicyTests(unittest.TestCase):
@@ -54,6 +55,28 @@ class ServiceUrlPolicyTests(unittest.TestCase):
                 validate_service_url('http://service.example.lan:8080/status'))
         self.assertEqual(address, '10.0.0.20')
         self.assertEqual(port, 8080)
+
+    def test_dual_stack_targets_are_ipv4_first_with_stable_family_order(self):
+        records = [
+            (10, 1, 6, '', ('fd00::20', 8080, 0, 0)),
+            (2, 1, 6, '', ('10.0.0.20', 8080)),
+            (10, 1, 6, '', ('fd00::21', 8080, 0, 0)),
+            (2, 1, 6, '', ('10.0.0.21', 8080)),
+        ]
+        with patch('service_url_policy.socket.getaddrinfo', return_value=records):
+            addresses, port = resolve_service_targets(
+                validate_service_url('http://service.example.lan:8080/status'))
+        self.assertEqual(addresses, [
+            '10.0.0.20', '10.0.0.21', 'fd00::20', 'fd00::21'])
+        self.assertEqual(port, 8080)
+
+    def test_ipv6_only_target_remains_supported(self):
+        records = [(10, 1, 6, '', ('fd00::20', 443, 0, 0))]
+        with patch('service_url_policy.socket.getaddrinfo', return_value=records):
+            addresses, port = resolve_service_targets(
+                validate_service_url('https://service.example.lan/status'))
+        self.assertEqual(addresses, ['fd00::20'])
+        self.assertEqual(port, 443)
 
     def test_metadata_addresses_are_always_blocked(self):
         self.assertFalse(address_allowed(ipaddress.ip_address('169.254.169.254')))

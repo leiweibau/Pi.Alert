@@ -51,8 +51,8 @@ protected by POST-only routing and per-session CSRF validation.
 Run:
 
 ```sh
-php tests/php/test_csrf_security.php
-php tests/php/test_auth_cookie_security.php
+php _workspace/tests/php/test_csrf_security.php
+php _workspace/tests/php/test_auth_cookie_security.php
 ```
 
 The CSRF test also fails if production PHP code reintroduces `$_REQUEST` or if

@@ -68,13 +68,13 @@ class FakeConnectionFactory:
 
 
 def fixed_resolver(parsed):
-    return '127.0.0.1', parsed.port or (443 if parsed.scheme == 'https' else 80)
+    return ['127.0.0.1'], parsed.port or (443 if parsed.scheme == 'https' else 80)
 
 
 class ServiceUrlMockTransportTests(unittest.TestCase):
     def fetch_with_handler(self, url, handler, **kwargs):
         factory = FakeConnectionFactory(handler)
-        with patch('service_url_policy.resolve_service_target', side_effect=fixed_resolver), \
+        with patch('service_url_policy.resolve_service_targets', side_effect=fixed_resolver), \
                 patch('service_url_policy.http.client.HTTPConnection', factory):
             result = fetch_service_url(url, **kwargs)
         return result, factory.calls
@@ -97,7 +97,7 @@ class ServiceUrlMockTransportTests(unittest.TestCase):
 
     def test_lower_explicit_limit_remains_enforced(self):
         factory = FakeConnectionFactory(self.chain_handler)
-        with patch('service_url_policy.resolve_service_target', side_effect=fixed_resolver), \
+        with patch('service_url_policy.resolve_service_targets', side_effect=fixed_resolver), \
                 patch('service_url_policy.http.client.HTTPConnection', factory):
             with self.assertRaises(ServiceUrlError) as raised:
                 fetch_service_url('http://service.lan/chain/0', max_redirects=3)
@@ -109,7 +109,7 @@ class ServiceUrlMockTransportTests(unittest.TestCase):
             return FakeResponse(302, [('Location', '/self')])
 
         factory = FakeConnectionFactory(handler)
-        with patch('service_url_policy.resolve_service_target', side_effect=fixed_resolver), \
+        with patch('service_url_policy.resolve_service_targets', side_effect=fixed_resolver), \
                 patch('service_url_policy.http.client.HTTPConnection', factory):
             result = check_service_url('http://service.lan/self')
         self.assertEqual(result['error_code'], 'redirect_loop')
@@ -122,7 +122,7 @@ class ServiceUrlMockTransportTests(unittest.TestCase):
             return FakeResponse(302, [('Location', target)])
 
         factory = FakeConnectionFactory(handler)
-        with patch('service_url_policy.resolve_service_target', side_effect=fixed_resolver), \
+        with patch('service_url_policy.resolve_service_targets', side_effect=fixed_resolver), \
                 patch('service_url_policy.http.client.HTTPConnection', factory):
             result = check_service_url('http://service.lan/loop-a')
         self.assertEqual(result['error_code'], 'redirect_loop')
@@ -176,7 +176,7 @@ class ServiceUrlMockTransportTests(unittest.TestCase):
             return FakeResponse(204)
 
         factory = FakeConnectionFactory(handler)
-        with patch('service_url_policy.resolve_service_target', side_effect=fixed_resolver), \
+        with patch('service_url_policy.resolve_service_targets', side_effect=fixed_resolver), \
                 patch('service_url_policy.http.client.HTTPConnection', factory):
             result = check_service_url('http://service.lan/start')
         self.assertIn('token=secret-value', factory.calls[1][1])
@@ -201,11 +201,79 @@ class ServiceUrlMockTransportTests(unittest.TestCase):
             return fixed_resolver(parsed)
 
         factory = FakeConnectionFactory(handler)
-        with patch('service_url_policy.resolve_service_target', side_effect=resolver), \
+        with patch('service_url_policy.resolve_service_targets', side_effect=resolver), \
                 patch('service_url_policy.http.client.HTTPConnection', factory):
             result = check_service_url('http://service.lan/start')
         self.assertEqual(result['error_code'], 'blocked_by_policy')
         self.assertEqual(result['note'], 'Blocked by network policy')
+
+    def test_dual_stack_uses_ipv6_only_after_ipv4_connection_failure(self):
+        attempts = []
+        calls = []
+
+        def connection_factory(pinned_ip, **kwargs):
+            attempts.append(pinned_ip)
+
+            def handler(method, path, headers):
+                if pinned_ip == '192.0.2.20':
+                    raise OSError('IPv4 target is unavailable')
+                return FakeResponse(204)
+
+            return FakeConnection(handler, calls)
+
+        with patch('service_url_policy.resolve_service_targets', return_value=(
+                ['192.0.2.20', '2001:db8::20'], 80)), \
+                patch('service_url_policy.http.client.HTTPConnection',
+                      side_effect=connection_factory):
+            result = fetch_service_url('http://service.example.lan/status')
+
+        self.assertEqual(attempts, ['192.0.2.20', '2001:db8::20'])
+        self.assertEqual(result['status'], 204)
+        self.assertEqual(result['target_ip'], '2001:db8::20')
+        self.assertEqual([call[2]['Host'] for call in calls], [
+            'service.example.lan', 'service.example.lan'])
+
+    def test_dual_stack_does_not_try_ipv6_after_ipv4_success(self):
+        attempts = []
+
+        def connection_factory(pinned_ip, **kwargs):
+            attempts.append(pinned_ip)
+            return FakeConnection(
+                lambda method, path, headers: FakeResponse(200), [])
+
+        with patch('service_url_policy.resolve_service_targets', return_value=(
+                ['192.0.2.20', '2001:db8::20'], 80)), \
+                patch('service_url_policy.http.client.HTTPConnection',
+                      side_effect=connection_factory):
+            result = fetch_service_url('http://service.example.lan/status')
+
+        self.assertEqual(attempts, ['192.0.2.20'])
+        self.assertEqual(result['target_ip'], '192.0.2.20')
+
+    def test_https_fallback_preserves_hostname_for_tls_sni(self):
+        attempts = []
+
+        def connection_factory(hostname, pinned_ip, port, timeout):
+            attempts.append((hostname, pinned_ip))
+
+            def handler(method, path, headers):
+                if pinned_ip == '192.0.2.20':
+                    raise OSError('IPv4 target is unavailable')
+                return FakeResponse(200)
+
+            return FakeConnection(handler, [])
+
+        with patch('service_url_policy.resolve_service_targets', return_value=(
+                ['192.0.2.20', '2001:db8::20'], 443)), \
+                patch('service_url_policy._PinnedHTTPSConnection',
+                      side_effect=connection_factory):
+            result = fetch_service_url('https://service.example.lan/status')
+
+        self.assertEqual(attempts, [
+            ('service.example.lan', '192.0.2.20'),
+            ('service.example.lan', '2001:db8::20'),
+        ])
+        self.assertEqual(result['target_ip'], '2001:db8::20')
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -334,8 +402,8 @@ class ServiceUrlSocketTransportTests(unittest.TestCase):
     def test_local_dns_name_preserves_host_header_and_tls_sni(self):
         url = 'https://service.example.lan:{}/self-signed'.format(
             self.tls_server.server_port)
-        with patch('service_url_policy.resolve_service_target', return_value=(
-                '127.0.0.1', self.tls_server.server_port)):
+        with patch('service_url_policy.resolve_service_targets', return_value=(
+                ['127.0.0.1'], self.tls_server.server_port)):
             result = fetch_service_url(url)
         self.assertEqual(result['status'], 204)
         self.assertEqual(

@@ -1,0 +1,14 @@
+@import url("../lib/legacy-calendar/fullcalendar-3.10.5/fullcalendar.print.min.css") print;
+.presence-history-chart { height: 150px; }
+.presence-loading { position: absolute; z-index: 3; inset: 0; padding: 1rem; background: color-mix(in srgb, var(--bs-body-bg) 80%, transparent); }
+#presence-page #calendar { min-height: 25rem; }
+#presence-page .fc { color: var(--bs-body-color); }
+#presence-page .fc-unthemed .fc-content, #presence-page .fc-unthemed .fc-divider, #presence-page .fc-unthemed .fc-list-heading td, #presence-page .fc-unthemed .fc-list-view, #presence-page .fc-unthemed .fc-popover, #presence-page .fc-unthemed .fc-row, #presence-page .fc-unthemed tbody, #presence-page .fc-unthemed td, #presence-page .fc-unthemed th, #presence-page .fc-unthemed thead { border-color: var(--bs-border-color); }
+#presence-page .fc-unthemed .fc-divider, #presence-page .fc-unthemed .fc-list-heading td, #presence-page .fc-unthemed .fc-popover .fc-header { background: var(--bs-tertiary-bg); }
+#presence-page .fc-unthemed .fc-today { background: color-mix(in srgb, var(--bs-warning) 15%, var(--bs-body-bg)); }
+#presence-page .fc-unthemed td, #presence-page .fc-unthemed th, #presence-page .fc-unthemed .fc-bg { background-color: var(--bs-body-bg); color: var(--bs-body-color); }
+#presence-page .fc-unthemed th, #presence-page .fc-unthemed .fc-widget-header { background-color: var(--bs-tertiary-bg); color: var(--bs-body-color); }
+#presence-page .fc-unthemed .fc-today { background-color: color-mix(in srgb, var(--bs-warning) 15%, var(--bs-body-bg)); }
+#presence-page .fc-state-default { background: var(--bs-secondary-bg); border-color: var(--bs-border-color); color: var(--bs-body-color); text-shadow: none; box-shadow: none; }
+#presence-page .fc-state-active, #presence-page .fc-state-hover { background: var(--bs-tertiary-bg); color: var(--bs-body-color); }
+@media (max-width: 575px) { #presence-page .fc-toolbar { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; } #presence-page .fc-toolbar > * { float: none; } }

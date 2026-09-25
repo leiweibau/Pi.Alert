@@ -1065,6 +1065,12 @@ EOM
       echo "        Column 'sat_conf_scan_adguard' already exists in the 'Satellites' table."
     fi
 
+    # This additive migration validates its own schema and preserves a WAL-safe backup.
+    if ! /usr/bin/python3 "${SCRIPTPATH}/../install/migrate_entity_actions.py" "$PIA_DB_FILE"; then
+        echo "Entity_Actions migration failed" >&2
+        exit 1
+    fi
+
     echo -e "\nUpdate finished!\n"
 
     # Enter to Journal

@@ -3,337 +3,99 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-require_once __DIR__ . "/php/server/session.php";
-pialert_start_session();
+define('PIALERT_V4_PUBLIC_ENTRY', true);
+require_once __DIR__ . '/php/bootstrap.php';
+pialert_v4_start_session();
 
-if ($_SESSION["login"] != 1) {
-	header('Location: ./index.php');
-	exit;
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+    header('Allow: GET');
+    http_response_code(405);
+    exit('Method Not Allowed');
+}
+if (($_SESSION['login'] ?? 0) != 1) {
+    header('Location: ' . pialert_v4_route('login'));
+    exit;
 }
 
-require 'php/templates/header.php';
-require 'php/server/journal.php';
+pialert_v4_load_language();
+require_once __DIR__ . '/php/shell.php';
+
+$title = $pia_lang['EVE_Title'] ?? 'Events';
+$eventCards = array(
+    array('all', 'eventsAll', $pia_lang['EVE_Shortcut_AllEvents'] ?? 'All events', 'primary', 'fa-solid fa-bolt'),
+    array('sessions', 'eventsSessions', $pia_lang['EVE_Shortcut_Sessions'] ?? 'Sessions', 'success', 'mdi mdi-lan-connect'),
+    array('missing', 'eventsMissing', $pia_lang['EVE_Shortcut_MissSessions'] ?? 'Missing sessions', 'warning', 'fa-solid fa-arrow-right-arrow-left'),
+    array('voided', 'eventsVoided', $pia_lang['EVE_Shortcut_VoidSessions'] ?? 'Voided sessions', 'warning', 'fa-solid fa-circle-exclamation'),
+    array('new', 'eventsNewDevices', $pia_lang['EVE_Shortcut_NewDevices'] ?? 'New devices', 'warning', 'fa-solid fa-plus'),
+    array('down', 'eventsDown', $pia_lang['EVE_Shortcut_DownAlerts'] ?? 'Down alerts', 'danger', 'mdi mdi-lan-disconnect'),
+);
+
+pialert_v4_shell_start($title, 'events', array(
+    'lib/datatables/datatables.net-bs5-1.10.25/css/dataTables.bootstrap5.min.css',
+    'css/devices-events.css',
+));
 ?>
-
-  <div class="content-wrapper">
-
-    <section class="content-header">
-      <h1 id="pageTitle">
-         <?=$pia_lang['EVE_Title'];?>
-      </h1>
-
-      <!-- period selector -->
-      <span class="breadcrumb" style="top: 0px;">
-        <select class="form-control" id="period" onchange="javascript: periodChanged();">
-          <option value="1 day"><?=$pia_lang['EVE_Periodselect_today'];?></option>
-          <option value="7 days"><?=$pia_lang['EVE_Periodselect_LastWeek'];?></option>
-          <option value="1 month" selected><?=$pia_lang['EVE_Periodselect_LastMonth'];?></option>
-          <option value="1 year"><?=$pia_lang['EVE_Periodselect_LastYear'];?></option>
-          <option value="100 years"><?=$pia_lang['EVE_Periodselect_All'];?></option>
-        </select>
-      </span>
-    </section>
-
-    <section class="content">
-
-<!-- top small box --------------------------------------------------------- -->
-      <div class="row">
-
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getEvents('all');">
-            <div class="small-box bg-aqua">
-              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsAll"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_AllEvents'];?></p>
-              </div>
-              <div class="icon"> <i class="fa fa-bolt text-aqua-40"></i> </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getEvents('sessions');">
-            <div class="small-box bg-green">
-              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsSessions"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_Sessions'];?></p>
-              </div>
-              <div class="icon"> <i class="mdi mdi-lan-connect text-green-40"></i> </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getEvents('missing');">
-            <div  class="small-box bg-yellow">
-              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsMissing"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_MissSessions'];?></p>
-              </div>
-              <div class="icon"> <i class="fa fa-exchange text-yellow-40"></i> </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getEvents('voided');">
-            <div  class="small-box bg-yellow">
-              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsVoided"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_VoidSessions'];?></p>
-              </div>
-              <div class="icon"> <i class="fa fa-exclamation-circle text-yellow-40"></i> </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getEvents('new');">
-            <div  class="small-box bg-yellow">
-              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsNewDevices"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_NewDevices'];?></p>
-              </div>
-              <div class="icon"> <i class="fa fa-plus text-yellow-40"></i> </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getEvents('down');">
-            <div  class="small-box bg-red">
-              <div class="inner" style="padding: 0px 10px;"> <h3 id="eventsDown"> -- </h3>
-                <p class="infobox_label"><?=$pia_lang['EVE_Shortcut_DownAlerts'];?></p>
-              </div>
-              <div class="icon"> <i class="mdi mdi-lan-disconnect text-red-40"></i> </div>
-            </div>
-          </a>
-        </div>
-
-      </div>
-      <!-- /.row -->
-
-<!-- datatable ------------------------------------------------------------- -->
-      <div class="row">
-        <div class="col-xs-12">
-          <div id="tableEventsBox" class="box">
-
-            <!-- box-header -->
-            <div class="box-header">
-              <h3 id="tableEventsTitle" class="box-title text-gray">Events</h3>
-            </div>
-
-            <!-- table -->
-            <div class="box-body table-responsive">
-              <table id="tableEvents" class="table table-bordered table-hover table-striped ">
-                <thead>
-                <tr>
-                  <th><?=$pia_lang['EVE_TableHead_Order'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_Device'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_Owner'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_Date'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_EventType'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_Connection'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_Disconnection'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_Duration'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_DurationOrder'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_IP'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_IPOrder'];?></th>
-                  <th><?=$pia_lang['EVE_TableHead_AdditionalInfo'];?></th>
-                </tr>
-                </thead>
-              </table>
-            </div>
-            <!-- /.box-body -->
-
-          </div>
-          <!-- /.box -->
-        </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
-
-<!-- ----------------------------------------------------------------------- -->
-    </section>
-    <!-- /.content -->
+<section id="devices-events-page"
+  data-title-all="<?= h($pia_lang['EVE_Shortcut_AllEvents'] ?? 'All events'); ?>"
+  data-title-sessions="<?= h($pia_lang['EVE_Shortcut_Sessions'] ?? 'Sessions'); ?>"
+  data-title-missing="<?= h($pia_lang['EVE_Shortcut_MissSessions'] ?? 'Missing sessions'); ?>"
+  data-title-voided="<?= h($pia_lang['EVE_Shortcut_VoidSessions'] ?? 'Voided sessions'); ?>"
+  data-title-new="<?= h($pia_lang['EVE_Shortcut_NewDevices'] ?? 'New devices'); ?>"
+  data-title-down="<?= h($pia_lang['EVE_Shortcut_DownAlerts'] ?? 'Down alerts'); ?>"
+  data-title-events="<?= h($pia_lang['EVE_Shortcut_Events'] ?? 'Events'); ?>"
+  data-length-menu="<?= h($pia_lang['EVE_Tablelenght'] ?? 'Show _MENU_ entries'); ?>"
+  data-search="<?= h($pia_lang['EVE_Searchbox'] ?? 'Search'); ?>"
+  data-next="<?= h($pia_lang['EVE_Table_nav_next'] ?? 'Next'); ?>"
+  data-previous="<?= h($pia_lang['EVE_Table_nav_prev'] ?? 'Previous'); ?>"
+  data-info="<?= h($pia_lang['EVE_Table_info'] ?? 'Showing _START_ to _END_ of _TOTAL_ entries'); ?>">
+  <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-end mb-3 gap-2">
+    <label class="form-label fw-semibold mb-0" for="period"><?= h($pia_lang['EVE_Period'] ?? 'Period'); ?></label>
+    <select class="form-select pialert-events-period" id="period">
+      <option value="1 day"><?= h($pia_lang['EVE_Periodselect_today'] ?? 'Today'); ?></option>
+      <option value="7 days"><?= h($pia_lang['EVE_Periodselect_LastWeek'] ?? 'Last week'); ?></option>
+      <option value="1 month" selected><?= h($pia_lang['EVE_Periodselect_LastMonth'] ?? 'Last month'); ?></option>
+      <option value="1 year"><?= h($pia_lang['EVE_Periodselect_LastYear'] ?? 'Last year'); ?></option>
+      <option value="100 years"><?= h($pia_lang['EVE_Periodselect_All'] ?? 'All'); ?></option>
+    </select>
   </div>
-  <!-- /.content-wrapper -->
 
-<!-- ----------------------------------------------------------------------- -->
-<?php
-require 'php/templates/footer.php';
-?>
+  <div class="row g-3 mb-4 pialert-event-widgets" aria-label="<?= h($title); ?>">
+    <?php foreach ($eventCards as [$type, $countId, $label, $tone, $icon]): ?>
+    <div class="col-6 col-md-4 col-xl-2">
+      <button type="button" class="small-box text-bg-<?= h($tone); ?> pialert-event-filter w-100 border-0 text-start" data-event-type="<?= h($type); ?>" aria-pressed="false">
+        <div class="inner"><h2 id="<?= h($countId); ?>" class="mb-1">--</h2><p class="mb-0"><?= h($label); ?></p></div>
+        <i class="small-box-icon <?= h($icon); ?>" aria-hidden="true"></i>
+      </button>
+    </div>
+    <?php endforeach; ?>
+  </div>
 
-<!-- Datatable -->
-<link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-<script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
-<!-- page script ----------------------------------------------------------- -->
-<script>
-  var parPeriod       = 'Front_Events_Period';
-  var parTableRows    = 'Front_Events_Rows';
-
-  var eventsType      = 'all';
-  var period          = '';
-  var tableRows       = 50;
-
-  // Read parameters & Initialize components
-  main();
-
-// -----------------------------------------------------------------------------
-function main () {
-  // get parameter value
-  $.get('php/server/parameters.php?action=get&parameter='+ parPeriod, function(data) {
-    var result = JSON.parse(data);
-    if (result) {
-      period = result;
-      $('#period').val(period);
-    }
-
-    // get parameter value
-    $.get('php/server/parameters.php?action=get&parameter='+ parTableRows, function(data) {
-      var result = JSON.parse(data);
-      if (Number.isInteger (result) ) {
-          tableRows = result;
-      }
-
-      // Initialize components
-      initializeDatatable();
-
-      // query data
-      getEventsTotals();
-      getEvents (eventsType);
-    });
-  });
-}
-
-// -----------------------------------------------------------------------------
-function initializeDatatable () {
-  $('#tableEvents').DataTable({
-    'paging'       : true,
-    'lengthChange' : true,
-    'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, 'All']],
-    'searching'    : true,
-    'ordering'     : true,
-    'info'         : true,
-    'autoWidth'    : false,
-    'order'       : [[0,"desc"], [3,"desc"], [5,"desc"]],
-
-    // Parameters
-    'pageLength'   : tableRows,
-
-    'columnDefs'  : [
-      {targets: '_all', render: $.fn.dataTable.render.text()},
-      {visible:   false,         targets: [0,5,6,7,8,10] },
-      {className: 'text-center', targets: [] },
-      {orderData: [8],           targets: 7 },
-      {orderData: [10],          targets: 9 },
-
-      // Device Name
-      {targets: [1],
-        "createdCell": function (td, cellData, rowData, row, col) {
-          if (rowData[13]) {
-              setCellLink(td, "deviceDetails.php?mac=" + encodeURIComponent(String(rowData[13])), cellData);
-          } else {
-              setCellLink(
-                td,
-                "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[9] ?? "")),
-                cellData,
-                "",
-                "**"
-              );
-          }
-      } },
-
-      // Replace HTML codes
-      {targets: [3,4,5,6,7],
-        "createdCell": function (td, cellData, rowData, row, col) {
-          setCellText(td, cellData);
-      } }
-    ],
-
-    // Processing
-    'processing'  : true,
-    'language'    : {
-      processing: '<table><td width="130px" align="middle">Loading...</td><td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw"></td></table>',
-      emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['EVE_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['EVE_Searchbox'];?>: ",
-      "paginate": {
-          "next":       "<?=$pia_lang['EVE_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['EVE_Table_nav_prev'];?>"
-      },
-      "info":           "<?=$pia_lang['EVE_Table_info'];?>",
-    }
-  });
-
-  // Save Parameter rows when changed
-  $('#tableEvents').on( 'length.dt', function ( e, settings, len ) {
-    setParameter (parTableRows, len);
-  } );
-};
-
-// -----------------------------------------------------------------------------
-function periodChanged () {
-  // Save Parameter Period
-  period = $('#period').val();
-  setParameter (parPeriod, period);
-
-  // Requery totals and events
-  getEventsTotals();
-  getEvents (eventsType);
-}
-
-// -----------------------------------------------------------------------------
-function getEventsTotals () {
-  // stop timer
-  stopTimerRefreshData();
-
-  // get totals and put in boxes
-  $.get('php/server/events.php?action=getEventsTotals&period='+ period, function(data) {
-    var totalsEvents = JSON.parse(data);
-
-    $('#eventsAll').html        (totalsEvents[0].toLocaleString());
-    $('#eventsSessions').html   (totalsEvents[1].toLocaleString());
-    $('#eventsMissing').html    (totalsEvents[2].toLocaleString());
-    $('#eventsVoided').html     (totalsEvents[3].toLocaleString());
-    $('#eventsNewDevices').html (totalsEvents[4].toLocaleString());
-    $('#eventsDown').html       (totalsEvents[5].toLocaleString());
-
-    // Timer for refresh data
-    newTimerRefreshData (getEventsTotals);
-  });
-}
-
-// -----------------------------------------------------------------------------
-function getEvents (p_eventsType) {
-  // Save status selected
-  eventsType = p_eventsType;
-
-  // Define color & title for the status selected
-  switch (eventsType) {
-    case 'all':       tableTitle = '<?=$pia_lang['EVE_Shortcut_AllEvents'];?>';      color = 'aqua';    sesionCols = false;  break;
-    case 'sessions':  tableTitle = '<?=$pia_lang['EVE_Shortcut_Sessions'];?>';       color = 'green';   sesionCols = true;   break;
-    case 'missing':   tableTitle = '<?=$pia_lang['EVE_Shortcut_MissSessions'];?>';   color = 'yellow';  sesionCols = true;   break;
-    case 'voided':    tableTitle = '<?=$pia_lang['EVE_Shortcut_VoidSessions'];?>';   color = 'yellow';  sesionCols = false;  break;
-    case 'new':       tableTitle = '<?=$pia_lang['EVE_Shortcut_NewDevices'];?>';     color = 'yellow';  sesionCols = false;  break;
-    case 'down':      tableTitle = '<?=$pia_lang['EVE_Shortcut_DownAlerts'];?>';     color = 'red';     sesionCols = false;  break;
-    default:          tableTitle = '<?=$pia_lang['EVE_Shortcut_Events'];?>';         boxClass = '';     sesionCols = false;  break;
-  }
-
-  // Set title and color
-  $('#tableEventsTitle')[0].className = 'box-title text-' + color;
-  $('#tableEventsBox')[0].className = 'box box-' + color;
-  $('#tableEventsTitle').html (tableTitle);
-
-  // Coluumns Visibility
-  $('#tableEvents').DataTable().column(3).visible (!sesionCols);
-  $('#tableEvents').DataTable().column(4).visible (!sesionCols);
-  $('#tableEvents').DataTable().column(5).visible (sesionCols);
-  $('#tableEvents').DataTable().column(6).visible (sesionCols);
-  $('#tableEvents').DataTable().column(7).visible (sesionCols);
-
-  // Define new datasource URL and reload
-  $('#tableEvents').DataTable().clear();
-  $('#tableEvents').DataTable().draw();
-  $('#tableEvents').DataTable().order ([0,"desc"], [3,"desc"], [5,"desc"]);
-  $('#tableEvents').DataTable().ajax.url('php/server/events.php?action=getEvents&type=' + eventsType +'&period='+ period ).load();
-};
-
-</script>
+  <section id="tableEventsBox" class="card card-primary card-outline" aria-labelledby="tableEventsTitle">
+    <div class="card-header"><h2 id="tableEventsTitle" class="card-title"><?= h($pia_lang['EVE_Shortcut_AllEvents'] ?? 'All events'); ?></h2></div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="tableEvents" class="table table-bordered table-hover table-striped align-middle w-100">
+          <thead><tr>
+            <th><?= h($pia_lang['EVE_TableHead_Order'] ?? 'Order'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_Device'] ?? 'Device'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_Owner'] ?? 'Owner'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_Date'] ?? 'Date'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_EventType'] ?? 'Event type'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_Connection'] ?? 'Connection'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_Disconnection'] ?? 'Disconnection'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_Duration'] ?? 'Duration'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_DurationOrder'] ?? 'Duration order'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_IP'] ?? 'IP'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_IPOrder'] ?? 'IP order'); ?></th>
+            <th><?= h($pia_lang['EVE_TableHead_AdditionalInfo'] ?? 'Additional info'); ?></th>
+          </tr></thead>
+        </table>
+      </div>
+    </div>
+  </section>
+</section>
+<?php pialert_v4_shell_end(array(
+    'lib/datatables/datatables.net-1.10.25/jquery.dataTables.min.js',
+    'lib/datatables/datatables.net-bs5-1.10.25/js/dataTables.bootstrap5.min.js',
+    'js/devices-events.js',
+)); ?>

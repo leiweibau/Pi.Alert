@@ -394,42 +394,38 @@ listed [here](https://github.com/leiweibau/Pi.Alert/blob/main/docs/ICONS.md).
 
 #### Rows
 
-```yaml
-- Pi.Alert:
-    href: https://<IP or Hostname>:<Port>/pialert/
-    description: Network Scanner
-    icon: https://<IP or Hostname>:<Port>/pialert/img/favicons/flat_red_white.png
-    widget:
-      type: customapi
-      url: https://<IP or Hostname>:<Port>/pialert/api/
-      method: POST
-      headers:
-        Content-Type: application/x-www-form-urlencoded
-      requestBody: "get=system-status&api-key=<Your API-Key>"
-      refreshInterval: 10000
-      display: rows
-      mappings:
-        - field: All_Devices
-          label: All
-          type: number
-        - field: Offline_Devices
-          label: Offline
-          type: number
-        - field: Online_Devices
-          label: Online
-          type: number
-        - field: New_Devices
-          label: New
-          type: number
-        - field: All_Devices_ICMP
-          label: All ICMP
-          type: number
-        - field: Offline_Devices_ICMP
-          label: Offline ICMP
-          type: number
-        - field: Online_Devices_ICMP
-          label: Online ICMP
-          type: number
+```
+    - Pi.Alert:
+        href: https://<IP or Hostname>:<Port>/pialert/
+        descriptionn: Network Scanner
+        icon: https://<IP or Hostname>:<Port>/pialert/img/favicons/flat_red_white.png
+        widget:
+          type: customapi
+          url: https://<IP or Hostname>:<Port>/pialert/api/?get=system-status&api-key=<Your API-Key>
+          refreshInterval: 10000
+          display: rows
+          mappings:
+            - field: All_Devices
+              label: All
+              type: number
+            - field: Offline_Devices
+              label: Offline
+              type: number 
+            - field: Online_Devices
+              label: Online
+              type: number 
+            - field: New_Devices
+              label: New
+              type: number
+            - field: All_Devices_ICMP
+              label: All ICMP
+              type: number 
+            - field: Offline_Devices_ICMP
+              label: Offline ICMP
+              type: number 
+            - field: Online_Devices_ICMP
+              label: Online ICMP
+              type: number
 
 ```
 
@@ -437,42 +433,38 @@ listed [here](https://github.com/leiweibau/Pi.Alert/blob/main/docs/ICONS.md).
 
 #### List
 
-```yaml
-- Pi.Alert:
-    href: https://<IP or Hostname>:<Port>/pialert/
-    description: Network Scanner
-    icon: https://<IP or Hostname>:<Port>/pialert/img/favicons/flat_red_white.png
-    widget:
-      type: customapi
-      url: https://<IP or Hostname>:<Port>/pialert/api/
-      method: POST
-      headers:
-        Content-Type: application/x-www-form-urlencoded
-      requestBody: "get=system-status&api-key=<Your API-Key>"
-      refreshInterval: 10000
-      display: list
-      mappings:
-        - field: All_Devices
-          label: All
-          type: number
-        - field: Offline_Devices
-          label: Offline
-          type: number
-        - field: Online_Devices
-          label: Online
-          type: number
-        - field: New_Devices
-          label: New
-          type: number
-        - field: All_Devices_ICMP
-          label: All ICMP
-          type: number
-        - field: Offline_Devices_ICMP
-          label: Offline ICMP
-          type: number
-        - field: Online_Devices_ICMP
-          label: Online ICMP
-          type: number
+```
+    - Pi.Alert:
+        href: https://<IP or Hostname>:<Port>/pialert/
+        descriptionn: Network Scanner
+        icon: https://<IP or Hostname>:<Port>/pialert/img/favicons/flat_red_white.png
+        widget:
+          type: customapi
+          url: https://<IP or Hostname>:<Port>/pialert/api/?get=system-status&api-key=<Your API-Key>
+          refreshInterval: 10000
+          display: list
+          mappings:
+            - field: All_Devices
+              label: All
+              type: number
+            - field: Offline_Devices
+              label: Offline
+              type: number 
+            - field: Online_Devices
+              label: Online
+              type: number 
+            - field: New_Devices
+              label: New
+              type: number
+            - field: All_Devices_ICMP
+              label: All ICMP
+              type: number 
+            - field: Offline_Devices_ICMP
+              label: Offline ICMP
+              type: number 
+            - field: Online_Devices_ICMP
+              label: Online ICMP
+              type: number
 
 ```
 

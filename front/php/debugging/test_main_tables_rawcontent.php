@@ -6,14 +6,16 @@ if ($_SESSION["login"] != 1) {
     header('Location: ../../index.php');
     exit;
 }
+require_once __DIR__ . '/../bootstrap.php';
+pialert_v4_load_language();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= h(str_replace('_', '-', pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME))); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debugging</title>
+    <title><?= h($pia_lang['V4_Debugging']); ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -106,36 +108,36 @@ if ($_SESSION["login"] != 1) {
 </head>
 <body>
     <div class="topheader">
-        <h2 style="margin: 0px">Show Main Table</h2>
+        <h2 style="margin: 0px"><?= h($pia_lang['V4_Raw_Device_Tables']); ?></h2>
     </div>
 
     <div class="info_box short" id="info_devices">
-        <span class="info_head">Pi.Alert-URL:</span><br>
+        <span class="info_head"><?= h($pia_lang['V4_PiAlert_URL']); ?></span><br>
         <div id="pialert_url"></div>
     </div>
 
     <div class="info_box short">
-        <span class="info_head">Select Table:</span>
+        <span class="info_head"><?= h($pia_lang['V4_Select_Table']); ?>:</span>
         <select id="tableSelector" onchange="toggleTable()">
-            <option value="devices">Devices Table</option>
-            <option value="icmp">ICMP Table</option>
+            <option value="devices"><?= h($pia_lang['V4_Devices_Table']); ?></option>
+            <option value="icmp"><?= h($pia_lang['V4_ICMP_Table']); ?></option>
         </select>
     </div>
 
     <div class="info_box short">
-        <span class="info_head">Search:</span>
+        <span class="info_head"><?= h($pia_lang['V4_Table_Search']); ?></span>
         <input type="text" id="searchInput" onkeyup="searchTable()">
         <div style="width: 100%; height: 30px; margin-top: 10px;">
-            <button onclick="resetSearch()" style="background-color: #fff; color: red; border: solid 1px #ccc; font-size: 16px; padding: 5px; float: right;">Reset</button>
+            <button onclick="resetSearch()" style="background-color: #fff; color: red; border: solid 1px #ccc; font-size: 16px; padding: 5px; float: right;"><?= h($pia_lang['V4_Reset']); ?></button>
         </div>
     </div>
 
     <div class="resultheader">
-        <h2 id="resultheading">Results</h2>
+        <h2 id="resultheading"><?= h($pia_lang['V4_Results']); ?></h2>
     </div>
 
 <?php
-$db = new SQLite3('../../../db/pialert.db');
+$db = new SQLite3(__DIR__ . '/../../../db/pialert.db');
 $tables = [
     'devices' => 'Devices',
     'icmp' => 'ICMP_Mon'
@@ -148,9 +150,9 @@ foreach ($tables as $id => $table) {
     while ($result->fetchArray(SQLITE3_ASSOC)) {
         $rowCount++;
     }
-    echo "<div class='info_box' id='summary_box_$id'><span class='info_head'>Table summary ($table):</span><div id='summary_$id'>$rowCount rows</div></div>";
+    echo "<div class='info_box' id='summary_box_$id'><span class='info_head'>" . h($pia_lang['V4_Table_Summary']) . ' (' . h($table) . "):</span><div id='summary_$id'>" . (int) $rowCount . ' ' . h($pia_lang['V4_Rows']) . '</div></div>';
     echo "<div class='info_box' id='table_box_$id' >
-              <h2 class='heading' id='heading_$id'>$table Raw Data</h2>
+              <h2 class='heading' id='heading_$id'>" . h($table) . ' ' . h($pia_lang['V4_Raw_Data']) . "</h2>
               <div style='overflow: auto'>
               <table id='$id'>
                 <tr>";

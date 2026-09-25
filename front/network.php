@@ -3,36 +3,29 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-require_once __DIR__ . "/php/server/session.php";
-pialert_start_session();
-
-if ($_SESSION["login"] != 1) {
-	header('Location: ./index.php');
-	exit;
+define('PIALERT_V4_PUBLIC_ENTRY', true);
+require_once __DIR__ . '/php/bootstrap.php';
+pialert_v4_start_session();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+    header('Allow: GET');
+    http_response_code(405);
+    exit('Method Not Allowed');
 }
-
-require 'php/templates/header.php';
-require 'php/server/db.php';
-require 'php/server/journal.php';
-
+if (($_SESSION['login'] ?? 0) != 1) {
+    header('Location: ' . pialert_v4_route('login'));
+    exit;
+}
+pialert_v4_load_language();
+require_once __DIR__ . '/php/shell.php';
+require_once __DIR__ . '/php/server/db.php';
+require_once __DIR__ . '/php/server/journal.php';
 $DBFILE = '../db/pialert.db';
 OpenDB();
+pialert_v4_shell_start($pia_lang['Network_Title'] ?? 'Network', 'network', array('css/network.css'),
+    static fn(): string => '<a class="btn btn-success" href="./networkSettings.php"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>' . h($GLOBALS['pia_lang']['V4_Manage']) . '</a>');
 ?>
-
-<div class="content-wrapper">
-
-    <section class="content-header">
-    <?php require 'php/templates/notification.php';?>
-      <h1 id="pageTitle">
-         <?=$pia_lang['Network_Title'];?>
-         <a class="btn btn-xs btn-success servicelist_add_serv" href="./networkSettings.php" role="button"><i class="bi bi-plus-lg" style="font-size:1.5rem"></i></a>
-      </h1>
-    </section>
-
-    <section class="content">
-
+<section id="network-page">
 <?php
-
 function network_fetch_rows($result) {
 	$rows = array();
 	if ($result === false) {
@@ -141,11 +134,11 @@ function get_downstream_from_mac($mac) {
 
 function printNodeOnlineState($state) {
 	if ($state === 'online') {
-		echo '<i class="fa fa-w fa-circle text-green-light fa-gradient-green"></i>&nbsp;';
+		echo '<i class="fa fa-circle text-success"></i>&nbsp;';
 	} elseif ($state === 'offline') {
-		echo '<i class="fa fa-w fa-circle text-red fa-gradient-red"></i>&nbsp;';
+		echo '<i class="fa fa-circle text-danger"></i>&nbsp;';
 	} elseif ($state === 'inactive') {
-		echo '<i class="fa fa-w fa-circle text-gray"></i>&nbsp;';
+		echo '<i class="fa fa-circle text-secondary"></i>&nbsp;';
 	}
 }
 
@@ -195,23 +188,24 @@ function getNodeClientsOnlineState($deviceId) {
 }
 
 function port_badge($status) {
+    global $pia_lang;
 	if ($status === 'online') {
-		echo '<span class="badge bg-green text-white" style="width: 60px;">Online</span>';
+		echo '<span class="badge text-bg-success" style="width: 60px;">', h($pia_lang['V4_Online']), '</span>';
 	} elseif ($status === 'dumb') {
-		echo '<span class="badge bg-yellow text-white" style="width: 60px;">UM</span>';
+		echo '<span class="badge text-bg-warning" style="width: 60px;">UM</span>';
 	} else {
-		echo '<span class="badge bg-gray text-white" style="width: 60px;">Offline</span>';
+		echo '<span class="badge text-bg-secondary" style="width: 60px;">', h($pia_lang['V4_Offline']), '</span>';
 	}
 }
 
 function network_type_icon($type) {
 	$icons = array(
-		'WLAN' => '<i class="bi bi-wifi network_tab_icon text-aqua" style="top: 1px;"></i>',
-		'Powerline' => '<i class="bi bi-plug-fill network_tab_icon text-aqua" style="top: 2px;"></i>',
-		'Router' => '<i class="bi bi-router-fill network_tab_icon text-aqua" style="top: 2px;"></i>',
-		'Switch' => '<i class="bi bi-ethernet network_tab_icon text-aqua" style="top: 2px;"></i>',
-		'Internet' => '<i class="bi bi-globe network_tab_icon text-aqua" style="top: 2px;"></i>',
-		'Hypervisor' => '<i class="bi bi-hdd-stack-fill network_tab_icon text-aqua" style="top: 2px;"></i>',
+		'WLAN' => '<i class="bi bi-wifi network_tab_icon text-info" style="top: 1px;"></i>',
+		'Powerline' => '<i class="bi bi-plug-fill network_tab_icon text-info" style="top: 2px;"></i>',
+		'Router' => '<i class="bi bi-router-fill network_tab_icon text-info" style="top: 2px;"></i>',
+		'Switch' => '<i class="bi bi-ethernet network_tab_icon text-info" style="top: 2px;"></i>',
+		'Internet' => '<i class="bi bi-globe network_tab_icon text-info" style="top: 2px;"></i>',
+		'Hypervisor' => '<i class="bi bi-hdd-stack-fill network_tab_icon text-info" style="top: 2px;"></i>',
 	);
 	return $icons[$type] ?? h($type);
 }
@@ -221,8 +215,8 @@ function createnetworktab($deviceId, $deviceName, $deviceType, $active) {
 	$type = substr((string) $deviceType, 2);
 	$nodeState = getNodeOnlineState($deviceName);
 
-	echo '<li class="' . ($active ? 'active' : '') . '">';
-	echo '<a href="#network-tab-' . $deviceId . '" data-toggle="tab">';
+	echo '<li class="nav-item" role="presentation">';
+	echo '<a class="nav-link' . ($active ? ' active' : '') . '" href="#network-tab-' . $deviceId . '" data-bs-toggle="tab" role="tab" aria-selected="' . ($active ? 'true' : 'false') . '">';
 	if ($nodeState === 'offline') {
 		$clientState = getNodeClientsOnlineState($deviceId);
 		printNodeOnlineState($clientState[0] === 'offline' && $type === 'WLAN' ? 'inactive' : $clientState[0]);
@@ -297,10 +291,10 @@ function createnetworktabcontent($deviceId, $deviceName, $deviceType, $devicePor
 	$portCount = $portCount === false ? 1 : (int) $portCount;
 	$type = substr((string) $deviceType, 2);
 
-	echo '<div class="tab-pane ' . ($active ? 'active' : '') . '" id="network-tab-' . $deviceId . '">';
+	echo '<div class="tab-pane fade' . ($active ? ' show active' : '') . '" id="network-tab-' . $deviceId . '" role="tabpanel">';
 	echo '<h4>' . h($deviceName) . ' <span class="text-muted">(ID:' . $deviceId . ')</span></h4><br>';
-	echo '<div class="box-body no-padding"><table class="table table-striped table-hover"><tbody><tr>';
-	echo '<th style="width: 40px">Port</th>';
+	echo '<div class="table-responsive"><table class="table table-striped table-hover align-middle"><tbody><tr>';
+	echo '<th style="width: 40px">' . h($pia_lang['nmap_results_port']) . '</th>';
 	echo '<th style="width: 75px">' . h($pia_lang['Network_Table_State']) . '</th>';
 	echo '<th>' . h($pia_lang['Network_Table_Hostname']) . '</th>';
 	echo '<th>' . h($pia_lang['Network_Table_IP']) . '</th></tr>';
@@ -354,7 +348,7 @@ function createnetworktabcontent($deviceId, $deviceName, $deviceType, $devicePor
 $networkNameResult = $db->query('SELECT DISTINCT "net_networkname" FROM "network_infrastructure" ORDER BY "net_networkname" COLLATE NOCASE ASC');
 foreach (network_fetch_rows($networkNameResult) as $networkNameRow) {
 	$networkName = (string) ($networkNameRow['net_networkname'] ?? '');
-	echo '<h4 style="font-size: x-large; text-align: center; text-decoration: underline;">' . h($pia_lang['NET_Network_head']) . ': ' . h($networkName) . '</h4>';
+	echo '<h2 class="h4 text-center mt-4 mb-3">' . h($pia_lang['NET_Network_head']) . ': ' . h($networkName) . '</h2>';
 
 	$infrastructureResult = db_execute_prepared(
 		$db,
@@ -363,42 +357,26 @@ foreach (network_fetch_rows($networkNameResult) as $networkNameRow) {
 	);
 	$infrastructureRows = network_fetch_rows($infrastructureResult);
 
-	echo '<div class="nav-tabs-custom"><ul class="nav nav-tabs">';
+	echo '<div class="card mb-4"><div class="card-header p-0"><ul class="nav nav-tabs flex-wrap">';
 	foreach ($infrastructureRows as $index => $row) {
 		if (filter_var($row['device_id'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1))) === false) {
 			continue;
 		}
 		createnetworktab($row['device_id'], $row['net_device_name'] ?? '', $row['net_device_typ'] ?? '', $index === 0);
 	}
-	echo '</ul><div class="tab-content" style="max-height:400px; overflow:auto;">';
+	echo '</ul></div><div class="card-body"><div class="tab-content" style="max-height:400px; overflow:auto;">';
 	foreach ($infrastructureRows as $index => $row) {
 		if (filter_var($row['device_id'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1))) === false) {
 			continue;
 		}
 		createnetworktabcontent($row['device_id'], $row['net_device_name'] ?? '', $row['net_device_typ'] ?? '', $row['net_device_port'] ?? '', $index === 0);
 	}
-	echo '</div></div>';
+	echo '</div></div></div>';
 }
 
 ?>
-<div class="box box-default collapsed-box">
-    <div class="box-header with-border" data-widget="collapse">
-        <h3 class="box-title"><i class="fa"></i><?=$pia_lang['Network_UnassignedDevices'];?></h3>
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
-          </div>
-    </div>
-    <div class="box-body">
-<?php
-unassigned_devices();
-?>
-    </div>
-</div>
-
-  <div style="width: 100%; height: 20px;"></div>
+<details class="card mb-4"><summary class="card-header"><?= h($pia_lang['Network_UnassignedDevices'] ?? 'Unassigned devices'); ?></summary><div class="card-body">
+<?php unassigned_devices(); ?>
+</div></details>
 </section>
-  </div>
-
-<?php
-require 'php/templates/footer.php';
-?>
+<?php pialert_v4_shell_end(); ?>

@@ -6,13 +6,16 @@ if ($_SESSION["login"] != 1) {
     header('Location: ../../index.php');
     exit;
 }
+require_once __DIR__ . '/../bootstrap.php';
+pialert_v4_load_language();
+$debugLanguage = $pia_lang;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= h(str_replace('_', '-', pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME))); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debugging</title>
+    <title><?= h($pia_lang['V4_Debugging']); ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -65,52 +68,40 @@ if ($_SESSION["login"] != 1) {
 </head>
 <body>
     <div class="topheader">
-        <h2 style="margin: 0px">Language Array Compare</h2>
+        <h2 style="margin: 0px"><?= h($pia_lang['V4_Compare_Languages']); ?></h2>
     </div>
 
     <div class="info_box short">
-        <span class="info_head">Pi.Alert-URL:</span><br>
+        <span class="info_head"><?= h($pia_lang['V4_PiAlert_URL']); ?></span><br>
         <div id="pialert_url"></div>
     </div>
 
     <div class="resultheader">
-        <h2 class="heading">Results</h2>
+        <h2 class="heading"><?= h($pia_lang['V4_Results']); ?></h2>
     </div>
 
     <div class="info_box">
-        <h2 class="heading">Entry Count</h2>
+        <h2 class="heading"><?= h($pia_lang['V4_Entry_Count']); ?></h2>
 
 <?php
 $languages = [
-    'de_de' => 'German',
-    'en_us' => 'English',
-    'es_es' => 'Spanish',
-    'fr_fr' => 'French',
-    'it_it' => 'Italian',
-    'pl_pl' => 'Polish',
-    'nl_nl' => 'Dutch',
-    'cz_cs' => 'Czech',
-    'fi_fi' => 'Finnish',
-    'lt_lt' => 'Lithuanian',
-    'dk_da' => 'Danish',
-    'no_no' => 'Norwegian',
-    'ru_ru' => 'Russian',
-    'se_sv' => 'Swedish',
-    'ua_uk' => 'Ukrainian'
+    'de_de', 'en_us', 'es_es', 'fr_fr', 'it_it', 'pl_pl', 'nl_nl', 'cz_cs',
+    'fi_fi', 'lt_lt', 'dk_da', 'no_no', 'ru_ru', 'se_sv', 'ua_uk'
 ];
 
 $row_color = "f0f0f0";
 
-foreach ($languages as $code => $label) {
-    require "../templates/language/{$code}.php";
+foreach ($languages as $code) {
+    $label = $debugLanguage['V4_Language_' . $code];
+    require __DIR__ . "/../language/{$code}.php";
 
     if ($row_color == "#f0f0f0") {$row_color = "white";} else {$row_color = "#f0f0f0";}
 
     ${str_replace('_', '', $code)} = $pia_lang;
     ${str_replace('_', '', $code) . '_journ'} = $pia_journ_lang;
 
-    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">{$label}: </div>" . sizeof($pia_lang) . " entries</div>";
-    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">{$label} (Journal): </div>" . sizeof($pia_journ_lang) . " entries</div>";
+    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">" . h($label) . ': </div>' . sizeof($pia_lang) . ' ' . h($debugLanguage['V4_Entries']) . '</div>';
+    echo "<div class=\"language_container\" style=\"background-color: ".$row_color."\"><div class=\"languages\">" . h($label) . ' (Journal): </div>' . sizeof($pia_journ_lang) . ' ' . h($debugLanguage['V4_Entries']) . '</div>';
 
     unset($pia_lang, $pia_journ_lang);
 }
@@ -184,13 +175,13 @@ foreach ([
 
 echo '</div>';
 echo '<div class="info_box">
-        <h2 class="heading">Missing Entries (pia_lang)</h2>';
+        <h2 class="heading">' . h($debugLanguage['V4_Missing_Entries']) . ' (pia_lang)</h2>';
 foreach ($missing_lang as $lang => $keys) {
     echo '<div class="languages"><strong>' . $lang . ':</strong></div> ' . implode(', ', $keys) . '<br>';
 }
 echo '</div>';
 echo '<div class="info_box">
-        <h2 class="heading">Missing Entries (pia_journ_lang)</h2>';
+        <h2 class="heading">' . h($debugLanguage['V4_Missing_Entries']) . ' (pia_journ_lang)</h2>';
 foreach ($missing_journ as $lang => $keys) {
     echo '<div class="languages"><strong>' . $lang . ':</strong></div> ' . implode(', ', $keys) . '<br>';
 }

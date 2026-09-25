@@ -23,8 +23,9 @@ require 'db.php';
 require 'util.php';
 require 'service_url.php';
 require 'journal.php';
+require_once __DIR__ . '/geodb_update.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
 
 //  Action selector
 // Set maximum execution time to 1 minute
@@ -141,25 +142,23 @@ function getServiceMonTotals() {
 }
 
 function updateGeoDB() {
-	global $pia_lang;
-
-	$deletePath = '../../../db/GeoLite2-Country.mmdb';
-	if (file_exists($deletePath)) {
-		unlink($deletePath);
-	}
-
-	$fileUrl = 'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb';
 	$savePath = '../../../db/GeoLite2-Country.mmdb';
-
-	// Disable caching
 	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 	header('Cache-Control: post-check=0, pre-check=0', false);
 	header('Pragma: no-cache');
+	header('Content-Type: application/json; charset=UTF-8');
 
-	file_put_contents($savePath, fopen($fileUrl, 'r'));
-	echo json_encode(['filePath' => $savePath]);
-	// Logging
+	try {
+		pialert_replace_geodb(__DIR__ . '/../../../db/GeoLite2-Country.mmdb');
+	} catch (Throwable $exception) {
+		http_response_code($exception->getMessage() === 'GeoLite2 update already running' ? 409 : 502);
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'] ?? '', 'LogStr_0077', '', substr($exception->getMessage(), 0, 200));
+		echo json_encode(['error' => 'GeoLite2 database update failed']);
+		return;
+	}
+
 	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0008', '', '');
+	echo json_encode(['filePath' => $savePath]);
 }
 
 //  Toggle Web Service Monitoring
@@ -347,18 +346,7 @@ function insertNewService() {
 
 //  Download GeoDB
 function downloadGeoDB() {
-	$fileUrl = 'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb';
-	$savePath = '../../../db/GeoLite2-Country.mmdb';
-
-// Disable caching
-	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-	header('Cache-Control: post-check=0, pre-check=0', false);
-	header('Pragma: no-cache');
-
-	file_put_contents($savePath, fopen($fileUrl, 'r'));
-	echo json_encode(['filePath' => $savePath]);
-	// Logging
-	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0008', '', '');
+	updateGeoDB();
 }
 
 //  Delete GeoDB

@@ -1,0 +1,31 @@
+#service-details-page .small-box { display: block; height: 100%; margin-bottom: 0; }
+#service-details-page .small-box .inner { position: relative; z-index: 1; }
+#service-details-page .small-box-icon { opacity: .28; }
+#service-details-page .card-body.tab-content { min-height: 28rem; }
+
+.service-fields {
+  align-items: center;
+  display: grid;
+  gap: .75rem 1rem;
+  grid-template-columns: minmax(8rem, 30%) minmax(0, 1fr);
+}
+.service-fields label { font-weight: 600; margin-bottom: 0; }
+.service-fields-wide { grid-template-columns: minmax(8rem, 15%) minmax(0, 1fr); }
+.service-chart { height: 12rem; min-height: 12rem; position: relative; }
+.service-code-legend { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; }
+.text-orange { color: #fe4c00; }
+.flip-horizontal { transform: scaleX(-1); }
+#tableEvents th, #tableEvents td { white-space: nowrap; }
+
+@media (max-width: 767.98px) {
+  #serviceDetailsTabs { max-width: 100%; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding-bottom: 1px; -webkit-overflow-scrolling: touch; }
+  #serviceDetailsTabs > .nav-item { flex: 0 0 auto; }
+  #serviceDetailsTabs .nav-link { white-space: nowrap; }
+}
+
+@media (max-width: 575.98px) {
+  .service-fields, .service-fields-wide { grid-template-columns: 1fr; gap: .35rem; }
+  .service-fields input + label, .service-fields-wide input + label { margin-top: .5rem; }
+  #serviceDetailsTabs .nav-link { padding-left: .7rem; padding-right: .7rem; }
+  .service-chart { height: 16rem; }
+}
