@@ -50,28 +50,9 @@
   | ------------------------------------------- | ----------------------------------------- | ------------------------------------------ |
   | ![Screen Settings 04](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/settings-tools.png)   | ![Screen Settings 05](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/settings-backup.png) | ![Screen Settings 06](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/settings-satellites.png) |
 
-### Frontend - Miscellaneous
-
-  | ![Screen Misc 01][Screen_Misc_01]   | ![Screen Misc 02][Screen_Misc_02] | ![Screen Misc 03][Screen_Misc_03]  | 
-  | ----------------------------------- | --------------------------------- | ---------------------------------- |
-  | ![Screen Misc 06][Screen_Misc_06]   | ![Screen Misc 05][Screen_Misc_05] |  |
-
 
 [Back](https://github.com/leiweibau/Pi.Alert)
 
 [report1]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_01.jpg               "Report sample 1"
 [report2]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_02.jpg               "Report sample 2"
 [report3]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_gui_03.jpg           "Report sample 3"
-
-[Screen_Ev_and_Pres_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_devevents.png     "Screen Events and Pres. 01"
-[Screen_Ev_and_Pres_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_devpresence.png   "Screen Events and Pres. 02"
-
-[Screen_Misc_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_sysinfo.png         "Screen Misc 01"
-[Screen_Misc_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_updatecheck_01.png  "Screen Misc 02"
-[Screen_Misc_03]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_notify.png          "Screen Misc 03"
-[Screen_Misc_05]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dropdownmenu.png    "Screen Misc 05"
-[Screen_Misc_06]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_loginwindow.png     "Screen Misc 06"
-
-[Screen_Journal_00]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_journal.png         "Screen Journal 00"
-[Screen_Journal_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_journal_01.png      "Screen Journal 01"
-[Screen_Journal_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_journal_02.png      "Screen Journal 02"
