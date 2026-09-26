@@ -1015,6 +1015,7 @@ $pia_journ_lang['LogStr_9998'] = 'El archivo de configuración no se guardó';
 $pia_journ_lang['LogStr_9999'] = 'Archivo de configuración editado';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'No hay datos de puertos utilizables';
@@ -1031,4 +1032,15 @@ $pia_lang['V4_Copy_IP'] = 'Copiar dirección IP';
 $pia_lang['V4_Copy_Success'] = 'Copiado al portapapeles';
 $pia_lang['V4_Copy_Failed'] = 'No se pudo copiar al portapapeles';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Esperando el reinicio de Pi.Alert';
+$pia_lang['Wait_Reboot_Status'] = 'Reinicio solicitado...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert se reiniciará en breve';
+$pia_lang['Wait_Reboot_Message'] = 'El sistema se reiniciará después del próximo escaneo.';
+$pia_lang['Wait_Reboot_Advice'] = 'Por favor espere un momento hasta que el sistema vuelva a estar disponible.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert esperando apagado';
+$pia_lang['Wait_Shutdown_Status'] = 'Apagado solicitado...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert se apagará en breve';
+$pia_lang['Wait_Shutdown_Message'] = 'Después del próximo escaneo, este host se apagará.';
+$pia_lang['Wait_Shutdown_Advice'] = 'La supervisión de red ya no se realizará desde este sistema.';
 ?>

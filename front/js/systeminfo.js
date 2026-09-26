@@ -19,9 +19,9 @@
 
   function showSystemActionResult(message, action) {
     window.showMessage(message);
-    var match = String(message == null ? '' : message).match(/URL=\.\/lib\/static\/(reboot|shutdown)_([a-z]{2}_[a-z]{2})\.html/i);
+    var match = String(message == null ? '' : message).match(/URL=\.\/lib\/static\/(reboot|shutdown)\.php\?lang=([a-z]{2}_[a-z]{2})/i);
     if (!match || match[1].toLowerCase() !== action) return;
-    var waitPage = 'lib/static/' + match[1].toLowerCase() + '_' + match[2].toLowerCase() + '.html';
+    var waitPage = 'lib/static/' + match[1].toLowerCase() + '.php?lang=' + match[2].toLowerCase();
     window.setTimeout(function () { window.location.assign(waitPage); }, 2000);
   }
 

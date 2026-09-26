@@ -122,7 +122,7 @@ $pia_lang['Device_TableHead_Status'] = 'Status';
 $pia_lang['UI_Theme_Label'] = 'Theme';
 $pia_lang['UI_Theme_Standard'] = 'Standard';
 $pia_lang['UI_Theme_Glas'] = 'Glas';
-$pia_lang['UI_Theme_Help'] = 'Glas zeigt eine durchscheinende dunkle Oberfläche; Piano kombiniert einen hellen Hintergrund mit schwarzen Oberflächen. Die Auswahl gilt nach dem Speichern.';
+$pia_lang['UI_Theme_Help'] = 'Glas zeigt eine durchscheinende dunkle Oberfläche; Piano kombiniert einen hellen Hintergrund mit schwarzen Oberflächen; Console bietet eine dunkle Terminaloberfläche. Die Auswahl gilt nach dem Speichern.';
 $pia_lang['Device_TableHead_ConnectionType'] = 'Verbindungstyp';
 $pia_lang['Device_TableHead_WakeOnLAN'] = 'WoL';
 $pia_lang['Device_Searchbox'] = 'Suche';
@@ -1024,6 +1024,7 @@ $pia_journ_lang['LogStr_9998'] = 'Konfigurationsdatei nicht gespeichert';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsdatei bearbeitet';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Keine auswertbaren Portdaten';
@@ -1385,4 +1386,15 @@ $pia_lang['NET_Man_Del'] = 'Löschen';
 $pia_lang['V4_Copy_IP'] = 'IP-Adresse kopieren';
 $pia_lang['V4_Copy_Success'] = 'In die Zwischenablage kopiert';
 $pia_lang['V4_Copy_Failed'] = 'Kopieren in die Zwischenablage fehlgeschlagen';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Warte auf Pi.Alert Neustart';
+$pia_lang['Wait_Reboot_Status'] = 'Neustart angefordert...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert wird bald neu gestartet';
+$pia_lang['Wait_Reboot_Message'] = 'Nach dem nächsten Scan wird das System neu gestartet.';
+$pia_lang['Wait_Reboot_Advice'] = 'Bitte warten Sie einen Moment, bis das System wieder verfügbar ist.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert wartet auf das Ausschalten';
+$pia_lang['Wait_Shutdown_Status'] = 'Ausschalten angefordert...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert wird bald heruntergefahren';
+$pia_lang['Wait_Shutdown_Message'] = 'Nach dem nächsten Scan wird dieser Host heruntergefahren';
+$pia_lang['Wait_Shutdown_Advice'] = 'Eine Netzwerküberwachung findet mit diesem System dann nicht mehr statt.';
 ?>

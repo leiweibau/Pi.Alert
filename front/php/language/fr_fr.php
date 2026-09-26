@@ -1014,6 +1014,7 @@ $pia_journ_lang['LogStr_9998'] = 'Le fichier de configuration n&apos;a pas été
 $pia_journ_lang['LogStr_9999'] = 'Fichier de configuration modifié';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Aucune donnée de port exploitable';
@@ -1030,4 +1031,15 @@ $pia_lang['V4_Copy_IP'] = 'Copier l’adresse IP';
 $pia_lang['V4_Copy_Success'] = 'Copié dans le presse-papiers';
 $pia_lang['V4_Copy_Failed'] = 'Impossible de copier dans le presse-papiers';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'En attente du redémarrage de Pi.Alert';
+$pia_lang['Wait_Reboot_Status'] = 'Redémarrage demandé...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert sera bientôt redémarré';
+$pia_lang['Wait_Reboot_Message'] = 'Le système sera redémarré après le prochain scan.';
+$pia_lang['Wait_Reboot_Advice'] = 'Veuillez patienter un instant jusqu\'à ce que le système soit de nouveau disponible.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert en attente de l\'arrêt';
+$pia_lang['Wait_Shutdown_Status'] = 'Arrêt demandé...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert sera bientôt arrêté';
+$pia_lang['Wait_Shutdown_Message'] = 'Après le prochain scan, cet hôte sera arrêté.';
+$pia_lang['Wait_Shutdown_Advice'] = 'La surveillance du réseau ne sera alors plus assurée par ce système.';
 ?>

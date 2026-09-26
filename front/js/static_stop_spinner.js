@@ -1,4 +1,4 @@
-// Spinner nach 5 Minuten stoppen (300.000 ms)
+// Spinner nach 200 Sekunden stoppen (bestehender Shutdown-Countdown).
 setTimeout(() => {
   const spinner = document.getElementById('pialert-spinner');
   if (spinner) {

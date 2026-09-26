@@ -144,7 +144,7 @@ $checkboxes = array(
     array('chkAlertEvents','WEBS_label_AlertEvents','Alert events','icmp_AlertEvents'),
     array('chkAlertDown','WEBS_label_AlertDown','Alert down','icmp_AlertDown'),
 );
-pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-1.10.25/css/dataTables.bootstrap5.min.css','lib/coloris-0.24.0/coloris.min.css','css/icmp-details.css','css/nmap-results.css','css/entity-actions.css'));
+pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css','lib/coloris-0.25.0/coloris.min.css','css/icmp-details.css','css/nmap-results.css','css/entity-actions.css'));
 ?>
 <section id="icmp-details-page" data-host-ip="<?= h($hostip); ?>" data-endpoint="php/server/icmpmonitor.php" data-back-url="<?= h(pialert_v4_route('icmp')); ?>" data-filter-events="<?= $icmpfilter !== '' ? '1' : '0'; ?>" data-delete-title="<?= h($L('WEBS_button_Delete_label','Delete host')); ?>" data-delete-message="<?= h($L('WEBS_button_Delete_Warning','Delete this host?')); ?>" data-cancel="<?= h($L('Gen_Cancel','Cancel')); ?>" data-delete="<?= h($L('Gen_Delete','Delete')); ?>" data-close="<?= h($L('Gen_Close','Close')); ?>" data-reset="<?= h($L('DevDetail_button_Reset','Reset')); ?>" data-fast="<?= h($L('DevDetail_Tools_nmap_buttonFast','Fast scan')); ?>" data-normal="<?= h($L('DevDetail_Tools_nmap_buttonDefault','Normal scan')); ?>" data-nmap-loading="<?= h($L('nmap_results_loading','Loading scan results…')); ?>" data-nmap-error="<?= h($L('nmap_results_request_error','The scan request failed.')); ?>" data-length-menu="<?= h($L('EVE_Tablelenght','Show _MENU_ entries')); ?>" data-search="<?= h($L('EVE_Searchbox','Search')); ?>" data-next="<?= h($L('EVE_Table_nav_next','Next')); ?>" data-previous="<?= h($L('EVE_Table_nav_prev','Previous')); ?>" data-info="<?= h($L('EVE_Table_info','Showing _START_ to _END_ of _TOTAL_ entries')); ?>">
   <script id="icmp-host-navigation-data" type="application/json"><?= json_encode($hostNavigation, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
@@ -180,4 +180,4 @@ pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-
     </div>
   </div></div></section>
 </section>
-<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-1.10.25/jquery.dataTables.min.js','lib/datatables/datatables.net-bs5-1.10.25/js/dataTables.bootstrap5.min.js','lib/chart.js-4.5.1/chart.umd.js','lib/coloris-0.24.0/coloris.min.js','js/nmap-results.js','js/entity-actions-renderer.js','js/entity-actions-editor.js','js/icmp-details.js')); ?>
+<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-2.3.8/dataTables.min.js','lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js','lib/chart.js-4.5.1/chart.umd.js','lib/coloris-0.25.0/coloris.min.js','js/nmap-results.js','js/entity-actions-renderer.js','js/entity-actions-editor.js','js/icmp-details.js')); ?>

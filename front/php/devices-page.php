@@ -27,6 +27,8 @@ $requestedSource = $pageRequest['scansource'] ?? ($_GET['scansource'] ?? 'local'
 $SCANSOURCE = is_string($requestedSource) && preg_match('/^[A-Za-z0-9_.:-]{1,128}$/D', $requestedSource) ? $requestedSource : 'local';
 $sourceLabel = pialert_v4_satellite_name($SCANSOURCE);
 $predefined_filter = isset($pageRequest['predefined_filter']) && is_scalar($pageRequest['predefined_filter']) ? (string) $pageRequest['predefined_filter'] : '';
+$filter_id = filter_var($pageRequest['filter_id'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+if ($filter_id === false) $filter_id = null;
 $filter_fields = array();
 foreach (array_filter(explode(',', is_scalar($pageRequest['filter_fields'] ?? null) ? (string) $pageRequest['filter_fields'] : ''), 'strlen') as $field) {
     if (ctype_digit($field) && (int) $field >= 0 && (int) $field <= 17) $filter_fields[] = (int) $field;
@@ -141,11 +143,11 @@ $labels = array(
     'status'=>$L('Device_TableHead_Status','Status'),'details'=>$L('DevDetail_Tab_Details','Details'),'empty'=>$pia_lang['V4_No_Data'],
     'deleteDeviceTitle'=>$L('DevDetail_button_Delete','Delete device'),'deleteDeviceWarning'=>$L('DevDetail_button_Delete_Warning','Delete this device?')
 );
-$pageConfig = array('scanSource'=>$SCANSOURCE,'predefinedFilter'=>$predefined_filter,'filterFields'=>$filter_fields,'hiddenColumns'=>$hiddenColumns,'columnIds'=>array_keys($deviceColumns),'pageLength'=>$uiSettings['devices']['page_length'],'order'=>pialert_v4_ui_numeric_order($uiSettings),'labels'=>$labels,
+$pageConfig = array('scanSource'=>$SCANSOURCE,'predefinedFilter'=>$predefined_filter,'filterId'=>$filter_id,'filterFields'=>$filter_fields,'hiddenColumns'=>$hiddenColumns,'columnIds'=>array_keys($deviceColumns),'pageLength'=>$uiSettings['devices']['page_length'],'order'=>pialert_v4_ui_numeric_order($uiSettings),'labels'=>$labels,
     'history'=>array('time'=>array_reverse($history[0]),'down'=>array_reverse($history[1]),'online'=>array_reverse($history[3]),'archived'=>array_reverse($history[4])));
 
-pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-1.10.25/css/dataTables.bootstrap5.min.css','lib/icheck-1.0.3/all.css','css/devices.css','css/entity-actions.css'));
+pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css','css/devices.css','css/entity-actions.css'));
 ?>
 <script type="application/json" id="devices-page-config"><?= json_encode($pageConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
 <?php if ($bulkMode): require __DIR__ . '/devices-page-bulk.php'; else: require __DIR__ . '/devices-page-list.php'; endif; ?>
-<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-1.10.25/jquery.dataTables.min.js','lib/datatables/datatables.net-bs5-1.10.25/js/dataTables.bootstrap5.min.js','lib/icheck-1.0.3/icheck.min.js','lib/chart.js-4.5.1/chart.umd.js','js/entity-actions-renderer.js','js/devices.js')); ?>
+<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-2.3.8/dataTables.min.js','lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js','lib/chart.js-4.5.1/chart.umd.js','js/entity-actions-renderer.js','js/devices.js')); ?>

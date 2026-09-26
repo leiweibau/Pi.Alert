@@ -18,9 +18,9 @@ function pialert_v4_setting_suffix(string $prefix, array $allowed): string {
 function pialert_v4_theme_state(): array {
     $appearance = pialert_v4_ui_read()['appearance'];
     $name = $appearance['theme'];
-    $dark = in_array($name, array('glas', 'piano'), true) || $appearance['dark_mode'];
+    $dark = in_array($name, array('glas', 'piano', 'console'), true) || $appearance['dark_mode'];
     // Piano has a light page canvas, but its chrome and controls are dark.
-    $pianoChrome = $name === 'piano' ? array('class'=>'bg-dark', 'mode'=>'dark') : null;
+    $pianoChrome = in_array($name, array('piano', 'console'), true) ? array('class'=>'bg-dark', 'mode'=>'dark') : null;
     return array(
         'name'=>$name,
         'mode'=>$dark ? 'dark' : 'light',
@@ -81,26 +81,30 @@ function pialert_v4_sidebar_filters(): void {
     uksort($groups, 'strnatcasecmp');
     $selected = isset($_GET['predefined_filter']) && is_string($_GET['predefined_filter']) ? $_GET['predefined_filter'] : null;
     $selectedFields = isset($_GET['filter_fields']) && is_string($_GET['filter_fields']) ? $_GET['filter_fields'] : null;
+    $selectedId = filter_var($_GET['filter_id'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+    if ($selectedId === false) $selectedId = null;
     $groupIndex = 0;
     foreach ($groups as $name => $members) {
         $open = isset($_GET['g']) && is_scalar($_GET['g']) && (string) $_GET['g'] === (string) $groupIndex;
-        foreach ($members as $row) if ($selected !== null && $selected === (string) ($row['filterstring'] ?? '') && ($selectedFields === null || $selectedFields === (string) ($row['reserve_b'] ?? ''))) $open = true;
+        foreach ($members as $row) if (($selectedId !== null && $selectedId === (int) ($row['id'] ?? 0)) || ($selectedId === null && $selected !== null && $selected === (string) ($row['filterstring'] ?? '') && ($selectedFields === null || $selectedFields === (string) ($row['reserve_b'] ?? '')))) $open = true;
         ?>
         <li class="nav-item pialert-filter-group<?= $open ? ' menu-open' : ''; ?>"><a href="#" class="nav-link pialert-sidebar-subitem" aria-expanded="<?= $open ? 'true' : 'false'; ?>"><i class="nav-icon fa-solid fa-filter" aria-hidden="true"></i><p><?= h((string) $name); ?><i class="nav-arrow fa-solid fa-angle-right" aria-hidden="true"></i></p></a>
           <ul class="nav nav-treeview"<?= $open ? ' style="display: block"' : ''; ?>>
-          <?php foreach ($members as $row) pialert_v4_sidebar_filter_item($row, $groupIndex, $selected, $selectedFields); ?>
+          <?php foreach ($members as $row) pialert_v4_sidebar_filter_item($row, $groupIndex, $selected, $selectedFields, $selectedId); ?>
           </ul></li>
         <?php
         $groupIndex++;
     }
-    foreach ($filters as $row) if (trim((string) ($row['reserve_c'] ?? '')) === '') pialert_v4_sidebar_filter_item($row, null, $selected, $selectedFields);
+    foreach ($filters as $row) if (trim((string) ($row['reserve_c'] ?? '')) === '') pialert_v4_sidebar_filter_item($row, null, $selected, $selectedFields, $selectedId);
 }
 
-function pialert_v4_sidebar_filter_item(array $row, ?int $group, ?string $selected, ?string $selectedFields): void {
+function pialert_v4_sidebar_filter_item(array $row, ?int $group, ?string $selected, ?string $selectedFields, ?int $selectedId): void {
+    $id = (int) ($row['id'] ?? 0);
     $filter = (string) ($row['filterstring'] ?? '');
     $fields = (string) ($row['reserve_b'] ?? '');
-    $active = basename($_SERVER['SCRIPT_NAME'] ?? '') === 'devices.php' && $selected !== null && $selected === $filter && ($selectedFields === null || $selectedFields === $fields);
-    $url = 'devices.php?predefined_filter=' . rawurlencode($filter) . '&filter_fields=' . rawurlencode($fields);
+    $matchesSelection = $selectedId !== null ? $selectedId === $id : $selected !== null && $selected === $filter && ($selectedFields === null || $selectedFields === $fields);
+    $active = basename($_SERVER['SCRIPT_NAME'] ?? '') === 'devices.php' && $matchesSelection;
+    $url = 'devices.php?predefined_filter=' . rawurlencode($filter) . '&filter_fields=' . rawurlencode($fields) . '&filter_id=' . $id;
     if ($group !== null) $url .= '&g=' . $group;
     ?>
     <li class="nav-item"><a href="<?= h($url); ?>" class="nav-link pialert-sidebar-subitem<?= $active ? ' active' : ''; ?>"<?= $active ? ' aria-current="page"' : ''; ?>><i class="nav-icon <?= $active ? 'fa-solid' : 'fa-regular'; ?> fa-circle" aria-hidden="true"></i><p><?= h((string) ($row['filtername'] ?? '')); ?></p></a></li>
@@ -191,7 +195,7 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/css/adminlte.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/css/adminlte-colors.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/bootstrap-icons-1.13.1/font/bootstrap-icons.min.css')); ?>">
-  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/font-awesome/css/font-awesome.min.css')); ?>">
+  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/font-awesome-7.3.1/css/all.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/ionicons/css/ionicons.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/material-design-icons/css/materialdesignicons.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('css/pialert-v4.css')); ?>?v=<?= $assetVersion; ?>">
@@ -203,7 +207,7 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
   <nav class="app-header navbar navbar-expand <?= h($theme['header']['class']); ?>" data-bs-theme="<?= h($theme['header']['mode']); ?>" aria-label="<?= h($pia_lang['V4_Toolbar']); ?>"><div class="container-fluid">
     <ul class="navbar-nav align-items-center">
       <?php if ($withoutSidebar): ?><li class="nav-item"><span class="navbar-brand pialert-dashboard-brand">Pi.<strong>Alert</strong></span></li><?php else: ?><li class="nav-item"><button class="nav-link btn" type="button" data-lte-toggle="sidebar" aria-label="<?= h($pia_lang['V4_Toggle_Navigation']); ?>"><i class="fa-solid fa-bars" aria-hidden="true"></i></button></li><?php endif; ?>
-      <?php if ($theme['name'] !== 'standard' && !$withoutSidebar): ?><li class="nav-item pa-mobile-brand"><span class="pa-brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Pi.<strong>Alert</strong></span><small><?= h($title); ?></small></li><?php endif; ?>
+      <?php if ($theme['name'] !== 'standard' && !$withoutSidebar): ?><li class="nav-item pa-mobile-brand"><span>Pi.<strong>Alert</strong></span><small><?= h($title); ?></small></li><?php endif; ?>
       <li class="nav-item d-none d-sm-block"><a id="navbar-reload-button" class="nav-link" href="" aria-label="<?= h($pia_lang['V4_Reload_Page']); ?>"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></a></li>
     </ul>
     <ul class="navbar-nav ms-auto align-items-center">
@@ -229,7 +233,7 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
     </ul>
   </div></nav>
   <?php if (!$withoutSidebar): ?><aside class="app-sidebar <?= h($theme['sidebar']['class']); ?> shadow" data-bs-theme="<?= h($theme['sidebar']['mode']); ?>">
-    <div class="sidebar-brand <?= h($theme['header']['class']); ?>" data-bs-theme="<?= h($theme['header']['mode']); ?>"><a href="<?= h(pialert_v4_route('home')); ?>" class="brand-link"><?php if ($theme['name'] !== 'standard'): ?><span class="pa-brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><?php endif; ?><span class="brand-text fw-light">Pi.<strong>Alert</strong></span></a></div>
+    <div class="sidebar-brand <?= h($theme['header']['class']); ?>" data-bs-theme="<?= h($theme['header']['mode']); ?>"><a href="<?= h(pialert_v4_route('home')); ?>" class="brand-link"><span class="brand-text fw-light">Pi.<strong>Alert</strong></span></a></div>
     <div class="sidebar-wrapper">
       <a id="sidebar_systeminfobox" class="pialert-system-status d-block text-decoration-none" href="<?= h(pialert_v4_route('systeminfo')); ?>" aria-label="<?= h($pia_lang['V4_System_Status_Info']); ?>"<?= $activePage === 'systeminfo' ? ' aria-current="page"' : ''; ?>>
         <div><span class="pialert-status-dot <?= $status['paused'] ? 'text-danger' : 'text-success'; ?>" aria-hidden="true">●</span> <?= h($status['paused'] ? $pia_lang['V4_Disabled'] : $pia_lang['V4_Active']); ?></div>
@@ -275,13 +279,14 @@ function pialert_v4_shell_end(array $pageScripts = array()): void {
   <footer class="app-footer"><a class="link-body-emphasis" href="https://leiweibau.net/" target="_blank" rel="noopener noreferrer">leiweibau</a><span class="float-end d-none d-sm-inline"><?= h($GLOBALS['pia_lang']['V4_Version']); ?>: <?= h($version); ?></span></footer>
 </div>
 <script type="application/json" id="pialert-v4-labels"><?= json_encode(array_filter($pia_lang, static fn($key): bool => str_starts_with((string) $key, 'V4_'), ARRAY_FILTER_USE_KEY), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE); ?></script>
-<script src="<?= h(pialert_v4_asset('lib/jquery-3.6.2/jquery.min.js')); ?>"></script>
+<script src="<?= h(pialert_v4_asset('lib/jquery-4.0.0/jquery.min.js')); ?>"></script>
 <script src="<?= h(pialert_v4_asset('lib/bootstrap-5.3.8/js/bootstrap.bundle.min.js')); ?>"></script>
 <script src="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/js/adminlte.min.js')); ?>"></script>
 <script src="<?= h(pialert_v4_asset('js/pialert-common.js')); ?>?v=<?= $assetVersion; ?>"></script>
 <script src="<?= h(pialert_v4_asset('js/pialert-shell-runtime.js')); ?>?v=<?= $assetVersion; ?>"></script>
 <?php foreach (($pialertV4PageScripts ?? array()) as $pageScript): ?>
 <script src="<?= h(pialert_v4_asset($pageScript)); ?>?v=<?= $assetVersion; ?>"></script>
+<?php if ($pageScript === 'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js'): ?><script src="<?= h(pialert_v4_asset('js/pialert-datatables.js')); ?>?v=<?= $assetVersion; ?>"></script><?php endif; ?>
 <?php if ($pageScript === 'lib/chart.js-4.5.1/chart.umd.js'): ?><script src="<?= h(pialert_v4_asset('js/pialert-theme-chart.js')); ?>?v=<?= $assetVersion; ?>"></script><?php endif; ?>
 <?php endforeach; ?>
 <script src="<?= h(pialert_v4_asset('js/pialert-v4.js')); ?>?v=<?= $assetVersion; ?>"></script>

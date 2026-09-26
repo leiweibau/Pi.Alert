@@ -41,3 +41,13 @@ html[data-pialert-theme] .entity-actions-row { background: var(--pa-control-back
   html[data-pialert-theme] .pa-device-card.has-actions { grid-template-columns: 2.25rem minmax(0, 1fr) 1.25rem; }
   html[data-pialert-theme] .pa-device-card-actions { grid-column: 2 / -1; grid-row: 3; }
 }
+@media (max-width: 575.98px) {
+  .clr-picker.clr-pill {
+    left: .5rem !important;
+    right: .5rem;
+    width: calc(100vw - 1rem);
+    max-width: 380px;
+    padding-left: min(47.368%, 180px);
+  }
+  .clr-pill .clr-gradient { width: min(47.368%, 180px); }
+}

@@ -1014,6 +1014,7 @@ $pia_journ_lang['LogStr_9998'] = 'Файл конфігурації не збе�
 $pia_journ_lang['LogStr_9999'] = 'Конфігураційний файл змінено';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Немає придатних даних про порти';
@@ -1030,4 +1031,15 @@ $pia_lang['V4_Copy_IP'] = 'Скопіювати IP-адресу';
 $pia_lang['V4_Copy_Success'] = 'Скопійовано до буфера обміну';
 $pia_lang['V4_Copy_Failed'] = 'Не вдалося скопіювати до буфера обміну';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Очікування перезапуску Pi.Alert';
+$pia_lang['Wait_Reboot_Status'] = 'Запит на перезапуск...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert незабаром буде перезапущено';
+$pia_lang['Wait_Reboot_Message'] = 'Систему буде перезапущено після наступного сканування.';
+$pia_lang['Wait_Reboot_Advice'] = 'Зачекайте, будь ласка, доки система знову стане доступною.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert очікує вимкнення';
+$pia_lang['Wait_Shutdown_Status'] = 'Надіслано запит на вимкнення...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert скоро буде вимкнено';
+$pia_lang['Wait_Shutdown_Message'] = 'Хост буде вимкнено після наступного сканування.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Після цього система більше не виконуватиме мережевий моніторинг.';
 ?>

@@ -1014,6 +1014,7 @@ $pia_journ_lang['LogStr_9998'] = 'Konfigurationsfilen sparades inte';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurationsfil redigerad';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Inga användbara portdata';
@@ -1030,4 +1031,15 @@ $pia_lang['V4_Copy_IP'] = 'Kopiera IP-adress';
 $pia_lang['V4_Copy_Success'] = 'Kopierat till urklipp';
 $pia_lang['V4_Copy_Failed'] = 'Det gick inte att kopiera till urklipp';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Väntar på omstart av Pi.Alert';
+$pia_lang['Wait_Reboot_Status'] = 'Omstart begärd...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert startas om inom kort';
+$pia_lang['Wait_Reboot_Message'] = 'Systemet kommer att startas om efter nästa skanning.';
+$pia_lang['Wait_Reboot_Advice'] = 'Vänta en stund tills systemet är tillgängligt igen.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert väntar på avstängning';
+$pia_lang['Wait_Shutdown_Status'] = 'Avstängning begärd...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert kommer snart att stängas av';
+$pia_lang['Wait_Shutdown_Message'] = 'Värden kommer att stängas av efter nästa skanning.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Nätverksövervakning kommer då inte längre att utföras av detta system.';
 ?>

@@ -81,7 +81,7 @@
 
   function renderMobileCards (api) {
     var cards = document.getElementById('deviceCards');
-    if (!cards || !['glas', 'piano'].includes(document.documentElement.getAttribute('data-pialert-theme'))) return;
+    if (!cards || !['glas', 'piano', 'console'].includes(document.documentElement.getAttribute('data-pialert-theme'))) return;
     var tableNode = api.table().node();
     if (tableNode.parentNode && cards.previousElementSibling !== tableNode) tableNode.insertAdjacentElement('afterend', cards);
     cards.replaceChildren();
@@ -114,7 +114,7 @@
   function initializeTable (rows, order) {
     table = $('#tableDevices').DataTable({
       paging: true, lengthChange: true, lengthMenu: [[10,25,50,100,500,-1],[10,25,50,100,500,labels.lengthAll || 'All']],
-      searching: true, oSearch: { sSearch: config.predefinedFilter || '' }, ordering: true, info: true, autoWidth: false,
+      searching: true, search: { search: config.predefinedFilter || '' }, ordering: true, info: true, autoWidth: false,
       pageLength: Number.isInteger(rows) ? rows : 10, order: Array.isArray(order) ? order : [[3,'desc'],[0,'asc']],
       ajax: {url:endpoint('getDevicesList', { scansource: config.scanSource, status: deviceStatus }),dataSrc:function(response){actionMap=response && response.actions && typeof response.actions==='object' ? response.actions : {};return Array.isArray(response.data) ? response.data : [];}},
       columnDefs: [
@@ -134,7 +134,7 @@
         { targets: [10], createdCell: function (td, cellData) { td.replaceChildren(); if (cellData == 1) { var icon=document.createElement('i'); icon.className='fa-solid fa-shuffle text-warning'; icon.title=window.pialertV4Text('V4_Random_MAC'); td.append(icon); } } },
         { targets: [11], createdCell: function (td, cellData) { var value=text(cellData); td.textContent=value.indexOf('Internet')===0&&value.length>20?value.slice(0,20)+'…':value; } },
         { targets: [13], createdCell: function (td, _cellData, rowData) { var state=statusInfo(rowData[13]); var tone=state[0].startsWith('pialert-status-')?state[0]:'text-bg-'+state[0]; var link=makeLink('deviceDetails.php?mac='+encodeURIComponent(text(rowData[11])),state[1],'badge pialert-device-status-link '+tone); td.replaceChildren(link); } },
-        { targets: [17], data: null, orderable: false, createdCell: function (td, _cellData, rowData) {
+        { targets: [17], data: null, orderable: false, searchable: false, createdCell: function (td, _cellData, rowData) {
           td.replaceChildren();
           if (['Mini PC','Server','Laptop','NAS','PC','Hypervisor','VM Guest'].indexOf(text(rowData[3]).trim())===-1 || text(rowData[11]).startsWith('Internet')) return;
           var button=document.createElement('button'); button.type='button'; button.className='btn btn-sm btn-outline-danger pialert-device-wol';
@@ -190,7 +190,7 @@
       window.setTimeout(function(){window.location.assign('devices.php');}, 1200);
     }
   }
-  window.DeleteDeviceFilter=function(){window.pialertPost(endpoint('DeleteDeviceFilter'),{filterstring:config.predefinedFilter},function(response){filterChanged(response,labels.filterDeletedPrefix);});};
+  window.DeleteDeviceFilter=function(){window.pialertPost(endpoint('DeleteDeviceFilter'),{filterid:config.filterId,filterstring:config.predefinedFilter},function(response){filterChanged(response,labels.filterDeletedPrefix);});};
   window.BulkDeletion=function(){var hosts=[];document.querySelectorAll('.hostselection:checked').forEach(function(input){hosts.push(input.dataset.hostId);});var payload=new URLSearchParams();hosts.forEach(function(host){payload.append('hosts[]',host);});window.pialertPost(endpoint('BulkDeletion'),payload,function(message){window.showMessage(message);});};
 
   function initializeList () {
@@ -199,14 +199,15 @@
       window.pialertPost(endpoint('SetDeviceFilter'),{filtername:$('#txtFilterName').val(),filterstring:$('#txtFilterString').val(),filtergroup:$('#txtFilterGroup').val(),fname:+$('#chkFilterName')[0].checked,fowner:+$('#chkFilterOwner')[0].checked,fgroup:+$('#chkFilterGroup')[0].checked,flocation:+$('#chkFilterLocation')[0].checked,ftype:+$('#chkFilterType')[0].checked,fip:+$('#chkFilterIP')[0].checked,fmac:+$('#chkFilterMac')[0].checked,fvendor:+$('#chkFilterVendor')[0].checked,fconnectiont:+$('#chkFilterConnectionType')[0].checked},function(response){filterChanged(response,labels.filterSavedPrefix);});
     });
     var deleteFilter=document.getElementById('deleteDeviceFilter'); if(deleteFilter)deleteFilter.addEventListener('click',function(){window.showModalWarning(labels.filterDeleteTitle,labels.filterDeleteText,labels.cancel,labels.delete,'DeleteDeviceFilter');});
-    var modal=document.getElementById('modal-set-predefined-filter');if(modal)modal.addEventListener('shown.bs.modal',function(){var input=document.querySelector('#tableDevices_filter input');if(input&&input.value)document.getElementById('txtFilterString').value=input.value;});
+    var modal=document.getElementById('modal-set-predefined-filter');if(modal)modal.addEventListener('shown.bs.modal',function(){var field=document.getElementById('txtFilterString');if(field)field.value=table ? table.search() : '';});
     var chartCanvas = document.getElementById('OnlineChart');
     if (window.Chart && chartCanvas) {
       var theme = document.documentElement.getAttribute('data-pialert-theme');
-      var themed = theme === 'glas' || theme === 'piano';
-      var chartText = themed ? (theme === 'piano' ? '#d7dcdf' : '#d8e7f3') : undefined;
-      var chartGrid = themed ? (theme === 'piano' ? 'rgba(255,255,255,.12)' : 'rgba(183,217,242,.14)') : undefined;
-      historyChart = new window.Chart(chartCanvas,{type:'bar',data:{labels:config.history.time,datasets:[{label:window.pialertV4Text('V4_Online'),data:config.history.online,backgroundColor:themed?'rgba(40,203,131,.9)':'rgba(25,135,84,.65)'},{label:window.pialertV4Text('V4_Offline_Down'),data:config.history.down,backgroundColor:themed?'rgba(250,82,102,.92)':'rgba(220,53,69,.65)'},{label:window.pialertV4Text('V4_Archived'),data:config.history.archived,backgroundColor:themed?'rgba(154,177,199,.78)':'rgba(108,117,125,.65)'}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:chartText,usePointStyle:true,pointStyle:'rectRounded'}},tooltip:{mode:'index',intersect:false}},scales:{x:{stacked:true,grid:{color:chartGrid},ticks:{color:chartText,maxRotation:0,autoSkip:true,maxTicksLimit:10}},y:{stacked:true,beginAtZero:true,grid:{color:chartGrid},ticks:{color:chartText,stepSize:1,precision:0}}}}});
+      var themed = theme === 'glas' || theme === 'piano' || theme === 'console';
+      var chartText = themed ? (theme === 'console' ? '#9cf7a8' : (theme === 'piano' ? '#d7dcdf' : '#d8e7f3')) : undefined;
+      var chartGrid = themed ? (theme === 'console' ? 'rgba(74,222,128,.14)' : (theme === 'piano' ? 'rgba(255,255,255,.12)' : 'rgba(183,217,242,.14)')) : undefined;
+      var chartColors = theme === 'console' ? ['#48e57c', '#f05d65', '#82958a'] : (themed ? ['rgba(40,203,131,.9)', 'rgba(250,82,102,.92)', 'rgba(154,177,199,.78)'] : ['rgba(25,135,84,.65)', 'rgba(220,53,69,.65)', 'rgba(108,117,125,.65)']);
+      historyChart = new window.Chart(chartCanvas,{type:'bar',data:{labels:config.history.time,datasets:[{label:window.pialertV4Text('V4_Online'),data:config.history.online,backgroundColor:chartColors[0]},{label:window.pialertV4Text('V4_Offline_Down'),data:config.history.down,backgroundColor:chartColors[1]},{label:window.pialertV4Text('V4_Archived'),data:config.history.archived,backgroundColor:chartColors[2]}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:chartText,usePointStyle:true,pointStyle:'rectRounded'}},tooltip:{mode:'index',intersect:false}},scales:{x:{stacked:true,grid:{color:chartGrid},ticks:{color:chartText,maxRotation:0,autoSkip:true,maxTicksLimit:10}},y:{stacked:true,beginAtZero:true,grid:{color:chartGrid},ticks:{color:chartText,stepSize:1,precision:0}}}}});
       if (window.ResizeObserver) {
         historyResizeObserver = new window.ResizeObserver(function (entries) {
           var width = entries[0] ? entries[0].contentRect.width : 0;

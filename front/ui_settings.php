@@ -148,6 +148,7 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'));
           <option value="standard"<?= $settings['appearance']['theme'] === 'standard' ? ' selected' : ''; ?>><?= h($pia_lang['UI_Theme_Standard'] ?? 'Standard'); ?></option>
           <option value="glas"<?= $settings['appearance']['theme'] === 'glas' ? ' selected' : ''; ?>><?= h($pia_lang['UI_Theme_Glas'] ?? 'Glas'); ?></option>
           <option value="piano"<?= $settings['appearance']['theme'] === 'piano' ? ' selected' : ''; ?>><?= h($pia_lang['UI_Theme_Piano'] ?? 'Piano'); ?></option>
+          <option value="console"<?= $settings['appearance']['theme'] === 'console' ? ' selected' : ''; ?>><?= h($pia_lang['UI_Theme_Console'] ?? 'Console'); ?></option>
         </select>
         <div class="form-text"><?= h($pia_lang['UI_Theme_Help'] ?? 'Choose between the standard, translucent Glas, and dark-on-light Piano surfaces.'); ?></div>
         </div>

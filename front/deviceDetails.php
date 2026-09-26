@@ -113,7 +113,7 @@ $config = array('mac'=>$requestedMac,'internet'=>$isInternet,'back'=>pialert_v4_
     'calendarLocale'=>$L('PRE_CalHead_lang','en'),'speedtestInstalled'=>$speedtestInstalled,
     'speedtestRows'=>array_map(static fn($row): array => array($row['speed_date'],$row['speed_isp'],$row['speed_server'],$row['speed_ping'],$row['speed_down'],$row['speed_up']), $speedtestRows));
 $title = $L('DevDetail_Title','Device details');
-pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-1.10.25/css/dataTables.bootstrap5.min.css','lib/legacy-calendar/fullcalendar-3.10.5/fullcalendar.min.css','lib/coloris-0.24.0/coloris.min.css','css/device-details.css','css/nmap-results.css','css/entity-actions.css'));
+pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css','lib/coloris-0.25.0/coloris.min.css','css/device-details.css','css/nmap-results.css','css/entity-actions.css'));
 ?>
 <script type="application/json" id="device-details-config"><?= json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
 <div id="device-details-page" class="mb-4">
@@ -169,4 +169,4 @@ pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-
     </div></div>
   </section>
 </div>
-<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-1.10.25/jquery.dataTables.min.js','lib/datatables/datatables.net-bs5-1.10.25/js/dataTables.bootstrap5.min.js','lib/legacy-calendar/moment-2.24.0/moment.js','lib/legacy-calendar/fullcalendar-3.10.5/fullcalendar.min.js','lib/legacy-calendar/fullcalendar-3.10.5/locale-all.js','lib/chart.js-4.5.1/chart.umd.js','lib/coloris-0.24.0/coloris.min.js','js/nmap-results.js','js/entity-actions-renderer.js','js/entity-actions-editor.js','js/device-details.js')); ?>
+<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-2.3.8/dataTables.min.js','lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js','lib/fullcalendar-6.1.21/index.global.min.js','lib/fullcalendar-6.1.21/locales-all.global.min.js','lib/chart.js-4.5.1/chart.umd.js','lib/coloris-0.25.0/coloris.min.js','js/nmap-results.js','js/entity-actions-renderer.js','js/entity-actions-editor.js','js/device-details.js')); ?>

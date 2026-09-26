@@ -181,6 +181,6 @@
     confirmDiscard: function () { return !dirty() || window.confirm(labels.leave); }
   };
   document.getElementById('tabActions').addEventListener('shown.bs.tab', function () { if (kind && key && !version && available) load(); });
-  if (typeof window.Coloris === 'function') window.Coloris({el:'.entity-actions-color, .entity-actions-text-color',theme:'pill',themeMode:document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',format:'hex',alpha:false,clearButton:false,closeButton:true,closeLabel:labels.close});
+  if (typeof window.Coloris === 'function') window.Coloris({el:'.entity-actions-color, .entity-actions-text-color',theme:'pill',themeMode:document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',format:'hex',alpha:false,focusInput:true,selectInput:true,clearButton:false,closeButton:true,closeLabel:labels.close});
   window.pialertEntityActions.verifyIcons();
 })(window, document);

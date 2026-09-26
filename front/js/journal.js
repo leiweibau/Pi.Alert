@@ -188,14 +188,28 @@
 
   function init () {
     if (!root || !$.fn || typeof $.fn.DataTable !== 'function' || typeof window.Coloris !== 'function') return;
+    var colorModal = document.getElementById('modal-set-journal-colors');
     window.Coloris({
+      parent: colorModal,
       theme: 'pill',
       themeMode: 'dark',
       alpha: false,
+      focusInput: true,
+      selectInput: true,
       closeButton: true,
       closeLabel: root.dataset.okay,
       clearButton: true,
       clearLabel: window.pialertV4Text('V4_Clear')
+    });
+    window.Coloris.ready(function () {
+      var picker = document.getElementById('clr-picker');
+      if (!picker || picker.dataset.bootstrapModalKeys === 'true') return;
+      picker.dataset.bootstrapModalKeys = 'true';
+      picker.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') return;
+        event.stopPropagation();
+        window.Coloris.close(true);
+      });
     });
     $.get('php/server/parameters.php?action=getJournalParameter').done(initialize).fail(function () { initialize({}); });
   }

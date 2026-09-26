@@ -1014,6 +1014,7 @@ $pia_journ_lang['LogStr_9998'] = 'Konfigūracijos failas neišsaugotas';
 $pia_journ_lang['LogStr_9999'] = 'Konfigūracijos failas redaguotas';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Nėra tinkamų prievadų duomenų';
@@ -1030,4 +1031,15 @@ $pia_lang['V4_Copy_IP'] = 'Kopijuoti IP adresą';
 $pia_lang['V4_Copy_Success'] = 'Nukopijuota į iškarpinę';
 $pia_lang['V4_Copy_Failed'] = 'Nepavyko nukopijuoti į iškarpinę';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Laukiama Pi.Alert paleidimo iš naujo';
+$pia_lang['Wait_Reboot_Status'] = 'Prašoma paleisti iš naujo...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert greitai bus paleistas iš naujo';
+$pia_lang['Wait_Reboot_Message'] = 'Sistema bus paleista iš naujo po kito nuskaitymo.';
+$pia_lang['Wait_Reboot_Advice'] = 'Prašome palaukti, kol sistema vėl taps prieinama.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert laukia išjungimo';
+$pia_lang['Wait_Shutdown_Status'] = 'Gautas išjungimo prašymas...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert netrukus bus išjungtas';
+$pia_lang['Wait_Shutdown_Message'] = 'Pagrindinis serveris bus išjungtas po kito nuskaitymo.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Po to ši sistema nebevykdys tinklo stebėsenos.';
 ?>

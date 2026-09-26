@@ -101,12 +101,36 @@ function entity_actions_read(SQLite3 $db, $kind, $canonicalKey) {
     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
         $row['action_id'] = (int) $row['action_id'];
         $row['position'] = (int) $row['position'];
+        $row['icon_id'] = entity_actions_current_icon_id($row['icon_id']);
         if ($row['text_color'] === '') {
             $row['text_color'] = entity_actions_contrast_color($row['color']);
         }
         $actions[] = $row;
     }
     return $actions;
+}
+
+function entity_actions_current_icon_id($iconId) {
+    // Preserve actions saved with Font Awesome Free 6 icons absent from Free 7.
+    $renamed = array(
+        'fa-solid:handshake-simple' => 'fa-solid:handshake',
+        'fa-solid:handshake-simple-slash' => 'fa-solid:handshake-slash',
+        'fa-solid:headphones-simple' => 'fa-solid:headphones',
+        'fa-solid:user-large' => 'fa-solid:user',
+        'fa-solid:user-large-slash' => 'fa-solid:user-slash',
+        'fa-solid:vector-square' => 'mdi:vector-square',
+    );
+    if (isset($renamed[$iconId])) {
+        return $renamed[$iconId];
+    }
+    if (strncmp($iconId, 'fa-regular:', 11) === 0) {
+        $ids = entity_actions_icon_ids();
+        $solid = 'fa-solid:' . substr($iconId, 11);
+        if (!isset($ids[$iconId]) && isset($ids[$solid])) {
+            return $solid;
+        }
+    }
+    return $iconId;
 }
 
 function entity_actions_version($actions) {
@@ -283,6 +307,7 @@ function entity_actions_map(SQLite3 $db, $kind, $keys) {
             unset($row['target_key']);
             $row['action_id'] = (int) $row['action_id'];
             $row['position'] = (int) $row['position'];
+            $row['icon_id'] = entity_actions_current_icon_id($row['icon_id']);
             if ($row['text_color'] === '') {
                 $row['text_color'] = entity_actions_contrast_color($row['color']);
             }

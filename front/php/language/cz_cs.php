@@ -1017,6 +1017,7 @@ $pia_journ_lang['LogStr_9998'] = 'Konfigurační soubor nebyl uložen';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurační soubor byl upraven';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Žádná použitelná data portů';
@@ -1033,4 +1034,15 @@ $pia_lang['V4_Copy_IP'] = 'Kopírovat IP adresu';
 $pia_lang['V4_Copy_Success'] = 'Zkopírováno do schránky';
 $pia_lang['V4_Copy_Failed'] = 'Kopírování do schránky se nezdařilo';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Čekání na restart Pi.Alert';
+$pia_lang['Wait_Reboot_Status'] = 'Požadován restart...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert bude brzy restartován';
+$pia_lang['Wait_Reboot_Message'] = 'Po dalším skenu bude systém restartován.';
+$pia_lang['Wait_Reboot_Advice'] = 'Počkejte prosím chvíli, než bude systém znovu dostupný.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert čeká na vypnutí';
+$pia_lang['Wait_Shutdown_Status'] = 'Požadováno vypnutí...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert bude brzy vypnut';
+$pia_lang['Wait_Shutdown_Message'] = 'Po dalším skenu bude tento host vypnut.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Monitorování sítě již tímto systémem nebude probíhat.';
 ?>

@@ -43,6 +43,7 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 .pialert-dashboard-no-sidebar .app-wrapper { grid-template-areas: "lte-app-header" "lte-app-main" "lte-app-footer"; grid-template-columns: minmax(0, 1fr); }
 .pialert-dashboard-no-sidebar .app-header, .pialert-dashboard-no-sidebar .app-main, .pialert-dashboard-no-sidebar .app-footer { grid-column: 1; }
 .pialert-dashboard-brand { color: inherit; font-size: 1.2rem; margin-right: 1rem; }
+.sidebar-brand .brand-text strong, .pa-mobile-brand strong, .pialert-dashboard-brand strong { font-weight: 700; }
 .pialert-nav-pending { cursor: not-allowed; height: auto; min-height: 2.5rem; opacity: .7; }
 .pialert-nav-pending > p { column-gap: .2rem; display: grid !important; grid-template-columns: minmax(0, 1fr) auto auto; }
 .pialert-pending-badge { font-size: .55rem; margin-left: 0 !important; padding: .25em .4em; }

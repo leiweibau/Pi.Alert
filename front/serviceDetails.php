@@ -169,8 +169,7 @@ if ($location['country'] !== null && $location['continent'] !== null) $locationL
 $displayTitle = '[' . strtoupper($service_details_title_array[0]) . '] ' . ($service_details_title_array[1] ?? '');
 
 pialert_v4_shell_start($displayTitle, 'services', array(
-    'lib/datatables/datatables.net-bs5-1.10.25/css/dataTables.bootstrap5.min.css',
-    'lib/legacy-calendar/fullcalendar-3.10.5/fullcalendar.min.css',
+    'lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css',
     'css/service-details.css',
 ));
 ?>
@@ -252,11 +251,8 @@ pialert_v4_shell_start($displayTitle, 'services', array(
   </div>
 </section>
 <?php pialert_v4_shell_end(array(
-    'lib/datatables/datatables.net-1.10.25/jquery.dataTables.min.js',
-    'lib/datatables/datatables.net-bs5-1.10.25/js/dataTables.bootstrap5.min.js',
-    'lib/legacy-calendar/moment-2.24.0/moment.js',
-    'lib/legacy-calendar/fullcalendar-3.10.5/fullcalendar.min.js',
-    'lib/legacy-calendar/fullcalendar-3.10.5/locale-all.js',
+    'lib/datatables/datatables.net-2.3.8/dataTables.min.js',
+    'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js',
     'lib/chart.js-4.5.1/chart.umd.js',
     'js/service-details.js',
 )); ?>

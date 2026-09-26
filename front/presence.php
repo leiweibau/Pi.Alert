@@ -55,8 +55,6 @@ $config = array(
 );
 $title = $L('PRE_Title','Presence') . ' / ' . $sourceLabel;
 pialert_v4_shell_start($title, 'presence', array(
-    'lib/legacy-calendar/fullcalendar-3.10.5/fullcalendar.min.css',
-    'lib/legacy-calendar/fullcalendar-scheduler-3.10.4/scheduler.min.css',
     'css/presence.css',
 ));
 ?>
@@ -71,10 +69,8 @@ pialert_v4_shell_start($title, 'presence', array(
   <section class="card card-primary card-outline" id="tableDevicesBox" aria-labelledby="tableDevicesTitle"><div class="card-header"><h2 class="card-title" id="tableDevicesTitle"><?= h($config['labels']['all']); ?></h2></div><div class="card-body position-relative"><div id="loading" class="presence-loading" hidden role="status"><?= h($pia_lang['V4_Loading']); ?></div><div id="calendar"></div></div></section>
 </section>
 <?php pialert_v4_shell_end(array(
-    'lib/legacy-calendar/moment-2.24.0/moment.js',
-    'lib/legacy-calendar/fullcalendar-3.10.5/fullcalendar.min.js',
-    'lib/legacy-calendar/fullcalendar-3.10.5/locale-all.js',
-    'lib/legacy-calendar/fullcalendar-scheduler-3.10.4/scheduler.min.js',
+    'lib/fullcalendar-scheduler-6.1.21/index.global.min.js',
+    'lib/fullcalendar-6.1.21/locales-all.global.min.js',
     'lib/chart.js-4.5.1/chart.umd.js',
     'js/presence.js',
 )); ?>

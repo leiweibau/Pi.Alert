@@ -6,6 +6,15 @@
 (function (window, document) {
   'use strict';
 
+  // The reboot and shutdown waiting pages are static HTML. Keep the current
+  // server-selected theme available to them while the application is offline.
+  try {
+    window.localStorage.setItem('pialert-ui-theme', document.documentElement.getAttribute('data-pialert-theme') || 'standard');
+    window.localStorage.setItem('pialert-ui-mode', document.documentElement.getAttribute('data-bs-theme') || 'light');
+  } catch (_) {
+    // Storage may be disabled; the waiting pages then use their default style.
+  }
+
   var TOTALS_INTERVAL_MS = 30000;
   var REPORT_INTERVAL_MS = 15000;
   var AUTO_RELOAD_MS = 120000;

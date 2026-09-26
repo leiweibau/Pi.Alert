@@ -108,7 +108,7 @@ function pialert_v4_ui_defaults(): array {
 
 function pialert_v4_ui_skin_options(): array { return array('skin-black','skin-black-light','skin-blue','skin-blue-light','skin-green','skin-green-light','skin-purple','skin-purple-light','skin-red','skin-red-light','skin-yellow','skin-yellow-light'); }
 
-function pialert_v4_ui_theme_options(): array { return array('standard', 'glas', 'piano'); }
+function pialert_v4_ui_theme_options(): array { return array('standard', 'glas', 'piano', 'console'); }
 
 function pialert_v4_ui_color_options(): array {
     // Keep neutral defaults, but offer only the AdminLTE palette for accents.

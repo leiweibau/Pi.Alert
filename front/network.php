@@ -335,7 +335,7 @@ function createnetworktabcontent($deviceId, $deviceName, $deviceType, $devicePor
 		usort($devices, function($left, $right) {
 			return strnatcasecmp($left['name'], $right['name']);
 		});
-		$iconMap = array('WLAN' => 'fa-wifi', 'Powerline' => 'fa-flash', 'Hypervisor' => 'fa-computer');
+		$iconMap = array('WLAN' => 'fa-wifi', 'Powerline' => 'fa-bolt', 'Hypervisor' => 'fa-computer');
 		$iconClass = $iconMap[$type] ?? '';
 		foreach ($devices as $device) {
 			network_render_device_row('', array($device), $iconClass);

@@ -26,6 +26,9 @@
   var nmapBusy = false;
   var unloading = false;
   var calendarLayoutTimer = null;
+  var calendar = null;
+  var calendarRequest = null;
+  var calendarGeneration = 0;
 
   function field(id) { return document.getElementById(id); }
   function value(id) { return field(id).value; }
@@ -149,7 +152,7 @@
     if (!loaded) return;
     tables.sessions.ajax.reload(null, false);
     tables.events.ajax.reload(null, false);
-    $('#calendar').fullCalendar('refetchEvents');
+    if (calendar) calendar.refetchEvents();
   }
   function tableLanguage() { return window.pialertV4DataTableLanguage({emptyTable:window.pialertV4Text('V4_No_Data'),lengthMenu:labels.lengthMenu,search:labels.search + ': ',paginate:{next:labels.next,previous:labels.previous},info:labels.info}); }
   function initializeTables() {
@@ -185,27 +188,42 @@
     });
   }
   function initializeCalendar() {
-    if (!$.fn.fullCalendar) return;
+    if (!window.FullCalendar) return;
     var narrow = window.matchMedia('(max-width: 767px)').matches;
-    $('#calendar').fullCalendar({editable:false,defaultView:narrow ? 'agendaDay' : 'agendaMonth',height:'auto',firstDay:1,allDaySlot:false,
-      slotDuration:'02:00:00',slotLabelInterval:'04:00:00',slotLabelFormat:'H:mm',timeFormat:'H:mm',locale:config.calendarLocale,
-      header:{left:'prev,next today',center:'title',right:narrow ? 'agendaDay' : 'agendaMonth,agendaWeek,agendaDay'},
-      views:{agendaMonth:{type:'agenda',duration:{month:1},buttonText:labels.calendarMonth,columnHeaderFormat:'D'},
-        agendaWeek:{buttonText:labels.calendarWeek},agendaDay:{type:'agenda',duration:{day:1},buttonText:labels.calendarDay,slotDuration:'01:00:00'}},
-      events:function(start,end,_timezone,done) {
-        if (!loaded) { done([]); return; }
-        $.getJSON(endpoint('events','getDevicePresence',{mac:mac,start:start.format(),end:end.format()})).done(function (response) {
-          done(Array.isArray(response) ? response : []);
-        }).fail(function () { done([]); });
-      },eventRender:function(event,element) { element.attr('title',String(event.tooltip || '')); }
+    calendar = new window.FullCalendar.Calendar(field('calendar'), {editable:false,selectable:false,eventStartEditable:false,eventDurationEditable:false,
+      initialView:narrow ? 'timeGridDay' : 'timeGridMonth',height:'auto',firstDay:1,allDaySlot:false,timeZone:'local',
+      slotDuration:'02:00:00',slotLabelInterval:'04:00:00',slotLabelFormat:{hour:'2-digit',minute:'2-digit',hour12:false},eventTimeFormat:{hour:'2-digit',minute:'2-digit',hour12:false},locale:config.calendarLocale,
+      headerToolbar:{left:'prev,next today',center:'title',right:narrow ? 'timeGridDay' : 'timeGridMonth,timeGridWeek,timeGridDay'},
+      views:{timeGridMonth:{type:'timeGrid',duration:{months:1},buttonText:labels.calendarMonth,dayHeaderFormat:{day:'numeric'}},
+        timeGridWeek:{buttonText:labels.calendarWeek},timeGridDay:{buttonText:labels.calendarDay,slotDuration:'01:00:00'}},
+      events:function(fetchInfo,success,failure) {
+        if (!loaded) { success([]); return; }
+        var generation=++calendarGeneration;
+        if (calendarRequest && calendarRequest.readyState!==4) calendarRequest.abort();
+        var settled=false;
+        function finish(callback,value){if(settled)return;settled=true;callback(value);}
+        calendarRequest=$.ajax({url:endpoint('events','getDevicePresence',{mac:mac,start:fetchInfo.startStr,end:fetchInfo.endStr}),dataType:'json',cache:false})
+          .done(function(response){
+            if(generation!==calendarGeneration){finish(success,[]);return;}
+            if(response===''){finish(success,[]);return;}
+            if(!Array.isArray(response)){var error=new Error('Unexpected calendar response');if(window.console)window.console.error(error.message);notify(window.pialertV4Text('V4_Request_Failed'));finish(failure,error);return;}
+            finish(success,response);
+          }).fail(function(xhr,requestStatus){
+            if(requestStatus==='abort'||generation!==calendarGeneration){finish(success,[]);return;}
+            var error=new Error(xhr.status?'HTTP '+xhr.status+' '+xhr.statusText:window.pialertV4Text('V4_Request_Failed'));if(window.console)window.console.error('Calendar request:',error.message);notify(window.pialertV4Text('V4_Request_Failed'));finish(failure,error);
+          });
+      },eventDidMount:function(argument){
+        var tooltip=argument.event.extendedProps.tooltip;
+        if(tooltip) argument.el.setAttribute('title',String(tooltip).replace(/\r\n?/g,'\n'));
+      }
     });
+    calendar.render();
   }
   function refreshCalendarLayout() {
-    if (!$.fn.fullCalendar || !field('panPresence').classList.contains('active')) return;
+    if (!calendar || !field('panPresence').classList.contains('active')) return;
     var render = function () {
       if (!unloading && field('panPresence').classList.contains('active')) {
-        $('#calendar').fullCalendar('render');
-        $('#calendar').fullCalendar('rerenderEvents');
+        calendar.updateSize();
       }
     };
     window.requestAnimationFrame(function () { window.requestAnimationFrame(render); });
@@ -479,7 +497,7 @@
     if (field('speedtestcli')) field('speedtestcli').addEventListener('click',function () { toolPost('php/server/speedtestcli.php',{},function (response) { safeOutput(response); refreshSpeedtest(); }); });
     if (field('speedtestcli_ookla') && !config.speedtestInstalled) field('speedtestcli_ookla').addEventListener('click',function () { toolPost('php/server/speedtest_ookla.php',{mod:'get'},function (response) { safeOutput(response); var reload=document.createElement('button'); reload.type='button'; reload.className='btn btn-outline-primary mt-2'; reload.textContent=window.pialertV4Text('V4_Reload_Page'); reload.addEventListener('click',function () { window.location.reload(); }); field('scanoutput').appendChild(reload); }); });
     window.addEventListener('beforeunload',function (event) { if ((dirty || (window.pialertEntityActionsEditor && window.pialertEntityActionsEditor.dirty())) && !unloading) { event.preventDefault(); event.returnValue = ''; } });
-    window.addEventListener('pagehide',function () { unloading = true; ++nmapGeneration; window.clearTimeout(detailTimer); window.clearTimeout(calendarLayoutTimer); if (nmapRequest) nmapRequest.abort(); if (queueRequest) queueRequest.abort(); Object.keys(tables).forEach(function (key) { tables[key].destroy(); }); if (speedChart) speedChart.destroy(); if ($.fn.fullCalendar) $('#calendar').fullCalendar('destroy'); });
+    window.addEventListener('pagehide',function () { unloading = true; ++nmapGeneration; ++calendarGeneration; window.clearTimeout(detailTimer); window.clearTimeout(calendarLayoutTimer); if (nmapRequest) nmapRequest.abort(); if (queueRequest) queueRequest.abort(); if (calendarRequest) calendarRequest.abort(); Object.keys(tables).forEach(function (key) { tables[key].destroy(); }); if (speedChart) speedChart.destroy(); if (calendar) calendar.destroy(); });
   }
   init();
 })(window, document, window.jQuery);

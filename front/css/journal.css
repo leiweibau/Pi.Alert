@@ -1,4 +1,5 @@
-#tableJournal_wrapper .row { row-gap: 0.75rem; }
+#tableJournal_wrapper > .row,
+#tableJournal_wrapper > .dt-layout-row { row-gap: 0.75rem; }
 
 #tableJournal th,
 #tableJournal td { vertical-align: middle; }
@@ -25,6 +26,8 @@
   .journal-color-row { grid-template-columns: 1fr auto; }
   .journal-color-row > input { grid-column: 1 / -1; }
   .clr-picker.clr-pill {
+    left: 2.5rem !important;
+    right: 2.5rem;
     width: calc(100vw - 5rem);
     max-width: 320px;
     padding-left: 40%;

@@ -1014,6 +1014,7 @@ $pia_journ_lang['LogStr_9998'] = 'Konfigurasjonsfilen ble ikke lagret';
 $pia_journ_lang['LogStr_9999'] = 'Konfigurasjonsfil redigert';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Ingen brukbare portdata';
@@ -1030,4 +1031,15 @@ $pia_lang['V4_Copy_IP'] = 'Kopier IP-adresse';
 $pia_lang['V4_Copy_Success'] = 'Kopiert til utklippstavlen';
 $pia_lang['V4_Copy_Failed'] = 'Kunne ikke kopiere til utklippstavlen';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Venter på omstart av Pi.Alert';
+$pia_lang['Wait_Reboot_Status'] = 'Omstart forespurt...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert vil snart starte på nytt';
+$pia_lang['Wait_Reboot_Message'] = 'Systemet startes på nytt etter neste skanning.';
+$pia_lang['Wait_Reboot_Advice'] = 'Vennligst vent et øyeblikk til systemet er tilgjengelig igjen.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert venter på avslutning';
+$pia_lang['Wait_Shutdown_Status'] = 'Avslutting forespurt...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert avsluttes snart';
+$pia_lang['Wait_Shutdown_Message'] = 'Verten vil bli slått av etter neste skanning.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Nettverksovervåkning vil da ikke lenger utføres av dette systemet.';
 ?>

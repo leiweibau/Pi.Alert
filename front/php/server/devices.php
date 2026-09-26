@@ -495,7 +495,13 @@ function SetDeviceFilter() {
 function DeleteDeviceFilter() {
 	global $db; global $pia_lang;
 	$filterstring = isset($GLOBALS["pialert_request"]['filterstring']) && is_scalar($GLOBALS["pialert_request"]['filterstring']) ? (string) $GLOBALS["pialert_request"]['filterstring'] : '';
-	$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE filterstring = :filterstring', array(':filterstring' => $filterstring));
+	$filterid = filter_var($GLOBALS["pialert_request"]['filterid'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+	if ($filterid !== false && $filterid !== null) {
+		$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE id = :id', array(':id' => array((int) $filterid, SQLITE3_INTEGER)));
+	} else {
+		// Compatibility for old bookmarks and callers that predate stable filter IDs.
+		$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE filterstring = :filterstring', array(':filterstring' => $filterstring));
+	}
 	if (!$result) { logServerConsole('Device filter delete failed: ' . $db->lastErrorMsg()); }
 	echo $pia_lang['BE_Dev_table_delfilter_ok'] . h($filterstring);
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);

@@ -40,7 +40,7 @@
 
   function preview () {
     var activeTheme = document.documentElement.getAttribute('data-pialert-theme');
-    var dark = activeTheme === 'glas' || activeTheme === 'piano' || darkToggle.checked;
+    var dark = ['glas', 'piano', 'console'].includes(activeTheme) || darkToggle.checked;
     document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
     document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
     var userMenu = document.querySelector('.pialert-user-menu');
@@ -48,14 +48,14 @@
     applyChrome(document.querySelector('.app-sidebar'), selectors.sidebar.value, true, dark);
     applyChrome(document.querySelector('.app-header'), selectors.header.value, false, dark);
     applyChrome(document.querySelector('.sidebar-brand'), selectors.header.value, false, dark);
-    if (activeTheme === 'piano') {
+    if (activeTheme === 'piano' || activeTheme === 'console') {
       ['.app-sidebar', '.app-header', '.sidebar-brand'].forEach(function (selector) {
         var element = document.querySelector(selector);
         if (element) element.setAttribute('data-bs-theme', 'dark');
       });
     }
     var logo = document.querySelector('.pialert-user-logo');
-    if (logo) logo.src = logo.dataset[activeTheme === 'piano' || colorSpec(selectors.header.value, false, dark).mode === 'dark' ? 'logoDark' : 'logoLight'];
+    if (logo) logo.src = logo.dataset[activeTheme === 'piano' || activeTheme === 'console' || colorSpec(selectors.header.value, false, dark).mode === 'dark' ? 'logoDark' : 'logoLight'];
     applyChrome(document.getElementById('ui-sidebar-swatch'), selectors.sidebar.value, true, dark);
     applyChrome(document.getElementById('ui-header-swatch'), selectors.header.value, false, dark);
   }

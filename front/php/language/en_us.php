@@ -122,7 +122,7 @@ $pia_lang['Device_TableHead_Status'] = 'Status';
 $pia_lang['UI_Theme_Label'] = 'Theme';
 $pia_lang['UI_Theme_Standard'] = 'Standard';
 $pia_lang['UI_Theme_Glas'] = 'Glas';
-$pia_lang['UI_Theme_Help'] = 'Glas uses a translucent dark surface; Piano combines a light page background with black surfaces. The choice takes effect after saving.';
+$pia_lang['UI_Theme_Help'] = 'Glas uses a translucent dark surface; Piano combines a light page background with black surfaces; Console offers a dark terminal surface. The choice takes effect after saving.';
 $pia_lang['Device_TableHead_ConnectionType'] = 'Connection Type';
 $pia_lang['Device_TableHead_WakeOnLAN'] = 'WoL';
 $pia_lang['Device_Searchbox'] = 'Search';
@@ -1019,6 +1019,7 @@ $pia_journ_lang['LogStr_9998'] = 'Configuration file not saved';
 $pia_journ_lang['LogStr_9999'] = 'Configuration file edited';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'No usable port data';
@@ -1380,4 +1381,15 @@ $pia_lang['NET_Man_Del'] = 'Delete';
 $pia_lang['V4_Copy_IP'] = 'Copy IP address';
 $pia_lang['V4_Copy_Success'] = 'Copied to clipboard';
 $pia_lang['V4_Copy_Failed'] = 'Could not copy to clipboard';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Waiting for Pi.Alert to reboot';
+$pia_lang['Wait_Reboot_Status'] = 'Reboot requested...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert will reboot shortly';
+$pia_lang['Wait_Reboot_Message'] = 'The system will reboot after the next scan.';
+$pia_lang['Wait_Reboot_Advice'] = 'Please wait a moment until the system becomes available again.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert waiting for shutdown';
+$pia_lang['Wait_Shutdown_Status'] = 'Shutdown requested...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert will shut down shortly';
+$pia_lang['Wait_Shutdown_Message'] = 'After the next scan, this host will be shut down.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Network monitoring will then no longer be performed by this system.';
 ?>

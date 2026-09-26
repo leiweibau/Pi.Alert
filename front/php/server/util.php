@@ -25,6 +25,16 @@ function formatDateISO($date1) {
 	return date_format(new DateTime($date1), 'c');
 }
 
+// Calendar requests carry an explicit browser offset while SQLite stores local
+// wall-clock timestamps. Convert the instant to the configured server timezone
+// before comparing it with those columns; SQLite date() would otherwise apply
+// UTC normalization and discard the requested time of day.
+function formatCalendarQueryDate($date1) {
+	$date = new DateTimeImmutable($date1);
+	$date = $date->setTimezone(new DateTimeZone(date_default_timezone_get()));
+	return $date->format('Y-m-d H:i:s');
+}
+
 function formatEventDate($date1, $eventType) {
 	if (!empty($date1)) {
 		$ret = formatDate($date1);

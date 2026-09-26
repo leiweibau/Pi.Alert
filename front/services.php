@@ -85,7 +85,7 @@ $geoDbSize = $geoDbInstalled ? number_format((float) filesize($geoDbPath) / 1048
 $title = $pia_lang['WEBS_Title'] ?? 'Web Services';
 
 pialert_v4_shell_start($title, 'services', array(
-    'lib/datatables/datatables.net-bs5-1.10.25/css/dataTables.bootstrap5.min.css',
+    'lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css',
     'css/services.css',
 ), static fn(): string => '<button type="button" id="add-service" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#service-editor-modal"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>' . h($GLOBALS['pia_lang']['V4_New_Service']) . '</button>');
 ?>
@@ -145,7 +145,7 @@ pialert_v4_shell_start($title, 'services', array(
           $state = (string) $service['v4_state'];
           $parts = parse_url($url);
           $protocol = strtoupper((string) ($parts['scheme'] ?? 'HTTP'));
-          $displayUrl = isset($parts['host']) ? (($parts['host'] ?? '') . ($parts['path'] ?? '') . (isset($parts['query']) ? '?' . $parts['query'] : '')) : $url;
+          $displayUrl = isset($parts['host']) ? ($parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '') . ($parts['path'] ?? '') . (isset($parts['query']) ? '?' . $parts['query'] : '')) : $url;
           $statusDescription = (string) ($statusCodes[$status]['description'] ?? $pia_lang['V4_No_Status_Code']);
           $externalUrl = pialert_v4_service_external_url($url);
           $notificationLabels = array_filter(array(
@@ -211,7 +211,7 @@ pialert_v4_shell_start($title, 'services', array(
   </div>
 </section>
 <?php pialert_v4_shell_end(array(
-    'lib/datatables/datatables.net-1.10.25/jquery.dataTables.min.js',
-    'lib/datatables/datatables.net-bs5-1.10.25/js/dataTables.bootstrap5.min.js',
+    'lib/datatables/datatables.net-2.3.8/dataTables.min.js',
+    'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js',
     'js/services.js',
 )); ?>

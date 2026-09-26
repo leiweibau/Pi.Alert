@@ -206,7 +206,7 @@ $reports = array_merge(
 $archiveEntries = is_dir('./reports/archived/') ? scandir('./reports/archived/') : false;
 $archiveCount = $archiveEntries === false ? 0 : count(array_diff($archiveEntries, array('.', '..')));
 $title = $pia_lang['REP_Title'] ?? 'Notifications';
-pialert_v4_shell_start($title, 'reports', array('lib/coloris-0.24.0/coloris.min.css', 'css/reports.css'));
+pialert_v4_shell_start($title, 'reports', array('lib/coloris-0.25.0/coloris.min.css', 'css/reports.css'));
 ?>
 <section id="reports-page" data-source="<?= $archived ? 'archive' : 'current'; ?>" data-cancel="<?= h($pia_lang['Gen_Cancel'] ?? 'Cancel'); ?>" data-delete="<?= h($pia_lang['Gen_Delete'] ?? 'Delete'); ?>" data-okay="<?= h($pia_lang['Gen_Okay'] ?? 'Ok'); ?>" data-confirm-title="<?= h($pia_lang['REP_delete_all_noti'] ?? 'Delete notifications'); ?>" data-confirm-message="<?= h($pia_lang['REP_delete_all_noti_text'] ?? 'The selected notification will be deleted.'); ?>">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -242,4 +242,4 @@ pialert_v4_shell_start($title, 'reports', array('lib/coloris-0.24.0/coloris.min.
     <div class="modal-footer"><button type="button" id="save-report-colors" class="btn btn-danger"><?= h($pia_lang['Gen_Save'] ?? 'Save'); ?></button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Close'] ?? 'Close'); ?></button></div>
   </div></div></div>
 </section>
-<?php pialert_v4_shell_end(array('lib/coloris-0.24.0/coloris.min.js', 'js/reports.js')); ?>
+<?php pialert_v4_shell_end(array('lib/coloris-0.25.0/coloris.min.js', 'js/reports.js')); ?>

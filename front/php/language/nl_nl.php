@@ -1017,6 +1017,7 @@ $pia_journ_lang['LogStr_9998'] = 'Configuratiebestand niet opgeslagen';
 $pia_journ_lang['LogStr_9999'] = 'Configuratiebestand bewerkt';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Geen bruikbare poortgegevens';
@@ -1033,4 +1034,15 @@ $pia_lang['V4_Copy_IP'] = 'IP-adres kopiëren';
 $pia_lang['V4_Copy_Success'] = 'Gekopieerd naar klembord';
 $pia_lang['V4_Copy_Failed'] = 'Kopiëren naar klembord mislukt';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Wachten op Pi.Alert herstart';
+$pia_lang['Wait_Reboot_Status'] = 'Herstart aangevraagd...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert wordt binnenkort opnieuw opgestart';
+$pia_lang['Wait_Reboot_Message'] = 'Na de volgende scan wordt het systeem opnieuw opgestart.';
+$pia_lang['Wait_Reboot_Advice'] = 'Een ogenblik geduld alstublieft tot het systeem weer beschikbaar is.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert wacht op uitschakeling';
+$pia_lang['Wait_Shutdown_Status'] = 'Uitschakeling aangevraagd...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert wordt binnenkort afgesloten';
+$pia_lang['Wait_Shutdown_Message'] = 'Na de volgende scan wordt deze host afgesloten.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Netwerkbewaking vindt dan niet meer via dit systeem plaats.';
 ?>

@@ -26,8 +26,6 @@ html[data-pialert-theme="piano"] {
   --pa-nav-hover: rgb(255 255 255 / 6%);
   --pa-nav-active: linear-gradient(90deg, rgb(115 187 232 / 19%), rgb(115 187 232 / 5%));
   --pa-bottom-active: rgb(115 187 232 / 19%);
-  --pa-brand-gradient: linear-gradient(#80c2e9, #5a9fd2);
-  --pa-brand-shadow: 0 0 4px rgb(115 187 232 / 13%);
   --pa-kpi-info: 115 187 232;
   --pa-kpi-success: 79 199 150;
   --pa-kpi-warning: 216 181 87;

@@ -54,7 +54,8 @@ function PialertReboot() {
 	file_put_contents('../tmp/reboot_token', $token);
 
 	echo $pia_lang['SysInfo_Gen_execute_command'];
-	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot_".$pia_lang_selected.".html'>";
+	$language = is_string($pia_lang_selected) && preg_match('/^[a-z]{2}_[a-z]{2}$/D', $pia_lang_selected) ? $pia_lang_selected : 'en_us';
+	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot.php?lang=".$language."'>";
 
 }
 
@@ -69,7 +70,8 @@ function PialertShutdown() {
 	file_put_contents('../tmp/shutdown_token', $token);
 
 	echo $pia_lang['SysInfo_Gen_execute_command'];
-	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown_".$pia_lang_selected.".html'>";
+	$language = is_string($pia_lang_selected) && preg_match('/^[a-z]{2}_[a-z]{2}$/D', $pia_lang_selected) ? $pia_lang_selected : 'en_us';
+	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown.php?lang=".$language."'>";
 
 }
 

@@ -23,3 +23,19 @@
 }
 @media (max-width: 575.98px) { .icmp-bulk-host-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .icmp-filter { transition: none !important; } }
+
+/* Native Bootstrap checkboxes: semantic colors and a generous label target. */
+#icmp-host-form .icmp-check-favorite { --icmp-check-rgb: 196, 95, 0; }
+#icmp-host-form .icmp-check-events { --icmp-check-rgb: 13, 110, 253; }
+#icmp-host-form .icmp-check-down { --icmp-check-rgb: 220, 53, 69; }
+#icmp-host-form .form-check-input { margin-top: .4rem; }
+#icmp-host-form .form-check-input:checked,
+#icmp-host-form .form-check-input:indeterminate {
+  background-color: rgb(var(--icmp-check-rgb));
+  border-color: rgb(var(--icmp-check-rgb));
+}
+#icmp-host-form .form-check-input:focus {
+  border-color: rgb(var(--icmp-check-rgb));
+  box-shadow: 0 0 0 .25rem rgba(var(--icmp-check-rgb), .25);
+}
+#icmp-host-form .form-check-label { padding: .15rem 0; cursor: pointer; }

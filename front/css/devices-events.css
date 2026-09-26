@@ -48,7 +48,8 @@
   pointer-events: none;
 }
 
-#tableEvents_wrapper .row {
+#tableEvents_wrapper > .row,
+#tableEvents_wrapper > .dt-layout-row {
   row-gap: 0.75rem;
 }
 

@@ -1127,6 +1127,7 @@ $pia_journ_lang['LogStr_9998'] = 'Файл конфигурации не сох�
 $pia_journ_lang['LogStr_9999'] = 'Файл конфигурации отредактирован';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Нет пригодных данных о портах';
@@ -1143,4 +1144,15 @@ $pia_lang['V4_Copy_IP'] = 'Скопировать IP-адрес';
 $pia_lang['V4_Copy_Success'] = 'Скопировано в буфер обмена';
 $pia_lang['V4_Copy_Failed'] = 'Не удалось скопировать в буфер обмена';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Ожидание перезагрузки Pi.Alert';
+$pia_lang['Wait_Reboot_Status'] = 'Запрошена перезагрузка...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert скоро будет перезагружен';
+$pia_lang['Wait_Reboot_Message'] = 'Система будет перезагружена после следующего сканирования.';
+$pia_lang['Wait_Reboot_Advice'] = 'Пожалуйста, подождите немного, пока система снова не станет доступной.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert ожидает выключения';
+$pia_lang['Wait_Shutdown_Status'] = 'Запрос на выключение отправлен...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert скоро будет выключен';
+$pia_lang['Wait_Shutdown_Message'] = 'Хост будет выключен после следующего сканирования.';
+$pia_lang['Wait_Shutdown_Advice'] = 'После этого система больше не будет выполнять сетевой мониторинг.';
 ?>

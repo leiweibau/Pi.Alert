@@ -66,11 +66,6 @@ html[data-pialert-theme] .sidebar-brand {
   border-bottom: 1px solid var(--pa-divider) !important;
 }
 html[data-pialert-theme] .sidebar-brand .brand-link { display: flex; align-items: center; gap: .7rem; color: var(--pa-text); }
-html[data-pialert-theme] .pa-brand-mark { display: inline-flex; width: 1.9rem; height: 1.9rem; flex: 0 0 1.9rem; align-items: end; justify-content: center; gap: .18rem; }
-html[data-pialert-theme] .pa-brand-mark i { display: block; width: .32rem; background: var(--pa-brand-gradient); border-radius: .3rem; box-shadow: var(--pa-brand-shadow); }
-html[data-pialert-theme] .pa-brand-mark i:nth-child(1) { height: 52%; }
-html[data-pialert-theme] .pa-brand-mark i:nth-child(2) { height: 94%; }
-html[data-pialert-theme] .pa-brand-mark i:nth-child(3) { height: 68%; }
 html[data-pialert-theme] .brand-text { font-size: 1.35rem; letter-spacing: -.02em; }
 html[data-pialert-theme] .pialert-system-status { margin: .75rem; padding: .65rem .5rem .8rem; color: var(--pa-text); border-bottom-color: var(--pa-divider); }
 html[data-pialert-theme] .sidebar-menu .nav-header { color: var(--pa-text-muted); font-size: .7rem; letter-spacing: .035em; padding-block: .4rem .3rem; }
@@ -167,8 +162,7 @@ html[data-pialert-theme] .pa-device-cards-empty { margin: 0; padding: 1.25rem; c
   html[data-pialert-theme] .app-header { margin: .5rem; min-height: 3.5rem; border-radius: var(--pa-radius-md); }
   html[data-pialert-theme] .app-header .container-fluid { padding-inline: .45rem; }
   html[data-pialert-theme] .app-header .nav-link { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
-  html[data-pialert-theme] .pa-mobile-brand { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); align-items: center; gap: 0 .45rem; max-width: min(13rem, 55vw); margin-left: .25rem; }
-  html[data-pialert-theme] .pa-mobile-brand .pa-brand-mark { grid-row: 1 / span 2; }
+  html[data-pialert-theme] .pa-mobile-brand { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; max-width: min(13rem, 55vw); margin-left: .25rem; }
   html[data-pialert-theme] .pa-mobile-brand span { line-height: 1.05; font-size: 1.05rem; }
   html[data-pialert-theme] .pa-mobile-brand small { overflow: hidden; color: var(--pa-text-muted); font-size: .67rem; text-overflow: ellipsis; white-space: nowrap; }
   html[data-pialert-theme] .app-content-header { padding: .55rem 0 .65rem; }
@@ -192,10 +186,10 @@ html[data-pialert-theme] .pa-device-cards-empty { margin: 0; padding: 1.25rem; c
   html[data-pialert-theme] .pa-device-table { overflow-x: visible; }
   html[data-pialert-theme] .pa-device-cards { display: grid; gap: .65rem; margin-top: .75rem; }
   html[data-pialert-theme] #tableDevices_wrapper > .row:first-child > div { width: 100%; }
-  html[data-pialert-theme] #tableDevices_wrapper .dataTables_length,
-  html[data-pialert-theme] #tableDevices_wrapper .dataTables_filter { margin-bottom: .55rem; text-align: left; }
-  html[data-pialert-theme] #tableDevices_wrapper .dataTables_filter input { width: calc(100% - 4.5rem); margin-left: .4rem; }
-  html[data-pialert-theme] #tableDevices_wrapper .dataTables_info { font-size: .75rem; }
+  html[data-pialert-theme] #tableDevices_wrapper .dt-length,
+  html[data-pialert-theme] #tableDevices_wrapper .dt-search { margin-bottom: .55rem; text-align: left; }
+  html[data-pialert-theme] #tableDevices_wrapper .dt-search input { width: calc(100% - 4.5rem); margin-left: .4rem; }
+  html[data-pialert-theme] #tableDevices_wrapper .dt-info { font-size: .75rem; }
   html[data-pialert-theme] .pa-bottom-nav {
     position: fixed;
     z-index: 1040;

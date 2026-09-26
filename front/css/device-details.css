@@ -23,10 +23,11 @@
 .device-tool-output .col-md-6{width:100%}
 @media(min-width:768px){.device-tool-output .col-md-6{width:50%}}
 .device-speed-chart{height:15rem}
+#calendar{max-width:100%;overflow-x:auto}
+#calendar.fc{color:var(--bs-body-color);--fc-border-color:var(--bs-border-color);--fc-page-bg-color:var(--bs-body-bg);--fc-neutral-bg-color:var(--bs-tertiary-bg);--fc-neutral-text-color:var(--bs-secondary-color);--fc-button-bg-color:var(--bs-secondary-bg);--fc-button-border-color:var(--bs-border-color);--fc-button-text-color:var(--bs-body-color);--fc-button-hover-bg-color:var(--bs-tertiary-bg);--fc-button-hover-border-color:var(--bs-border-color);--fc-button-active-bg-color:var(--bs-primary);--fc-button-active-border-color:var(--bs-primary);--fc-today-bg-color:color-mix(in srgb,var(--bs-primary) 12%,var(--bs-body-bg))}
 #calendar .fc-event{cursor:default}
-[data-bs-theme=dark] #calendar .fc-unthemed td,[data-bs-theme=dark] #calendar .fc-unthemed th,[data-bs-theme=dark] #calendar .fc-unthemed .fc-divider,[data-bs-theme=dark] #calendar .fc-unthemed .fc-list-heading td{border-color:var(--bs-border-color)}
-[data-bs-theme=dark] #calendar .fc-unthemed .fc-today{background:rgba(13,110,253,.12)}
-[data-bs-theme=dark] #calendar .fc-state-default{background:var(--bs-secondary-bg);border-color:var(--bs-border-color);color:var(--bs-body-color);text-shadow:none;box-shadow:none}
-[data-bs-theme=dark] #calendar .fc-state-active,[data-bs-theme=dark] #calendar .fc-state-hover{background:var(--bs-tertiary-bg);color:var(--bs-body-color)}
-[data-bs-theme=dark] #calendar .fc-widget-header,[data-bs-theme=dark] #calendar .fc-list-empty{background:var(--bs-secondary-bg);color:var(--bs-body-color)}
+#calendar .fc-scrollgrid,#calendar .fc-scrollgrid-section>td{background:var(--bs-body-bg)}
+#calendar .fc-col-header-cell{background:var(--bs-tertiary-bg)}
+@media(max-width:575px){#calendar .fc-header-toolbar{align-items:center;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}#calendar .fc-toolbar-chunk{display:flex;flex-wrap:wrap;justify-content:center}#calendar .fc-toolbar-title{font-size:1.1rem}}
+@media print{#calendar{overflow:visible}#calendar .fc-header-toolbar{display:none!important}#calendar.fc{color:#000;--fc-border-color:#777;--fc-page-bg-color:#fff;--fc-neutral-bg-color:#eee}#calendar .fc-scroller{overflow:visible!important}}
 @media(max-width:767.98px){#deviceDetailsTabs{width:100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:1px;-webkit-overflow-scrolling:touch}#deviceDetailsTabs>.nav-item{flex:0 0 auto}#deviceDetailsTabs .nav-link{padding:.5rem .6rem}#device-details-page .card-header .btn-group{margin-left:auto}}

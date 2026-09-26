@@ -1014,6 +1014,7 @@ $pia_journ_lang['LogStr_9998'] = 'Asetustiedostoa ei tallennettu';
 $pia_journ_lang['LogStr_9999'] = 'Asetustiedostoa muokattu';
 
 $pia_lang['UI_Theme_Piano'] = 'Piano';
+$pia_lang['UI_Theme_Console'] = 'Console';
 
 // Manual Nmap result presentation
 $pia_lang['nmap_results_no_ports'] = 'Ei käyttökelpoisia porttitietoja';
@@ -1030,4 +1031,15 @@ $pia_lang['V4_Copy_IP'] = 'Kopioi IP-osoite';
 $pia_lang['V4_Copy_Success'] = 'Kopioitu leikepöydälle';
 $pia_lang['V4_Copy_Failed'] = 'Kopiointi leikepöydälle epäonnistui';
 $pia_lang['V4_Tools'] = 'Tools';
+// Localized reboot and shutdown waiting pages.
+$pia_lang['Wait_Reboot_Title'] = 'Odotetaan Pi.Alertin uudelleenkäynnistystä';
+$pia_lang['Wait_Reboot_Status'] = 'Uudelleenkäynnistystä pyydetty...';
+$pia_lang['Wait_Reboot_Heading'] = 'Pi.Alert käynnistyy pian uudelleen';
+$pia_lang['Wait_Reboot_Message'] = 'Järjestelmä käynnistetään uudelleen seuraavan skannauksen jälkeen.';
+$pia_lang['Wait_Reboot_Advice'] = 'Odota hetki, kunnes järjestelmä on jälleen käytettävissä.';
+$pia_lang['Wait_Shutdown_Title'] = 'Pi.Alert odottaa sammutusta';
+$pia_lang['Wait_Shutdown_Status'] = 'Sammutusta pyydetty...';
+$pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert sammuu pian';
+$pia_lang['Wait_Shutdown_Message'] = 'Isäntäjärjestelmä sammutetaan seuraavan skannauksen jälkeen.';
+$pia_lang['Wait_Shutdown_Advice'] = 'Tämän jälkeen tämä järjestelmä ei enää suorita verkkovalvontaa.';
 ?>

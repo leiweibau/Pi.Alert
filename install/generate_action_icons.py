@@ -37,23 +37,36 @@ items = []
 items += entries('lib/bootstrap-icons-1.13.1/font/bootstrap-icons.css',
                  r'\.bi-([a-z0-9-]+)::before\s*\{\s*content:\s*"\\([0-9a-fA-F]+)"',
                  'bi', 'Bootstrap Icons', 'bi', 'lib/bootstrap-icons-1.13.1/font/fonts/bootstrap-icons.woff2')
-fa_css = (ROOT / 'lib/font-awesome/css/font-awesome.css').read_text()
-fa_pattern = r'\.fa-([a-z0-9-]+):{1,2}before\s*\{\s*content:\s*"\\([0-9a-fA-F]+)"'
-brand_start = fa_css.index("--fa-style-family-brands:")
+fa_css = (ROOT / 'lib/font-awesome-7.3.1/css/all.css').read_text()
+fa_pattern = r'\.fa-([a-z0-9-]+)\s*\{\s*--fa:\s*"([^"]+)"\s*;'
+brand_start = fa_css.index('font-family: "Font Awesome 7 Brands";')
 regular_start = fa_css.index("--fa-font-regular:")
 fa_solid_icons = re.findall(fa_pattern, fa_css[:brand_start])
 fa_brand_icons = re.findall(fa_pattern, fa_css[brand_start:regular_start])
+
+
+def fa_codepoint(value):
+    if not value.startswith('\\'):
+        return ord(value) if len(value) == 1 else None
+    value = value[1:]
+    value = value.strip()
+    if re.fullmatch(r'[0-9a-fA-F]{1,6}', value):
+        return int(value, 16)
+    return ord(value) if len(value) == 1 else None
+
+
 for suffix, weight, label in [('solid', '900', 'Font Awesome Solid'),
                               ('regular', '400', 'Font Awesome Regular'),
                               ('brands', '400', 'Font Awesome Brands')]:
-    coverage = glyphs(ROOT / ('lib/font-awesome/webfonts/fa-' + suffix + '-' + weight + '.woff2'))
+    coverage = glyphs(ROOT / ('lib/font-awesome-7.3.1/webfonts/fa-' + suffix + '-' + weight + '.woff2'))
     seen = set()
     seen_points = set()
     for name, code in (fa_brand_icons if suffix == 'brands' else fa_solid_icons):
-        if name in seen or int(code, 16) not in coverage or int(code, 16) in seen_points:
+        point = fa_codepoint(code)
+        if name in seen or point not in coverage or point in seen_points:
             continue
         seen.add(name)
-        seen_points.add(int(code, 16))
+        seen_points.add(point)
         items.append({'id': 'fa-' + suffix + ':' + name, 'name': name.replace('-', ' '),
                       'family': label, 'class': 'fa-' + suffix + ' fa-' + name})
 items += entries('lib/ionicons/css/ionicons.css',
