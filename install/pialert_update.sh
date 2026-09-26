@@ -416,7 +416,7 @@ update_permissions() {
   sudo $PIALERT_HOME/back/pialert-cli set_sudoers --lxc             2>&1 >> "$LOG"
 
   print_msg "- Patch DB..."
-  if ! "$PIALERT_HOME/back/pialert-cli" update_db >> "$LOG" 2>&1; then
+  if ! "$PIALERT_HOME/back/pialert-cli" update_db --non-interactive >> "$LOG" 2>&1; then
     print_msg "- Database update failed; see $LOG"
     return 1
   fi

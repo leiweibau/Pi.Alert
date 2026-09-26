@@ -1310,6 +1310,7 @@ $pia_lang['V4_UI_Table_Help'] = 'Name und Status bleiben sichtbar. Technische Hi
 $pia_lang['V4_UI_ICMP_Table_Help'] = 'Name und Status bleiben sichtbar. Die Spalte Aktionen ist optional; technische Hilfsspalten bleiben verborgen.';
 $pia_lang['V4_UI_Rows'] = 'Zeilen pro Seite';
 $pia_lang['V4_UI_Appearance'] = 'Darstellung';
+$pia_lang['V4_UI_Displays'] = 'Anzeigen';
 $pia_lang['V4_UI_Language'] = 'Sprache';
 $pia_lang['V4_UI_Dark'] = 'Dunkelmodus';
 $pia_lang['V4_UI_Sidebar_Color'] = 'Sidebar-Farbe';

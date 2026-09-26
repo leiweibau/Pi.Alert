@@ -1305,6 +1305,7 @@ $pia_lang['V4_UI_Table_Help'] = 'Name and status remain visible. Internal helper
 $pia_lang['V4_UI_ICMP_Table_Help'] = 'Name and status remain visible. The actions column is optional; internal helper columns stay hidden.';
 $pia_lang['V4_UI_Rows'] = 'Rows per page';
 $pia_lang['V4_UI_Appearance'] = 'Appearance';
+$pia_lang['V4_UI_Displays'] = 'Display';
 $pia_lang['V4_UI_Language'] = 'Language';
 $pia_lang['V4_UI_Dark'] = 'Dark mode';
 $pia_lang['V4_UI_Sidebar_Color'] = 'Sidebar colour';

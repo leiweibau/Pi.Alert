@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+$pia_lang['V4_UI_Displays'] = 'Weergave';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Acties';
 $pia_lang['EntityActions_Empty'] = 'Nog geen links ingesteld.';

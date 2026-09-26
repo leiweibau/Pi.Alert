@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+$pia_lang['V4_UI_Displays'] = 'Visning';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Åtgärder';
 $pia_lang['EntityActions_Empty'] = 'Inga länkar har konfigurerats ännu.';

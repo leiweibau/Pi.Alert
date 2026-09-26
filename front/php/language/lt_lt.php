@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+$pia_lang['V4_UI_Displays'] = 'Rodymas';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Veiksmai';
 $pia_lang['EntityActions_Empty'] = 'Nuorodų dar nesukonfigūruota.';

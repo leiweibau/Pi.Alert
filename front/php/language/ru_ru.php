@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+$pia_lang['V4_UI_Displays'] = 'Отображение';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Действия';
 $pia_lang['EntityActions_Empty'] = 'Ссылки пока не настроены.';

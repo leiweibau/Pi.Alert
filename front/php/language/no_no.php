@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+$pia_lang['V4_UI_Displays'] = 'Visning';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Handlinger';
 $pia_lang['EntityActions_Empty'] = 'Ingen lenker er konfigurert ennå.';

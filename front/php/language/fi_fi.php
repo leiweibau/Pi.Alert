@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+$pia_lang['V4_UI_Displays'] = 'Näkyvyys';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Toiminnot';
 $pia_lang['EntityActions_Empty'] = 'Linkkejä ei ole vielä määritetty.';

@@ -63,4 +63,32 @@
   darkToggle.addEventListener('change', preview);
   selectors.sidebar.addEventListener('change', preview);
   selectors.header.addEventListener('change', preview);
+
+  var faviconInput = document.getElementById('ui-favicon-url');
+  var faviconPreview = document.getElementById('ui-favicon-preview');
+  var faviconPreviewTimer;
+  function previewFavicon () {
+    var value = faviconInput.value;
+    var valid = /^img\/favicons\/(flat|glass)_[a-z]+_(black|white)\.png$/.test(value);
+    if (!valid) {
+      try {
+        var url = new URL(value);
+        valid = (url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password;
+      } catch (_) { valid = false; }
+    }
+    faviconPreview.hidden = !valid;
+    if (valid) faviconPreview.src = value;
+    else faviconPreview.removeAttribute('src');
+  }
+  faviconInput.addEventListener('input', function () {
+    window.clearTimeout(faviconPreviewTimer);
+    faviconPreviewTimer = window.setTimeout(previewFavicon, 400);
+  });
+  faviconInput.addEventListener('change', previewFavicon);
+  page.querySelectorAll('[data-favicon-value]').forEach(function (choice) {
+    choice.addEventListener('click', function () {
+      faviconInput.value = choice.dataset.faviconValue;
+      previewFavicon();
+    });
+  });
 })(document);

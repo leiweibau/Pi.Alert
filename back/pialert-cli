@@ -380,9 +380,11 @@ EOM
     echo "################################################################################"
     echo ""
     echo ""
-    printf "%s " "Press enter to continue"
-    read ans
-    echo ""
+    if [ "$2" != "--non-interactive" ]; then
+      printf "%s " "Press enter to continue"
+      read -r ans
+      echo ""
+    fi
     echo "Update DB $PIA_DB_FILE"
     echo -e "\nPurge old db backup"
     rm ${PIA_DB_FILE_PATH}/pialert.db.bak

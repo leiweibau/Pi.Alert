@@ -97,7 +97,7 @@ pialert_v4_shell_start($title, 'services', array(
   data-delete-message="<?= h($pia_lang['WEBS_button_Delete_Warning'] ?? 'Are you sure you want to delete this web service?'); ?>"
   data-details-route="serviceDetails.php">
 
-  <div class="services-toolbar d-flex flex-wrap align-items-center gap-2 mb-3">
+  <div class="services-toolbar d-flex flex-wrap align-items-center gap-2 my-4">
     <div class="btn-group flex-wrap" role="group" aria-label="<?= h($pia_lang['V4_Service_Status_Filter']); ?>" id="services-status-filter">
       <button type="button" class="btn btn-primary active" data-service-filter="all" aria-pressed="true"><?= h($pia_lang['WEBS_EVE_Shortcut_All'] ?? 'All'); ?> <span class="badge text-bg-light ms-1"><?= h((string) $counts['all']); ?></span></button>
       <button type="button" class="btn btn-outline-success" data-service-filter="online" aria-pressed="false"><?= h($pia_lang['WEBS_EVE_Shortcut_HTTP2xx'] ?? 'Online'); ?> <span class="badge text-bg-success ms-1"><?= h((string) $counts['online']); ?></span></button>

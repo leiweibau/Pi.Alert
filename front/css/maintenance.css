@@ -1,8 +1,6 @@
 #v4-maintenance-page .card-header-tabs { margin: 0; border-bottom: 0; }
 #v4-maintenance-page .card-header-tabs .nav-link { white-space: nowrap; }
 #mt-pane-4 > a[href$="ui_settings.php"] { display: block; width: fit-content; max-width: 100%; margin-inline: auto; text-align: center; }
-#v4-maintenance-page .mt-favicon-menu { max-height: min(22rem, 60vh); overflow-y: auto; min-width: min(24rem, 90vw); }
-#v4-maintenance-page #mt-favicon-preview { object-fit: contain; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); border-radius: .375rem; }
 #v4-maintenance-page dl dd { overflow-wrap: anywhere; }
 #v4-maintenance-page .mt-status-card > .card-body { padding-top: 0; }
 .mt-status-card dl.row > dt, .mt-status-card dl.row > dd { border-bottom: 1px solid var(--bs-border-color-translucent); margin-bottom: 0; padding-block: .5rem; }

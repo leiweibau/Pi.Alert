@@ -87,11 +87,13 @@
   });
 
   function getStatus() {
-    $.getJSON('php/server/files.php?action=GetARPStatus').done(function (values) {
-      if (Array.isArray(values)) {
-        var count = Number(values[0]);
-        element('arpproccounter').textContent = Number.isFinite(count) ? count.toLocaleString() : '0';
-      }
+    var scanStatus = element('arpproccounter');
+    if (scanStatus) $.getJSON('php/server/files.php?action=GetARPStatus').done(function (values) {
+      if (!Array.isArray(values)) return;
+      var status = values[0];
+      var count = status === '' ? NaN : Number(status);
+      var active = status === '' || (Number.isFinite(count) && count > 0);
+      scanStatus.textContent = active ? '' : scanStatus.dataset.noScans;
     });
     $.getJSON('php/server/files.php?action=GetAutoBackupStatus').done(function (values) {
       if (!Array.isArray(values)) return;
@@ -128,37 +130,6 @@
     if (!minutes) { element('txtPiaArpTimer').focus(); return; }
     post('php/server/files.php', { action: 'setArpTimer', ArpTimer: minutes });
   });
-  element('save-favicon').addEventListener('click', function () {
-    post('php/server/files.php', { action: 'setFavIconURL', FavIconURL: element('txtFavIconURL').value });
-  });
-  var faviconInput = element('txtFavIconURL');
-  var faviconPreview = element('mt-favicon-preview');
-  var faviconPreviewTimer;
-  function previewFavicon() {
-    var value = faviconInput.value;
-    var valid = /^img\/favicons\/(flat|glass)_[a-z]+_(black|white)\.png$/.test(value);
-    if (!valid) {
-      try {
-        var url = new URL(value);
-        valid = (url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password;
-      } catch (_) { valid = false; }
-    }
-    faviconPreview.hidden = !valid;
-    if (valid) faviconPreview.src = value;
-    else faviconPreview.removeAttribute('src');
-  }
-  faviconInput.addEventListener('input', function () {
-    window.clearTimeout(faviconPreviewTimer);
-    faviconPreviewTimer = window.setTimeout(previewFavicon, 400);
-  });
-  faviconInput.addEventListener('change', previewFavicon);
-  root.querySelectorAll('[data-favicon-value]').forEach(function (choice) {
-    choice.addEventListener('click', function () {
-      faviconInput.value = choice.dataset.faviconValue;
-      previewFavicon();
-    });
-  });
-
   var column = element('txtMTTableColumn');
   var oldValue = element('txtMTColumnContent');
   var newValue = element('txtMTNewColumnContent');

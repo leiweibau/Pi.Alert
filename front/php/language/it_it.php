@@ -1,5 +1,6 @@
 <?php
 unset($pia_lang);
+$pia_lang['V4_UI_Displays'] = 'Visualizzazione';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Azioni';
 $pia_lang['EntityActions_Empty'] = 'Nessun collegamento configurato.';
