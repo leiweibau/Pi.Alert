@@ -15,9 +15,8 @@
 
 ### Frontend - Device-List
 
-  | ![Screen Dev. List 01](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details.png)   | ![Screen Dev. List 02](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/piano/devices.png) | ![Screen Dev. List 03](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/glas/devices.png) | 
+  | ![Screen Dev. List 01](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details.png) | ![Screen Dev. List 02](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/piano/devices.png) | ![Screen Dev. List 03](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/glas/devices.png) | 
   | -------------------------------------------- | ------------------------------------------ | ------------------------------------------- |
-  | ![Screen Dev. List 04][Screen_Dev_list_04]   | ![Screen Dev. List 05][Screen_Dev_list_05] |                                             |
 
 ### Frontend - Devices
 
@@ -73,12 +72,6 @@
 [report1]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_01.jpg               "Report sample 1"
 [report2]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_02.jpg               "Report sample 2"
 [report3]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_gui_03.jpg           "Report sample 3"
-
-[Screen_Dev_list_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_01.png            "Screen Dev. List 01"
-[Screen_Dev_list_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_02.png            "Screen Dev. List 02"
-[Screen_Dev_list_03]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_03.png            "Screen Dev. List 03"
-[Screen_Dev_list_04]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_04.png            "Screen Dev. List 04"
-[Screen_Dev_list_05]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_list_05.png            "Screen Dev. List 05"
 
 [Screen_Dev_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_01.png            "Screen Devices 01"
 [Screen_Dev_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_02.png            "Screen Devices 02"
