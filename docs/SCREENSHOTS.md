@@ -21,10 +21,10 @@
 
 ### Frontend - Devices
 
-  | ![Screen Devices 01][Screen_Dev_01]   | ![Screen Devices 02][Screen_Dev_02] | ![Screen Devices 03][Screen_Dev_03]  | 
+  | ![Screen Devices 01](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details.png)   | ![Screen Devices 02](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details-actions.png) | ![Screen Devices 03](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details-tools.png)  | 
   | ------------------------------------- | ----------------------------------- | ------------------------------------ |
-  | ![Screen Devices 04][Screen_Dev_04]   | ![Screen Devices 05][Screen_Dev_05] | ![Screen Devices 06][Screen_Dev_06]  |
-  | ![Screen Devices 07][Screen_Dev_07]   |                                     |                                      |
+  | ![Screen Devices 04](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details-sessions.png)   | ![Screen Devices 05](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details-presence.png) | ![Screen Devices 06](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details-events.png)  |
+  | ![Screen Devices 07](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details-internet-speedtest.png)   |                                     |                                      |
 
 ### Frontend - Network
 
