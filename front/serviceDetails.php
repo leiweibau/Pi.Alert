@@ -31,6 +31,7 @@ require_once __DIR__ . '/php/shell.php';
 require_once __DIR__ . '/php/server/db.php';
 require_once __DIR__ . '/php/server/graph.php';
 require_once __DIR__ . '/php/server/journal.php';
+require_once __DIR__ . '/php/server/geodb_location.php';
 
 $db_file = '../db/pialert.db';
 $db = new SQLite3($db_file);
@@ -61,6 +62,16 @@ function localize_service_note($note) {
     return $note;
 }
 
+function pialert_v4_geolite_credits_html(string $credits): string {
+    $escaped = h($credits);
+    // Only the two documented attribution links may become HTML; other markup stays escaped.
+    return preg_replace_callback(
+        '~&lt;a href=&quot;(https://github\.com/P3TERX/GeoLite\.mmdb|https://dev\.maxmind\.com/geoip/geolite2-free-geolocation-data)&quot; target=&quot;_blank&quot;&gt;(.*?)&lt;/a&gt;~',
+        static fn(array $link): string => '<a href="' . $link[1] . '" target="_blank" rel="noopener noreferrer">' . $link[2] . '</a>',
+        $escaped
+    ) ?? $escaped;
+}
+
 $http_filter = $_GET['filter'] ?? 'all';
 if (!in_array((string) $http_filter, array('all', '2', '3', '4', '5', '99999999'), true)) $http_filter = 'all';
 
@@ -89,35 +100,6 @@ function service_filter_label($service_filter) {
     if ($service_filter == 5) return $pia_lang['WEBS_EVE_Shortcut_HTTP5xx'];
     if ($service_filter == '99999999') return $pia_lang['WEBS_EVE_Shortcut_Down'];
     return $pia_lang['WEBS_EVE_Shortcut_All'];
-}
-
-function init_location_array($HOST_IP) {
-    if (file_exists('../db/GeoLite2-Country.mmdb')) {
-        $databasePath = '../db/GeoLite2-Country.mmdb';
-        $command = "mmdblookup -f {$databasePath} --ip {$HOST_IP}";
-        exec($command, $output);
-        for ($x = 0; $x < sizeof($output); $x++) $output[$x] = trim($output[$x]);
-        $output_str = str_replace(":\n", ':', implode("\n", $output));
-        return explode("\n", $output_str);
-    }
-    return array('######');
-}
-
-function parse_location_array($LOCATION_ARRAY) {
-    global $pia_lang_selected;
-    $language_code = substr($pia_lang_selected, 0, 2);
-    $locations = array();
-    if (sizeof($LOCATION_ARRAY) > 1) {
-        for ($x = 0; $x < sizeof($LOCATION_ARRAY); $x++) {
-            if (stristr($LOCATION_ARRAY[$x], '"' . $language_code . '":')) {
-                $temp_location = str_replace('"', '', strip_tags($LOCATION_ARRAY[$x]));
-                $temp_location = trim(str_replace("$language_code:", '', $temp_location));
-                array_push($locations, $temp_location);
-            }
-        }
-    }
-    if (sizeof($locations) < 1) array_push($locations, 'IP not found in DB');
-    return $locations;
 }
 
 function get_service_statistic($service) {
@@ -176,8 +158,14 @@ $statistic = get_service_statistic($service_details_title);
 $devices = array();
 $dev_res = $db->query('SELECT dev_MAC, dev_Name FROM Devices ORDER BY dev_Name ASC');
 while ($dev_res && ($row = $dev_res->fetchArray())) $devices[] = $row;
-$output = init_location_array((string) ($servicedetails['mon_TargetIP'] ?? ''));
-$locations = $output[0] != '######' ? parse_location_array($output) : array();
+$geoDatabase = dirname(__DIR__) . '/db/GeoLite2-Country.mmdb';
+$geoDatabaseInstalled = is_file($geoDatabase);
+$selectedLanguage = pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME);
+$location = $geoDatabaseInstalled
+    ? pialert_geodb_service_location($geoDatabase, (string) ($servicedetails['mon_TargetIP'] ?? ''), $selectedLanguage)
+    : array('country' => null, 'continent' => null);
+$locationLabel = $location['country'] ?? 'IP not found in DB';
+if ($location['country'] !== null && $location['continent'] !== null) $locationLabel .= ' (' . $location['continent'] . ')';
 $displayTitle = '[' . strtoupper($service_details_title_array[0]) . '] ' . ($service_details_title_array[1] ?? '');
 
 pialert_v4_shell_start($displayTitle, 'services', array(
@@ -257,8 +245,8 @@ pialert_v4_shell_start($displayTitle, 'services', array(
         <div class="row g-3 mt-2"><div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['WEBS_Stats_Time']); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0"><thead><tr><th></th><th>&Oslash;</th><th><?= h($pia_lang['V4_Min']); ?></th><th><?= h($pia_lang['V4_Max']); ?></th></tr></thead><tbody><?php foreach (array('24h'=>'24h','1w'=>'7d',''=>'All') as $key => $label): ?><tr><th><?= h($label); ?></th><td><?= $statistic['latency_avg' . ($key ? '_' . $key : '')]; ?></td><td><?= $statistic['latency_min' . ($key ? '_' . $key : '')]; ?></td><td><?= $statistic['latency_max' . ($key ? '_' . $key : '')]; ?></td></tr><?php endforeach; ?></tbody></table></div></section></div>
           <div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['ICMPMonitor_Availability']); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0"><thead><tr><th></th><th><?= h($pia_lang['ICMPMonitor_Shortcut_Online']); ?></th><th><?= h($pia_lang['ICMPMonitor_Shortcut_Offline']); ?></th></tr></thead><tbody><?php foreach (array('24h'=>'24h','1w'=>'7d','all'=>'All') as $key => $label): ?><tr><th><?= h($label); ?></th><td class="text-success"><?= h($statistic['online_percent_' . $key]); ?></td><td class="text-danger"><?= h($statistic['offline_percent_' . $key]); ?></td></tr><?php endforeach; ?></tbody></table></div></section></div></div>
         <section id="service-location" class="card mt-3"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['WEBS_Stats_Location']); ?></h3></div><div class="card-body">
-        <?php if ($output[0] != '######'): ?><dl class="row mb-3"><dt class="col-sm-3"><?= h($pia_lang['WEBS_Stats_IP']); ?></dt><dd class="col-sm-9"><?= h($servicedetails['mon_TargetIP'] ?? ''); ?></dd><dt class="col-sm-3"><?= h($pia_lang['WEBS_Stats_IPLocation']); ?></dt><dd class="col-sm-9"><?= h(($locations[1] ?? '') . ' (' . ($locations[0] ?? '') . ')'); ?></dd></dl><button class="btn btn-outline-danger" id="deleteDB-button" type="button"><?= h($pia_lang['GeoLiteDB_button_del']); ?></button>
-        <?php else: ?><div class="d-flex align-items-center gap-3"><span class="spinner-border" id="downloader" hidden aria-hidden="true"></span><button class="btn btn-outline-primary" id="downloadDB-button" type="button"><?= h($pia_lang['GeoLiteDB_button_ins']); ?></button></div><?php endif; ?><p class="text-body-secondary mt-3 mb-0"><?= h($pia_lang['GeoLiteDB_credits']); ?></p></div></section>
+        <?php if ($geoDatabaseInstalled): ?><dl class="row mb-3"><dt class="col-sm-3"><?= h($pia_lang['WEBS_Stats_IP']); ?></dt><dd class="col-sm-9"><?= h($servicedetails['mon_TargetIP'] ?? ''); ?></dd><dt class="col-sm-3"><?= h($pia_lang['WEBS_Stats_IPLocation']); ?></dt><dd class="col-sm-9"><?= h($locationLabel); ?></dd></dl><button class="btn btn-outline-danger" id="deleteDB-button" type="button"><?= h($pia_lang['GeoLiteDB_button_del']); ?></button>
+        <?php else: ?><div class="d-flex align-items-center gap-3"><span class="spinner-border" id="downloader" hidden aria-hidden="true"></span><button class="btn btn-outline-primary" id="downloadDB-button" type="button"><?= h($pia_lang['GeoLiteDB_button_ins']); ?></button></div><?php endif; ?><p class="text-body-secondary mt-3 mb-0"><?= pialert_v4_geolite_credits_html((string) $pia_lang['GeoLiteDB_credits']); ?></p></div></section>
       </div>
     </div>
   </div>
