@@ -163,6 +163,10 @@ foreach (array_keys($localAddresses) as $address) {
     $mask = $bestRoute !== null ? long2ip($bestRoute['mask']) : '255.0.0.0';
     if ($name !== 'lo' && $mask !== '255.255.255.255') $networkInterfaces[$name]['masks'][$mask] = true;
 }
+$networkMasks = array();
+foreach ($networkInterfaces as $name => $interface) {
+    foreach (array_keys($interface['masks']) as $mask) $networkMasks[] = array('interface' => $name, 'mask' => $mask);
+}
 
 $diskUsage = array();
 $dfOutput = pialert_v4_sysinfo_command('/usr/bin/df -P 2>/dev/null');
@@ -204,8 +208,9 @@ foreach ($serviceLines as $line) {
 }
 
 $satellites = array();
-$mainDatabase = PIALERT_V4_FRONT_ROOT . '/../db/pialert.db';
-$toolsDatabase = PIALERT_V4_FRONT_ROOT . '/../db/pialert_tools.db';
+$databaseDirectory = dirname(__DIR__) . '/db';
+$mainDatabase = $databaseDirectory . '/pialert.db';
+$toolsDatabase = $databaseDirectory . '/pialert_tools.db';
 if (($_SESSION['Scan_Satellite'] ?? false) == true && class_exists('SQLite3') && is_file($mainDatabase)) {
     $satelliteDb = new SQLite3($mainDatabase, SQLITE3_OPEN_READONLY);
     $satelliteResult = $satelliteDb->query('SELECT * FROM Satellites ORDER BY sat_name ASC');
@@ -278,7 +283,15 @@ pialert_v4_shell_start($title, 'systeminfo', array('css/systeminfo.css'));
   <section class="card" aria-labelledby="storage-heading"><div class="card-header"><h2 class="card-title" id="storage-heading"><i class="bi bi-hdd me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Storage']); ?></h2></div><div class="card-body"><div class="table-responsive"><table class="table table-sm table-striped mb-0"><thead><tr><th><?= h($pia_lang['V4_Mount_Model']); ?></th><th><?= h($pia_lang['V4_Device']); ?></th><th><?= h($pia_lang['V4_Size']); ?></th><th><?= h($pia_lang['V4_Type']); ?></th></tr></thead><tbody><?php foreach ($blockDevices as $device): ?><tr><td><?= h(($device['mountpoint'] ?? '') !== '' ? $device['mountpoint'] : ($device['model'] ?? '')); ?></td><td>/dev/<?= h($device['name'] ?? ''); ?></td><td><?= h($device['size'] ?? ''); ?></td><td><?= h($device['type'] ?? ''); ?></td></tr><?php endforeach; ?></tbody></table></div></div></section>
   <section class="card" aria-labelledby="storage-usage-heading"><div class="card-header"><h2 class="card-title" id="storage-usage-heading"><i class="bi bi-hdd me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Storage_Usage']); ?></h2></div><div class="card-body"><div class="table-responsive"><table class="table table-sm table-striped mb-0"><thead><tr><th><?= h($pia_lang['V4_Mount_Point']); ?></th><th><?= h($pia_lang['V4_Total']); ?></th><th><?= h($pia_lang['V4_Used']); ?></th><th><?= h($pia_lang['V4_Free']); ?></th></tr></thead><tbody><?php foreach ($diskUsage as $disk): ?><tr><td><?= h($disk[5]); ?></td><td><?= h(number_format((float) $disk[1] / 1048576, 2, ',', '.') . ' GB'); ?></td><td><?= h(number_format((float) $disk[2] / 1048576, 2, ',', '.') . ' GB (' . $disk[4] . ')'); ?></td><td><?= h(number_format((float) $disk[3] / 1048576, 2, ',', '.') . ' GB'); ?></td></tr><?php endforeach; ?></tbody></table></div><p class="form-text mb-0 mt-2"><?= h($pia_lang['SysInfo_storage_note'] ?? ''); ?></p></div></section>
 
-  <section class="card" aria-labelledby="network-heading"><div class="card-header"><h2 class="card-title" id="network-heading"><i class="bi bi-hdd-network me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Network']); ?></h2></div><div class="card-body table-responsive"><table class="table table-sm table-striped mb-0"><thead><tr><th><?= h($pia_lang['V4_Interface']); ?></th><th><?= h($pia_lang['V4_IPv4_Masks']); ?></th><th>RX</th><th>TX</th></tr></thead><tbody><?php foreach ($networkInterfaces as $name => $interface): ?><tr><th scope="row"><?= h($name); ?></th><td><?php foreach ($interface['addresses'] as $address): ?><div><?= h($address); ?></div><?php endforeach; ?><?php foreach (array_keys($interface['masks']) as $mask): ?><small class="text-body-secondary"><?= h($pia_lang['V4_Mask']); ?>: <?= h($mask); ?></small><?php endforeach; ?></td><td><?= h(number_format($interface['rx'] / 1048576, 2, ',', '.') . ' MB'); ?></td><td><?= h(number_format($interface['tx'] / 1048576, 2, ',', '.') . ' MB'); ?></td></tr><?php endforeach; ?></tbody></table></div></section>
+  <section class="card" aria-labelledby="network-heading">
+    <div class="card-header"><h2 class="card-title" id="network-heading"><i class="bi bi-hdd-network me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Network']); ?></h2></div>
+    <div class="card-body">
+      <?php if ($networkMasks): ?><div class="d-flex flex-wrap gap-2 mb-3" aria-label="<?= h($pia_lang['V4_IPv4_Masks']); ?>">
+        <?php foreach ($networkMasks as $entry): ?><span class="badge text-bg-secondary"><?= h($entry['interface']); ?> · <?= h($pia_lang['V4_Mask']); ?>: <?= h($entry['mask']); ?></span><?php endforeach; ?>
+      </div><?php endif; ?>
+      <div class="table-responsive"><table class="table table-sm table-striped mb-0"><thead><tr><th><?= h($pia_lang['V4_Interface']); ?></th><th>IPv4</th><th>RX</th><th>TX</th></tr></thead><tbody><?php foreach ($networkInterfaces as $name => $interface): ?><tr><th scope="row"><?= h($name); ?></th><td><?php foreach ($interface['addresses'] as $address): ?><div><?= h($address); ?></div><?php endforeach; ?></td><td><?= h(number_format($interface['rx'] / 1048576, 2, ',', '.') . ' MB'); ?></td><td><?= h(number_format($interface['tx'] / 1048576, 2, ',', '.') . ' MB'); ?></td></tr><?php endforeach; ?></tbody></table></div>
+    </div>
+  </section>
   <section class="card" aria-labelledby="services-heading"><div class="card-header"><h2 class="card-title" id="services-heading"><i class="bi bi-database-gear me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Running_Services']); ?></h2></div><div class="card-body table-responsive pialert-sysinfo-scroll"><table class="table table-sm table-striped table-hover mb-0"><thead><tr><th><?= h($pia_lang['V4_Service_Name']); ?></th><th><?= h($pia_lang['V4_Service_Description']); ?></th></tr></thead><tbody><?php foreach ($runningServices as $service): ?><tr><td><?= h($service['name']); ?></td><td><?= h($service['description']); ?></td></tr><?php endforeach; ?></tbody></table></div></section>
   <section class="card" aria-labelledby="usb-heading"><div class="card-header"><h2 class="card-title" id="usb-heading"><i class="bi bi-usb-symbol me-2" aria-hidden="true"></i><?= h($pia_lang['V4_USB_Devices']); ?></h2></div><div class="card-body table-responsive"><table class="table table-sm table-striped mb-0"><tbody><?php foreach ($usbDevices as $device): ?><tr><th scope="row"><?= h($device['bus']); ?></th><td><?= h($device['device']); ?></td></tr><?php endforeach; ?></tbody></table></div></section>
 </section>

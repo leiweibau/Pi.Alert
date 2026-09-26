@@ -6,6 +6,7 @@ const PIALERT_V4_FRONT_ROOT = __DIR__ . '/..';
 // context while all v4-owned includes themselves remain absolute.
 chdir(PIALERT_V4_FRONT_ROOT);
 
+require_once PIALERT_V4_FRONT_ROOT . '/php/server/timezone.php';
 require_once PIALERT_V4_FRONT_ROOT . '/php/server/session.php';
 require_once PIALERT_V4_FRONT_ROOT . '/php/server/csrf.php';
 require_once PIALERT_V4_FRONT_ROOT . '/php/server/util.php';
@@ -47,5 +48,5 @@ function pialert_v4_load_language(): void {
 function pialert_v4_asset_version(): string {
     $config = @parse_ini_file(PIALERT_V4_FRONT_ROOT . '/../config/version.conf');
     // Bust cached frontend assets after UI behavior updates.
-    return (is_array($config) ? (string) ($config['VERSION_DATE'] ?? '') : '') . '-chart451-icmpcols5-statusbadgesall-font09-favstar7rem-activity150-actionscoloris2-nmapcards-nowrap-icmpnav-labelgrid-switchgrid-restoreclose-calendarfirstevents-bulkalertgradient-bulkmqtt-icmpunsaved-headericons-frontlang1-mainttabs1-serviceedit1-journalicon1-historyjson1-faviconjson1-copyfallback1';
+    return (is_array($config) ? (string) ($config['VERSION_DATE'] ?? '') : '') . '-chart451-icmpcols5-statusbadgesall-font09-favstar7rem-activity150-actionscoloris2-nmapcards-nowrap-icmpnav-labelgrid-switchgrid-restoreclose-calendarfirstevents-bulkalertgradient-bulkmqtt-icmpunsaved-headericons-frontlang1-mainttabs1-serviceedit1-journalicon1-historyjson1-faviconjson1-copyfallback1-reports-pre-nowrap1-events-icon-opacity1';
 }

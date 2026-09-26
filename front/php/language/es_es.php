@@ -1029,4 +1029,5 @@ $pia_lang['V4_Copy_MAC'] = 'Copiar dirección MAC';
 $pia_lang['V4_Copy_IP'] = 'Copiar dirección IP';
 $pia_lang['V4_Copy_Success'] = 'Copiado al portapapeles';
 $pia_lang['V4_Copy_Failed'] = 'No se pudo copiar al portapapeles';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

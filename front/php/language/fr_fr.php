@@ -1028,4 +1028,5 @@ $pia_lang['V4_Copy_MAC'] = 'Copier l’adresse MAC';
 $pia_lang['V4_Copy_IP'] = 'Copier l’adresse IP';
 $pia_lang['V4_Copy_Success'] = 'Copié dans le presse-papiers';
 $pia_lang['V4_Copy_Failed'] = 'Impossible de copier dans le presse-papiers';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

@@ -11,12 +11,14 @@
 .pialert-report-body pre {
   margin: 0;
   padding: 0;
-  overflow: visible;
+  max-width: 100%;
+  overflow: auto;
   color: inherit;
   background: transparent;
   border: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
   font-size: 0.875rem;
 }
 

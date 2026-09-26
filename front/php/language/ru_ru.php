@@ -1141,4 +1141,5 @@ $pia_lang['V4_Copy_MAC'] = 'Скопировать MAC-адрес';
 $pia_lang['V4_Copy_IP'] = 'Скопировать IP-адрес';
 $pia_lang['V4_Copy_Success'] = 'Скопировано в буфер обмена';
 $pia_lang['V4_Copy_Failed'] = 'Не удалось скопировать в буфер обмена';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

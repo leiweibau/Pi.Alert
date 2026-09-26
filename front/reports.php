@@ -109,10 +109,16 @@ function pialert_v4_standard_report(string $path): string {
         if (($index + 1) < ($count - 1)) {
             if (stristr($line, 'MAC:')) {
                 $parts = explode(': ', $line, 2);
-                $mac = trim((string) ($parts[1] ?? ''));
-                $label = $mac;
-                if (strpos($mac, 'Internet') === 0) $label = strlen($mac) > 22 ? substr($mac, 0, 22) . "...\n" : "Internet\n";
-                $output .= "\tMAC: <a href=\"./deviceDetails.php?mac=" . rawurlencode($mac) . '">' . h($label) . '</a>';
+                $macField = (string) ($parts[1] ?? '');
+                $paddingLength = strspn($macField, " \t");
+                $padding = substr($macField, 0, $paddingLength);
+                $valueAndLineEnd = substr($macField, $paddingLength);
+                $mac = rtrim($valueAndLineEnd);
+                $lineEnd = substr($valueAndLineEnd, strlen($mac));
+                $label = strpos($mac, 'Internet') === 0
+                    ? (strlen($mac) > 22 ? substr($mac, 0, 22) . '...' : 'Internet')
+                    : $mac;
+                $output .= "\tMAC: " . h($padding) . '<a href="./deviceDetails.php?mac=' . rawurlencode($mac) . '">' . h($label) . '</a>' . h($lineEnd);
             } elseif (stristr($line, 'Service:')) {
                 $parts = explode(': ', $line, 2);
                 $url = trim((string) ($parts[1] ?? ''));

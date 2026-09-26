@@ -1028,4 +1028,5 @@ $pia_lang['V4_Copy_MAC'] = 'Kopijuoti MAC adresą';
 $pia_lang['V4_Copy_IP'] = 'Kopijuoti IP adresą';
 $pia_lang['V4_Copy_Success'] = 'Nukopijuota į iškarpinę';
 $pia_lang['V4_Copy_Failed'] = 'Nepavyko nukopijuoti į iškarpinę';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

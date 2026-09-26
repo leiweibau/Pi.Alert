@@ -1031,4 +1031,5 @@ $pia_lang['V4_Copy_MAC'] = 'Kopírovat MAC adresu';
 $pia_lang['V4_Copy_IP'] = 'Kopírovat IP adresu';
 $pia_lang['V4_Copy_Success'] = 'Zkopírováno do schránky';
 $pia_lang['V4_Copy_Failed'] = 'Kopírování do schránky se nezdařilo';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

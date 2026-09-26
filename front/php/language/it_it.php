@@ -1033,4 +1033,5 @@ $pia_lang['V4_Copy_MAC'] = 'Copia indirizzo MAC';
 $pia_lang['V4_Copy_IP'] = 'Copia indirizzo IP';
 $pia_lang['V4_Copy_Success'] = 'Copiato negli appunti';
 $pia_lang['V4_Copy_Failed'] = 'Impossibile copiare negli appunti';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

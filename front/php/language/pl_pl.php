@@ -1032,4 +1032,5 @@ $pia_lang['V4_Copy_MAC'] = 'Kopiuj adres MAC';
 $pia_lang['V4_Copy_IP'] = 'Kopiuj adres IP';
 $pia_lang['V4_Copy_Success'] = 'Skopiowano do schowka';
 $pia_lang['V4_Copy_Failed'] = 'Nie udało się skopiować do schowka';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

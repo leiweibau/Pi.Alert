@@ -1031,4 +1031,5 @@ $pia_lang['V4_Copy_MAC'] = 'MAC-adres kopiëren';
 $pia_lang['V4_Copy_IP'] = 'IP-adres kopiëren';
 $pia_lang['V4_Copy_Success'] = 'Gekopieerd naar klembord';
 $pia_lang['V4_Copy_Failed'] = 'Kopiëren naar klembord mislukt';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

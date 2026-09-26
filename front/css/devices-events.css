@@ -31,10 +31,6 @@
   z-index: 1;
 }
 
-.pialert-event-filter .small-box-icon {
-  opacity: 0.25;
-}
-
 .pialert-event-filter:hover,
 .pialert-event-filter:focus-visible,
 .pialert-event-filter.is-selected {

@@ -1028,4 +1028,5 @@ $pia_lang['V4_Copy_MAC'] = 'Kopioi MAC-osoite';
 $pia_lang['V4_Copy_IP'] = 'Kopioi IP-osoite';
 $pia_lang['V4_Copy_Success'] = 'Kopioitu leikepöydälle';
 $pia_lang['V4_Copy_Failed'] = 'Kopiointi leikepöydälle epäonnistui';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>

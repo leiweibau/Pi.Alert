@@ -1028,4 +1028,5 @@ $pia_lang['V4_Copy_MAC'] = 'Kopier MAC-adresse';
 $pia_lang['V4_Copy_IP'] = 'Kopier IP-adresse';
 $pia_lang['V4_Copy_Success'] = 'Kopiert til utklippstavlen';
 $pia_lang['V4_Copy_Failed'] = 'Kunne ikke kopiere til utklippstavlen';
+$pia_lang['V4_Tools'] = 'Tools';
 ?>
