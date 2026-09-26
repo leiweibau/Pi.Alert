@@ -6,14 +6,22 @@
 (function (window, document) {
   'use strict';
 
-  // The reboot and shutdown waiting pages are static HTML. Keep the current
+  // The reboot and shutdown waiting pages are standalone PHP pages. Keep the current
   // server-selected theme available to them while the application is offline.
-  try {
-    window.localStorage.setItem('pialert-ui-theme', document.documentElement.getAttribute('data-pialert-theme') || 'standard');
-    window.localStorage.setItem('pialert-ui-mode', document.documentElement.getAttribute('data-bs-theme') || 'light');
-  } catch (_) {
-    // Storage may be disabled; the waiting pages then use their default style.
+  function storageRead (key) {
+    try { return window.localStorage.getItem(key); } catch (_) { return null; }
   }
+
+  function storageWrite (key, value) {
+    try { window.localStorage.setItem(key, value); } catch (_) { /* Current tab remains usable. */ }
+  }
+
+  function storageRemove (key) {
+    try { window.localStorage.removeItem(key); } catch (_) { /* Current tab remains usable. */ }
+  }
+
+  storageWrite('pialert-ui-theme', document.documentElement.getAttribute('data-pialert-theme') || 'standard');
+  storageWrite('pialert-ui-mode', document.documentElement.getAttribute('data-bs-theme') || 'light');
 
   var TOTALS_INTERVAL_MS = 30000;
   var REPORT_INTERVAL_MS = 15000;
@@ -216,11 +224,11 @@
     if (!checkbox) return;
     if (checkbox.checked) {
       reloadPage();
-      window.localStorage.setItem('autoReloadChecked', 'true');
+      storageWrite('autoReloadChecked', 'true');
     } else {
       window.clearTimeout(state.reloadTimeout);
       state.reloadTimeout = null;
-      window.localStorage.removeItem('autoReloadChecked');
+      storageRemove('autoReloadChecked');
     }
   }
 
@@ -229,7 +237,7 @@
     if (!checkbox) return;
     state.autoReloadCheckbox = checkbox;
     checkbox.addEventListener('change', handleCheckboxChange);
-    if (window.localStorage.getItem('autoReloadChecked') === 'true') {
+    if (storageRead('autoReloadChecked') === 'true') {
       checkbox.checked = true;
       reloadPage();
     }
@@ -239,14 +247,14 @@
     var raw = element('rawtemp');
     var output = element('tempdisplay');
     if (!raw || !output) return;
-    var unit = window.localStorage.getItem('tempunit') || 'C';
+    var unit = storageRead('tempunit') || 'C';
     var selector = element('tempunit-selector');
 
     function render (nextUnit) {
       var temperature = Number.parseFloat(raw.textContent);
       if (!Number.isFinite(temperature)) return;
       unit = nextUnit || 'C';
-      window.localStorage.setItem('tempunit', unit);
+      storageWrite('tempunit', unit);
       if (unit === 'K') output.textContent = (temperature + 273.15).toFixed(1) + '\u00a0K';
       else if (unit === 'F') output.textContent = ((temperature * 9) / 5 + 32).toFixed(1) + '\u00a0\u00b0F';
       else output.textContent = temperature.toFixed(1) + '\u00a0\u00b0C';
@@ -308,17 +316,22 @@
 
   function init () {
     if (state.initialized) destroy();
-    state.initialized = true;
     state.temperatureController = new AbortController();
-    initTheme();
-    setDefaultPageTitle();
-    initTemperature();
-    initAutoReload();
-    getReportTotalsBadge();
-    getPiAlertServerTime();
-    updateTotals();
-    state.totalsInterval = window.setInterval(updateTotals, TOTALS_INTERVAL_MS);
-    state.reportInterval = window.setInterval(getReportTotalsBadge, REPORT_INTERVAL_MS);
+    try {
+      initTheme();
+      setDefaultPageTitle();
+      initTemperature();
+      initAutoReload();
+      getReportTotalsBadge();
+      getPiAlertServerTime();
+      updateTotals();
+      state.totalsInterval = window.setInterval(updateTotals, TOTALS_INTERVAL_MS);
+      state.reportInterval = window.setInterval(getReportTotalsBadge, REPORT_INTERVAL_MS);
+      state.initialized = true;
+    } catch (error) {
+      destroy();
+      throw error;
+    }
     return api;
   }
 

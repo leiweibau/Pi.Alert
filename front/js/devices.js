@@ -120,7 +120,9 @@
       columnDefs: [
         { targets: '_all', render: $.fn.dataTable.render.text() },
         { visible: false, targets: config.hiddenColumns || [14,15,16,18] },
-        { className: 'text-center', targets: [4,9,10,11,13,17,19] },
+        { className: 'text-center', targets: [4,9,10,11,13] },
+        { className: 'text-center pialert-device-wol-cell', targets: [17] },
+        { className: 'text-center pialert-device-actions-cell', targets: [19] },
         { className: 'pialert-device-timestamp', width: '7rem', targets: [7,8] },
         { width: '30px', targets: [10] }, { width: '0px', targets: [13] }, { width: '3rem', targets: [17] }, { width: '10rem', targets: [19] },
         { orderData: [14], targets: [9] }, { targets: config.filterFields || [], searchable: false },

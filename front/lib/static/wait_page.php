@@ -17,6 +17,11 @@ $escape = static fn($value): string => htmlspecialchars((string) $value, ENT_QUO
 $languageTags = array('cz_cs'=>'cs', 'dk_da'=>'da', 'se_sv'=>'sv', 'ua_uk'=>'uk');
 $htmlLanguage = $languageTags[$language] ?? str_replace('_', '-', $language);
 $script = PIALERT_WAIT_ACTION === 'reboot' ? 'static_reload.js' : 'static_stop_spinner.js';
+$bootId = $_GET['boot'] ?? '';
+if (!is_string($bootId) || !preg_match('/^[a-f0-9-]{36}$/D', $bootId)) {
+    $bootId = trim((string) @file_get_contents('/proc/sys/kernel/random/boot_id'));
+}
+if (!preg_match('/^[a-f0-9-]{36}$/D', $bootId)) $bootId = '';
 header('Content-Type: text/html; charset=UTF-8');
 header('Cache-Control: no-store');
 ?>
@@ -30,6 +35,7 @@ header('Cache-Control: no-store');
   <script src="../../js/static_theme.js"></script>
   <link rel="stylesheet" href="../../css/static_wait.css">
   <link rel="stylesheet" href="../../css/static_theme.css">
+  <?php if (PIALERT_WAIT_ACTION === 'reboot'): ?><script>window.pialertRebootBootId = <?= json_encode($bootId, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;</script><?php endif; ?>
   <script src="../../js/<?= $script; ?>"></script>
 </head>
 <body>

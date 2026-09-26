@@ -4,7 +4,7 @@
   var root = document.getElementById('services-page');
   if (!root) return;
 
-  var state = { deleteUrl: '', table: null };
+  var state = { deleteUrl: '', table: null, journalInterval: null };
   var editorElement = document.getElementById('service-editor-modal');
   var editor = window.bootstrap && window.bootstrap.Modal
     ? window.bootstrap.Modal.getOrCreateInstance(editorElement)
@@ -154,7 +154,19 @@
       info: false,
       language: window.pialertV4DataTableLanguage()
     });
-    window.setInterval(function () { if (state.table) state.table.ajax.reload(null, false); }, 30000);
+    startJournalTimer();
+  }
+
+  function startJournalTimer () {
+    if (state.journalInterval || !state.table || !$.fn.dataTable.isDataTable('#servicesJournalTable')) return;
+    state.journalInterval = window.setInterval(function () {
+      if (state.table && $.fn.dataTable.isDataTable('#servicesJournalTable')) state.table.ajax.reload(null, false);
+    }, 30000);
+  }
+
+  function stopJournalTimer () {
+    if (state.journalInterval) window.clearInterval(state.journalInterval);
+    state.journalInterval = null;
   }
 
   function bind () {
@@ -173,4 +185,6 @@
   bind();
   applyFilter('all');
   initializeJournal();
+  window.addEventListener('pagehide', stopJournalTimer);
+  window.addEventListener('pageshow', function (event) { if (event.persisted) startJournalTimer(); });
 })(window, document, window.jQuery);

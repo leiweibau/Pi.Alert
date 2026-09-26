@@ -55,7 +55,9 @@ function PialertReboot() {
 
 	echo $pia_lang['SysInfo_Gen_execute_command'];
 	$language = is_string($pia_lang_selected) && preg_match('/^[a-z]{2}_[a-z]{2}$/D', $pia_lang_selected) ? $pia_lang_selected : 'en_us';
-	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot.php?lang=".$language."'>";
+	$bootId = trim((string) @file_get_contents('/proc/sys/kernel/random/boot_id'));
+	$bootQuery = preg_match('/^[a-f0-9-]{36}$/D', $bootId) ? '&boot=' . rawurlencode($bootId) : '';
+	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot.php?lang=".$language.$bootQuery."'>";
 
 }
 

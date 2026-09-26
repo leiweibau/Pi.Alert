@@ -3,6 +3,8 @@
 .pialert-history-chart { position: relative; height: 150px; }
 #tableDevices td.nmap-queued-ip { color: var(--bs-primary) !important; font-weight: 600; }
 #tableDevices th { white-space: nowrap; }
+#tableDevices tbody td.pialert-device-wol-cell,
+#tableDevices tbody td.pialert-device-actions-cell { padding: 0; }
 #tableDevices .pialert-device-timestamp { min-width: 7rem; white-space: nowrap; }
 .pialert-device-status-link, .pialert-device-status-link:hover, .pialert-device-status-link:focus-visible { text-decoration: none; }
 #tableDevices .pialert-status-new-online { color: #212529; background: radial-gradient(circle, #f39c12 60%, #00a65a 90%); }

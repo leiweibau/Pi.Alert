@@ -312,13 +312,6 @@ function insert_back_button() {
 	if ($pagename == 'icmpmonitorDetails.php') {$backto = 'icmpmonitor.php';}
 	if (isset($backto)) {echo '<a id="navbar-back-button" href="./' . $backto . '" role="button"><i class="fa fa-chevron-left"></i></a>';}
 }
-// Theme Fix - Adjust Logo Color
-function set_userimage($skinname) {
-	if ($skinname == 'skin-black-light' || $skinname == 'skin-black') {
-		$_SESSION['UserLogo'] = 'pialertLogoBlack';
-	} else {$_SESSION['UserLogo'] = 'pialertLogoWhite';}
-}
-
 // Sidebar Menu - Get DeviceList Filters and create session array to reduce sqlite3 queries
 function get_devices_filter_list() {
 	$database = '../db/pialert.db';
@@ -465,21 +458,6 @@ function read_HeaderConfig() {
 	}
 	$output_array = json_decode($get, true);
 	return $output_array;
-}
-// Darkmode and legacy skin are independent of the removed custom themes.
-if (file_exists('../config/setting_darkmode')) {$ENABLED_DARKMODE = True;} else { $ENABLED_DARKMODE = False;}
-// Use saved AdminLTE Skin
-foreach (glob("../config/setting_skin*") as $filename) {
-	$skinname_file = str_replace('setting_', '', basename($filename));
-	$skin_selected_head = '<link rel="stylesheet" href="lib/AdminLTE/dist/css/skins/' . $skinname_file . '.min.css">';
-	$skin_selected_body = '<body class="hold-transition ' . $skinname_file . ' sidebar-mini" >';
-	set_userimage($skinname_file);
-}
-// Use fallback AdminLTE Skin
-if (strlen($skin_selected_head) == 0) {
-	$skin_selected_head = '<link rel="stylesheet" href="lib/AdminLTE/dist/css/skins/skin-blue.min.css">';
-	$skin_selected_body = '<body class="hold-transition skin-blue sidebar-mini" >';
-	set_userimage("skin-blue");
 }
 // UI - Language
 require_once __DIR__ . '/language-selection.php';

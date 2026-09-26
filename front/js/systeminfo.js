@@ -19,9 +19,10 @@
 
   function showSystemActionResult(message, action) {
     window.showMessage(message);
-    var match = String(message == null ? '' : message).match(/URL=\.\/lib\/static\/(reboot|shutdown)\.php\?lang=([a-z]{2}_[a-z]{2})/i);
+    var match = String(message == null ? '' : message).match(/URL=\.\/lib\/static\/(reboot|shutdown)\.php\?lang=([a-z]{2}_[a-z]{2})(?:&boot=([a-f0-9-]{36}))?/i);
     if (!match || match[1].toLowerCase() !== action) return;
-    var waitPage = 'lib/static/' + match[1].toLowerCase() + '.php?lang=' + match[2].toLowerCase();
+    var waitPage = 'lib/static/' + match[1].toLowerCase() + '.php?lang=' + match[2].toLowerCase()
+      + (action === 'reboot' && match[3] ? '&boot=' + match[3].toLowerCase() : '');
     window.setTimeout(function () { window.location.assign(waitPage); }, 2000);
   }
 

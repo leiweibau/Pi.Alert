@@ -2,7 +2,7 @@
 .icmp-filter[aria-pressed="true"] { outline: .2rem solid rgba(var(--bs-primary-rgb), .35); outline-offset: .15rem; }
 .icmp-history-chart { position: relative; height: 150px; }
 #tableDevices th { white-space: nowrap; }
-.icmp-actions { white-space: nowrap; }
+#tableDevices tbody td.icmp-actions { padding: 0; white-space: nowrap; }
 .icmp-bulk-field { min-height: 5.5rem; padding: .85rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
 .bulk-value { width: 1.5rem; height: 1.5rem; }
 #icmpHostSearch { max-width: 28rem; }
