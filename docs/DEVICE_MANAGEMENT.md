@@ -92,7 +92,7 @@ will not identify it as a new device every so often (every time IOS or Android d
 
 <!--- --------------------------------------------------------------------- --->
 [main]:    https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/1_devices.jpg      "Main screen"
-[screen1]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_dev_01.png  "Screen 1"
+[screen1]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/desktop-1400x900/standard/device-details.png  "Screen 1"
 [ios]:     https://9to5mac.com/wp-content/uploads/sites/6/2020/08/how-to-use-private-wifi-mac-address-iphone-ipad.png?resize=2048,1009 "ios"
 [Android]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/android_random_mac.jpg  "Android"
 
