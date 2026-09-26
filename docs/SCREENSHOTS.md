@@ -8,7 +8,7 @@
 
 ### Dashboard
 
-  | ![dashboard_light](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/dashboard.png  | ![dashboard_dark](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/dashboard.png |
+  | ![dashboard_light](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/dashboard.png  | ![dashboard_dark](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-dark-1400x900/standard/dashboard.png |
   | ----------------------------------- | --------------------------------- |
   | ![dashboard_glas](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/glas/dashboard.png) | ![dashboard_piano](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/piano/dashboard.png) |
 
