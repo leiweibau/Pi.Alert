@@ -15,7 +15,7 @@
 
 ### Frontend - Device-List
 
-  | ![Screen Dev. List 01][Screen_Dev_list_01]   | ![Screen Dev. List 02][Screen_Dev_list_02] | ![Screen Dev. List 03][Screen_Dev_list_03]  | 
+  | ![Screen Dev. List 01](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/standard/device-details.png)   | ![Screen Dev. List 02](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/piano/devices.png) | ![Screen Dev. List 03](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/glas/devices.png) | 
   | -------------------------------------------- | ------------------------------------------ | ------------------------------------------- |
   | ![Screen Dev. List 04][Screen_Dev_list_04]   | ![Screen Dev. List 05][Screen_Dev_list_05] |                                             |
 
