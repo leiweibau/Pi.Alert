@@ -10,7 +10,7 @@
 
   | ![Screen Main 01][Screen_Main_01]   | ![Screen Main 02][Screen_Main_02] |
   | ----------------------------------- | --------------------------------- |
-  | ![leiweibau-dark](https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main_theme_02.png) | ![leiweibau-light](https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main_theme_01.png) |
+  | ![glas](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/glas/devices.png) | ![piano](https://github.com/leiweibau/Pi.Alert/blob/assets/desktop-1400x900/piano/devices.png) |
 
 
 ### Frontend - Device-List
@@ -67,8 +67,8 @@
 
 [Back](https://github.com/leiweibau/Pi.Alert)
 
-[Screen_Main_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main.png       "Screen Main 01"
-[Screen_Main_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main_dark.png  "Screen Main 02"
+[Screen_Main_01]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/desktop-1400x900/standard/devices.png       "Screen Main 01"
+[Screen_Main_02]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/desktop-dark-1400x900/standard/devices.png  "Screen Main 02"
 
 [report1]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_01.jpg               "Report sample 1"
 [report2]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/report_02.jpg               "Report sample 2"
