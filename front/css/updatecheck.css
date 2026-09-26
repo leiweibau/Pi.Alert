@@ -3,6 +3,11 @@
   margin-block: 1rem;
 }
 
+.pialert-update-results h4 {
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
 .pialert-update-results .box {
   --bs-card-spacer-y: 1rem;
   --bs-card-spacer-x: 1rem;
@@ -14,12 +19,6 @@
 
 .pialert-update-results .box-body {
   padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
-}
-
-.pialert-update-results .box-footer {
-  padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x);
-  background-color: var(--bs-tertiary-bg);
-  border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
 }
 
 .text-aqua {
@@ -36,6 +35,24 @@
 
 .text-yellow {
   color: var(--bs-warning-text-emphasis) !important;
+}
+
+/* Bootstrap's light-mode emphasis colors are nearly black and make the
+   update states difficult to tell apart. Keep the existing dark palette. */
+html[data-bs-theme="light"] .text-aqua {
+  color: #075ba8 !important;
+}
+
+html[data-bs-theme="light"] .text-green {
+  color: #167347 !important;
+}
+
+html[data-bs-theme="light"] .text-red {
+  color: #b42332 !important;
+}
+
+html[data-bs-theme="light"] .text-yellow {
+  color: #805400 !important;
 }
 
 .updatechk_font_a {

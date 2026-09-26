@@ -19,6 +19,9 @@
 #panNmap .pialert-nmap-status{display:inline-block;padding:.14rem .42rem;border-radius:99rem;background:var(--bs-secondary-bg);color:var(--bs-body-color);white-space:nowrap;font-size:.78rem;font-weight:600}
 #panNmap .pialert-nmap-status-open{background:var(--bs-success-bg-subtle);color:var(--bs-success-text-emphasis)}
 #panNmap .pialert-nmap-status-filtered{background:var(--bs-warning-bg-subtle);color:var(--bs-warning-text-emphasis)}
+html[data-bs-theme="light"] #panNmap .pialert-nmap-state[data-tone="error"]{color:#b42332}
+html[data-bs-theme="light"] #panNmap .pialert-nmap-status-open{color:#167347}
+html[data-bs-theme="light"] #panNmap .pialert-nmap-status-filtered{color:#805400}
 #panNmap .pialert-nmap-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.65rem;margin-top:1rem;padding:.8rem 0;border-top:1px solid var(--bs-border-color)}
 #panNmap .pialert-nmap-footer-actions{display:flex;flex-wrap:wrap;gap:.5rem}
 #panNmap .pialert-nmap-empty{margin:.5rem 0;color:var(--bs-secondary-color)}

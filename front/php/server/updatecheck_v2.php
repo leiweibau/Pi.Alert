@@ -245,11 +245,11 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 	echo '<br><br>
 			<lable for="bashupdatecommand" class="text-red"><i>Update command'.$updateenv.':</i></lable>
 			<input id="bashupdatecommand" readonly value="'.$updatecommand.'" style="width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;">
-		  <br><br>
 		</div>
-    <div class="box-footer">
-        <a class="btn btn-default pull-left" href="https://leiweibau.net/archive/pialert/" target="_blank">Version History (leiweibau.net)</a>
+    <div class="text-center mt-3">
+        <a class="btn btn-outline-secondary" href="https://leiweibau.net/archive/pialert/" target="_blank" rel="noopener noreferrer">Version History (leiweibau.net)</a>
     </div>
+  </div>
 </div>';
 
 }
@@ -321,11 +321,11 @@ if ($_SESSION['SATELLITES_ACTIVE'] == True) {
 		echo '<br><br>
 				<lable for="bashupdatecommand" class="text-red"><i>Update command:</i></lable>
 				<input id="bashupdatecommand" readonly value="'.$updatecommand.'" style="width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;">
-			  <br><br>
 			</div>
-	    <div class="box-footer">
-	        <a class="btn btn-default pull-left" href="https://leiweibau.net/archive/pialert/" target="_blank">Version History (leiweibau.net)</a>
+	    <div class="text-center mt-3">
+	        <a class="btn btn-outline-secondary" href="https://leiweibau.net/archive/pialert-satellite/" target="_blank" rel="noopener noreferrer">Version History (leiweibau.net)</a>
 	    </div>
+	  </div>
 	</div>';
 
 	}
