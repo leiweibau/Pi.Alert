@@ -2,6 +2,15 @@
 
 .services-journal-wrap { min-height: 190px; }
 
+#services-page .services-journal-card > .card-body { padding: .25rem .375rem; }
+
+.services-journal-wrap table th:first-child,
+.services-journal-wrap table td:first-child {
+  white-space: nowrap;
+}
+
+.services-journal-wrap table td:first-child { padding-right: calc(.5rem + 10px); }
+
 .services-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr));

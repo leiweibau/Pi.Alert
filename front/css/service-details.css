@@ -11,6 +11,11 @@
 }
 .service-fields label { font-weight: 600; margin-bottom: 0; }
 .service-fields-wide { grid-template-columns: minmax(8rem, 15%) minmax(0, 1fr); }
+.service-alert-switches { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+.service-alert-switches > .form-check { min-width: 0; }
+@media (min-width: 768px) {
+  .service-alert-switches { display: grid; grid-template-columns: 33% 34% 33%; gap: 0; }
+}
 .service-chart { height: 12rem; min-height: 12rem; position: relative; }
 .service-code-legend { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; }
 .text-orange { color: #fe4c00; }

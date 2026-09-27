@@ -139,11 +139,11 @@ $fieldGroups = array(
     ),
 );
 $checkboxes = array(
+    array('chkAlertEvents','WEBS_label_AlertEvents','Alert events','icmp_AlertEvents'),
+    array('chkAlertDown','WEBS_label_AlertDown','Alert down','icmp_AlertDown'),
     array('chkFavorit','Device_TableHead_Favorite','Favorite','icmp_Favorite'),
     array('chkMQTTDevice','DevDetail_MainInfo_MQTTDevice','MQTT device','icmp_MQTTDevice'),
     array('chkArchived','DevDetail_EveandAl_Archived','Archived','icmp_Archived'),
-    array('chkAlertEvents','WEBS_label_AlertEvents','Alert events','icmp_AlertEvents'),
-    array('chkAlertDown','WEBS_label_AlertDown','Alert down','icmp_AlertDown'),
 );
 pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css','lib/coloris-0.25.0/coloris.min.css','css/icmp-details.css','css/presence-calendar.css','css/nmap-results.css','css/entity-actions.css'));
 ?>
@@ -173,7 +173,7 @@ pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-
         <?php foreach ($fieldGroups[0] as [$id,$key,$fallback,$column,$readonly]): ?><div class="icmp-detail-field mb-3"><label class="form-label" for="<?= h($id); ?>"><?= h(pialert_v4_ui_plain_label($L($key,$fallback))); ?></label><?php if ($id === 'txtIP'): ?><div class="input-group"><input class="form-control" id="txtIP" value="<?= h($details[$column] ?? ''); ?>" readonly><button id="copyIP" class="btn btn-outline-secondary" type="button" data-copy-target="txtIP" aria-label="<?= h($pia_lang['V4_Copy_IP']); ?>"><i class="bi bi-clipboard" aria-hidden="true"></i></button></div><?php else: ?><input class="form-control" id="<?= h($id); ?>" value="<?= h($details[$column] ?? ''); ?>"<?= $readonly ? ' readonly' : ''; ?><?= in_array($id,array('txtOwner','txtDeviceType','txtGroup','txtLocation'),true) ? ' list="suggest-'.$id.'"' : ''; ?>><?php if (in_array($id,array('txtOwner','txtDeviceType','txtGroup','txtLocation'),true)): ?><datalist id="suggest-<?= h($id); ?>"></datalist><?php endif; ?><?php endif; ?></div><?php endforeach; ?>
       </div><div class="col-12 col-lg-6"><h2 class="h5 border-bottom pb-2"><?= h($L('DevDetail_EveandAl_Title','Events and alerts')); ?></h2>
         <?php foreach ($fieldGroups[1] as [$id,$key,$fallback,$column,$readonly]): ?><div class="icmp-detail-field mb-3"><label class="form-label" for="<?= h($id); ?>"><?= h($L($key,$fallback)); ?></label><input class="form-control" id="<?= h($id); ?>" value="<?= h($details[$column] ?? ''); ?>"<?= $readonly ? ' readonly' : ''; ?>></div><?php endforeach; ?>
-        <?php foreach ($checkboxes as [$id,$key,$fallback,$column]): ?><div class="icmp-detail-field icmp-detail-switch mb-2"><label class="form-check-label" for="<?= h($id); ?>"><?= h($L($key,$fallback)); ?></label><div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="<?= h($id); ?>"<?= ($details[$column] ?? 0) == 1 ? ' checked' : ''; ?>></div></div><?php endforeach; ?>
+        <?php foreach ($checkboxes as [$id,$key,$fallback,$column]): ?><div class="icmp-detail-field icmp-detail-switch mb-3"><div class="form-check form-switch m-0 ps-0"><input class="form-check-input ms-0 float-none<?= match ($id) { 'chkFavorit' => ' pialert-favorite-switch', 'chkMQTTDevice' => ' pialert-purple-switch', 'chkAlertDown' => ' pialert-down-switch', 'chkArchived' => ' pialert-archive-switch', default => '' }; ?>" type="checkbox" role="switch" id="<?= h($id); ?>"<?= ($details[$column] ?? 0) == 1 ? ' checked' : ''; ?>></div><label class="form-check-label" for="<?= h($id); ?>"><?= h($L($key,$fallback)); ?></label></div><?php endforeach; ?>
       </div>
     </div><div class="d-flex flex-wrap justify-content-end gap-2 mt-4"><button class="btn btn-danger" id="btnDelete" type="button"><?= h($L('Gen_Delete','Delete')); ?></button><button class="btn btn-secondary" id="btnRestore" type="button"><?= h($L('Gen_Close','Close')); ?></button><button class="btn btn-primary" id="btnSave" type="button" disabled><?= h($L('Gen_Save','Save')); ?></button></div></div>
     <div class="tab-pane fade" id="panActions" role="tabpanel" aria-labelledby="tabActions"><?php pialert_entity_actions_editor($L); ?></div>

@@ -127,8 +127,10 @@
       chkAlertEvents:'dev_AlertEvents',chkAlertDown:'dev_AlertDeviceDown',chkNewDevice:'dev_NewDevice',
       chkArchived:'dev_Archived',chkShowPresence:'dev_PresencePage'};
     Object.keys(checks).forEach(function (id) { setCheck(id, row[checks[id]]); });
-    field('iconRandomMAC').classList.toggle('text-warning', Number(row.dev_RandomMAC) === 1);
-    field('iconRandomMAC').classList.toggle('text-secondary', Number(row.dev_RandomMAC) !== 1);
+    var randomMacIndicator = field('iconRandomMAC');
+    var hasRandomMac = Number(row.dev_RandomMAC) === 1;
+    randomMacIndicator.classList.toggle('is-active', hasRandomMac);
+    randomMacIndicator.setAttribute('aria-label', randomMacIndicator.dataset.label + ': ' + randomMacIndicator.dataset[hasRandomMac ? 'activeLabel' : 'inactiveLabel']);
     var local = row.dev_ScanSource === 'local';
     field('tabNmap').parentElement.hidden = !local;
     if (!local && field('tabNmap').classList.contains('active')) window.bootstrap.Tab.getOrCreateInstance(field('tabDetails')).show();

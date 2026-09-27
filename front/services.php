@@ -109,7 +109,7 @@ pialert_v4_shell_start($title, 'services', array(
 
   <div class="row g-3 mb-3">
     <div class="col-12 col-xl-8">
-      <section class="card card-primary card-outline h-100" aria-labelledby="services-journal-title">
+      <section class="card card-primary card-outline services-journal-card h-100" aria-labelledby="services-journal-title">
         <div class="card-header"><h2 id="services-journal-title" class="card-title mb-0"><?= h($pia_lang['WEBS_EVE_Title'] ?? 'Web Services - Events'); ?></h2></div>
         <div class="card-body"><div class="table-responsive services-journal-wrap">
           <table id="servicesJournalTable" class="table table-bordered table-hover table-striped align-middle w-100">
@@ -211,8 +211,8 @@ pialert_v4_shell_start($title, 'services', array(
           <div class="mb-3"><label class="form-label" for="serviceTag"><?= h($pia_lang['WEBS_label_Tags'] ?? 'Tag'); ?></label><input type="text" class="form-control" id="serviceTag"></div>
           <div class="mb-3"><label class="form-label" for="serviceMAC"><?= h($pia_lang['WEBS_label_MAC'] ?? 'Device'); ?></label><input type="text" class="form-control" id="serviceMAC" list="service-device-options"><datalist id="service-device-options"><?php foreach ($devices as $mac => $name): ?><option value="<?= h($mac); ?>"><?= h($name); ?></option><?php endforeach; ?></datalist></div>
           <div class="form-check form-switch mb-2"><input class="form-check-input" id="insAlertEvents" type="checkbox"><label class="form-check-label" for="insAlertEvents"><?= h($pia_lang['WEBS_label_AlertEvents'] ?? 'All Events'); ?></label></div>
-          <div class="form-check form-switch mb-2"><input class="form-check-input" id="insAlertUp" type="checkbox"><label class="form-check-label" for="insAlertUp"><?= h($pia_lang['WEBS_label_AlertUp'] ?? 'Up'); ?></label></div>
-          <div class="form-check form-switch"><input class="form-check-input" id="insAlertDown" type="checkbox"><label class="form-check-label" for="insAlertDown"><?= h($pia_lang['WEBS_label_AlertDown'] ?? 'Down'); ?></label></div>
+          <div class="form-check form-switch mb-2"><input class="form-check-input pialert-up-switch" id="insAlertUp" type="checkbox"><label class="form-check-label" for="insAlertUp"><?= h($pia_lang['WEBS_label_AlertUp'] ?? 'Up'); ?></label></div>
+          <div class="form-check form-switch"><input class="form-check-input pialert-down-switch" id="insAlertDown" type="checkbox"><label class="form-check-label" for="insAlertDown"><?= h($pia_lang['WEBS_label_AlertDown'] ?? 'Down'); ?></label></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Close'] ?? 'Close'); ?></button><button type="submit" id="save-service" class="btn btn-primary"><?= h($pia_lang['Gen_Save'] ?? 'Save'); ?></button></div>
       </form>

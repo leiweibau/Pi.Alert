@@ -9,15 +9,19 @@
 #icmpDetailsTabs { margin-bottom: 0; border-bottom: 0; }
 #icmpDetailsTabs .nav-link { white-space: nowrap; }
 #icmp-details-page .tab-content { min-height: 25rem; }
-.icmp-detail-switch > .form-check-label { display: block; margin-bottom: .35rem; }
-.icmp-detail-switch > .form-check { min-height: 1.5rem; }
+.icmp-detail-switch > .form-check { display: flex; align-items: center; min-height: 1.5rem; }
+.icmp-detail-switch .form-check-input { margin-top: 0; margin-bottom: 0; }
+.icmp-detail-switch > .form-check-label { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
 .icmp-detail-field > .input-group { min-width: 0; }
 @media (min-width: 768px) {
   .icmp-detail-field { display: grid; grid-template-columns: minmax(0, 34%) minmax(0, 1fr); align-items: center; column-gap: .5rem; }
-  .icmp-detail-field > .form-label, .icmp-detail-switch > .form-check-label { margin-bottom: 0; text-align: right; }
+  .icmp-detail-field > .form-label { margin-bottom: 0; text-align: right; }
+  .icmp-detail-switch > .form-check { grid-column: 1; justify-self: end; }
+  .icmp-detail-switch > .form-check-label { grid-column: 2; }
   .icmp-detail-field > .form-control { min-width: 0; }
 }
 @media (max-width: 767.98px) {
+  .icmp-detail-switch { display: flex; align-items: center; gap: .5rem; }
   #icmpDetailsTabs { width: 100%; max-width: 100%; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding-bottom: 1px; -webkit-overflow-scrolling: touch; }
   #icmpDetailsTabs > .nav-item { flex: 0 0 auto; }
   #icmpDetailsTabs .nav-link { padding: .5rem .6rem; }

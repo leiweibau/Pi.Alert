@@ -217,10 +217,10 @@ pialert_v4_shell_start($displayTitle, 'services', array(
               <label for="txtLastScan"><?= h($pia_lang['WEBS_label_ScanTime']); ?></label><input class="form-control" id="txtLastScan" readonly value="<?= h($servicedetails['mon_LastScan'] ?? ''); ?>">
               <label for="txtLastLatency"><?= h($pia_lang['WEBS_label_Response_Time']); ?></label><input class="form-control" id="txtLastLatency" readonly value="<?= h($servicedetails['mon_LastLatency'] ?? ''); ?>">
             </div>
-            <div class="d-flex flex-wrap gap-4 mt-3">
+            <div class="service-alert-switches mt-3">
               <div class="form-check form-switch"><input class="form-check-input" id="chkAlertEvents" type="checkbox" <?= ($servicedetails['mon_AlertEvents'] ?? 0) == 1 ? 'checked' : ''; ?>><label class="form-check-label" for="chkAlertEvents"><?= h($pia_lang['WEBS_label_AlertEvents']); ?></label></div>
-              <div class="form-check form-switch"><input class="form-check-input" id="chkAlertDown" type="checkbox" <?= ($servicedetails['mon_AlertDown'] ?? 0) == 1 ? 'checked' : ''; ?>><label class="form-check-label" for="chkAlertDown"><?= h($pia_lang['WEBS_label_AlertDown']); ?></label></div>
-              <div class="form-check form-switch"><input class="form-check-input" id="chkAlertUp" type="checkbox" <?= ($servicedetails['mon_AlertUp'] ?? 0) == 1 ? 'checked' : ''; ?>><label class="form-check-label" for="chkAlertUp"><?= h($pia_lang['WEBS_label_AlertUp']); ?></label></div>
+              <div class="form-check form-switch"><input class="form-check-input pialert-down-switch" id="chkAlertDown" type="checkbox" <?= ($servicedetails['mon_AlertDown'] ?? 0) == 1 ? 'checked' : ''; ?>><label class="form-check-label" for="chkAlertDown"><?= h($pia_lang['WEBS_label_AlertDown']); ?></label></div>
+              <div class="form-check form-switch"><input class="form-check-input pialert-up-switch" id="chkAlertUp" type="checkbox" <?= ($servicedetails['mon_AlertUp'] ?? 0) == 1 ? 'checked' : ''; ?>><label class="form-check-label" for="chkAlertUp"><?= h($pia_lang['WEBS_label_AlertUp']); ?></label></div>
             </div>
           </div>
         </div>

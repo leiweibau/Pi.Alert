@@ -89,7 +89,15 @@ $renderField = static function(array $field) use ($L, $pia_lang): void {
     echo '</div></div>';
 };
 $renderCheck = static function(array $check) use ($L): void {
-    echo '<div class="device-detail-field mb-3"><label for="', h($check[0]), '" class="form-label">', h($L($check[1], $check[2])), '</label><div class="device-detail-control form-check form-switch ps-0"><input class="form-check-input ms-0 float-none" id="', h($check[0]), '" type="checkbox" role="switch"></div></div>';
+    $colorClass = match ($check[0]) {
+        'chkFavorite' => ' pialert-favorite-switch',
+        'chkMQTTDevice' => ' pialert-purple-switch',
+        'chkAlertDown' => ' pialert-down-switch',
+        'chkNewDevice' => ' pialert-new-switch',
+        'chkArchived' => ' pialert-archive-switch',
+        default => '',
+    };
+    echo '<div class="device-detail-field device-detail-switch mb-3"><div class="device-detail-control form-check form-switch ps-0"><input class="form-check-input', $colorClass, ' ms-0 float-none" id="', h($check[0]), '" type="checkbox" role="switch"></div><label for="', h($check[0]), '" class="form-check-label">', h($L($check[1], $check[2])), '</label></div>';
 };
 
 $labels = array(
@@ -152,7 +160,7 @@ pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-
           <div class="device-detail-field mb-3"><label for="txtScanValidation" class="form-label"><?= h($L('DevDetail_EveandAl_ScanValid','Scan validation')); ?></label><div class="device-detail-control"><input id="txtScanValidation" class="form-control" type="text"></div></div>
           <div class="device-detail-alert-switches">
             <?php foreach (array_slice($checks,3) as $check) $renderCheck($check); ?>
-            <div class="device-detail-field device-detail-alert-info mt-3"><div class="device-detail-alert-info-content"><i id="iconRandomMAC" class="bi bi-shuffle text-secondary" aria-hidden="true"></i><span><?= h($L('DevDetail_EveandAl_RandomMAC','Randomized MAC')); ?></span></div><div class="device-detail-control device-detail-alert-info-action"><a href="https://github.com/leiweibau/Pi.Alert/blob/main/docs/RAMDOM_MAC.md" target="_blank" rel="noopener noreferrer" aria-label="<?= h($pia_lang['V4_Random_MAC_Info']); ?>"><i class="bi bi-info-circle"></i></a></div></div>
+            <div class="device-detail-field device-detail-alert-info mt-3"><div class="device-detail-control device-detail-alert-info-indicator"><span id="iconRandomMAC" class="device-detail-random-mac-indicator" role="img" aria-label="<?= h($L('DevDetail_EveandAl_RandomMAC','Randomized MAC')); ?>" data-label="<?= h($L('DevDetail_EveandAl_RandomMAC','Randomized MAC')); ?>" data-active-label="<?= h($L('V4_True','Yes')); ?>" data-inactive-label="<?= h($L('V4_False','No')); ?>"><i class="bi bi-shuffle" aria-hidden="true"></i></span></div><div class="device-detail-alert-info-action"><span class="device-detail-alert-info-label"><?= h($L('DevDetail_EveandAl_RandomMAC','Randomized MAC')); ?></span><a href="https://github.com/leiweibau/Pi.Alert/blob/main/docs/RAMDOM_MAC.md" target="_blank" rel="noopener noreferrer" aria-label="<?= h($pia_lang['V4_Random_MAC_Info']); ?>"><i class="bi bi-info-circle"></i></a></div></div>
           </div>
         </div></div>
         <div class="d-flex flex-wrap justify-content-end gap-2 mt-4"><button type="button" class="btn btn-outline-warning" id="btnDeleteEvents"><?= h($L('DevDetail_button_DeleteEvents','Delete events')); ?></button><button type="button" class="btn btn-outline-danger" id="btnDelete"><?= h($L('DevDetail_button_Delete','Delete')); ?></button><button type="button" class="btn btn-outline-secondary" id="btnRestore"><?= h($labels['close']); ?></button><button type="button" class="btn btn-primary" id="btnSave" disabled><?= h($L('DevDetail_button_Save','Save')); ?></button></div>
