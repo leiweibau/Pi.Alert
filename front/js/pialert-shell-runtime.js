@@ -131,8 +131,7 @@
     return read('updates', 'php/server/files.php?action=GetUpdateStatus', function (data) {
       var totals = parseArrayResponse(data, 'update status');
       if (!totals) return;
-      var count = Number(totals[0]);
-      setText('header_updatecheck_notification', Number.isFinite(count) ? count.toLocaleString() : '');
+      setText('header_updatecheck_notification', totals[0] === 'i' ? '!' : '');
     });
   }
 

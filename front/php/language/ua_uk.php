@@ -380,6 +380,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'ICMP хост не вдалося он
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Онлайн';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Офлайн/Недоступний';
 $pia_lang['ICMPMonitor_Availability'] = 'Доступність';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Події за останні 7 днів';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Немає';

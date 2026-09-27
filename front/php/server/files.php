@@ -624,24 +624,139 @@ function BackupDBtoCSV() {
 	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0036', '', '');
 }
 
-//  Restore DB from Archiv
+// Restore the database archive selected on the maintenance page.
 function RestoreDBfromArchive() {
-	// prepare fast Backup
-	$file = '../../../db/pialert.db';
-	
-	global $pia_lang;
+	global $pia_lang, $db, $db_tools;
 
-	$Pia_Archive_Path = '../../../db/';
-	exec('/bin/ls -Art ' . $Pia_Archive_Path . '*.zip | /bin/tail -n 1 | /usr/bin/xargs -n1 /bin/unzip -o -d ../../../db/', $output);
-	// check if the pialert.db exists
-	if (file_exists($file)) {
-		echo $pia_lang['BE_Dev_Restore_okay'];
-		// unlink($oldfile);
-		echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>";
-	} else {
+	$databasePath = realpath(__DIR__ . '/../../../db');
+	$archiveName = $GLOBALS['pialert_request']['archive'] ?? null;
+	if (!$databasePath || !is_string($archiveName) || preg_match('/^pialertdb_[0-9]{8}_[0-9]{6}\.zip$/D', $archiveName) !== 1) {
+		http_response_code(400);
 		echo $pia_lang['BE_Dev_Restore_Failed'];
+		return;
 	}
-	// }
+	$archive = $databasePath . '/' . $archiveName;
+	if (!is_file($archive) || is_link($archive) || !is_readable($archive)) {
+		http_response_code(404);
+		echo $pia_lang['BE_Dev_Restore_Failed'];
+		return;
+	}
+
+	$lock = @fopen($databasePath . '/temp/restore.lock', 'c');
+	if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
+		if ($lock) fclose($lock);
+		http_response_code(409);
+		echo $pia_lang['BE_Dev_Restore_Failed'];
+		return;
+	}
+
+	$stage = null;
+	$swapped = array();
+	$names = array('pialert.db', 'pialert_tools.db');
+	$validate = static function (string $path): void {
+		if (!is_file($path) || is_link($path)) throw new RuntimeException('Missing or invalid database file');
+		$connection = new SQLite3($path, SQLITE3_OPEN_READONLY);
+		try {
+			if ($connection->querySingle('PRAGMA integrity_check') !== 'ok') {
+				throw new RuntimeException('SQLite integrity check failed');
+			}
+		} finally {
+			$connection->close();
+		}
+	};
+
+	try {
+		$members = array();
+		$status = 0;
+		exec('/usr/bin/unzip -Z1 ' . escapeshellarg($archive), $members, $status);
+		sort($members);
+		if ($status !== 0 || $members !== $names) throw new RuntimeException('Invalid database archive');
+
+		$stage = $databasePath . '/temp/restore-' . bin2hex(random_bytes(8));
+		if (!mkdir($stage, 0700)) throw new RuntimeException('Cannot create restore staging directory');
+		$output = array();
+		exec('/usr/bin/unzip -qq -o ' . escapeshellarg($archive) . ' -d ' . escapeshellarg($stage), $output, $status);
+		if ($status !== 0) throw new RuntimeException('Cannot extract database archive');
+
+		$modes = array();
+		foreach ($names as $name) {
+			$validate($stage . '/' . $name);
+			$current = $databasePath . '/' . $name;
+			if (!is_file($current) || is_link($current)) throw new RuntimeException('Current database file missing');
+			$modes[$name] = (fileperms($current) & 0777) | 0220;
+			if (!chmod($stage . '/' . $name, $modes[$name])) throw new RuntimeException('Cannot set database permissions');
+		}
+
+		// files.php opens the main database before dispatching actions. Release it
+		// before checkpointing and replacing the files.
+		if (isset($db) && $db instanceof SQLite3) { $db->close(); $db = null; }
+		if (isset($db_tools) && $db_tools instanceof SQLite3) { $db_tools->close(); $db_tools = null; }
+		foreach ($names as $name) {
+			$current = $databasePath . '/' . $name;
+			$connection = new SQLite3($current, SQLITE3_OPEN_READWRITE);
+			try {
+				$checkpoint = $connection->querySingle('PRAGMA wal_checkpoint(TRUNCATE)', true);
+				if (!is_array($checkpoint) || (int) ($checkpoint['busy'] ?? 1) !== 0) {
+					throw new RuntimeException('Database is busy');
+				}
+			} finally {
+				$connection->close();
+			}
+			clearstatcache(true, $current . '-wal');
+			if (is_file($current . '-wal') && filesize($current . '-wal') > 0) {
+				throw new RuntimeException('Database has pending WAL data');
+			}
+		}
+
+		$previous = $stage . '/previous';
+		if (!mkdir($previous, 0700)) throw new RuntimeException('Cannot stage previous databases');
+		foreach ($names as $name) {
+			if (!copy($databasePath . '/' . $name, $previous . '/' . $name)) {
+				throw new RuntimeException('Cannot save previous database');
+			}
+			chmod($previous . '/' . $name, $modes[$name]);
+		}
+		foreach ($names as $name) {
+			if (!rename($stage . '/' . $name, $databasePath . '/' . $name)) {
+				throw new RuntimeException('Cannot replace database');
+			}
+			$swapped[] = $name;
+		}
+		foreach ($names as $name) {
+			$current = $databasePath . '/' . $name;
+			$validate($current);
+			if ((fileperms($current) & 0020) === 0) throw new RuntimeException('Database is not group writable');
+			foreach (array('-wal', '-shm') as $suffix) {
+				if (is_file($current . $suffix)) @chmod($current . $suffix, 0664);
+			}
+		}
+		echo $pia_lang['BE_Dev_Restore_okay'] . ': ' . htmlspecialchars($archiveName, ENT_QUOTES, 'UTF-8');
+		echo "<meta http-equiv='refresh' content='2; URL=./maintenance.php?tab=3'>";
+	} catch (Throwable $error) {
+		if ($stage !== null) {
+			foreach ($swapped as $name) {
+				$previousFile = $stage . '/previous/' . $name;
+				if (is_file($previousFile)) @rename($previousFile, $databasePath . '/' . $name);
+			}
+		}
+		error_log('Pi.Alert database restore failed: ' . $error->getMessage());
+		http_response_code(500);
+		echo $pia_lang['BE_Dev_Restore_Failed'];
+	} finally {
+		if ($stage !== null && is_dir($stage)) {
+			$files = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($stage, FilesystemIterator::SKIP_DOTS),
+				RecursiveIteratorIterator::CHILD_FIRST
+			);
+			foreach ($files as $file) {
+				if ($file->isDir() && !$file->isLink()) @rmdir($file->getPathname());
+				else @unlink($file->getPathname());
+			}
+			@rmdir($stage);
+		}
+		flock($lock, LOCK_UN);
+		fclose($lock);
+	}
 }
 
 //  Enable Login

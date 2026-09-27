@@ -379,6 +379,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'ICMP host nemohl být aktualizován';
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Online';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Mimo provoz';
 $pia_lang['ICMPMonitor_Availability'] = 'Dostupnost';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Události za posledních 7 dní';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Žádné';

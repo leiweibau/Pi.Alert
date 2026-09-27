@@ -379,6 +379,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'ICMP-værten kunne ikke opdateres';
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Online';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Nede';
 $pia_lang['ICMPMonitor_Availability'] = 'Tilgængelighed';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Hændelser fra de seneste 7 dage';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Ingen';

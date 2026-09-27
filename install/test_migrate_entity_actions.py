@@ -1,4 +1,5 @@
 import sqlite3
+import stat
 import subprocess
 import sys
 import tempfile
@@ -46,10 +47,47 @@ class EntityActionsMigrationTests(unittest.TestCase):
             original_id = connection.execute("SELECT action_id FROM Entity_Actions").fetchone()[0]
         backups = list(self.db.parent.glob("*.bak"))
         self.assertEqual(len(backups), 1)
+        self.assertEqual(stat.S_IMODE(backups[0].stat().st_mode), 0o600)
         self.assertEqual(self.run_migration().returncode, 0)
         self.assertEqual(len(list(self.db.parent.glob("*.bak"))), 1)
         with self.connect() as connection:
             self.assertEqual(connection.execute("SELECT action_id FROM Entity_Actions").fetchone()[0], original_id)
+
+    def test_legacy_icmp_table_gets_unique_parent_key_without_losing_rows(self):
+        with self.connect() as connection:
+            connection.execute("DROP TABLE ICMP_Mon")
+            connection.execute("CREATE TABLE ICMP_Mon (icmp_ip NUMERIC NOT NULL, icmp_hostname TEXT)")
+            connection.execute("INSERT INTO ICMP_Mon VALUES ('192.0.2.1', 'Router')")
+        result = self.run_migration()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        with self.connect() as connection:
+            connection.execute("PRAGMA foreign_keys = ON")
+            self.assertEqual(connection.execute("SELECT icmp_hostname FROM ICMP_Mon").fetchone()[0], "Router")
+            self.assertIsNotNone(connection.execute(
+                "SELECT name FROM sqlite_master WHERE name='idx_icmp_mon_ip_unique'").fetchone())
+            connection.execute("INSERT INTO Entity_Actions (icmp_ip,url,icon_id,position,created_at,updated_at) "
+                               "VALUES ('192.0.2.1','https://localhost','bi:link-45deg',0,'now','now')")
+            with self.assertRaises(sqlite3.IntegrityError):
+                connection.execute("INSERT INTO ICMP_Mon VALUES ('192.0.2.1', 'Duplicate')")
+            with self.assertRaises(sqlite3.IntegrityError):
+                connection.execute("INSERT INTO Entity_Actions (icmp_ip,url,icon_id,position,created_at,updated_at) "
+                                   "VALUES ('192.0.2.99','https://localhost','bi:link-45deg',0,'now','now')")
+        self.assertEqual(self.run_migration().returncode, 0)
+        self.assertEqual(len(list(self.db.parent.glob("*.bak"))), 1)
+
+    def test_duplicate_legacy_icmp_keys_abort_without_changes(self):
+        with self.connect() as connection:
+            connection.execute("DROP TABLE ICMP_Mon")
+            connection.execute("CREATE TABLE ICMP_Mon (icmp_ip NUMERIC NOT NULL)")
+            connection.executemany("INSERT INTO ICMP_Mon VALUES (?)", [('192.0.2.1',), ('192.0.2.1',)])
+        result = self.run_migration()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("duplicate ICMP_Mon.icmp_ip", result.stderr)
+        with self.connect() as connection:
+            self.assertEqual(connection.execute("SELECT COUNT(*) FROM ICMP_Mon").fetchone()[0], 2)
+            self.assertIsNone(connection.execute(
+                "SELECT name FROM sqlite_master WHERE name='idx_icmp_mon_ip_unique'").fetchone())
+        self.assertEqual(list(self.db.parent.glob("*.bak")), [])
 
     def test_limit_cleanup_and_key_update(self):
         self.assertEqual(self.run_migration().returncode, 0)

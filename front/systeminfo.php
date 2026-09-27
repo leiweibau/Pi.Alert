@@ -19,6 +19,7 @@ if (($_SESSION['login'] ?? 0) != 1) {
 
 pialert_v4_load_language();
 require_once __DIR__ . '/php/shell.php';
+require_once __DIR__ . '/php/library-versions.php';
 
 function pialert_v4_sysinfo_command(string $command): string {
     $result = shell_exec($command);
@@ -224,6 +225,7 @@ if (($_SESSION['Scan_Satellite'] ?? false) == true && class_exists('SQLite3') &&
 $mainTables = pialert_v4_sysinfo_tables($mainDatabase, array('Tools_Speedtest_History', 'Tools_Nmap_ManScan', 'sqlite_sequence', 'sqlite_stat1'));
 $toolsTables = pialert_v4_sysinfo_tables($toolsDatabase, array('sqlite_sequence', 'sqlite_stat1'));
 $systemTimezone = pialert_v4_sysinfo_timezone($mainDatabase);
+$libraries = pialert_v4_library_versions(__DIR__ . '/lib');
 
 $title = $pia_lang['V4_System_Info'];
 pialert_v4_shell_start($title, 'systeminfo', array('css/systeminfo.css'));
@@ -294,6 +296,14 @@ pialert_v4_shell_start($title, 'systeminfo', array('css/systeminfo.css'));
   </section>
   <section class="card" aria-labelledby="services-heading"><div class="card-header"><h2 class="card-title" id="services-heading"><i class="bi bi-database-gear me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Running_Services']); ?></h2></div><div class="card-body table-responsive pialert-sysinfo-scroll"><table class="table table-sm table-striped table-hover mb-0"><thead><tr><th><?= h($pia_lang['V4_Service_Name']); ?></th><th><?= h($pia_lang['V4_Service_Description']); ?></th></tr></thead><tbody><?php foreach ($runningServices as $service): ?><tr><td><?= h($service['name']); ?></td><td><?= h($service['description']); ?></td></tr><?php endforeach; ?></tbody></table></div></section>
   <section class="card" aria-labelledby="usb-heading"><div class="card-header"><h2 class="card-title" id="usb-heading"><i class="bi bi-usb-symbol me-2" aria-hidden="true"></i><?= h($pia_lang['V4_USB_Devices']); ?></h2></div><div class="card-body table-responsive"><table class="table table-sm table-striped mb-0"><tbody><?php foreach ($usbDevices as $device): ?><tr><th scope="row"><?= h($device['bus']); ?></th><td><?= h($device['device']); ?></td></tr><?php endforeach; ?></tbody></table></div></section>
+
+  <section class="card" aria-labelledby="libraries-heading">
+    <div class="card-header"><h2 class="card-title" id="libraries-heading"><i class="bi bi-boxes me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Libraries']); ?></h2></div>
+    <div class="card-body"><div class="table-responsive pialert-sysinfo-scroll"><table class="table table-sm table-striped table-hover mb-0">
+      <thead><tr><th scope="col"><?= h($pia_lang['V4_Name']); ?></th><th scope="col"><?= h($pia_lang['V4_Version']); ?></th><th scope="col"><?= h($pia_lang['V4_Version_Source']); ?></th></tr></thead>
+      <tbody><?php foreach ($libraries as $library): ?><tr><th scope="row"><?= h($library['name']); ?></th><td><?= h($library['version'] !== '' ? $library['version'] : $pia_lang['V4_Unknown']); ?></td><td><?= h($library['source'] === 'directory' ? $pia_lang['V4_Library_Directory'] : ($library['source'] === 'css' ? $pia_lang['V4_Library_CSS'] : '—')); ?></td></tr><?php endforeach; ?></tbody>
+    </table></div></div>
+  </section>
 </section>
 
 <div id="systeminfo-actions" hidden

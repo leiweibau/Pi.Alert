@@ -380,6 +380,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'ICMP-isäntää ei voitu päivittää'
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Online';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Alhaalla';
 $pia_lang['ICMPMonitor_Availability'] = 'Saatavuus';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Viimeisten 7 päivän tapahtumat';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Ei mitään';

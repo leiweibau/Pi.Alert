@@ -206,7 +206,7 @@ pialert_v4_load_language();
 
 		const misc_urls = [
 			`${baseUrl}php/server/services.php?action=getServiceMonTotals`,
-			`${baseUrl}lib/http-status-code/index.json`,
+			`${baseUrl}lib/http-status-code-1.0/index.json`,
 			`${baseUrl}php/server/files.php?action=GetLogfiles`,
 			`${baseUrl}php/server/files.php?action=GetAutoBackupStatus`,
 			`${baseUrl}php/server/files.php?action=GetARPStatus`,

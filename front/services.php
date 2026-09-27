@@ -48,9 +48,10 @@ while ($deviceResult && ($device = $deviceResult->fetchArray(SQLITE3_ASSOC))) {
     $devices[(string) $device['dev_MAC']] = (string) $device['dev_Name'];
 }
 
-$statusCodeFile = __DIR__ . '/lib/http-status-code/index.json';
+$statusCodeFile = __DIR__ . '/lib/http-status-code-1.0/index.json';
 $statusCodes = json_decode((string) @file_get_contents($statusCodeFile), true);
 if (!is_array($statusCodes)) $statusCodes = array();
+$statusLanguage = pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME);
 
 $services = array();
 $groups = array();
@@ -85,7 +86,7 @@ $geoDbSize = $geoDbInstalled ? number_format((float) filesize($geoDbPath) / 1048
 $title = $pia_lang['WEBS_Title'] ?? 'Web Services';
 
 pialert_v4_shell_start($title, 'services', array(
-    'lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css',
+    'lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css',
     'css/services.css',
 ), static fn(): string => '<button type="button" id="add-service" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#service-editor-modal"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>' . h($GLOBALS['pia_lang']['V4_New_Service']) . '</button>');
 ?>
@@ -146,7 +147,15 @@ pialert_v4_shell_start($title, 'services', array(
           $parts = parse_url($url);
           $protocol = strtoupper((string) ($parts['scheme'] ?? 'HTTP'));
           $displayUrl = isset($parts['host']) ? ($parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '') . ($parts['path'] ?? '') . (isset($parts['query']) ? '?' . $parts['query'] : '')) : $url;
-          $statusDescription = (string) ($statusCodes[$status]['description'] ?? $pia_lang['V4_No_Status_Code']);
+          $statusEntry = $statusCodes[$status] ?? null;
+          if (is_array($statusEntry)) {
+              $localizedDescription = $statusEntry['translations'][$statusLanguage] ?? null;
+              $statusDescription = is_string($localizedDescription) && $localizedDescription !== ''
+                  ? $localizedDescription : (string) ($statusEntry['description'] ?? $statusEntry['message'] ?? 'HTTP ' . $status);
+          } else {
+              $statusDescription = preg_match('/^[1-5][0-9]{2}$/D', $status)
+                  ? 'HTTP ' . $status : ($pia_lang['V4_No_Status_Code'] ?? 'No HTTP response received.');
+          }
           $externalUrl = pialert_v4_service_external_url($url);
           $notificationLabels = array_filter(array(
               (int) ($service['mon_AlertEvents'] ?? 0) ? ($pia_lang['WEBS_EVE_all'] ?? 'All Events') : '',
@@ -211,7 +220,7 @@ pialert_v4_shell_start($title, 'services', array(
   </div>
 </section>
 <?php pialert_v4_shell_end(array(
-    'lib/datatables/datatables.net-2.3.8/dataTables.min.js',
-    'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js',
+    'lib/datatables/datatables.net-3.1.2/dataTables.min.js',
+    'lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js',
     'js/services.js',
 )); ?>

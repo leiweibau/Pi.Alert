@@ -383,6 +383,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'No se pudo actualizar el host ICMP';
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'En línea';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Fuera de línea/No disponible';
 $pia_lang['ICMPMonitor_Availability'] = 'Availability';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Eventos de los últimos 7 días';
 // Maintenance Page - Update by @TeroRERO 07ago2022 and leiweibau 29ago2022
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'No';

@@ -169,7 +169,7 @@ if ($location['country'] !== null && $location['continent'] !== null) $locationL
 $displayTitle = '[' . strtoupper($service_details_title_array[0]) . '] ' . ($service_details_title_array[1] ?? '');
 
 pialert_v4_shell_start($displayTitle, 'services', array(
-    'lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css',
+    'lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css',
     'css/service-details.css',
 ));
 ?>
@@ -242,7 +242,7 @@ pialert_v4_shell_start($displayTitle, 'services', array(
         <script id="service-chart-data" type="application/json"><?= json_encode(array('time' => array_reverse($graph_arrays[0]), 'down' => array_reverse($graph_arrays[1]), '2xx' => array_reverse($graph_arrays[2]), '3xx' => array_reverse($graph_arrays[3]), '4xx' => array_reverse($graph_arrays[4]), '5xx' => array_reverse($graph_arrays[5])), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
         <div class="service-code-legend mt-4"><?php foreach (array(array('success','2xx',$graph_arrays[7]),array('warning','3xx',$graph_arrays[8]),array('warning','4xx',$graph_arrays[9]),array('orange','5xx',$graph_arrays[10]),array('danger',$pia_lang['WEBS_Page_down'],$graph_arrays[6])) as [$tone,$label,$count]): ?><span><i class="fa-solid fa-circle text-<?= h($tone); ?>" aria-hidden="true"></i> <?= h($label); ?> (<?= h((string) $count); ?>)</span><?php endforeach; ?></div>
         <div class="row g-3 mt-2"><div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['WEBS_Stats_Time']); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0"><thead><tr><th></th><th>&Oslash;</th><th><?= h($pia_lang['V4_Min']); ?></th><th><?= h($pia_lang['V4_Max']); ?></th></tr></thead><tbody><?php foreach (array('24h'=>'24h','1w'=>'7d',''=>'All') as $key => $label): ?><tr><th><?= h($label); ?></th><td><?= $statistic['latency_avg' . ($key ? '_' . $key : '')]; ?></td><td><?= $statistic['latency_min' . ($key ? '_' . $key : '')]; ?></td><td><?= $statistic['latency_max' . ($key ? '_' . $key : '')]; ?></td></tr><?php endforeach; ?></tbody></table></div></section></div>
-          <div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['ICMPMonitor_Availability']); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0"><thead><tr><th></th><th><?= h($pia_lang['ICMPMonitor_Shortcut_Online']); ?></th><th><?= h($pia_lang['ICMPMonitor_Shortcut_Offline']); ?></th></tr></thead><tbody><?php foreach (array('24h'=>'24h','1w'=>'7d','all'=>'All') as $key => $label): ?><tr><th><?= h($label); ?></th><td class="text-success"><?= h($statistic['online_percent_' . $key]); ?></td><td class="text-danger"><?= h($statistic['offline_percent_' . $key]); ?></td></tr><?php endforeach; ?></tbody></table></div></section></div></div>
+          <div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['ICMPMonitor_Availability']); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0 pialert-availability-table"><thead><tr><th scope="col"></th><th scope="col"><?= h($pia_lang['ICMPMonitor_Shortcut_Online']); ?></th><th scope="col"><?= h($pia_lang['ICMPMonitor_Shortcut_Offline']); ?></th></tr></thead><tbody><?php foreach (array('24h'=>'24h','1w'=>'7d','all'=>$pia_lang['V4_All']) as $key => $label): ?><tr><th scope="row"><?= h($label); ?></th><td class="text-success"><?= h($statistic['online_percent_' . $key]); ?></td><td class="text-danger"><?= h($statistic['offline_percent_' . $key]); ?></td></tr><?php endforeach; ?></tbody></table></div></section></div></div>
         <section id="service-location" class="card mt-3"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['WEBS_Stats_Location']); ?></h3></div><div class="card-body">
         <?php if ($geoDatabaseInstalled): ?><dl class="row mb-3"><dt class="col-sm-3"><?= h($pia_lang['WEBS_Stats_IP']); ?></dt><dd class="col-sm-9"><?= h($servicedetails['mon_TargetIP'] ?? ''); ?></dd><dt class="col-sm-3"><?= h($pia_lang['WEBS_Stats_IPLocation']); ?></dt><dd class="col-sm-9"><?= h($locationLabel); ?></dd></dl><button class="btn btn-outline-danger" id="deleteDB-button" type="button"><?= h($pia_lang['GeoLiteDB_button_del']); ?></button>
         <?php else: ?><div class="d-flex align-items-center gap-3"><span class="spinner-border" id="downloader" hidden aria-hidden="true"></span><button class="btn btn-outline-primary" id="downloadDB-button" type="button"><?= h($pia_lang['GeoLiteDB_button_ins']); ?></button></div><?php endif; ?><p class="text-body-secondary mt-3 mb-0"><?= pialert_v4_geolite_credits_html((string) $pia_lang['GeoLiteDB_credits']); ?></p></div></section>
@@ -251,8 +251,8 @@ pialert_v4_shell_start($displayTitle, 'services', array(
   </div>
 </section>
 <?php pialert_v4_shell_end(array(
-    'lib/datatables/datatables.net-2.3.8/dataTables.min.js',
-    'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js',
+    'lib/datatables/datatables.net-3.1.2/dataTables.min.js',
+    'lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js',
     'lib/chart.js-4.5.1/chart.umd.js',
     'js/service-details.js',
 )); ?>

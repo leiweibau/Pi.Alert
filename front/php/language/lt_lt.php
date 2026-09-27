@@ -380,6 +380,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'Nepavyko atnaujinti ICMP pagrindo';
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Prisijungęs';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Atsijungęs/Neveikia';
 $pia_lang['ICMPMonitor_Availability'] = 'Prieinamumas';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Pastarųjų 7 dienų įvykiai';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Nėra';

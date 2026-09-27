@@ -25,7 +25,6 @@ $hostip = $requestHost;
 pialert_v4_load_language();
 require_once __DIR__ . '/php/shell.php';
 require_once __DIR__ . '/php/server/db.php';
-require_once __DIR__ . '/php/server/graph.php';
 require_once __DIR__ . '/php/entity-actions-editor.php';
 require_once __DIR__ . '/php/server/journal.php';
 
@@ -44,7 +43,10 @@ function get_icmphost_events_table($icmp_ip, $icmpfilter) {
     $icmp_hostname = '';
     $icmp_res = db_execute_prepared($db, 'SELECT rowid, * FROM ICMP_Mon WHERE icmp_ip = :ip', array(':ip' => (string) $icmp_ip));
     while ($rowa = $icmp_res->fetchArray(SQLITE3_ASSOC)) $icmp_hostname = $rowa['icmp_hostname'];
-    $icmpeve_res = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon_Connections WHERE icmpeve_ip = :ip ORDER BY rowid DESC LIMIT 2000', array(':ip' => (string) $icmp_ip));
+    $icmpeve_res = db_execute_prepared($db, 'SELECT * FROM ICMP_Mon_Connections
+        WHERE icmpeve_ip = :ip AND datetime(icmpeve_DateTime) >= :cutoff
+        ORDER BY datetime(icmpeve_DateTime) DESC, rowid DESC',
+        array(':ip' => (string) $icmp_ip, ':cutoff' => date('Y-m-d H:i:s', time() - 7 * 86400)));
     while ($row = $icmpeve_res->fetchArray()) {
         if ($icmp_hostname != '' && strlen($icmp_hostname) > 0) $icmpeve_ip = $icmp_hostname;
         else $icmpeve_ip = $row['icmpeve_ip'];
@@ -70,8 +72,8 @@ function get_host_statistic($hostip) {
     }
     $statistic = array();
     $statistic['avg_rtt_all'] = round($values['avg_rtt_all'], 3) . ' ms';
-    $statistic['rtt_max_all'] = '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($values['rtt_max_all'], 3) . ' ms';
-    $statistic['rtt_min_all'] = '<i class="bi bi-speedometer2 text-green"></i> ' . round($values['rtt_min_all'], 3) . ' ms';
+    $statistic['rtt_max_all'] = '<i class="bi bi-speedometer2 flip-horizontal text-danger" aria-hidden="true"></i> ' . round($values['rtt_max_all'], 3) . ' ms';
+    $statistic['rtt_min_all'] = '<i class="bi bi-speedometer2 text-success" aria-hidden="true"></i> ' . round($values['rtt_min_all'], 3) . ' ms';
     $statistic['offline_all'] = (int) $values['offline_all'];
     $statistic['online_all'] = (int) $values['online_all'];
     $total = $statistic['online_all'] + $statistic['offline_all'];
@@ -90,8 +92,8 @@ function get_host_statistic($hostip) {
                 $minimum = min($minimum, $row['icmpeve_avgrtt']); $average += $row['icmpeve_avgrtt'];
             } else $offline++;
         }
-        $statistic['rtt_min_' . $label] = $minimum == 99999 ? 'n.a.' : '<i class="bi bi-speedometer2 text-green"></i> ' . round($minimum, 3) . ' ms';
-        $statistic['rtt_max_' . $label] = $maximum == 0 ? 'n.a.' : '<i class="bi bi-speedometer2 flip-horizontal text-red"></i> ' . round($maximum, 3) . ' ms';
+        $statistic['rtt_min_' . $label] = $minimum == 99999 ? 'n.a.' : '<i class="bi bi-speedometer2 text-success" aria-hidden="true"></i> ' . round($minimum, 3) . ' ms';
+        $statistic['rtt_max_' . $label] = $maximum == 0 ? 'n.a.' : '<i class="bi bi-speedometer2 flip-horizontal text-danger" aria-hidden="true"></i> ' . round($maximum, 3) . ' ms';
         $statistic['rtt_avg_' . $label] = $average > 0 ? round(($average / $online), 3) . ' ms' : 'n.a.';
         $statistic['online_' . $label] = $online; $statistic['offline_' . $label] = $offline;
         $total = $online + $offline;
@@ -113,7 +115,6 @@ while ($hostNavigationResult && ($hostNavigationRow = $hostNavigationResult->fet
     $navigationIp = (string) ($hostNavigationRow['icmp_ip'] ?? '');
     if ($navigationIp !== '') $hostNavigation[] = $navigationIp;
 }
-$graph = prepare_graph_arrays_ICMPHost($hostip);
 $statistic = get_host_statistic($hostip);
 $L = static fn(string $key, string $fallback): string => (string) ($pia_lang[$key] ?? $fallback);
 $title = ($details['icmp_hostname'] ?: $hostip) . ' (' . $hostip . ')';
@@ -144,10 +145,16 @@ $checkboxes = array(
     array('chkAlertEvents','WEBS_label_AlertEvents','Alert events','icmp_AlertEvents'),
     array('chkAlertDown','WEBS_label_AlertDown','Alert down','icmp_AlertDown'),
 );
-pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css','lib/coloris-0.25.0/coloris.min.css','css/icmp-details.css','css/nmap-results.css','css/entity-actions.css'));
+pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css','lib/coloris-0.25.0/coloris.min.css','css/icmp-details.css','css/presence-calendar.css','css/nmap-results.css','css/entity-actions.css'));
 ?>
 <section id="icmp-details-page" data-host-ip="<?= h($hostip); ?>" data-endpoint="php/server/icmpmonitor.php" data-back-url="<?= h(pialert_v4_route('icmp')); ?>" data-filter-events="<?= $icmpfilter !== '' ? '1' : '0'; ?>" data-delete-title="<?= h($L('WEBS_button_Delete_label','Delete host')); ?>" data-delete-message="<?= h($L('WEBS_button_Delete_Warning','Delete this host?')); ?>" data-cancel="<?= h($L('Gen_Cancel','Cancel')); ?>" data-delete="<?= h($L('Gen_Delete','Delete')); ?>" data-close="<?= h($L('Gen_Close','Close')); ?>" data-reset="<?= h($L('DevDetail_button_Reset','Reset')); ?>" data-fast="<?= h($L('DevDetail_Tools_nmap_buttonFast','Fast scan')); ?>" data-normal="<?= h($L('DevDetail_Tools_nmap_buttonDefault','Normal scan')); ?>" data-nmap-loading="<?= h($L('nmap_results_loading','Loading scan results…')); ?>" data-nmap-error="<?= h($L('nmap_results_request_error','The scan request failed.')); ?>" data-length-menu="<?= h($L('EVE_Tablelenght','Show _MENU_ entries')); ?>" data-search="<?= h($L('EVE_Searchbox','Search')); ?>" data-next="<?= h($L('EVE_Table_nav_next','Next')); ?>" data-previous="<?= h($L('EVE_Table_nav_prev','Previous')); ?>" data-info="<?= h($L('EVE_Table_info','Showing _START_ to _END_ of _TOTAL_ entries')); ?>">
   <script id="icmp-host-navigation-data" type="application/json"><?= json_encode($hostNavigation, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
+  <script id="icmp-calendar-config" type="application/json"><?= json_encode(array(
+      'locale'=>$L('PRE_CalHead_lang','en'),
+      'month'=>$L('PRE_CalHead_month','Month'),
+      'week'=>$L('PRE_CalHead_week','Week'),
+      'day'=>$L('PRE_CalHead_day','Day'),
+  ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
   <div class="d-flex justify-content-start mb-3"><a class="btn btn-outline-secondary pialert-back-link" href="<?= h(pialert_v4_route('icmp')); ?>"><i class="fa-solid fa-arrow-left me-1" aria-hidden="true"></i><?= h($L('Device_Table_nav_prev','Back')); ?></a></div>
   <div class="row g-3 mb-4">
     <?php foreach (array(
@@ -159,7 +166,7 @@ pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-
     <?php endforeach; ?>
   </div>
   <section class="card"><div class="card-header p-0"><div class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 pt-3"><ul class="nav nav-tabs card-header-tabs" id="icmpDetailsTabs" role="tablist">
-    <?php foreach (array(array('Details','panDetails','DevDetail_Tab_Details','Details'),array('Actions','panActions','EntityActions_Tab','Actions'),array('Nmap','panNmap','DevDetail_Tab_Nmap','Nmap'),array('Events','panEvents','DevDetail_Tab_Events','Events'),array('Graph','panGraph','WEBS_Tab_Graph','Graph')) as [$tab,$panel,$key,$fallback]): ?><li class="nav-item" role="presentation"><button class="nav-link<?= $tab === 'Details' ? ' active' : ''; ?>" id="tab<?= h($tab); ?>" data-bs-toggle="tab" data-bs-target="#<?= h($panel); ?>" type="button" role="tab" aria-controls="<?= h($panel); ?>" aria-selected="<?= $tab === 'Details' ? 'true' : 'false'; ?>"><?= h($L($key,$fallback)); ?></button></li><?php endforeach; ?>
+    <?php foreach (array(array('Details','panDetails','DevDetail_Tab_Details','Details'),array('Actions','panActions','EntityActions_Tab','Actions'),array('Nmap','panNmap','DevDetail_Tab_Nmap','Nmap'),array('Events','panEvents','DevDetail_Tab_Events','Events'),array('Presence','panPresence','DevDetail_Tab_Presence','Presence'),array('Graph','panGraph','WEBS_Tab_Graph','Graph')) as [$tab,$panel,$key,$fallback]): ?><li class="nav-item" role="presentation"><button class="nav-link<?= $tab === 'Details' ? ' active' : ''; ?>" id="tab<?= h($tab); ?>" data-bs-toggle="tab" data-bs-target="#<?= h($panel); ?>" type="button" role="tab" aria-controls="<?= h($panel); ?>" aria-selected="<?= $tab === 'Details' ? 'true' : 'false'; ?>"><?= h($L($key,$fallback)); ?></button></li><?php endforeach; ?>
   </ul><div class="btn-group mb-2" aria-label="<?= h($L('ICMPMonitor_Title','ICMP host')); ?>"><button type="button" class="btn btn-outline-secondary" id="btnPrevious" aria-label="<?= h($L('EVE_Table_nav_prev','Previous')); ?>" title="<?= h($L('EVE_Table_nav_prev','Previous')); ?>"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button><span class="btn btn-outline-secondary disabled" id="txtRecord" aria-live="polite">0 / 0</span><button type="button" class="btn btn-outline-secondary" id="btnNext" aria-label="<?= h($L('EVE_Table_nav_next','Next')); ?>" title="<?= h($L('EVE_Table_nav_next','Next')); ?>"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div></div></div><div class="card-body"><div class="tab-content">
     <div class="tab-pane fade show active" id="panDetails" role="tabpanel" aria-labelledby="tabDetails"><div class="row g-4">
       <div class="col-12 col-lg-6"><h2 class="h5 border-bottom pb-2"><?= h($L('DevDetail_MainInfo_Title','Main information')); ?></h2>
@@ -170,14 +177,17 @@ pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-
       </div>
     </div><div class="d-flex flex-wrap justify-content-end gap-2 mt-4"><button class="btn btn-danger" id="btnDelete" type="button"><?= h($L('Gen_Delete','Delete')); ?></button><button class="btn btn-secondary" id="btnRestore" type="button"><?= h($L('Gen_Close','Close')); ?></button><button class="btn btn-primary" id="btnSave" type="button" disabled><?= h($L('Gen_Save','Save')); ?></button></div></div>
     <div class="tab-pane fade" id="panActions" role="tabpanel" aria-labelledby="tabActions"><?php pialert_entity_actions_editor($L); ?></div>
-    <div class="tab-pane fade" id="panNmap" role="tabpanel" aria-labelledby="tabNmap"><h2 class="h5"><?= h($pia_lang['V4_Nmap_Scans']); ?></h2><div class="pialert-tool-button-row"><button class="btn btn-outline-primary" id="manualnmap_fast" type="button"></button><button class="btn btn-outline-primary" id="manualnmap_normal" type="button"></button></div><div id="nmapstatus" class="pialert-nmap-state" role="status" aria-live="polite"></div><div id="scanoutput"></div></div>
-    <div class="tab-pane fade" id="panEvents" role="tabpanel" aria-labelledby="tabEvents"><h2 class="h5 mb-3"><?= h($L('WEBS_EVE_Shortcut_All','All events')); ?></h2><div class="table-responsive"><table id="tableEvents" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr><th><?= h($L('WEBS_tablehead_TargetIP','Host')); ?></th><th><?= h($L('WEBS_tablehead_ScanTime','Time')); ?></th><th><?= h($pia_lang['EVE_TableHead_EventType']); ?></th></tr></thead><tbody><?php get_icmphost_events_table($hostip,$icmpfilter); ?></tbody></table></div></div>
-    <div class="tab-pane fade" id="panGraph" role="tabpanel" aria-labelledby="tabGraph"><h2 class="h5 mb-3"><?= h($L('WEBS_Chart_a','History')); ?> <span class="maxlogage-interval">24</span> <?= h($L('WEBS_Chart_b','hours')); ?></h2><div class="icmp-detail-chart"><canvas id="ServiceChart"></canvas></div><script id="icmp-detail-chart-data" type="application/json"><?= json_encode(array('time'=>array_reverse($graph[0]),'online'=>array_reverse($graph[1]),'down'=>array_reverse($graph[2])), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
-      <h3 class="h5 mt-4"><?= h($L('WEBS_Stats_Time','Response times')); ?></h3><div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th scope="col"><?= h($pia_lang['V4_Period']); ?></th><th scope="col"><?= h($pia_lang['V4_Average_RTT']); ?></th><th scope="col"><?= h($pia_lang['V4_Min_RTT']); ?></th><th scope="col"><?= h($pia_lang['V4_Max_RTT']); ?></th></tr></thead><tbody>
-      <?php foreach (array(array('24h','24h'),array('7d','1w'),array($pia_lang['V4_All'],'all')) as [$period,$suffix]): ?><tr><th scope="row"><?= h($period); ?></th><td><?= h($statistic[$suffix === 'all' ? 'avg_rtt_all' : 'rtt_avg_'.$suffix]); ?></td><td><?= h(strip_tags($statistic[$suffix === 'all' ? 'rtt_min_all' : 'rtt_min_'.$suffix])); ?></td><td><?= h(strip_tags($statistic[$suffix === 'all' ? 'rtt_max_all' : 'rtt_max_'.$suffix])); ?></td></tr><?php endforeach; ?></tbody></table></div>
-      <h3 class="h5 mt-4"><?= h($L('ICMPMonitor_Availability','Availability')); ?></h3><div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th scope="col"><?= h($pia_lang['V4_Period']); ?></th><th scope="col"><?= h($L('ICMPMonitor_Shortcut_Online','Online')); ?></th><th scope="col"><?= h($L('ICMPMonitor_Shortcut_Offline','Offline')); ?></th></tr></thead><tbody>
-      <?php foreach (array(array('24h','24h'),array('7d','1w'),array($pia_lang['V4_All'],'all')) as [$period,$suffix]): ?><tr><th scope="row"><?= h($period); ?></th><td><?= h($statistic['online_percent_'.$suffix]); ?></td><td><?= h($statistic['offline_percent_'.$suffix]); ?></td></tr><?php endforeach; ?></tbody></table></div>
+    <div class="tab-pane fade" id="panNmap" role="tabpanel" aria-labelledby="tabNmap"><div class="row g-3"><div class="col-12 col-lg-6"><section class="card h-100 pialert-tool-card"><div class="card-header"><h2 class="card-title"><?= h($pia_lang['V4_Nmap_Scans']); ?></h2></div><div class="card-body"><div class="pialert-tool-button-row"><button class="btn btn-outline-primary" id="manualnmap_fast" type="button"></button><button class="btn btn-outline-primary" id="manualnmap_normal" type="button"></button></div><div id="nmapstatus" class="pialert-nmap-state" role="status" aria-live="polite"></div></div></section></div></div><div id="scanoutput" class="mt-3"></div></div>
+    <div class="tab-pane fade" id="panEvents" role="tabpanel" aria-labelledby="tabEvents"><h2 class="h5 mb-3"><?= h($L('ICMPMonitor_Events_Last7Days','Events from the last 7 days')); ?></h2><div class="table-responsive"><table id="tableEvents" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr><th><?= h($L('WEBS_tablehead_TargetIP','Host')); ?></th><th><?= h($L('WEBS_tablehead_ScanTime','Time')); ?></th><th><?= h($pia_lang['EVE_TableHead_EventType']); ?></th></tr></thead><tbody><?php get_icmphost_events_table($hostip,$icmpfilter); ?></tbody></table></div></div>
+    <div class="tab-pane fade" id="panPresence" role="tabpanel" aria-labelledby="tabPresence"><div id="icmp-calendar" class="presence-calendar" aria-label="<?= h($L('DevDetail_Tab_Presence','Presence')); ?>"></div></div>
+    <div class="tab-pane fade" id="panGraph" role="tabpanel" aria-labelledby="tabGraph"><h2 class="h5 mb-3"><?= h($L('ICMPMonitor_Availability','Availability')); ?> · 24 <?= h($L('WEBS_Chart_b','hours')); ?></h2><div id="icmp-timeline" class="presence-calendar icmp-detail-timeline" aria-label="<?= h($L('ICMPMonitor_Availability','Availability')); ?>"></div><div class="icmp-timeline-legend small mt-2 mb-4" aria-label="<?= h($L('V4_Status','Status')); ?>"><span><i class="icmp-timeline-swatch icmp-timeline-online" aria-hidden="true"></i><?= h($L('ICMPMonitor_Shortcut_Online','Online')); ?></span><span><i class="icmp-timeline-swatch icmp-timeline-offline" aria-hidden="true"></i><?= h($L('ICMPMonitor_Shortcut_Offline','Offline')); ?></span></div>
+      <div class="row g-3 mt-2">
+        <div class="col-12 col-lg-6"><section class="card h-100 icmp-statistics-card"><div class="card-header"><h3 class="card-title"><?= h($L('WEBS_Stats_Time','Response times')); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0"><thead><tr><th scope="col"></th><th scope="col">&Oslash;</th><th scope="col"><?= h($L('V4_Min','Min')); ?></th><th scope="col"><?= h($L('V4_Max','Max')); ?></th></tr></thead><tbody>
+          <?php foreach (array('24h'=>'24h','1w'=>'7d','all'=>$L('V4_All','All')) as $suffix=>$period): ?><tr><th scope="row"><?= h($period); ?></th><td><?= h($statistic[$suffix === 'all' ? 'avg_rtt_all' : 'rtt_avg_'.$suffix]); ?></td><td><?= $statistic[$suffix === 'all' ? 'rtt_min_all' : 'rtt_min_'.$suffix]; ?></td><td><?= $statistic[$suffix === 'all' ? 'rtt_max_all' : 'rtt_max_'.$suffix]; ?></td></tr><?php endforeach; ?></tbody></table></div></section></div>
+        <div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($L('ICMPMonitor_Availability','Availability')); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0 pialert-availability-table"><thead><tr><th scope="col"></th><th scope="col"><?= h($L('ICMPMonitor_Shortcut_Online','Online')); ?></th><th scope="col"><?= h($L('ICMPMonitor_Shortcut_Offline','Offline')); ?></th></tr></thead><tbody>
+          <?php foreach (array('24h'=>'24h','1w'=>'7d','all'=>$L('V4_All','All')) as $suffix=>$period): ?><tr><th scope="row"><?= h($period); ?></th><td class="text-success"><?= h($statistic['online_percent_'.$suffix]); ?></td><td class="text-danger"><?= h($statistic['offline_percent_'.$suffix]); ?></td></tr><?php endforeach; ?></tbody></table></div></section></div>
+      </div>
     </div>
   </div></div></section>
 </section>
-<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-2.3.8/dataTables.min.js','lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js','lib/chart.js-4.5.1/chart.umd.js','lib/coloris-0.25.0/coloris.min.js','js/nmap-results.js','js/entity-actions-renderer.js','js/entity-actions-editor.js','js/icmp-details.js')); ?>
+<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-3.1.2/dataTables.min.js','lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js','lib/fullcalendar-scheduler-6.1.21/index.global.min.js','lib/fullcalendar-6.1.21/locales-all.global.min.js','lib/coloris-0.25.0/coloris.min.js','js/nmap-results.js','js/entity-actions-renderer.js','js/entity-actions-editor.js','js/icmp-details.js')); ?>

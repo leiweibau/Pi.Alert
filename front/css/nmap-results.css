@@ -1,5 +1,8 @@
 #panNmap .pialert-tool-button-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.65rem;margin-bottom:1.4rem}
 #panNmap .pialert-tool-button-row .btn{min-width:10rem;min-height:2.4rem;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+#panNmap .pialert-tool-card .pialert-tool-button-row{margin-bottom:0}
+#panNmap .pialert-tool-card .pialert-nmap-state{margin:.75rem 0 0}
+#panNmap .pialert-tool-card .pialert-nmap-state:empty{display:none}
 #panNmap .pialert-nmap-state{min-height:0;margin-bottom:.75rem}
 #panNmap .pialert-nmap-state:not(:empty){padding:.65rem .85rem;border:1px solid var(--bs-border-color);border-radius:.5rem;background:var(--bs-tertiary-bg);color:var(--bs-body-color)}
 #panNmap .pialert-nmap-state[data-tone="error"]{border-color:var(--bs-danger-border-subtle);color:var(--bs-danger-text-emphasis)}

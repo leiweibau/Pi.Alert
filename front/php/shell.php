@@ -286,7 +286,7 @@ function pialert_v4_shell_end(array $pageScripts = array()): void {
 <script src="<?= h(pialert_v4_asset('js/pialert-shell-runtime.js')); ?>?v=<?= $assetVersion; ?>"></script>
 <?php foreach (($pialertV4PageScripts ?? array()) as $pageScript): ?>
 <script src="<?= h(pialert_v4_asset($pageScript)); ?>?v=<?= $assetVersion; ?>"></script>
-<?php if ($pageScript === 'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js'): ?><script src="<?= h(pialert_v4_asset('js/pialert-datatables.js')); ?>?v=<?= $assetVersion; ?>"></script><?php endif; ?>
+<?php if ($pageScript === 'lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js'): ?><script src="<?= h(pialert_v4_asset('js/pialert-datatables.js')); ?>?v=<?= $assetVersion; ?>"></script><?php endif; ?>
 <?php if ($pageScript === 'lib/chart.js-4.5.1/chart.umd.js'): ?><script src="<?= h(pialert_v4_asset('js/pialert-theme-chart.js')); ?>?v=<?= $assetVersion; ?>"></script><?php endif; ?>
 <?php endforeach; ?>
 <script src="<?= h(pialert_v4_asset('js/pialert-v4.js')); ?>?v=<?= $assetVersion; ?>"></script>

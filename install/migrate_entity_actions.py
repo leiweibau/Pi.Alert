@@ -43,6 +43,11 @@ COLOR_TABLE_SQL = """CREATE TABLE Entity_Actions (
         FOREIGN KEY (icmp_ip) REFERENCES ICMP_Mon(icmp_ip)
     )"""
 
+ICMP_UNIQUE_INDEX = "idx_icmp_mon_ip_unique"
+ICMP_UNIQUE_INDEX_SQL = (
+    "CREATE UNIQUE INDEX idx_icmp_mon_ip_unique ON ICMP_Mon(icmp_ip)"
+)
+
 
 OBJECTS = {
     "Entity_Actions": ("table", """CREATE TABLE Entity_Actions (
@@ -103,10 +108,31 @@ def migrate(path):
     uri = db_path.as_uri() + "?mode=rw"
     connection = sqlite3.connect(uri, uri=True, timeout=10)
     try:
-        for table, key in (("Devices", "dev_MAC"), ("ICMP_Mon", "icmp_ip")):
-            fields = {row[1]: row for row in connection.execute(f'PRAGMA table_info("{table}")')}
-            if key not in fields or fields[key][5] != 1:
-                raise RuntimeError(f"expected primary key {table}.{key} is missing")
+        device_fields = {row[1]: row for row in connection.execute('PRAGMA table_info("Devices")')}
+        if "dev_MAC" not in device_fields or device_fields["dev_MAC"][5] != 1:
+            raise RuntimeError("expected primary key Devices.dev_MAC is missing")
+
+        icmp_fields = {row[1]: row for row in connection.execute('PRAGMA table_info("ICMP_Mon")')}
+        if "icmp_ip" not in icmp_fields:
+            raise RuntimeError("expected key ICMP_Mon.icmp_ip is missing")
+        # Older backups can have a NOT NULL IP column without a primary key.
+        # SQLite accepts a unique index as a foreign-key parent, so repair the
+        # key in place without rebuilding ICMP_Mon or changing its rows.
+        needs_icmp_index = icmp_fields["icmp_ip"][5] != 1
+        if needs_icmp_index:
+            if not icmp_fields["icmp_ip"][3]:
+                raise RuntimeError("ICMP_Mon.icmp_ip must be NOT NULL")
+            index = connection.execute(
+                "SELECT type, sql FROM sqlite_master WHERE name = ?", (ICMP_UNIQUE_INDEX,)
+            ).fetchone()
+            if index and (index[0] != "index" or
+                          canonical(index[1] or "") != canonical(ICMP_UNIQUE_INDEX_SQL)):
+                raise RuntimeError(f"conflicting schema object: {ICMP_UNIQUE_INDEX}")
+            duplicate = connection.execute("""SELECT 1 FROM ICMP_Mon
+                GROUP BY icmp_ip HAVING COUNT(*) > 1 LIMIT 1""").fetchone()
+            if duplicate:
+                raise RuntimeError("duplicate ICMP_Mon.icmp_ip values prevent unique index")
+            needs_icmp_index = index is None
         existing = {row[0]: (row[1], row[2]) for row in connection.execute(
             "SELECT name, type, sql FROM sqlite_master WHERE name IN (%s)" %
             ",".join("?" for _ in OBJECTS), tuple(OBJECTS))}
@@ -122,7 +148,7 @@ def migrate(path):
                      canonical(existing[name][1] or "") != canonical(sql)) or
                     (name != "Entity_Actions" and canonical(existing[name][1] or "") != canonical(sql))):
                 raise RuntimeError(f"conflicting schema object: {name}")
-        if len(existing) == len(OBJECTS) and not legacy_table and not color_table:
+        if len(existing) == len(OBJECTS) and not legacy_table and not color_table and not needs_icmp_index:
             print("Entity_Actions schema already current")
             return
 
@@ -130,9 +156,13 @@ def migrate(path):
         backup_path = db_path.with_name(db_path.name + f".entity-actions-{stamp}.bak")
         with sqlite3.connect(backup_path) as backup:
             connection.backup(backup)
-        os.chmod(backup_path, db_path.stat().st_mode & 0o777)
+        # This internal rollback copy contains the full database and does not
+        # need the live database's group or world access rights.
+        os.chmod(backup_path, 0o600)
         connection.execute("BEGIN IMMEDIATE")
         try:
+            if needs_icmp_index:
+                connection.execute(ICMP_UNIQUE_INDEX_SQL)
             if legacy_table:
                 connection.execute("""ALTER TABLE Entity_Actions ADD COLUMN color TEXT NOT NULL
                     DEFAULT '#6c757d' CHECK(length(color) = 7 AND

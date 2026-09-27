@@ -380,6 +380,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'Nie udało się zaktualizować hosta I
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Online';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Nieaktywny';
 $pia_lang['ICMPMonitor_Availability'] = 'Dostępność';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Zdarzenia z ostatnich 7 dni';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Brak';

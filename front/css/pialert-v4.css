@@ -53,6 +53,10 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 .app-content table a.badge,
 .app-content table a.badge:hover,
 .app-content table a.badge:focus-visible { text-decoration: none; }
+.pialert-availability-table { table-layout: fixed; width: 100%; }
+.pialert-availability-table th, .pialert-availability-table td { overflow-wrap: break-word; }
+.pialert-availability-table th:first-child, .pialert-availability-table td:first-child { width: 20%; }
+.pialert-availability-table th:not(:first-child), .pialert-availability-table td:not(:first-child) { width: 40%; text-align: center; }
 .small-box { overflow: hidden; }
 .small-box > .inner { position: relative; z-index: 1; }
 .small-box .small-box-icon { top: 50%; right: 1rem; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; font-size: 60px; line-height: 1; transform: translateY(-50%); transform-origin: center; }
@@ -73,5 +77,5 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 .pialert-bulk-mqtt-icon { display: block; width: .75rem; height: .75rem; background-color: currentColor; -webkit-mask: url("../img/mqtt.svg") no-repeat center / contain; mask: url("../img/mqtt.svg") no-repeat center / contain; }
 .pialert-ui-color-swatch { display: inline-flex; min-width: 3.25rem; min-height: 2.4rem; align-items: center; justify-content: center; color: var(--bs-body-color); font-weight: 600; }
 @media (max-width: 767.98px) { .app-content-header { padding-block: .75rem; } .pialert-user-menu { max-height: calc(100vh - 4rem); overflow-y: auto; } }
-@media (max-width: 575.98px) { .pialert-page-action .btn { font-size: .875rem; padding: .375rem .5rem; } }
+@media (max-width: 575.98px) { .pialert-page-action .btn { font-size: .875rem; padding: .375rem .5rem; } .pialert-availability-table thead th:not(:first-child) { font-size: .8rem; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }

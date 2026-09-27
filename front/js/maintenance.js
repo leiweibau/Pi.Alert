@@ -33,10 +33,15 @@
   root.addEventListener('click', function (event) {
     var action = event.target.closest('[data-mt-action]');
     if (action && root.contains(action)) {
-      confirmAction(action.dataset.mtTitle || action.textContent.trim(), action.dataset.mtConfirm || '', function () {
+      var archive = action.dataset.mtAction === 'restore-db' ? element('mt-restore-archive') : null;
+      var selectedArchive = archive ? archive.value : '';
+      if (archive && !/^pialertdb_[0-9]{8}_[0-9]{6}\.zip$/.test(selectedArchive)) return;
+      var confirmation = action.dataset.mtConfirm || '';
+      if (selectedArchive) confirmation += '<br><strong>' + selectedArchive + '</strong>';
+      confirmAction(action.dataset.mtTitle || action.textContent.trim(), confirmation, function () {
         var url = action.dataset.mtUrl;
         if (action.hasAttribute('data-toggle-state')) url = toUrl(url, { toggleState: action.dataset.toggleState });
-        post(url);
+        post(url, selectedArchive ? { archive: selectedArchive } : {});
       });
       return;
     }

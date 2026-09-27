@@ -380,6 +380,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'ICMP-vert kunne ikke oppdateres';
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Online';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Ned';
 $pia_lang['ICMPMonitor_Availability'] = 'Tilgjengelighet';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Hendelser de siste 7 dagene';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Ingen';

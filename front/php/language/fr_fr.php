@@ -380,6 +380,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'L&apos;hôte ICMP n&apos;a pas pu êtr
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'En ligne';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Hors ligne/Indisponible';
 $pia_lang['ICMPMonitor_Availability'] = 'Availability';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Événements des 7 derniers jours';
 // Maintenance Page
 /////////////////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'No';

@@ -1,4 +1,10 @@
-.icmp-detail-chart { height: 16rem; }
+.icmp-detail-timeline .fc-timeline-event { min-height: 1.75rem; }
+.icmp-timeline-legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+.icmp-timeline-legend > span { display: inline-flex; align-items: center; gap: .35rem; }
+.icmp-timeline-swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: .2rem; }
+.icmp-timeline-online { background: #00a659; }
+.icmp-timeline-offline { background: #dc3545; }
+.icmp-statistics-card .flip-horizontal { display: inline-block; transform: scaleX(-1); }
 #icmp-details-page .small-box { padding-block: 1px; }
 #icmpDetailsTabs { margin-bottom: 0; border-bottom: 0; }
 #icmpDetailsTabs .nav-link { white-space: nowrap; }

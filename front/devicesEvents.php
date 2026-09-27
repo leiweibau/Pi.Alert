@@ -31,7 +31,7 @@ $eventCards = array(
 );
 
 pialert_v4_shell_start($title, 'events', array(
-    'lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css',
+    'lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css',
     'css/devices-events.css',
 ));
 ?>
@@ -95,7 +95,7 @@ pialert_v4_shell_start($title, 'events', array(
   </section>
 </section>
 <?php pialert_v4_shell_end(array(
-    'lib/datatables/datatables.net-2.3.8/dataTables.min.js',
-    'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js',
+    'lib/datatables/datatables.net-3.1.2/dataTables.min.js',
+    'lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js',
     'js/devices-events.js',
 )); ?>

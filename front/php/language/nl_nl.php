@@ -379,6 +379,7 @@ $pia_lang['BackICMP_mon_UpdICMPError'] = 'De ICMP-host kon niet worden bijgewerk
 $pia_lang['ICMPMonitor_Shortcut_Online'] = 'Online';
 $pia_lang['ICMPMonitor_Shortcut_Offline'] = 'Offline/Down';
 $pia_lang['ICMPMonitor_Availability'] = 'Beschikbaarheid';
+$pia_lang['ICMPMonitor_Events_Last7Days'] = 'Gebeurtenissen van de afgelopen 7 dagen';
 // Maintenance Page
 //////////////////////////////////////////////////////////////////
 $pia_lang['MT_arpscancout_norun'] = 'Geen';

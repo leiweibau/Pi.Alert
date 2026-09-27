@@ -3,7 +3,16 @@
   var root = document.getElementById('icmp-details-page');
   if (!root || !$) return;
   var table = null;
-  var chart = null;
+  var timeline = null;
+  var timelineRequest = null;
+  var timelineGeneration = 0;
+  var timelineLayoutTimer = null;
+  var timelineTimer = null;
+  var timelineDurationMinutes = null;
+  var calendar = null;
+  var calendarRequest = null;
+  var calendarGeneration = 0;
+  var calendarLayoutTimer = null;
   var fields = ['txtHostname', 'txtOwner', 'txtDeviceType', 'txtVendor', 'txtModel', 'txtSerialnumber', 'txtGroup', 'txtLocation', 'txtNotes', 'txtScanValidation'];
   var checks = ['chkFavorit', 'chkMQTTDevice', 'chkArchived', 'chkAlertEvents', 'chkAlertDown'];
   var initialState = '';
@@ -48,8 +57,9 @@
     document.querySelectorAll('#icmpDetailsTabs [data-bs-toggle="tab"]').forEach(function (button) {
       button.addEventListener('shown.bs.tab', function () {
         document.cookie = 'icmpTab=' + encodeURIComponent(button.dataset.bsTarget) + ';max-age=2592000;path=/;SameSite=Strict';
-        if (button.id === 'tabGraph' && chart) chart.resize();
+        if (button.id === 'tabGraph') { updateTimelineRange(); refreshTimelineLayout(); }
         if (button.id === 'tabEvents' && table) table.columns.adjust();
+        if (button.id === 'tabPresence') refreshCalendarLayout();
       });
     });
   }
@@ -63,20 +73,148 @@
       language: window.pialertV4DataTableLanguage({ emptyTable: window.pialertV4Text('V4_No_Data'), lengthMenu: root.dataset.lengthMenu, search: root.dataset.search + ': ', paginate: { next: root.dataset.next, previous: root.dataset.previous }, info: root.dataset.info })
     });
   }
-  function initializeChart () {
-    if (!window.Chart) return;
-    var data = JSON.parse(byId('icmp-detail-chart-data').textContent);
-    if (!data.time.length) {
-      byId('ServiceChart').hidden = true;
-      return;
+  function timelineWindow () {
+    var end = new Date();
+    end.setSeconds(0, 0);
+    var start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+    // FullCalendar advances in local wall time, so account for daylight saving changes.
+    return {start: start, durationMinutes: 1440 - (end.getTimezoneOffset() - start.getTimezoneOffset())};
+  }
+  function updateTimelineRange () {
+    if (timeline && byId('panGraph').classList.contains('active') && !document.hidden) {
+      var range = timelineWindow();
+      if (range.durationMinutes !== timelineDurationMinutes) {
+        timelineDurationMinutes = range.durationMinutes;
+        timeline.setOption('duration', {minutes: timelineDurationMinutes});
+      }
+      timeline.gotoDate(range.start);
     }
-    chart = new window.Chart(byId('ServiceChart').getContext('2d'), {
-      type: 'bar', data: { labels: data.time, datasets: [
-        { label: window.pialertV4Text('V4_Online'), data: data.online, backgroundColor: 'rgba(25,135,84,.7)' },
-        { label: window.pialertV4Text('V4_Offline_Down'), data: data.down, backgroundColor: 'rgba(220,53,69,.7)' }
-      ] },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { mode: 'index' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } } }
+  }
+  function refreshTimelineLayout () {
+    if (!timeline || !byId('panGraph').classList.contains('active')) return;
+    var render = function () {
+      if (!unloading && byId('panGraph').classList.contains('active')) timeline.updateSize();
+    };
+    window.requestAnimationFrame(function () { window.requestAnimationFrame(render); });
+    window.clearTimeout(timelineLayoutTimer);
+    timelineLayoutTimer = window.setTimeout(render, 250);
+  }
+  function initializeTimeline () {
+    if (!window.FullCalendar) return;
+    var config = JSON.parse(byId('icmp-calendar-config').textContent);
+    var range = timelineWindow();
+    timelineDurationMinutes = range.durationMinutes;
+    timeline = new window.FullCalendar.Calendar(byId('icmp-timeline'), {
+      initialView: 'timeline', duration: {minutes: timelineDurationMinutes}, dateAlignment: 'minute', initialDate: range.start, height: 'auto', timeZone: 'local',
+      locale: config.locale, schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+      headerToolbar: false, slotDuration: '01:00:00', slotLabelInterval: '02:00:00', scrollTime: '24:00:00',
+      slotLabelFormat: {hour: '2-digit', minute: '2-digit', hour12: false}, slotMinWidth: 42, eventMinWidth: 1,
+      editable: false, selectable: false, eventStartEditable: false, eventDurationEditable: false,
+      events: function (fetchInfo, success, failure) {
+        var generation = ++timelineGeneration;
+        if (timelineRequest && timelineRequest.readyState !== 4) timelineRequest.abort();
+        var settled = false;
+        function finish (callback, value) { if (!settled) { settled = true; callback(value); } }
+        timelineRequest = $.ajax({
+          url: root.dataset.endpoint, dataType: 'json', cache: false,
+          data: {action: 'getICMPTimeline', hostip: root.dataset.hostIp, start: fetchInfo.startStr, end: fetchInfo.endStr}
+        }).done(function (response) {
+          if (generation !== timelineGeneration) { finish(success, []); return; }
+          if (!Array.isArray(response)) {
+            var error = new Error('Unexpected timeline response');
+            if (window.console) window.console.error(error.message);
+            notify(window.pialertV4Text('V4_Request_Failed'));
+            finish(failure, error);
+            return;
+          }
+          finish(success, response);
+        }).fail(function (xhr, requestStatus) {
+          if (requestStatus === 'abort' || generation !== timelineGeneration) { finish(success, []); return; }
+          var error = new Error(xhr.status ? 'HTTP ' + xhr.status + ' ' + xhr.statusText : window.pialertV4Text('V4_Request_Failed'));
+          if (window.console) window.console.error('ICMP timeline request:', error.message);
+          notify(window.pialertV4Text('V4_Request_Failed'));
+          finish(failure, error);
+        });
+      },
+      eventDidMount: function (argument) {
+        var tooltip = argument.event.extendedProps.tooltip;
+        if (!tooltip) return;
+        argument.el.setAttribute('aria-label', String(tooltip).replace(/\s*\n\s*/g, ', '));
+        argument.el.setAttribute('title', String(tooltip).replace(/\r\n?/g, '\n'));
+        if (window.bootstrap && window.bootstrap.Tooltip) {
+          window.bootstrap.Tooltip.getOrCreateInstance(argument.el, {container: 'body', placement: 'bottom', customClass: 'pialert-calendar-tooltip'});
+        }
+      },
+      eventWillUnmount: function (argument) {
+        if (window.bootstrap && window.bootstrap.Tooltip) {
+          var tooltip = window.bootstrap.Tooltip.getInstance(argument.el);
+          if (tooltip) tooltip.dispose();
+        }
+      }
     });
+    timeline.render();
+    refreshTimelineLayout();
+    timelineTimer = window.setInterval(updateTimelineRange, 60000);
+  }
+  function initializeCalendar () {
+    if (!window.FullCalendar) return;
+    var config = JSON.parse(byId('icmp-calendar-config').textContent);
+    var narrow = window.matchMedia('(max-width: 767px)').matches;
+    calendar = new window.FullCalendar.Calendar(byId('icmp-calendar'), {
+      editable: false, selectable: false, eventStartEditable: false, eventDurationEditable: false,
+      initialView: narrow ? 'timeGridDay' : 'timeGridMonth', height: 'auto', firstDay: 1,
+      allDaySlot: false, timeZone: 'local', slotDuration: '02:00:00', slotLabelInterval: '04:00:00',
+      slotLabelFormat: {hour: '2-digit', minute: '2-digit', hour12: false},
+      eventTimeFormat: {hour: '2-digit', minute: '2-digit', hour12: false}, locale: config.locale,
+      schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+      headerToolbar: {left: 'prev,next today', center: 'title', right: narrow ? 'timeGridDay' : 'timeGridMonth,timeGridWeek,timeGridDay'},
+      views: {
+        timeGridMonth: {type: 'timeGrid', duration: {months: 1}, buttonText: config.month, dayHeaderFormat: {day: 'numeric'}},
+        timeGridWeek: {buttonText: config.week},
+        timeGridDay: {buttonText: config.day, slotDuration: '01:00:00'}
+      },
+      events: function (fetchInfo, success, failure) {
+        var generation = ++calendarGeneration;
+        if (calendarRequest && calendarRequest.readyState !== 4) calendarRequest.abort();
+        var settled = false;
+        function finish (callback, value) { if (!settled) { settled = true; callback(value); } }
+        calendarRequest = $.ajax({
+          url: root.dataset.endpoint, dataType: 'json', cache: false,
+          data: {action: 'getICMPPresence', hostip: root.dataset.hostIp, start: fetchInfo.startStr, end: fetchInfo.endStr}
+        }).done(function (response) {
+          if (generation !== calendarGeneration) { finish(success, []); return; }
+          if (!Array.isArray(response)) {
+            var error = new Error('Unexpected calendar response');
+            if (window.console) window.console.error(error.message);
+            notify(window.pialertV4Text('V4_Request_Failed'));
+            finish(failure, error);
+            return;
+          }
+          finish(success, response);
+        }).fail(function (xhr, requestStatus) {
+          if (requestStatus === 'abort' || generation !== calendarGeneration) { finish(success, []); return; }
+          var error = new Error(xhr.status ? 'HTTP ' + xhr.status + ' ' + xhr.statusText : window.pialertV4Text('V4_Request_Failed'));
+          if (window.console) window.console.error('ICMP calendar request:', error.message);
+          notify(window.pialertV4Text('V4_Request_Failed'));
+          finish(failure, error);
+        });
+      },
+      eventDidMount: function (argument) {
+        var tooltip = argument.event.extendedProps.tooltip;
+        if (tooltip) argument.el.setAttribute('title', String(tooltip).replace(/\r\n?/g, '\n'));
+      }
+    });
+    calendar.render();
+    refreshCalendarLayout();
+  }
+  function refreshCalendarLayout () {
+    if (!calendar || !byId('panPresence').classList.contains('active')) return;
+    var render = function () {
+      if (!unloading && byId('panPresence').classList.contains('active')) calendar.updateSize();
+    };
+    window.requestAnimationFrame(function () { window.requestAnimationFrame(render); });
+    window.clearTimeout(calendarLayoutTimer);
+    calendarLayoutTimer = window.setTimeout(render, 250);
   }
   function getTotals () {
     $.get(root.dataset.endpoint + '?action=getEventsTotalsforICMP&hostip=' + encodeURIComponent(root.dataset.hostIp), function (response) {
@@ -224,7 +362,7 @@
   byId('manualnmap_fast').addEventListener('click', function () { nmap('fast'); });
   byId('manualnmap_normal').addEventListener('click', function () { nmap('normal'); });
   if (window.pialertEntityActionsEditor) window.pialertEntityActionsEditor.setTarget('icmp', root.dataset.hostIp);
-  initializeTabs(); initializeTable(); initializeChart(); initializeSuggestions(); getTotals(); nmap('view');
+  initializeTabs(); initializeTable(); initializeTimeline(); initializeCalendar(); initializeSuggestions(); getTotals(); nmap('view');
   window.addEventListener('beforeunload', function (event) { if ((state() !== initialState || (window.pialertEntityActionsEditor && window.pialertEntityActionsEditor.dirty())) && !unloading) { event.preventDefault(); event.returnValue = ''; } });
-  window.addEventListener('pagehide', function () { unloading = true; ++nmapGeneration; if (nmapRequest) nmapRequest.abort(); if (table) table.destroy(); if (chart) chart.destroy(); });
+  window.addEventListener('pagehide', function () { unloading = true; ++nmapGeneration; ++calendarGeneration; ++timelineGeneration; window.clearTimeout(calendarLayoutTimer); window.clearTimeout(timelineLayoutTimer); window.clearInterval(timelineTimer); if (nmapRequest) nmapRequest.abort(); if (calendarRequest) calendarRequest.abort(); if (timelineRequest) timelineRequest.abort(); if (table) table.destroy(); if (timeline) timeline.destroy(); if (calendar) calendar.destroy(); });
 })(window, document, window.jQuery);

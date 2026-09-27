@@ -46,7 +46,7 @@ if ($result !== false) {
 }
 
 pialert_v4_shell_start($title, 'journal', array(
-    'lib/datatables/datatables.net-bs5-2.3.8/css/dataTables.bootstrap5.min.css',
+    'lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css',
     'lib/coloris-0.25.0/coloris.min.css',
     'css/journal.css',
 ), static fn(): string => '<button type="button" id="journal-color-settings" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modal-set-journal-colors" aria-label="' . h($GLOBALS['pia_lang']['V4_Color_Settings']) . '"><i class="fa-solid fa-paintbrush me-2" aria-hidden="true"></i>' . h($GLOBALS['pia_lang']['V4_Color_Settings']) . '</button>');
@@ -118,8 +118,8 @@ pialert_v4_shell_start($title, 'journal', array(
   </section>
 </section>
 <?php pialert_v4_shell_end(array(
-    'lib/datatables/datatables.net-2.3.8/dataTables.min.js',
-    'lib/datatables/datatables.net-bs5-2.3.8/js/dataTables.bootstrap5.min.js',
+    'lib/datatables/datatables.net-3.1.2/dataTables.min.js',
+    'lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js',
     'lib/coloris-0.25.0/coloris.min.js',
     'js/journal.js',
 )); ?>
