@@ -160,7 +160,17 @@
   function eventLink (cell, label, row) {
     cell.replaceChildren();
     var link = document.createElement('a');
-    link.textContent = String(label == null ? '' : label) + (row[13] ? '' : '**');
+    var name = String(label == null ? '' : label);
+    if (row[13]) {
+      link.textContent = name;
+    } else {
+      // The ICMP event endpoint already includes this suffix in dev_name.
+      link.appendChild(document.createTextNode(name.replace(/ \*\*$/, '') + ' '));
+      var marker = document.createElement('strong');
+      marker.className = 'text-warning';
+      marker.textContent = '**';
+      link.appendChild(marker);
+    }
     link.href = row[13] ? 'deviceDetails.php?mac=' + encodeURIComponent(String(row[13])) : 'icmpmonitorDetails.php?hostip=' + encodeURIComponent(String(row[9] == null ? '' : row[9]));
     cell.appendChild(link);
   }
