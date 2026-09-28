@@ -1406,4 +1406,8 @@ $pia_lang['Wait_Shutdown_Status'] = 'Ausschalten angefordert...';
 $pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert wird bald heruntergefahren';
 $pia_lang['Wait_Shutdown_Message'] = 'Nach dem nächsten Scan wird dieser Host heruntergefahren';
 $pia_lang['Wait_Shutdown_Advice'] = 'Eine Netzwerküberwachung findet mit diesem System dann nicht mehr statt.';
+$pia_lang['DevDetail_MainInfo_FirstConnection'] = 'Erste Verbindung';
+$pia_lang['DevDetail_MainInfo_LastConnection'] = 'Letzte Verbindung';
+$pia_lang['DevDetail_MainInfo_LastIP'] = 'Letzte IP';
+$pia_lang['DevDetail_MainInfo_Network_Node'] = 'Netzwerkknoten';
 ?>

@@ -13,6 +13,11 @@
 [data-bs-theme="dark"] #tableDevices .pialert-status-new-offline { color: #fff; background: radial-gradient(circle, #b1720c 60%, #aaa 90%); }
 .pialert-bulk-field { min-height: 5.5rem; padding: .85rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
 .pialert-bulk-switch-field { min-height: 2.75rem; padding-block: .35rem; }
+.pialert-bulk-notes-column { display: flex; align-items: center; }
+.pialert-bulk-notes-column > .pialert-bulk-field { width: 100%; }
+.pialert-bulk-switch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: .75rem; height: 100%; }
+.pialert-bulk-switch-grid > .pialert-bulk-switch-field { width: 100%; max-width: 20rem; min-width: 0; justify-self: center; }
+@media (max-width: 575.98px) { .pialert-bulk-switch-grid { grid-template-columns: minmax(0, 1fr); } }
 .pialert-bulk-switch-field > .form-check:first-child { display: flex; flex: 1 1 auto; align-items: center; gap: .5rem; min-width: 0; padding: 0; margin: 0; }
 .pialert-bulk-switch-field .bulk-enable { float: none; flex: none; margin: 0; }
 .pialert-bulk-switch-field .form-check-label { min-width: 0; overflow-wrap: break-word; }

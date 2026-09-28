@@ -237,15 +237,18 @@
   function updateSpeedChart() {
     if (!field('SpeedtestChart') || !window.Chart) return;
     var rows = tables.speedtest ? tables.speedtest.rows({page:'current',search:'applied',order:'applied'}).data().toArray() : config.speedtestRows;
-    var labels = rows.map(function (row) { return String(row[0] || ''); });
+    var labels = rows.map(function (row) {
+      var parts = String(row[0] || '').trim().split(/[T\s]+/);
+      return parts.length > 1 ? [parts[0], parts[1].slice(0, 5)] : parts[0];
+    });
     var ping = rows.map(function (row) { return Number.parseFloat(row[3]) || 0; });
     var down = rows.map(function (row) { return Number.parseFloat(row[4]) || 0; });
     var up = rows.map(function (row) { return Number.parseFloat(row[5]) || 0; });
     if (speedChart) speedChart.destroy();
     speedChart = new window.Chart(field('SpeedtestChart'),{type:'line',data:{labels:labels,datasets:[
-      {label:window.pialertV4Text('V4_Ping')+' (ms)',data:ping,borderColor:'#167ac4',yAxisID:'ping'},
-      {label:window.pialertV4Text('V4_Download')+' (Mbps)',data:down,borderColor:'#00a659',yAxisID:'speed'},
-      {label:window.pialertV4Text('V4_Upload')+' (Mbps)',data:up,borderColor:'#b9002b',yAxisID:'speed'}
+      {label:window.pialertV4Text('V4_Ping')+' (ms)',data:ping,borderColor:'#167ac4',backgroundColor:'#167ac4',yAxisID:'ping'},
+      {label:window.pialertV4Text('V4_Download')+' (Mbps)',data:down,borderColor:'#00a659',backgroundColor:'#00a659',yAxisID:'speed'},
+      {label:window.pialertV4Text('V4_Upload')+' (Mbps)',data:up,borderColor:'#b9002b',backgroundColor:'#b9002b',yAxisID:'speed'}
     ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{ping:{type:'linear',position:'left',beginAtZero:true},speed:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false}}}}});
   }
   function refreshSpeedtest() {

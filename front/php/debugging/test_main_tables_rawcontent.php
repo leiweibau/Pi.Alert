@@ -1,265 +1,93 @@
 <?php
-require_once __DIR__ . "/../server/session.php";
-pialert_start_session();
-
-if ($_SESSION["login"] != 1) {
-    header('Location: ../../index.php');
-    exit;
-}
-require_once __DIR__ . '/../bootstrap.php';
-pialert_v4_load_language();
+require_once __DIR__ . '/debug-layout.php';
+pialert_debug_start(
+    pialert_debug_label('V4_Raw_Device_Tables', 'Raw device tables'),
+    'tables',
+    pialert_debug_label('V4_Debug_Tables_Intro', 'Inspect the stored device and ICMP records. Select a table and search its visible rows.')
+);
+$tables = array('devices' => 'Devices', 'icmp' => 'ICMP_Mon');
+$db = new SQLite3(__DIR__ . '/../../../db/pialert.db', SQLITE3_OPEN_READONLY);
 ?>
-
-<!DOCTYPE html>
-<html lang="<?= h(str_replace('_', '-', pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME))); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= h($pia_lang['V4_Debugging']); ?></title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 0px;
-            margin: 0px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            display: none;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #e0e0e0;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-        }
-        tr:nth-child(even) {
-            background-color: #f0f0f0;
-        }
-        .info_head {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        .info_box {
-            margin-top: 40px;
-            margin-bottom: 40px;
-            box-shadow: 0px 0px 15px #bbb;
-            width: auto;
-            margin-left: 20px;
-            margin-right: 20px;
-            padding: 10px;
-            line-height: 30px;
-        }
-        .short {
-            width: 300px;
-        }
-        .heading {
-            font-size: 1.2em;
-            margin: 0px;
-            display: none;
-        }
-        #resultheading {
-            font-size: 1.2em;
-            margin: 0px;
-        }
-        #tableSelector, #searchInput {
-            background-color: #fff;
-            display: inline-block;
-            border: solid 1px #999;
-            padding: 5px 15px;
-            font-size: 16px;
-            float: right;
-        }
-        #searchInput { width: 150px; }
-        a {
-            color: dodgerblue;
-            text-decoration: none;
-        }
-        a:hover {
-            color: deepskyblue; 
-        }
-        .topheader {
-            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
-        }
-        #pialert_url {
-            margin-top: 10px;
-        }
-        .resultheader {
-            width: 100%; background-color: #f0f0f0; position: relative; top: 0px; padding-top: 10px; padding-bottom: 10px; margin: 0px; text-align: center;
-        }
-        .tooltip {
-            position: absolute;
-            background-color: #333;
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-    </style>
-</head>
-<body>
-    <div class="topheader">
-        <h2 style="margin: 0px"><?= h($pia_lang['V4_Raw_Device_Tables']); ?></h2>
-    </div>
-
-    <div class="info_box short" id="info_devices">
-        <span class="info_head"><?= h($pia_lang['V4_PiAlert_URL']); ?></span><br>
-        <div id="pialert_url"></div>
-    </div>
-
-    <div class="info_box short">
-        <span class="info_head"><?= h($pia_lang['V4_Select_Table']); ?>:</span>
-        <select id="tableSelector" onchange="toggleTable()">
-            <option value="devices"><?= h($pia_lang['V4_Devices_Table']); ?></option>
-            <option value="icmp"><?= h($pia_lang['V4_ICMP_Table']); ?></option>
+<section class="card mb-3" aria-labelledby="table-tools-title">
+  <div class="card-header"><h2 class="card-title" id="table-tools-title"><?= h(pialert_debug_label('V4_Select_Table', 'Select table')); ?></h2></div>
+  <div class="card-body">
+    <div class="debug-toolbar">
+      <div>
+        <label class="form-label" for="tableSelector"><?= h(pialert_debug_label('V4_Select_Table', 'Select table')); ?></label>
+        <select class="form-select" id="tableSelector">
+          <option value="devices"><?= h(pialert_debug_label('V4_Devices_Table', 'Devices table')); ?></option>
+          <option value="icmp"><?= h(pialert_debug_label('V4_ICMP_Table', 'ICMP table')); ?></option>
         </select>
+      </div>
+      <div class="debug-search">
+        <label class="form-label" for="searchInput"><?= h(pialert_debug_label('V4_Table_Search', 'Search')); ?></label>
+        <input class="form-control" type="search" id="searchInput" autocomplete="off" placeholder="<?= h(pialert_debug_label('V4_Debug_Search_Rows', 'Search visible table')); ?>">
+      </div>
+      <button class="btn btn-outline-secondary" id="resetSearch" type="button"><?= h(pialert_debug_label('V4_Reset', 'Reset')); ?></button>
     </div>
-
-    <div class="info_box short">
-        <span class="info_head"><?= h($pia_lang['V4_Table_Search']); ?></span>
-        <input type="text" id="searchInput" onkeyup="searchTable()">
-        <div style="width: 100%; height: 30px; margin-top: 10px;">
-            <button onclick="resetSearch()" style="background-color: #fff; color: red; border: solid 1px #ccc; font-size: 16px; padding: 5px; float: right;"><?= h($pia_lang['V4_Reset']); ?></button>
-        </div>
-    </div>
-
-    <div class="resultheader">
-        <h2 id="resultheading"><?= h($pia_lang['V4_Results']); ?></h2>
-    </div>
-
-<?php
-$db = new SQLite3(__DIR__ . '/../../../db/pialert.db');
-$tables = [
-    'devices' => 'Devices',
-    'icmp' => 'ICMP_Mon'
-];
-
-foreach ($tables as $id => $table) {
-    $query = "SELECT * FROM $table";
-    $result = $db->query($query);
-    $rowCount = 0;
-    while ($result->fetchArray(SQLITE3_ASSOC)) {
-        $rowCount++;
+  </div>
+</section>
+<?php foreach ($tables as $id => $table):
+    $query = @$db->query('SELECT * FROM ' . $table);
+    $columns = array();
+    if ($query) {
+        for ($index = 0; $index < $query->numColumns(); $index++) $columns[] = $query->columnName($index);
     }
-    echo "<div class='info_box' id='summary_box_$id'><span class='info_head'>" . h($pia_lang['V4_Table_Summary']) . ' (' . h($table) . "):</span><div id='summary_$id'>" . (int) $rowCount . ' ' . h($pia_lang['V4_Rows']) . '</div></div>';
-    echo "<div class='info_box' id='table_box_$id' >
-              <h2 class='heading' id='heading_$id'>" . h($table) . ' ' . h($pia_lang['V4_Raw_Data']) . "</h2>
-              <div style='overflow: auto'>
-              <table id='$id'>
-                <tr>";
-    $result = $db->query($query);
-    $columns = [];
-    for ($i = 0; $i < $result->numColumns(); $i++) {
-        $colName = $result->columnName($i);
-        $columns[] = $colName;
-        echo "<th>" . htmlspecialchars($colName) . "</th>";
-    }
-    echo "</tr>";
-    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-        echo "<tr>";
-        foreach ($columns as $col) {
-            echo "<td data-column='" . htmlspecialchars($col) . "'>" . htmlspecialchars($row[$col]) . "</td>";
-        }
-        echo "</tr>";
-    }
-    echo "</table>
-          </div>
-          </div>";
-}
-$db->close();
+    $total = $query ? (int) $db->querySingle('SELECT COUNT(*) FROM ' . $table) : 0;
 ?>
-<script type="text/javascript">
-    function getBaseUrl() {
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        const path = window.location.pathname;
-        const scriptDir = path.substring(0, path.lastIndexOf('/') + 1).replace('php/debugging/', '');
-        return `${protocol}//${host}${scriptDir}`;
-    }
-    const baseUrl = getBaseUrl();
-    const pialertDiv = document.getElementById("pialert_url");
-    if (pialertDiv) {
-        const baseUrlLink = document.createElement("a");
-        baseUrlLink.href = baseUrl + 'maintenance.php';
-        baseUrlLink.textContent = baseUrl;
-        pialertDiv.appendChild(baseUrlLink);
-    }
+<section class="card mb-3 debug-table-section" id="table_box_<?= h($id); ?>" data-table="<?= h($id); ?>"<?= $id !== 'devices' ? ' hidden' : ''; ?>>
+  <div class="card-header">
+    <h2 class="card-title"><?= h($table); ?></h2>
+    <span class="badge text-bg-secondary ms-auto" id="summary_<?= h($id); ?>" aria-live="polite"><span class="visible-count"><?= $total; ?></span> / <?= $total; ?> <?= h(pialert_debug_label('V4_Rows', 'rows')); ?></span>
+  </div>
+  <div class="card-body">
+    <?php if (!$query): ?>
+      <div class="alert alert-danger mb-0"><?= h(pialert_debug_label('V4_Debug_Table_Error', 'The table could not be loaded.')); ?></div>
+    <?php else: ?>
+      <div class="debug-table-wrap" role="region" tabindex="0" aria-label="<?= h($table . ' ' . pialert_debug_label('V4_Raw_Data', 'raw data')); ?>">
+        <table class="table table-striped table-hover table-sm debug-data-table" id="<?= h($id); ?>">
+          <thead><tr><?php foreach ($columns as $column): ?><th scope="col"><?= h($column); ?></th><?php endforeach; ?></tr></thead>
+          <tbody><?php while ($row = $query->fetchArray(SQLITE3_ASSOC)): ?><tr><?php foreach ($columns as $column): ?><td><?= h((string) ($row[$column] ?? '')); ?></td><?php endforeach; ?></tr><?php endwhile; ?></tbody>
+        </table>
+      </div>
+      <p class="small text-body-secondary mt-2 mb-0"><?= h(pialert_debug_label('V4_Debug_Table_Hint', 'Scroll horizontally to inspect all columns.')); ?></p>
+      <p class="small text-body-secondary mt-2 mb-0 debug-empty" hidden><?= h(pialert_debug_label('V4_Zero_Records', 'No matching records found')); ?></p>
+    <?php endif; ?>
+  </div>
+</section>
+<?php endforeach; $db->close(); ?>
+<script>
+  const selector = document.getElementById('tableSelector');
+  const search = document.getElementById('searchInput');
+  const reset = document.getElementById('resetSearch');
 
-    function toggleTable() {
-        const selected = document.getElementById("tableSelector").value;
-        document.getElementById("devices").style.display = selected === "devices" ? "table" : "none";
-        document.getElementById("icmp").style.display = selected === "icmp" ? "table" : "none";
-        document.getElementById("table_box_devices").style.display = selected === "devices" ? "block" : "none";
-        document.getElementById("table_box_icmp").style.display = selected === "icmp" ? "block" : "none";
-        document.getElementById("summary_box_devices").style.display = selected === "devices" ? "block" : "none";
-        document.getElementById("summary_box_icmp").style.display = selected === "icmp" ? "block" : "none";
-        document.getElementById("heading_devices").style.display = selected === "devices" ? "block" : "none";
-        document.getElementById("heading_icmp").style.display = selected === "icmp" ? "block" : "none";
-        resetSearch();
-    }
-    document.getElementById("tableSelector").value = "devices";
-    toggleTable();
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        document.body.appendChild(tooltip);
-
-        document.querySelectorAll('td[data-column]').forEach(td => {
-            td.addEventListener('mouseenter', (e) => {
-                tooltip.textContent = td.getAttribute('data-column');
-                tooltip.style.opacity = '1';
-            });
-
-            td.addEventListener('mousemove', (e) => {
-                tooltip.style.left = (e.pageX + 10) + 'px';
-                tooltip.style.top = (e.pageY + 10) + 'px';
-            });
-
-            td.addEventListener('mouseleave', () => {
-                tooltip.style.opacity = '0';
-            });
-        });
+  function updateTable() {
+    const selected = selector.value;
+    document.querySelectorAll('.debug-table-section').forEach(section => {
+      section.hidden = section.dataset.table !== selected;
     });
+    search.value = '';
+    filterRows();
+  }
 
-    function searchTable() {
-      var input = document.getElementById("searchInput");
-      var filter = input.value.toLowerCase();
-      var selected = document.getElementById("tableSelector").value;
-      var table = document.getElementById(selected);
-      var trs = table.getElementsByTagName("tr");
+  function filterRows() {
+    const section = document.getElementById('table_box_' + selector.value);
+    const rows = section.querySelectorAll('tbody tr');
+    const value = search.value.trim().toLocaleLowerCase();
+    let visible = 0;
+    rows.forEach(row => {
+      const match = !value || row.textContent.toLocaleLowerCase().includes(value);
+      row.hidden = !match;
+      if (match) visible++;
+    });
+    section.querySelector('.visible-count').textContent = String(visible);
+    const empty = section.querySelector('.debug-empty');
+    if (empty) empty.hidden = visible !== 0;
+  }
 
-      // Überspringe Kopfzeile
-      for (var i = 1; i < trs.length; i++) {
-        var tds = trs[i].getElementsByTagName("td");
-        var rowContainsFilter = false;
-
-        for (var j = 0; j < tds.length; j++) {
-          var td = tds[j];
-          if (td && td.textContent.toLowerCase().indexOf(filter) > -1) {
-            rowContainsFilter = true;
-            break;
-          }
-        }
-
-        trs[i].style.display = rowContainsFilter ? "" : "none";
-      }
-    }
-
-    function resetSearch() {
-      document.getElementById("searchInput").value = "";
-      searchTable();
-    }
-
+  selector.addEventListener('change', updateTable);
+  search.addEventListener('input', filterRows);
+  reset.addEventListener('click', () => { search.value = ''; filterRows(); search.focus(); });
+  updateTable();
 </script>
-</body>
-</html>
+<?php pialert_debug_end(); ?>

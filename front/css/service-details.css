@@ -16,9 +16,17 @@
 @media (min-width: 768px) {
   .service-alert-switches { display: grid; grid-template-columns: 33% 34% 33%; gap: 0; }
 }
-.service-chart { height: 12rem; min-height: 12rem; position: relative; }
-.service-code-legend { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; }
-.text-orange { color: #fe4c00; }
+.service-detail-timeline .fc-timeline-event { min-height: 1.75rem; }
+.service-detail-timeline .service-timeline-placeholder { border-style: dashed; }
+.service-detail-timeline .fc-timeline-slot-cushion { color: inherit; cursor: default; pointer-events: none; text-decoration: none; }
+.service-code-legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+.service-code-legend > span { display: inline-flex; align-items: center; gap: .35rem; }
+.service-timeline-swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: .2rem; }
+.service-timeline-2xx { background: #00a659; }
+.service-timeline-3xx { background: #0d6efd; }
+.service-timeline-4xx { background: #e3a008; }
+.service-timeline-5xx { background: #fe4c00; }
+.service-timeline-down { background: #dc3545; }
 .flip-horizontal { transform: scaleX(-1); }
 #tableEvents th, #tableEvents td { white-space: nowrap; }
 
@@ -32,5 +40,4 @@
   .service-fields, .service-fields-wide { grid-template-columns: 1fr; gap: .35rem; }
   .service-fields input + label, .service-fields-wide input + label { margin-top: .5rem; }
   #serviceDetailsTabs .nav-link { padding-left: .7rem; padding-right: .7rem; }
-  .service-chart { height: 16rem; }
 }

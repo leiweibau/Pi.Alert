@@ -80,9 +80,9 @@
       if (!data || !Array.isArray(data.labels)) return;
       replaceChart('speedtest', byId('speedtestChart'), {
         type: 'line', data: { labels: data.labels, datasets: [
-          { label: labels.ping + ' (ms)', data: data.ping, borderColor: '#3498db', backgroundColor: 'rgba(52,152,219,.15)', fill: false, borderWidth: 1, pointRadius: 2, tension: .2 },
-          { label: labels.download + ' (Mbps)', data: data.down, borderColor: '#2ecc71', backgroundColor: 'rgba(46,204,113,.15)', fill: false, borderWidth: 1, pointRadius: 2, tension: .2 },
-          { label: labels.upload + ' (Mbps)', data: data.up, borderColor: '#e74c3c', backgroundColor: 'rgba(231,76,60,.15)', fill: false, borderWidth: 1, pointRadius: 2, tension: .2 }
+          { label: labels.ping + ' (ms)', data: data.ping, borderColor: '#3498db', backgroundColor: '#3498db', fill: false, borderWidth: 1, pointRadius: 2, tension: .2 },
+          { label: labels.download + ' (Mbps)', data: data.down, borderColor: '#2ecc71', backgroundColor: '#2ecc71', fill: false, borderWidth: 1, pointRadius: 2, tension: .2 },
+          { label: labels.upload + ' (Mbps)', data: data.up, borderColor: '#e74c3c', backgroundColor: '#e74c3c', fill: false, borderWidth: 1, pointRadius: 2, tension: .2 }
         ] },
         options: {
           responsive: true,

@@ -1,6 +1,6 @@
 <?php
 
-// Convert ICMP scan samples into a continuous 24-hour status timeline.
+// Convert ICMP scan samples into a continuous status timeline.
 // Periods without a positive scan result are shown as offline.
 function pialert_icmp_timeline_events(SQLite3 $db, string $hostIp, string $start, string $end, array $labels): array {
     $startTime = (new DateTimeImmutable($start))->getTimestamp();
@@ -81,4 +81,26 @@ function pialert_icmp_timeline_events(SQLite3 $db, string $hostIp, string $start
         );
     }
     return $events;
+}
+
+function pialert_icmp_timeline_snapshot(SQLite3 $db, string $hostIp, array $labels, ?int $now = null): array {
+    $end = $now ?? time();
+    $start = $end - 2 * 3600;
+    $startDate = date('Y-m-d H:i:s', $start);
+    $endDate = date('Y-m-d H:i:s', $end);
+    $result = db_execute_prepared($db,
+        'SELECT
+           SUM(CASE WHEN icmpeve_Present = 1 THEN 1 ELSE 0 END) AS online,
+           SUM(CASE WHEN icmpeve_Present = 1 THEN 0 ELSE 1 END) AS offline
+         FROM ICMP_Mon_Events
+         WHERE icmpeve_ip = :ip AND icmpeve_DateTime >= :start AND icmpeve_DateTime < :end',
+        array(':ip' => $hostIp, ':start' => $startDate, ':end' => $endDate));
+    $row = $result ? $result->fetchArray(SQLITE3_ASSOC) : false;
+    $counts = array('online' => (int) ($row['online'] ?? 0), 'offline' => (int) ($row['offline'] ?? 0));
+    return array(
+        'start' => date(DateTimeInterface::ATOM, $start),
+        'end' => date(DateTimeInterface::ATOM, $end),
+        'events' => array_sum($counts) > 0 ? pialert_icmp_timeline_events($db, $hostIp, $startDate, $endDate, $labels) : array(),
+        'counts' => $counts,
+    );
 }

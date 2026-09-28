@@ -36,6 +36,9 @@ The CSRF token is rotated after password login and successful remember-me
 login. It remains stable during the authenticated session so multiple tabs and
 parallel refresh requests continue to work. Logout validates CSRF before it
 revokes the remember token or destroys the session.
+After the PHP session expires, a GET request can restore it from the valid
+remember cookie on any protected page or endpoint. POST requests never restore
+authentication before their normal CSRF check.
 
 PHP session cookies use `HttpOnly`, `SameSite=Lax`, the application path and
 `Secure` when HTTPS is detected. `Lax` is necessary so a session established by

@@ -22,6 +22,7 @@ require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'service_url.php';
+require_once __DIR__ . '/service_timeline.php';
 require 'journal.php';
 require_once __DIR__ . '/geodb_update.php';
 require 'language_switch.php';
@@ -36,7 +37,7 @@ OpenDB();
 
 pialert_dispatch_action([
     'getEventsTotals', 'getEvents', 'getEventsTotalsforService',
-    'getServiceMonTotals', 'getServicesJournal'
+    'getServiceMonTotals', 'getServicesJournal', 'getServiceTimeline'
 ], [
     'setServiceData', 'deleteService', 'insertNewService', 'downloadGeoDB',
     'deleteGeoDB', 'updateGeoDB', 'EnableWebServiceMon', 'DeleteAllWebServices'
@@ -71,9 +72,32 @@ if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_req
 		break;
 	case 'getServicesJournal':getServicesJournal();
         break;
+	case 'getServiceTimeline':getServiceTimeline();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function getServiceTimeline() {
+    global $db, $pia_lang;
+    header('Content-Type: application/json; charset=utf-8');
+    $url = $GLOBALS['pialert_request']['url'] ?? '';
+    $period = $GLOBALS['pialert_request']['period'] ?? '24h';
+    if (!is_scalar($url) || !pialert_validate_service_key((string) $url)
+        || !is_string($period) || !in_array($period, array('24h', '7d'), true)) {
+        http_response_code(400);
+        echo json_encode(array('error' => 'Invalid timeline request'));
+        return;
+    }
+    $labels = array(
+        '2xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP2xx'] ?? 'HTTP 2xx',
+        '3xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP3xx'] ?? 'HTTP 3xx',
+        '4xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP4xx'] ?? 'HTTP 4xx',
+        '5xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP5xx'] ?? 'HTTP 5xx',
+        'down' => $pia_lang['WEBS_Page_down'] ?? 'Offline',
+    );
+    echo json_encode(pialert_service_timeline_snapshot($db, (string) $url, $labels, $period), JSON_INVALID_UTF8_SUBSTITUTE);
 }
 
 function getServicesJournal() {

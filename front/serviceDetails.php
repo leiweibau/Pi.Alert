@@ -29,7 +29,6 @@ $service_details_title_array = explode('://', $request_url);
 pialert_v4_load_language();
 require_once __DIR__ . '/php/shell.php';
 require_once __DIR__ . '/php/server/db.php';
-require_once __DIR__ . '/php/server/graph.php';
 require_once __DIR__ . '/php/server/journal.php';
 require_once __DIR__ . '/php/server/geodb_location.php';
 
@@ -76,7 +75,7 @@ $http_filter = $_GET['filter'] ?? 'all';
 if (!in_array((string) $http_filter, array('all', '2', '3', '4', '5', '99999999'), true)) $http_filter = 'all';
 
 function get_service_events_table($service_URL, $service_filter) {
-    global $db, $current_service_IP;
+    global $db;
     if ($service_filter == 'all') $filter_sql = '';
     elseif ($service_filter == 2) $filter_sql = 'AND moneve_StatusCode LIKE "2%"';
     elseif ($service_filter == 3) $filter_sql = 'AND moneve_StatusCode LIKE "3%"';
@@ -86,9 +85,7 @@ function get_service_events_table($service_URL, $service_filter) {
     else $filter_sql = '';
     $moneve_res = db_execute_prepared($db, 'SELECT * FROM Services_Events WHERE moneve_URL = :url ' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000', array(':url' => (string) $service_URL));
     while ($moneve_res && ($row = $moneve_res->fetchArray())) {
-        if ($row['moneve_TargetIP'] == '') $func_TargetIP = 'n.a.';
-        else { $func_TargetIP = $row['moneve_TargetIP']; $current_service_IP = $row['moneve_TargetIP']; }
-        echo '<tr><td>' . h($func_TargetIP) . '</td><td>' . h($row['moneve_DateTime']) . '</td><td>' . h($row['moneve_StatusCode']) . '</td><td>' . h($row['moneve_Latency']) . '</td><td>' . h($row['moneve_ssl_fc']) . '</td></tr>';
+        echo '<tr><td>' . h($row['moneve_DateTime']) . '</td><td>' . h($row['moneve_StatusCode']) . '</td><td>' . h($row['moneve_Latency']) . '</td><td>' . h($row['moneve_ssl_fc']) . '</td></tr>';
     }
 }
 
@@ -153,7 +150,6 @@ function get_service_statistic($service) {
 
 $servicedetails = get_service_details($service_details_title);
 $service_note_display = localize_service_note((string) ($servicedetails['mon_Notes'] ?? ''));
-$graph_arrays = prepare_graph_arrays_webservice($service_details_title);
 $statistic = get_service_statistic($service_details_title);
 $devices = array();
 $dev_res = $db->query('SELECT dev_MAC, dev_Name FROM Devices ORDER BY dev_Name ASC');
@@ -171,6 +167,7 @@ $displayTitle = '[' . strtoupper($service_details_title_array[0]) . '] ' . ($ser
 pialert_v4_shell_start($displayTitle, 'services', array(
     'lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css',
     'css/service-details.css',
+    'css/presence-calendar.css',
 ));
 ?>
 <section id="service-details-page" data-service-url="<?= h($service_details_title); ?>" data-filter="<?= h((string) $http_filter); ?>"
@@ -234,13 +231,21 @@ pialert_v4_shell_start($displayTitle, 'services', array(
       </div>
 
       <div class="tab-pane fade" id="panEvents" role="tabpanel" aria-labelledby="tabEvents"><h2 class="h5 text-primary mb-3" id="service-events-heading"><?= h(service_filter_label($http_filter)); ?></h2><div class="table-responsive">
-        <table id="tableEvents" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr><th><?= h($pia_lang['WEBS_tablehead_TargetIP']); ?></th><th><?= h($pia_lang['WEBS_tablehead_ScanTime']); ?></th><th><?= h($pia_lang['WEBS_tablehead_Status_Code']); ?></th><th><?= h($pia_lang['WEBS_tablehead_Response_Time']); ?></th><th><?= h($pia_lang['V4_SSL_Status']); ?></th></tr></thead><tbody><?php get_service_events_table($service_details_title, $http_filter); ?></tbody></table>
+        <table id="tableEvents" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr><th><?= h($pia_lang['WEBS_tablehead_ScanTime']); ?></th><th><?= h($pia_lang['WEBS_tablehead_Status_Code']); ?></th><th><?= h($pia_lang['WEBS_tablehead_Response_Time']); ?></th><th><?= h($pia_lang['V4_SSL_Status']); ?></th></tr></thead><tbody><?php get_service_events_table($service_details_title, $http_filter); ?></tbody></table>
       </div></div>
 
       <div class="tab-pane fade" id="panGraph" role="tabpanel" aria-labelledby="tabGraph">
-        <h2 class="h5 text-primary mb-3"><?= h($pia_lang['WEBS_Chart_a']); ?> <span class="maxlogage-interval">24</span> <?= h($pia_lang['WEBS_Chart_b']); ?></h2><div class="service-chart"><canvas id="ServiceChart"></canvas></div>
-        <script id="service-chart-data" type="application/json"><?= json_encode(array('time' => array_reverse($graph_arrays[0]), 'down' => array_reverse($graph_arrays[1]), '2xx' => array_reverse($graph_arrays[2]), '3xx' => array_reverse($graph_arrays[3]), '4xx' => array_reverse($graph_arrays[4]), '5xx' => array_reverse($graph_arrays[5])), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
-        <div class="service-code-legend mt-4"><?php foreach (array(array('success','2xx',$graph_arrays[7]),array('warning','3xx',$graph_arrays[8]),array('warning','4xx',$graph_arrays[9]),array('orange','5xx',$graph_arrays[10]),array('danger',$pia_lang['WEBS_Page_down'],$graph_arrays[6])) as [$tone,$label,$count]): ?><span><i class="fa-solid fa-circle text-<?= h($tone); ?>" aria-hidden="true"></i> <?= h($label); ?> (<?= h((string) $count); ?>)</span><?php endforeach; ?></div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h2 class="h5 text-primary mb-0"><?= h($pia_lang['V4_Status']); ?> · <span id="service-timeline-range" aria-live="polite">--</span></h2>
+          <div class="btn-group btn-group-sm" role="group" aria-label="<?= h($pia_lang['V4_Status']); ?>">
+            <button type="button" class="btn btn-primary active" data-service-timeline-period="24h" aria-pressed="true">24h</button>
+            <button type="button" class="btn btn-outline-primary" data-service-timeline-period="7d" aria-pressed="false">7d</button>
+          </div>
+        </div>
+        <div id="service-timeline" class="presence-calendar service-detail-timeline" aria-label="<?= h($pia_lang['V4_Status']); ?>"></div>
+        <div id="service-timeline-empty" class="small text-body-secondary text-center mt-1" hidden><?= h($pia_lang['V4_No_Data']); ?></div>
+        <script id="service-timeline-config" type="application/json"><?= json_encode(array('locale' => $pia_lang['PRE_CalHead_lang'] ?? 'en', 'noData' => $pia_lang['V4_No_Data']), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
+        <div class="service-code-legend small mt-2 mb-4" aria-label="<?= h($pia_lang['V4_Status']); ?>"><?php foreach (array(array('2xx','2xx'),array('3xx','3xx'),array('4xx','4xx'),array('5xx','5xx'),array('down',$pia_lang['WEBS_Page_down'])) as [$status,$label]): ?><span><i class="service-timeline-swatch service-timeline-<?= h($status); ?>" aria-hidden="true"></i><?= h($label); ?> (<span data-service-status-count="<?= h($status); ?>">--</span>)</span><?php endforeach; ?></div>
         <div class="row g-3 mt-2"><div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['WEBS_Stats_Time']); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0"><thead><tr><th></th><th>&Oslash;</th><th><?= h($pia_lang['V4_Min']); ?></th><th><?= h($pia_lang['V4_Max']); ?></th></tr></thead><tbody><?php foreach (array('24h'=>'24h','1w'=>'7d',''=>'All') as $key => $label): ?><tr><th><?= h($label); ?></th><td><?= $statistic['latency_avg' . ($key ? '_' . $key : '')]; ?></td><td><?= $statistic['latency_min' . ($key ? '_' . $key : '')]; ?></td><td><?= $statistic['latency_max' . ($key ? '_' . $key : '')]; ?></td></tr><?php endforeach; ?></tbody></table></div></section></div>
           <div class="col-12 col-lg-6"><section class="card h-100"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['ICMPMonitor_Availability']); ?></h3></div><div class="card-body table-responsive"><table class="table table-sm mb-0 pialert-availability-table"><thead><tr><th scope="col"></th><th scope="col"><?= h($pia_lang['ICMPMonitor_Shortcut_Online']); ?></th><th scope="col"><?= h($pia_lang['ICMPMonitor_Shortcut_Offline']); ?></th></tr></thead><tbody><?php foreach (array('24h'=>'24h','1w'=>'7d','all'=>$pia_lang['V4_All']) as $key => $label): ?><tr><th scope="row"><?= h($label); ?></th><td class="text-success"><?= h($statistic['online_percent_' . $key]); ?></td><td class="text-danger"><?= h($statistic['offline_percent_' . $key]); ?></td></tr><?php endforeach; ?></tbody></table></div></section></div></div>
         <section id="service-location" class="card mt-3"><div class="card-header"><h3 class="card-title"><?= h($pia_lang['WEBS_Stats_Location']); ?></h3></div><div class="card-body">
@@ -253,6 +258,7 @@ pialert_v4_shell_start($displayTitle, 'services', array(
 <?php pialert_v4_shell_end(array(
     'lib/datatables/datatables.net-3.1.2/dataTables.min.js',
     'lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js',
-    'lib/chart.js-4.5.1/chart.umd.js',
+    'lib/fullcalendar-scheduler-6.1.21/index.global.min.js',
+    'lib/fullcalendar-6.1.21/locales-all.global.min.js',
     'js/service-details.js',
 )); ?>

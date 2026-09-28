@@ -1401,4 +1401,8 @@ $pia_lang['Wait_Shutdown_Status'] = 'Shutdown requested...';
 $pia_lang['Wait_Shutdown_Heading'] = 'Pi.Alert will shut down shortly';
 $pia_lang['Wait_Shutdown_Message'] = 'After the next scan, this host will be shut down.';
 $pia_lang['Wait_Shutdown_Advice'] = 'Network monitoring will then no longer be performed by this system.';
+$pia_lang['DevDetail_MainInfo_FirstConnection'] = 'First connection';
+$pia_lang['DevDetail_MainInfo_LastConnection'] = 'Last connection';
+$pia_lang['DevDetail_MainInfo_LastIP'] = 'Last IP';
+$pia_lang['DevDetail_MainInfo_Network_Node'] = 'Network node';
 ?>

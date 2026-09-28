@@ -33,4 +33,5 @@
 .device-tool-output .col-md-6{width:100%}
 @media(min-width:768px){.device-tool-output .col-md-6{width:50%}}
 .device-speed-chart{height:15rem}
+#tableSpeedtest thead th:first-child{text-align:left!important}
 @media(max-width:767.98px){#deviceDetailsTabs{width:100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:1px;-webkit-overflow-scrolling:touch}#deviceDetailsTabs>.nav-item{flex:0 0 auto}#deviceDetailsTabs .nav-link{padding:.5rem .6rem}#device-details-page .card-header .btn-group{margin-left:auto}}

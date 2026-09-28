@@ -1,4 +1,6 @@
 .icmp-detail-timeline .fc-timeline-event { min-height: 1.75rem; }
+.icmp-detail-timeline .icmp-timeline-placeholder { border-style: dashed; }
+.icmp-detail-timeline .fc-timeline-slot-cushion { color: inherit; cursor: default; pointer-events: none; text-decoration: none; }
 .icmp-timeline-legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
 .icmp-timeline-legend > span { display: inline-flex; align-items: center; gap: .35rem; }
 .icmp-timeline-swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: .2rem; }
@@ -13,6 +15,7 @@
 .icmp-detail-switch .form-check-input { margin-top: 0; margin-bottom: 0; }
 .icmp-detail-switch > .form-check-label { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
 .icmp-detail-field > .input-group { min-width: 0; }
+.icmp-detail-options { max-height: 20rem; overflow-y: auto; }
 @media (min-width: 768px) {
   .icmp-detail-field { display: grid; grid-template-columns: minmax(0, 34%) minmax(0, 1fr); align-items: center; column-gap: .5rem; }
   .icmp-detail-field > .form-label { margin-bottom: 0; text-align: right; }

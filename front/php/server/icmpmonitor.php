@@ -254,32 +254,17 @@ function getICMPTimeline() {
 	global $db, $pia_lang;
 	header('Content-Type: application/json; charset=utf-8');
 	$host = $GLOBALS['pialert_request']['hostip'] ?? '';
-	$start = $GLOBALS['pialert_request']['start'] ?? '';
-	$end = $GLOBALS['pialert_request']['end'] ?? '';
-	if (!is_scalar($host) || !is_scalar($start) || !is_scalar($end)
-		|| (string) $start === '' || (string) $end === ''
+	if (!is_scalar($host)
 		|| (!filter_var($host, FILTER_VALIDATE_IP) && !filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
 		http_response_code(400);
 		echo json_encode(array('error' => 'Invalid timeline request'));
-		return;
-	}
-	try {
-		$startDate = formatCalendarQueryDate((string) $start);
-		$endDate = formatCalendarQueryDate((string) $end);
-		$seconds = (new DateTimeImmutable($endDate))->getTimestamp() - (new DateTimeImmutable($startDate))->getTimestamp();
-	} catch (Exception $exception) {
-		$seconds = 0;
-	}
-	if ($seconds <= 0 || $seconds > 25 * 3600) {
-		http_response_code(400);
-		echo json_encode(array('error' => 'Invalid timeline range'));
 		return;
 	}
 	$labels = array(
 		'online' => $pia_lang['ICMPMonitor_Shortcut_Online'] ?? 'Online',
 		'offline' => $pia_lang['ICMPMonitor_Shortcut_Offline'] ?? 'Offline',
 	);
-	echo json_encode(pialert_icmp_timeline_events($db, (string) $host, $startDate, $endDate, $labels), JSON_INVALID_UTF8_SUBSTITUTE);
+	echo json_encode(pialert_icmp_timeline_snapshot($db, (string) $host, $labels), JSON_INVALID_UTF8_SUBSTITUTE);
 }
 
 function getICMPPresence() {

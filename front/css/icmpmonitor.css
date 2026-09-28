@@ -5,6 +5,11 @@
 #tableDevices tbody td.icmp-actions { padding: 0; white-space: nowrap; }
 .icmp-bulk-field { min-height: 5.5rem; padding: .85rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
 .icmp-bulk-switch-field { min-height: 2.75rem; padding-block: .35rem; }
+.icmp-bulk-notes-column { display: flex; align-items: center; }
+.icmp-bulk-notes-column > .icmp-bulk-field { width: 100%; }
+.icmp-bulk-switch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: .75rem; height: 100%; }
+.icmp-bulk-switch-grid > .icmp-bulk-switch-field { width: 100%; max-width: 20rem; min-width: 0; justify-self: center; }
+@media (max-width: 575.98px) { .icmp-bulk-switch-grid { grid-template-columns: minmax(0, 1fr); } }
 .icmp-bulk-switch-field > .form-check:first-child { display: flex; flex: 1 1 auto; align-items: center; gap: .5rem; min-width: 0; padding: 0; margin: 0; }
 .icmp-bulk-switch-field .bulk-enable { float: none; flex: none; margin: 0; }
 .icmp-bulk-switch-field .form-check-label { min-width: 0; overflow-wrap: break-word; }

@@ -9,6 +9,7 @@
   var timelineLayoutTimer = null;
   var timelineTimer = null;
   var timelineDurationMinutes = null;
+  var timelineStart = null;
   var calendar = null;
   var calendarRequest = null;
   var calendarGeneration = 0;
@@ -57,7 +58,7 @@
     document.querySelectorAll('#icmpDetailsTabs [data-bs-toggle="tab"]').forEach(function (button) {
       button.addEventListener('shown.bs.tab', function () {
         document.cookie = 'icmpTab=' + encodeURIComponent(button.dataset.bsTarget) + ';max-age=2592000;path=/;SameSite=Strict';
-        if (button.id === 'tabGraph') { updateTimelineRange(); refreshTimelineLayout(); }
+        if (button.id === 'tabGraph') { refreshTimelineData(); refreshTimelineLayout(); }
         if (button.id === 'tabEvents' && table) table.columns.adjust();
         if (button.id === 'tabPresence') refreshCalendarLayout();
       });
@@ -73,23 +74,6 @@
       language: window.pialertV4DataTableLanguage({ emptyTable: window.pialertV4Text('V4_No_Data'), lengthMenu: root.dataset.lengthMenu, search: root.dataset.search + ': ', paginate: { next: root.dataset.next, previous: root.dataset.previous }, info: root.dataset.info })
     });
   }
-  function timelineWindow () {
-    var end = new Date();
-    end.setSeconds(0, 0);
-    var start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
-    // FullCalendar advances in local wall time, so account for daylight saving changes.
-    return {start: start, durationMinutes: 1440 - (end.getTimezoneOffset() - start.getTimezoneOffset())};
-  }
-  function updateTimelineRange () {
-    if (timeline && byId('panGraph').classList.contains('active') && !document.hidden) {
-      var range = timelineWindow();
-      if (range.durationMinutes !== timelineDurationMinutes) {
-        timelineDurationMinutes = range.durationMinutes;
-        timeline.setOption('duration', {minutes: timelineDurationMinutes});
-      }
-      timeline.gotoDate(range.start);
-    }
-  }
   function refreshTimelineLayout () {
     if (!timeline || !byId('panGraph').classList.contains('active')) return;
     var render = function () {
@@ -99,43 +83,44 @@
     window.clearTimeout(timelineLayoutTimer);
     timelineLayoutTimer = window.setTimeout(render, 250);
   }
-  function initializeTimeline () {
-    if (!window.FullCalendar) return;
+  function applyTimelineData (snapshot) {
     var config = JSON.parse(byId('icmp-calendar-config').textContent);
-    var range = timelineWindow();
-    timelineDurationMinutes = range.durationMinutes;
+    if (!snapshot.start || !snapshot.end) return;
+    var start = new Date(snapshot.start);
+    var end = new Date(snapshot.end);
+    var duration = Math.max(60, Math.round((end - start) / 60000 - (end.getTimezoneOffset() - start.getTimezoneOffset())));
+    var formatter = new Intl.DateTimeFormat(config.locale, {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
+    byId('icmp-timeline-range').textContent = formatter.format(start) + ' – ' + formatter.format(end);
+    byId('icmp-timeline-empty').hidden = snapshot.events.length !== 0;
+    var events = snapshot.events.length ? snapshot.events : [{
+      title: config.noData, start: snapshot.start, end: snapshot.end,
+      backgroundColor: 'var(--bs-tertiary-bg)', borderColor: 'var(--bs-border-color)', textColor: 'var(--bs-secondary-color)',
+      classNames: ['icmp-timeline-placeholder'], tooltip: config.noData
+    }];
+    if (timeline) {
+      if (duration !== timelineDurationMinutes) {
+        timelineDurationMinutes = duration;
+        timeline.setOption('duration', {minutes: duration});
+      }
+      if (snapshot.start !== timelineStart) {
+        timelineStart = snapshot.start;
+        timeline.gotoDate(start);
+      }
+      timeline.removeAllEventSources();
+      timeline.addEventSource(events);
+      refreshTimelineLayout();
+      return;
+    }
+    timelineStart = snapshot.start;
+    timelineDurationMinutes = duration;
     timeline = new window.FullCalendar.Calendar(byId('icmp-timeline'), {
-      initialView: 'timeline', duration: {minutes: timelineDurationMinutes}, dateAlignment: 'minute', initialDate: range.start, height: 'auto', timeZone: 'local',
+      initialView: 'timeline', duration: {minutes: duration}, dateAlignment: 'minute', initialDate: start, height: 'auto', timeZone: 'local',
       locale: config.locale, schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-      headerToolbar: false, slotDuration: '01:00:00', slotLabelInterval: '02:00:00', scrollTime: '24:00:00',
-      slotLabelFormat: {hour: '2-digit', minute: '2-digit', hour12: false}, slotMinWidth: 42, eventMinWidth: 1,
+      navLinks: false,
+      headerToolbar: false, slotDuration: '00:10:00', slotLabelInterval: '00:30:00', scrollTime: '24:00:00',
+      slotLabelFormat: {hour: '2-digit', minute: '2-digit', hour12: false}, slotMinWidth: 42, eventMinWidth: 0,
       editable: false, selectable: false, eventStartEditable: false, eventDurationEditable: false,
-      events: function (fetchInfo, success, failure) {
-        var generation = ++timelineGeneration;
-        if (timelineRequest && timelineRequest.readyState !== 4) timelineRequest.abort();
-        var settled = false;
-        function finish (callback, value) { if (!settled) { settled = true; callback(value); } }
-        timelineRequest = $.ajax({
-          url: root.dataset.endpoint, dataType: 'json', cache: false,
-          data: {action: 'getICMPTimeline', hostip: root.dataset.hostIp, start: fetchInfo.startStr, end: fetchInfo.endStr}
-        }).done(function (response) {
-          if (generation !== timelineGeneration) { finish(success, []); return; }
-          if (!Array.isArray(response)) {
-            var error = new Error('Unexpected timeline response');
-            if (window.console) window.console.error(error.message);
-            notify(window.pialertV4Text('V4_Request_Failed'));
-            finish(failure, error);
-            return;
-          }
-          finish(success, response);
-        }).fail(function (xhr, requestStatus) {
-          if (requestStatus === 'abort' || generation !== timelineGeneration) { finish(success, []); return; }
-          var error = new Error(xhr.status ? 'HTTP ' + xhr.status + ' ' + xhr.statusText : window.pialertV4Text('V4_Request_Failed'));
-          if (window.console) window.console.error('ICMP timeline request:', error.message);
-          notify(window.pialertV4Text('V4_Request_Failed'));
-          finish(failure, error);
-        });
-      },
+      events: events,
       eventDidMount: function (argument) {
         var tooltip = argument.event.extendedProps.tooltip;
         if (!tooltip) return;
@@ -153,8 +138,34 @@
       }
     });
     timeline.render();
+    window.icmpTimeline = timeline;
     refreshTimelineLayout();
-    timelineTimer = window.setInterval(updateTimelineRange, 60000);
+  }
+  function refreshTimelineData () {
+    if (!window.FullCalendar || unloading || document.hidden) return;
+    var generation = ++timelineGeneration;
+    if (timelineRequest && timelineRequest.readyState !== 4) timelineRequest.abort();
+    timelineRequest = $.ajax({
+      url: root.dataset.endpoint, dataType: 'json', cache: false,
+      data: {action: 'getICMPTimeline', hostip: root.dataset.hostIp}
+    }).done(function (response) {
+      if (generation !== timelineGeneration) return;
+      if (!response || !Array.isArray(response.events) || !response.counts) {
+        notify(window.pialertV4Text('V4_Request_Failed'));
+        return;
+      }
+      applyTimelineData(response);
+    }).fail(function (xhr, requestStatus) {
+      if (requestStatus === 'abort' || generation !== timelineGeneration) return;
+      if (window.console) window.console.error('ICMP timeline request:', xhr.status, xhr.statusText);
+      notify(window.pialertV4Text('V4_Request_Failed'));
+    });
+  }
+  function initializeTimeline () {
+    refreshTimelineData();
+    timelineTimer = window.setInterval(function () {
+      if (byId('panGraph').classList.contains('active')) refreshTimelineData();
+    }, 60000);
   }
   function initializeCalendar () {
     if (!window.FullCalendar) return;
@@ -296,18 +307,32 @@
     });
   }
   function initializeSuggestions () {
-    [['txtOwner', 'getOwners'], ['txtDeviceType', 'getDeviceTypes'], ['txtGroup', 'getGroups'], ['txtLocation', 'getLocations']].forEach(function (pair) {
-      $.get('php/server/devices.php?action=' + pair[1], function (response) {
-        var values;
-        try { values = typeof response === 'string' ? JSON.parse(response) : response; } catch (_error) { return; }
-        if (!Array.isArray(values)) return;
-        var list = byId('suggest-' + pair[0]);
-        values.forEach(function (item) {
-          var value = item && item.id != null && item.id !== '' ? item.id : item && item.name;
-          if (value == null) return;
-          var option = document.createElement('option');
-          option.value = String(value);
-          list.appendChild(option);
+    root.querySelectorAll('.icmp-detail-options[data-suggestion-action]').forEach(function (menu) {
+      $.getJSON('php/server/devices.php?action=' + encodeURIComponent(menu.dataset.suggestionAction)).done(function (items) {
+        menu.replaceChildren();
+        if (!Array.isArray(items)) return;
+        var previousOrder = null;
+        items.forEach(function (item) {
+          var value = String(item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name || '');
+          if (!value) return;
+          var order = item.order === undefined ? null : String(item.order);
+          if (previousOrder !== null && order !== previousOrder) {
+            var separator = document.createElement('li');
+            var line = document.createElement('hr'); line.className = 'dropdown-divider';
+            separator.appendChild(line); menu.appendChild(separator);
+          }
+          previousOrder = order;
+          var entry = document.createElement('li');
+          var button = document.createElement('button'); button.type = 'button'; button.className = 'dropdown-item';
+          button.textContent = String(item.name || value);
+          button.addEventListener('click', function () {
+            var target = byId(menu.dataset.suggestionTarget);
+            if (!target) return;
+            target.value = value;
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+            target.focus();
+          });
+          entry.appendChild(button); menu.appendChild(entry);
         });
       });
     });
