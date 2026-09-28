@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Zmodyfikowane urządzenia'
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Zmodyfikowane wartości';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Wybierz urządzenia do edycji';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Edytuj pola';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Zaškrtnutím políčka u pole povolíte jeho úpravu. Po uložení se hodnota použije u všech níže vybraných zařízení nebo hostitelů.';
 $pia_lang['Device_bulkDel_button'] = 'USUŃ URZĄDZENIA';
 $pia_lang['Device_bulkDel_info_head'] = 'Usuń wiele urządzeń';
 $pia_lang['Device_bulkDel_info_text'] = 'Ta funkcja usuwa jedno lub więcej urządzeń z bazy danych. Urządzenia nadal w sieci mogą zostać ponownie wykryte, ale bez ustawień indywidualnych.';

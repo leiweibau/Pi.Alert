@@ -566,7 +566,14 @@ function getDeviceData() {
 //  Update Device Data
 function setDeviceData() {
 	global $db; global $pia_lang;
-	$mac = $GLOBALS["pialert_request"]['mac'] ?? ''; if (!is_scalar($mac) || !filter_var(str_replace('-', ':', $mac), FILTER_VALIDATE_MAC)) { echo $pia_lang['BE_Dev_DBTools_UpdDevError']; return; }
+	$mac = $GLOBALS["pialert_request"]['mac'] ?? '';
+	if (!is_scalar($mac)) { echo $pia_lang['BE_Dev_DBTools_UpdDevError']; return; }
+	$mac = (string) $mac;
+	$internetDevice = $mac === 'Internet' || preg_match('/^Internet - [A-Za-z0-9_-]+$/D', $mac);
+	if ($mac === '' || strlen($mac) > 128 || (!filter_var(str_replace('-', ':', $mac), FILTER_VALIDATE_MAC) && !$internetDevice)) {
+		echo $pia_lang['BE_Dev_DBTools_UpdDevError'];
+		return;
+	}
 	$keys = array('name','owner','type','vendor','model','serialnumber','favorite','showpresence','group','location','comments','networknode','networknodeport','connectiontype','linkspeed','staticIP','mqttdevice','scancycle','alertevents','alertdown','skiprepeated','scanvalid','newdevice','archived');
 	$params = array(':mac' => (string)$mac); foreach ($keys as $key) { $value = $GLOBALS["pialert_request"][$key] ?? ''; $params[':'.$key] = is_scalar($value) ? (string)$value : ''; }
 	$params[':cleanup'] = array($params[':mqttdevice'] === '1' ? 0 : 1, SQLITE3_INTEGER);

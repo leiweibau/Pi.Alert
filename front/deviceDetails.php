@@ -17,7 +17,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
 }
 
 $requestedMac = isset($_GET['mac']) && is_scalar($_GET['mac']) ? (string) $_GET['mac'] : '';
-if ($requestedMac === '' || strlen($requestedMac) > 128 || !preg_match('/^[A-Za-z0-9:._-]+$/D', $requestedMac)) {
+if ($requestedMac === '' || strlen($requestedMac) > 128
+    || !preg_match('/^(?:[A-Za-z0-9:._-]+|Internet - [A-Za-z0-9_-]+)$/D', $requestedMac)) {
     header('Location: ' . pialert_v4_route('home'));
     exit;
 }

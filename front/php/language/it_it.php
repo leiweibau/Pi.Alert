@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Dispositivi Modificati';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Campi Modificati';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Seleziona i dispositivi da modificare';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Modifica Campi';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Seleziona la casella di un campo per abilitarne la modifica. Al salvataggio, il valore verrà applicato a tutti i dispositivi o host selezionati qui sotto.';
 $pia_lang['Device_bulkDel_button'] = 'ELIMINA DISPOSITIVI';
 $pia_lang['Device_bulkDel_info_head'] = 'Elimina Più Dispositivi';
 $pia_lang['Device_bulkDel_info_text'] = 'Con questa funzione è possibile eliminare uno o più dispositivi dal database. Se i dispositivi sono ancora nella rete, potrebbero essere reintegrati nel database, ma senza le loro impostazioni individuali.';

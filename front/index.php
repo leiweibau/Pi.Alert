@@ -80,16 +80,6 @@ if (($_SESSION['login'] ?? 0) == 1) {
     exit;
 }
 
-if (pialert_consume_remember_token($db)) {
-    session_regenerate_id(true);
-    pialert_csrf_rotate();
-    $_SESSION['login'] = 1;
-    $_SESSION['WebProtection'] = $Pia_WebProtection;
-    pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9004', '', '');
-    header('Location: ' . pialert_v4_route('home'));
-    exit;
-}
-
 if (($_SESSION['login'] ?? 0) != 1 && isset($_POST['loginpassword'])) {
     pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9003', '', '');
     header('Location: ' . pialert_v4_route('login') . '?login=failed', true, 303);

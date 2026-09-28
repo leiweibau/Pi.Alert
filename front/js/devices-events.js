@@ -36,17 +36,15 @@
     var link = document.createElement('a');
     var text = String(value == null ? '' : value);
     link.href = href;
-    var strong = document.createElement('strong');
     if (warningSuffix && text.endsWith(warningSuffix)) {
-      strong.appendChild(document.createTextNode(text.slice(0, -warningSuffix.length)));
-      var warning = document.createElement('span');
+      link.appendChild(document.createTextNode(text.slice(0, -warningSuffix.length)));
+      var warning = document.createElement('strong');
       warning.className = 'text-warning';
       warning.textContent = warningSuffix;
-      strong.appendChild(warning);
+      link.appendChild(warning);
     } else {
-      strong.textContent = text;
+      link.textContent = text;
     }
-    link.appendChild(strong);
     td.replaceChildren(link);
   }
 

@@ -40,7 +40,6 @@ html[data-pialert-theme="console"] {
   --pa-button-hover: rgb(72 229 124 / 12%);
   --pa-nav-hover: rgb(72 229 124 / 8%);
   --pa-nav-active: linear-gradient(90deg, rgb(72 229 124 / 20%), rgb(72 229 124 / 5%));
-  --pa-bottom-active: rgb(72 229 124 / 15%);
   --pa-kpi-info: 101 185 214;
   --pa-kpi-success: 72 229 124;
   --pa-kpi-warning: 224 196 65;
@@ -51,7 +50,6 @@ html[data-pialert-theme="console"] {
   --pa-table-heading: var(--pa-surface-raised);
   --pa-control-background: var(--pa-surface-input);
   --pa-badge-border: var(--pa-border);
-  --pa-device-card-background: var(--pa-surface-soft);
 }
 html[data-pialert-theme="console"] body {
   font-family: var(--pa-font-family);
@@ -83,7 +81,7 @@ html[data-pialert-theme="console"] .small-box {
   --pa-kpi-border: rgb(var(--pa-kpi) / 85%);
   --pa-kpi-shadow: inset 0 0 12px rgb(var(--pa-kpi) / 4%);
 }
-/* Keep the shared mobile card rows despite the wider mono glyph advance. */
+/* Keep compact labels legible despite the wider mono glyph advance. */
 html[data-pialert-theme="console"] .pialert-device-filter p,
 html[data-pialert-theme="console"] .dt-paging { letter-spacing: -.11em; }
 html[data-pialert-theme="console"] .pialert-device-filter[data-device-status="new"] p { letter-spacing: -.04em; }
@@ -92,8 +90,7 @@ html[data-pialert-theme="console"] .app-sidebar {
   background: var(--pa-surface-strong) !important;
   border-color: var(--pa-border-strong) !important;
 }
-html[data-pialert-theme="console"] .app-header,
-html[data-pialert-theme="console"] .pa-bottom-nav { background: var(--pa-surface-strong) !important; }
+html[data-pialert-theme="console"] .app-header { background: var(--pa-surface-strong) !important; }
 html[data-pialert-theme="console"] .sidebar-brand .brand-link,
 html[data-pialert-theme="console"] .pa-mobile-brand,
 html[data-pialert-theme="console"] .card-title { color: var(--pa-text-strong); }
@@ -119,13 +116,9 @@ html[data-pialert-theme="console"] :is(.form-control, .form-select, .dt-input):f
 html[data-pialert-theme="console"] :is(input, textarea):-webkit-autofill { -webkit-text-fill-color: var(--pa-text); box-shadow: 0 0 0 1000px var(--pa-surface-input) inset; }
 html[data-pialert-theme="console"] .table > :not(caption) > * > * { background-color: transparent; color: var(--pa-text); }
 html[data-pialert-theme="console"] .table thead th { background: var(--pa-table-heading); color: var(--pa-text-strong); }
-html[data-pialert-theme="console"] .table a,
-html[data-pialert-theme="console"] .pa-device-card-name { color: var(--pa-text-strong); text-decoration-color: var(--pa-border); }
+html[data-pialert-theme="console"] .table a { color: var(--pa-text-strong); text-decoration-color: var(--pa-border); }
 html[data-pialert-theme="console"] .table a:hover,
 html[data-pialert-theme="console"] .table a:focus-visible { text-decoration: underline; }
-html[data-pialert-theme="console"] .pa-device-card { border-color: var(--pa-border); box-shadow: inset 0 0 12px rgb(42 194 89 / 3%); }
-html[data-pialert-theme="console"] .pa-device-card:has(.pialert-status-new-online),
-html[data-pialert-theme="console"] .pa-device-card:has(.pialert-status-new-offline) { border-inline-start-color: var(--pa-yellow); }
 html[data-pialert-theme="console"] #tableDevices .pialert-status-new-online,
 html[data-pialert-theme="console"] #tableDevices .pialert-status-new-offline { color: #100e04; background: var(--pa-yellow); }
 html[data-pialert-theme="console"] .badge.text-bg-warning { color: #100e04 !important; background-color: var(--pa-yellow) !important; }

@@ -1,5 +1,5 @@
 #tableJournal_wrapper > .row,
-#tableJournal_wrapper > .dt-layout-row { row-gap: 0.75rem; }
+#tableJournal_wrapper > .dt-layout-row { --bs-gutter-x: 0; row-gap: 0.75rem; }
 
 #tableJournal th,
 #tableJournal td { vertical-align: middle; }

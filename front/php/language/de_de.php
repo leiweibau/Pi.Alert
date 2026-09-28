@@ -143,6 +143,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Geänderte Geräte';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Geänderte Werte';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Wähle die zu bearbeitenden Geräte aus';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Felder bearbeiten';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Aktiviere die Checkbox eines Feldes, um dessen Bearbeitung freizugeben. Beim Speichern wird der eingestellte Wert auf alle unten ausgewählten Geräte oder Hosts angewendet.';
 $pia_lang['Device_bulkDel_button'] = 'GERÄTE LÖSCHEN';
 $pia_lang['Device_bulkDel_info_head'] = 'Mehrere Geräte löschen';
 $pia_lang['Device_bulkDel_info_text'] = 'Mit dieser Funktion löschst du eines oder mehrere Geräte aus der Datenbank. Wenn sich die Geräte noch im Netzwerk befinden, werden diese, unter Umständen, wieder in die Datenbank aufgenommen, jedoch ohne die individuellen Einstellungen.';

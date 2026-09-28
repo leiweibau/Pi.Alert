@@ -19,7 +19,7 @@ if ($_SESSION["login"] != 1) {
 
 require 'timezone.php';
 require 'db.php';
-require 'auth.php';
+require_once 'auth.php';
 require 'util.php';
 require 'journal.php';
 require_once __DIR__ . '/config_file.php';

@@ -257,12 +257,6 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
       </ul></nav>
     </div>
   </aside><?php endif; ?>
-  <?php if ($theme['name'] !== 'standard'): ?><nav class="pa-bottom-nav" aria-label="<?= h($pia_lang['NAV_Section_A'] ?? 'Main menu'); ?>">
-    <a href="<?= h(pialert_v4_route('home')); ?>"<?= $activePage === 'home' ? ' class="active" aria-current="page"' : ''; ?>><i class="fa-solid fa-laptop" aria-hidden="true"></i><span><?= h($pia_lang['NAV_Devices'] ?? 'Devices'); ?></span></a>
-    <a href="<?= h(pialert_v4_route('network')); ?>"<?= $activePage === 'network' ? ' class="active" aria-current="page"' : ''; ?>><i class="fa-solid fa-network-wired" aria-hidden="true"></i><span><?= h($pia_lang['NAV_Network'] ?? 'Network'); ?></span></a>
-    <a href="<?= h(pialert_v4_route('events')); ?>"<?= $activePage === 'events' ? ' class="active" aria-current="page"' : ''; ?>><i class="fa-solid fa-list-check" aria-hidden="true"></i><span><?= h($pia_lang['NAV_Events'] ?? 'Events'); ?></span></a>
-    <a href="<?= h(pialert_v4_route('maintenance')); ?>"<?= $activePage === 'maintenance' ? ' class="active" aria-current="page"' : ''; ?>><i class="fa-solid fa-gear" aria-hidden="true"></i><span><?= h($pia_lang['NAV_Maintenance'] ?? 'Settings'); ?></span></a>
-  </nav><?php endif; ?>
   <main class="app-main"><?php if (!$withoutSidebar): ?><div class="app-content-header"><div class="container-fluid<?= $pageHeaderAction !== null ? ' pialert-page-heading' : ''; ?>"><h1 id="pageTitle" class="mb-0"><?= h($title); ?></h1><?php if ($pageHeaderAction !== null): ?><div class="pialert-page-action"><?= $pageHeaderAction(); ?></div><?php endif; ?></div></div><?php endif; ?><div class="app-content"><div class="container-fluid">
 <?php }
 

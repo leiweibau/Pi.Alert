@@ -12,6 +12,11 @@
 [data-bs-theme="dark"] #tableDevices .pialert-status-new-online { color: #fff; background: radial-gradient(circle, #b1720c 60%, #00a000 90%); }
 [data-bs-theme="dark"] #tableDevices .pialert-status-new-offline { color: #fff; background: radial-gradient(circle, #b1720c 60%, #aaa 90%); }
 .pialert-bulk-field { min-height: 5.5rem; padding: .85rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+.pialert-bulk-switch-field { min-height: 2.75rem; padding-block: .35rem; }
+.pialert-bulk-switch-field > .form-check:first-child { display: flex; flex: 1 1 auto; align-items: center; gap: .5rem; min-width: 0; padding: 0; margin: 0; }
+.pialert-bulk-switch-field .bulk-enable { float: none; flex: none; margin: 0; }
+.pialert-bulk-switch-field .form-check-label { min-width: 0; overflow-wrap: break-word; }
+.pialert-bulk-switch-field > .form-switch { display: flex; flex: none; align-items: center; min-height: 0; }
 .bulk-value { width: 1.5rem; height: 1.5rem; }
 #deviceSearch { max-width: 28rem; }
 .pialert-bulk-device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .65rem; }

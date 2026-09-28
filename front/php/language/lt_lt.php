@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Pakeisti įrenginiai';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Pakeistos reikšmės';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Pasirinkite įrenginius redagavimui';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Redaguoti laukelius';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Pažymėkite lauko žymimąjį langelį, kad galėtumėte jį redaguoti. Išsaugojus reikšmė bus pritaikyta visiems žemiau pasirinktiems įrenginiams arba pagrindiniams kompiuteriams.';
 $pia_lang['Device_bulkDel_button'] = 'IŠTRINTI ĮRENGINIUS';
 $pia_lang['Device_bulkDel_info_head'] = 'Ištrinti kelis įrenginius';
 $pia_lang['Device_bulkDel_info_text'] = 'Ši funkcija leidžia ištrinti vieną ar kelis įrenginius iš duomenų bazės. Jei įrenginiai vis dar yra tinkle, jie gali būti automatiškai pridėti iš naujo be individualių nustatymų.';

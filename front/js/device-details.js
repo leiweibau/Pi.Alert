@@ -130,7 +130,9 @@
     var randomMacIndicator = field('iconRandomMAC');
     var hasRandomMac = Number(row.dev_RandomMAC) === 1;
     randomMacIndicator.classList.toggle('is-active', hasRandomMac);
-    randomMacIndicator.setAttribute('aria-label', randomMacIndicator.dataset.label + ': ' + randomMacIndicator.dataset[hasRandomMac ? 'activeLabel' : 'inactiveLabel']);
+    var randomMacStatus = randomMacIndicator.dataset.label + ': ' + randomMacIndicator.dataset[hasRandomMac ? 'activeLabel' : 'inactiveLabel'];
+    randomMacIndicator.setAttribute('aria-label', randomMacStatus);
+    randomMacIndicator.title = randomMacStatus;
     var local = row.dev_ScanSource === 'local';
     field('tabNmap').parentElement.hidden = !local;
     if (!local && field('tabNmap').classList.contains('active')) window.bootstrap.Tab.getOrCreateInstance(field('tabDetails')).show();

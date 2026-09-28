@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Gewijzigde apparaten';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Gewijzigde waarden';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Selecteer apparaten om te bewerken';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Velden bewerken';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Vink het selectievakje van een veld aan om het te bewerken. Bij het opslaan wordt de waarde toegepast op alle hieronder geselecteerde apparaten of hosts.';
 $pia_lang['Device_bulkDel_button'] = 'APPARATEN VERWIJDEREN';
 $pia_lang['Device_bulkDel_info_head'] = 'Meerdere apparaten verwijderen';
 $pia_lang['Device_bulkDel_info_text'] = 'Met deze functie verwijder je een of meerdere apparaten uit de database. Als ze nog op het netwerk aanwezig zijn, kunnen ze opnieuw worden gedetecteerd – zonder aangepaste instellingen.';

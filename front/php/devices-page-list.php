@@ -23,7 +23,7 @@
       $isFavorite = $columnId === 'Favorites';
       $heading = $isFavorite ? $L('Device_TableHead_Favorite_Symbol', '⭐️') : $label;
     ?><th<?= $isFavorite ? ' aria-label="' . h($label) . '" title="' . h($label) . '"' : ''; ?>><?= h(pialert_v4_ui_plain_label($heading)); ?></th><?php endforeach; ?>
-    </tr></thead></table><div id="deviceCards" class="pa-device-cards" role="list"></div></div></div>
+    </tr></thead></table></div></div>
   </section>
 
   <div class="modal fade" id="modal-set-predefined-filter" tabindex="-1" aria-labelledby="device-filter-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">

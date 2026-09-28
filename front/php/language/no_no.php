@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Endrede enheter';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Endrede verdier';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Velg enhetene som skal redigeres';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Rediger felter';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Merk av i avkrysningsboksen for et felt for å aktivere redigering. Når du lagrer, brukes verdien på alle valgte enheter eller verter nedenfor.';
 $pia_lang['Device_bulkDel_button'] = 'SLETT ENHETER';
 $pia_lang['Device_bulkDel_info_head'] = 'Slette flere enheter';
 $pia_lang['Device_bulkDel_info_text'] = 'Med denne funksjonen sletter du én eller flere enheter fra databasen. Hvis enhetene fortsatt er i nettverket, kan de bli lagt til igjen uten individuelle innstillinger.';

@@ -50,6 +50,7 @@
 
 #tableEvents_wrapper > .row,
 #tableEvents_wrapper > .dt-layout-row {
+  --bs-gutter-x: 0;
   row-gap: 0.75rem;
 }
 

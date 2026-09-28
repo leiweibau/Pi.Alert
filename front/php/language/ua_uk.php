@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Змінені прист�
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Змінені значення';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Обери пристрої для редагування';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Редагувати поля';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Установіть прапорець поля, щоб увімкнути його редагування. Після збереження значення буде застосовано до всіх вибраних нижче пристроїв або хостів.';
 $pia_lang['Device_bulkDel_button'] = 'ВИДАЛИТИ ПРИСТРОЇ';
 $pia_lang['Device_bulkDel_info_head'] = 'Видалення кількох пристроїв';
 $pia_lang['Device_bulkDel_info_text'] = 'Ця функція дозволяє видалити один або кілька пристроїв із бази даних. Якщо пристрої все ще в мережі, вони можуть бути додані знову, але без індивідуальних налаштувань.';

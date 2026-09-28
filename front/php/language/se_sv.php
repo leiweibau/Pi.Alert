@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Ändrade enheter';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Ändrade värden';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Välj enheter att redigera';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Redigera fält';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Markera kryssrutan för ett fält för att aktivera redigering. När du sparar används värdet för alla valda enheter eller värdar nedan.';
 $pia_lang['Device_bulkDel_button'] = 'RADERA ENHETER';
 $pia_lang['Device_bulkDel_info_head'] = 'Radera flera enheter';
 $pia_lang['Device_bulkDel_info_text'] = 'Med den här funktionen raderar du en eller flera enheter från databasen. Om enheterna fortfarande finns i nätverket kan de läggas till igen utan individuella inställningar.';

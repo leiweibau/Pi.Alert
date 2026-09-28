@@ -64,51 +64,11 @@
     return states[status] || ['info', ''];
   }
 
-  function appendMobileField (container, label, value) {
-    var row = document.createElement('div');
-    row.className = 'pa-device-card-field';
-    var term = document.createElement('span'); term.className = 'pa-device-card-label'; term.textContent = label;
-    var data = document.createElement('span'); data.textContent = text(value) || '—';
-    row.append(term, data); container.append(row);
-  }
-
-  function makeDeleteButton (rowData, forCard) {
-    var button=document.createElement('button'); button.type='button'; button.className='btn btn-sm btn-outline-danger delete-device'+(forCard?' pa-device-card-action':'');
+  function makeDeleteButton (rowData) {
+    var button=document.createElement('button'); button.type='button'; button.className='btn btn-sm btn-outline-danger delete-device';
     button.dataset.deviceMac=text(rowData[11]); button.setAttribute('aria-label',labels.deleteDeviceTitle+': '+text(rowData[0])); button.title=button.getAttribute('aria-label');
     var icon=document.createElement('i'); icon.className='fa-solid fa-trash'; icon.setAttribute('aria-hidden','true'); button.append(icon);
     return button;
-  }
-
-  function renderMobileCards (api) {
-    var cards = document.getElementById('deviceCards');
-    if (!cards || !['glas', 'piano', 'console'].includes(document.documentElement.getAttribute('data-pialert-theme'))) return;
-    var tableNode = api.table().node();
-    if (tableNode.parentNode && cards.previousElementSibling !== tableNode) tableNode.insertAdjacentElement('afterend', cards);
-    cards.replaceChildren();
-    var rows = api.rows({ search: 'applied', order: 'applied', page: 'current' }).data().toArray();
-    if (!rows.length) {
-      var empty = document.createElement('p'); empty.className = 'pa-device-cards-empty'; empty.textContent = labels.empty || window.pialertV4Text('V4_No_Data'); cards.append(empty); return;
-    }
-    rows.forEach(function (rowData) {
-      var mac = text(rowData[11]);
-      var href = 'deviceDetails.php?mac=' + encodeURIComponent(mac);
-      var state = statusInfo(rowData[13]);
-      var card = document.createElement('article'); card.className = 'pa-device-card'; card.setAttribute('role', 'listitem');
-      var icon = document.createElement('i'); icon.className = 'fa-solid fa-laptop pa-device-card-icon'; icon.setAttribute('aria-hidden', 'true');
-      var content = document.createElement('div'); content.className = 'pa-device-card-content';
-      var name = makeLink(href, text(rowData[0]) || window.pialertV4Text('V4_Unknown_Name'), 'pa-device-card-name'); content.append(name);
-      appendMobileField(content, labels.type || window.pialertV4Text('V4_Type'), rowData[3]);
-      appendMobileField(content, labels.lastIp || window.pialertV4Text('V4_Last_IP'), rowData[9]);
-      appendMobileField(content, labels.mac || window.pialertV4Text('V4_MAC_Address'), mac);
-      var status = makeLink(href, state[1] || text(rowData[13]), 'badge pa-device-card-status pialert-device-status-link ' + (state[0].startsWith('pialert-status-') ? state[0] : 'text-bg-' + state[0]));
-      status.setAttribute('aria-label', (labels.status || window.pialertV4Text('V4_Status')) + ': ' + (state[1] || text(rowData[13])));
-      var details = makeLink(href, '', 'pa-device-card-details');
-      details.setAttribute('aria-label', (labels.details || window.pialertV4Text('V4_Details')) + ': ' + (text(rowData[0]) || mac));
-      var chevron = document.createElement('i'); chevron.className = 'fa-solid fa-chevron-right'; chevron.setAttribute('aria-hidden', 'true'); details.append(chevron);
-      card.append(icon, content, status, details);
-      if (!(config.hiddenColumns || []).includes(19)) { card.classList.add('has-actions'); var actionArea=document.createElement('div'); actionArea.className='pa-device-card-actions'; window.pialertEntityActions.append(actionArea,actionMap[mac],makeDeleteButton(rowData,true)); card.append(actionArea); }
-      cards.append(card);
-    });
   }
 
   function initializeTable (rows, order) {
@@ -145,11 +105,11 @@
           button.addEventListener('click',function(){askWakeOnLan(text(rowData[11]),text(rowData[9]),text(rowData[0]));}); td.append(button);
         } },
         { targets: [19], data: null, orderable: false, searchable: false, createdCell: function (td, _cellData, rowData) {
-          window.pialertEntityActions.append(td,actionMap[text(rowData[11])],makeDeleteButton(rowData, false));
+          window.pialertEntityActions.append(td,actionMap[text(rowData[11])],makeDeleteButton(rowData));
         } }
       ],
       processing: true,
-      drawCallback: function () { renderMobileCards(this.api()); window.pialertEntityActions.verifyIcons(); },
+      drawCallback: function () { window.pialertEntityActions.verifyIcons(); },
       language: window.pialertV4DataTableLanguage({ processing:window.pialertV4Text('V4_Loading'),emptyTable:window.pialertV4Text('V4_No_Data'),lengthMenu:labels.lengthMenu,search:(labels.search||window.pialertV4Text('V4_Table_Search').replace(/:$/, ''))+': ',paginate:{next:labels.next,previous:labels.previous},info:labels.info })
     });
     $('#tableDevices').on('length.dt',function(){scheduleTablePreferences();});

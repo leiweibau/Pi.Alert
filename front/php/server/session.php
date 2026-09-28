@@ -64,6 +64,46 @@ function pialert_start_session(): void {
     $sessionCookieOptions["lifetime"] = 0;
     session_set_cookie_params($sessionCookieOptions);
     session_start();
+    pialert_restore_remembered_session();
+}
+
+function pialert_restore_remembered_session(?SQLite3 $database = null): bool {
+    // Mutating requests must retain their normal session and CSRF checks.
+    if (session_status() !== PHP_SESSION_ACTIVE || ($_SESSION['login'] ?? 0) == 1
+        || ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET'
+        || !isset($_COOKIE['PiAlert_SaveLogin'])) {
+        return false;
+    }
+
+    require_once __DIR__ . '/auth.php';
+    if (!preg_match('/^[a-f0-9]{64}$/D', pialert_remember_cookie_value())) {
+        pialert_delete_auth_cookie(PIALERT_REMEMBER_COOKIE);
+        return false;
+    }
+
+    $ownsDatabase = $database === null;
+    try {
+        if ($database === null) {
+            $database = new SQLite3(__DIR__ . '/../../../db/pialert.db', SQLITE3_OPEN_READWRITE);
+            $database->busyTimeout(2000);
+        }
+        $remembered = pialert_consume_remember_token($database);
+        if ($ownsDatabase) {
+            $database->close();
+        }
+        if (!$remembered || !session_regenerate_id(true)) {
+            return false;
+        }
+    } catch (Throwable $exception) {
+        error_log('Pi.Alert could not restore a remembered login: ' . $exception->getMessage());
+        return false;
+    }
+
+    require_once __DIR__ . '/csrf.php';
+    pialert_csrf_rotate();
+    $_SESSION['login'] = 1;
+    $_SESSION['WebProtection'] = 'true';
+    return true;
 }
 
 function pialert_set_auth_cookie(string $name, string $value, int $expires): bool {

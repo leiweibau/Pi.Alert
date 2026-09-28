@@ -25,7 +25,6 @@ html[data-pialert-theme="piano"] {
   --pa-button-hover: rgb(115 187 232 / 13%);
   --pa-nav-hover: rgb(255 255 255 / 6%);
   --pa-nav-active: linear-gradient(90deg, rgb(115 187 232 / 19%), rgb(115 187 232 / 5%));
-  --pa-bottom-active: rgb(115 187 232 / 19%);
   --pa-kpi-info: 115 187 232;
   --pa-kpi-success: 79 199 150;
   --pa-kpi-warning: 216 181 87;
@@ -36,7 +35,6 @@ html[data-pialert-theme="piano"] {
   --pa-table-heading: #3b4042;
   --pa-control-background: #34393b;
   --pa-badge-border: rgb(255 255 255 / 14%);
-  --pa-device-card-background: linear-gradient(145deg, #3b4042, #292d2f);
   --pa-sidebar-background: linear-gradient(145deg, #383d3f, #292d2f);
   --pa-brand-background: linear-gradient(145deg, #3b4042, #2b3032);
   --pa-status-background: linear-gradient(145deg, #414648, #34393b);
@@ -71,8 +69,6 @@ html[data-pialert-theme="piano"] .card-header { background: var(--pa-card-header
 /* Chart datasets are shared with other themes; soften their paint only in Piano. */
 html[data-pialert-theme="piano"] .card canvas { filter: saturate(.85); }
 html[data-pialert-theme="piano"] .table > :not(caption) > * > * { background-color: transparent; color: var(--pa-text); }
-html[data-pialert-theme="piano"] .pa-bottom-nav { background: var(--pa-gloss-background) !important; }
-html[data-pialert-theme="piano"] .pa-device-card { box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%), 0 2px 6px rgb(23 24 24 / 10%); }
 html[data-pialert-theme="piano"] .app-footer { color: #4d565b; border-top-color: #c7c4bd; }
 /* Bootstrap's link-body-emphasis utility sets color with !important. */
 html[data-pialert-theme="piano"] .app-footer a { color: #2c3c4b !important; text-decoration-color: currentColor !important; }

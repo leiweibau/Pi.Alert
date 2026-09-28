@@ -69,6 +69,7 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 .app-content table a.badge,
 .app-content table a.badge:hover,
 .app-content table a.badge:focus-visible { text-decoration: none; }
+#tableDevices_wrapper > .row { --bs-gutter-x: 0; }
 .pialert-availability-table { table-layout: fixed; width: 100%; }
 .pialert-availability-table th, .pialert-availability-table td { overflow-wrap: break-word; }
 .pialert-availability-table th:first-child, .pialert-availability-table td:first-child { width: 20%; }

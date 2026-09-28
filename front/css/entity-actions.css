@@ -22,10 +22,6 @@
 #tableDevices td:has(.entity-actions-buttons) { min-width: 6rem; }
 #deviceDetailsTabs, #icmpDetailsTabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; max-width: 100%; }
 #deviceDetailsTabs .nav-link, #icmpDetailsTabs .nav-link { white-space: nowrap; }
-html[data-pialert-theme] .pa-device-card.has-actions { grid-template-columns: 2.6rem minmax(0, 1fr) auto 1.5rem; }
-html[data-pialert-theme] .pa-device-card-actions { grid-column: 2 / -1; grid-row: 2; justify-self: end; min-width: 0; }
-html[data-pialert-theme] .pa-device-card-actions .entity-actions-buttons { justify-content: flex-end; }
-html[data-pialert-theme] .pa-device-card-actions .pa-device-card-action { grid-column: auto; grid-row: auto; }
 html[data-pialert-theme] .entity-action-link { color: var(--pa-text); border-color: var(--pa-border); }
 html[data-pialert-theme] .entity-action-link:hover { color: var(--pa-text); background: var(--pa-button-hover); }
 html[data-pialert-theme] .entity-actions-row { background: var(--pa-control-background); border-color: var(--pa-border); }
@@ -38,8 +34,6 @@ html[data-pialert-theme] .entity-actions-row { background: var(--pa-control-back
   .entity-actions-icon-button { grid-column: 2; grid-row: 1; }
   .entity-actions-remove { grid-column: 2; grid-row: 4; }
   .entity-actions-icon-filters { grid-template-columns: 1fr; }
-  html[data-pialert-theme] .pa-device-card.has-actions { grid-template-columns: 2.25rem minmax(0, 1fr) 1.25rem; }
-  html[data-pialert-theme] .pa-device-card-actions { grid-column: 2 / -1; grid-row: 3; }
 }
 @media (max-width: 575.98px) {
   .clr-picker.clr-pill {

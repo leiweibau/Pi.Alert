@@ -138,6 +138,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Muokatut laitteet';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Muokatut arvot';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Valitse muokattavat laitteet';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Muokkaa kenttiä';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Valitse kentän valintaruutu ottaaksesi muokkauksen käyttöön. Tallennettaessa arvoa käytetään kaikille alla valituille laitteille tai isännille.';
 $pia_lang['Device_bulkDel_button'] = 'POISTA LAITTEET';
 $pia_lang['Device_bulkDel_info_head'] = 'Poista useita laitteita';
 $pia_lang['Device_bulkDel_info_text'] = 'Tällä toiminnolla poistat yhden tai useampia laitteita tietokannasta. Jos laitteet ovat yhä verkossa, ne voidaan lisätä uudelleen ilman yksilöllisiä asetuksia.';

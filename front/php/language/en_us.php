@@ -143,6 +143,7 @@ $pia_lang['Device_bulkEditor_savebox_mod_devices'] = 'Modified devices';
 $pia_lang['Device_bulkEditor_savebox_mod_fields'] = 'Changed values';
 $pia_lang['Device_bulkEditor_hostbox_title'] = 'Select the devices to be edited';
 $pia_lang['Device_bulkEditor_inputbox_title'] = 'Edit fields';
+$pia_lang['Device_bulkEditor_inputbox_help'] = 'Select a field checkbox to enable editing. When you save, its value is applied to all devices or hosts selected below.';
 $pia_lang['Device_bulkDel_button'] = 'DELETE DEVICES';
 $pia_lang['Device_bulkDel_info_head'] = 'Delete multiple devices';
 $pia_lang['Device_bulkDel_info_text'] = 'With this function, you delete one or more devices from the database. If the devices are still in the network, they may be added back to the database, but without the individual settings.';

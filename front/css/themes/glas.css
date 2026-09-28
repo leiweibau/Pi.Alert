@@ -27,7 +27,6 @@ html[data-pialert-theme="glas"] {
   --pa-button-hover: rgb(69 165 255 / 15%);
   --pa-nav-hover: rgb(88 150 202 / 13%);
   --pa-nav-active: linear-gradient(90deg, rgb(69 165 255 / 27%), rgb(69 165 255 / 10%));
-  --pa-bottom-active: rgb(69 165 255 / 25%);
   --pa-kpi-info: 51 190 224;
   --pa-kpi-success: 40 203 131;
   --pa-kpi-warning: 241 189 54;
@@ -38,7 +37,6 @@ html[data-pialert-theme="glas"] {
   --pa-table-heading: rgb(64 94 122 / 52%);
   --pa-control-background: rgb(19 45 69 / 72%);
   --pa-badge-border: rgb(255 255 255 / 12%);
-  --pa-device-card-background: rgb(29 57 84 / 62%);
   color-scheme: dark;
 }
 /* These formulas must be resolved on the KPI itself: --pa-kpi varies per card. */
