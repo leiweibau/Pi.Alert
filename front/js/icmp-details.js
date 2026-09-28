@@ -117,8 +117,8 @@
       initialView: 'timeline', duration: {minutes: duration}, dateAlignment: 'minute', initialDate: start, height: 'auto', timeZone: 'local',
       locale: config.locale, schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
       navLinks: false,
-      headerToolbar: false, slotDuration: '00:10:00', slotLabelInterval: '00:30:00', scrollTime: '24:00:00',
-      slotLabelFormat: {hour: '2-digit', minute: '2-digit', hour12: false}, slotMinWidth: 42, eventMinWidth: 0,
+      headerToolbar: false, slotDuration: '00:30:00', slotLabelInterval: '02:00:00', scrollTime: '00:00:00',
+      slotLabelFormat: {hour: '2-digit', minute: '2-digit', hour12: false}, slotMinWidth: 20, eventMinWidth: 0,
       editable: false, selectable: false, eventStartEditable: false, eventDurationEditable: false,
       events: events,
       eventDidMount: function (argument) {

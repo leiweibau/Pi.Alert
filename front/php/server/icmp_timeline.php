@@ -85,7 +85,7 @@ function pialert_icmp_timeline_events(SQLite3 $db, string $hostIp, string $start
 
 function pialert_icmp_timeline_snapshot(SQLite3 $db, string $hostIp, array $labels, ?int $now = null): array {
     $end = $now ?? time();
-    $start = $end - 2 * 3600;
+    $start = $end - 24 * 3600;
     $startDate = date('Y-m-d H:i:s', $start);
     $endDate = date('Y-m-d H:i:s', $end);
     $result = db_execute_prepared($db,
