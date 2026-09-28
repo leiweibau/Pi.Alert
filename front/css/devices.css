@@ -5,7 +5,17 @@
 #tableDevices th { white-space: nowrap; }
 #tableDevices tbody td.pialert-device-wol-cell,
 #tableDevices tbody td.pialert-device-actions-cell { padding: 0; }
-#tableDevices .pialert-device-timestamp { min-width: 7rem; white-space: nowrap; }
+#tableDevices .pialert-device-name { min-width: 130px; }
+#tableDevices .pialert-device-favorite { min-width: 38px; }
+#tableDevices .pialert-device-timestamp { min-width: 157px; white-space: nowrap; }
+#tableDevices .pialert-device-last-ip { min-width: 118px; }
+#tableDevices .pialert-device-mac { min-width: 165px; }
+#tableDevices .pialert-device-status { white-space: nowrap; }
+#tableDevices .pialert-device-wol-cell { width: 52px; min-width: 52px; max-width: 52px; }
+/* DataTables writes col widths; keep WoL fixed and share spare width with Name and Type. */
+#tableDevices col[data-dt-column="17"] { width: 52px !important; }
+#tableDevices col[data-dt-column="0"],
+#tableDevices col[data-dt-column="3"] { width: auto !important; }
 .pialert-device-status-link, .pialert-device-status-link:hover, .pialert-device-status-link:focus-visible { text-decoration: none; }
 #tableDevices .pialert-status-new-online { color: #212529; background: radial-gradient(circle, #f39c12 60%, #00a65a 90%); }
 #tableDevices .pialert-status-new-offline { color: #212529; background: radial-gradient(circle, #f39c12 60%, #aaa 90%); }

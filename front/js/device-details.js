@@ -161,7 +161,7 @@
   function tableLanguage() { return window.pialertV4DataTableLanguage({emptyTable:window.pialertV4Text('V4_No_Data'),lengthMenu:labels.lengthMenu,search:labels.search + ': ',paginate:{next:labels.next,previous:labels.previous},info:labels.info}); }
   function initializeTables() {
     var base = {paging:true,lengthChange:true,lengthMenu:[[10,25,50,100,500,-1],[10,25,50,100,500,'All']],
-      searching:true,ordering:true,info:true,autoWidth:false,pageLength:10,processing:true,
+      searching:true,ordering:true,info:true,autoWidth:true,pageLength:10,processing:true,
       columnDefs:[{targets:'_all',render:$.fn.dataTable.render.text()}],language:tableLanguage()};
     tables.sessions = $('#tableSessions').DataTable($.extend(true,{},base,{
       pageLength:preferences.sessionsRows,order:[[0,'desc'],[1,'desc']],columnDefs:[{targets:'_all',render:$.fn.dataTable.render.text()},{targets:0,visible:false}],

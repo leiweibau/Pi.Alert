@@ -93,7 +93,7 @@
       searching: true,
       ordering: true,
       info: true,
-      autoWidth: false,
+      autoWidth: true,
       pageLength: 25,
       order: [[0, 'desc']],
       columnDefs: [

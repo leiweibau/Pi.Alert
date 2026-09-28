@@ -133,6 +133,7 @@
       ajax: { url: root.dataset.servicesEndpoint + '?action=getServicesJournal', type: 'GET', dataSrc: '' },
       searching: false,
       lengthChange: false,
+      autoWidth: true,
       pageLength: 10,
       order: [[0, 'desc']],
       columns: [

@@ -1,6 +1,9 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Zobrazení';
+$pia_lang['V4_UI_Settings_Heading'] = 'Nastavit tlačítko Nastavení';
+$pia_lang['V4_UI_Settings_Sidebar'] = 'Zobrazit v postranním panelu';
+$pia_lang['V4_UI_Settings_Popup'] = 'Zobrazit ve vyskakovací nabídce';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Akce';
 $pia_lang['EntityActions_Empty'] = 'Zatím nejsou nastaveny žádné odkazy.';

@@ -1,6 +1,9 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Visualización';
+$pia_lang['V4_UI_Settings_Heading'] = 'Configurar el botón de ajustes';
+$pia_lang['V4_UI_Settings_Sidebar'] = 'Mostrar en la barra lateral';
+$pia_lang['V4_UI_Settings_Popup'] = 'Mostrar en el menú emergente';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Acciones';
 $pia_lang['EntityActions_Empty'] = 'Aún no hay enlaces configurados.';

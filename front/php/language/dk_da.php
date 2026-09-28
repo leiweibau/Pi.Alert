@@ -1,6 +1,9 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Visning';
+$pia_lang['V4_UI_Settings_Heading'] = 'Konfigurer knappen Indstillinger';
+$pia_lang['V4_UI_Settings_Sidebar'] = 'Vis i sidepanelet';
+$pia_lang['V4_UI_Settings_Popup'] = 'Vis i pop op-menuen';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Handlinger';
 $pia_lang['EntityActions_Empty'] = 'Ingen links er konfigureret endnu.';

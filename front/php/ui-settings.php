@@ -81,7 +81,7 @@ function pialert_v4_ui_valid_favicon($value): bool {
 
 function pialert_v4_ui_defaults(): array {
     return array(
-        'schema'=>8,
+        'schema'=>9,
         'revision'=>0,
         'devices'=>array(
             'columns'=>array('ConnectionType'=>false,'Owner'=>true,'Type'=>true,'Favorites'=>true,'Group'=>true,'Location'=>false,'FirstSession'=>true,'LastSession'=>true,'LastIP'=>true,'MACType'=>true,'MACAddress'=>false,'MACVendor'=>true,'WakeOnLAN'=>false,'Actions'=>true),
@@ -95,6 +95,7 @@ function pialert_v4_ui_defaults(): array {
         ),
         'appearance'=>array(
             'language'=>'en_us','skin'=>'skin-blue','theme'=>'standard','dark_mode'=>false,'activity_history'=>true,
+            'settings_sidebar'=>true,'settings_popup'=>true,
             'favicon'=>'img/favicons/flat_blue_white.png',
             'sidebar_color'=>'body-secondary','header_color'=>'body','pihole_url'=>'',
             'header_widgets'=>array(
@@ -153,7 +154,7 @@ function pialert_v4_ui_exact_keys(array $value, array $keys): bool {
 
 function pialert_v4_ui_validate(array $data): array {
     $defaults = pialert_v4_ui_defaults();
-    if (!pialert_v4_ui_exact_keys($data, array_keys($defaults)) || $data['schema'] !== 8 || !is_int($data['revision']) || $data['revision'] < 0 || !is_array($data['devices']) || !is_array($data['icmp']) || !is_array($data['appearance'])) throw new InvalidArgumentException('Invalid UI settings schema');
+    if (!pialert_v4_ui_exact_keys($data, array_keys($defaults)) || $data['schema'] !== 9 || !is_int($data['revision']) || $data['revision'] < 0 || !is_array($data['devices']) || !is_array($data['icmp']) || !is_array($data['appearance'])) throw new InvalidArgumentException('Invalid UI settings schema');
     $devices = $data['devices']; $icmp = $data['icmp']; $appearance = $data['appearance'];
     if (!pialert_v4_ui_exact_keys($devices, array_keys($defaults['devices'])) || !is_array($devices['columns']) || !pialert_v4_ui_exact_keys($devices['columns'], array_keys($defaults['devices']['columns']))) throw new InvalidArgumentException('Invalid device preferences');
     foreach ($devices['columns'] as $visible) if (!is_bool($visible)) throw new InvalidArgumentException('Invalid column visibility');
@@ -179,6 +180,7 @@ function pialert_v4_ui_validate(array $data): array {
     if (!is_string($appearance['theme']) || !in_array($appearance['theme'], pialert_v4_ui_theme_options(), true)) throw new InvalidArgumentException('Invalid theme');
     if (!is_bool($appearance['dark_mode'])) throw new InvalidArgumentException('Invalid dark mode');
     if (!is_bool($appearance['activity_history'])) throw new InvalidArgumentException('Invalid activity history setting');
+    if (!is_bool($appearance['settings_sidebar']) || !is_bool($appearance['settings_popup'])) throw new InvalidArgumentException('Invalid settings navigation visibility');
     if (!pialert_v4_ui_valid_favicon($appearance['favicon'])) throw new InvalidArgumentException('Invalid favicon');
     if (!is_string($appearance['sidebar_color']) || !array_key_exists($appearance['sidebar_color'], pialert_v4_ui_color_names()) || !is_string($appearance['header_color']) || !array_key_exists($appearance['header_color'], pialert_v4_ui_color_names())) throw new InvalidArgumentException('Invalid chrome colour');
     $url = $appearance['pihole_url'];
@@ -240,6 +242,14 @@ function pialert_v4_ui_read(): array {
         if (is_array($data['appearance'] ?? null)) $data['appearance']['favicon'] = 'img/favicons/flat_blue_white.png';
         $data['schema'] = 8;
     }
+    if (($data['schema'] ?? null) === 8) {
+        // Keep existing navigation visible until the user changes either setting.
+        if (is_array($data['appearance'] ?? null)) {
+            $data['appearance']['settings_sidebar'] = true;
+            $data['appearance']['settings_popup'] = true;
+        }
+        $data['schema'] = 9;
+    }
     try { return pialert_v4_ui_validate($data); } catch (InvalidArgumentException $e) { throw new RuntimeException('Invalid UI settings content', 0, $e); }
 }
 
@@ -248,7 +258,7 @@ function pialert_v4_ui_update(string $section, $value, ?int $expectedRevision = 
 }
 
 function pialert_v4_ui_update_many(array $patches, ?int $expectedRevision = null): array {
-    $allowed = array('devices.columns','devices.page_length','devices.order','icmp.columns','icmp.page_length','icmp.order','appearance.language','appearance.theme','appearance.dark_mode','appearance.activity_history','appearance.favicon','appearance.sidebar_color','appearance.header_color','appearance.pihole_url','appearance.header_widgets');
+    $allowed = array('devices.columns','devices.page_length','devices.order','icmp.columns','icmp.page_length','icmp.order','appearance.language','appearance.theme','appearance.dark_mode','appearance.activity_history','appearance.settings_sidebar','appearance.settings_popup','appearance.favicon','appearance.sidebar_color','appearance.header_color','appearance.pihole_url','appearance.header_widgets');
     if ($patches === array() || count($patches) > count($allowed)) throw new InvalidArgumentException('Invalid UI settings patch');
     foreach (array_keys($patches) as $section) if (!is_string($section) || !in_array($section, $allowed, true)) throw new InvalidArgumentException('Unknown UI settings section');
     $path = pialert_v4_ui_path();

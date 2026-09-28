@@ -74,17 +74,22 @@
   function initializeTable (rows, order) {
     table = $('#tableDevices').DataTable({
       paging: true, lengthChange: true, lengthMenu: [[10,25,50,100,500,-1],[10,25,50,100,500,labels.lengthAll || 'All']],
-      searching: true, search: { search: config.predefinedFilter || '' }, ordering: true, info: true, autoWidth: false,
+      searching: true, search: { search: config.predefinedFilter || '' }, ordering: true, info: true, autoWidth: true,
       pageLength: Number.isInteger(rows) ? rows : 10, order: Array.isArray(order) ? order : [[3,'desc'],[0,'asc']],
       ajax: {url:endpoint('getDevicesList', { scansource: config.scanSource, status: deviceStatus }),dataSrc:function(response){actionMap=response && response.actions && typeof response.actions==='object' ? response.actions : {};return Array.isArray(response.data) ? response.data : [];}},
       columnDefs: [
         { targets: '_all', render: $.fn.dataTable.render.text() },
         { visible: false, targets: config.hiddenColumns || [14,15,16,18] },
+        { className: 'pialert-device-name', targets: [0] },
+        { className: 'pialert-device-favorite', targets: [4] },
         { className: 'text-center', targets: [4,9,10,11,13] },
+        { className: 'pialert-device-last-ip', targets: [9] },
+        { className: 'pialert-device-mac', targets: [11] },
+        { className: 'pialert-device-status', targets: [13] },
         { className: 'text-center pialert-device-wol-cell', targets: [17] },
         { className: 'text-center pialert-device-actions-cell', targets: [19] },
         { className: 'pialert-device-timestamp', width: '7rem', targets: [7,8] },
-        { width: '30px', targets: [10] }, { width: '0px', targets: [13] }, { width: '3rem', targets: [17] }, { width: '10rem', targets: [19] },
+        { width: '30px', targets: [10] }, { width: '52px', targets: [17] }, { width: '10rem', targets: [19] },
         { orderData: [14], targets: [9] }, { targets: config.filterFields || [], searchable: false },
         { targets: [0], createdCell: function (td, cellData, rowData) {
           var colors = { Down:'var(--bs-danger)',NewON:'var(--bs-warning)',NewOFF:'var(--bs-warning)',OnlineV:'var(--bs-success)','On-line':'var(--bs-success)' };

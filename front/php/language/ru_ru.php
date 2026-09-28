@@ -1,6 +1,9 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Отображение';
+$pia_lang['V4_UI_Settings_Heading'] = 'Настроить кнопку «Настройки»';
+$pia_lang['V4_UI_Settings_Sidebar'] = 'Показывать на боковой панели';
+$pia_lang['V4_UI_Settings_Popup'] = 'Показывать во всплывающем меню';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Действия';
 $pia_lang['EntityActions_Empty'] = 'Ссылки пока не настроены.';

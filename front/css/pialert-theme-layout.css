@@ -122,6 +122,16 @@ html[data-pialert-theme] .form-select { color: var(--pa-text); background-color:
 html[data-pialert-theme] .form-control::placeholder { color: var(--pa-text-muted); opacity: .75; }
 html[data-pialert-theme] .btn-outline-secondary { color: var(--pa-text); border-color: var(--pa-border); }
 html[data-pialert-theme] .btn-outline-secondary:hover { color: var(--pa-text); background: var(--pa-button-hover); }
+html[data-pialert-theme] .pialert-user-menu :is(#custom-menu-default-button, #custom-menu-settings-button) {
+  color: var(--pa-text);
+  background-color: var(--pa-control-background);
+  border-color: var(--pa-border);
+}
+html[data-pialert-theme] .pialert-user-menu :is(#custom-menu-default-button, #custom-menu-settings-button):is(:hover, :focus-visible) {
+  color: var(--pa-text);
+  background-color: var(--pa-surface-raised, var(--pa-surface-soft));
+  border-color: var(--pa-border-strong, var(--pa-border));
+}
 html[data-pialert-theme] .badge { border: 1px solid var(--pa-badge-border); }
 html[data-pialert-theme] .app-footer { color: var(--pa-text-muted); background: transparent; border-top-color: var(--pa-divider); }
 html[data-pialert-theme] .app-footer a { color: var(--pa-text); }

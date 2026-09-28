@@ -1,6 +1,9 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Rodymas';
+$pia_lang['V4_UI_Settings_Heading'] = 'Konfigūruoti nustatymų mygtuką';
+$pia_lang['V4_UI_Settings_Sidebar'] = 'Rodyti šoninėje juostoje';
+$pia_lang['V4_UI_Settings_Popup'] = 'Rodyti iškylančiajame meniu';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Veiksmai';
 $pia_lang['EntityActions_Empty'] = 'Nuorodų dar nesukonfigūruota.';

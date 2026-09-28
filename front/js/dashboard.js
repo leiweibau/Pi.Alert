@@ -169,7 +169,7 @@
     eventsTable = $('#tableEvents').DataTable({
       ajax: { url: 'php/server/events.php', data: { action: 'getEvents', type: 'all', period: '1 day' }, dataSrc: 'data', cache: false },
       paging: false, searching: false, info: false, lengthChange: false, ordering: true,
-      order: [[0, 'desc'], [3, 'desc'], [5, 'desc']], scrollY: '330', scrollX: true, scrollCollapse: true, autoWidth: false, pageLength: 50,
+      order: [[0, 'desc'], [3, 'desc'], [5, 'desc']], scrollY: '330', scrollX: true, scrollCollapse: true, autoWidth: true, pageLength: 50,
       columnDefs: [{ targets: '_all', render: $.fn.dataTable.render.text() }, { visible: false, targets: [0, 2, 5, 6, 7, 8, 10, 11] }, { targets: [1], createdCell: eventLink }],
       processing: true, language: window.pialertV4DataTableLanguage({ emptyTable: labels.noData })
     });

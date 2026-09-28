@@ -36,7 +36,7 @@
     table = $('#tableEvents').DataTable({
       paging: true, lengthChange: true,
       lengthMenu: [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, 'All']],
-      searching: true, ordering: true, info: true, autoWidth: false, pageLength: 10,
+      searching: true, ordering: true, info: true, autoWidth: true, pageLength: 10,
       order: [[0, 'desc']], columns: [{ data: 0 }, { data: 1 }, { data: 2 }, { data: 3 }],
       columnDefs: [{ targets: '_all', render: $.fn.dataTable.render.text() }, { className: 'text-center', targets: [0, 1, 2, 3] }],
       language: window.pialertV4DataTableLanguage({ emptyTable: window.pialertV4Text('V4_No_Data'), lengthMenu: root.dataset.lengthMenu, search: root.dataset.search + ': ', paginate: { next: root.dataset.next, previous: root.dataset.previous }, info: root.dataset.info })

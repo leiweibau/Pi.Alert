@@ -1,6 +1,9 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Weergave';
+$pia_lang['V4_UI_Settings_Heading'] = 'Knop Instellingen configureren';
+$pia_lang['V4_UI_Settings_Sidebar'] = 'In de zijbalk tonen';
+$pia_lang['V4_UI_Settings_Popup'] = 'In het pop-upmenu tonen';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Acties';
 $pia_lang['EntityActions_Empty'] = 'Nog geen links ingesteld.';

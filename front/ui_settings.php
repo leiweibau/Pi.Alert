@@ -41,6 +41,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             'appearance.language'=>$language,
             'appearance.theme'=>$theme,
             'appearance.dark_mode'=>isset($_POST['dark_mode']),
+            'appearance.settings_sidebar'=>isset($_POST['settings_sidebar']),
+            'appearance.settings_popup'=>isset($_POST['settings_popup']),
             'appearance.sidebar_color'=>$sidebarColor,
             'appearance.header_color'=>$headerColor,
             'appearance.pihole_url'=>$piholeUrl,
@@ -81,6 +83,9 @@ $strings = array(
     'displays'=>$pia_lang['V4_UI_Displays'],
     'language'=>$pia_lang['V4_UI_Language'],
     'dark'=>$pia_lang['V4_UI_Dark'],
+    'settings_sidebar'=>$pia_lang['V4_UI_Settings_Sidebar'],
+    'settings_popup'=>$pia_lang['V4_UI_Settings_Popup'],
+    'settings_heading'=>$pia_lang['V4_UI_Settings_Heading'],
     'sidebar_color'=>$pia_lang['V4_UI_Sidebar_Color'],
     'header_color'=>$pia_lang['V4_UI_Header_Color'],
     'previous_color'=>$pia_lang['V4_UI_Previous_Color'],
@@ -175,7 +180,14 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'));
         </div>
       </div></section></div>
       <div class="col-12"><section class="card"><div class="card-header"><h2 class="card-title"><?= h($uiText('displays')); ?></h2></div><div class="card-body">
-        <label class="form-label h6" for="ui-pihole"><?= h($uiText('pihole')); ?></label><input class="form-control" id="ui-pihole" type="url" name="pihole_url" maxlength="2048" placeholder="https://pi.hole/" value="<?= h($settings['appearance']['pihole_url']); ?>"><div class="form-text"><?= h($uiText('pihole_help')); ?></div>
+        <h3 class="h6 mb-3"><?= h($uiText('settings_heading')); ?></h3>
+        <div class="row g-2">
+          <div class="col-12 col-md-6"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="ui-settings-sidebar" name="settings_sidebar" value="1"<?= $settings['appearance']['settings_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-settings-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div></div>
+          <div class="col-12 col-md-6"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="ui-settings-popup" name="settings_popup" value="1"<?= $settings['appearance']['settings_popup'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-settings-popup"><?= h($uiText('settings_popup')); ?></label></div></div>
+        </div>
+        <div class="mt-4 pt-3 border-top">
+          <label class="form-label h6" for="ui-pihole"><?= h($uiText('pihole')); ?></label><input class="form-control" id="ui-pihole" type="url" name="pihole_url" maxlength="2048" placeholder="https://pi.hole/" value="<?= h($settings['appearance']['pihole_url']); ?>"><div class="form-text"><?= h($uiText('pihole_help')); ?></div>
+        </div>
         <div class="mt-4 pt-3 border-top">
           <h3 class="h6"><?= h($pia_lang['MT_Tool_onlinehistorygraph'] ?? 'Activity history'); ?></h3>
           <p class="text-body-secondary mb-2"><?= h($pia_lang['UI_Activity_History_Help']); ?></p>

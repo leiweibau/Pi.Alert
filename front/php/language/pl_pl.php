@@ -1,6 +1,9 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Wyświetlanie';
+$pia_lang['V4_UI_Settings_Heading'] = 'Skonfiguruj przycisk Ustawienia';
+$pia_lang['V4_UI_Settings_Sidebar'] = 'Pokaż na pasku bocznym';
+$pia_lang['V4_UI_Settings_Popup'] = 'Pokaż w menu podręcznym';
 // URL actions
 $pia_lang['EntityActions_Tab'] = 'Akcje';
 $pia_lang['EntityActions_Empty'] = 'Nie skonfigurowano jeszcze linków.';

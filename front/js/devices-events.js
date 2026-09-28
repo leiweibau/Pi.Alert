@@ -56,7 +56,7 @@
       searching: true,
       ordering: true,
       info: true,
-      autoWidth: false,
+      autoWidth: true,
       order: [[0, 'desc'], [3, 'desc'], [5, 'desc']],
       pageLength: state.rows,
       columnDefs: [
