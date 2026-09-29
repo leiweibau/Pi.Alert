@@ -1,6 +1,8 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Rodymas';
+$pia_lang['V4_UI_High_Contrast_Status_Badges'] = 'Alternatyvios būsenos ženklelių spalvos';
+$pia_lang['V4_UI_Accessibility_Heading'] = 'Prieinamumas';
 $pia_lang['V4_UI_Settings_Heading'] = 'Konfigūruoti nustatymų mygtuką';
 $pia_lang['V4_UI_Settings_Sidebar'] = 'Rodyti šoninėje juostoje';
 $pia_lang['V4_UI_Settings_Popup'] = 'Rodyti iškylančiajame meniu';

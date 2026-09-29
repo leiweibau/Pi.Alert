@@ -1,6 +1,8 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Weergave';
+$pia_lang['V4_UI_High_Contrast_Status_Badges'] = 'Alternatieve kleuren voor statusbadges';
+$pia_lang['V4_UI_Accessibility_Heading'] = 'Toegankelijkheid';
 $pia_lang['V4_UI_Settings_Heading'] = 'Knop Instellingen configureren';
 $pia_lang['V4_UI_Settings_Sidebar'] = 'In de zijbalk tonen';
 $pia_lang['V4_UI_Settings_Popup'] = 'In het pop-upmenu tonen';

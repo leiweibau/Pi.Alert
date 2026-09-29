@@ -1,5 +1,5 @@
 {
-    "schema": 9,
+    "schema": 10,
     "revision": 0,
     "devices": {
         "columns": {
@@ -37,6 +37,7 @@
         "skin": "skin-blue",
         "theme": "standard",
         "dark_mode": false,
+        "high_contrast_status_badges": false,
         "activity_history": true,
         "settings_sidebar": true,
         "settings_popup": true,

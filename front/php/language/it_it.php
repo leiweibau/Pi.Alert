@@ -1,6 +1,8 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Visualizzazione';
+$pia_lang['V4_UI_High_Contrast_Status_Badges'] = 'Colori alternativi dei badge di stato';
+$pia_lang['V4_UI_Accessibility_Heading'] = 'Accessibilità';
 $pia_lang['V4_UI_Settings_Heading'] = 'Configura il pulsante Impostazioni';
 $pia_lang['V4_UI_Settings_Sidebar'] = 'Mostra nella barra laterale';
 $pia_lang['V4_UI_Settings_Popup'] = 'Mostra nel menu a comparsa';

@@ -41,6 +41,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             'appearance.language'=>$language,
             'appearance.theme'=>$theme,
             'appearance.dark_mode'=>isset($_POST['dark_mode']),
+            'appearance.high_contrast_status_badges'=>isset($_POST['high_contrast_status_badges']),
             'appearance.settings_sidebar'=>isset($_POST['settings_sidebar']),
             'appearance.settings_popup'=>isset($_POST['settings_popup']),
             'appearance.sidebar_color'=>$sidebarColor,
@@ -83,6 +84,8 @@ $strings = array(
     'displays'=>$pia_lang['V4_UI_Displays'],
     'language'=>$pia_lang['V4_UI_Language'],
     'dark'=>$pia_lang['V4_UI_Dark'],
+    'accessibility_heading'=>$pia_lang['V4_UI_Accessibility_Heading'],
+    'high_contrast_status_badges'=>$pia_lang['V4_UI_High_Contrast_Status_Badges'],
     'settings_sidebar'=>$pia_lang['V4_UI_Settings_Sidebar'],
     'settings_popup'=>$pia_lang['V4_UI_Settings_Popup'],
     'settings_heading'=>$pia_lang['V4_UI_Settings_Heading'],
@@ -177,6 +180,10 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'));
           </div>
         <?php endforeach; ?>
         <div class="form-text"><?= h($uiText('color_help')); ?></div>
+        </div>
+        <div class="mt-4 pt-3 border-top">
+          <h3 class="h6 mb-3"><?= h($uiText('accessibility_heading')); ?></h3>
+          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="ui-high-contrast-status-badges" name="high_contrast_status_badges" value="1"<?= $settings['appearance']['high_contrast_status_badges'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-high-contrast-status-badges"><?= h($uiText('high_contrast_status_badges')); ?></label></div>
         </div>
       </div></section></div>
       <div class="col-12"><section class="card"><div class="card-header"><h2 class="card-title"><?= h($uiText('displays')); ?></h2></div><div class="card-body">

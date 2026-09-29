@@ -1,6 +1,8 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Отображение';
+$pia_lang['V4_UI_High_Contrast_Status_Badges'] = 'Альтернативные цвета значков состояния';
+$pia_lang['V4_UI_Accessibility_Heading'] = 'Специальные возможности';
 $pia_lang['V4_UI_Settings_Heading'] = 'Настроить кнопку «Настройки»';
 $pia_lang['V4_UI_Settings_Sidebar'] = 'Показывать на боковой панели';
 $pia_lang['V4_UI_Settings_Popup'] = 'Показывать во всплывающем меню';

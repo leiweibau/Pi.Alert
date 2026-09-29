@@ -1,6 +1,8 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Zobrazení';
+$pia_lang['V4_UI_High_Contrast_Status_Badges'] = 'Alternativní barvy stavových štítků';
+$pia_lang['V4_UI_Accessibility_Heading'] = 'Přístupnost';
 $pia_lang['V4_UI_Settings_Heading'] = 'Nastavit tlačítko Nastavení';
 $pia_lang['V4_UI_Settings_Sidebar'] = 'Zobrazit v postranním panelu';
 $pia_lang['V4_UI_Settings_Popup'] = 'Zobrazit ve vyskakovací nabídce';

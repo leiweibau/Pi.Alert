@@ -82,7 +82,6 @@ while ($serviceResult && ($service = $serviceResult->fetchArray(SQLITE3_ASSOC)))
 
 $geoDbPath = __DIR__ . '/../db/GeoLite2-Country.mmdb';
 $geoDbInstalled = is_file($geoDbPath);
-$geoDbSize = $geoDbInstalled ? number_format((float) filesize($geoDbPath) / 1048576, 2) . ' MB' : '';
 $title = $pia_lang['WEBS_Title'] ?? 'Web Services';
 
 pialert_v4_shell_start($title, 'services', array(
@@ -100,7 +99,7 @@ pialert_v4_shell_start($title, 'services', array(
 
   <div class="services-toolbar d-flex flex-wrap align-items-center gap-2 my-4">
     <div class="btn-group flex-wrap" role="group" aria-label="<?= h($pia_lang['V4_Service_Status_Filter']); ?>" id="services-status-filter">
-      <button type="button" class="btn btn-primary active" data-service-filter="all" aria-pressed="true"><?= h($pia_lang['WEBS_EVE_Shortcut_All'] ?? 'All'); ?> <span class="badge text-bg-light ms-1"><?= h((string) $counts['all']); ?></span></button>
+      <button type="button" class="btn btn-outline-primary active" data-service-filter="all" aria-pressed="true"><?= h($pia_lang['WEBS_EVE_Shortcut_All'] ?? 'All'); ?> <span class="badge text-bg-light ms-1"><?= h((string) $counts['all']); ?></span></button>
       <button type="button" class="btn btn-outline-success" data-service-filter="online" aria-pressed="false"><?= h($pia_lang['WEBS_EVE_Shortcut_HTTP2xx'] ?? 'Online'); ?> <span class="badge text-bg-success ms-1"><?= h((string) $counts['online']); ?></span></button>
       <button type="button" class="btn btn-outline-warning" data-service-filter="warning" aria-pressed="false"><?= h($pia_lang['V4_Warning']); ?> <span class="badge text-bg-warning ms-1"><?= h((string) $counts['warning']); ?></span></button>
       <button type="button" class="btn btn-outline-danger" data-service-filter="down" aria-pressed="false"><?= h($pia_lang['WEBS_EVE_Shortcut_Down'] ?? 'Down'); ?> <span class="badge text-bg-danger ms-1"><?= h((string) $counts['down']); ?></span></button>
@@ -108,7 +107,7 @@ pialert_v4_shell_start($title, 'services', array(
   </div>
 
   <div class="row g-3 mb-3">
-    <div class="col-12 col-xl-8">
+    <div class="<?= $geoDbInstalled ? 'col-12' : 'col-12 col-xl-8'; ?>">
       <section class="card card-primary card-outline services-journal-card h-100" aria-labelledby="services-journal-title">
         <div class="card-header"><h2 id="services-journal-title" class="card-title mb-0"><?= h($pia_lang['WEBS_EVE_Title'] ?? 'Web Services - Events'); ?></h2></div>
         <div class="card-body"><div class="table-responsive services-journal-wrap">
@@ -118,16 +117,15 @@ pialert_v4_shell_start($title, 'services', array(
         </div></div>
       </section>
     </div>
-    <div class="col-12 col-xl-4">
+    <?php if (!$geoDbInstalled): ?><div class="col-12 col-xl-4">
       <aside id="services-geodb-status" class="card card-info card-outline h-100" aria-labelledby="services-geodb-title">
         <div class="card-header"><h2 id="services-geodb-title" class="card-title mb-0"><?= h($pia_lang['GeoLiteDB_Title'] ?? 'GeoLite2 DB'); ?></h2></div>
         <div class="card-body d-flex flex-column justify-content-center">
-          <p class="mb-2"><i class="fa-solid <?= $geoDbInstalled ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'; ?> me-2" aria-hidden="true"></i><strong><?= $geoDbInstalled ? h($pia_lang['GeoLiteDB_cur'] ?? 'GeoLite2 DB loaded') : h($pia_lang['GeoLiteDB_absent'] ?? 'DB not installed'); ?></strong></p>
-          <?php if ($geoDbInstalled): ?><p class="mb-2"><span class="font-monospace"><?= h(date('Y-m-d H:i:s', (int) filemtime($geoDbPath))); ?></span> · <?= h($geoDbSize); ?></p><?php endif; ?>
+          <p class="mb-2"><i class="fa-solid fa-circle-xmark text-danger me-2" aria-hidden="true"></i><strong><?= h($pia_lang['GeoLiteDB_absent'] ?? 'DB not installed'); ?></strong></p>
           <p class="text-body-secondary mb-0"><?= h($pia_lang['GeoLiteDB_Installnotes'] ?? 'Location details are available on the service details page.'); ?></p>
         </div>
       </aside>
-    </div>
+    </div><?php endif; ?>
   </div>
 
   <div id="services-card-groups">

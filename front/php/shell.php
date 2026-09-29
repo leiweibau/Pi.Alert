@@ -186,7 +186,7 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
     $piholeUrl = safe_web_url($appearance['pihole_url']);
     ?>
 <!doctype html>
-<html lang="<?= h($language); ?>" data-bs-theme="<?= h($theme['mode']); ?>"<?= $theme['name'] !== 'standard' ? ' data-pialert-theme="' . h($theme['name']) . '"' : ''; ?> data-lte-color-mode="off">
+<html lang="<?= h($language); ?>" data-bs-theme="<?= h($theme['mode']); ?>"<?= $theme['name'] !== 'standard' ? ' data-pialert-theme="' . h($theme['name']) . '"' : ''; ?><?= $appearance['high_contrast_status_badges'] ? ' data-pialert-high-contrast-status="1"' : ''; ?> data-lte-color-mode="off">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <?php if ($baseHref !== null): ?><base href="<?= h($baseHref); ?>"><?php endif; ?>
@@ -202,6 +202,7 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('css/pialert-v4.css')); ?>?v=<?= $assetVersion; ?>">
   <?php foreach (($pialertV4PageStyles ?? array()) as $pageStyle): ?><link rel="stylesheet" href="<?= h(pialert_v4_asset($pageStyle)); ?>?v=<?= $assetVersion; ?>"><?php endforeach; ?>
   <?php if ($theme['name'] !== 'standard'): ?><link rel="stylesheet" href="<?= h(pialert_v4_asset('css/pialert-theme-layout.css')); ?>?v=<?= $assetVersion; ?>"><link rel="stylesheet" href="<?= h(pialert_v4_asset('css/themes/' . $theme['name'] . '.css')); ?>?v=<?= $assetVersion; ?>"><?php endif; ?>
+  <link rel="stylesheet" href="<?= h(pialert_v4_asset('css/pialert-status-badges.css')); ?>?v=<?= $assetVersion; ?>">
 </head>
 <body class="layout-fixed fixed-header sidebar-expand-lg bg-body-tertiary<?= $withoutSidebar ? ' pialert-dashboard-no-sidebar' : ''; ?>">
 <div class="app-wrapper">

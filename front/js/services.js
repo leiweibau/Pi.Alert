@@ -86,17 +86,8 @@
     field('services-empty-filter').hidden = visibleCards !== 0;
     document.querySelectorAll('[data-service-filter]').forEach(function (button) {
       var selected = button.dataset.serviceFilter === filter;
-      var outline = {
-        all: 'btn-outline-primary',
-        online: 'btn-outline-success',
-        warning: 'btn-outline-warning',
-        down: 'btn-outline-danger'
-      }[button.dataset.serviceFilter];
       button.classList.toggle('active', selected);
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-      button.classList.toggle('btn-primary', selected);
-      ['btn-outline-primary', 'btn-outline-success', 'btn-outline-warning', 'btn-outline-danger'].forEach(function (className) { button.classList.remove(className); });
-      if (!selected) button.classList.add(outline);
     });
   }
 

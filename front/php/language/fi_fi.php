@@ -1,6 +1,8 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Näkyvyys';
+$pia_lang['V4_UI_High_Contrast_Status_Badges'] = 'Vaihtoehtoiset tilamerkkien värit';
+$pia_lang['V4_UI_Accessibility_Heading'] = 'Esteettömyys';
 $pia_lang['V4_UI_Settings_Heading'] = 'Määritä Asetukset-painike';
 $pia_lang['V4_UI_Settings_Sidebar'] = 'Näytä sivupalkissa';
 $pia_lang['V4_UI_Settings_Popup'] = 'Näytä ponnahdusvalikossa';

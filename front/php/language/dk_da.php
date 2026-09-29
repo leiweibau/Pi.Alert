@@ -1,6 +1,8 @@
 <?php
 unset($pia_lang);
 $pia_lang['V4_UI_Displays'] = 'Visning';
+$pia_lang['V4_UI_High_Contrast_Status_Badges'] = 'Alternative farver på statusmærker';
+$pia_lang['V4_UI_Accessibility_Heading'] = 'Tilgængelighed';
 $pia_lang['V4_UI_Settings_Heading'] = 'Konfigurer knappen Indstillinger';
 $pia_lang['V4_UI_Settings_Sidebar'] = 'Vis i sidepanelet';
 $pia_lang['V4_UI_Settings_Popup'] = 'Vis i pop op-menuen';

@@ -1,0 +1,15 @@
+/* Distinct lightness levels separate device states even without red/green cues. */
+html[data-pialert-high-contrast-status="1"] #tableDevices .pialert-device-status-link.text-bg-success {
+  color: #17210b !important;
+  background: #a8d63f !important;
+}
+
+html[data-pialert-high-contrast-status="1"] #tableDevices .pialert-device-status-link.text-bg-danger {
+  color: #fff !important;
+  background: #a51b36 !important;
+}
+
+html[data-pialert-high-contrast-status="1"] #tableDevices .pialert-device-status-link.text-bg-secondary {
+  color: #fff !important;
+  background: #898989 !important;
+}
