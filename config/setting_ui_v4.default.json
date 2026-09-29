@@ -1,5 +1,5 @@
 {
-    "schema": 10,
+    "schema": 13,
     "revision": 0,
     "devices": {
         "columns": {
@@ -41,6 +41,10 @@
         "activity_history": true,
         "settings_sidebar": true,
         "settings_popup": true,
+        "network_sidebar": true,
+        "events_sidebar": true,
+        "reports_sidebar": true,
+        "reports_popup": true,
         "favicon": "img/favicons/flat_blue_white.png",
         "sidebar_color": "body-secondary",
         "header_color": "body",

@@ -44,6 +44,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             'appearance.high_contrast_status_badges'=>isset($_POST['high_contrast_status_badges']),
             'appearance.settings_sidebar'=>isset($_POST['settings_sidebar']),
             'appearance.settings_popup'=>isset($_POST['settings_popup']),
+            'appearance.network_sidebar'=>isset($_POST['network_sidebar']),
+            'appearance.events_sidebar'=>isset($_POST['events_sidebar']),
+            'appearance.reports_sidebar'=>isset($_POST['reports_sidebar']),
+            'appearance.reports_popup'=>isset($_POST['reports_popup']),
             'appearance.sidebar_color'=>$sidebarColor,
             'appearance.header_color'=>$headerColor,
             'appearance.pihole_url'=>$piholeUrl,
@@ -80,7 +84,7 @@ $strings = array(
     'icmp_table_help'=>$pia_lang['V4_UI_ICMP_Table_Help'],
     'rows'=>$pia_lang['V4_UI_Rows'],
     'all_rows'=>$pia_lang['V4_All'],
-    'appearance'=>$pia_lang['V4_UI_Appearance'],
+    'colors_themes'=>$pia_lang['V4_UI_Colors_Themes'],
     'displays'=>$pia_lang['V4_UI_Displays'],
     'language'=>$pia_lang['V4_UI_Language'],
     'dark'=>$pia_lang['V4_UI_Dark'],
@@ -89,6 +93,9 @@ $strings = array(
     'settings_sidebar'=>$pia_lang['V4_UI_Settings_Sidebar'],
     'settings_popup'=>$pia_lang['V4_UI_Settings_Popup'],
     'settings_heading'=>$pia_lang['V4_UI_Settings_Heading'],
+    'settings_label'=>$pia_lang['NAV_Maintenance'],
+    'network_label'=>$pia_lang['NAV_Network'],
+    'events_label'=>$pia_lang['NAV_Events'],
     'sidebar_color'=>$pia_lang['V4_UI_Sidebar_Color'],
     'header_color'=>$pia_lang['V4_UI_Header_Color'],
     'previous_color'=>$pia_lang['V4_UI_Previous_Color'],
@@ -147,11 +154,12 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'));
           <?php foreach (array(10,25,50,100,500,-1) as $length): ?><option value="<?= $length; ?>"<?= $settings['icmp']['page_length'] === $length ? ' selected' : ''; ?>><?= $length === -1 ? h($uiText('all_rows')) : $length; ?></option><?php endforeach; ?>
         </select>
       </div></section></div>
-      <div class="col-12 col-xl-6"><section class="card"><div class="card-header"><h2 class="card-title"><?= h($uiText('appearance')); ?></h2></div><div class="card-body">
-        <label class="form-label h6" for="ui-language"><?= h($uiText('language')); ?></label><select class="form-select" id="ui-language" name="language">
+      <div class="col-12 col-xl-6"><section class="card"><div class="card-header"><h2 class="card-title"><?= h($uiText('language')); ?></h2></div><div class="card-body">
+        <label class="visually-hidden" for="ui-language"><?= h($uiText('language')); ?></label><select class="form-select" id="ui-language" name="language">
           <?php foreach (pialert_v4_ui_language_options() as $language): ?><option value="<?= h($language); ?>"<?= $settings['appearance']['language'] === $language ? ' selected' : ''; ?>><?= h(str_replace('_', '-', $language)); ?></option><?php endforeach; ?>
         </select>
-        <div class="mt-4 pt-3 border-top">
+      </div></section>
+      <section class="card mt-3"><div class="card-header"><h2 class="card-title"><?= h($uiText('colors_themes')); ?></h2></div><div class="card-body">
         <label class="form-label h6" for="ui-theme"><?= h($pia_lang['UI_Theme_Label'] ?? 'Theme'); ?></label><select class="form-select mb-1" id="ui-theme" name="theme">
           <option value="standard"<?= $settings['appearance']['theme'] === 'standard' ? ' selected' : ''; ?>><?= h($pia_lang['UI_Theme_Standard'] ?? 'Standard'); ?></option>
           <option value="glas"<?= $settings['appearance']['theme'] === 'glas' ? ' selected' : ''; ?>><?= h($pia_lang['UI_Theme_Glas'] ?? 'Glas'); ?></option>
@@ -159,9 +167,9 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'));
           <option value="console"<?= $settings['appearance']['theme'] === 'console' ? ' selected' : ''; ?>><?= h($pia_lang['UI_Theme_Console'] ?? 'Console'); ?></option>
         </select>
         <div class="form-text"><?= h($pia_lang['UI_Theme_Help'] ?? 'Choose between the standard, translucent Glas, and dark-on-light Piano surfaces.'); ?></div>
-        </div>
         <div class="mt-4 pt-4 border-top">
-          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="ui-dark" name="dark_mode" value="1"<?= $settings['appearance']['dark_mode'] ? ' checked' : ''; ?>><label class="form-check-label h6 mb-0" for="ui-dark"><?= h($uiText('dark')); ?></label></div>
+          <h3 class="h6 mb-3"><?= h($uiText('dark')); ?></h3>
+          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="ui-dark" name="dark_mode" value="1"<?= $settings['appearance']['dark_mode'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-dark"><?= h($pia_lang['Gen_activate'] ?? 'enable'); ?></label></div>
         </div>
         <div class="mt-4 pt-3 border-top">
         <?php foreach (array('sidebar_color'=>'sidebar','header_color'=>'header') as $field=>$chrome): ?>
@@ -188,26 +196,49 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'));
       </div></section></div>
       <div class="col-12"><section class="card"><div class="card-header"><h2 class="card-title"><?= h($uiText('displays')); ?></h2></div><div class="card-body">
         <h3 class="h6 mb-3"><?= h($uiText('settings_heading')); ?></h3>
-        <div class="row g-2">
-          <div class="col-12 col-md-6"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="ui-settings-sidebar" name="settings_sidebar" value="1"<?= $settings['appearance']['settings_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-settings-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div></div>
-          <div class="col-12 col-md-6"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="ui-settings-popup" name="settings_popup" value="1"<?= $settings['appearance']['settings_popup'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-settings-popup"><?= h($uiText('settings_popup')); ?></label></div></div>
-        </div>
-        <div class="mt-4 pt-3 border-top">
-          <label class="form-label h6" for="ui-pihole"><?= h($uiText('pihole')); ?></label><input class="form-control" id="ui-pihole" type="url" name="pihole_url" maxlength="2048" placeholder="https://pi.hole/" value="<?= h($settings['appearance']['pihole_url']); ?>"><div class="form-text"><?= h($uiText('pihole_help')); ?></div>
-        </div>
-        <div class="mt-4 pt-3 border-top">
-          <h3 class="h6"><?= h($pia_lang['MT_Tool_onlinehistorygraph'] ?? 'Activity history'); ?></h3>
-          <p class="text-body-secondary mb-2"><?= h($pia_lang['UI_Activity_History_Help']); ?></p>
-          <button type="button" class="btn btn-outline-primary" id="ui-activity-history"
+        <div class="row g-3">
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($uiText('settings_label')); ?></h4>
+            <div class="d-grid gap-2">
+              <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-settings-sidebar" name="settings_sidebar" value="1"<?= $settings['appearance']['settings_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-settings-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
+              <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-settings-popup" name="settings_popup" value="1"<?= $settings['appearance']['settings_popup'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-settings-popup"><?= h($uiText('settings_popup')); ?></label></div>
+            </div>
+          </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($uiText('network_label')); ?></h4>
+            <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-network-sidebar" name="network_sidebar" value="1"<?= $settings['appearance']['network_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-network-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
+          </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($uiText('events_label')); ?></h4>
+            <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-events-sidebar" name="events_sidebar" value="1"<?= $settings['appearance']['events_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-events-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
+          </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3">Reports</h4>
+            <div class="d-grid gap-2">
+              <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-reports-sidebar" name="reports_sidebar" value="1"<?= $settings['appearance']['reports_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-reports-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
+              <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-reports-popup" name="reports_popup" value="1"<?= $settings['appearance']['reports_popup'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-reports-popup"><?= h($uiText('settings_popup')); ?></label></div>
+            </div>
+          </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($uiText('pihole')); ?></h4>
+            <label class="form-label" for="ui-pihole">URL</label><input class="form-control" id="ui-pihole" type="url" name="pihole_url" maxlength="2048" placeholder="https://pi.hole/" value="<?= h($settings['appearance']['pihole_url']); ?>"><div class="form-text"><?= h($uiText('pihole_help')); ?></div>
+          </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($pia_lang['V4_Temperature']); ?></h4>
+            <label class="visually-hidden" for="ui-tempunit-selector"><?= h($pia_lang['V4_Temperature']); ?></label><select class="form-select" id="ui-tempunit-selector"><option value="C">°C</option><option value="F">°F</option><option value="K">K</option></select>
+            <div class="form-text mt-2"><?= h($pia_lang['V4_UI_Temperature_Help']); ?></div>
+          </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($pia_lang['MT_Tool_onlinehistorygraph'] ?? 'Activity history'); ?></h4>
+            <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-activity-history"
+            <?= $settings['appearance']['activity_history'] ? ' checked' : ''; ?>
             data-enabled="<?= $settings['appearance']['activity_history'] ? '1' : '0'; ?>"
             data-title="<?= h($pia_lang['MT_Tool_onlinehistorygraph_noti'] ?? 'Activity history'); ?>"
             data-confirm="<?= h($pia_lang['MT_Tool_onlinehistorygraph_noti_text'] ?? 'Toggle activity history?'); ?>"
             data-cancel-label="<?= h($pia_lang['Gen_Cancel'] ?? 'Cancel'); ?>"
             data-confirm-label="<?= h($pia_lang['Gen_Okay'] ?? 'OK'); ?>"
-            data-error-label="<?= h($pia_lang['Gen_error'] ?? 'Error'); ?>">
-            <?= h($pia_lang['MT_Tool_onlinehistorygraph'] ?? 'Activity history'); ?>
-            (<?= $settings['appearance']['activity_history'] ? h($pia_lang['Gen_on'] ?? 'On') : h($pia_lang['Gen_off'] ?? 'Off'); ?>)
-          </button>
+            data-error-label="<?= h($pia_lang['Gen_error'] ?? 'Error'); ?>"><label class="form-check-label" for="ui-activity-history"><?= h($pia_lang['UI_Activity_History_Enable'] ?? 'enable (Devices, ICMP and Presence)'); ?></label></div>
+          </div></div>
         </div>
         <div class="mt-4 pt-3 border-top">
           <h3 class="h6"><?= h($pia_lang['MT_Tools_Tab_Subheadline_e']); ?></h3>
