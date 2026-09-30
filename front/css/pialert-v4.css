@@ -20,9 +20,11 @@ html[data-pialert-accent="yellow"] { --pialert-accent: #f39c12; --pialert-accent
 body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-accent-rgb); }
 .login-page .login-box { width: min(92vw, 420px); }
 .app-sidebar .nav-link.active { box-shadow: inset 3px 0 0 var(--pialert-accent); }
+/* Follow the visible viewport when mobile browser toolbars expand or collapse. */
+.layout-fixed.sidebar-expand-lg .app-sidebar { max-height: 100dvh; }
 .sidebar-menu .nav-icon { display: inline-flex; width: 1.6rem; justify-content: center; }
 .sidebar-menu .nav-link > p { align-items: center; display: flex; min-width: 0; width: calc(100% - 2rem); }
-.app-sidebar .sidebar-wrapper { padding-top: 0rem; }
+.app-sidebar .sidebar-wrapper { padding-top: 0rem; padding-bottom: max(.5rem, env(safe-area-inset-bottom, 0px)); }
 .sidebar-menu > .nav-header { padding-block: .4rem; text-transform: uppercase; }
 .sidebar-menu > .nav-item > .nav-link:not(.pialert-sidebar-subitem) { min-height: 2.4rem; margin-bottom: .1rem; padding-block: .375rem; }
 .sidebar-menu .pialert-sidebar-subitem { font-size: .875rem; min-height: 2rem; padding-block: .15rem; }

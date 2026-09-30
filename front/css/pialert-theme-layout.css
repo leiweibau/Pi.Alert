@@ -55,6 +55,7 @@ html[data-pialert-theme] .form-select:focus {
 html[data-pialert-theme] .app-sidebar {
   margin: .75rem;
   height: calc(100vh - 1.5rem);
+  height: calc(100dvh - 1.5rem);
   border-radius: var(--pa-radius-lg);
   overflow: hidden;
   color: var(--pa-text) !important;

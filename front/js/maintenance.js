@@ -215,22 +215,30 @@
     window.requestAnimationFrame(function () { scrollToConfigMatch(offset); });
   }
 
+  function configSearchPattern (query) {
+    return new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+  }
+
   function findConfigMatch (advance, focusEditor) {
-    var query = searchInput.value.trim().toLowerCase();
+    var query = searchInput.value.trim();
     if (editor.disabled) return;
     if (!query) {
       editor.setSelectionRange(editor.selectionEnd, editor.selectionEnd);
       return;
     }
-    var text = editor.value.toLowerCase();
-    var found = text.indexOf(query, advance ? searchOffset : 0);
-    if (found < 0 && advance) found = text.indexOf(query);
-    if (found < 0) {
+    var pattern = configSearchPattern(query);
+    pattern.lastIndex = advance ? searchOffset : 0;
+    var match = pattern.exec(editor.value);
+    if (!match && advance) {
+      pattern.lastIndex = 0;
+      match = pattern.exec(editor.value);
+    }
+    if (!match) {
       editor.setSelectionRange(editor.selectionEnd, editor.selectionEnd);
       return;
     }
-    showConfigMatch(found, query.length, focusEditor);
-    if (advance) searchOffset = found + query.length;
+    showConfigMatch(match.index, match[0].length, focusEditor);
+    if (advance) searchOffset = match.index + match[0].length;
   }
 
   searchInput.addEventListener('input', function () {
@@ -247,8 +255,9 @@
   });
   editor.addEventListener('keydown', function (event) {
     if (event.key !== 'Enter') return;
-    var query = searchInput.value.trim().toLowerCase();
-    if (!query || editor.value.slice(editor.selectionStart, editor.selectionEnd).toLowerCase() !== query) return;
+    var query = searchInput.value.trim();
+    var selected = editor.value.slice(editor.selectionStart, editor.selectionEnd);
+    if (!query || selected.length !== query.length || !configSearchPattern(query).test(selected)) return;
     event.preventDefault();
     findConfigMatch(true, true);
   });

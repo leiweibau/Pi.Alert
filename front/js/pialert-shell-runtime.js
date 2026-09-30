@@ -246,14 +246,14 @@
     var raw = element('rawtemp');
     var output = element('tempdisplay');
     if (!raw || !output) return;
-    var selectors = [element('tempunit-selector'), element('ui-tempunit-selector')].filter(Boolean);
+    var selector = element('ui-tempunit-selector');
     var unit = storageRead('tempunit');
     if (unit !== 'C' && unit !== 'F' && unit !== 'K') unit = 'C';
 
     function render (nextUnit) {
       unit = nextUnit === 'F' || nextUnit === 'K' ? nextUnit : 'C';
       storageWrite('tempunit', unit);
-      selectors.forEach(function (selector) { selector.value = unit; });
+      if (selector) selector.value = unit;
       var temperature = Number.parseFloat(raw.textContent);
       if (!Number.isFinite(temperature)) return;
       if (unit === 'K') output.textContent = (temperature + 273.15).toFixed(1) + '\u00a0K';
@@ -262,9 +262,9 @@
     }
 
     render(unit);
-    selectors.forEach(function (selector) {
+    if (selector) {
       selector.addEventListener('change', function () { render(selector.value); }, { signal: state.temperatureController.signal });
-    });
+    }
   }
 
   function initTheme () {

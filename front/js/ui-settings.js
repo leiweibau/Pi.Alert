@@ -54,8 +54,6 @@
         if (element) element.setAttribute('data-bs-theme', 'dark');
       });
     }
-    var logo = document.querySelector('.pialert-user-logo');
-    if (logo) logo.src = logo.dataset[activeTheme === 'piano' || activeTheme === 'console' || colorSpec(selectors.header.value, false, dark).mode === 'dark' ? 'logoDark' : 'logoLight'];
     applyChrome(document.getElementById('ui-sidebar-swatch'), selectors.sidebar.value, true, dark);
     applyChrome(document.getElementById('ui-header-swatch'), selectors.header.value, false, dark);
   }
