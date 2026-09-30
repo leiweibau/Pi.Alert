@@ -175,30 +175,84 @@
 
   var editor = element('ConfigFileEditor');
   var editorModal = element('modal-mt-config');
+  var searchInput = element('config-search');
+  var searchOffset = 0;
   editorModal.addEventListener('show.bs.modal', function () {
+    searchOffset = 0;
     editor.value = '';
     editor.disabled = true;
     $.get('php/server/files.php?action=GetConfigFile').done(function (text) {
       editor.value = String(text == null ? '' : text);
       editor.disabled = false;
+      findConfigMatch(false);
     }).fail(function () {
       editor.disabled = true;
       window.showMessage(root.dataset.configError);
     });
   });
-  var searchOffset = 0;
-  element('config-search').addEventListener('input', function () { searchOffset = 0; });
-  element('config-search-next').addEventListener('click', function () {
-    var query = element('config-search').value.toLowerCase();
-    if (!query) return;
+
+  function scrollToConfigMatch (offset) {
+    var before = editor.value.slice(0, offset);
+    var lineStart = before.lastIndexOf('\n') + 1;
+    var line = before.split('\n').length - 1;
+    var style = window.getComputedStyle(editor);
+    var fontSize = parseFloat(style.fontSize) || 14;
+    var lineHeight = parseFloat(style.lineHeight) || fontSize * 1.5;
+    var top = (parseFloat(style.paddingTop) || 0) + line * lineHeight;
+    editor.scrollTop = Math.max(0, top - (editor.clientHeight - lineHeight) / 2);
+    var prefix = before.slice(lineStart).replace(/\t/g, '    ');
+    var measure = document.createElement('canvas').getContext('2d');
+    if (measure) {
+      measure.font = style.font || fontSize + 'px ' + style.fontFamily;
+      editor.scrollLeft = Math.max(0, measure.measureText(prefix).width - editor.clientWidth / 3);
+    }
+  }
+
+  function showConfigMatch (offset, length, focusEditor) {
+    if (focusEditor) editor.focus({ preventScroll: true });
+    editor.setSelectionRange(offset, offset + length);
+    scrollToConfigMatch(offset);
+    window.requestAnimationFrame(function () { scrollToConfigMatch(offset); });
+  }
+
+  function findConfigMatch (advance, focusEditor) {
+    var query = searchInput.value.trim().toLowerCase();
+    if (editor.disabled) return;
+    if (!query) {
+      editor.setSelectionRange(editor.selectionEnd, editor.selectionEnd);
+      return;
+    }
     var text = editor.value.toLowerCase();
-    var found = text.indexOf(query, searchOffset);
-    if (found < 0) found = text.indexOf(query);
-    if (found < 0) return;
-    editor.focus();
-    editor.setSelectionRange(found, found + query.length);
-    searchOffset = found + query.length;
+    var found = text.indexOf(query, advance ? searchOffset : 0);
+    if (found < 0 && advance) found = text.indexOf(query);
+    if (found < 0) {
+      editor.setSelectionRange(editor.selectionEnd, editor.selectionEnd);
+      return;
+    }
+    showConfigMatch(found, query.length, focusEditor);
+    if (advance) searchOffset = found + query.length;
+  }
+
+  searchInput.addEventListener('input', function () {
+    searchOffset = 0;
+    findConfigMatch(false);
   });
+  searchInput.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    findConfigMatch(true, true);
+  });
+  element('config-search-next').addEventListener('click', function () {
+    findConfigMatch(true, true);
+  });
+  editor.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter') return;
+    var query = searchInput.value.trim().toLowerCase();
+    if (!query || editor.value.slice(editor.selectionStart, editor.selectionEnd).toLowerCase() !== query) return;
+    event.preventDefault();
+    findConfigMatch(true, true);
+  });
+  editor.addEventListener('input', function () { searchOffset = 0; });
   element('backup-config').addEventListener('click', function () { post('php/server/files.php?action=BackupConfigFile&reload=no', {}, false); });
   element('restore-config').addEventListener('click', function () {
     confirmAction(window.pialertV4Text('V4_Restore_Config'), window.pialertV4Text('V4_Restore_Config_Question'), function () {

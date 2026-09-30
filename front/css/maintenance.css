@@ -27,6 +27,7 @@
 #modal-mt-config .modal-content { height: 100%; min-height: 0; }
 #modal-mt-config .modal-body { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 #modal-mt-config .mt-config-editor { flex: 1 1 auto; min-height: 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre; }
+#modal-mt-config .mt-config-editor::selection { color: #111; background: #ffc107; }
 @media (max-width: 767.98px) { #v4-maintenance-page .card-header-tabs { max-width: 100%; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; padding-bottom: 1px; -webkit-overflow-scrolling: touch; } #v4-maintenance-page .card-header-tabs > .nav-item { flex: 0 0 auto; } }
 @media (max-width: 575.98px) { .mt-status-card dl.row > dt { border-bottom: 0; padding-bottom: .1rem; } .mt-status-card dl.row > dd { padding-top: 0; } }
 @media (max-width: 767.98px) { #v4-maintenance-page .mt-security-row { grid-template-columns: minmax(0, 1fr); gap: .5rem; } }
