@@ -3,18 +3,17 @@ error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-require_once __DIR__ . "/php/server/session.php";
-require_once __DIR__ . '/php/server/csrf.php';
-pialert_start_session();
+define('PIALERT_V4_PUBLIC_ENTRY', true);
+require_once __DIR__ . '/php/bootstrap.php';
+pialert_v4_start_session();
 
-require 'php/server/db.php';
-require "php/server/auth.php";
-require 'php/server/journal.php';
+require_once PIALERT_V4_FRONT_ROOT . '/php/server/db.php';
+require_once PIALERT_V4_FRONT_ROOT . '/php/server/auth.php';
+require_once PIALERT_V4_FRONT_ROOT . '/php/server/journal.php';
 
-$DBFILE = '../db/pialert.db';
+$DBFILE = PIALERT_V4_FRONT_ROOT . '/../db/pialert.db';
 OpenDB();
 
-// Processing Logout
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     header('Allow: POST');
     http_response_code(405);
@@ -29,205 +28,109 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && ($_POST['action'] ?? '')
     $sessionCookieName = session_name();
     session_destroy();
     pialert_delete_auth_cookie($sessionCookieName);
-    header('Location: ./index.php', true, 303);
+    header('Location: ' . pialert_v4_route('login'), true, 303);
     exit;
 }
 
-// Login Processing start
-$config_file = "../config/pialert.conf";
-$config_file_lines = file($config_file);
+$configFileLines = file(PIALERT_V4_FRONT_ROOT . '/../config/pialert.conf');
+pialert_v4_load_language();
 
-// Login language settings
-foreach (glob("../config/setting_language*") as $filename) {
-	$pia_lang_selected = str_replace('setting_language_', '', basename($filename));
-}
-if (strlen($pia_lang_selected) == 0) {$pia_lang_selected = 'en_us';}
-require 'php/templates/language/' . $pia_lang_selected . '.php';
+$protectionLines = array_values(preg_grep('/^PIALERT_WEB_PROTECTION\s.*/', $configFileLines));
+$protectionLine = explode('=', $protectionLines[0]);
+$Pia_WebProtection = strtolower(trim($protectionLine[1]));
 
-// PIALERT_WEB_PROTECTION FALSE
-$config_file_lines_bypass = array_values(preg_grep('/^PIALERT_WEB_PROTECTION\s.*/', $config_file_lines));
-$protection_line = explode("=", $config_file_lines_bypass[0]);
-$Pia_WebProtection = strtolower(trim($protection_line[1]));
-
-if ($Pia_WebProtection != 'true') {
-	if (($_SESSION['login'] ?? 0) != 1) {
-		pialert_csrf_rotate();
-	}
-	header('Location: ./devices.php');
-	$_SESSION['login'] = 1;
-	$_SESSION['WebProtection'] = $Pia_WebProtection;
-	exit;
+if ($Pia_WebProtection !== 'true') {
+    if (($_SESSION['login'] ?? 0) != 1) {
+        pialert_csrf_rotate();
+    }
+    $_SESSION['login'] = 1;
+    $_SESSION['WebProtection'] = $Pia_WebProtection;
+    header('Location: ' . pialert_v4_route('home'));
+    exit;
 }
 
-// PIALERT_WEB_PROTECTION TRUE
-$config_file_lines = array_values(preg_grep('/^PIALERT_WEB_PASSWORD\s.*/', $config_file_lines));
-$password_line = explode("'", $config_file_lines[0]);
-$Pia_Password = $password_line[1];
+$passwordLines = array_values(preg_grep('/^PIALERT_WEB_PASSWORD\s.*/', $configFileLines));
+$passwordLine = explode("'", $passwordLines[0]);
+$Pia_Password = $passwordLine[1];
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['loginpassword'])) {
     pialert_validate_csrf();
 }
-$submittedPassword = $_POST["loginpassword"] ?? null;
+$submittedPassword = $_POST['loginpassword'] ?? null;
 $passwordLogin = is_string($submittedPassword)
-	&& hash_equals((string) $Pia_Password, hash("sha256", $submittedPassword));
+    && hash_equals((string) $Pia_Password, hash('sha256', $submittedPassword));
 
 if ($passwordLogin) {
-	session_regenerate_id(true);
-	pialert_csrf_rotate();
-	$_SESSION["login"] = 1;
-	$_SESSION["WebProtection"] = $Pia_WebProtection;
-	if (isset($_POST["PWRemember"])) {
-		pialert_issue_remember_token($db);
-	} else {
-		pialert_revoke_current_remember_token($db);
-	}
-	pialert_logging("a_001", $_SERVER["REMOTE_ADDR"], "LogStr_9001", "", "");
-	header('Location: ./devices.php', true, 303);
-	exit;
+    session_regenerate_id(true);
+    pialert_csrf_rotate();
+    $_SESSION['login'] = 1;
+    $_SESSION['WebProtection'] = $Pia_WebProtection;
+    if (isset($_POST['PWRemember'])) {
+        pialert_issue_remember_token($db);
+    } else {
+        pialert_revoke_current_remember_token($db);
+    }
+    pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9001', '', '');
+    header('Location: ' . pialert_v4_route('home'), true, 303);
+    exit;
 }
 
-if (($_SESSION["login"] ?? 0) == 1) {
-	header("Location: ./devices.php");
-	exit;
+if (($_SESSION['login'] ?? 0) == 1) {
+    header('Location: ' . pialert_v4_route('home'));
+    exit;
 }
 
-if (pialert_consume_remember_token($db)) {
-	session_regenerate_id(true);
-	pialert_csrf_rotate();
-	$_SESSION["login"] = 1;
-	$_SESSION["WebProtection"] = $Pia_WebProtection;
-	pialert_logging("a_001", $_SERVER["REMOTE_ADDR"], "LogStr_9004", "", "");
-	header("Location: ./devices.php");
-	exit;
+if (($_SESSION['login'] ?? 0) != 1 && isset($_POST['loginpassword'])) {
+    pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9003', '', '');
+    header('Location: ' . pialert_v4_route('login') . '?login=failed', true, 303);
+    exit;
 }
 
-// no active session, cookie not checked
-if ($_SESSION["login"] != 1) {
-	if ($_SESSION['login'] != 1 && isset($_POST['loginpassword'])) {
-		pialert_logging('a_001', $_SERVER['REMOTE_ADDR'], 'LogStr_9003', '', '');
-		header('Location: ./index.php?login=failed', true, 303);
-		exit;
-	}
-	if (file_exists('../config/setting_darkmode')) {$ENABLED_DARKMODE = True;}
-	if ($Pia_Password == '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92') {
-		$login_info = 'Defaultpassword "123456" is still active';
-		$login_mode = 'danger';
-		$login_display_mode = 'display: block;';
-		$login_headline = $pia_lang['Login_Toggle_Alert_headline'];
-		$login_icon = 'fa-ban';
-	} else {
-		$login_mode = 'info';
-		$login_display_mode = 'display: none;';
-		$login_headline = $pia_lang['Login_Toggle_Info_headline'];
-		$login_icon = 'fa-info';
-	}
-
-	?>
-
-<!DOCTYPE html>
-<html>
+$appearance = pialert_v4_ui_read()['appearance'];
+$darkMode = $appearance['dark_mode'];
+$defaultPassword = $Pia_Password === '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+$loginFailed = ($_GET['login'] ?? '') === 'failed';
+$assetVersion = rawurlencode(pialert_v4_asset_version());
+?>
+<!doctype html>
+<html lang="<?= h(str_replace('_', '-', pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME))); ?>" data-bs-theme="<?= $darkMode ? 'dark' : 'light'; ?>" data-lte-color-mode="off">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Pi-Alert | Log in</title>
-
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <link rel="stylesheet" href="lib/AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="lib/AdminLTE/bower_components/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="lib/AdminLTE/bower_components/Ionicons/css/ionicons.min.css">
-  <link rel="stylesheet" href="lib/AdminLTE/dist/css/AdminLTE.min.css">
-  <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/square/blue.css">
-
-  <!-- Dark-Mode Patch -->
-<?php
-if ($ENABLED_DARKMODE === True) {
-		echo '<link rel="stylesheet" href="css/dark-patch.css">';
-		$BACKGROUND_IMAGE_PATCH = 'style="background-image: url(\'img/boxed-bg-dark.png\');"';
-	} else { $BACKGROUND_IMAGE_PATCH = 'style="background-image: url(\'img/background.png\');"';}
-	?>
-
-  <link rel="stylesheet" href="/front/css/offline-font.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="<?= h(pialert_v4_asset('manifest.php')); ?>">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Pi.Alert">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <link rel="apple-touch-icon" href="<?= h(safe_web_url($appearance['favicon'], 'img/favicons/flat_blue_white.png')); ?>">
+  <title>Pi.Alert | <?= h($pia_lang['Login_Submit']); ?></title>
+  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/css/adminlte.min.css')); ?>">
+  <link rel="stylesheet" href="<?= h(pialert_v4_asset('css/pialert-v4.css')); ?>?v=<?= $assetVersion; ?>">
 </head>
-<body class="hold-transition login-page">
+<body class="login-page bg-body-secondary">
 <div class="login-box">
-  <div class="login-logo">
-    <a href="./index.php">Pi.<b>Alert</b></a>
-  </div>
-  <!-- /.login-logo -->
-  <div class="login-box-body">
-    <p class="login-box-msg"><?=$pia_lang['Login_Box'];?></p>
-      <form action="./index.php" method="post">
-        <input type="hidden" name="_csrf" value="<?=htmlspecialchars(pialert_csrf_token(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');?>">
-      <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="<?=$pia_lang['Login_Psw-box'];?>" name="loginpassword">
-        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-      </div>
-      <div class="row">
-        <div class="col-xs-8">
-          <div class="checkbox icheck">
-            <label for="PWRememberBox">
-              <input type="checkbox" name="PWRemember" id="PWRememberBox">
-                <div style="margin-left: 10px; display: inline-block; vertical-align: top;">
-                  <?=$pia_lang['Login_Remember'];?><br><span style="font-size: smaller"><?=$pia_lang['Login_Remember_small'];?></span>
-                </div>
-            </label>
-          </div>
-        </div>
-        <!-- /.col -->
-        <div class="col-xs-4" style="padding-top: 10px;">
-          <button type="submit" class="btn btn-primary btn-block btn-flat"><?=$pia_lang['Login_Submit'];?></button>
-        </div>
-        <!-- /.col -->
-      </div>
-    </form>
-
-    <div style="padding-top: 10px;">
-      <button class="btn btn-xs btn-primary btn-block btn-flat" onclick="Passwordhinfo()"><?=$pia_lang['Login_Toggle_Info'];?></button>
+  <div class="login-logo"><a href="<?= h(pialert_v4_route('login')); ?>">Pi.<strong>Alert</strong></a></div>
+  <div class="card card-outline card-primary">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg"><?= h($pia_lang['Login_Box']); ?></p>
+      <?php if ($loginFailed): ?><div class="alert alert-danger" role="alert"><?= h($pia_lang['Login_Failed']); ?></div><?php endif; ?>
+      <form action="<?= h(pialert_v4_route('login')); ?>" method="post">
+        <input type="hidden" name="_csrf" value="<?= h(pialert_csrf_token()); ?>">
+        <div class="mb-3"><label for="loginpassword" class="form-label"><?= h($pia_lang['Login_Psw-box']); ?></label><input id="loginpassword" type="password" class="form-control" name="loginpassword" autocomplete="current-password" required autofocus></div>
+        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="PWRemember" id="PWRememberBox"><label class="form-check-label" for="PWRememberBox"><?= h($pia_lang['Login_Remember']); ?> <small><?= h($pia_lang['Login_Remember_small']); ?></small></label></div>
+        <button type="submit" class="btn btn-primary w-100"><?= h($pia_lang['Login_Submit']); ?></button>
+      </form>
+      <button class="btn btn-link w-100 mt-2" type="button" data-pialert-toggle="password-info" aria-controls="password-info" aria-expanded="<?= $defaultPassword ? 'true' : 'false'; ?>"><?= h($pia_lang['Login_Toggle_Info']); ?></button>
     </div>
-
   </div>
-  <!-- /.login-box-body -->
-
-  <div id="myDIV" class="box-body" style="margin-top: 50px; <?=$login_display_mode;?>">
-      <div class="alert alert-<?=$login_mode;?> alert-dismissible">
-          <h4><i class="icon fa <?=$login_icon;?>"></i><?=$login_headline;?></h4>
-          <p><?=$login_info;?></p>
-          <p><?=$pia_lang['Login_Psw_run'];?><br><span style="border: solid 1px yellow; padding: 2px;">./pialert-cli set_password <?=$pia_lang['Login_Psw_new'];?></span><br><?=$pia_lang['Login_Psw_folder'];?></p>
-      </div>
+  <div id="password-info" class="alert alert-<?= $defaultPassword ? 'danger' : 'info'; ?> mt-4<?= $defaultPassword ? '' : ' d-none'; ?>" role="status">
+    <h2 class="h5"><?= h($defaultPassword ? $pia_lang['Login_Toggle_Alert_headline'] : $pia_lang['Login_Toggle_Info_headline']); ?></h2>
+    <?php if ($defaultPassword): ?><p><?= h($pia_lang['Login_Default_Password_Active']); ?></p><?php endif; ?>
+    <p><?= h($pia_lang['Login_Psw_run']); ?><br><code>./pialert-cli set_password <?= h($pia_lang['Login_Psw_new']); ?></code><br><?= h($pia_lang['Login_Psw_folder']); ?></p>
   </div>
-
 </div>
-<!-- /.login-box -->
-
-<script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
-<script src="lib/AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
-<script>
-  $(function () {
-    $('input').iCheck({
-      checkboxClass: 'icheckbox_square-blue',
-      radioClass: 'iradio_square-blue',
-      increaseArea: '20%' /* optional */
-    });
-  });
-
-function Passwordhinfo() {
-  var x = document.getElementById("myDIV");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
-
-</script>
+<script src="<?= h(pialert_v4_asset('lib/bootstrap-5.3.8/js/bootstrap.bundle.min.js')); ?>"></script>
+<script src="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/js/adminlte.min.js')); ?>"></script>
+<script src="<?= h(pialert_v4_asset('js/pialert-v4.js')); ?>?v=<?= $assetVersion; ?>"></script>
 </body>
 </html>
-
-<?php
-
-}
-?>

@@ -2,1100 +2,142 @@
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
+define('PIALERT_V4_PUBLIC_ENTRY', true);
+require_once __DIR__ . '/php/bootstrap.php';
+pialert_v4_start_session();
+if (($_SESSION['login'] ?? 0) != 1) { header('Location: ' . pialert_v4_route('login')); exit; }
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') { header('Allow: GET'); http_response_code(405); exit('Method Not Allowed'); }
+pialert_v4_load_language();
+require_once __DIR__ . '/php/header_func.php';
+require_once __DIR__ . '/php/shell.php';
 
-require_once __DIR__ . "/php/server/session.php";
-pialert_start_session();
-
-if ($_SESSION["login"] != 1) {
-	header('Location: ./index.php');
-	exit;
+function v4_mt_label(string $key, string $fallback): string {
+    global $pia_lang;
+    return pialert_v4_ui_plain_label((string) ($pia_lang[$key] ?? $fallback));
+}
+function v4_mt_button(array $action, string $detail = '', string $detailTitle = ''): void {
+    global $pia_lang;
+    [$id, $label, $description, $url, $confirmTitle, $confirmText] = $action;
+    $title = v4_mt_label($label, $id);
+    ?>
+    <div class="col-12 col-lg-6"><div class="border rounded p-3 h-100 d-flex flex-wrap gap-3 align-items-start<?= $id === 'delete-inactive' ? ' mt-inactive-action' : ''; ?>">
+      <button type="button" class="btn btn-outline-primary" data-mt-action="<?= h($id); ?>" data-mt-url="<?= h($url); ?>" data-mt-title="<?= h(v4_mt_label($confirmTitle, $title)); ?>" data-mt-confirm="<?= h(v4_mt_label($confirmText, $title)); ?>"><?= h($title); ?></button>
+      <?php if ($id === 'delete-inactive'): ?><button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modal-mt-log" data-log="inactivehosts" aria-label="<?= h($title . ': ' . $pia_lang['V4_Info']); ?>"><i class="bi bi-info-circle me-1" aria-hidden="true"></i><?= h($pia_lang['V4_Info']); ?></button><?php endif; ?>
+      <span class="small text-body-secondary flex-grow-1"><?= h(v4_mt_label($description, '')); ?><?php if ($detail !== ''): ?><span class="d-block mt-2 fw-semibold text-body-emphasis"<?= $detailTitle !== '' ? ' title="' . h($detailTitle) . '"' : ''; ?>><?= h($detail); ?></span><?php endif; ?></span>
+    </div></div>
+    <?php
+}
+function v4_mt_setting_action_row(array $action, bool $danger = false): void {
+    [$id, $label, $description, $url, $confirmTitle, $confirmText] = $action;
+    $title = v4_mt_label($label, $id);
+    ?>
+    <div class="mt-security-row">
+      <div class="mt-security-control"><button type="button" class="btn <?= $danger ? 'btn-outline-danger' : 'btn-outline-primary'; ?>" data-mt-action="<?= h($id); ?>" data-mt-url="<?= h($url); ?>" data-mt-title="<?= h(v4_mt_label($confirmTitle, $title)); ?>" data-mt-confirm="<?= h(v4_mt_label($confirmText, $title)); ?>"><?= h($title); ?></button></div>
+      <p class="mt-security-description<?= $danger ? ' text-danger' : ' text-body-secondary'; ?>"><?= h(v4_mt_label($description, '')); ?></p>
+    </div>
+    <?php
 }
 
-require 'php/templates/header.php';
-require 'php/templates/maintenance_func.php';
-require 'php/server/journal.php';
-
+$configPath = __DIR__ . '/../config/pialert.conf';
+$dbPath = __DIR__ . '/../db/pialert.db';
+$toolsPath = __DIR__ . '/../db/pialert_tools.db';
+$configContents = (string) (@file_get_contents($configPath) ?: '');
+$filters = $satellites = array();
+if (is_file($dbPath)) {
+    $db = new SQLite3($dbPath, SQLITE3_OPEN_READONLY);
+    foreach (array('SELECT * FROM Devices_table_filter ORDER BY reserve_a ASC, filtername ASC'=>'filters', 'SELECT * FROM Satellites ORDER BY sat_name ASC'=>'satellites') as $sql=>$variable) {
+        $result = @$db->query($sql);
+        if ($result) while ($row = $result->fetchArray(SQLITE3_ASSOC)) ${$variable}[] = $row;
+    }
+    $db->close();
+}
+$backupFiles = glob(__DIR__ . '/../db/pialertdb_*.zip') ?: array();
+$backupFiles = array_values(array_filter($backupFiles, static function ($file) {
+    return preg_match('/^pialertdb_[0-9]{8}_[0-9]{6}\.zip$/D', basename($file)) === 1
+        && is_file($file) && !is_link($file) && is_readable($file);
+}));
+natsort($backupFiles);
+$latestBackup = $backupFiles ? end($backupFiles) : null;
+$restoreBackups = array_reverse(array_values($backupFiles));
+$tab = isset($_GET['tab']) && is_string($_GET['tab']) && in_array($_GET['tab'], array('1','2','3','4','5'), true) ? $_GET['tab'] : '1';
+if ($tab === '5' && empty($_SESSION['SATELLITES_ACTIVE'])) $tab = '1';
+$scanStatus = scanstatus();
+$actionGroups = array(
+    'tools'=>array(
+        array('delete-devices','MT_Tool_del_alldev','MT_Tool_del_alldev_text','php/server/devices.php?action=deleteAllDevices','MT_Tool_del_alldev_noti','MT_Tool_del_alldev_noti_text'),
+        array('delete-unknown','MT_Tool_del_unknowndev','MT_Tool_del_unknowndev_text','php/server/devices.php?action=deleteUnknownDevices','MT_Tool_del_unknowndev_noti','MT_Tool_del_unknowndev_noti_text'),
+        array('delete-empty-mac','MT_Tool_del_empty_macs','MT_Tool_del_empty_macs_text','php/server/devices.php?action=deleteAllWithEmptyMACs','MT_Tool_del_empty_macs_noti','MT_Tool_del_empty_macs_noti_text'),
+        array('delete-events','MT_Tool_del_allevents','MT_Tool_del_allevents_text','php/server/devices.php?action=deleteEvents','MT_Tool_del_allevents_noti','MT_Tool_del_allevents_noti_text'),
+        array('reset-voided','MT_Tool_reset_voided','MT_Tool_reset_voided_text','php/server/devices.php?action=resetVoidedEvents','MT_Tool_reset_voided','MT_Tool_reset_voided_text'),
+        array('delete-history','MT_Tool_del_ActHistory','MT_Tool_del_ActHistory_text','php/server/devices.php?action=deleteActHistory','MT_Tool_del_ActHistory_noti','MT_Tool_del_ActHistory_noti_text'),
+        array('delete-speedtest','MT_Tool_del_speedtest','MT_Tool_del_speedtest_text','php/server/devices.php?action=DeleteSpeedtestResults','MT_Tool_del_speedtest','MT_Tool_del_speedtest_text'),
+        array('delete-nmap','MT_Tool_del_nmapscans','MT_Tool_del_nmapscans_text','php/server/devices.php?action=DeleteNmapScansResults','MT_Tool_del_nmapscans','MT_Tool_del_nmapscans_text'),
+        array('delete-inactive','MT_Tool_del_Inactive_Hosts','MT_Tool_del_Inactive_Hosts_text','php/server/devices.php?action=DeleteInactiveHosts','MT_Tool_del_Inactive_Hosts','MT_Tool_del_Inactive_Hosts_text'),
+        array('delete-services','MT_Tool_del_allserv','MT_Tool_del_allserv_text','php/server/services.php?action=DeleteAllWebServices','MT_Tool_del_allserv_noti','MT_Tool_del_allserv_noti_text'),
+    ),
+    'backup'=>array(
+        array('backup-db','MT_Tool_backup','MT_Tool_backup_text','php/server/files.php?action=BackupDBtoArchive','MT_Tool_backup_noti','MT_Tool_backup_noti_text'),
+        array('restore-db','MT_Tool_restore','MT_Tool_restore_text','php/server/files.php?action=RestoreDBfromArchive','MT_Tool_restore_noti','MT_Tool_restore_noti_text'),
+        array('purge-db','MT_Tool_purgebackup','MT_Tool_purgebackup_text','php/server/files.php?action=PurgeDBBackups','MT_Tool_purgebackup_noti','MT_Tool_purgebackup_noti_text'),
+        array('backup-csv','MT_Tool_backupcsv','MT_Tool_backupcsv_text','php/server/files.php?action=BackupDBtoCSV','MT_Tool_backupcsv_noti','MT_Tool_backupcsv_noti_text'),
+        array('backup-config','MT_Tool_ConfBackup','MT_Tool_ConfBackup_text','php/server/files.php?action=BackupConfigFile&reload=yes','MT_Tool_ConfBackup','MT_Tool_ConfBackup_text'),
+    ),
+);
+$scanActions = array(
+    array('main','MT_Tool_mainscan','ARPSCAN_ACTIVE','php/server/devices.php?action=EnableMainScan','MT_Tool_mainscan_noti','MT_Tool_mainscan_noti_text'),
+    array('web','MT_Tool_webservicemon','SCAN_WEBSERVICES','php/server/services.php?action=EnableWebServiceMon','MT_Tool_webservicemon_noti','MT_Tool_webservicemon_noti_text'),
+    array('icmp','MT_Tool_icmpmon','ICMPSCAN_ACTIVE','php/server/icmpmonitor.php?action=EnableICMPMon','MT_Tool_icmpmon_noti','MT_Tool_icmpmon_noti_text'),
+    array('satellite','MT_Tool_satellites','SATELLITES_ACTIVE','php/server/devices.php?action=EnableSatelliteScan','MT_Tool_satellites_noti','MT_Tool_satellites_noti_text'),
+    array('rogue','RogueDHCP','SCAN_ROGUE_DHCP','php/server/files.php?action=ToggleRogueDHCP','RogueDHCP','MT_Tools_RogueDHCP_a'),
+);
+$imports = array('FB'=>array('Fritz!Box','FRITZBOX_ACTIVE'),'MT'=>array('Mikrotik','MIKROTIK_ACTIVE'),'UF'=>array('UniFi','UNIFI_ACTIVE'),'OW'=>array('OpenWRT','OPENWRT_ACTIVE'),'AW'=>array('Asus Router','ASUSWRT_ACTIVE'),'PF'=>array('pfSense','PFSENSE_ACTIVE'),'OPN'=>array('OPNsense','OPNSENSE_ACTIVE'),'AG'=>array('AdGuard','ADGUARD_ACTIVE'),'PiN'=>array('Pi-hole Network','PIHOLE_ACTIVE'),'PiD'=>array('Pi-hole DHCP','DHCP_ACTIVE'));
+$logs = array(
+    'scan'=>array('MT_Tools_Logviewer_Scan','Scan'),
+    'iplog'=>array('MT_Tools_Logviewer_IPLog','Internet Check / Scheduled tasks'),
+    'vendor'=>array('MT_Tools_Logviewer_Vendor','Vendor Update'),
+    'cleanup'=>array('MT_Tools_Logviewer_Cleanup','Cleanup'),
+    'webservices'=>array('MT_Tools_Logviewer_WebServices','Web Services'),
+    'speedtest'=>array('V4_Speedtest_Cron','Speedtest (Cron)'),
+    'nmap'=>array('MT_Tools_Logviewer_Nmap','Nmap (Session)'),
+);
+$columns = array('Group'=>'getGroups','Owner'=>'getOwners','Type'=>'getDeviceTypes','Location'=>'getLocations','ConnectType'=>'getConnectionType','LinkSpeed'=>'getLinkSpeed');
+$apiKey = (string) (get_config_parmeter('PIALERT_APIKEY') ?: '');
+pialert_v4_shell_start(v4_mt_label('MT_Title','Settings'), 'maintenance', array('css/maintenance.css'));
 ?>
-<!-- Page ----------------------------------------------------------------- -->
-<div class="content-wrapper">
-
-<!-- Content header-------------------------------------------------------- -->
-    <section class="content-header">
-    <?php require 'php/templates/notification.php';?>
-      <h1 id="pageTitle">
-         <?=$pia_lang['MT_Title'];?>
-      </h1>
+<section id="v4-maintenance-page" data-cancel="<?= h($pia_lang['Gen_Cancel'] ?? 'Cancel'); ?>" data-confirm="<?= h($pia_lang['Gen_Okay'] ?? 'OK'); ?>" data-done="<?= h($pia_lang['V4_Done']); ?>" data-request-error="<?= h($pia_lang['V4_Request_Failed']); ?>" data-loading="<?= h($pia_lang['V4_Loading']); ?>" data-loading-error="<?= h($pia_lang['V4_Loading_Failed']); ?>" data-config-error="<?= h($pia_lang['V4_Config_Load_Failed']); ?>" data-import-label="<?= h($pia_lang['V4_Import']); ?>" data-ignore-list="<?= h($pia_lang['MT_Tool_ignorelist']); ?>" data-delete-satellite="<?= h($pia_lang['V4_Delete_Satellite']); ?>" data-log-viewer="<?= h($pia_lang['V4_Log_Viewer']); ?>">
+  <div class="card mb-3 mt-status-card"><div class="card-header d-flex align-items-center gap-2"><h2 class="card-title mb-0"><?= h($pia_lang['V4_Status']); ?></h2><a href="<?= h(pialert_v4_route('systeminfo')); ?>" aria-label="<?= h($pia_lang['V4_System_Info']); ?>"><i class="bi bi-info-circle"></i></a></div><div class="card-body"><dl class="row mb-0">
+    <dt class="col-sm-4 mt-status-db-main"><?= h(v4_mt_label('MT_database_lastmod','Database')); ?></dt><dd class="col-sm-8 mt-status-db-main"><?= h(is_file($dbPath) ? date('d.m.Y, H:i:s',filemtime($dbPath)) . ' / ' . number_format(filesize($dbPath)/1000000,2,',','.') . ' MB (Main)' : '—'); ?><?= is_file(__DIR__ . '/../db/pialert_journal_buffer') ? ' *' : ''; ?></dd>
+    <dt class="col-sm-4 d-none d-sm-block">&nbsp;</dt><dd class="col-sm-8"><?= h(is_file($toolsPath) ? date('d.m.Y, H:i:s',filemtime($toolsPath)) . ' / ' . number_format(filesize($toolsPath)/1000000,2,',','.') . ' MB (Tools)' : '—'); ?></dd>
+    <dt class="col-sm-4"><?= h(v4_mt_label('MT_config_lastmod','Config')); ?></dt><dd class="col-sm-8"><?= h(is_file($configPath) ? date('d.m.Y, H:i:s',filemtime($configPath)) : '—'); ?></dd>
+    <dt class="col-sm-4"><?= h(v4_mt_label('MT_arp_status','Scan status')); ?></dt><dd class="col-sm-8"><?php if ($scanStatus['sidebar_state'] === 'Active'): ?><span id="arpproccounter" data-no-scans="<?= h($pia_lang['MT_arpscancout_norun']); ?>"><?= is_file(__DIR__ . '/../back/.scanning') ? '' : h($pia_lang['MT_arpscancout_norun']); ?></span> <?php endif; ?><?= h(strip_tags($scanStatus['result_html'] . $scanStatus['timer_output'])); ?></dd>
+    <dt class="col-sm-4" id="mt-api-key-label"><?= h($pia_lang['V4_API_Key']); ?></dt><dd class="col-sm-8"><input class="form-control form-control-sm" id="mt-api-key" type="text" value="<?= h($apiKey); ?>" placeholder="<?= h(v4_mt_label('MT_Tool_setapikey_false','Not configured')); ?>" aria-labelledby="mt-api-key-label" autocomplete="off" spellcheck="false" readonly></dd>
+    <?php foreach (array(false,true) as $web): ?><dt class="col-sm-4"><?= h(v4_mt_label($web ? 'MT_notification_config_webmon' : 'MT_notification_config','Notifications')); ?></dt><dd class="col-sm-8"><?php foreach (array('WEBGUI','TELEGRAM','MAIL','PUSHSAFER','PUSHOVER','NTFY','DISCORD') as $name): $key = 'REPORT_' . $name . ($web ? '_WEBMON' : ''); if (!preg_match('/^\s*' . preg_quote($key,'/') . '\s*=\s*(true|false)\b/mi',$configContents,$match)) continue; ?><span class="badge <?= strcasecmp($match[1],'true') === 0 ? 'text-bg-success' : 'text-bg-secondary'; ?> me-1"><?= h($name); ?></span><?php endforeach; ?></dd><?php endforeach; ?>
+  </dl><details class="mt-2"><summary><?= h($pia_lang['V4_Backups']); ?></summary><dl class="row mt-2"><dt class="col-sm-4"><?= h(v4_mt_label('MT_database_backup','Database backups')); ?></dt><dd class="col-sm-8"><span id="autobackupdbcount">—</span> / <span id="autobackupdbsize">—</span></dd><dt class="col-sm-4"><?= h(v4_mt_label('MT_config_backup','Config backups')); ?></dt><dd class="col-sm-8" id="autobackupconfcount">—</dd><dt class="col-sm-4"><?= h(v4_mt_label('MT_Stats_autobkp','Automatic backup')); ?></dt><dd class="col-sm-8"><?= !empty($_SESSION['AUTO_DB_BACKUP']) ? h($pia_lang['Gen_on'] ?? 'On') : h($pia_lang['Gen_off'] ?? 'Off'); ?> <span id="autobackupstatus"></span></dd></dl></details>
+  <details><summary><?= h(v4_mt_label('MT_Tool_ignorelist','Ignore list')); ?></summary><dl class="row mt-2"><?php foreach (array('MAC_IGNORE_LIST'=>'MAC','IP_IGNORE_LIST'=>'IP','HOSTNAME_IGNORE_LIST'=>'Hostname') as $key=>$kind): ?><dt class="col-sm-4"><?= h($kind); ?></dt><dd class="col-sm-8"><?php $raw = trim((string) get_config_parmeter($key), " []"); $entries = $raw === '' ? array() : explode(',',str_replace("'",'',$raw)); foreach ($entries as $entry): $entry=trim($entry); if ($entry === '') continue; if ($kind === 'Hostname'): ?><?= h($entry); ?> <?php else: ?><button type="button" class="btn btn-link btn-sm p-0 me-2" data-ignore-kind="<?= h($kind); ?>" data-ignore-value="<?= h($entry); ?>"><?= h($entry); ?> <i class="bi bi-x-circle" aria-hidden="true"></i></button><?php endif; endforeach; if (!$entries): ?><?= h(v4_mt_label('MT_Tool_ignorelist_false','None')); ?><?php endif; ?></dd><?php endforeach; ?></dl></details></div></div>
+  <div class="card mb-3"><div class="card-header"><h2 class="card-title mb-0"><?= h($pia_lang['V4_Log_Viewer']); ?></h2></div><div class="card-body d-flex flex-wrap justify-content-center gap-2"><?php foreach ($logs as $id=>$label): ?><button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-mt-log" data-log="<?= h($id); ?>"><?= h($label[0] === null ? $label[1] : v4_mt_label($label[0], $label[1])); ?></button><?php endforeach; ?><button type="button" class="btn btn-outline-danger" data-mt-action="logging" data-mt-url="php/server/files.php?action=ToggleExtLogging" data-toggle-state="<?= (int) !empty($_SESSION['PRINT_LOG']); ?>" data-mt-title="<?= h(v4_mt_label('MT_Tools_Logviewer_ext_a','Extended logging')); ?>" data-mt-confirm="<?= h(v4_mt_label('MT_Tools_Logviewer_ext_b','Toggle logging?')); ?>"><?= h(v4_mt_label('MT_Tools_Logviewer_ext_a','Extended logging')); ?> (<?= !empty($_SESSION['PRINT_LOG']) ? h($pia_lang['Gen_on'] ?? 'On') : h($pia_lang['Gen_off'] ?? 'Off'); ?>)</button></div></div>
+  <div class="card mb-3"><div class="card-header p-0"><ul class="nav nav-tabs card-header-tabs px-3 pt-2" role="tablist"><?php foreach (array('1'=>array('Settings','MT_Tools_Tab_Settings'),'4'=>array('GUI','MT_Tools_Tab_GUI'),'2'=>array('Tools','MT_Tools_Tab_Tools'),'3'=>array('Backup','MT_Tools_Tab_BackupRestore'),'5'=>array('Satellites','MT_Tool_satellites')) as $tabId=>$item): $id=(string)$tabId; if ($id === '5' && empty($_SESSION['SATELLITES_ACTIVE'])) continue; ?><li class="nav-item"><button type="button" class="nav-link<?= $tab === $id ? ' active' : ''; ?>" role="tab" id="mt-tab-<?= $id; ?>" data-bs-toggle="tab" data-bs-target="#mt-pane-<?= $id; ?>" data-tab="<?= $id; ?>" aria-controls="mt-pane-<?= $id; ?>" aria-selected="<?= $tab === $id ? 'true' : 'false'; ?>"><?= h(v4_mt_label($item[1],$item[0])); ?></button></li><?php endforeach; ?></ul></div><div class="card-body tab-content">
+    <section class="tab-pane fade<?= $tab === '1' ? ' show active' : ''; ?>" id="mt-pane-1" role="tabpanel" aria-labelledby="mt-tab-1"><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_d','Scanning')); ?></h3><div class="row g-2 mb-4"><?php foreach ($scanActions as [$id,$label,$key,$url,$title,$message]): $enabled = get_config_parmeter($key) == 1; $displayLabel = $id === 'rogue' ? $pia_lang['V4_Rogue_DHCP'] : v4_mt_label($label,$id); ?><div class="col-6 col-md-4 col-xl"><button type="button" class="btn btn-outline-<?= $enabled ? 'success' : 'secondary'; ?> w-100 h-100" data-mt-action="<?= h($id); ?>" data-mt-url="<?= h($url); ?>" data-mt-title="<?= h(v4_mt_label($title,$displayLabel)); ?>" data-mt-confirm="<?= h(v4_mt_label($message,$id)); ?>"<?= $id === 'rogue' ? ' data-toggle-state="' . (int) $enabled . '"' : ''; ?>><span class="d-block"><?= h($displayLabel); ?></span><small><?= $enabled ? h($pia_lang['Gen_on'] ?? 'On') : h($pia_lang['Gen_off'] ?? 'Off'); ?></small></button></div><?php endforeach; ?></div>
+      <h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_g','Import sources')); ?></h3><p class="text-body-secondary"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_g_Intro','')); ?></p><div class="row g-2 mb-4"><?php foreach ($imports as $code=>[$name,$key]): $enabled = get_config_parmeter($key) == 1; ?><div class="col-6 col-md-4 col-xl-3"><button type="button" class="btn btn-outline-<?= $enabled ? 'success' : 'secondary'; ?> w-100" data-import="<?= h($code); ?>" data-toggle-state="<?= (int) $enabled; ?>"><?= h($name); ?> · <?= $enabled ? h($pia_lang['Gen_on'] ?? 'On') : h($pia_lang['Gen_off'] ?? 'Off'); ?></button></div><?php endforeach; ?></div>
+      <h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_c','Configuration')); ?></h3>
+      <div class="mt-security-list mb-4">
+        <?php foreach (array(array('api','MT_Tool_setapikey','MT_Tool_setapikey_text','php/server/files.php?action=SetAPIKey','MT_Tool_setapikey_noti','MT_Tool_setapikey_noti_text'),array('test-notification','MT_Tool_test_notification','MT_Tool_test_notification_text','php/server/devices.php?action=TestNotificationSystem','MT_Tool_test_notification_noti','MT_Tool_test_notification_noti_text')) as $action) v4_mt_setting_action_row($action); ?>
+        <div class="mt-security-row">
+          <div class="mt-security-control"><label class="visually-hidden" for="txtPiaArpTimer"><?= h(v4_mt_label('MT_Tool_arpscansw','Pause scan')); ?></label><select class="form-select" id="txtPiaArpTimer"><option value="" selected><?= h(v4_mt_label('MT_arpscantimer_empty','Choose duration')); ?></option><?php foreach (array(15=>'15 min',30=>'30 min',60=>'1 h',120=>'2 h',720=>'12 h',1440=>'24 h',999999=>$pia_lang['V4_Very_Long']) as $value=>$label): ?><option value="<?= $value; ?>"><?= h($label); ?></option><?php endforeach; ?></select><button type="button" class="btn btn-warning mt-2" id="save-arp-timer"><?= h(v4_mt_label('MT_Tool_arpscansw','Pause scan')); ?></button></div>
+          <p class="mt-security-description text-danger"><?= h(v4_mt_label('MT_Tool_arpscansw_text','')); ?></p>
+        </div>
+        <?php if (strtolower((string) ($_SESSION['WebProtection'] ?? '')) === 'true') v4_mt_setting_action_row(array('login-disable','MT_Tool_logindisable','MT_Tool_logindisable_text','php/server/files.php?action=LoginDisable','MT_Tool_logindisable_noti','MT_Tool_logindisable_noti_text'), true); else v4_mt_setting_action_row(array('login-enable','MT_Tool_loginenable','MT_Tool_loginenable_text','php/server/files.php?action=LoginEnable','MT_Tool_loginenable_noti','MT_Tool_loginenable_noti_text')); ?>
+      </div>
+      <h3 class="h5"><?= h($pia_lang['V4_Advanced']); ?></h3><div class="d-flex flex-wrap justify-content-center gap-2"><a class="btn btn-outline-secondary" href="./php/debugging/test_json_calls.php"><?= h($pia_lang['V4_Test_JSON_Calls']); ?></a><a class="btn btn-outline-secondary" href="./php/debugging/test_main_tables_rawcontent.php"><?= h($pia_lang['V4_Raw_Device_Tables']); ?></a><a class="btn btn-outline-secondary" href="./php/debugging/validate_languages.php"><?= h($pia_lang['V4_Compare_Languages']); ?></a></div>
     </section>
-
-    <!-- Main content ----------------------------------------------------- -->
-    <section class="content">
-
-<?php
-// Get API-Key ----------------------------------------------------------------
-$APIKEY = get_config_parmeter('PIALERT_APIKEY');
-if ($APIKEY == "") {$APIKEY = $pia_lang['MT_Tool_setapikey_false'];}
-
-// Get Ignore List ------------------------------------------------------------
-function parse_ignore_list($line, $placeholder_text) {
-    if ($line === "" || $line === "[]") {
-        return h($placeholder_text);
-    }
-    $line = str_replace(["[", "]", "'"], "", $line);
-    return h(str_replace(",", ", ", $line));
-}
-// Create Links to remove entries from list (MAC) ------------------------------
-function add_action_macignore($func_macignorelist, $placeholder_text) {
-    if ($func_macignorelist === "" || $func_macignorelist === "[]") {
-        return h($placeholder_text);
-    }
-    $func_macignorelist = str_replace(["[", "]", "'"], "", $func_macignorelist);
-
-    $rawlist = explode(",", $func_macignorelist);
-    $actionlist = array();
-    foreach ($rawlist as $key => $value) {
-        $value = trim($value);
-        array_push($actionlist, '<a href="#" class="ignore-list-delete" data-kind="mac" data-value="' . h($value) . '">' . h($value) . '</a>');
-    }
-    $ignorlist = implode(', ', $actionlist);
-    return $ignorlist;
-}
-// Create Links to remove entries from list (IP) -------------------------------
-function add_action_ipignore($func_ipignorelist, $placeholder_text) {
-    if ($func_ipignorelist === "" || $func_ipignorelist === "[]") {
-        return h($placeholder_text);
-    }
-    $func_ipignorelist = str_replace(["[", "]", "'"], "", $func_ipignorelist);
-    $rawlist = explode(",", $func_ipignorelist);
-    $actionlist = array();
-    foreach ($rawlist as $key => $value) {
-        $value = trim($value);
-        array_push($actionlist, '<a href="#" class="ignore-list-delete" data-kind="ip" data-value="' . h($value) . '">' . h($value) . '</a>');
-    }
-    $ignorlist = implode(',', $actionlist);
-    return $ignorlist;
-}
-
-$MAC_IGNORE_LIST = add_action_macignore(get_config_parmeter('MAC_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
-$IP_IGNORE_LIST = add_action_ipignore(get_config_parmeter('IP_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
-$NAME_IGNORE_LIST = parse_ignore_list(get_config_parmeter('HOSTNAME_IGNORE_LIST'), $pia_lang['MT_Tool_ignorelist_false']);
-
-// Get Notification Settings --------------------------------------------------
-$CONFIG_FILE_SOURCE = "../config/pialert.conf";
-$CONFIG_FILE_KEY_LINE = file($CONFIG_FILE_SOURCE);
-$CONFIG_FILE_FILTER_VALUE_ARP = array_values(preg_grep("/(REPORT_MAIL|REPORT_NTFY|REPORT_WEBGUI|REPORT_PUSHSAFER|REPORT_PUSHOVER|REPORT_TELEGRAM|REPORT_DISCORD)(?!_)/i", $CONFIG_FILE_KEY_LINE));
-$CONFIG_FILE_FILTER_VALUE_WEB = array_values(preg_grep("/(REPORT_MAIL_WEBMON|REPORT_NTFY_WEBMON|REPORT_WEBGUI_WEBMON|REPORT_PUSHSAFER_WEBMON|REPORT_PUSHOVER_WEBMON |REPORT_TELEGRAM_WEBMON|REPORT_DISCORD_WEBMON)/i", $CONFIG_FILE_KEY_LINE));
-$CONFIG_FILE_MOD_DATA = date("d.m.Y, H:i:s", filemtime($CONFIG_FILE_SOURCE)) . '';
-
-// Size and last mod of DB ----------------------------------------------------
-$DB_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert.db';
-$DB_SIZE_DATA = number_format((filesize($DB_SOURCE) / 1000000), 2, ",", ".") . '&nbsp;MB';
-$DB_MOD_DATA = date("d.m.Y, H:i:s", filemtime($DB_SOURCE)) . '';
-
-// Size and last mod of DB-Tools ----------------------------------------------------
-$DB_TOOLS_SOURCE = str_replace('front', 'db', getcwd()) . '/pialert_tools.db';
-$DB_TOOLS_SIZE_DATA = number_format((filesize($DB_TOOLS_SOURCE) / 1000000), 2, ",", ".") . '&nbsp;MB';
-$DB_TOOLS_MOD_DATA = date("d.m.Y, H:i:s", filemtime($DB_TOOLS_SOURCE)) . '';
-
-// Find latest DB Backup for restore and download -----------------------------
-$ARCHIVE_PATH = str_replace('front', 'db', getcwd()) . '/';
-$LATEST_FILES = glob($ARCHIVE_PATH . "pialertdb_*.zip");
-if (sizeof($LATEST_FILES) == 0) {
-	$LATEST_BACKUP_DATE = $pia_lang['MT_Tool_restore_blocked'];
-	$block_restore_button_db = true;
-} else {
-	natsort($LATEST_FILES);
-	$LATEST_FILES = array_reverse($LATEST_FILES, False);
-	$LATEST_BACKUP = $LATEST_FILES[0];
-	$LATEST_BACKUP_DATE = date("Y-m-d H:i:s", filemtime($LATEST_BACKUP));
-}
-// Get Config Parameter
-foreach (['FRITZBOX_ACTIVE', 'MIKROTIK_ACTIVE', 'UNIFI_ACTIVE', 'OPENWRT_ACTIVE', 'PIHOLE_ACTIVE', 'DHCP_ACTIVE', 'ASUSWRT_ACTIVE', 'PRINT_LOG', 'PFSENSE_ACTIVE', 'OPNSENSE_ACTIVE', 'ADGUARD_ACTIVE'] as $key) {
-    $_SESSION[$key] = (get_config_parmeter($key) == 1) ? 1 : 0;
-}
-// Buffer active --------------------------------------------------------------
-	$file = '../db/pialert_journal_buffer';
-	if (file_exists($file)) {
-        $buffer_indicator = '<span style="cursor:pointer; text-decoration: underline dotted red; text-underline-position:under;" data-toggle="tooltip" data-placement="top" title="'.$pia_lang['MT_Stats_ToolTip_Jrn'].'">(<span style="color:red;">*</span>)</span>';
-	} else {$buffer_indicator = '';}
-
-// Set Tab --------------------------------------------------------------------
-if ($_GET['tab'] == '1') {
-	$pia_tab_setting = 'active';
-	$pia_tab_tool = $pia_tab_backup = $pia_tab_satellites = $pia_tab_gui = '';
-} elseif ($_GET['tab'] == '2') {
-	$pia_tab_tool = 'active';
-	$pia_tab_setting = $pia_tab_backup = $pia_tab_satellites = $pia_tab_gui = '';
-} elseif ($_GET['tab'] == '3') {
-    $pia_tab_backup = 'active';
-	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_gui = '';
-} elseif ($_GET['tab'] == '4') {
-    $pia_tab_gui = 'active';
-	$pia_tab_setting = $pia_tab_tool = $pia_tab_satellites = $pia_tab_backup = '';
-} elseif ($_GET['tab'] == '5') {
-    $pia_tab_satellites = 'active';
-    $pia_tab_setting = $pia_tab_tool = $pia_tab_backup = $pia_tab_gui = '';
-} else {
-	$pia_tab_setting = 'active';
-	$pia_tab_tool = $pia_tab_backup = $pia_tab_gui = $pia_tab_satellites = '';}
-?>
-
-    <div class="row">
-      <div class="col-md-12">
-
-<!-- Status Box ----------------------------------------------------------- -->
-    <div class="box" id="Maintain-Status">
-        <div class="box-header with-border">
-            <h3 class="box-title">Status</h3> <a href="./systeminfo.php"><i class="bi bi-info-circle text-aqua" style="position: relative; top: -5px; margin-left: 5px;"></i></a>
-        </div>
-        <div class="box-body" style="padding-bottom: 5px;">
-            <div class="db_info_table">
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_database_lastmod'];?></div>
-                    <div class="db_info_table_cell">
-                        <?=$DB_MOD_DATA.' '.$buffer_indicator;?> /  <?=$DB_SIZE_DATA;?> (Main)
-                    </div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"> </div>
-                    <div class="db_info_table_cell">
-                        <?=$DB_TOOLS_MOD_DATA?> /  <?=$DB_TOOLS_SIZE_DATA;?> (Tools)
-                    </div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_config_lastmod'];?></div>
-                    <div class="db_info_table_cell">
-                        <?=$CONFIG_FILE_MOD_DATA;?>
-                    </div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_arp_status'];?></div>
-                    <div class="db_info_table_cell"><?=$MainScanStatus['result_html'] . $MainScanStatus['timer_output']?></div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a">Api-Key</div>
-                    <div class="db_info_table_cell" style="overflow-wrap: anywhere;">
-                        <input readonly value="<?=$APIKEY;?>" class="statusbox_ro_inputs">
-                    </div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_notification_config'];?></div>
-                    <div class="db_info_table_cell">
-                        <?=format_notifications($CONFIG_FILE_FILTER_VALUE_ARP);?>
-                    </div>
-                </div>
-                <div class="db_info_table_row">
-                    <div class="db_info_table_cell db_info_table_cell_a"><?=$pia_lang['MT_notification_config_webmon'];?></div>
-                    <div class="db_info_table_cell">
-                        <?=format_notifications($CONFIG_FILE_FILTER_VALUE_WEB);?>
-                    </div>
-                </div>
-                <!-- Toggle -->
-                <div class="db_info_table_row" id="backuplist-toggle" style="cursor: pointer;">
-                    <div class="db_info_table_cell db_info_table_cell_a">
-                        <strong>Backups</strong>
-                    </div>
-                    <div class="db_info_table_cell text-left">
-                        <i id="backuplist-icon" class="bi bi-plus-circle text-aqua"></i>
-                    </div>
-                </div>
-                <!-- Versteckte Inhalte -->
-                <div class="db_info_table_row backuplist-detail" style="display: none;">
-                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['MT_database_backup']?></div>
-                    <div class="db_info_table_cell"><span id="autobackupdbcount"></span>
-                        <?=$ARCHIVE_COUNT . ' ' . $pia_lang['MT_database_backup_found'] . '<br>' . $pia_lang['MT_database_backup_total'];?>: <span id="autobackupdbsize"></span>
-                    </div>
-                </div>
-                <div class="db_info_table_row backuplist-detail" style="display: none;">
-                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['MT_config_backup']?></div>
-                    <div class="db_info_table_cell"><span id="autobackupconfcount"></span>
-                        <?=$CONFIG_FILE_COUNT . ' ' . $pia_lang['MT_database_backup_found'];?>
-                    </div>
-                </div>
-                <div class="db_info_table_row backuplist-detail" style="display: none;">
-                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['MT_Stats_autobkp']?></div>
-                    <div class="db_info_table_cell">
-<?php
-if ($_SESSION['AUTO_DB_BACKUP']) {echo $pia_lang['MT_Stats_autobkp_on'].' / <span id="autobackupstatus"></span>';} else {echo $pia_lang['MT_Stats_autobkp_off'].' <span hidden id="autobackupstatus"></span>';}
-?> 
-                    </div>
-                </div>
-                <!-- Toggle -->
-                <div class="db_info_table_row" id="ignorelist-toggle" style="cursor: pointer;">
-                    <div class="db_info_table_cell db_info_table_cell_a">
-                        <strong><?=$pia_lang['MT_Tool_ignorelist'];?></strong>
-                    </div>
-                    <div class="db_info_table_cell text-left">
-                        <i id="ignorelist-icon" class="bi bi-plus-circle text-aqua"></i>
-                    </div>
-                </div>
-                <!-- Versteckte Inhalte -->
-                <div class="db_info_table_row ignorelist-detail" style="display: none;">
-                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['Device_TableHead_MAC']?></div>
-                    <div class="db_info_table_cell"><?=$MAC_IGNORE_LIST;?></div>
-                </div>
-                <div class="db_info_table_row ignorelist-detail" style="display: none;">
-                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['ICMPMonitor_label_IP']?></div>
-                    <div class="db_info_table_cell"><?=$IP_IGNORE_LIST;?></div>
-                </div>
-                <div class="db_info_table_row ignorelist-detail" style="display: none;">
-                    <div class="db_info_table_cell db_info_table_cell_a" style="padding-left:30px;"><?=$pia_lang['Device_TableHead_Name']?></div>
-                    <div class="db_info_table_cell"><?=$NAME_IGNORE_LIST;?></div>
-                </div>
-            </div>
-        </div>
-          <!-- /.box-body -->
-    </div>
-
-      </div>
-    </div>
-
-<!-- Log Viewer ----------------------------------------------------------- -->
-    <div class="box">
-        <div class="box-header with-border">
-            <h3 class="box-title">Log Viewer</h3>
-        </div>
-        <div class="box-body main_logviwer_buttonbox" id="logviewer">
-            <button type="button" id="oisjmofeirfj" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-scan"><?=$pia_lang['MT_Tools_Logviewer_Scan'];?></button>
-            <button type="button" id="wefwfwefewdf" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-iplog"><?=$pia_lang['MT_Tools_Logviewer_IPLog'];?></button>
-            <button type="button" id="tzhrsreawefw" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-vendor"><?=$pia_lang['MT_Tools_Logviewer_Vendor'];?></button>
-            <button type="button" id="arzuozhrsfga" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-cleanup"><?=$pia_lang['MT_Tools_Logviewer_Cleanup'];?></button>
-            <button type="button" id="erftttwrdwqq" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-webservices"><?=$pia_lang['MT_Tools_Logviewer_WebServices']?></button>
-            <button type="button" id="trivziitsubd" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-speedtest">Speedtest (Cron)</button>
-            <button type="button" id="nmapQueueLog" class="btn btn-primary main_logviwer_button_m" data-toggle="modal" data-target="#modal-logviewer-nmap"><?=$pia_lang['MT_Tools_Logviewer_Nmap'];?></button>
-            <?php $state = convert_state($_SESSION['PRINT_LOG'], 0);?>
-            <button type="button" id="btnextLogging" class="btn btn-danger main_logviwer_button_m" onclick="askToggleExtLogging(<?=$_SESSION['PRINT_LOG'];?>)"><?=$pia_lang['MT_Tools_Logviewer_ext_a']?> (<?=$state;?>)</button>
-      	</div>
-    </div>
-
-<?php
-// Log Viewer - Modals
-// Scan
-print_logviewer_modal_head('scan', 'pialert.1.log');
-print_logviewer_modal_foot();
-// Internet IP
-print_logviewer_modal_head('iplog', 'pialert.IP.log');
-print_logviewer_modal_foot();
-// Vendor Update
-print_logviewer_modal_head('vendor', 'pialert.vendors.log');
-print_logviewer_modal_foot();
-// Cleanup
-print_logviewer_modal_head('cleanup', 'pialert.cleanup.log');
-print_logviewer_modal_foot();
-// WebServices
-if ($_SESSION['Scan_WebServices'] == True) {
- 	print_logviewer_modal_head('webservices', 'pialert.webservices.log');
- 	print_logviewer_modal_foot();
-}
-// Speedtest
-print_logviewer_modal_head('speedtest', 'pialert.speedtest.log');
-print_logviewer_modal_foot();
-// Detailed Nmap queue
-print_logviewer_modal_head('nmap', 'pialert.nmap.log');
-print_logviewer_modal_foot();
-// Inactive Hosts
-print_logviewer_modal_head('inactivehosts', 'Inactive Hosts');
-print_logviewer_modal_foot();
-?>
-
-<!-- Tabs ----------------------------------------------------------------- -->
-    <div class="nav-tabs-custom">
-    <ul class="nav nav-tabs">
-        <li class="<?=$pia_tab_setting?>"><a href="#tab_Settings" data-toggle="tab" onclick="update_tabURL(window.location.href,'1')"><?=$pia_lang['MT_Tools_Tab_Settings']?></a></li>
-        <li class="<?=$pia_tab_gui?>"><a href="#tab_GUI" data-toggle="tab" onclick="update_tabURL(window.location.href,'4')"><?=$pia_lang['MT_Tools_Tab_GUI']?></a></li>
-        <li class="<?=$pia_tab_tool?>"><a href="#tab_DBTools" data-toggle="tab" onclick="update_tabURL(window.location.href,'2')"><?=$pia_lang['MT_Tools_Tab_Tools']?></a></li>
-        <li class="<?=$pia_tab_backup?>"><a href="#tab_BackupRestore" data-toggle="tab" onclick="update_tabURL(window.location.href,'3')"><?=$pia_lang['MT_Tools_Tab_BackupRestore']?></a></li>
-
-<?php
-if ($_SESSION['SATELLITES_ACTIVE'] == True) {
-    echo '<li class="'.$pia_tab_satellites.'"><a href="#tab_satellites" data-toggle="tab" onclick="update_tabURL(window.location.href,\'5\')">'.$pia_lang['MT_Tool_satellites'].'</a></li>';
-}
-?>
-
-    </ul>
-    <div class="tab-content">
-
-<?php
-require 'php/templates/maintenance_settings.php';
-require 'php/templates/maintenance_gui.php';
-require 'php/templates/maintenance_main.php';
-require 'php/templates/maintenance_backup.php';
-require 'php/templates/maintenance_sat.php';
-?>
-
-    </div>
-</div>
-
-<!-- Config Editor -------------------------------------------------------- -->
- <div class="box">
-        <div class="box-body" id="configeditor">
-           <button type="button" id="oisggfjergfeirfj" class="btn btn-danger" data-toggle="modal" data-target="#modal-config-editor"><?=$pia_lang['MT_ConfEditor_Start'];?></button>
-      </div>
-    </div>
-
-    <div class="box box-solid box-danger collapsed-box" style="margin-top: -15px;">
-    <div class="box-header with-border" data-widget="collapse" id="configeditor_innerbox">
-        <h3 class="box-title"><?=$pia_lang['MT_ConfEditor_Hint'];?></h3>
-        <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool"><i class="fa fa-plus"></i></button>
-        </div>
-    </div>
-    <div class="box-body">
-       <table class="table configeditor_help">
-          <tbody>
-            <tr>
-              <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['MT_ConfEditor_Restore'];?></th>
-              <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Restore_info'];?></td>
-            </tr>
-            <tr>
-              <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['MT_ConfEditor_Backup'];?></th>
-              <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Backup_info'];?></td>
-            </tr>
-            <tr>
-              <th scope="row" class="text-nowrap text-danger"><?=$pia_lang['Gen_Save'];?></th>
-              <td class="db_tools_table_cell_b"><?=$pia_lang['MT_ConfEditor_Save_info'];?></td>
-            </tr>
-          </tbody>
-        </table>
-    </div>
-    <!-- /.box-body -->
-</div>
-
-<!-- Config Editor - Modals ----------------------------------------------- -->
-    <div class="modal fade" id="modal-config-editor">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <form role="form" accept-charset="utf-8">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span></button>
-                    <h4 class="modal-title">Config Editor</h4>
-                     <input type="text" id="searchInput" placeholder="<?=$pia_lang['Device_Searchbox'];?>..." class="form-control" style="margin-top: 10px; max-width: 200px; display: inline-block;">
-                    <button type="button" id="nextButton" class="btn btn-primary" style="margin-left: 10px;">Next</button>
-                </div>
-                <div class="modal-body" style="text-align: left;">
-                    <textarea class="form-control" name="txtConfigFileEditor" id="ConfigFileEditor" spellcheck="false" wrap="off" style="resize: none; font-family: monospace; height: 70vh;"></textarea>
-                </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="btnPiaRestoreConfigFile" data-dismiss="modal" style="margin: 5px" onclick="askRestoreConfigFile()"><?=$pia_lang['MT_ConfEditor_Restore'];?></button>
-                    <button type="button" class="btn btn-success" id="btnPiaBackupConfigFile" style="margin: 5px" onclick="BackupConfigFile('no')"><?=$pia_lang['MT_ConfEditor_Backup'];?></button>
-                    <button type="button" class="btn btn-danger" id="btnConfigFileEditor" style="margin: 5px" onclick="SaveConfigFile()"><?=$pia_lang['Gen_Save'];?></button>
-                    <button type="button" class="btn btn-default" id="btnPiaEditorClose" data-dismiss="modal" style="margin: 5px"><?=$pia_lang['Gen_Close'];?></button>
-                  </div>
-              </form>
-            </div>
-        </div>
-    </div>
-
-<div style="width: 100%; height: 20px;"></div>
-    <!-- ------------------------------------------------------------------ -->
-
+    <section class="tab-pane fade<?= $tab === '4' ? ' show active' : ''; ?>" id="mt-pane-4" role="tabpanel" aria-labelledby="mt-tab-4"><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_a','Appearance')); ?></h3><p><?= h(v4_mt_label('MT_Tools_Tab_Settings_Intro','')); ?></p><a class="btn btn-primary mb-4" href="<?= h(pialert_v4_route('ui_settings')); ?>"><?= h($pia_lang['NAV_UISettings'] ?? 'Sprache, Farben, Darkmode, Spalten und Header-Widgets einstellen'); ?></a><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_f','Device filters')); ?></h3><div class="row g-3"><?php foreach ($filters as $filter): $id=filter_var($filter['id'] ?? null,FILTER_VALIDATE_INT); if ($id === false || $id < 0) continue; ?><div class="col-12"><div class="border rounded p-3 mt-filter" data-filter-id="<?= (int) $id; ?>"><div class="row g-2 align-items-end"><?php foreach (array('filtername'=>array('name','Device_del_table_filtername'),'filterstring'=>array('string','Device_del_table_filterstring'),'filterindex'=>array('reserve_a','Device_del_table_filterindex'),'filtercolumn'=>array('reserve_b','Device_del_table_filtercol'),'filtergroup'=>array('reserve_c','Device_del_table_filtergroup')) as $field=>[$source,$label]): ?><div class="col-md"><label class="form-label" for="filter-<?= h($field); ?>-<?= (int) $id; ?>"><?= h(v4_mt_label($label,$field)); ?></label><input class="form-control" id="filter-<?= h($field); ?>-<?= (int) $id; ?>" data-field="<?= h($field); ?>" value="<?= h($filter[$source] ?? $filter[$field] ?? ''); ?>"></div><?php endforeach; ?><div class="col-md-auto"><button type="button" class="btn btn-outline-primary save-filter" aria-label="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>" title="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>"><i class="bi bi-floppy" aria-hidden="true"></i></button></div></div></div></div><?php endforeach; ?></div></section>
+    <section class="tab-pane fade<?= $tab === '2' ? ' show active' : ''; ?>" id="mt-pane-2" role="tabpanel" aria-labelledby="mt-tab-2"><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_j','Database tools')); ?></h3><div class="row g-2 mb-4"><?php foreach ($actionGroups['tools'] as $action) v4_mt_button($action); ?></div><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_k','Edit column values')); ?></h3><p><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_k_Intro','')); ?></p><div class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label" for="txtMTTableColumn"><?= h(v4_mt_label('MT_ColumnEdit_a','Column')); ?></label><select class="form-select" id="txtMTTableColumn"><option value=""></option><?php foreach ($columns as $column=>$query): ?><option value="<?= h($column); ?>" data-query="<?= h($query); ?>"><?= h($pia_lang['V4_Column_' . $column] ?? $column); ?></option><?php endforeach; ?></select></div><div class="col-md-3"><label class="form-label" for="txtMTColumnContent"><?= h(v4_mt_label('MT_ColumnEdit_b','Current value')); ?></label><select class="form-select" id="txtMTColumnContent"><option value=""></option></select></div><div class="col-md-3"><label class="form-label" for="txtMTNewColumnContent"><?= h(v4_mt_label('MT_ColumnEdit_c','New value')); ?></label><input class="form-control" id="txtMTNewColumnContent"></div><div class="col-md-3 d-flex gap-2"><button type="button" class="btn btn-outline-secondary" id="reset-column"><?= h($pia_lang['V4_Reset']); ?></button><button type="button" class="btn btn-outline-primary" id="update-column"><?= h($pia_lang['Gen_Save'] ?? 'Save'); ?></button><button type="button" class="btn btn-outline-danger" id="delete-column"><?= h($pia_lang['Gen_Delete'] ?? 'Delete'); ?></button></div></div></section>
+    <section class="tab-pane fade<?= $tab === '3' ? ' show active' : ''; ?>" id="mt-pane-3" role="tabpanel" aria-labelledby="mt-tab-3"><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_j','Backup and restore')); ?></h3><div class="row g-2 mb-4"><?php foreach ($actionGroups['backup'] as $action): if ($action[0] === 'restore-db'): if (!$restoreBackups) continue; ?>
+      <div class="col-12 col-lg-6"><div class="border rounded p-3 h-100 d-flex flex-column gap-2"><button type="button" class="btn btn-outline-primary align-self-start" data-mt-action="restore-db" data-mt-url="<?= h($action[3]); ?>" data-mt-title="<?= h(v4_mt_label($action[4], 'DB Restore')); ?>" data-mt-confirm="<?= h(v4_mt_label('V4_Backup_Restore_Confirm','Restore the selected database backup? Make sure no scan is running.')); ?>"><?= h(v4_mt_label($action[1], 'DB Restore')); ?></button><label class="form-label mb-0" for="mt-restore-archive"><?= h(v4_mt_label('V4_Backup_Select','Select database backup')); ?></label><select class="form-select" id="mt-restore-archive" autocomplete="off"><?php foreach ($restoreBackups as $file): ?><option value="<?= h(basename($file)); ?>"><?= h(basename($file)); ?></option><?php endforeach; ?></select><span class="small text-body-secondary"><?= h(v4_mt_label('V4_Backup_Restore_Description','The selected database backup will be restored.')); ?></span></div></div>
+    <?php else: v4_mt_button($action); endif; endforeach; ?></div><h3 class="h5"><?= h($pia_lang['V4_Downloads']); ?></h3><div class="d-flex flex-wrap gap-2"><?php if ($latestBackup): ?><a class="btn btn-outline-secondary" href="./download/database.php"><?= h(v4_mt_label('MT_Tool_latestdb_download','Database')); ?></a><?php endif; ?><?php if (is_file(__DIR__ . '/../db/pialertcsv.zip')): ?><a class="btn btn-outline-secondary" href="./download/databasecsv.php"><?= h(v4_mt_label('MT_Tool_CSVExport_download','CSV')); ?></a><?php endif; ?><a class="btn btn-outline-secondary" href="./download/config.php"><?= h(v4_mt_label('MT_Tool_latestconf_download','Config')); ?></a><?php if (is_file(pialert_v4_ui_path()) || is_file(pialert_v4_ui_default_path())): ?><a class="btn btn-outline-secondary" href="./download/uisettings.php"><?= h(v4_mt_label('MT_Tool_uisettings_download','UI settings')); ?></a><?php endif; ?></div></section>
+    <?php if (!empty($_SESSION['SATELLITES_ACTIVE'])): ?><section class="tab-pane fade<?= $tab === '5' ? ' show active' : ''; ?>" id="mt-pane-5" role="tabpanel" aria-labelledby="mt-tab-5"><h3 class="h5"><?= h(v4_mt_label('MT_SET_SatCreate_head','Create satellite')); ?></h3><div class="row g-2 align-items-end mb-4"><div class="col-md-5"><label class="form-label" for="txtNewSatelliteName"><?= h(v4_mt_label('MT_SET_SatCreate_FORM_Name','Name')); ?></label><input class="form-control" id="txtNewSatelliteName" maxlength="128" placeholder="<?= h(v4_mt_label('MT_SET_SatCreate_FORM_Name_PH','Name')); ?>"></div><div class="col-md-auto"><button type="button" class="btn btn-primary" id="create-satellite"><?= h($pia_lang['Gen_Save'] ?? 'Save'); ?></button></div><div class="col-md-auto"><a class="btn btn-warning" href="./download/proxymodeconfig.php" target="_blank" rel="noopener noreferrer"><?= h(v4_mt_label('MT_SET_SatExport_BTM','Proxy config')); ?></a></div></div><h3 class="h5"><?= h(v4_mt_label('MT_SET_SatEdit_head','Satellites')); ?></h3><?php foreach ($satellites as $sat): $id=(int)($sat['sat_id'] ?? 0); ?><article class="card mb-3 mt-satellite" data-sat-id="<?= $id; ?>" data-sat-name="<?= h($sat['sat_name'] ?? ''); ?>"><div class="card-body"><div class="row g-2 align-items-end"><div class="col-md-5"><label class="form-label" for="sat-name-<?= $id; ?>"><?= h(v4_mt_label('MT_SET_SatCreate_FORM_Name','Name')); ?></label><input class="form-control mt-sat-name" id="sat-name-<?= $id; ?>" value="<?= h($sat['sat_name'] ?? ''); ?>"></div><div class="col-md-4"><span class="small text-body-secondary"><?= h($pia_lang['V4_Version']); ?>: <?= h($sat['sat_remote_version'] ?? ''); ?><br><?= h(v4_mt_label('MT_SET_SatEdit_FORM_LastUpd','Last update')); ?>: <?= h($sat['sat_lastupdate'] ?? ''); ?></span></div><div class="col-md-3 d-flex flex-wrap gap-2"><button type="button" class="btn btn-outline-primary mt-sat-action" data-action="save" aria-label="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>" title="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>"><i class="bi bi-floppy" aria-hidden="true"></i></button><button type="button" class="btn btn-outline-danger mt-sat-action" data-action="delete" aria-label="<?= h($pia_lang['Gen_Delete'] ?? 'Delete'); ?>" title="<?= h($pia_lang['Gen_Delete'] ?? 'Delete'); ?>"><i class="bi bi-trash" aria-hidden="true"></i></button></div></div><details class="mt-2"><summary><?= h($pia_lang['V4_Scan_Sources']); ?></summary><div class="d-flex flex-wrap gap-2 mt-2"><?php foreach (array('arp'=>'ARP','fritzbox'=>'Fritz!Box','mikrotik'=>'Mikrotik','unifi'=>'UniFi','openwrt'=>'OpenWRT','asuswrt'=>'AsusWRT','pihole_net'=>'Pi-hole','pihole_dhcp'=>'Pi-hole DHCP','pfsense'=>'pfSense','opnsense'=>'OPNsense','adguard'=>'AdGuard') as $field=>$name): ?><span class="badge <?= !empty($sat['sat_conf_scan_' . $field]) ? 'text-bg-success' : 'text-bg-secondary'; ?>"><?= h($name); ?></span><?php endforeach; ?></div></details></div></article><?php endforeach; ?></section><?php endif; ?>
+  </div></div>
+  <div class="card mb-3"><div class="card-header"><h2 class="card-title mb-0"><?= h(v4_mt_label('MT_ConfEditor_Start','Config Editor')); ?></h2></div><div class="card-body"><button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#modal-mt-config"><?= h(v4_mt_label('MT_ConfEditor_Start','Open Config Editor')); ?></button><details class="mt-3"><summary class="text-danger"><?= h(v4_mt_label('MT_ConfEditor_Hint','Help')); ?></summary><dl class="row mt-2 mb-0"><?php foreach (array('Restore','Backup','Save') as $action): ?><dt class="col-sm-3"><?= h(v4_mt_label('MT_ConfEditor_' . $action,$action)); ?></dt><dd class="col-sm-9"><?= h(v4_mt_label('MT_ConfEditor_' . $action . '_info','')); ?></dd><?php endforeach; ?></dl></details></div></div>
 </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
-<!-- ---------------------------------------------------------------------- -->
-<?php
-require 'php/templates/footer.php';
-?>
-<link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
-<script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
-
-<script>
-$(document).ready(function () {
-    $('#modal-config-editor').on('show.bs.modal', function () {
-        GetConfigFile();
-        // Save the current scroll position and apply styles to the body and modal
-        var scrollPosition = $(window).scrollTop();
-        $('body').css({
-            position: 'fixed',
-            width: '100%',
-            top: -scrollPosition
-        });
-        $('#modal-config-editor').css('overflow-y', 'scroll');
-    });
-
-    $('#modal-config-editor').on('hidden.bs.modal', function () {
-        // Reset styles when modal is hidden
-        var scrollPosition = Math.abs(parseInt($('body').css('top')));
-        $('body').css({
-            position: '',
-            width: '',
-            top: ''
-        });
-        $(window).scrollTop(scrollPosition);
-        $('#modal-config-editor').css('overflow-y', 'hidden');
-    });
-
-    $('[id$="-toggle"]').click(function() {
-        const idPrefix = this.id.replace('-toggle', ''); // z. B. 'ignorelist' oder 'backuplist'
-        const detailSelector = `.${idPrefix}-detail`;
-        const icon = $(`#${idPrefix}-icon`);
-
-        $(detailSelector).animate({ height: "toggle", opacity: "toggle" }, 400);
-        
-        if (icon.hasClass('bi-plus-circle')) {
-            icon.removeClass('bi-plus-circle').addClass('bi-dash-circle');
-        } else {
-            icon.removeClass('bi-dash-circle').addClass('bi-plus-circle');
-        }
-    });
-
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-    })
-
-    let searchIndex = 0;
-    document.getElementById('searchInput').addEventListener('input', function () {
-        searchIndex = 0;
-        highlightNextMatch(false);
-    });
-    document.getElementById('nextButton').addEventListener('click', function () {
-        highlightNextMatch(false);
-    });
-    function highlightNextMatch() {
-        const searchText = document.getElementById('searchInput').value.toLowerCase();
-        const textarea = document.getElementById('ConfigFileEditor');
-        const text = textarea.value.toLowerCase();
-
-        if (searchText) {
-            const nextIndex = text.indexOf(searchText, searchIndex);
-            if (nextIndex !== -1) {
-                const beforeMatch = textarea.value.substring(0, nextIndex);
-                const lineHeight = textarea.scrollHeight / textarea.value.split('\n').length;
-                const lineNumber = beforeMatch.split('\n').length - 1;
-                textarea.scrollTop = lineHeight * lineNumber;
-                searchIndex = nextIndex + searchText.length;
-            } else {
-                searchIndex = 0;
-                alert('<?=$pia_lang['MT_ConfEditor_SearchEnd'];?>');
-            }
-        }
-    }
-
-    setInterval(UpdateStatusBox, 15000);
-    GetModalLogContent();
-    GetARPStatus();
-    GetAutoBackupStatus();
-    GetModalInactiveHosts();
-    // startCountdown();    
-});
-</script>
-
-<script>
-initializeiCheck();
-// delete devices with emty macs
-function askDeleteDevicesWithEmptyMACs() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_empty_macs_noti'];?>', '<?=$pia_lang['MT_Tool_del_empty_macs_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteDevicesWithEmptyMACs');
-}
-function deleteDevicesWithEmptyMACs() {
-	pialertPost('php/server/devices.php?action=deleteAllWithEmptyMACs', function(msg) {showMessage (msg);});
-}
-
-// Test Notifications
-function askTestNotificationSystem() {
-  showModalWarning('<?=$pia_lang['MT_Tool_test_notification_noti'];?>', '<?=$pia_lang['MT_Tool_test_notification_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'TestNotificationSystem');
-}
-function TestNotificationSystem() {
-	pialertPost('php/server/devices.php?action=TestNotificationSystem', function(msg) {showMessage (msg);});
-}
-
-// delete all devices
-function askDeleteAllDevices() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_alldev_noti'];?>', '<?=$pia_lang['MT_Tool_del_alldev_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteAllDevices');
-}
-function deleteAllDevices() {
-	pialertPost('php/server/devices.php?action=deleteAllDevices', function(msg) {showMessage (msg);});
-}
-
-// delete all webservices
-function askDeleteAllWebServices() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_allserv_noti'];?>', '<?=$pia_lang['MT_Tool_del_allserv_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteAllWebServices');
-}
-function DeleteAllWebServices() {
-    pialertPost('php/server/services.php?action=DeleteAllWebServices', function(msg) {showMessage (msg);});
-}
-
-// delete all (unknown) devices
-function askDeleteUnknown() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_unknowndev_noti'];?>', '<?=$pia_lang['MT_Tool_del_unknowndev_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteUnknownDevices');
-}
-function deleteUnknownDevices() {
-	pialertPost('php/server/devices.php?action=deleteUnknownDevices', function(msg) {showMessage (msg);});
-}
-// Toggle Imports
-function askToggleImport(fdeviceType,ftoggleState) {
-  window.global_fdeviceType = fdeviceType;
-  window.global_ftoggleState = ftoggleState;
-  showModalWarning('<?=$pia_lang['MT_Tggl_Import_head'];?>', '<?=$pia_lang['MT_Tggl_Import_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'ToggleImport');
-}
-function ToggleImport() {
-  var fdeviceType = window.global_fdeviceType;
-  var ftoggleState = window.global_ftoggleState;
-  pialertPost('php/server/files.php?action=ToggleImport'
-    + '&deviceType='    + fdeviceType
-    + '&toggleState='   + ftoggleState
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-// delete all Events
-function askDeleteEvents() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_allevents_noti'];?>', '<?=$pia_lang['MT_Tool_del_allevents_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteEvents');
-}
-function deleteEvents() {
-	pialertPost('php/server/devices.php?action=deleteEvents', function(msg) {showMessage (msg);});
-}
-
-// delete History
-function askDeleteActHistory() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_ActHistory_noti'];?>', '<?=$pia_lang['MT_Tool_del_ActHistory_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'deleteActHistory');
-}
-function deleteActHistory() {
-	pialertPost('php/server/devices.php?action=deleteActHistory', function(msg) {showMessage (msg);});
-}
-
-// delete Speedtest results
-function askDeleteSpeedtestResults() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_speedtest'];?>', '<?=$pia_lang['MT_Tool_del_speedtest_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteSpeedtestResults');
-}
-function DeleteSpeedtestResults() {
-	pialertPost('php/server/devices.php?action=DeleteSpeedtestResults', function(msg) {showMessage (msg);});
-}
-
-// delete Nmap results
-function askDeleteNmapScansResults() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_nmapscans'];?>', '<?=$pia_lang['MT_Tool_del_nmapscans_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteNmapScansResults');
-}
-function DeleteNmapScansResults() {
-	pialertPost('php/server/devices.php?action=DeleteNmapScansResults', function(msg) {showMessage (msg);});
-}
-
-// reset VOIDED
-function askresetVoidedEvents() {
-  showModalWarning('<?=$pia_lang['MT_Tool_reset_voided'];?>', '<?=$pia_lang['MT_Tool_reset_voided_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'resetVoidedEvents');
-}
-function resetVoidedEvents() {
-    pialertPost('php/server/devices.php?action=resetVoidedEvents', function(msg) {showMessage (msg);});
-}
-
-// Backup DB to Archive
-function askBackupDBtoArchive() {
-  showModalWarning('<?=$pia_lang['MT_Tool_backup_noti'];?>', '<?=$pia_lang['MT_Tool_backup_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Backup'];?>', 'BackupDBtoArchive');
-}
-function BackupDBtoArchive() {
-	pialertPost('php/server/files.php?action=BackupDBtoArchive', function(msg) {showMessage (msg);});
-}
-
-// Restore DB from Archive
-function askRestoreDBfromArchive() {
-  showModalWarning('<?=$pia_lang['MT_Tool_restore_noti'];?>', '<?=$pia_lang['MT_Tool_restore_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Restore'];?>', 'RestoreDBfromArchive');
-}
-function RestoreDBfromArchive() {
-	pialertPost('php/server/files.php?action=RestoreDBfromArchive', function(msg) {showMessage (msg);});
-}
-
-// Purge Backups
-function askPurgeDBBackups() {
-  showModalWarning('<?=$pia_lang['MT_Tool_purgebackup_noti'];?>', '<?=$pia_lang['MT_Tool_purgebackup_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Purge'];?>', 'PurgeDBBackups');
-}
-function PurgeDBBackups() {
-	pialertPost('php/server/files.php?action=PurgeDBBackups', function(msg) {showMessage (msg);});
-}
-
-// Backup DB to CSV
-function askBackupDBtoCSV() {
-  showModalWarning('<?=$pia_lang['MT_Tool_backupcsv_noti'];?>', '<?=$pia_lang['MT_Tool_backupcsv_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Backup'];?>', 'BackupDBtoCSV');
-}
-function BackupDBtoCSV() {
-	pialertPost('php/server/files.php?action=BackupDBtoCSV', function(msg) {showMessage (msg);});
-}
-
-// Switch Darkmode
-function askEnableDarkmode() {
-  showModalWarning('<?=$pia_lang['MT_Tool_darkmode_noti'];?>', '<?=$pia_lang['MT_Tool_darkmode_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableDarkmode');
-}
-function EnableDarkmode() {
-	pialertPost('php/server/files.php?action=EnableDarkmode', function(msg) {showMessage (msg);});
-}
-
-// Switch Web Service Monitor
-function askEnableWebServiceMon() {
-  showModalWarning('<?=$pia_lang['MT_Tool_webservicemon_noti'];?>', '<?=$pia_lang['MT_Tool_webservicemon_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableWebServiceMon');
-}
-function EnableWebServiceMon() {
-	pialertPost('php/server/services.php?action=EnableWebServiceMon', function(msg) {showMessage (msg);});
-}
-
-// Switch ICMP Monitor
-function askEnableICMPMon() {
-  showModalWarning('<?=$pia_lang['MT_Tool_icmpmon_noti'];?>', '<?=$pia_lang['MT_Tool_icmpmon_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableICMPMon');
-}
-function EnableICMPMon() {
-	pialertPost('php/server/icmpmonitor.php?action=EnableICMPMon', function(msg) {showMessage (msg);});
-}
-
-// Switch MainScan
-function askEnableMainScan() {
-  showModalWarning('<?=$pia_lang['MT_Tool_mainscan_noti'];?>', '<?=$pia_lang['MT_Tool_mainscan_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableMainScan');
-}
-function EnableMainScan() {
-	pialertPost('php/server/devices.php?action=EnableMainScan', function(msg) {showMessage (msg);});
-}
-
-// Switch Satellites
-function askEnableSatelliteScan() {
-  showModalWarning('<?=$pia_lang['MT_Tool_satellites_noti'];?>', '<?=$pia_lang['MT_Tool_satellites_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableSatelliteScan');
-}
-function EnableSatelliteScan() {
-    pialertPost('php/server/devices.php?action=EnableSatelliteScan', function(msg) {showMessage (msg);});
-}
-
-// Toggle RogueDHCP
-function askEnableRogueDHCPScan(ftoggleState) {
-    window.global_ftoggleState = ftoggleState;
-    showModalWarning('<?=$pia_lang['Device_Searchbox'];?> RogueDHCP', '<?=$pia_lang['MT_Tools_RogueDHCP_a'];?>',
-        '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableRogueDHCPScan');
-}
-function EnableRogueDHCPScan() {
-    var ftoggleState = window.global_ftoggleState;
-    pialertPost('php/server/files.php?action=ToggleRogueDHCP'
-        + '&toggleState='   + ftoggleState
-        , function(msg) {
-        showMessage (msg);
-    });
-}
-
-// Toggle Graph
-function askEnableOnlineHistoryGraph() {
-  showModalWarning('<?=$pia_lang['MT_Tool_onlinehistorygraph_noti'];?>', '<?=$pia_lang['MT_Tool_onlinehistorygraph_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'EnableOnlineHistoryGraph');
-}
-function EnableOnlineHistoryGraph() {
-	pialertPost('php/server/files.php?action=EnableOnlineHistoryGraph', function(msg) {showMessage (msg);});
-}
-
-// Set API-Key
-function askSetAPIKey() {
-  showModalWarning('<?=$pia_lang['MT_Tool_setapikey_noti'];?>', '<?=$pia_lang['MT_Tool_setapikey_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'SetAPIKey');
-}
-function SetAPIKey() {
-	pialertPost('php/server/files.php?action=SetAPIKey', function(msg) {showMessage (msg);});
-}
-
-// Enable Login
-function askPiAlertLoginEnable() {
-  showModalWarning('<?=$pia_lang['MT_Tool_loginenable_noti'];?>', '<?=$pia_lang['MT_Tool_loginenable_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'PiAlertLoginEnable');
-}
-function PiAlertLoginEnable() {
-	pialertPost('php/server/files.php?action=LoginEnable', function(msg) {showMessage (msg);});
-}
-
-// Disable Login
-function askPiAlertLoginDisable() {
-  showModalWarning('<?=$pia_lang['MT_Tool_logindisable_noti'];?>', '<?=$pia_lang['MT_Tool_logindisable_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'PiAlertLoginDisable');
-}
-function PiAlertLoginDisable() {
-	pialertPost('php/server/files.php?action=LoginDisable', function(msg) {showMessage (msg);});
-}
-
-function setTextValue (textElement, textValue) {
-  $('#'+textElement).val (textValue);
-}
-
-
-function handleMTSelection (value) {
-  setTextValue('txtMTColumnContent','');
-
-  const actionMap = {
-    'Group': 'getGroups',
-    'Owner': 'getOwners',
-    'Type': 'getDeviceTypes',
-    'Location': 'getLocations',
-    'LinkSpeed': 'getLinkSpeed',
-    'ConnectType': 'getConnectionType'
-  };
-
-  const queryAction = actionMap[value];
-  if (!queryAction) {
-    return;
-  }
-
-  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
-    const listData = JSON.parse(data);
-    const menu = document.getElementById('dropdownMTColumnContent');
-    let order = 1;
-
-    while (menu.firstChild) {
-      menu.removeChild(menu.firstChild);
-    }
-
-    listData.forEach(function(item) {
-      if (order != item.order) {
-        const divider = document.createElement('li');
-        divider.className = 'divider';
-        menu.appendChild(divider);
-        order = item.order;
-      }
-
-      const valueToSet = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
-      const listItem = document.createElement('li');
-      const link = document.createElement('a');
-      link.href = '#';
-      link.textContent = String(item.name ?? '');
-      link.addEventListener('click', function(event) {
-        event.preventDefault();
-        setTextValue('txtMTColumnContent', String(valueToSet ?? ''));
-      });
-      listItem.appendChild(link);
-      menu.appendChild(listItem);
-    });
-  });
-}
-
-// Set Theme
-function setPiAlertTheme () {
-	pialertPost('php/server/files.php?action=setTheme&SkinSelection='+ $('#txtSkinSelection').val(), function(msg) {showMessage (msg);});
-}
-// Set Language
-function setPiAlertLanguage() {
-	pialertPost('php/server/files.php?action=setLanguage&LangSelection='+ $('#txtLangSelection').val(), function(msg) {showMessage (msg);});
-}
-// Set FavIcon
-function setFavIconURL() {
-	pialertPost('php/server/files.php?action=setFavIconURL&FavIconURL='+ $('#txtFavIconURL').val(), function(msg) {showMessage (msg);});
-}
-// Set FavIcon
-function setPiholeURL() {
-    pialertPost('php/server/files.php?action=setPiholeURL&PiholeURL='+ $('#txtPiholeURL').val(), function(msg) {showMessage (msg);});
-}
-// Set ArpScanTimer
-function setPiAlertArpTimer() {
-  $.ajax({
-        method: 'POST',
-        url: './php/server/files.php',
-        data: { action: 'setArpTimer', ArpTimer: $('#txtPiaArpTimer').val() },
-        beforeSend: function() { $('#Timeralertspinner').removeClass("disablespinner"); $('#TimeralertText').addClass("disablespinner");  },
-        complete: function() { $('#Timeralertspinner').addClass("disablespinner"); $('#TimeralertText').removeClass("disablespinner"); },
-        success: function(data, textStatus) {
-            showMessage (data);
-        }
-    })
-}
-// Backup Configfile
-function BackupConfigFile(reload)  {
-	if (reload == 'yes') {
-		pialertPost('php/server/files.php?action=BackupConfigFile&reload=yes', function(msg) {showMessage (msg);});
-	} else {
-		pialertPost('php/server/files.php?action=BackupConfigFile&reload=no', function(msg) {showMessage (msg);});
-	}
-}
-// Restore Configfile
-function askRestoreConfigFile() {
-  showModalWarning('<?=$pia_lang['MT_ConfEditor_Restore_noti'];?>', '<?=$pia_lang['MT_ConfEditor_Restore_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Run'];?>', 'RestoreConfigFile');
-}
-function RestoreConfigFile() {
-	pialertPost('php/server/files.php?action=RestoreConfigFile', function(msg) {showMessage (msg);});
-}
-// Save Configfile
-function SaveConfigFile() {
-	var postData = {
-		action: 'SaveConfigFile',
-		configfile: $('#ConfigFileEditor').val()
-	};
-	$.post('php/server/files.php', postData)
-		.done(function(msg) { showMessage(msg); })
-		.fail(function(xhr) {
-			showMessage(xhr.responseText || <?=json_encode($pia_lang['BE_Dev_ConfEditor_SaveError']);?>);
-		});
-}
-// Set Device List Column
-function askDeviceListCol() {
-  showModalWarning('<?=$pia_lang['MT_Tool_DevListCol_noti'];?>', '<?=$pia_lang['MT_Tool_DevListCol_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'setDeviceListCol');
-}
-function setDeviceListCol() {
-    pialertPost('php/server/files.php?action=setDeviceListCol&'
-    + '&connectiontype=' + ($('#chkConnectionType')[0].checked * 1)
-    + '&favorite='       + ($('#chkFavorite')[0].checked * 1)
-    + '&group='          + ($('#chkGroup')[0].checked * 1)
-    + '&type='           + ($('#chkType')[0].checked * 1)
-    + '&owner='          + ($('#chkOwner')[0].checked * 1)
-    + '&firstsess='      + ($('#chkfirstSess')[0].checked * 1)
-    + '&lastsess='       + ($('#chklastSess')[0].checked * 1)
-    + '&lastip='         + ($('#chklastIP')[0].checked * 1)
-    + '&mactype='        + ($('#chkMACtype')[0].checked * 1)
-    + '&macaddress='     + ($('#chkMACaddress')[0].checked * 1)
-    + '&macvendor='      + ($('#chkMACVendor')[0].checked * 1)
-    + '&location='       + ($('#chkLocation')[0].checked * 1)
-    + '&wakeonlan='      + ($('#chkWakeOnLAN')[0].checked * 1)
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-// Set Device, ICMP and Presence List Headers
-function askListHeaderConfig() {
-  showModalWarning('<?=$pia_lang['MT_Tool_HeaderConf_noti'];?>', '<?=$pia_lang['MT_Tool_DevListCol_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'setListHeaderConfig');
-}
-function setListHeaderConfig() {
-    pialertPost('php/server/files.php?action=setListHeaderConfig&'
-    + '&hc_devall='    + ($('#chk_dev_all')[0].checked * 1)
-    + '&hc_devcon='    + ($('#chk_dev_con')[0].checked * 1)
-    + '&hc_devfav='    + ($('#chk_dev_fav')[0].checked * 1)
-    + '&hc_devdnw='    + ($('#chk_dev_dnw')[0].checked * 1)
-    + '&hc_devarc='    + ($('#chk_dev_arc')[0].checked * 1)
-    + '&hc_devnew='    + ($('#chk_dev_new')[0].checked * 1)
-    + '&hc_icmpall='   + ($('#chk_icmp_all')[0].checked * 1)
-    + '&hc_icmpcon='   + ($('#chk_icmp_con')[0].checked * 1)
-    + '&hc_icmpfav='   + ($('#chk_icmp_fav')[0].checked * 1)
-    + '&hc_icmpdnw='   + ($('#chk_icmp_dnw')[0].checked * 1)
-    + '&hc_icmparc='   + ($('#chk_icmp_arc')[0].checked * 1)
-    + '&hc_presall='   + ($('#chk_pres_all')[0].checked * 1)
-    + '&hc_prescon='   + ($('#chk_pres_con')[0].checked * 1)
-    + '&hc_presfav='   + ($('#chk_pres_fav')[0].checked * 1)
-    + '&hc_presdnw='   + ($('#chk_pres_dnw')[0].checked * 1)
-    + '&hc_presarc='   + ($('#chk_pres_arc')[0].checked * 1)
-    + '&hc_presnew='   + ($('#chk_pres_new')[0].checked * 1)
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-// Delete Inactive Hosts
-function askDeleteInactiveHosts() {
-  showModalWarning('<?=$pia_lang['MT_Tool_del_Inactive_Hosts'];?>', '<?=$pia_lang['MT_Tool_del_Inactive_Hosts_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'DeleteInactiveHosts');
-}
-function DeleteInactiveHosts() {
-	pialertPost('php/server/devices.php?action=DeleteInactiveHosts', function(msg) {showMessage (msg);});
-}
-// Update Check
-function check_github_for_updates() {
-    $("#updatecheck").empty();
-    $.ajax({
-        method: "POST",
-        url: "./php/server/updatecheck.php",
-        data: "",
-        beforeSend: function() { $('#updatecheck').addClass("ajax_scripts_loading"); },
-        complete: function() { $('#updatecheck').removeClass("ajax_scripts_loading"); },
-        success: function(data, textStatus) {
-            $("#updatecheck").html(data);
-        }
-    })
-}
-// Update URL when using the tabs
-function update_tabURL(url, tab) {
-    let stateObj = { id: "100" };
-
-    url = url.replace('?tab=1','');
-    url = url.replace('?tab=2','');
-    url = url.replace('?tab=3','');
-    url = url.replace('?tab=4','');
-    url = url.replace('?tab=5','');
-    url = url.replace('#','');
-    window.history.pushState(stateObj,
-             "Tab"+tab, url + "?tab=" + tab);
-}
-function initializeiCheck () {
-   // Blue
-   $('input[type="checkbox"].blue').iCheck({
-     checkboxClass: 'icheckbox_flat-blue',
-     radioClass:    'iradio_flat-blue',
-     increaseArea:  '20%'
-   });
-}
-// JS created by php while loop
-<?=create_filter_editor_js();?>
-
-function GetARPStatus() {
-  $.get('php/server/files.php?action=GetARPStatus', function(data) {
-    var arpproccount = JSON.parse(data);
-    
-    $('#arpproccounter').html(arpproccount[0].toLocaleString());
-  } );
-}
-function GetAutoBackupStatus() {
-  $.get('php/server/files.php?action=GetAutoBackupStatus', function(data) {
-    var backupproccount = JSON.parse(data);
-    
-    $('#autobackupstatus').html(backupproccount[0].toLocaleString());
-    $('#autobackupdbcount').html(backupproccount[1].toLocaleString());
-    $('#autobackupconfcount').html(backupproccount[2].toLocaleString());
-    $('#autobackupdbsize').html(backupproccount[3].toLocaleString());
-  } );
-}
-function GetModalLogContent() {
-  $.getJSON('php/server/files.php?action=GetLogfiles', function(logcollection) {
-    const targets = ['scan', 'iplog', 'vendor', 'cleanup', 'webservices', 'speedtest', 'nmap'];
-
-    targets.forEach(function(target, index) {
-      $('#modal_' + target + '_content')
-        .css('white-space', 'pre-wrap')
-        .text(String(logcollection[index] ?? ''));
-    });
-  });
-}
-
-$('[id^="modal-logviewer-"]').on('show.bs.modal', function() {
-  if (this.id !== 'modal-logviewer-inactivehosts') {
-    GetModalLogContent();
-  }
-});
-
-function GetModalInactiveHosts() {
-  $.get('php/server/devices.php?action=ListInactiveHosts', function(data) {
-    const logcollection = JSON.parse(data);
-    const content = Array.isArray(logcollection) && logcollection.length > 0 ? logcollection[0] : '';
-
-    $('#modal_inactivehosts_content')
-      .css('white-space', 'pre-wrap')
-      .text(String(content ?? ''));
-  });
-}
-
-function UpdateStatusBox() {
-	GetModalLogContent();
-	GetARPStatus();
-    GetAutoBackupStatus();
-	// startCountdown();
-}
-function askCreateNewSatellite() {
-  showModalWarning('<?=$pia_lang['MT_SET_SatCreate_noti'];?>', '<?=$pia_lang['MT_SET_SatCreate_noti_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'CreateNewSatellite');
-}
-function CreateNewSatellite() {
-    pialertPost('php/server/devices.php?action=CreateNewSatellite&'
-    + '&new_satellite_name=' + $('#txtNewSatelliteName').val()
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-function SaveSatellite(func_sat_name, func_sat_id) {
-    pialertPost('php/server/devices.php?action=SaveSatellite&'
-    + '&changed_satellite_name=' + $('#txtChangedSatelliteName_' + func_sat_id).val()
-    + '&satellite_name=' + func_sat_name
-    + '&sat_id=' + func_sat_id
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-function DeleteSatellite(func_sat_name, func_sat_id) {
-    pialertPost('php/server/devices.php?action=DeleteSatellite&'
-    + '&changed_satellite_name=' + $('#txtChangedSatelliteName_' + func_sat_id).val()
-    + '&satellite_name=' + func_sat_name
-    + '&sat_id=' + func_sat_id
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-// Update Column Data
-function askMTUpdateColumnContent() {
-  showModalWarning('<?=$pia_lang['MT_ColumnUpd_Mod_head'];?>', '<?=$pia_lang['MT_ColumnUpd_Mod_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Save'];?>', 'MTUpdateColumnContent');
-}
-function MTUpdateColumnContent() {
-    pialertPost('php/server/devices.php?action=MTUpdateColumnContent'
-    + '&column='     + $('#txtMTTableColumn').val()
-    + '&ccontent='   + $('#txtMTColumnContent').val()
-    + '&nccontent='  + $('#txtMTNewColumnContent').val()
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-// delete Column Data
-function askMTDeletColumnContent() {
-  showModalWarning('<?=$pia_lang['MT_ColumnDel_Mod_head'];?>', '<?=$pia_lang['MT_ColumnDel_Mod_text'];?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Delete'];?>', 'MTDeletColumnContent');
-}
-function MTDeletColumnContent() {
-    pialertPost('php/server/devices.php?action=MTDeletColumnContent'
-    + '&column='     + $('#txtMTTableColumn').val()
-    + '&ccontent='   + $('#txtMTColumnContent').val()
-    + '&nccontent='  + $('#txtMTNewColumnContent').val()
-    , function(msg) {
-    showMessage (msg);
-  });
-}
-function MTResetColumnContent() {
-    setTextValue('txtMTTableColumn','');
-    setTextValue('txtMTColumnContent','');
-    setTextValue('txtMTNewColumnContent','');
-}
-// Toggle extended Logging
-function askToggleExtLogging(ftoggleState) {
-    window.global_ftoggleState = ftoggleState;
-    showModalWarning('<?=$pia_lang['MT_Tools_Logviewer_ext_a'];?>', '<?=$pia_lang['MT_Tools_Logviewer_ext_b'];?>',
-        '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Switch'];?>', 'ToggleExtLogging');
-}
-function ToggleExtLogging() {
-    var ftoggleState = window.global_ftoggleState;
-    pialertPost('php/server/files.php?action=ToggleExtLogging'
-        + '&toggleState='   + ftoggleState
-        , function(msg) {
-        showMessage (msg);
-    });
-}
-// Remove Mac Ignorelist
-function askDeleteBlockDeviceMAC(macStep) {
-  window.selectedMACStep = macStep;
-  showModalWarning('<?=$pia_lang['MT_Tool_ignorelist']?> MAC', macStep + '<?=$pia_lang['MT_del_ignore_noti_text']?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'DeleteBlockDeviceMAC');
-}
-function DeleteBlockDeviceMAC() {
-  if (!window.selectedMACStep) return;
-  var macStep = window.selectedMACStep;
-  pialertPost('php/server/files.php?action=DeleteBlockDeviceMAC&mac=' + encodeURIComponent(macStep), function(msg) {showMessage (msg);});
-}
-// Remove IP Ignorelist
-function askDeleteBlockDeviceIP(ipStep) {
-  window.selectedIPStep = ipStep;
-  showModalWarning('<?=$pia_lang['MT_Tool_ignorelist']?> IP', ipStep + '<?=$pia_lang['MT_del_ignore_noti_text']?>',
-    '<?=$pia_lang['Gen_Cancel'];?>', '<?=$pia_lang['Gen_Okay'];?>', 'DeleteBlockDeviceIP');
-}
-function DeleteBlockDeviceIP() {
-  if (!window.selectedIPStep) return;
-  var ipStep = window.selectedIPStep;
-  pialertPost('php/server/files.php?action=DeleteBlockDeviceIP&ip=' + encodeURIComponent(ipStep), function(msg) {showMessage (msg);});
-  delete window.selectedIPStep;
-}
-
-function GetConfigFile() {
-    $.ajax({
-        url: 'php/server/files.php?action=GetConfigFile',
-        type: 'GET',
-        dataType: 'text',
-        success: function (response) {
-            $('#ConfigFileEditor').val(response);
-        },
-        error: function (xhr, status, error) {
-            console.error('GetConfigFile error:', error);
-            $('#ConfigFileEditor').val('ERROR: Unable to load config file.');
-        }
-    });
-}
-
-</script>
+<div class="modal fade" id="modal-mt-log" tabindex="-1" aria-labelledby="mt-log-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="mt-log-title"><?= h($pia_lang['V4_Log_Viewer']); ?></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= h($pia_lang['Gen_Close']); ?>"></button></div><div class="modal-body"><pre id="mt-log-content" class="mt-log mb-0"></pre></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Close'] ?? 'Close'); ?></button></div></div></div></div>
+<div class="modal fade" id="modal-mt-config" tabindex="-1" aria-labelledby="mt-config-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="mt-config-title"><?= h($pia_lang['V4_Config_Editor']); ?></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= h($pia_lang['Gen_Close']); ?>"></button></div><div class="modal-body"><div class="input-group mb-2"><input type="search" class="form-control" id="config-search" placeholder="<?= h(v4_mt_label('Device_Searchbox','Search')); ?>"><button type="button" class="btn btn-outline-primary" id="config-search-next"><?= h($pia_lang['V4_Next']); ?></button></div><label class="visually-hidden" for="ConfigFileEditor"><?= h($pia_lang['V4_Config_File']); ?></label><textarea class="form-control mt-config-editor" id="ConfigFileEditor" spellcheck="false" wrap="off"></textarea></div><div class="modal-footer"><button type="button" class="btn btn-outline-danger" id="restore-config"><?= h(v4_mt_label('MT_ConfEditor_Restore','Restore')); ?></button><button type="button" class="btn btn-outline-success" id="backup-config"><?= h(v4_mt_label('MT_ConfEditor_Backup','Backup')); ?></button><button type="button" class="btn btn-danger" id="save-config"><?= h($pia_lang['Gen_Save'] ?? 'Save'); ?></button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Close'] ?? 'Close'); ?></button></div></div></div></div>
+<?php pialert_v4_shell_end(array('js/maintenance.js')); ?>

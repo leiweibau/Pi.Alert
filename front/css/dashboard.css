@@ -1,0 +1,8 @@
+#dashboard-page { padding-top: .75rem; }
+.dashboard-speedtest-chart { height: 13rem; }
+.dashboard-donut-chart { height: 15rem; max-width: 17rem; margin-inline: auto; }
+.dashboard-history-chart { height: 180px; }
+.dashboard-report-list { max-height: 13rem; overflow-y: auto; }
+.dashboard-report-list li { display: flex; justify-content: space-between; gap: .5rem; padding-block: .25rem; border-bottom: 1px solid var(--bs-border-color); }
+.dashboard-modal-content { white-space: pre-wrap; max-height: 65vh; overflow: auto; border: 0; color: var(--bs-body-color); }
+#dashboard-page .card-title { margin-bottom: 0; }

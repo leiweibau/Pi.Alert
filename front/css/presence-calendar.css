@@ -1,0 +1,8 @@
+.presence-calendar{max-width:100%;overflow-x:auto}
+.presence-calendar.fc{color:var(--bs-body-color);--fc-border-color:var(--bs-border-color);--fc-page-bg-color:var(--bs-body-bg);--fc-neutral-bg-color:var(--bs-tertiary-bg);--fc-neutral-text-color:var(--bs-secondary-color);--fc-button-bg-color:var(--bs-secondary-bg);--fc-button-border-color:var(--bs-border-color);--fc-button-text-color:var(--bs-body-color);--fc-button-hover-bg-color:var(--bs-tertiary-bg);--fc-button-hover-border-color:var(--bs-border-color);--fc-button-active-bg-color:var(--bs-primary);--fc-button-active-border-color:var(--bs-primary);--fc-today-bg-color:color-mix(in srgb,var(--bs-primary) 12%,var(--bs-body-bg))}
+.presence-calendar .fc-event{cursor:default}
+.presence-calendar .fc-scrollgrid,.presence-calendar .fc-scrollgrid-section>td{background:var(--bs-body-bg)}
+.presence-calendar .fc-col-header-cell{background:var(--bs-tertiary-bg)}
+.pialert-calendar-tooltip .tooltip-inner{white-space:pre-line;text-align:left;max-width:min(24rem,calc(100vw - 1rem))}
+@media(max-width:575px){.presence-calendar .fc-header-toolbar{align-items:center;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}.presence-calendar .fc-toolbar-chunk{display:flex;flex-wrap:wrap;justify-content:center}.presence-calendar .fc-toolbar-title{font-size:1.1rem}}
+@media print{.presence-calendar{overflow:visible}.presence-calendar .fc-header-toolbar{display:none!important}.presence-calendar.fc{color:#000;--fc-border-color:#777;--fc-page-bg-color:#fff;--fc-neutral-bg-color:#eee}.presence-calendar .fc-scroller{overflow:visible!important}}

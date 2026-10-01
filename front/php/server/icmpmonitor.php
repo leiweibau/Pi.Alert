@@ -21,7 +21,10 @@ require 'db.php';
 require 'util.php';
 require 'journal.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
+require_once __DIR__ . '/icmp_presence.php';
+require_once __DIR__ . '/icmp_timeline.php';
+require_once __DIR__ . '/../entity-actions.php';
 
 // Action selector
 // Set maximum execution time to 1 minute
@@ -31,7 +34,7 @@ ini_set('max_execution_time', '60');
 OpenDB();
 
 pialert_dispatch_action(
-    ['getDevicesList', 'getICMPHostTotals', 'getEventsTotalsforICMP'],
+    ['getDevicesList', 'getICMPHostTotals', 'getEventsTotalsforICMP', 'getICMPPresence', 'getICMPTimeline'],
     ['setICMPHostData', 'deleteICMPHost', 'insertNewICMPHost',
      'EnableICMPMon', 'BulkDeletion']
 );
@@ -52,6 +55,10 @@ if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_req
 	case 'getICMPHostTotals':getICMPHostTotals();
 		break;
 	case 'getEventsTotalsforICMP':getEventsTotalsforICMP();
+		break;
+	case 'getICMPPresence':getICMPPresence();
+		break;
+	case 'getICMPTimeline':getICMPTimeline();
 		break;
 	case 'BulkDeletion':BulkDeletion();
 		break;
@@ -92,7 +99,9 @@ function getDevicesList() {
 	$result = $db->query($sql);
 	// arrays of rows
 	$tableData = array();
+	$actionKeys = array();
 	while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+		$actionKeys[] = (string) $row['icmp_ip'];
 		if ($row['icmp_hostname'] == '') {$row['icmp_hostname'] = $row['icmp_ip'];}
 		$tableData['data'][] = array(
 			$row['icmp_hostname'],
@@ -110,6 +119,7 @@ function getDevicesList() {
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
+	$tableData['actions'] = entity_actions_map($db, 'icmp', $actionKeys);
 	// Return json
 	echo (json_encode($tableData));
 }
@@ -240,6 +250,58 @@ function EnableICMPMon() {
 }
 
 //  Details
+function getICMPTimeline() {
+	global $db, $pia_lang;
+	header('Content-Type: application/json; charset=utf-8');
+	$host = $GLOBALS['pialert_request']['hostip'] ?? '';
+	if (!is_scalar($host)
+		|| (!filter_var($host, FILTER_VALIDATE_IP) && !filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+		http_response_code(400);
+		echo json_encode(array('error' => 'Invalid timeline request'));
+		return;
+	}
+	$labels = array(
+		'online' => $pia_lang['ICMPMonitor_Shortcut_Online'] ?? 'Online',
+		'offline' => $pia_lang['ICMPMonitor_Shortcut_Offline'] ?? 'Offline',
+	);
+	echo json_encode(pialert_icmp_timeline_snapshot($db, (string) $host, $labels), JSON_INVALID_UTF8_SUBSTITUTE);
+}
+
+function getICMPPresence() {
+	global $db, $pia_lang;
+	header('Content-Type: application/json; charset=utf-8');
+	$host = $GLOBALS['pialert_request']['hostip'] ?? '';
+	$start = $GLOBALS['pialert_request']['start'] ?? '';
+	$end = $GLOBALS['pialert_request']['end'] ?? '';
+	if (!is_scalar($host) || !is_scalar($start) || !is_scalar($end)
+		|| (string) $start === '' || (string) $end === ''
+		|| (!filter_var($host, FILTER_VALIDATE_IP) && !filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
+		http_response_code(400);
+		echo json_encode(array('error' => 'Invalid calendar request'));
+		return;
+	}
+	try {
+		$startDate = formatCalendarQueryDate((string) $start);
+		$endDate = formatCalendarQueryDate((string) $end);
+	} catch (Exception $exception) {
+		http_response_code(400);
+		echo json_encode(array('error' => 'Invalid calendar dates'));
+		return;
+	}
+	if ($startDate >= $endDate) {
+		http_response_code(400);
+		echo json_encode(array('error' => 'Invalid calendar range'));
+		return;
+	}
+	$labels = array(
+		'connection' => $pia_lang['DevDetail_SessionTable_Connection'] ?? 'Connection',
+		'disconnection' => $pia_lang['DevDetail_SessionTable_Disconnection'] ?? 'Disconnection',
+		'online' => $pia_lang['ICMPMonitor_Shortcut_Online'] ?? 'Online',
+		'ip' => $pia_lang['ICMPMonitor_label_IP'] ?? 'IP',
+	);
+	echo json_encode(pialert_icmp_presence_events($db, (string) $host, $startDate, $endDate, $labels), JSON_INVALID_UTF8_SUBSTITUTE);
+}
+
 function getEventsTotalsforICMP() {
 	global $db;
 

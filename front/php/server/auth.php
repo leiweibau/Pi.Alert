@@ -3,6 +3,19 @@
 const PIALERT_REMEMBER_COOKIE = 'PiAlert_SaveLogin';
 const PIALERT_REMEMBER_LIFETIME = 604800;
 
+function pialert_auth_execute_prepared(SQLite3 $database, string $sql, array $parameters) {
+    $statement = $database->prepare($sql);
+    if ($statement === false) {
+        return false;
+    }
+    foreach ($parameters as $placeholder => $value) {
+        if (!$statement->bindValue($placeholder, $value, is_int($value) ? SQLITE3_INTEGER : SQLITE3_TEXT)) {
+            return false;
+        }
+    }
+    return $statement->execute();
+}
+
 function pialert_auth_tokens_initialize(SQLite3 $database): bool {
     return $database->exec(
         'CREATE TABLE IF NOT EXISTS "AuthTokens" (' .
@@ -24,10 +37,10 @@ function pialert_remember_token_hash(string $token): string {
 
 function pialert_cleanup_remember_tokens(SQLite3 $database, ?int $now = null): void {
     $now = $now ?? time();
-    db_execute_prepared(
+    pialert_auth_execute_prepared(
         $database,
         'DELETE FROM "AuthTokens" WHERE "ExpiresAt" < :now',
-        array(':now' => array($now, SQLITE3_INTEGER))
+        array(':now' => $now)
     );
 }
 
@@ -35,13 +48,13 @@ function pialert_store_remember_token(SQLite3 $database, string $token, int $exp
     if (!pialert_auth_tokens_initialize($database)) {
         return false;
     }
-    $result = db_execute_prepared(
+    $result = pialert_auth_execute_prepared(
         $database,
         'INSERT INTO "AuthTokens" ("TokenHash", "ExpiresAt", "CreatedAt") VALUES (:hash, :expires, :created)',
         array(
             ':hash' => pialert_remember_token_hash($token),
-            ':expires' => array($expires, SQLITE3_INTEGER),
-            ':created' => array(time(), SQLITE3_INTEGER),
+            ':expires' => $expires,
+            ':created' => time(),
         )
     );
     return $result !== false;
@@ -60,7 +73,7 @@ function pialert_issue_remember_token(SQLite3 $database, ?int $now = null): ?str
         return null;
     }
     if (!pialert_set_auth_cookie(PIALERT_REMEMBER_COOKIE, $token, $expires)) {
-        db_execute_prepared(
+        pialert_auth_execute_prepared(
             $database,
             'DELETE FROM "AuthTokens" WHERE "TokenHash" = :hash',
             array(':hash' => pialert_remember_token_hash($token))
@@ -71,7 +84,7 @@ function pialert_issue_remember_token(SQLite3 $database, ?int $now = null): ?str
 }
 
 function pialert_delete_remember_token_hash(SQLite3 $database, string $tokenHash): void {
-    db_execute_prepared(
+    pialert_auth_execute_prepared(
         $database,
         'DELETE FROM "AuthTokens" WHERE "TokenHash" = :hash',
         array(':hash' => $tokenHash)
@@ -95,13 +108,18 @@ function pialert_consume_remember_token(SQLite3 $database, ?int $now = null): bo
     }
 
     $tokenHash = pialert_remember_token_hash($token);
-    $result = db_execute_prepared(
+    $result = pialert_auth_execute_prepared(
         $database,
         'SELECT "TokenHash", "ExpiresAt" FROM "AuthTokens" WHERE "TokenHash" = :hash LIMIT 1',
         array(':hash' => $tokenHash)
     );
     $row = $result === false ? false : $result->fetchArray(SQLITE3_ASSOC);
-    if (!$row || !hash_equals((string) $row['TokenHash'], $tokenHash) || (int) $row['ExpiresAt'] < $now) {
+    if (!$row) {
+        // Another request can rotate the same cookie while this one is still
+        // in flight. Do not overwrite its newly issued cookie with a deletion.
+        return false;
+    }
+    if (!hash_equals((string) $row['TokenHash'], $tokenHash) || (int) $row['ExpiresAt'] < $now) {
         pialert_delete_remember_token_hash($database, $tokenHash);
         pialert_delete_auth_cookie(PIALERT_REMEMBER_COOKIE);
         return false;
@@ -109,8 +127,11 @@ function pialert_consume_remember_token(SQLite3 $database, ?int $now = null): bo
 
     // Successful use rotates the bearer token. A copied old cookie therefore
     // stops working after the legitimate browser uses it once.
+    if (pialert_issue_remember_token($database, $now) === null) {
+        return false;
+    }
     pialert_delete_remember_token_hash($database, $tokenHash);
-    return pialert_issue_remember_token($database, $now) !== null;
+    return true;
 }
 
 function pialert_revoke_current_remember_token(SQLite3 $database): void {

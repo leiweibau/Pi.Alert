@@ -7,6 +7,8 @@ To use the web service monitoring it is necessary that the corresponding entry i
 Web service monitoring is used to check web pages or web services for availability every 10 min. For this purpose, an HTTP request is sent to the stored URL and the server response is stored in the database in the form of the 
 HTTP status code. If the web service / website does not respond within 10 seconds, a response time of "99999999" is stored in the database. This value stands for "No Response".
 
+For host names that resolve to both IPv4 and IPv6, the monitor tries IPv4 first and uses IPv6 as a fallback. IPv6-only services and URLs containing an explicit IPv6 address remain supported.
+
 To add a web service, use the green button next to the heading.
 
 ![WSM add URL][wsm_addURL_1]

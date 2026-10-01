@@ -1,958 +1,137 @@
 <?php
-ob_start();
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-require_once __DIR__ . "/php/server/session.php";
-pialert_start_session();
-require_once __DIR__ . '/php/server/csrf.php';
-$pageRequest = $_GET;
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    pialert_validate_csrf();
-    $pageRequest = $_POST;
-} elseif (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+define('PIALERT_V4_PUBLIC_ENTRY', true);
+require_once __DIR__ . '/php/bootstrap.php';
+pialert_v4_start_session();
+
+if (($_SESSION['login'] ?? 0) != 1) {
+    header('Location: ' . pialert_v4_route('login'));
+    exit;
+}
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if (!in_array($method, array('GET', 'POST'), true)) {
     header('Allow: GET, POST');
     http_response_code(405);
     exit('Method Not Allowed');
 }
+if ($method === 'POST') pialert_validate_csrf();
+$pageRequest = $method === 'POST' ? $_POST : $_GET;
 
-if ($_SESSION["login"] != 1) {
-	header('Location: ./index.php');
-	exit;
-}
-
-require 'php/templates/header.php';
-require 'php/server/db.php';
-require 'php/server/graph.php';
-require 'php/server/journal.php';
+pialert_v4_load_language();
+require_once __DIR__ . '/php/shell.php';
+require_once PIALERT_V4_FRONT_ROOT . '/php/server/db.php';
+require_once PIALERT_V4_FRONT_ROOT . '/php/server/graph.php';
+require_once PIALERT_V4_FRONT_ROOT . '/php/server/journal.php';
 
 $DBFILE = '../db/pialert.db';
 OpenDB();
+$bulkMode = (($pageRequest['mod'] ?? '') === 'bulkedit');
+$L = static fn(string $key, string $fallback): string => (string) ($pia_lang[$key] ?? $fallback);
 
-function print_box_top_element($title) {
-	echo '<div class="row">
-        <div class="col-md-12">
-        <div class="box">
-            <div class="box-header with-border">
-              <h3 class="box-title">' . $title . '</h3>
-            </div>
-            <div class="box-body">
-              <div>';
-}
-
-function print_box_bottom_element() {
-	echo '          </div>
-                </div>
-                <!-- /.box-body -->
-              </div>
-            </div>
-        </div>';
-}
-
-// Get Online Graph Arrays
-$graph_arrays = array();
-$graph_arrays = prepare_icmpscan_graph_history();
-$Graph_Device_Time = $graph_arrays[0];
-$Graph_Device_Down = $graph_arrays[1];
-$Graph_Device_All = $graph_arrays[2];
-$Graph_Device_Online = $graph_arrays[3];
-$Graph_Device_Arch = $graph_arrays[4];
-?>
-
-<!-- Page ------------------------------------------------------------------ -->
-
-<div class="content-wrapper">
-
-<?php
-// ################### Start Bulk-Editor #######################################
-if ($pageRequest['mod'] == 'bulkedit') {
-	require 'php/templates/notification.php';
-
-	echo '<section class="content-header">
-          <h1 id="pageTitle">' . $pia_lang['ICMPMonitor_Title'] . ' - ' . $pia_lang['Device_bulkEditor_mode'] . '</h1>
-          <a href="./icmpmonitor.php" class="btn btn-success pull-right bulk_editor_quit" role="button">' . $pia_lang['Device_bulkEditor_mode_quit'] . '</a>
-        </section>';
-
-	echo '<section class="content">
-        <script src="lib/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
-        <link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">';
-
-	if ($pageRequest['savedata'] == 'yes') {
-
-		$sql_queue = array();
-
-		if ($pageRequest['en_bulk_owner'] == 'on') {
-			$set_bulk_owner = htmlspecialchars($pageRequest['bulk_owner'], ENT_QUOTES);
-			$sql_queue['icmp_owner'] = $set_bulk_owner;
-		}
-		if ($pageRequest['en_bulk_type'] == 'on') {
-			$set_bulk_type = htmlspecialchars($pageRequest['bulk_type'], ENT_QUOTES);
-			$sql_queue['icmp_type'] = $set_bulk_type;
-		}
-		if ($pageRequest['en_bulk_group'] == 'on') {
-			$set_bulk_group = htmlspecialchars($pageRequest['bulk_group'], ENT_QUOTES);
-			$sql_queue['icmp_group'] = $set_bulk_group;
-		}
-		if ($pageRequest['en_bulk_location'] == 'on') {
-			$set_bulk_location = htmlspecialchars($pageRequest['bulk_location'], ENT_QUOTES);
-			$sql_queue['icmp_location'] = $set_bulk_location;
-		}
-		if ($pageRequest['en_bulk_comments'] == 'on') {
-			$set_bulk_comments = htmlspecialchars($pageRequest['bulk_comments'], ENT_QUOTES);
-			$sql_queue['icmp_Notes'] = $set_bulk_comments;
-		}
-		if ($pageRequest['en_bulk_AlertAllEvents'] == 'on') {
-			if ($pageRequest['bulk_AlertAllEvents'] == 'on') {$set_bulk_AlertAllEvents = 1;} else { $set_bulk_AlertAllEvents = 0;}
-			$sql_queue['icmp_AlertEvents'] = $set_bulk_AlertAllEvents;
-		}
-		if ($pageRequest['en_bulk_AlertDown'] == 'on') {
-			if ($pageRequest['bulk_AlertDown'] == 'on') {$set_bulk_AlertDown = 1;} else { $set_bulk_AlertDown = 0;}
-			$sql_queue['icmp_AlertDown'] = $set_bulk_AlertDown;
-		}
-    if ($pageRequest['en_bulk_MQTTDevice'] == 'on') {
-      if ($pageRequest['bulk_MQTTDevice'] == 'on') {
-        $set_bulk_MQTTDevice = 1;
-        $sql_queue['icmp_MQTTDevice'] = $set_bulk_MQTTDevice;
-        $sql_queue['icmp_MQTTDevice_cleanup'] = 0;
-      } else { 
-        $set_bulk_MQTTDevice = 0;
-        $sql_queue['icmp_MQTTDevice'] = $set_bulk_MQTTDevice;
-        $sql_queue['icmp_MQTTDevice_cleanup'] = 1;
-      }
+/* Bulk field names, columns, bindings and journal action mirror icmpmonitor.php. */
+if ($bulkMode && (($pageRequest['savedata'] ?? '') === 'yes')) {
+    $sql_queue = array();
+    if (($pageRequest['en_bulk_owner'] ?? '') === 'on') $sql_queue['icmp_owner'] = htmlspecialchars((string) ($pageRequest['bulk_owner'] ?? ''), ENT_QUOTES);
+    if (($pageRequest['en_bulk_type'] ?? '') === 'on') $sql_queue['icmp_type'] = htmlspecialchars((string) ($pageRequest['bulk_type'] ?? ''), ENT_QUOTES);
+    if (($pageRequest['en_bulk_group'] ?? '') === 'on') $sql_queue['icmp_group'] = htmlspecialchars((string) ($pageRequest['bulk_group'] ?? ''), ENT_QUOTES);
+    if (($pageRequest['en_bulk_location'] ?? '') === 'on') $sql_queue['icmp_location'] = htmlspecialchars((string) ($pageRequest['bulk_location'] ?? ''), ENT_QUOTES);
+    if (($pageRequest['en_bulk_comments'] ?? '') === 'on') $sql_queue['icmp_Notes'] = htmlspecialchars((string) ($pageRequest['bulk_comments'] ?? ''), ENT_QUOTES);
+    if (($pageRequest['en_bulk_AlertAllEvents'] ?? '') === 'on') $sql_queue['icmp_AlertEvents'] = (($pageRequest['bulk_AlertAllEvents'] ?? '') === 'on') ? 1 : 0;
+    if (($pageRequest['en_bulk_AlertDown'] ?? '') === 'on') $sql_queue['icmp_AlertDown'] = (($pageRequest['bulk_AlertDown'] ?? '') === 'on') ? 1 : 0;
+    if (($pageRequest['en_bulk_MQTTDevice'] ?? '') === 'on') {
+        $mqtt = (($pageRequest['bulk_MQTTDevice'] ?? '') === 'on') ? 1 : 0;
+        $sql_queue['icmp_MQTTDevice'] = $mqtt;
+        $sql_queue['icmp_MQTTDevice_cleanup'] = $mqtt ? 0 : 1;
     }
-
-
-		print_box_top_element($pia_lang['Device_bulkEditor_savebox_title']);
-		// Count changed fields
-		if (sizeof($sql_queue) < 1) {
-			// No fields were selected for modification
-			echo '<br>' . $pia_lang['Device_bulkEditor_savebox_noselection'] . '<br>&nbsp;';
-		} else {
-			// Fields were selected for modification
-			echo '<h4>' . $pia_lang['Device_bulkEditor_savebox_mod_devices'] . ':</h4>';
-			// Prepare Update Segment start
-			$sql_modified_hosts = array();
-			$sql = 'SELECT icmp_hostname, icmp_ip FROM ICMP_Mon ORDER BY icmp_hostname COLLATE NOCASE ASC';
-			$results = $db->query($sql);
-			while ($row = $results->fetchArray()) {
-				if (isset($pageRequest[str_replace(".", "_", $row['icmp_ip'])])) {
-					// List modified devices (name)
-					$modified_hosts = $modified_hosts . $row['icmp_hostname'] . '; ';
-					// Build sql query and update
-					$assignments = array();
-          $parameters = array(':ip' => $row['icmp_ip']);
-          $index = 0;
-          foreach ($sql_queue as $column => $value) {
-            $placeholder = ':value_' . $index++;
-            $assignments[] = $column . ' = ' . $placeholder;
-            $parameters[$placeholder] = $value;
-          }
-          $results_update = db_execute_prepared($db, 'UPDATE ICMP_Mon SET ' . implode(', ', $assignments) . ' WHERE icmp_ip = :ip', $parameters);
-				}
-			}
-			// output modified hosts
-			echo $modified_hosts;
-			// List modifications
-
-      echo '<h4>' . $pia_lang['Device_bulkEditor_savebox_mod_fields'] . ':</h4>';
-      $bulk_fields = [
-          'set_bulk_owner'          => 'DevDetail_MainInfo_Owner',
-          'set_bulk_type'           => 'DevDetail_MainInfo_Type',
-          'set_bulk_group'          => 'DevDetail_MainInfo_Group',
-          'set_bulk_location'       => 'DevDetail_MainInfo_Location',
-          'set_bulk_comments'       => 'DevDetail_MainInfo_Comments',
-          'set_bulk_AlertAllEvents' => 'DevDetail_EveandAl_AlertAllEvents',
-          'set_bulk_AlertDown'      => 'DevDetail_EveandAl_AlertDown',
-          'set_bulk_MQTTDevice' => 'DevDetail_MainInfo_MQTTDevice'
-      ];
-
-      foreach ($bulk_fields as $varName => $langKey) {
-          if (isset($$varName)) {
-              echo $pia_lang[$langKey] . ': ' . $$varName . '<br>';
-          }
-      }
-
-			// Logging
-			pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $modified_hosts);
-		}
-
-		echo '<a href="./icmpmonitor.php?mod=bulkedit" class="btn btn-default pull-right" role="button" style="margin-bottom: 10px;">' . $pia_lang['Gen_Close'] . '</a>';
-		print_box_bottom_element();
-        header('Location: ./icmpmonitor.php?mod=bulkedit&saved=1', true, 303);
-        ob_end_clean();
-        exit;
-	}
-
-	echo '<form method="post" action="./icmpmonitor.php">
-          <input type="hidden" id="mod" name="mod" value="bulkedit">
-          <input type="hidden" name="_csrf" value="'.h(pialert_csrf_token()).'">
-          <input type="hidden" id="savedata" name="savedata" value="yes">';
-
-  print_box_top_element($pia_lang['Device_bulkEditor_inputbox_title']);
- ?>
-             <div class="row" style="padding-bottom: 20px;">
-                <div class="col-xs-12 col-md-6">
-                    <div class="db_info_table">
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_owner" name="en_bulk_owner" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_owner"><?=$pia_lang['DevDetail_MainInfo_Owner']?>:</label><br>
-                            <div class="input-group" style="max-width: 400px;">
-                              <input class="form-control" id="bulk_owner" name="bulk_owner" type="text" disabled>
-                              <div class="input-group-btn">
-                                <button type="button" id="bulk_owner_selector" name="bulk_owner_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-                                  <span class="fa fa-caret-down"></span>
-                                </button>
-                                <ul id="dropdownDeviceOwner" class="dropdown-menu dropdown-menu-right"></ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_type" name="en_bulk_type" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_type"><?=$pia_lang['DevDetail_MainInfo_Type']?>:</label><br>
-                            <div class="input-group" style="max-width: 400px;">
-                              <input class="form-control" id="bulk_type" name="bulk_type" type="text" disabled>
-                              <div class="input-group-btn">
-                                <button type="button" id="bulk_type_selector" name="bulk_type_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-                                  <span class="fa fa-caret-down"></span>
-                                </button>
-                                <ul id="dropdownDeviceType" class="dropdown-menu dropdown-menu-right"></ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_group" name="en_bulk_group" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_group"><?=$pia_lang['DevDetail_MainInfo_Group']?>:</label><br>
-                            <div class="input-group" style="max-width: 400px;">
-                              <input class="form-control" id="bulk_group" name="bulk_group" type="text" disabled>
-                              <div class="input-group-btn">
-                                <button type="button" id="bulk_group_selector" name="bulk_group_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-                                  <span class="fa fa-caret-down"></span>
-                                </button>
-                                <ul id="dropdownGroup" class="dropdown-menu dropdown-menu-right"></ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_location" name="en_bulk_location" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_location"><?=$pia_lang['DevDetail_MainInfo_Location']?>:</label><br>
-                            <div class="input-group" style="max-width: 400px;">
-                              <input class="form-control" id="bulk_location" name="bulk_location" type="text" disabled>
-                              <div class="input-group-btn">
-                                <button type="button" id="bulk_location_selector" name="bulk_location_selector" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" disabled>
-                                  <span class="fa fa-caret-down"></span>
-                                </button>
-                                <ul id="dropdownLocation" class="dropdown-menu dropdown-menu-right"></ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_comments" name="en_bulk_comments" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_comments"><?=$pia_lang['DevDetail_MainInfo_Comments']?>:</label><br>
-                            <textarea class="form-control" rows="3" id="bulk_comments" name="bulk_comments" spellcheck="false" data-gramm="false" style="max-width: 400px;" disabled></textarea></td>
-                          </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-xs-12 col-md-6">
-                    <div class="db_info_table">
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_AlertAllEvents" name="en_bulk_AlertAllEvents" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_AlertAllEvents" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertAllEvents']?>:</label>
-                            <input class="icheckbox_flat-blue" id="bulk_AlertAllEvents" name="bulk_AlertAllEvents" type="checkbox" disabled>
-                          </div>
-                        </div>
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_AlertDown" name="en_bulk_AlertDown" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_AlertDown" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_AlertDown']?>:</label>
-                            <input class="icheckbox_flat-blue" id="bulk_AlertDown" name="bulk_AlertDown" type="checkbox" disabled>
-                          </div>
-                        </div>
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_Archived" name="en_bulk_Archived" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_Archived" style="width: 240px;"><?=$pia_lang['DevDetail_EveandAl_Archived']?>:</label>
-                            <input class="icheckbox_flat-blue" id="bulk_Archived" name="bulk_Archived" type="checkbox" disabled>
-                          </div>
-                        </div>
-
-                        <div class="db_info_table_row">
-                          <div class="bulked_table_cell_b"><input class="icheckbox_flat-blue" id="en_bulk_MQTTDevice" name="en_bulk_MQTTDevice" type="checkbox"></div>
-                          <div class="db_tools_table_cell_b">
-                            <label for="bulk_MQTTDevice" style="width: 240px;"><?=$pia_lang['DevDetail_MainInfo_MQTTDevice']?>:</label>
-                            <input class="icheckbox_flat" id="bulk_MQTTDevice" name="bulk_MQTTDevice" type="checkbox" disabled>
-                          </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-        <button type="button" class="btn btn-danger" id="btnBulkDeletion" onclick="askBulkDeletion()" style="min-width: 180px;"><?=$pia_lang['Device_bulkDel_button']?></button>
-        <input class="btn btn-warning pull-right" type="submit" value="<?=$pia_lang['Gen_Save']?>" style="margin-bottom: 10px; min-width: 180px;">
-
-<script>
-  var bulk_owner = true;
-  $("#en_bulk_owner").on("click", function() {
-    $("#bulk_owner").val('');
-    $("#bulk_owner").prop("disabled", !bulk_owner);
-    $("#bulk_owner_selector").prop("disabled", !bulk_owner);
-    bulk_owner = !bulk_owner;
-  });
-  var bulk_type = true;
-  $("#en_bulk_type").on("click", function() {
-    $("#bulk_type").val('');
-    $("#bulk_type").prop("disabled", !bulk_type);
-    $("#bulk_type_selector").prop("disabled", !bulk_type);
-    bulk_type = !bulk_type;
-  });
-  var bulk_group = true;
-  $("#en_bulk_group").on("click", function() {
-    $("#bulk_group").val('');
-    $("#bulk_group").prop("disabled", !bulk_group);
-    $("#bulk_group_selector").prop("disabled", !bulk_group);
-    bulk_group = !bulk_group;
-  });
-  var bulk_location = true;
-  $("#en_bulk_location").on("click", function() {
-    $("#bulk_location").val('');
-    $("#bulk_location").prop("disabled", !bulk_location);
-    $("#bulk_location_selector").prop("disabled", !bulk_location);
-    bulk_location = !bulk_location;
-  });
-  var bulk_comments = true;
-  $("#en_bulk_comments").on("click", function() {
-    $("#bulk_comments").val('');
-    $("#bulk_comments").prop("disabled", !bulk_comments);
-    bulk_comments = !bulk_comments;
-  });
-  var bulk_AlertAllEvents = true;
-  $("#en_bulk_AlertAllEvents").on("click", function() {
-    $("#bulk_AlertAllEvents").prop("checked", false);
-    $("#bulk_AlertAllEvents").prop("disabled", !bulk_AlertAllEvents);
-    bulk_AlertAllEvents = !bulk_AlertAllEvents;
-  });
-  var bulk_AlertDown = true;
-  $("#en_bulk_AlertDown").on("click", function() {
-    $("#bulk_AlertDown").prop("checked", false);
-    $("#bulk_AlertDown").prop("disabled", !bulk_AlertDown);
-    bulk_AlertDown = !bulk_AlertDown;
-  });
-  var bulk_Archived = true;
-  $("#en_bulk_Archived").on("click", function() {
-    $("#bulk_Archived").prop("checked", false);
-    $("#bulk_Archived").prop("disabled", !bulk_Archived);
-    bulk_Archived = !bulk_Archived;
-  });
-  var bulk_MQTTDevice = true;
-  $("#en_bulk_MQTTDevice").on("click", function() {
-    $("#bulk_MQTTDevice").prop("checked", false);
-    $("#bulk_MQTTDevice").prop("disabled", !bulk_MQTTDevice);
-    bulk_MQTTDevice = !bulk_MQTTDevice;
-  });
-
-  function setTextValue (textElement, textValue) {
-    $("#"+textElement).val (textValue);
-  }
-
-  function askBulkDeletion() {
-    // Ask
-    showModalWarning('<?=$pia_lang['Device_bulkDel_info_head']?>', '<?=$pia_lang['Device_bulkDel_info_text']?>',
-      '<?=$pia_lang['Gen_Cancel']?>', '<?=$pia_lang['Gen_Delete']?>', 'BulkDeletion');
-  }
-  function BulkDeletion()
-  {
-    const checkboxes = document.querySelectorAll('.icheckbox_flat-blue.hostselection:checked');
-    const checkedIds = Array.from(checkboxes).map((checkbox) => checkbox.id);
-    const queryParams = new URLSearchParams();
-    checkedIds.forEach((id) => queryParams.append('hosts[]', id));
-    // Execute
-    pialertPost('php/server/icmpmonitor.php?action=BulkDeletion&' + queryParams.toString(), function(msg) {
-      showMessage (msg);
-    });
-  }
-
-  function initializeCombos () {
-    // Initialize combos with queries
-    initializeCombo ( $('#dropdownDeviceOwner')[0], 'getOwners',         'bulk_owner');
-    initializeCombo ( $('#dropdownDeviceType')[0],  'getDeviceTypes',    'bulk_type');
-    initializeCombo ( $('#dropdownGroup')[0],       'getGroups',         'bulk_group');
-    initializeCombo ( $('#dropdownConType')[0],     'getConnectionType', 'bulk_connectiontype');
-    initializeCombo ( $('#dropdownLinkSpeed')[0],   'getLinkSpeed',      'bulk_linkspeed');
-    initializeCombo ( $('#dropdownLocation')[0],    'getLocations',       'bulk_location');
-  }
-  function initializeCombo (HTMLelement, queryAction, txtDataField) {
-  $.get('php/server/devices.php?action=' + encodeURIComponent(queryAction), function(data) {
-    const listData = JSON.parse(data);
-    let order = 1;
-
-    while (HTMLelement.firstChild) {
-      HTMLelement.removeChild(HTMLelement.firstChild);
-    }
-
-    listData.forEach(function(item) {
-      if (order != item.order) {
-        const divider = document.createElement('li');
-        divider.className = 'divider';
-        HTMLelement.appendChild(divider);
-        order = item.order;
-      }
-
-      const value = item.id !== undefined && item.id !== null && item.id !== '' ? item.id : item.name;
-      const label = queryAction === 'getNetworkNodes'
-        ? String(item.name ?? '') + ' [' + String(value ?? '') + ']'
-        : String(item.name ?? '');
-      const listItem = document.createElement('li');
-      const link = document.createElement('a');
-
-      link.href = '#';
-      link.textContent = label;
-      link.addEventListener('click', function(event) {
-        event.preventDefault();
-        setTextValue(txtDataField, String(value ?? ''));
-      });
-
-      listItem.appendChild(link);
-      HTMLelement.appendChild(listItem);
-    });
-  });
-});
-  }
-  initializeCombos();
-  initializeiCheck();
-
-</script>
-<?php
-  print_box_bottom_element();
-
-	print_box_top_element($pia_lang['Device_bulkEditor_hostbox_title']);
-
-	$sql = 'SELECT icmp_hostname, icmp_ip, icmp_PresentLastScan, icmp_AlertEvents, icmp_AlertDown FROM ICMP_Mon ORDER BY icmp_hostname COLLATE NOCASE ASC';
-	$results = $db->query($sql);
-	while ($row = $results->fetchArray()) {
-		if ($row[2] == 1) {$status_border = 'bulked_online_border';} else { $status_border = 'bulked_offline_border';}
-		if ($row[3] == 1 && $row[4] == 1) {$status_text_color = 'bulked_checkbox_label_alldown';} elseif ($row[3] == 1) {$status_text_color = 'bulked_checkbox_label_all';} elseif ($row[4] == 1) {$status_text_color = 'bulked_checkbox_label_down';} else { $status_text_color = '';}
-		echo '<div class="bulked_dev_box ' . $status_border . '">
-             <div class="bulked_dev_chk_cont" style="' . $status_box . '">
-                <input class="icheckbox_flat-blue hostselection bulked_dev_chkbox" id="' . h(str_replace(".", "_", $row[1])) . '" name="' . h(str_replace(".", "_", $row[1])) . '" type="checkbox">
-             </div>
-             <label class="control-label ' . $status_text_color . '" for="' . h(str_replace(".", "_", $row[1])) . '" style="">' . h($row[0]) . '</label>
-          </div>';
-	}
-
-	// Check/Uncheck All Button
-	echo '<button type="button" class="btn btn-warning pull-right checkall" id="bulked_checkall">' . $pia_lang['Device_bulkEditor_selectall'] . '</button>';
-	echo '<script>
-            var clicked = false;
-            $("#bulked_checkall").on("click", function() {
-              $(".hostselection").prop("checked", !clicked);
-              clicked = !clicked;
-              this.innerHTML = clicked ? \'' . $pia_lang['Device_bulkEditor_selectnone'] . '\' : \'' . $pia_lang['Device_bulkEditor_selectall'] . '\';
-            });
-        </script>';
-	print_box_bottom_element();
-
-	echo '</form>';
-
-	echo '</section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->';
-
-	require 'php/templates/footer.php';
-// ################### End Bulk-Editor #########################################
-} else {
-// ################### Start ICMP List #######################################
-	?>
-
-<!-- Content header--------------------------------------------------------- -->
-    <section class="content-header">
-    <?php require 'php/templates/notification.php';?>
-      <h1 id="pageTitle">
-         <?=$pia_lang['ICMPMonitor_Title'];?>
-      <button type="button" class="btn btn-xs btn-success icmplist_add_ip" data-toggle="modal" data-target="#modal-add-monitoringIP"><i class="bi bi-plus-lg" style="font-size:1.5rem;"></i></button>
-      </h1>
-
-<!-- Modals New URL ----------------------------------------------------------------- -->
-
-       <form role="form">
-            <div class="modal fade" id="modal-add-monitoringIP">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">×</span></button>
-                            <h4 class="modal-title"><?=$pia_lang['ICMPMonitor_headline_IP'];?></h4>
-                        </div>
-                        <div class="modal-body">
-                            <div style="height: 230px;">
-                            <div class="form-group col-xs-12">
-                              <label class="col-xs-3 control-label"><?=$pia_lang['ICMPMonitor_label_IP'];?></label>
-                              <div class="col-xs-9">
-                                <input type="text" class="form-control" id="icmphost_ip" placeholder="Host IP">
-                              </div>
-                            </div>
-                            <div class="form-group col-xs-12">
-                              <label class="col-xs-3 control-label"><?=$pia_lang['ICMPMonitor_label_Hostname'];?></label>
-                              <div class="col-xs-9">
-                                <input type="text" class="form-control" id="icmphost_name" placeholder="Hostname">
-                              </div>
-                            </div>
-                            <div class="form-group col-xs-12">
-                                <label class="col-xs-3 control-label"><?=$pia_lang['Device_TableHead_Favorite'];?></label>
-                                <div class="col-xs-9" style="margin-top: 0px;">
-                                  <input class="checkbox orange" id="insFavorite" type="checkbox">
-                                </div>
-                            </div>
-                            <div class="form-group col-xs-12">
-                                <label class="col-xs-3 control-label"><?=$pia_lang['WEBS_label_AlertEvents'];?></label>
-                                <div class="col-xs-9" style="margin-top: 0px;">
-                                  <input class="checkbox blue" id="insAlertEvents" type="checkbox">
-                                </div>
-                            </div>
-                            <div class="form-group col-xs-12">
-                                <label class="col-xs-3 control-label"><?=$pia_lang['WEBS_label_AlertDown'];?></label>
-                                <div class="col-xs-9" style="margin-top: 0px;">
-                                  <input class="checkbox red" id="insAlertDown" type="checkbox">
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?=$pia_lang['Gen_Close'];?></button>
-                            <button type="button" class="btn btn-primary" id="btnInsert" onclick="insertNewICMPHost()" ><?=$pia_lang['Gen_Save'];?></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-
-    </section>
-
-    <!-- Main content ---------------------------------------------------------- -->
-    <section class="content">
-      <div class="row">
-
-<?php
-function header_icmp_all($visibility, $header_all, $header_selected) {
-	global $pia_lang;
-	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
-	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
-        	<a href="#" onclick="javascript: getDevicesList(\'all\');">
-          <div class="small-box bg-aqua">
-            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesAll"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_AllDevices'].'</p></div>
-            <div class="icon"><i class="fa fa-laptop text-aqua-40"></i></div>
-          </div>
-        </a>
-        </div>';
-}
-function header_icmp_con($visibility, $header_all, $header_selected) {
-	global $pia_lang;
-	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
-	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
-          <a href="#" onclick="javascript: getDevicesList(\'connected\');">
-          <div class="small-box bg-green">
-            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesConnected"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Connected'].'</p></div>
-            <div class="icon"><i class="mdi mdi-lan-connect text-green-40"></i></div>
-          </div>
-          </a>
-        </div>';
-}
-function header_icmp_fav($visibility, $header_all, $header_selected) {
-	global $pia_lang;
-	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
-	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
-          <a href="#" onclick="javascript: getDevicesList(\'favorites\');">
-          <div class="small-box bg-yellow">
-            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesFavorites"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Favorites'].'</p></div>
-            <div class="icon"><i class="fa fa-star text-yellow-40"></i></div>
-          </div>
-          </a>
-        </div>';
-}
-function header_icmp_dnw($visibility, $header_all, $header_selected) {
-	global $pia_lang;
-	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
-	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
-          <a href="#" onclick="javascript: getDevicesList(\'down\');">
-          <div class="small-box bg-red">
-            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesDown"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_DownAlerts'].'</p></div>
-            <div class="icon"><i class="mdi mdi-lan-disconnect text-red-40"></i></div>
-          </div>
-          </a>
-        </div>';
-}
-function header_icmp_arc($visibility, $header_all, $header_selected) {
-	global $pia_lang;
-	$layout = calc_header_size($header_all, $header_selected);
-	if (strtolower($visibility) == 0) {$hide = "hide_element";} else {$hide = "";}
-	echo '<div class="'.$layout['lg'].' '.$layout['md'].' '.$layout['sm'].' '.$hide.'">
-          <a href="#" onclick="javascript: getDevicesList(\'archived\');">
-          <div class="small-box bg-gray top_small_box_gray_text">
-            <div class="inner" style="padding: 0px 10px;"><h3 id="devicesArchived"> -- </h3><p class="infobox_label">'.$pia_lang['Device_Shortcut_Archived'].'</p></div>
-            <div class="icon"><i class="fa fa-eye-slash text-gray-40"></i></div>
-          </div>
-          </a>
-        </div>';
-}
-$header_page_config = read_HeaderConfig();
-$count_active_headers = count(array_filter($header_page_config['icmp'], function($value) {
-    return $value == 1;
-}));
-header_icmp_all($header_page_config['icmp']['all'], sizeof($header_page_config['icmp']), $count_active_headers);
-header_icmp_con($header_page_config['icmp']['con'], sizeof($header_page_config['icmp']), $count_active_headers);
-header_icmp_fav($header_page_config['icmp']['fav'], sizeof($header_page_config['icmp']), $count_active_headers);
-header_icmp_dnw($header_page_config['icmp']['dnw'], sizeof($header_page_config['icmp']), $count_active_headers);
-header_icmp_arc($header_page_config['icmp']['arc'], sizeof($header_page_config['icmp']), $count_active_headers);
-?>
-      </div>
-
-<!-- Activity Chart ------------------------------------------------------- -->
-
-<?php
-If ($ENABLED_HISTOY_GRAPH !== False) {
-		?>
-      <div class="row">
-          <div class="col-md-12">
-          <div class="box" id="clients">
-              <div class="box-header with-border">
-                <h3 class="box-title"><?=$pia_lang['Device_Shortcut_OnlineChart_a'];?><span class="maxlogage-interval">12</span> <?=$pia_lang['Device_Shortcut_OnlineChart_b'];?></h3>
-              </div>
-              <div class="box-body">
-                <div class="chart">
-                  <script src="lib/AdminLTE/bower_components/chart.js/chart.js"></script>
-                  <canvas id="OnlineChart" style="width:100%; height: 150px;  margin-bottom: 15px;"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-      </div>
-
-      <script src="js/graph_online_history.js"></script>
-      <script>
-        var online_history_time = [<?php pia_graph_devices_data($Graph_Device_Time);?>];
-        var online_history_ondev = [<?php pia_graph_devices_data($Graph_Device_Online);?>];
-        var online_history_dodev = [<?php pia_graph_devices_data($Graph_Device_Down);?>];
-        var online_history_ardev = [<?php pia_graph_devices_data($Graph_Device_Arch);?>];
-        graph_online_history_icmp(online_history_time, online_history_ondev, online_history_dodev, online_history_ardev);
-      </script>
-<?php
-}
-	?>
-      <div class="row">
-        <div class="col-xs-12">
-          <div id="tableDevicesBox" class="box">
-
-            <!-- box-header -->
-            <div class="box-header">
-              <h3 id="tableDevicesTitle" class="box-title text-aqua"><?=$pia_lang['Device_Title'];?></h3>
-              <a href="./icmpmonitor.php?mod=bulkedit" class="btn btn-xs btn-link" role="button" style="display: inline-block; margin-top: -5px; margin-left: 15px;"><i class="fa fa-pencil text-yellow" style="font-size:1.5rem"></i></a>
-            </div>
-
-            <div class="box-body table-responsive">
-              <table id="tableDevices" class="table table-bordered table-hover table-striped">
-                <thead>
-                <tr>
-                  <th><?=$pia_lang['Device_TableHead_Name']?></th>
-                  <th>IP</th>
-                  <th><?=$pia_lang['Device_TableHead_Favorite']?></th>
-                  <th><?=$pia_lang['WEBS_EVE_TableHead_ResponsTime']?></th>
-                  <th style="white-space: nowrap;"><?=$pia_lang['WEBS_tablehead_ScanTime']?></th>
-                  <th><?=$pia_lang['Device_TableHead_Status']?></th>
-                  <th>row6</th>
-                  <th>row7</th>
-                  <th>RowID</th>
-                </tr>
-                </thead>
-              </table>
-            </div>
-            <!-- /.box-body -->
-
-          </div>
-          <!-- /.box -->
-        </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
-
-    <div style="width: 100%; height: 20px;"></div>
-    <!-- ----------------------------------------------------------------------- -->
-
-    </section>
-  </div>
-  <!-- /.content-wrapper -->
-
-<!-- ----------------------------------------------------------------------- -->
-
-<?php
-require 'php/templates/footer.php';
-	?>
-
-<script src="lib/AdminLTE/plugins/iCheck/icheck.min.js"></script>
-<link rel="stylesheet" href="lib/AdminLTE/plugins/iCheck/all.css">
-<link rel="stylesheet" href="lib/AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-<script src="lib/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="lib/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
-<script>
-	var deviceStatus = 'all';
-  var parTableRows    = 'Front_Devices_Rows';
-  var parTableOrder   = 'Front_Devices_Order';
-  var tableRows       = 10;
-	main();
-
-// -----------------------------------------------------------------------------
-function initializeiCheck () {
-   // Blue
-   $('input[type="checkbox"].blue').iCheck({
-     checkboxClass: 'icheckbox_flat-blue',
-     radioClass:    'iradio_flat-blue',
-     increaseArea:  '20%'
-   });
-  // Orange
-  $('input[type="checkbox"].orange').iCheck({
-    checkboxClass: 'icheckbox_flat-orange',
-    radioClass:    'iradio_flat-orange',
-    increaseArea:  '20%'
-  });
-  // Red
-  $('input[type="checkbox"].red').iCheck({
-    checkboxClass: 'icheckbox_flat-red',
-    radioClass:    'iradio_flat-red',
-    increaseArea:  '20%'
-  });
-}
-
-// -----------------------------------------------------------------------------
-// function main () {
-//     initializeiCheck();
-//     initializeDatatable();
-//     getDevicesList (deviceStatus);
-//     getICMPHostTotals();
-// }
-
-function main () {
-  // get parameter value
-  $.get('php/server/parameters.php?action=get&parameter='+ parTableRows, function(data) {
-    var result = JSON.parse(data);
-    if (Number.isInteger (result) ) {
-        tableRows = result;
-    }
-
-    // get parameter value
-    $.get('php/server/parameters.php?action=get&parameter='+ parTableOrder, function(data) {
-      var result = JSON.parse(data);
-      result = JSON.parse(result);
-      if (Array.isArray (result) ) {
-        tableOrder = result;
-      }
-      // Initialize components with parameters
-      initializeDatatable();
-      // query data
-      getICMPHostTotals()
-      getDevicesList (deviceStatus);
-     });
-   });
-  initializeiCheck();
-}
-
-// -----------------------------------------------------------------------------
-function initializeDatatable () {
-  var table=
-  $('#tableDevices').DataTable({
-    'paging'       : true,
-    'lengthChange' : true,
-    'lengthMenu'   : [[10, 25, 50, 100, 500, -1], [10, 25, 50, 100, 500, '<?=$pia_lang['Device_Tablelenght_all'];?>']],
-    'searching'    : true,
-    'ordering'     : true,
-    'info'         : true,
-    'autoWidth'    : false,
-    'order'       : [[0,'asc']],
-
-    // Parameters
-    'pageLength'   : tableRows,
-
-    'columnDefs'   : [
-      {targets: '_all', render: $.fn.dataTable.render.text()},
-      {visible:   false,         targets: [6,7,8] },
-      {className: 'text-center', targets: [1,2,3,4,5] },
-      {className: 'text-left',   targets: [0] },
-      {width:     '150px',       targets: [4] },
-      {width:     '80px',        targets: [2,5] },
-      {width:     '110px',       targets: [3] },
-
-      {targets: [0],
-        'createdCell': function (td, cellData, rowData, row, col) {
-	          switch (rowData[7]) {
-	            case 'Down':      color='red';                 break;
-	            case 'OnlineV':   color='#00A000';             break;
-	            case 'Online':    color='#00A000';             break;
-	            case 'Offline':   color='transparent';         break;
-	            default:          color='transparent';         break;
-	          };
-            setCellLink(
-              td,
-              "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[1] ?? "")),
-              cellData
-            );
-            $(td).css('min-width', '160px');
-
-            let tableWidth = $("#tableDevices").outerWidth();
-            let viewportWidth = $(window).width() - 50;
-
-            if (tableWidth > viewportWidth) {
-                $(td).css({
-                    "border-left": `2px solid ${color}`,
-                    "padding-left": "8px"
-                });
-            } else {
-            	  $(td).css({
-            	  	  "border-left": "",
-            	  	  "padding-left": ""
-            	  });
+    $modifiedHosts = '';
+    if ($sql_queue) {
+        $results = $db->query('SELECT icmp_hostname, icmp_ip FROM ICMP_Mon ORDER BY icmp_hostname COLLATE NOCASE ASC');
+        while ($row = $results->fetchArray()) {
+            $fieldName = str_replace('.', '_', (string) $row['icmp_ip']);
+            if (!isset($pageRequest[$fieldName])) continue;
+            $modifiedHosts .= $row['icmp_hostname'] . '; ';
+            $assignments = array(); $parameters = array(':ip' => $row['icmp_ip']); $index = 0;
+            foreach ($sql_queue as $column => $value) {
+                $placeholder = ':value_' . $index++;
+                $assignments[] = $column . ' = ' . $placeholder;
+                $parameters[$placeholder] = $value;
             }
-      } },
-      {targets: [2],
-        'createdCell': function (td, cellData, rowData, row, col) {
-          if (cellData == 1){
-            $(td).html ('<i class="fa fa-star text-yellow" style="font-size:16px"></i>');
-          } else {
-            $(td).html ('');
-          }
-      } },
-      {targets: [3],
-        'createdCell': function (td, cellData, rowData, row, col) {
-          if (cellData == 99999){
-            setCellText(td, "TimeOut");
-          } else {
-            setCellText(td, cellData, " ms");
-          }
-      } },
-      {targets: [5],
-        'createdCell': function (td, cellData, rowData, row, col) {
-          switch (rowData[7]) {
-            case 'Down':     color='red';                 statusname='Down';                          break;
-            case 'OnlineV':  color='green';               statusname='Online*';                       break;
-            case 'Online':   color='green';               statusname='Online';                        break;
-            case 'Offline':  color='gray text-white';     statusname='Offline';                       break;
-            default:         color='aqua';                statusname=''; 					                   break;
-          };
-          const statusLink = document.createElement("a");
-          statusLink.href = "icmpmonitorDetails.php?hostip=" + encodeURIComponent(String(rowData[1] ?? ""));
-          statusLink.className = "badge bg-" + color;
-          statusLink.textContent = statusname;
-          td.replaceChildren(statusLink);
-      } },
-    ],
-
-    // Processing
-    'processing'  : true,
-    'language'    : {
-      processing: '<table> <td width="130px" align="middle">Loading...</td><td><i class="ion ion-ios-sync fa-spin fa-2x fa-fw"></td> </table>',
-      emptyTable: 'No data',
-      "lengthMenu": "<?=$pia_lang['Device_Tablelenght'];?>",
-      "search":     "<?=$pia_lang['Device_Searchbox'];?>: ",
-      "paginate": {
-          "next":       "<?=$pia_lang['Device_Table_nav_next'];?>",
-          "previous":   "<?=$pia_lang['Device_Table_nav_prev'];?>"
-      },
-      "info":           "<?=$pia_lang['Device_Table_info'];?>",
+            db_execute_prepared($db, 'UPDATE ICMP_Mon SET ' . implode(', ', $assignments) . ' WHERE icmp_ip = :ip', $parameters);
+        }
+        pialert_logging('a_021', $_SERVER['REMOTE_ADDR'], 'LogStr_0002', '', $modifiedHosts);
     }
-  });
-};
-
-// -----------------------------------------------------------------------------
-function getDevicesList(status) {
-  // Save status selected
-  deviceStatus = status;
-
-  // Define color & title for the status selected
-  switch (deviceStatus) {
-    case 'all':        tableTitle = '<?=$pia_lang['Device_Shortcut_AllDevices']?>';  color = 'aqua';    break;
-    case 'connected':  tableTitle = '<?=$pia_lang['Device_Shortcut_Connected']?>';   color = 'green';   break;
-    case 'favorites':  tableTitle = '<?=$pia_lang['Device_Shortcut_Favorites']?>';   color = 'yellow';  break;
-    case 'down':       tableTitle = '<?=$pia_lang['Device_Shortcut_DownAlerts']?>';  color = 'red';     break;
-    case 'archived':   tableTitle = '<?=$pia_lang['Device_Shortcut_Archived']?>';    color = 'gray';    break;
-    default:           tableTitle = '<?=$pia_lang['Device_Shortcut_AllDevices']?>';  color = 'aqua';    break;
-  }
-
-  // Set title and color
-  $('#tableDevicesTitle')[0].className = 'box-title text-'+ color;
-  $('#tableDevicesBox')[0].className = 'box box-'+ color;
-  $('#tableDevicesTitle').html (tableTitle);
-
-  // Define new datasource URL and reload
-  $('#tableDevices').DataTable().ajax.url(
-    'php/server/icmpmonitor.php?action=getDevicesList&status=' + deviceStatus).load();
-};
-
-// -----------------------------------------------------------------------------
-function getICMPHostTotals () {
-  $.get('php/server/icmpmonitor.php?action=getICMPHostTotals', function(data) {
-    var totalsDevices = JSON.parse(data);
-
-    $('#devicesAll').html        (totalsDevices[0].toLocaleString());
-    $('#devicesConnected').html  (totalsDevices[2].toLocaleString());
-    $('#devicesFavorites').html  (totalsDevices[3].toLocaleString());
-    $('#devicesDown').html       (totalsDevices[1].toLocaleString());
-    $('#devicesArchived').html   (totalsDevices[4].toLocaleString());
-} );
-};
-
-// -----------------------------------------------------------------------------
-function insertNewICMPHost(refreshCallback='') {
-  // Check URL
-  if ($('#icmp_ip').val() == '') {
-    return;
-  }
-
-  // update data to server
-  pialertPost('php/server/icmpmonitor.php?action=insertNewICMPHost'
-    + '&icmp_ip='         + $('#icmphost_ip').val()
-    + '&icmp_hostname='   + $('#icmphost_name').val()
-    + '&icmp_fav='        + ($('#insFavorite')[0].checked * 1)
-    + '&alertdown='       + ($('#insAlertDown')[0].checked * 1)
-    + '&alertevents='     + ($('#insAlertEvents')[0].checked * 1)
-    , function(msg) {
-
-    // deactivate button
-    // deactivateSaveRestoreData ();
-    showMessage (msg);
-    // Callback fuction
-    if (typeof refreshCallback == 'function') {
-      refreshCallback();
-    }
-  });
+    header('Location: ./icmpmonitor.php?mod=bulkedit&saved=1', true, 303);
+    exit;
 }
 
-</script>
+$uiSettings = pialert_v4_ui_read();
+$icmpWidgets = $uiSettings['appearance']['header_widgets']['icmp'];
+$icmpWidgetColumnClass = pialert_v4_header_widget_column_class($icmpWidgets);
+$historyEnabled = $uiSettings['appearance']['activity_history'];
+$history = array(array(), array(), array(), array(), array());
+if (!$bulkMode && $historyEnabled) $history = prepare_icmpscan_graph_history();
+$showHistory = $historyEnabled && !empty($history[0]);
+$labels = array(
+    'all'=>$L('Device_Shortcut_AllDevices','All hosts'),'connected'=>$L('Device_Shortcut_Connected','Online'),'favorites'=>$L('Device_Shortcut_Favorites','Favorites'),
+    'down'=>$L('Device_Shortcut_DownAlerts','Down alerts'),'archived'=>$L('Device_Shortcut_Archived','Archived'),'hosts'=>$L('ICMPMonitor_Title','ICMP monitoring'),
+    'lengthAll'=>$L('Device_Tablelenght_all','All'),'lengthMenu'=>$L('Device_Tablelenght','Show _MENU_'),'search'=>$L('Device_Searchbox','Search'),
+    'next'=>$L('Device_Table_nav_next','Next'),'previous'=>$L('Device_Table_nav_prev','Previous'),'info'=>$L('Device_Table_info','Showing _START_ to _END_ of _TOTAL_'),
+    'cancel'=>$L('Gen_Cancel','Cancel'),'delete'=>$L('Gen_Delete','Delete'),'deleteTitle'=>$L('ICMPMonitor_headline_IP','ICMP host'),
+    'deleteText'=>$L('Device_bulkDel_info_text','Delete the selected host?'),'selectAll'=>$L('Device_bulkEditor_selectall','Select all'),
+    'selectNone'=>$L('Device_bulkEditor_selectnone','Select none'),'bulkDeleteTitle'=>$L('Device_bulkDel_info_head','Delete hosts'),
+    'bulkDeleteText'=>$L('Device_bulkDel_info_text','Delete the selected hosts?')
+);
+$config = array(
+    'labels'=>$labels,
+    'columnIds'=>array_keys(pialert_v4_icmp_columns()),
+    'hiddenColumns'=>pialert_v4_ui_icmp_hidden_columns($uiSettings),
+    'pageLength'=>$uiSettings['icmp']['page_length'],
+    'order'=>pialert_v4_ui_icmp_numeric_order($uiSettings),
+    'history'=>array('time'=>array_reverse($history[0]),'down'=>array_reverse($history[1]),'online'=>array_reverse($history[3]),'archived'=>array_reverse($history[4])),
+);
+$title = $labels['hosts'] . ($bulkMode ? ' - ' . $L('Device_bulkEditor_mode','Bulk editor') : '');
 
-<?php
-}
-// ################### End ICMP List #########################################
+pialert_v4_shell_start($title, 'icmp', array('lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css','css/icmpmonitor.css','css/entity-actions.css'),
+    $bulkMode ? null : static fn(): string => '<button class="btn btn-success" id="add-icmp-host" type="button" data-bs-toggle="modal" data-bs-target="#icmp-host-modal"><i class="fa-solid fa-plus me-2" aria-hidden="true"></i>' . h($GLOBALS['pia_lang']['V4_New_Host']) . '</button>');
 ?>
+<script type="application/json" id="icmpmonitor-page-config"><?= json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
+<?php if ($bulkMode): ?>
+<section id="icmpmonitor-bulk-page" aria-label="<?= h($title); ?>">
+  <?php if (($pageRequest['saved'] ?? '') === '1'): ?><div class="alert alert-success" role="status"><?= h($L('Device_bulkEditor_savebox_title','Changes saved')); ?></div><?php endif; ?>
+  <div class="d-flex justify-content-end mb-3"><a class="btn btn-success" href="icmpmonitor.php"><?= h($L('Device_bulkEditor_mode_quit','Quit bulk editor')); ?></a></div>
+  <form method="post" action="icmpmonitor.php" id="icmpBulkEditForm">
+    <input type="hidden" name="mod" value="bulkedit"><input type="hidden" name="savedata" value="yes"><input type="hidden" name="_csrf" value="<?= h(pialert_csrf_token()); ?>">
+    <section class="card mb-3"><div class="card-header"><h2 class="card-title"><?= h($L('Device_bulkEditor_inputbox_title','Bulk fields')); ?></h2></div><div class="card-body"><p class="text-body-secondary mb-3"><?= h($L('Device_bulkEditor_inputbox_help','Select a field checkbox to enable editing. When you save, its value is applied to all devices or hosts selected below.')); ?></p><div class="row g-3">
+    <?php foreach (array('owner'=>$L('DevDetail_MainInfo_Owner','Owner'),'type'=>$L('DevDetail_MainInfo_Type','Type'),'group'=>$L('DevDetail_MainInfo_Group','Group'),'location'=>$L('DevDetail_MainInfo_Location','Location')) as $field=>$label): ?>
+      <div class="col-md-6"><div class="icmp-bulk-field"><div class="form-check"><input class="form-check-input bulk-enable" type="checkbox" id="en_bulk_<?= h($field); ?>" name="en_bulk_<?= h($field); ?>" data-bulk-target="bulk_<?= h($field); ?>"><label class="form-check-label fw-semibold" for="en_bulk_<?= h($field); ?>"><?= h(pialert_v4_ui_plain_label($label)); ?></label></div><input class="form-control mt-2" type="text" id="bulk_<?= h($field); ?>" name="bulk_<?= h($field); ?>" disabled></div></div>
+    <?php endforeach; ?>
+    </div><div class="row g-3 mt-0"><div class="col-lg-6 icmp-bulk-notes-column"><div class="icmp-bulk-field"><div class="form-check"><input class="form-check-input bulk-enable" type="checkbox" id="en_bulk_comments" name="en_bulk_comments" data-bulk-target="bulk_comments"><label class="form-check-label fw-semibold" for="en_bulk_comments"><?= h(pialert_v4_ui_plain_label($L('DevDetail_MainInfo_Comments','Comments'))); ?></label></div><textarea class="form-control mt-2" rows="2" id="bulk_comments" name="bulk_comments" disabled></textarea></div></div><div class="col-lg-6"><div class="icmp-bulk-switch-grid">
+    <?php foreach (array('AlertAllEvents'=>$L('DevDetail_EveandAl_AlertAllEvents','Alert all events'),'AlertDown'=>$L('DevDetail_EveandAl_AlertDown','Alert down'),'MQTTDevice'=>$L('DevDetail_MainInfo_MQTTDevice','MQTT device')) as $field=>$label): ?>
+      <div class="icmp-bulk-field icmp-bulk-switch-field d-flex align-items-center justify-content-between gap-3"><div class="form-check"><input class="form-check-input bulk-enable" type="checkbox" id="en_bulk_<?= h($field); ?>" name="en_bulk_<?= h($field); ?>" data-bulk-target="bulk_<?= h($field); ?>"><label class="form-check-label fw-semibold" for="en_bulk_<?= h($field); ?>"><?= h($label); ?></label></div><div class="form-check form-switch m-0 p-0"><input class="form-check-input bulk-value <?= match ($field) { 'MQTTDevice' => 'pialert-purple-switch', 'AlertDown' => 'pialert-down-switch', default => '' }; ?> m-0 float-none" type="checkbox" role="switch" id="bulk_<?= h($field); ?>" name="bulk_<?= h($field); ?>" disabled aria-label="<?= h($label); ?>"></div></div>
+    <?php endforeach; ?>
+    </div></div></div><div class="d-flex flex-wrap justify-content-between gap-2 mt-3"><button type="button" class="btn btn-danger" id="btnBulkDeletion"><?= h($L('Device_bulkDel_button','Delete selected')); ?></button><button type="submit" class="btn btn-warning"><?= h($L('Gen_Save','Save')); ?></button></div></div></section>
+    <section class="card"><div class="card-header"><h2 class="card-title"><?= h($L('Device_bulkEditor_hostbox_title','Hosts')); ?></h2></div><div class="card-body"><label class="visually-hidden" for="icmpHostSearch"><?= h($labels['search']); ?></label><input class="form-control mx-auto mb-3" type="search" id="icmpHostSearch" placeholder="<?= h($labels['search']); ?>…"><div class="icmp-bulk-host-grid">
+    <?php $hosts = $db->query('SELECT icmp_hostname, icmp_ip, icmp_PresentLastScan, icmp_AlertEvents, icmp_AlertDown, icmp_MQTTDevice FROM ICMP_Mon ORDER BY icmp_hostname COLLATE NOCASE ASC'); while ($row = $hosts->fetchArray(SQLITE3_ASSOC)): $id='icmp-host-'.hash('sha256',(string)$row['icmp_ip']); $tone=$row['icmp_PresentLastScan']==1?'icmp-host-online':'icmp-host-offline'; $alerts=($row['icmp_AlertEvents']==1&&$row['icmp_AlertDown']==1)?'icmp-alert-both':($row['icmp_AlertEvents']==1?'icmp-alert-all':($row['icmp_AlertDown']==1?'icmp-alert-down':'')); ?>
+      <div class="icmp-bulk-host <?= h($tone); ?>"><input class="form-check-input hostselection" id="<?= h($id); ?>" name="<?= h(str_replace('.', '_', (string)$row['icmp_ip'])); ?>" data-host-id="<?= h($row['icmp_ip']); ?>" type="checkbox"><label class="<?= h($alerts); ?>" for="<?= h($id); ?>"><?= h($row['icmp_hostname'] !== '' ? $row['icmp_hostname'] : $row['icmp_ip']); ?><small><?= h($row['icmp_ip']); ?></small></label><?php if ($row['icmp_MQTTDevice'] == 1): ?><span class="pialert-bulk-indicators"><span class="pialert-bulk-indicator pialert-bulk-indicator-mqtt" role="img" aria-label="<?= h($L('DevDetail_MainInfo_MQTTDevice','MQTT device')); ?>" title="<?= h($L('DevDetail_MainInfo_MQTTDevice','MQTT device')); ?>"><span class="pialert-bulk-mqtt-icon" aria-hidden="true"></span></span></span><?php endif; ?></div>
+    <?php endwhile; ?></div><div class="d-flex justify-content-end mt-3"><button type="button" class="btn btn-warning" id="icmpSelectAll"><?= h($labels['selectAll']); ?></button></div></div></section>
+  </form>
+</section>
+<?php else: ?>
+<section id="icmpmonitor-page" aria-label="<?= h($title); ?>">
+  <div class="row g-3 mb-4"><?php foreach (array(array('all','devicesAll',$labels['all'],'primary','fa-solid fa-laptop'),array('connected','devicesConnected',$labels['connected'],'success','mdi mdi-lan-connect'),array('favorites','devicesFavorites',$labels['favorites'],'warning','fa-solid fa-star'),array('down','devicesDown',$labels['down'],'danger','mdi mdi-lan-disconnect'),array('archived','devicesArchived',$labels['archived'],'secondary','fa-solid fa-eye-slash')) as [$status,$id,$label,$tone,$icon]): $widgetKey=array('all'=>'all','connected'=>'con','favorites'=>'fav','down'=>'dnw','archived'=>'arc')[$status]; if (!$icmpWidgets[$widgetKey]) continue; ?><div class="<?= h($icmpWidgetColumnClass); ?>"><button type="button" class="small-box text-bg-<?= h($tone); ?> icmp-filter w-100 border-0 text-start" data-icmp-status="<?= h($status); ?>" aria-pressed="false"><div class="inner"><h2 id="<?= h($id); ?>" class="mb-1">--</h2><p class="mb-0"><?= h($label); ?></p></div><i class="small-box-icon <?= h($icon); ?>" aria-hidden="true"></i></button></div><?php endforeach; ?></div>
+  <?php if ($showHistory): ?><section class="card mb-4"><div class="card-header"><h2 class="card-title"><?= h($L('Device_Shortcut_OnlineChart_a','Online history ') . '12 ' . $L('Device_Shortcut_OnlineChart_b','hours')); ?></h2></div><div class="card-body"><div class="icmp-history-chart"><canvas id="OnlineChart"></canvas></div></div></section><?php endif; ?>
+  <section id="tableDevicesBox" class="card card-primary card-outline" aria-labelledby="tableDevicesTitle"><div class="card-header d-flex align-items-center gap-2"><h2 id="tableDevicesTitle" class="card-title me-auto"><?= h($labels['all']); ?></h2><a href="<?= h(pialert_v4_route('ui_settings')); ?>#icmp-columns-settings" class="btn btn-sm btn-outline-secondary" aria-label="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>" title="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>"><i class="fa-solid fa-table-columns" aria-hidden="true"></i></a><a href="icmpmonitor.php?mod=bulkedit" class="btn btn-sm btn-outline-warning" aria-label="<?= h($L('Device_bulkEditor_mode','Bulk editor')); ?>"><i class="fa-solid fa-pencil" aria-hidden="true"></i></a></div><div class="card-body"><div class="table-responsive"><table id="tableDevices" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr>
+    <?php foreach (pialert_v4_icmp_columns() as $columnId => $column):
+      $label = $column['label'] === null ? $column['fallback'] : $L($column['label'], $column['fallback']);
+      $isFavorite = $columnId === 'Favorite';
+      $heading = $isFavorite ? $L('Device_TableHead_Favorite_Symbol', '⭐️') : $label;
+    ?><th<?= $isFavorite ? ' aria-label="' . h($label) . '" title="' . h($label) . '"' : ''; ?>><?= h(pialert_v4_ui_plain_label($heading)); ?></th><?php endforeach; ?>
+  </tr></thead></table></div></div></section>
+  <div class="modal fade" id="icmp-host-modal" tabindex="-1" aria-labelledby="icmp-host-modal-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form id="icmp-host-form"><div class="modal-header"><h2 class="modal-title fs-5" id="icmp-host-modal-title"><?= h($L('ICMPMonitor_headline_IP','Add ICMP host')); ?></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= h($pia_lang['Gen_Close']); ?>"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label" for="icmphost_ip"><?= h($L('ICMPMonitor_label_IP','Host IP')); ?></label><input class="form-control" id="icmphost_ip" required></div><div class="mb-3"><label class="form-label" for="icmphost_name"><?= h($L('ICMPMonitor_label_Hostname','Hostname')); ?></label><input class="form-control" id="icmphost_name"></div><?php foreach (array('insFavorite'=>$L('Device_TableHead_Favorite','Favorite'),'insAlertEvents'=>$L('WEBS_label_AlertEvents','All events'),'insAlertDown'=>$L('WEBS_label_AlertDown','Down')) as $id=>$label): ?><div class="form-check mb-2"><input class="form-check-input <?= $id==='insFavorite'?'icmp-check-favorite':($id==='insAlertDown'?'icmp-check-down':'icmp-check-events'); ?>" id="<?= h($id); ?>" type="checkbox"><label class="form-check-label" for="<?= h($id); ?>"><?= h($label); ?></label></div><?php endforeach; ?></div><div class="modal-footer"><button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal"><?= h($L('Gen_Close','Close')); ?></button><button type="submit" class="btn btn-primary" id="btnInsert"><?= h($L('Gen_Save','Save')); ?></button></div></form></div></div></div>
+</section>
+<?php endif; ?>
+<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-3.1.2/dataTables.min.js','lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js','lib/chart.js-4.5.1/chart.umd.js','js/entity-actions-renderer.js','js/icmpmonitor.js')); ?>

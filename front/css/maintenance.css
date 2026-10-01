@@ -1,0 +1,33 @@
+#v4-maintenance-page .card-header-tabs { margin: 0; border-bottom: 0; }
+#v4-maintenance-page .card-header-tabs .nav-link { white-space: nowrap; }
+#mt-pane-4 > a[href$="ui_settings.php"] { display: block; width: fit-content; max-width: 100%; margin-inline: auto; text-align: center; }
+#v4-maintenance-page dl dd { overflow-wrap: anywhere; }
+#v4-maintenance-page .mt-status-card > .card-body { padding-top: 0; }
+.mt-status-card dl.row > dt, .mt-status-card dl.row > dd { border-bottom: 1px solid var(--bs-border-color-translucent); margin-bottom: 0; padding-block: .5rem; }
+.mt-status-card dl.row > .mt-status-db-main { border-bottom: 0; padding-bottom: 0; }
+.mt-status-card details { margin-top: 0 !important; }
+.mt-status-card details > summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .5rem 0; border-bottom: 1px solid var(--bs-border-color-translucent); font-weight: 700; cursor: pointer; list-style: none; }
+.mt-status-card > .card-body > details:last-child > summary { border-bottom: 0; }
+.mt-status-card details > summary::-webkit-details-marker { display: none; }
+.mt-status-card details > summary::after { content: "\f282"; margin-inline: .3rem; font-family: bootstrap-icons !important; font-size: .85rem; font-weight: 400; }
+.mt-status-card details[open] > summary::after { content: "\f286"; }
+.mt-status-card details > dl.row { margin-top: 0 !important; margin-bottom: 0; margin-left: 0; }
+.mt-status-card details > dl.row > dt { font-weight: 400; }
+.mt-status-card details > summary:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+#mt-api-key { min-width: 0; max-width: 100%; }
+#v4-maintenance-page .mt-security-list { border-top: 1px solid var(--bs-border-color); }
+#v4-maintenance-page .mt-security-row { display: grid; grid-template-columns: minmax(12rem, 14rem) minmax(0, 1fr); gap: 1rem; align-items: center; padding: .9rem 0; border-bottom: 1px solid var(--bs-border-color); }
+#v4-maintenance-page .mt-security-control { min-width: 0; }
+#v4-maintenance-page .mt-security-control .btn { width: 100%; }
+#v4-maintenance-page .mt-security-description { min-width: 0; margin: 0; }
+.mt-inactive-action > .small { flex-basis: 100%; }
+#v4-maintenance-page .mt-satellite details .badge { font-weight: 500; }
+.mt-log { max-height: 70vh; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .875rem; }
+#modal-mt-config .modal-dialog { height: calc(100vh - 2rem); height: calc(100dvh - 2rem); margin-block: 1rem; }
+#modal-mt-config .modal-content { height: 100%; min-height: 0; }
+#modal-mt-config .modal-body { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+#modal-mt-config .mt-config-editor { flex: 1 1 auto; min-height: 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre; }
+#modal-mt-config .mt-config-editor::selection { color: #111; background: #ffc107; }
+@media (max-width: 767.98px) { #v4-maintenance-page .card-header-tabs { max-width: 100%; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; padding-bottom: 1px; -webkit-overflow-scrolling: touch; } #v4-maintenance-page .card-header-tabs > .nav-item { flex: 0 0 auto; } }
+@media (max-width: 575.98px) { .mt-status-card dl.row > dt { border-bottom: 0; padding-bottom: .1rem; } .mt-status-card dl.row > dd { padding-top: 0; } }
+@media (max-width: 767.98px) { #v4-maintenance-page .mt-security-row { grid-template-columns: minmax(0, 1fr); gap: .5rem; } }

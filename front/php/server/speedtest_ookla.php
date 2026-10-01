@@ -21,7 +21,7 @@ require 'timezone.php';
 require 'db.php';
 require 'journal.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
 
 pialert_require_method('POST');
 pialert_validate_csrf();

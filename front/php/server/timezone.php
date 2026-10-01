@@ -21,28 +21,21 @@ function GetConfigPath() {
 
 function GetTimezoneFromConfig($configfile) {
 	$fallback_tz = 'Europe/Berlin';
-	if ($configfile != "") {
-		$configContent = file_get_contents($configfile);
-		$configContent = preg_replace('/^\s*#.*$/m', '', $configContent);
-		$configArray = parse_ini_string($configContent);
-		if (ValidateTimezone($configArray['SYSTEM_TIMEZONE'])) {
-			$systemtimezone = $configArray['SYSTEM_TIMEZONE'];
-		} else {
-			$systemtimezone = $fallback_tz;
-		}	
-	} else {
-		$systemtimezone = $fallback_tz;
+	if ($configfile === '') {
+		return $fallback_tz;
 	}
-	return $systemtimezone;
+	$configContent = @file_get_contents($configfile);
+	if (!is_string($configContent)) {
+		return $fallback_tz;
+	}
+	$configContent = preg_replace('/^\s*#.*$/m', '', $configContent);
+	$configArray = @parse_ini_string($configContent);
+	$configuredTimezone = is_array($configArray) ? ($configArray['SYSTEM_TIMEZONE'] ?? null) : null;
+	return is_string($configuredTimezone) && ValidateTimezone($configuredTimezone)
+		? $configuredTimezone : $fallback_tz;
 }
-// Get current PHP TZ
-$systemtimezone = date_default_timezone_get();
-// If TZ is UTC (not set), get TZ Config from configfile or fallback to 
-if ($systemtimezone == "UTC") {
-	$configfile = GetConfigPath();
-	$systemtimezone = GetTimezoneFromConfig($configfile);
-}
-// Set TZ
-date_default_timezone_set($systemtimezone);
+
+// SYSTEM_TIMEZONE is authoritative even when PHP already has a non-UTC default.
+date_default_timezone_set(GetTimezoneFromConfig(GetConfigPath()));
 
 ?>

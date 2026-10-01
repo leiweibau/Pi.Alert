@@ -30,7 +30,8 @@ require 'db.php';
 require 'util.php';
 require 'journal.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
+require_once __DIR__ . '/../entity-actions.php';
 
 // Action selector
 // Set maximum execution time to 15 seconds
@@ -494,7 +495,13 @@ function SetDeviceFilter() {
 function DeleteDeviceFilter() {
 	global $db; global $pia_lang;
 	$filterstring = isset($GLOBALS["pialert_request"]['filterstring']) && is_scalar($GLOBALS["pialert_request"]['filterstring']) ? (string) $GLOBALS["pialert_request"]['filterstring'] : '';
-	$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE filterstring = :filterstring', array(':filterstring' => $filterstring));
+	$filterid = filter_var($GLOBALS["pialert_request"]['filterid'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+	if ($filterid !== false && $filterid !== null) {
+		$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE id = :id', array(':id' => array((int) $filterid, SQLITE3_INTEGER)));
+	} else {
+		// Compatibility for old bookmarks and callers that predate stable filter IDs.
+		$result = db_execute_prepared($db, 'DELETE FROM Devices_table_filter WHERE filterstring = :filterstring', array(':filterstring' => $filterstring));
+	}
 	if (!$result) { logServerConsole('Device filter delete failed: ' . $db->lastErrorMsg()); }
 	echo $pia_lang['BE_Dev_table_delfilter_ok'] . h($filterstring);
 	pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0045', '', $filterstring);
@@ -559,7 +566,14 @@ function getDeviceData() {
 //  Update Device Data
 function setDeviceData() {
 	global $db; global $pia_lang;
-	$mac = $GLOBALS["pialert_request"]['mac'] ?? ''; if (!is_scalar($mac) || !filter_var(str_replace('-', ':', $mac), FILTER_VALIDATE_MAC)) { echo $pia_lang['BE_Dev_DBTools_UpdDevError']; return; }
+	$mac = $GLOBALS["pialert_request"]['mac'] ?? '';
+	if (!is_scalar($mac)) { echo $pia_lang['BE_Dev_DBTools_UpdDevError']; return; }
+	$mac = (string) $mac;
+	$internetDevice = $mac === 'Internet' || preg_match('/^Internet - [A-Za-z0-9_-]+$/D', $mac);
+	if ($mac === '' || strlen($mac) > 128 || (!filter_var(str_replace('-', ':', $mac), FILTER_VALIDATE_MAC) && !$internetDevice)) {
+		echo $pia_lang['BE_Dev_DBTools_UpdDevError'];
+		return;
+	}
 	$keys = array('name','owner','type','vendor','model','serialnumber','favorite','showpresence','group','location','comments','networknode','networknodeport','connectiontype','linkspeed','staticIP','mqttdevice','scancycle','alertevents','alertdown','skiprepeated','scanvalid','newdevice','archived');
 	$params = array(':mac' => (string)$mac); foreach ($keys as $key) { $value = $GLOBALS["pialert_request"][$key] ?? ''; $params[':'.$key] = is_scalar($value) ? (string)$value : ''; }
 	$params[':cleanup'] = array($params[':mqttdevice'] === '1' ? 0 : 1, SQLITE3_INTEGER);
@@ -737,7 +751,9 @@ function getDevicesList() {
 	}
 	$result = db_execute_prepared($db, $sql, $parameters);
 	$tableData = array();
+	$actionKeys = array();
 	while ($result && ($row = $result->fetchArray(SQLITE3_ASSOC))) {
+		$actionKeys[] = (string) $row['dev_MAC'];
 		$isNmapQueued = isset($queuedDeviceMacs[strtolower(trim((string) $row['dev_MAC']))]);
 		$tableData['data'][] = array($row['dev_Name'], $row['dev_ConnectionType'], $row['dev_Owner'],
 			$row['dev_DeviceType'], $row['dev_Favorite'], $row['dev_Group'], $row['dev_Location'],
@@ -749,6 +765,7 @@ function getDevicesList() {
 	if (empty($tableData['data'])) {
 		$tableData['data'] = '';
 	}
+	$tableData['actions'] = entity_actions_map($db, 'device', $actionKeys);
 	echo json_encode($tableData);
 }
 

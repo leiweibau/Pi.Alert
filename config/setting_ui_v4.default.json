@@ -1,0 +1,58 @@
+{
+    "schema": 13,
+    "revision": 0,
+    "devices": {
+        "columns": {
+            "ConnectionType": false,
+            "Owner": true,
+            "Type": true,
+            "Favorites": true,
+            "Group": true,
+            "Location": false,
+            "FirstSession": true,
+            "LastSession": true,
+            "LastIP": true,
+            "MACType": true,
+            "MACAddress": false,
+            "MACVendor": true,
+            "WakeOnLAN": false,
+            "Actions": true
+        },
+        "page_length": 10,
+        "order": [["Type", "desc"], ["Name", "asc"]]
+    },
+    "icmp": {
+        "columns": {
+            "IP": true,
+            "Favorite": true,
+            "ResponseTime": true,
+            "ScanTime": true,
+            "Actions": true
+        },
+        "page_length": 10,
+        "order": [["Name", "asc"]]
+    },
+    "appearance": {
+        "language": "en_us",
+        "skin": "skin-blue",
+        "theme": "standard",
+        "dark_mode": false,
+        "high_contrast_status_badges": false,
+        "activity_history": true,
+        "settings_sidebar": true,
+        "settings_popup": true,
+        "network_sidebar": true,
+        "events_sidebar": true,
+        "reports_sidebar": true,
+        "reports_popup": true,
+        "favicon": "img/favicons/flat_blue_white.png",
+        "sidebar_color": "body-secondary",
+        "header_color": "body",
+        "pihole_url": "",
+        "header_widgets": {
+            "devices": {"all": true, "con": true, "fav": true, "dnw": true, "arc": true, "new": true},
+            "icmp": {"all": true, "con": true, "fav": true, "dnw": true, "arc": true},
+            "presence": {"all": true, "con": true, "fav": true, "dnw": true, "arc": true, "new": true}
+        }
+    }
+}

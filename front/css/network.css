@@ -1,0 +1,13 @@
+#network-page .nav-tabs .nav-link { white-space: normal; }
+#network-page .network_tab_icon { vertical-align: middle; }
+#network-page .table td, #network-page .table th { min-width: 4rem; }
+#network-page .table td:first-child, #network-page .table th:first-child { min-width: 3rem; }
+#network-page details.card > summary { cursor: pointer; list-style-position: inside; }
+#network-settings-page .dropdown-menu { max-height: 18rem; overflow-y: auto; min-width: 14rem; }
+#network-settings-page .dropdown-item { white-space: normal; text-align: start; }
+#network-settings-page .card { scroll-margin-top: 5rem; }
+@media (max-width: 767.98px) {
+  #network-page .nav-tabs { max-width: 100%; flex-wrap: nowrap !important; overflow-x: auto; overflow-y: hidden; padding-bottom: 1px; -webkit-overflow-scrolling: touch; }
+  #network-page .nav-tabs > .nav-item { flex: 0 0 auto; }
+  #network-page .nav-tabs .nav-link { white-space: nowrap; }
+}

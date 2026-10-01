@@ -1,0 +1,98 @@
+/* Glas material tokens. All shared sizing, spacing and breakpoints are in
+   ../pialert-theme-layout.css. Persisted theme ID deliberately remains glas. */
+html[data-pialert-theme="glas"] {
+  --pa-bg: #07182c;
+  --pa-bg-deep: #04101f;
+  --pa-page-background:
+    radial-gradient(circle at 78% 9%, rgb(43 104 156 / 26%), transparent 34rem),
+    radial-gradient(circle at 8% 92%, rgb(18 80 129 / 22%), transparent 30rem),
+    linear-gradient(150deg, var(--pa-bg), var(--pa-bg-deep)) fixed;
+  --pa-surface: rgb(37 67 96 / 92%);
+  --pa-surface-strong: rgb(40 72 102 / 96%);
+  --pa-surface-soft: rgb(48 79 108 / 88%);
+  --pa-surface-background: linear-gradient(145deg, rgb(64 94 122 / 95%), rgb(29 57 84 / 93%));
+  --pa-surface-shadow: inset 0 1px 0 rgb(255 255 255 / 10%), 0 12px 28px rgb(0 8 20 / 28%);
+  --pa-card-header-background: transparent;
+  --pa-backdrop-filter: blur(24px) saturate(110%);
+  --pa-border: rgb(177 218 248 / 34%);
+  --pa-divider: rgb(183 217 242 / 18%);
+  --pa-text: #f4f8fc;
+  --pa-text-muted: #bfd0df;
+  --pa-heading: var(--pa-text);
+  --pa-blue: #45a5ff;
+  --pa-green: #28cb83;
+  --pa-yellow: #f1bd36;
+  --pa-red: #fa5266;
+  --pa-hover: rgb(110 170 220 / 14%);
+  --pa-button-hover: rgb(69 165 255 / 15%);
+  --pa-nav-hover: rgb(88 150 202 / 13%);
+  --pa-nav-active: linear-gradient(90deg, rgb(69 165 255 / 27%), rgb(69 165 255 / 10%));
+  --pa-kpi-info: 51 190 224;
+  --pa-kpi-success: 40 203 131;
+  --pa-kpi-warning: 241 189 54;
+  --pa-kpi-danger: 250 82 102;
+  --pa-kpi-secondary: 154 177 199;
+  --pa-table-stripe: rgb(7 24 44 / 14%);
+  --pa-table-hover: rgb(69 165 255 / 10%);
+  --pa-table-heading: rgb(64 94 122 / 52%);
+  --pa-control-background: rgb(19 45 69 / 72%);
+  --pa-badge-border: rgb(255 255 255 / 12%);
+  color-scheme: dark;
+}
+/* These formulas must be resolved on the KPI itself: --pa-kpi varies per card. */
+html[data-pialert-theme="glas"] .small-box {
+  --pa-kpi-background: linear-gradient(145deg, rgb(var(--pa-kpi) / 42%), rgb(29 57 84 / 91%));
+  --pa-kpi-border: rgb(var(--pa-kpi) / 88%);
+  --pa-kpi-shadow: inset 0 1px 0 rgb(255 255 255 / 13%), 0 8px 20px rgb(0 8 20 / 18%);
+}
+html[data-pialert-theme="glas"] body {
+  --bs-body-bg: var(--pa-bg);
+  --bs-body-color: var(--pa-text);
+  --bs-secondary-color: var(--pa-text-muted);
+  --bs-secondary-bg: #294963;
+  --bs-tertiary-bg: #203c57;
+  --bs-border-color: var(--pa-border);
+  --bs-border-color-translucent: var(--pa-divider);
+}
+/* Use the same readable blue glass treatment for outlined and filled buttons. */
+html[data-pialert-theme="glas"] .btn-outline-primary,
+html[data-pialert-theme="glas"] .btn-outline-info,
+html[data-pialert-theme="glas"] .btn-primary,
+html[data-pialert-theme="glas"] .btn-info {
+  --bs-btn-color: #b9e3ff;
+  --bs-btn-bg: rgb(7 35 63 / 50%);
+  --bs-btn-border-color: #87c9ff;
+  --bs-btn-hover-color: #102a43;
+  --bs-btn-hover-bg: #b9e3ff;
+  --bs-btn-hover-border-color: #b9e3ff;
+  --bs-btn-focus-shadow-rgb: 185, 227, 255;
+  --bs-btn-active-color: #102a43;
+  --bs-btn-active-bg: #b9e3ff;
+  --bs-btn-active-border-color: #b9e3ff;
+  --bs-btn-disabled-color: #b9e3ff;
+  --bs-btn-disabled-bg: rgb(7 35 63 / 50%);
+  --bs-btn-disabled-border-color: #87c9ff;
+}
+html[data-pialert-theme="glas"] .btn-outline-primary:focus-visible,
+html[data-pialert-theme="glas"] .btn-outline-info:focus-visible,
+html[data-pialert-theme="glas"] .btn-primary:focus-visible,
+html[data-pialert-theme="glas"] .btn-info:focus-visible {
+  outline-color: #d5f0ff;
+}
+/* The dashboard zoom controls have hard-coded colors in pialert-v4.css. */
+html[data-pialert-theme="glas"] .pialert-user-menu :is([data-dashboard-zoom="out"], [data-dashboard-zoom="in"]) {
+  color: var(--bs-btn-color);
+  background-color: var(--bs-btn-bg);
+  border-color: var(--bs-btn-border-color);
+}
+html[data-pialert-theme="glas"] .pialert-user-menu :is([data-dashboard-zoom="out"], [data-dashboard-zoom="in"]):is(:hover, :focus-visible, :active) {
+  color: var(--bs-btn-hover-color);
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html[data-pialert-theme="glas"] { --pa-surface-background: #29445e; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  html[data-pialert-theme="glas"] { --pa-surface-background: #29445e; --pa-backdrop-filter: none; }
+}

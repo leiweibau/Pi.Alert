@@ -84,7 +84,8 @@ def address_allowed(address):
     return address not in _METADATA_ADDRESSES
 
 
-def resolve_service_target(parsed):
+def resolve_service_targets(parsed):
+    """Return all allowed targets in stable IPv4-first order."""
     port = parsed.port or (443 if parsed.scheme.lower() == 'https' else 80)
     try:
         records = socket.getaddrinfo(parsed.hostname, port, type=socket.SOCK_STREAM)
@@ -99,7 +100,17 @@ def resolve_service_target(parsed):
         raise ServiceUrlError('dns_error', 'Service host has no usable address')
     if not all(address_allowed(address) for address in addresses):
         raise ServiceUrlError('blocked_by_policy', 'Service target is blocked by network policy')
-    return str(addresses[0]), port
+    # Pi.Alert is primarily an IPv4 network monitor (arp-scan is IPv4-only).
+    # Keep the resolver order within each family, but use IPv6 only after all
+    # validated IPv4 targets failed.
+    addresses.sort(key=lambda address: 0 if address.version == 4 else 1)
+    return [str(address) for address in addresses], port
+
+
+def resolve_service_target(parsed):
+    """Return the preferred target for callers that only need one address."""
+    addresses, port = resolve_service_targets(parsed)
+    return addresses[0], port
 
 
 class _PinnedHTTPSConnection(http.client.HTTPSConnection):
@@ -243,13 +254,11 @@ def fetch_service_url(url, timeout=10, max_redirects=MAX_REDIRECTS):
             raise ServiceUrlError(
                 'connection_error', 'Service check timed out', history,
                 last_target_ip, time.monotonic() - started)
-        connection_timeout = min(timeout, remaining)
         try:
             parsed = validate_service_url(current)
-            pinned_ip, port = resolve_service_target(parsed)
+            pinned_ips, port = resolve_service_targets(parsed)
         except ServiceUrlError as exc:
             raise _apply_error_context(exc, history, started, last_target_ip)
-        last_target_ip = pinned_ip
 
         cookie_request = Request(current, method='GET')
         cookie_jar.add_cookie_header(cookie_request)
@@ -264,13 +273,6 @@ def fetch_service_url(url, timeout=10, max_redirects=MAX_REDIRECTS):
                 last_target_ip, time.monotonic() - started)
         visited_states.add(visit_state)
 
-        certificate = None
-        connection_class = (_PinnedHTTPSConnection if parsed.scheme.lower() == 'https'
-                            else http.client.HTTPConnection)
-        if connection_class is _PinnedHTTPSConnection:
-            connection = connection_class(parsed.hostname, pinned_ip, port, connection_timeout)
-        else:
-            connection = connection_class(pinned_ip, port=port, timeout=connection_timeout)
         path = parsed.path or '/'
         if parsed.query:
             path += '?' + parsed.query
@@ -282,30 +284,64 @@ def fetch_service_url(url, timeout=10, max_redirects=MAX_REDIRECTS):
         }
         if cookie_header:
             headers['Cookie'] = cookie_header
-        try:
-            connection.request('GET', path, headers=headers)
-            response = connection.getresponse()
-            status = int(response.status)
-            if initial_status is None:
-                initial_status = status
-            location = response.getheader('Location')
-            set_cookie_headers = response.msg.get_all('Set-Cookie', [])
+        response = None
+        certificate = None
+        last_connection_error = None
+        for candidate_index, pinned_ip in enumerate(pinned_ips):
+            last_target_ip = pinned_ip
+            remaining = MAX_TOTAL_SECONDS - (time.monotonic() - started)
+            if remaining <= 0:
+                last_connection_error = ServiceUrlError(
+                    'connection_error', 'Service check timed out', history,
+                    last_target_ip, time.monotonic() - started)
+                break
+
+            # Share the remaining deadline so one unreachable address cannot
+            # consume all time and prevent the other family from being tried.
+            candidates_left = len(pinned_ips) - candidate_index
+            connection_timeout = min(timeout, remaining / candidates_left)
+            connection = None
             try:
-                cookie_jar.extract_cookies(response, cookie_request)
-                _trim_cookie_jar(cookie_jar)
-            except (AttributeError, TypeError, ValueError):
-                pass
-        except ssl.SSLError as exc:
-            raise ServiceUrlError(
-                'tls_error', 'TLS connection failed', history, last_target_ip,
-                time.monotonic() - started) from exc
-        except (OSError, http.client.HTTPException) as exc:
+                if parsed.scheme.lower() == 'https':
+                    connection = _PinnedHTTPSConnection(
+                        parsed.hostname, pinned_ip, port, connection_timeout)
+                else:
+                    connection = http.client.HTTPConnection(
+                        pinned_ip, port=port, timeout=connection_timeout)
+                connection.request('GET', path, headers=headers)
+                response = connection.getresponse()
+                certificate = getattr(connection, 'peer_certificate', None)
+                status = int(response.status)
+                if initial_status is None:
+                    initial_status = status
+                location = response.getheader('Location')
+                set_cookie_headers = response.msg.get_all('Set-Cookie', [])
+                try:
+                    cookie_jar.extract_cookies(response, cookie_request)
+                    _trim_cookie_jar(cookie_jar)
+                except (AttributeError, TypeError, ValueError):
+                    pass
+                break
+            except ssl.SSLError as exc:
+                last_connection_error = ServiceUrlError(
+                    'tls_error', 'TLS connection failed', history,
+                    last_target_ip, time.monotonic() - started)
+                last_connection_error.__cause__ = exc
+            except (OSError, http.client.HTTPException) as exc:
+                last_connection_error = ServiceUrlError(
+                    'connection_error', 'Service connection failed', history,
+                    last_target_ip, time.monotonic() - started)
+                last_connection_error.__cause__ = exc
+            finally:
+                if connection is not None:
+                    connection.close()
+
+        if response is None:
+            if last_connection_error is not None:
+                raise last_connection_error
             raise ServiceUrlError(
                 'connection_error', 'Service connection failed', history,
-                last_target_ip, time.monotonic() - started) from exc
-        finally:
-            certificate = getattr(connection, 'peer_certificate', None)
-            connection.close()
+                last_target_ip, time.monotonic() - started)
 
         next_url = urljoin(current, location) if location else ''
         history.append({

@@ -217,8 +217,8 @@ function getDevicePresence() {
 	$start = isset($GLOBALS["pialert_request"]['start']) && is_scalar($GLOBALS["pialert_request"]['start']) ? (string) $GLOBALS["pialert_request"]['start'] : '';
 	$end = isset($GLOBALS["pialert_request"]['end']) && is_scalar($GLOBALS["pialert_request"]['end']) ? (string) $GLOBALS["pialert_request"]['end'] : '';
 	try {
-		$startDate = formatDateISO($start);
-		$endDate = formatDateISO($end);
+		$startDate = formatCalendarQueryDate($start);
+		$endDate = formatCalendarQueryDate($end);
 	} catch (Exception $exception) {
 		echo json_encode('');
 		return;
@@ -237,8 +237,8 @@ function getDevicePresence() {
 			ELSE ses_DateTimeDisconnection END AS ses_DateTimeDisconnectionCorrected
 		FROM Sessions AS SES1
 		WHERE ses_MAC = :mac
-		AND (ses_DateTimeConnectionCorrected <= date(:end)
-		AND (ses_DateTimeDisconnectionCorrected >= date(:start) OR ses_StillConnected = 1))';
+			AND (ses_DateTimeConnectionCorrected < :end
+			AND (ses_DateTimeDisconnectionCorrected > :start OR ses_StillConnected = 1))';
 	$result = db_execute_prepared($db, $sql, array(':mac' => $mac, ':start' => $startDate, ':end' => $endDate));
 
 	$tableData = array();
@@ -276,8 +276,8 @@ function getEventsCalendar() {
 	$start = isset($GLOBALS["pialert_request"]['start']) && is_scalar($GLOBALS["pialert_request"]['start']) ? (string) $GLOBALS["pialert_request"]['start'] : '';
 	$end = isset($GLOBALS["pialert_request"]['end']) && is_scalar($GLOBALS["pialert_request"]['end']) ? (string) $GLOBALS["pialert_request"]['end'] : '';
 	try {
-		$startDate = formatDateISO($start);
-		$endDate = formatDateISO($end);
+		$startDate = formatCalendarQueryDate($start);
+		$endDate = formatCalendarQueryDate($end);
 	} catch (Exception $exception) {
 		echo json_encode('');
 		return;
@@ -297,8 +297,8 @@ function getEventsCalendar() {
 		FROM Sessions AS SES1
 		JOIN Devices AS DEV ON LOWER(SES1.ses_MAC) = LOWER(DEV.dev_MAC)
 		WHERE DEV.dev_PresencePage = 1 AND DEV.dev_ScanSource = :scan_source
-		AND (ses_DateTimeConnectionCorrected <= date(:end)
-		AND (ses_DateTimeDisconnectionCorrected >= date(:start) OR ses_StillConnected = 1))';
+			AND (ses_DateTimeConnectionCorrected < :end
+			AND (ses_DateTimeDisconnectionCorrected > :start OR ses_StillConnected = 1))';
 	$result = db_execute_prepared($db, $sql, array(':scan_source' => $scanSource, ':start' => $startDate, ':end' => $endDate));
 
 	$tableData = array();

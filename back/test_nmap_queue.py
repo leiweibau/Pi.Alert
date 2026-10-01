@@ -182,8 +182,10 @@ class NmapQueueTests(unittest.TestCase):
 
             self.assertIn('Name: Test device', message)
             self.assertIn('\n\tMAC: AA:BB:CC:DD:EE:FF', message)
+            self.assertIn('\n\tIP: 192.0.2.10', message)
             self.assertIn('\n\tStarted: 2026-01-01 00:01:00', message)
             self.assertIn('\n\tCompleted: 2026-01-01 00:01:17', message)
+            self.assertIn('\n\tDuration: 17 seconds', message)
             self.assertNotIn('.123456', message)
             self.assertNotIn('.492332', message)
             self.assertIn('\n\tTCP findings: 1', message)

@@ -1,0 +1,52 @@
+.icmp-filter { border-radius: var(--bs-border-radius); }
+.icmp-filter[aria-pressed="true"] { outline: .2rem solid rgba(var(--bs-primary-rgb), .35); outline-offset: .15rem; }
+.icmp-history-chart { position: relative; height: 150px; }
+#tableDevices th { white-space: nowrap; }
+#tableDevices tbody td.icmp-actions { padding: 0; white-space: nowrap; }
+.icmp-bulk-field { min-height: 5.5rem; padding: .85rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+.icmp-bulk-switch-field { min-height: 2.75rem; padding-block: .35rem; }
+.icmp-bulk-notes-column { display: flex; align-items: center; }
+.icmp-bulk-notes-column > .icmp-bulk-field { width: 100%; }
+.icmp-bulk-switch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: .75rem; height: 100%; }
+.icmp-bulk-switch-grid > .icmp-bulk-switch-field { width: 100%; max-width: 20rem; min-width: 0; justify-self: center; }
+@media (max-width: 575.98px) { .icmp-bulk-switch-grid { grid-template-columns: minmax(0, 1fr); } }
+.icmp-bulk-switch-field > .form-check:first-child { display: flex; flex: 1 1 auto; align-items: center; gap: .5rem; min-width: 0; padding: 0; margin: 0; }
+.icmp-bulk-switch-field .bulk-enable { float: none; flex: none; margin: 0; }
+.icmp-bulk-switch-field .form-check-label { min-width: 0; overflow-wrap: break-word; }
+.icmp-bulk-switch-field > .form-switch { display: flex; flex: none; align-items: center; min-height: 0; }
+.bulk-value { width: 1.5rem; height: 1.5rem; }
+#icmpHostSearch { max-width: 28rem; }
+.icmp-bulk-host-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .65rem; }
+.icmp-bulk-host { position: relative; display: flex; align-items: center; gap: .65rem; min-width: 0; padding: .7rem 1.75rem 1.15rem .7rem; border: 1px solid var(--bs-border-color); border-left-width: .3rem; border-radius: var(--bs-border-radius); }
+.icmp-bulk-host label { min-width: 0; overflow-wrap: anywhere; }
+.icmp-bulk-host small { display: block; color: var(--bs-secondary-color); }
+.icmp-host-online { border-left-color: var(--bs-success); }
+.icmp-host-offline { border-left-color: var(--bs-secondary); }
+.icmp-alert-all { color: #5196d5; }
+.icmp-alert-down { color: #dd7768; }
+.icmp-alert-both {
+  color: #9a879f;
+  background-image: linear-gradient(90deg, #5196d5, #dd7768);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+@media (max-width: 575.98px) { .icmp-bulk-host-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .icmp-filter { transition: none !important; } }
+
+/* Native Bootstrap checkboxes: semantic colors and a generous label target. */
+#icmp-host-form .icmp-check-favorite { --icmp-check-rgb: 255, 193, 7; }
+#icmp-host-form .icmp-check-favorite:checked { --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23212529' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e"); }
+#icmp-host-form .icmp-check-events { --icmp-check-rgb: 13, 110, 253; }
+#icmp-host-form .icmp-check-down { --icmp-check-rgb: 220, 53, 69; }
+#icmp-host-form .form-check-input { margin-top: .4rem; }
+#icmp-host-form .form-check-input:checked,
+#icmp-host-form .form-check-input:indeterminate {
+  background-color: rgb(var(--icmp-check-rgb));
+  border-color: rgb(var(--icmp-check-rgb));
+}
+#icmp-host-form .form-check-input:focus {
+  border-color: rgb(var(--icmp-check-rgb));
+  box-shadow: 0 0 0 .25rem rgba(var(--icmp-check-rgb), .25);
+}
+#icmp-host-form .form-check-label { padding: .15rem 0; cursor: pointer; }

@@ -4,7 +4,8 @@ Pi.Alert keeps an eye on your Wi-Fi and LAN and lets you know when something
 changes. It discovers devices on your network, tracks their availability, and
 provides a web interface for managing everything in one place.
 
-![Pi.Alert main screen][main]
+| ![Pi.Alert main screen][main] | ![Pi.Alert main alternate screen][main_alt] |
+|-------------------------------|---------------------------------------------|
 
 ## What Pi.Alert can do
 
@@ -175,4 +176,5 @@ Pi.Alert also uses or has benefited from the following projects and services:
 - [DeepL](https://www.deepl.com)
 - [ChatGPT](https://chat.openai.com)
 
-[main]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/screen_main_da_li.png "Pi.Alert main screen"
+[main]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/dark-light-devices.png "Pi.Alert main screen"
+[main_alt]: https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/glass-piano-devices.png "Pi.Alert main alternate screen"

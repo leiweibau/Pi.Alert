@@ -191,7 +191,7 @@ php -l front/php/server/files.php
 python3 -m py_compile \
   back/config_validation.py back/config_editor.py back/validate_pialert_config.py
 python3 -m unittest back/test_config_validation.py back/test_config_editor.py
-php tests/php/test_config_editor_roundtrip.php
+php _workspace/tests/php/test_config_editor_roundtrip.php
 python3 back/validate_pialert_config.py \
   config/pialert.conf --expected-pialert-path /opt/pialert
 python3 back/validate_pialert_config.py \

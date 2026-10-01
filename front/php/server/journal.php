@@ -8,6 +8,9 @@
 //  leiweibau  2025+       https://github.com/leiweibau     GNU GPLv3
 //------------------------------------------------------------------------------
 
+// Standalone endpoints also need the configured timezone before logging.
+require_once __DIR__ . '/timezone.php';
+
 // detect file changes
 function calc_configfile_hash() {
 	$Configfile = '../../../config/pialert.conf';

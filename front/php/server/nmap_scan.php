@@ -14,7 +14,7 @@ require 'db.php';
 require 'journal.php';
 require_once 'util.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
 
 pialert_require_method('POST');
 pialert_validate_csrf();
@@ -122,69 +122,46 @@ function nmap_trim_portlist($P_start, $P_end, $array) {
 	return $final_portlist;
 }
 // Format portlist output
-function create_portlist_table($portliststring) {
+function nmap_result_label($key, $fallback) {
 	global $pia_lang;
-	if (trim((string) $portliststring) === '') {
-		echo '<div class="col-xs-12">' . h($pia_lang['nmap_no_scan_results']) . '</div>';
-		return;
-	}
-	$temp_array = explode("\n", $portliststring);
-	for ($i=0;$i<sizeof($temp_array);$i++) {
-		$temp_ports = explode("###", $temp_array[$i]);
-		echo '<div class="row">
-		          <div class="col-xs-2">'.h($temp_ports[0] ?? '') .'</div>
-		          <div class="col-xs-2">'.h($temp_ports[1] ?? '') .'</div>
-		          <div class="col-xs-3">'.h($temp_ports[2] ?? '') . '</div>
-		          <div class="col-xs-5">'.h($temp_ports[3] ?? '') . '</div>
-		      </div>';
-	}
+	return h((string) ($pia_lang[$key] ?? $fallback));
 }
 
-function create_scanoutput_box($date, $type, $target, $box_type) {
+function create_portlist_table($portliststring) {
+	if (trim((string) $portliststring) === '') {
+		return '<p class="pialert-nmap-empty">' . nmap_result_label('nmap_results_no_ports', 'No usable port data') . '</p>';
+	}
+	$rows = '';
+	foreach (explode("\n", (string) $portliststring) as $line) {
+		if (trim($line) === '') continue;
+		$port = array_pad(explode('###', $line, 4), 4, '');
+		$status = strtolower(trim($port[2]));
+		$tone = $status === 'open' ? 'open' : ($status === 'closed' ? 'closed' : (strpos($status, 'filtered') !== false ? 'filtered' : 'unknown'));
+		$rows .= '<tr><th scope="row">' . h($port[0]) . '</th><td>' . h($port[1]) . '</td><td><span class="pialert-nmap-status pialert-nmap-status-' . $tone . '">' . h($port[2]) . '</span></td><td>' . h($port[3]) . '</td></tr>';
+	}
+	if ($rows === '') return '<p class="pialert-nmap-empty">' . nmap_result_label('nmap_results_no_ports', 'No usable port data') . '</p>';
+	return '<div class="pialert-nmap-table-scroll"><table class="pialert-nmap-table"><thead><tr><th scope="col">' . nmap_result_label('nmap_results_port', 'Port') . '</th><th scope="col">' . nmap_result_label('nmap_results_protocol', 'Protocol') . '</th><th scope="col">' . nmap_result_label('nmap_results_status', 'Status') . '</th><th scope="col">' . nmap_result_label('nmap_results_service', 'Service') . '</th></tr></thead><tbody>' . $rows . '</tbody></table></div>';
+}
+
+function create_scanoutput_box($date, $type, $target, $box_type, $portliststring) {
+	$headings = array('previous' => 'DevDetail_Tools_nmap_head_prev', 'current' => 'DevDetail_Tools_nmap_head_cur', 'latest' => 'DevDetail_Tools_nmap_head_latest');
+	$modes = array('fast' => 'DevDetail_Tools_nmap_buttonFast', 'normal' => 'DevDetail_Tools_nmap_buttonDefault', 'detail' => 'DevDetail_Tools_nmap_buttonDetail');
+	$headline = nmap_result_label($headings[$box_type] ?? $headings['latest'], 'Nmap result');
+	$mode = isset($modes[$type]) ? nmap_result_label($modes[$type], $type) : h($type);
+	return '<article class="pialert-nmap-card"><h3 class="pialert-nmap-card-title">' . $headline . '</h3>'
+		. '<dl class="pialert-nmap-meta"><div><dt>' . nmap_result_label('WEBS_tablehead_TargetIP', 'Target') . '</dt><dd>' . h($target) . '</dd></div>'
+		. '<div><dt>' . nmap_result_label('ookla_devdetails_table_time', 'Time') . '</dt><dd>' . h($date) . '</dd></div>'
+		. '<div><dt>' . nmap_result_label('nmap_devdetails_scanmode', 'Mode') . '</dt><dd>' . $mode . '</dd></div></dl>'
+		. create_portlist_table($portliststring) . '</article>';
+}
+
+function nmap_result_footer($count, $target) {
 	global $pia_lang;
-
-	if ($box_type == 'previous') {
-		$headline = $pia_lang['DevDetail_Tools_nmap_head_prev'];
-		$text_color = '';
-		$reloadlink = '<a class="nmappagerelaod nmap-reload" href="#" data-target="' . h($target) . '"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
-	elseif ($box_type == 'latest') {
-		$headline = $pia_lang['DevDetail_Tools_nmap_head_latest'];
-		$text_color = '';
-		$reloadlink = '';}
-	elseif ($box_type == 'current') {
-		$headline = $pia_lang['DevDetail_Tools_nmap_head_cur'];
-		$text_color = "text-red";
-		$reloadlink = '<a class="nmappagerelaod nmap-reload" href="#" data-target="' . h($target) . '"><i class="text-aqua fa-solid fa-rotate-left" style="font-size:18px; margin-left: 5px;"></i></a>';}
-
-	if ($type == 'fast') {
-		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonFast'];}
-	elseif ($type == 'normal') {
-		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonDefault'];}
-	elseif ($type == 'detail') {
-		$type_lang = $pia_lang['DevDetail_Tools_nmap_buttonDetail'];}
-
-	echo '<div class="col-md-6" style="margin-bottom:20px">
-			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-12"><span class="'.$text_color.'" style="font-size:18px">'.$headline.'</span> '.$reloadlink.'</div>
-			</div>
-			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-4"><b>'.$pia_lang['ookla_devdetails_table_time'].':</b></div>
-			   <div class="col-xs-6 '.$text_color.'">'.h($date).'</div>
-			</div>
-			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-4"><b>'.$pia_lang['nmap_devdetails_scanmode'].':</b></div>
-			   <div class="col-xs-6">'.h($type_lang).'</div>
-			</div>
-			<div class="row" style="padding-bottom:5px;">
-			   <div class="col-xs-4"><b>'.$pia_lang['WEBS_tablehead_TargetIP'].':</b></div>
-			   <div class="col-xs-6">' . h($target) . '</div>
-			</div>
-			<div class="row" style="">
-           	   <div class="col-xs-2 text-uppercase"><strong>Port</strong></div>
-               <div class="col-xs-2 text-uppercase"><strong>Prot.</strong></div>
-               <div class="col-xs-3 text-uppercase"><strong>Status</strong></div>
-               <div class="col-xs-5 text-uppercase"><strong>Service</strong></div>
-    	    </div>';
+	$countText = strip_tags((string) ($pia_lang['nmap_devdetails_countmsg_a'] ?? 'Saved scans: ')) . $count . strip_tags((string) ($pia_lang['nmap_devdetails_countmsg_b'] ?? ''));
+	return '<div class="pialert-nmap-footer"><span>' . h($countText) . '</span><div class="pialert-nmap-footer-actions">'
+		. '<a href="#" class="btn btn-sm btn-outline-secondary nmap-reload" data-target="' . h($target) . '">' . nmap_result_label('nmap_results_refresh', 'Refresh') . '</a>'
+		. ($count > 0 ? '<a role="button" class="btn btn-sm btn-primary pa-btn" href="./download/hostnmapresultscvs.php?host=' . rawurlencode($target) . '">' . nmap_result_label('nmap_devdetails_download', 'Save scans as CSV') . '</a>' : '')
+		. '</div></div>';
 }
 
 // Detailed scans are queued and processed by back/pialert_tools.py. They must
@@ -290,15 +267,10 @@ if ($PIA_SCAN_MODE != "view") {
 	    $nmap_scan_portlist = array();
 	}
 
-	echo '<div class="row">';
 	// Show prev. results
 	$res = db_execute_prepared($db_tools, 'SELECT * FROM Tools_Nmap_ManScan WHERE scan_target = :target ORDER BY scan_date DESC LIMIT 1', array(':target' => $PIA_HOST_IP));
-	$row = $res->fetchArray();
-	if ($row != "") {
-		create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'previous');
-		create_portlist_table($row['scan_result']);
-		echo '  </div>';
-	}
+	$row = $res ? $res->fetchArray() : false;
+	$currentCard = '';
 
 	// Process formated nmap report
 	if (sizeof($nmap_scan_portlist) > 0) {
@@ -310,27 +282,24 @@ if ($PIA_SCAN_MODE != "view") {
 			}
 		}
 		// Output
-		if (strlen($PIA_SCAN_RESULT) > 2) {
-			create_scanoutput_box($PIA_SCAN_TIME, $PIA_SCAN_MODE, $PIA_HOST_IP, 'current');
-			create_portlist_table($PIA_SCAN_RESULT);
-			echo '</div>';
+		if (strlen($PIA_SCAN_RESULT ?? '') > 2) {
+			$currentCard = create_scanoutput_box($PIA_SCAN_TIME, $PIA_SCAN_MODE, $PIA_HOST_IP, 'current', $PIA_SCAN_RESULT);
 
 			// Save to db, only if results available
 			$sql = 'INSERT INTO "Tools_Nmap_ManScan" ("scan_date", "scan_target", "scan_type", "scan_result", "reserve_a", "reserve_b", "reserve_c", "reserve_d") VALUES (:date, :target, :type, :result, :reserve_a, :reserve_b, :reserve_c, :reserve_d)';
 				$result = db_execute_prepared($db_tools, $sql, array(':date' => $PIA_SCAN_TIME, ':target' => $PIA_HOST_IP, ':type' => $PIA_SCAN_MODE, ':result' => $PIA_SCAN_RESULT, ':reserve_a' => '', ':reserve_b' => '', ':reserve_c' => '', ':reserve_d' => ''));
-		} else {
-			echo '<div class="col-md-6">'.$pia_lang['nmap_no_scan_results'].'</div>';
 		}
-		// Close row if noch act results
+	}
+	if ($currentCard === '') echo '<p class="pialert-nmap-empty">' . nmap_result_label('nmap_results_no_ports', 'No usable port data') . '</p>';
+	if ($currentCard !== '' || $row !== false) {
+		echo '<div class="pialert-nmap-results">' . $currentCard;
+		if ($row !== false) echo create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], $currentCard !== '' ? 'previous' : 'latest', $row['scan_result']);
 		echo '</div>';
-
-	} else {
-		echo '<div class="col-md-6">'.$pia_lang['nmap_no_scan_results'].'</div></div>';
 	}
 
     $countResult = db_execute_prepared($db_tools, 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = :target', array(':target' => $PIA_HOST_IP));
 	$scancounter = $countResult ? (int)$countResult->fetchArray(SQLITE3_ASSOC)['count_entries'] : 0;
-	echo $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'];
+	echo nmap_result_footer($scancounter, $PIA_HOST_IP);
 
 } elseif ($PIA_SCAN_MODE == "view") {
 // Main action (View Mode)-------------------------------------------------------
@@ -338,29 +307,15 @@ if ($PIA_SCAN_MODE != "view") {
 		$res = db_execute_prepared($db_tools, 'SELECT * FROM Tools_Nmap_ManScan WHERE scan_target = :target ORDER BY scan_date DESC LIMIT 1', array(':target' => $PIA_HOST_IP));
 		$row = $res ? $res->fetchArray() : false;
 
-		if ($row != "") {
-	    	$countResult = db_execute_prepared($db_tools, 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = :target', array(':target' => $PIA_HOST_IP));
-	    $countRow = $countResult ? $countResult->fetchArray(SQLITE3_ASSOC) : array('count_entries' => 0);
-	    $scancounter = (int) $countRow['count_entries'];
-
-			echo '<div class="row">';
-			create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'latest');
-			create_portlist_table($row['scan_result']);
-			echo '</div>';
-
-			echo '<div class="col-md-6">
-					<div class="row">
-						<div class="col-xs-12 text-center" style="margin-top:30px">' . $pia_lang['nmap_devdetails_countmsg_a'] . $scancounter . $pia_lang['nmap_devdetails_countmsg_b'] . '</div>
-				  	</div>';
-			echo '	<div class="row">
-						<div class="col-xs-12 text-center" style="margin-top:20px;margin-bottom:20px">
-							<a role="button" class="btn btn-primary pa-btn" href="./download/hostnmapresultscvs.php?host='.rawurlencode($PIA_HOST_IP).'">'.$pia_lang['nmap_devdetails_download'].'</a>
-						</div>
-				  	</div>
-				  </div>';
-			// Close row
-			echo '</div>';
+		$scancounter = 0;
+		if ($row !== false) {
+			$countResult = db_execute_prepared($db_tools, 'SELECT COUNT(*) AS count_entries FROM Tools_Nmap_ManScan WHERE scan_target = :target', array(':target' => $PIA_HOST_IP));
+			$countRow = $countResult ? $countResult->fetchArray(SQLITE3_ASSOC) : array('count_entries' => 0);
+			$scancounter = (int) $countRow['count_entries'];
+			echo '<div class="pialert-nmap-results">' . create_scanoutput_box($row['scan_date'], $row['scan_type'], $row['scan_target'], 'latest', $row['scan_result']) . '</div>';
 		}
+		else echo '<p class="pialert-nmap-empty">' . nmap_result_label('nmap_results_none_saved', 'No saved scan yet') . '</p>';
+		echo nmap_result_footer($scancounter, $PIA_HOST_IP);
 	}
 }
 

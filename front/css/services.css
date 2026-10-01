@@ -1,0 +1,75 @@
+.services-toolbar .btn-group { gap: 1px; }
+
+.services-journal-wrap { min-height: 190px; }
+
+#services-page .services-journal-card > .card-body { padding: .25rem .375rem; }
+
+.services-journal-wrap table th:first-child,
+.services-journal-wrap table td:first-child {
+  white-space: nowrap;
+}
+
+.services-journal-wrap table td:first-child { padding-right: calc(.5rem + 10px); }
+
+.services-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr));
+  gap: 1rem;
+}
+
+.service-card { overflow: hidden; }
+
+.service-status-panel {
+  align-items: center;
+  display: flex;
+  flex: 0 0 5.75rem;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 8rem;
+  padding: 0.75rem 0.5rem;
+}
+
+.service-status-panel .service-protocol {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.service-status-panel .service-code {
+  font-size: 1.55rem;
+  line-height: 1.2;
+}
+
+.service-status-panel .fa-globe {
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
+.service-card-content { min-width: 0; }
+.service-title { font-weight: 600; min-width: 0; }
+
+.service-history {
+  display: grid;
+  gap: 2px;
+  grid-template-columns: repeat(18, minmax(3px, 1fr));
+  height: 0.65rem;
+}
+
+.service-history-segment { background: var(--bs-secondary-bg); border-radius: 2px; }
+.service-history-online { background: var(--bs-success); }
+.service-history-warning { background: var(--bs-warning); }
+.service-history-down { background: var(--bs-danger); }
+
+.service-actions { white-space: nowrap; }
+
+#servicesJournalTable th,
+#servicesJournalTable td { vertical-align: middle; }
+
+@media (max-width: 575.98px) {
+  .services-toolbar .btn-group { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .services-toolbar .btn-group .btn { border-radius: var(--bs-border-radius); }
+  .service-status-panel { flex-basis: 4.5rem; }
+  .service-card-content { padding: 0.75rem !important; }
+  .service-actions { flex-basis: 100%; justify-content: flex-end; margin-left: 0 !important; }
+}

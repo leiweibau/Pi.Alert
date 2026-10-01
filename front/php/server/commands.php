@@ -21,7 +21,7 @@ require 'db.php';
 require 'util.php';
 require 'journal.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
 
 // Action selector
 // Set maximum execution time to 15 seconds
@@ -54,7 +54,10 @@ function PialertReboot() {
 	file_put_contents('../tmp/reboot_token', $token);
 
 	echo $pia_lang['SysInfo_Gen_execute_command'];
-	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot_".$pia_lang_selected.".html'>";
+	$language = is_string($pia_lang_selected) && preg_match('/^[a-z]{2}_[a-z]{2}$/D', $pia_lang_selected) ? $pia_lang_selected : 'en_us';
+	$bootId = trim((string) @file_get_contents('/proc/sys/kernel/random/boot_id'));
+	$bootQuery = preg_match('/^[a-f0-9-]{36}$/D', $bootId) ? '&boot=' . rawurlencode($bootId) : '';
+	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/reboot.php?lang=".$language.$bootQuery."'>";
 
 }
 
@@ -69,7 +72,8 @@ function PialertShutdown() {
 	file_put_contents('../tmp/shutdown_token', $token);
 
 	echo $pia_lang['SysInfo_Gen_execute_command'];
-	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown_".$pia_lang_selected.".html'>";
+	$language = is_string($pia_lang_selected) && preg_match('/^[a-z]{2}_[a-z]{2}$/D', $pia_lang_selected) ? $pia_lang_selected : 'en_us';
+	echo "<meta http-equiv='refresh' content='2; URL=./lib/static/shutdown.php?lang=".$language."'>";
 
 }
 

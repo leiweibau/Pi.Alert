@@ -48,4 +48,4 @@ The "**4**" (🟪) is a link to the “docs” path in this repository
 
 [Back to Readme](https://github.com/leiweibau/Pi.Alert)
 
-[Guide_001]:             https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/guide_001.png         "Guide_001"
+[Guide_001]:             https://raw.githubusercontent.com/leiweibau/Pi.Alert/assets/guide/devices.png         "Guide_001"

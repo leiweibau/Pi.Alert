@@ -19,6 +19,7 @@
 
   INSTALL_DIR="/opt"
   PIALERT_HOME="$INSTALL_DIR/pialert"
+  LOG_DIR="$PIALERT_HOME/log"
 
   LIGHTTPD_CONF_DIR="/etc/lighttpd"
   WEBROOT="/var/www/html"
@@ -345,6 +346,9 @@ install_pialert() {
 
   download_pialert
   configure_pialert
+  print_msg "- Installing Entity_Actions database schema..."
+  sudo "$PYTHON_BIN" "$PIALERT_HOME/install/migrate_entity_actions.py" \
+    "$PIALERT_HOME/db/pialert.db" >> "$LOG" 2>&1
   test_pialert
   add_jobs_to_crontab
   publish_pialert
@@ -486,9 +490,11 @@ publish_pialert() {
   sudo chmod -R 775 "$PIALERT_HOME/db/temp"                                                                     2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/config"                                                                 2>&1 >> "$LOG"
   sudo chmod 1775 "$PIALERT_HOME/config"                                                                         2>&1 >> "$LOG"
-  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
+  sudo find "$PIALERT_HOME/config" -maxdepth 1 -type f ! -name version.conf ! -name setting_ui_v4.default.json -exec chown www-data:www-data {} +  2>&1 >> "$LOG"
   sudo chown root:root "$PIALERT_HOME/config/version.conf"                                                       2>&1 >> "$LOG"
   sudo chmod 0644 "$PIALERT_HOME/config/version.conf"                                                           2>&1 >> "$LOG"
+  sudo chown root:root "$PIALERT_HOME/config/setting_ui_v4.default.json"                                          2>&1 >> "$LOG"
+  sudo chmod 0644 "$PIALERT_HOME/config/setting_ui_v4.default.json"                                             2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/reports"                                                          2>&1 >> "$LOG"
   sudo chmod -R 775 "$PIALERT_HOME/front/reports"                                                               2>&1 >> "$LOG"
   sudo chgrp -R www-data "$PIALERT_HOME/front/php/tmp"                                                          2>&1 >> "$LOG"
@@ -502,13 +508,14 @@ publish_pialert() {
   sudo chmod +x "$PIALERT_HOME/back/shoutrrr/x86/shoutrrr"                                                      2>&1 >> "$LOG"
   print_msg "- Create Logfiles..."
   dest_dir="$INSTALL_DIR/pialert/front/php/server"
+  sudo mkdir -p -- "$LOG_DIR"                                                                             2>&1 >> "$LOG"
   for file in pialert.vendors.log pialert.IP.log pialert.1.log pialert.cleanup.log pialert.webservices.log pialert.speedtest.log pialert.nmap.log usercron.log; do
-      sudo touch "$PIALERT_HOME/log/$file"                                                                    2>&1 >> "$LOG"
-      sudo chmod 644 "$PIALERT_HOME/log/$file"                                                                2>&1 >> "$LOG"
+      sudo touch "$LOG_DIR/$file"                                                                          2>&1 >> "$LOG"
       if [ -L "$dest_dir/$file" ]; then
-          sudo rm -- "$dest_dir/$file"                                                                        2>&1 >> "$LOG"
+          sudo rm -- "$dest_dir/$file"                                                                     2>&1 >> "$LOG"
       fi
   done
+  set_log_permissions
 
   print_msg "- Set sudoers..."
   sudo $PIALERT_HOME/back/pialert-cli set_sudoers                                                               2>&1 >> "$LOG"
@@ -611,13 +618,26 @@ install_dependencies() {
 # Move Logfile
 # ------------------------------------------------------------------------------
 move_logfile() {
-  NEWLOG="$PIALERT_HOME/log/$LOG"
+  NEWLOG="$LOG_DIR/$LOG"
 
-  mkdir -p "$PIALERT_HOME/log"
-  mv $LOG $NEWLOG
+  sudo mkdir -p -- "$LOG_DIR"
+  sudo mv -- "$LOG" "$NEWLOG"
 
   LOG="$NEWLOG"
   NEWLOG=""
+  set_log_permissions
+}
+
+# ------------------------------------------------------------------------------
+# Set restrictive shared log permissions
+# ------------------------------------------------------------------------------
+set_log_permissions() {
+  sudo chown root:www-data -- "$LOG_DIR"                                  2>&1 >> "$LOG"
+  sudo chmod 2750 -- "$LOG_DIR"                                           2>&1 >> "$LOG"
+  sudo find "$LOG_DIR" -maxdepth 1 -type f \
+    -exec chown root:www-data -- {} +                                      2>&1 >> "$LOG"
+  sudo find "$LOG_DIR" -maxdepth 1 -type f \
+    -exec chmod 0640 -- {} +                                               2>&1 >> "$LOG"
 }
 
 # ------------------------------------------------------------------------------

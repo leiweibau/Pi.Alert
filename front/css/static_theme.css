@@ -1,0 +1,86 @@
+/* Reboot and shutdown waiting pages share the saved UI theme. The pages stay
+   self-contained and available while the application backend is restarting. */
+body { min-height: 100vh; display: flex; flex-direction: column; }
+header { box-sizing: border-box; padding-inline: clamp(1rem, 4vw, 5rem); gap: 1rem; }
+header span { text-align: right; }
+.status-section { flex: 1; margin: clamp(2rem, 8vh, 6rem) 1rem 2rem; }
+.status-box { box-sizing: border-box; width: min(100%, 42rem); }
+footer { position: static; box-sizing: border-box; width: 100%; margin-top: auto; padding: 1rem; }
+@media (max-width: 480px) {
+  .status-box { padding: 1.5rem 1.25rem; }
+  .status-box h2 { font-size: 1.5rem; }
+  .status-box p { font-size: 1rem; }
+}
+
+html[data-pialert-theme="glas"] {
+  color-scheme: dark;
+  --wait-page: radial-gradient(circle at 78% 9%, rgb(43 104 156 / 26%), transparent 34rem), linear-gradient(150deg, #07182c, #04101f);
+  --wait-header: linear-gradient(145deg, rgb(64 94 122 / 95%), rgb(29 57 84 / 93%));
+  --wait-panel: linear-gradient(145deg, rgb(64 94 122 / 95%), rgb(29 57 84 / 93%));
+  --wait-border: rgb(177 218 248 / 34%);
+  --wait-text: #f4f8fc;
+  --wait-muted: #bfd0df;
+  --wait-accent: #45a5ff;
+  --wait-shadow: 0 12px 28px rgb(0 8 20 / 28%);
+}
+html[data-wait-mode="dark"] {
+  color-scheme: dark;
+  --wait-page: #212529;
+  --wait-header: #2b3035;
+  --wait-panel: #2b3035;
+  --wait-border: #495057;
+  --wait-text: #f8f9fa;
+  --wait-muted: #ced4da;
+  --wait-accent: #6ea8fe;
+  --wait-shadow: 0 8px 22px rgb(0 0 0 / 25%);
+}
+html[data-pialert-theme="piano"] {
+  color-scheme: dark;
+  --wait-page: linear-gradient(160deg, #ebe9e4, #dedbd4);
+  --wait-header: linear-gradient(145deg, #414547, #292d2f);
+  --wait-panel: linear-gradient(145deg, #393e40, #292d2f 60%, #303537);
+  --wait-border: rgb(255 255 255 / 20%);
+  --wait-text: #f1f0ec;
+  --wait-muted: #b8bbba;
+  --wait-accent: #73bbe8;
+  --wait-shadow: 0 8px 18px rgb(23 24 24 / 11%);
+}
+html[data-pialert-theme="console"] {
+  color-scheme: dark;
+  --wait-page: linear-gradient(180deg, #061009, #020503);
+  --wait-header: #040a06;
+  --wait-panel: linear-gradient(180deg, #0c1b11, #050d08);
+  --wait-border: rgb(74 222 128 / 42%);
+  --wait-text: #9cf7a8;
+  --wait-muted: #70b87a;
+  --wait-accent: #48e57c;
+  --wait-shadow: inset 0 0 18px rgb(42 194 89 / 4%), 0 8px 22px rgb(0 0 0 / 34%);
+}
+html:is([data-pialert-theme], [data-wait-mode="dark"]) body {
+  background: var(--wait-page) fixed;
+  color: var(--wait-text);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+html[data-pialert-theme="console"] body {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+html:is([data-pialert-theme], [data-wait-mode="dark"]) header {
+  background: var(--wait-header);
+  border-bottom: 1px solid var(--wait-border);
+}
+html:is([data-pialert-theme], [data-wait-mode="dark"]) header h1,
+html:is([data-pialert-theme], [data-wait-mode="dark"]) .status-box h2 { color: var(--wait-text); }
+html:is([data-pialert-theme], [data-wait-mode="dark"]) .status-box {
+  background: var(--wait-panel);
+  border: 1px solid var(--wait-border);
+  box-shadow: var(--wait-shadow);
+}
+html:is([data-pialert-theme], [data-wait-mode="dark"]) .status-box p,
+html:is([data-pialert-theme], [data-wait-mode="dark"]) footer { color: var(--wait-muted); }
+html:is([data-pialert-theme], [data-wait-mode="dark"]) .spinner {
+  border-color: var(--wait-border);
+  border-top-color: var(--wait-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  html:is([data-pialert-theme], [data-wait-mode="dark"]) .spinner { animation-duration: 3s; }
+}

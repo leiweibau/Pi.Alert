@@ -1,0 +1,55 @@
+.pialert-device-filter { border-radius: var(--bs-border-radius); }
+.pialert-device-filter[aria-pressed="true"] { outline: .2rem solid rgba(var(--bs-primary-rgb), .35); outline-offset: .15rem; }
+.pialert-history-chart { position: relative; height: 150px; }
+#tableDevices td.nmap-queued-ip { color: var(--bs-primary) !important; font-weight: 600; }
+#tableDevices th { white-space: nowrap; }
+#tableDevices tbody td.pialert-device-wol-cell,
+#tableDevices tbody td.pialert-device-actions-cell { padding: 0; }
+#tableDevices .pialert-device-name { min-width: 130px; }
+#tableDevices .pialert-device-favorite { min-width: 38px; }
+#tableDevices .pialert-device-timestamp { min-width: 157px; white-space: nowrap; }
+#tableDevices .pialert-device-last-ip { min-width: 118px; }
+#tableDevices .pialert-device-mac { min-width: 165px; }
+#tableDevices .pialert-device-status { white-space: nowrap; }
+#tableDevices .pialert-device-wol-cell { width: 52px; min-width: 52px; max-width: 52px; }
+/* DataTables writes col widths; keep WoL fixed and share spare width with Name and Type. */
+#tableDevices col[data-dt-column="17"] { width: 52px !important; }
+#tableDevices col[data-dt-column="0"],
+#tableDevices col[data-dt-column="3"] { width: auto !important; }
+.pialert-device-status-link, .pialert-device-status-link:hover, .pialert-device-status-link:focus-visible { text-decoration: none; }
+#tableDevices .pialert-status-new-online { color: #212529; background: radial-gradient(circle, #f39c12 60%, #00a65a 90%); }
+#tableDevices .pialert-status-new-offline { color: #212529; background: radial-gradient(circle, #f39c12 60%, #aaa 90%); }
+[data-bs-theme="dark"] #tableDevices .pialert-status-new-online { color: #fff; background: radial-gradient(circle, #b1720c 60%, #00a000 90%); }
+[data-bs-theme="dark"] #tableDevices .pialert-status-new-offline { color: #fff; background: radial-gradient(circle, #b1720c 60%, #aaa 90%); }
+.pialert-bulk-field { min-height: 5.5rem; padding: .85rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
+.pialert-bulk-switch-field { min-height: 2.75rem; padding-block: .35rem; }
+.pialert-bulk-notes-column { display: flex; align-items: center; }
+.pialert-bulk-notes-column > .pialert-bulk-field { width: 100%; }
+.pialert-bulk-switch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: .75rem; height: 100%; }
+.pialert-bulk-switch-grid > .pialert-bulk-switch-field { width: 100%; max-width: 20rem; min-width: 0; justify-self: center; }
+@media (max-width: 575.98px) { .pialert-bulk-switch-grid { grid-template-columns: minmax(0, 1fr); } }
+.pialert-bulk-switch-field > .form-check:first-child { display: flex; flex: 1 1 auto; align-items: center; gap: .5rem; min-width: 0; padding: 0; margin: 0; }
+.pialert-bulk-switch-field .bulk-enable { float: none; flex: none; margin: 0; }
+.pialert-bulk-switch-field .form-check-label { min-width: 0; overflow-wrap: break-word; }
+.pialert-bulk-switch-field > .form-switch { display: flex; flex: none; align-items: center; min-height: 0; }
+.bulk-value { width: 1.5rem; height: 1.5rem; }
+#deviceSearch { max-width: 28rem; }
+.pialert-bulk-device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .65rem; }
+.bulked_dev_box { position: relative; display: flex; align-items: center; gap: .6rem; min-width: 0; padding: .7rem 2.9rem 1.15rem .7rem; border: 1px solid var(--bs-border-color); border-left-width: .3rem; border-radius: var(--bs-border-radius); background: var(--bs-body-bg); }
+.bulked_dev_box label { min-width: 0; overflow-wrap: anywhere; }
+.bulked_online_border { border-left-color: var(--bs-success); }
+.bulked_offline_border { border-left-color: var(--bs-secondary); }
+.bulked_new_dev { background: rgba(var(--bs-warning-rgb), .13); }
+.bulked_arc_dev { opacity: .72; }
+.bulked_checkbox_label_all { color: #5196d5; }
+.bulked_checkbox_label_down { color: #dd7768; }
+.bulked_checkbox_label_alldown {
+  color: #9a879f;
+  background-image: linear-gradient(90deg, #5196d5, #dd7768);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.presence-underlined { text-decoration: underline; text-decoration-style: dotted; }
+@media (max-width: 575.98px) { .pialert-bulk-device-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .pialert-device-filter { transition: none !important; } }

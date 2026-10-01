@@ -22,9 +22,11 @@ require 'timezone.php';
 require 'db.php';
 require 'util.php';
 require 'service_url.php';
+require_once __DIR__ . '/service_timeline.php';
 require 'journal.php';
+require_once __DIR__ . '/geodb_update.php';
 require 'language_switch.php';
-require '../templates/language/' . $pia_lang_selected . '.php';
+require '../language/' . $pia_lang_selected . '.php';
 
 //  Action selector
 // Set maximum execution time to 1 minute
@@ -35,7 +37,7 @@ OpenDB();
 
 pialert_dispatch_action([
     'getEventsTotals', 'getEvents', 'getEventsTotalsforService',
-    'getServiceMonTotals', 'getServicesJournal'
+    'getServiceMonTotals', 'getServicesJournal', 'getServiceTimeline'
 ], [
     'setServiceData', 'deleteService', 'insertNewService', 'downloadGeoDB',
     'deleteGeoDB', 'updateGeoDB', 'EnableWebServiceMon', 'DeleteAllWebServices'
@@ -70,9 +72,32 @@ if (isset($GLOBALS["pialert_request"]['action']) && !empty($GLOBALS["pialert_req
 		break;
 	case 'getServicesJournal':getServicesJournal();
         break;
+	case 'getServiceTimeline':getServiceTimeline();
+		break;
 	default:logServerConsole('Action: ' . $action);
 		break;
 	}
+}
+
+function getServiceTimeline() {
+    global $db, $pia_lang;
+    header('Content-Type: application/json; charset=utf-8');
+    $url = $GLOBALS['pialert_request']['url'] ?? '';
+    $period = $GLOBALS['pialert_request']['period'] ?? '24h';
+    if (!is_scalar($url) || !pialert_validate_service_key((string) $url)
+        || !is_string($period) || !in_array($period, array('24h', '7d'), true)) {
+        http_response_code(400);
+        echo json_encode(array('error' => 'Invalid timeline request'));
+        return;
+    }
+    $labels = array(
+        '2xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP2xx'] ?? 'HTTP 2xx',
+        '3xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP3xx'] ?? 'HTTP 3xx',
+        '4xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP4xx'] ?? 'HTTP 4xx',
+        '5xx' => $pia_lang['WEBS_EVE_Shortcut_HTTP5xx'] ?? 'HTTP 5xx',
+        'down' => $pia_lang['WEBS_Page_down'] ?? 'Offline',
+    );
+    echo json_encode(pialert_service_timeline_snapshot($db, (string) $url, $labels, $period), JSON_INVALID_UTF8_SUBSTITUTE);
 }
 
 function getServicesJournal() {
@@ -141,25 +166,23 @@ function getServiceMonTotals() {
 }
 
 function updateGeoDB() {
-	global $pia_lang;
-
-	$deletePath = '../../../db/GeoLite2-Country.mmdb';
-	if (file_exists($deletePath)) {
-		unlink($deletePath);
-	}
-
-	$fileUrl = 'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb';
 	$savePath = '../../../db/GeoLite2-Country.mmdb';
-
-	// Disable caching
 	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 	header('Cache-Control: post-check=0, pre-check=0', false);
 	header('Pragma: no-cache');
+	header('Content-Type: application/json; charset=UTF-8');
 
-	file_put_contents($savePath, fopen($fileUrl, 'r'));
-	echo json_encode(['filePath' => $savePath]);
-	// Logging
+	try {
+		pialert_replace_geodb(__DIR__ . '/../../../db/GeoLite2-Country.mmdb');
+	} catch (Throwable $exception) {
+		http_response_code($exception->getMessage() === 'GeoLite2 update already running' ? 409 : 502);
+		pialert_logging('a_010', $_SERVER['REMOTE_ADDR'] ?? '', 'LogStr_0077', '', substr($exception->getMessage(), 0, 200));
+		echo json_encode(['error' => 'GeoLite2 database update failed']);
+		return;
+	}
+
 	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0008', '', '');
+	echo json_encode(['filePath' => $savePath]);
 }
 
 //  Toggle Web Service Monitoring
@@ -347,18 +370,7 @@ function insertNewService() {
 
 //  Download GeoDB
 function downloadGeoDB() {
-	$fileUrl = 'https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb';
-	$savePath = '../../../db/GeoLite2-Country.mmdb';
-
-// Disable caching
-	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-	header('Cache-Control: post-check=0, pre-check=0', false);
-	header('Pragma: no-cache');
-
-	file_put_contents($savePath, fopen($fileUrl, 'r'));
-	echo json_encode(['filePath' => $savePath]);
-	// Logging
-	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0008', '', '');
+	updateGeoDB();
 }
 
 //  Delete GeoDB

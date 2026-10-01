@@ -1,0 +1,38 @@
+.debug-page { max-width: 1600px; margin-inline: auto; padding-bottom: 2rem; }
+.debug-page [hidden] { display: none !important; }
+.debug-page-intro { min-height: 2.5rem; }
+.debug-page-intro p { max-width: 64rem; line-height: 1.5; }
+.debug-page-nav { display: flex; gap: .5rem; overflow-x: auto; padding: .25rem 0 .45rem; scrollbar-width: thin; }
+.debug-page-nav-link { display: inline-flex; align-items: center; gap: .55rem; flex: 0 0 auto; padding: .65rem .9rem; border: 1px solid var(--bs-border-color); border-radius: .75rem; background: var(--bs-body-bg); color: var(--bs-body-color); text-decoration: none; font-weight: 600; }
+.debug-page-nav-link:hover, .debug-page-nav-link:focus-visible { border-color: var(--bs-primary); color: var(--bs-body-color); }
+.debug-page-nav-link.active { border-color: var(--bs-primary); background: rgba(var(--bs-primary-rgb), .12); color: var(--bs-body-color); }
+.debug-page .card { min-width: 0; }
+.debug-page .card-header { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.debug-page .card-header .card-title { margin: 0; }
+.debug-page .debug-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: .75rem; }
+.debug-page .debug-toolbar .form-label { font-weight: 600; }
+.debug-page .debug-toolbar .debug-search { min-width: min(100%, 18rem); flex: 1 1 18rem; }
+.debug-page .debug-stat { min-height: 5.6rem; padding: 1rem; border: 1px solid var(--bs-border-color); border-radius: .8rem; background: var(--bs-tertiary-bg); }
+.debug-page .debug-stat-label { display: block; font-size: .82rem; color: var(--bs-secondary-color); }
+.debug-page .debug-stat-value { display: block; margin-top: .35rem; font-size: 1.65rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.debug-page .debug-url { min-width: 0; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .82rem; }
+.debug-page .debug-result-list { list-style: none; padding: 0; margin: 0; }
+.debug-page .debug-result-list li { display: flex; gap: .65rem; align-items: start; padding: .6rem 0; border-top: 1px solid var(--bs-border-color-translucent); }
+.debug-page .debug-result-list li:first-child { border-top: 0; }
+.debug-page .debug-result-list i { width: 1.1rem; margin-top: .15rem; text-align: center; }
+.debug-page .debug-result-list .debug-result-text { min-width: 0; overflow-wrap: anywhere; }
+.debug-page .debug-section-count { margin-left: auto; }
+.debug-page .debug-table-wrap { max-height: min(68vh, 52rem); overflow: auto; border: 1px solid var(--bs-border-color); border-radius: .65rem; }
+.debug-page .debug-data-table { width: max-content; min-width: 100%; margin: 0; }
+.debug-page .debug-data-table th, .debug-page .debug-data-table td { max-width: 24rem; min-width: 8rem; vertical-align: top; white-space: pre-wrap; overflow-wrap: anywhere; }
+.debug-page .debug-data-table th { position: sticky; top: 0; z-index: 1; background: var(--bs-tertiary-bg); white-space: nowrap; }
+.debug-page .debug-language-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem; }
+.debug-page .debug-language-count { padding: .85rem 1rem; border: 1px solid var(--bs-border-color); border-radius: .65rem; background: var(--bs-tertiary-bg); }
+.debug-page .debug-language-count strong { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.debug-page .debug-detail-item { border: 1px solid var(--bs-border-color); border-radius: .65rem; background: var(--bs-tertiary-bg); }
+.debug-page .debug-detail-item summary { display: flex; align-items: center; gap: .6rem; padding: .85rem 1rem; cursor: pointer; list-style: none; }
+.debug-page .debug-detail-item summary::-webkit-details-marker { display: none; }
+.debug-page .debug-detail-item summary::before { content: '▸'; color: var(--bs-secondary-color); }
+.debug-page .debug-detail-item[open] summary::before { content: '▾'; }
+.debug-page .debug-missing-keys { padding: 0 1rem 1rem; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .82rem; line-height: 1.7; }
+@media (max-width: 575.98px) { .debug-page-nav-link { padding: .6rem .7rem; } .debug-page-nav-link span { max-width: 11rem; white-space: normal; } }

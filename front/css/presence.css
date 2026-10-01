@@ -1,0 +1,13 @@
+.presence-history-chart { height: 150px; max-width: 100%; overflow: hidden; }
+.presence-history-chart canvas { max-width: 100% !important; }
+.pialert-calendar-tooltip .tooltip-inner { white-space: pre-line; text-align: left; max-width: min(24rem, calc(100vw - 1rem)); }
+.presence-loading { position: absolute; z-index: 3; inset: 0; padding: 1rem; background: color-mix(in srgb, var(--bs-body-bg) 80%, transparent); }
+#presence-page #calendar { min-height: 25rem; max-width: 100%; overflow-x: auto; }
+#presence-page .fc { color: var(--bs-body-color); --fc-border-color: var(--bs-border-color); --fc-page-bg-color: var(--bs-body-bg); --fc-neutral-bg-color: var(--bs-tertiary-bg); --fc-neutral-text-color: var(--bs-secondary-color); --fc-button-bg-color: var(--bs-secondary-bg); --fc-button-border-color: var(--bs-border-color); --fc-button-text-color: var(--bs-body-color); --fc-button-hover-bg-color: var(--bs-tertiary-bg); --fc-button-hover-border-color: var(--bs-border-color); --fc-button-active-bg-color: var(--bs-primary); --fc-button-active-border-color: var(--bs-primary); --fc-today-bg-color: color-mix(in srgb, var(--bs-warning) 15%, var(--bs-body-bg)); }
+#presence-page .fc .fc-scrollgrid, #presence-page .fc .fc-scrollgrid-section > td { background: var(--bs-body-bg); }
+#presence-page .fc .fc-col-header-cell, #presence-page .fc .fc-datagrid-header { background: var(--bs-tertiary-bg); }
+#presence-page .fc .fc-pialert-saturday, #presence-page .fc .fc-pialert-sunday { background: color-mix(in srgb, var(--bs-secondary-bg) 55%, transparent); }
+#presence-page .fc .fc-pialert-today, #presence-page .fc .fc-pialert-current-hour { background: var(--fc-today-bg-color); }
+#presence-page .fc .fc-datagrid-cell-main { overflow-wrap: anywhere; }
+@media (max-width: 575px) { #presence-page .fc .fc-header-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; } #presence-page .fc .fc-toolbar-chunk { display: flex; flex-wrap: wrap; justify-content: center; } #presence-page .fc .fc-toolbar-title { font-size: 1.15rem; } }
+@media print { #presence-page .presence-filter, #presence-page .fc-header-toolbar { display: none !important; } #presence-page #calendar { overflow: visible; } #presence-page .fc { color: #000; --fc-border-color: #777; --fc-page-bg-color: #fff; --fc-neutral-bg-color: #eee; } #presence-page .fc-scroller { overflow: visible !important; } }

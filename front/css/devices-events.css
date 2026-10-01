@@ -1,0 +1,68 @@
+.pialert-events-period {
+  width: min(100%, 18rem);
+}
+
+.pialert-event-filter {
+  border-radius: var(--bs-border-radius);
+  position: relative;
+  overflow: hidden;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.pialert-event-widgets > div {
+  display: flex;
+  flex-direction: column;
+}
+
+#devices-events-page .pialert-event-filter {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 7rem;
+  margin-bottom: 0;
+}
+
+#devices-events-page .pialert-event-filter h2 {
+  font-size: 1.65rem;
+  line-height: 1.1;
+}
+
+.pialert-event-filter .inner {
+  position: relative;
+  z-index: 1;
+}
+
+.pialert-event-filter:hover,
+.pialert-event-filter:focus-visible,
+.pialert-event-filter.is-selected {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, currentColor 35%, transparent);
+  transform: translateY(-1px);
+}
+
+.pialert-event-filter.is-selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid currentColor;
+  border-radius: inherit;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+#tableEvents_wrapper > .row,
+#tableEvents_wrapper > .dt-layout-row {
+  --bs-gutter-x: 0;
+  row-gap: 0.75rem;
+}
+
+#tableEvents th,
+#tableEvents td {
+  white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+  #devices-events-page .pialert-event-filter h2 { font-size: 1.4rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pialert-event-filter { transition: none; }
+}

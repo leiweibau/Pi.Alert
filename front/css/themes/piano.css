@@ -1,0 +1,78 @@
+/* Piano material tokens. The shared Glas/Piano layout is intentionally kept
+   in ../pialert-theme-layout.css; this file has no responsive geometry. */
+html[data-pialert-theme="piano"] {
+  --pa-page-background: linear-gradient(160deg, #ebe9e4 0%, #e7e5df 58%, #dedbd4 100%) fixed;
+  --pa-surface: #292d2f;
+  --pa-surface-strong: #202426;
+  --pa-surface-soft: #34393b;
+  --pa-surface-raised: #3a3f42;
+  --pa-surface-deep: #171a1c;
+  --pa-surface-background: linear-gradient(145deg, #393e40 0%, #292d2f 60%, #303537 100%);
+  --pa-gloss-background: linear-gradient(138deg, rgb(255 255 255 / 6%) 0%, transparent 16%, transparent 81%, rgb(255 255 255 / 2%) 100%), linear-gradient(145deg, #414547 0%, #292d2f 58%, #34393b 100%);
+  --pa-surface-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), 0 1px 2px rgb(23 24 24 / 15%), 0 8px 18px rgb(23 24 24 / 11%);
+  --pa-card-header-background: linear-gradient(138deg, rgb(255 255 255 / 5%), transparent 24%), linear-gradient(145deg, #3d4244, #303537);
+  --pa-backdrop-filter: none;
+  --pa-border: rgb(255 255 255 / 14%);
+  --pa-divider: rgb(255 255 255 / 9%);
+  --pa-text: #f1f0ec;
+  --pa-text-muted: #b8bbba;
+  --pa-heading: #24292b;
+  --pa-blue: #73bbe8;
+  --pa-green: #4fc796;
+  --pa-yellow: #d8b557;
+  --pa-red: #ef9da2;
+  --pa-hover: rgb(255 255 255 / 7%);
+  --pa-button-hover: rgb(115 187 232 / 13%);
+  --pa-nav-hover: rgb(255 255 255 / 6%);
+  --pa-nav-active: linear-gradient(90deg, rgb(115 187 232 / 19%), rgb(115 187 232 / 5%));
+  --pa-kpi-info: 115 187 232;
+  --pa-kpi-success: 79 199 150;
+  --pa-kpi-warning: 216 181 87;
+  --pa-kpi-danger: 239 157 162;
+  --pa-kpi-secondary: 170 179 180;
+  --pa-table-stripe: rgb(255 255 255 / 2%);
+  --pa-table-hover: rgb(115 187 232 / 9%);
+  --pa-table-heading: #3b4042;
+  --pa-control-background: #34393b;
+  --pa-badge-border: rgb(255 255 255 / 14%);
+  --pa-sidebar-background: linear-gradient(145deg, #383d3f, #292d2f);
+  --pa-brand-background: linear-gradient(145deg, #3b4042, #2b3032);
+  --pa-status-background: linear-gradient(145deg, #414648, #34393b);
+  color-scheme: dark;
+}
+html[data-pialert-theme="piano"] .small-box {
+  --pa-kpi-background: linear-gradient(128deg, rgb(var(--pa-kpi) / 15%) 0%, transparent 30%), linear-gradient(145deg, #414648 0%, #292d2f 62%, #34393b 100%);
+  --pa-kpi-border: rgb(var(--pa-kpi) / 72%);
+  --pa-kpi-shadow: inset 0 2px 0 rgb(var(--pa-kpi) / 65%), inset 0 1px 0 rgb(255 255 255 / 8%), 0 4px 10px rgb(23 24 24 / 12%);
+}
+html[data-pialert-theme="piano"] body {
+  --bs-body-bg: var(--pa-surface);
+  --bs-body-color: var(--pa-text);
+  --bs-secondary-color: var(--pa-text-muted);
+  --bs-secondary-bg: var(--pa-surface-raised);
+  --bs-tertiary-bg: var(--pa-surface-soft);
+  --bs-border-color: var(--pa-border);
+  --bs-border-color-translucent: var(--pa-divider);
+}
+html[data-pialert-theme="piano"] .app-header { background: var(--pa-gloss-background) !important; }
+html[data-pialert-theme="piano"] .app-sidebar { background: var(--pa-sidebar-background) !important; }
+html[data-pialert-theme="piano"] .sidebar-brand { background: var(--pa-brand-background) !important; }
+html[data-pialert-theme="piano"] .pialert-system-status {
+  background: var(--pa-status-background);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-md);
+}
+html[data-pialert-theme="piano"] .sidebar-menu .nav-link.active { border: 1px solid rgb(115 187 232 / 32%); }
+html[data-pialert-theme="piano"] .small-box { border-top-color: rgb(var(--pa-kpi)) !important; }
+html[data-pialert-theme="piano"] .card { background: var(--pa-surface-background) !important; }
+html[data-pialert-theme="piano"] .card-header { background: var(--pa-card-header-background); }
+/* Chart datasets are shared with other themes; soften their paint only in Piano. */
+html[data-pialert-theme="piano"] .card canvas { filter: saturate(.85); }
+html[data-pialert-theme="piano"] .table > :not(caption) > * > * { background-color: transparent; color: var(--pa-text); }
+html[data-pialert-theme="piano"] .app-footer { color: #4d565b; border-top-color: #c7c4bd; }
+/* Bootstrap's link-body-emphasis utility sets color with !important. */
+html[data-pialert-theme="piano"] .app-footer a { color: #2c3c4b !important; text-decoration-color: currentColor !important; }
+/* Back links sit on Piano's light page canvas, outside the dark cards. */
+html[data-pialert-theme="piano"] .pialert-back-link.btn-outline-secondary { color: #24292b; border-color: #667073; background-color: rgb(255 255 255 / 24%); }
+html[data-pialert-theme="piano"] .pialert-back-link.btn-outline-secondary:hover,
+html[data-pialert-theme="piano"] .pialert-back-link.btn-outline-secondary:focus-visible { color: var(--pa-text); border-color: #34393b; background-color: #34393b; }

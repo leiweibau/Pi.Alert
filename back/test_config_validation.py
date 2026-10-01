@@ -83,6 +83,16 @@ class ConfigValidationTests(unittest.TestCase):
             self.assertIn('chmod 0644 "$PIALERT_HOME/config/version.conf"', source)
             self.assertNotRegex(source, r'chmod -R 775 [^\n]*config')
 
+    def test_installers_set_restrictive_shared_log_permissions(self):
+        for script in ('pialert_install.sh', 'pialert_update.sh'):
+            source = (ROOT / 'install' / script).read_text()
+            self.assertIn('LOG_DIR="$PIALERT_HOME/log"', source)
+            self.assertIn('chown root:www-data -- "$LOG_DIR"', source)
+            self.assertIn('chmod 2750 -- "$LOG_DIR"', source)
+            self.assertIn('-exec chown root:www-data -- {} +', source)
+            self.assertIn('-exec chmod 0640 -- {} +', source)
+            self.assertNotRegex(source, r'chmod\s+644\s+[^\n]*log')
+
     def test_active_configuration_is_valid(self):
         values = load_pialert_config(str(CONFIG), str(ROOT))
         self.assertEqual(type(values['SMTP_SSL']), bool)
@@ -305,6 +315,14 @@ class ConfigValidationTests(unittest.TestCase):
         self.assertNotIn('chmod 777 "$PIALERT_HOME/config/pialert.conf"', source)
         self.assertIn('Configuration migration failed; continuing update.', source)
         self.assertNotIn('process_error "Invalid configuration after migration"', source)
+
+    def test_update_log_uses_one_absolute_path(self):
+        source = (ROOT / 'install' / 'pialert_update.sh').read_text()
+        self.assertIn('LOG_DIR="$PIALERT_HOME/log"', source)
+        self.assertIn('LOG="$LOG_DIR/pialert_update_', source)
+        self.assertIn('initialize_update_log', source)
+        self.assertNotIn('move_logfile', source)
+        self.assertIn("--exclude='pialert/log/pialert_update_*.log'", source)
 
     def test_install_and_update_packages_deliver_example_configuration(self):
         installer = (ROOT / 'install' / 'pialert_install.sh').read_text()
