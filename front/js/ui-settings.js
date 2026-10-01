@@ -67,15 +67,24 @@
   var faviconPreviewTimer;
   function previewFavicon () {
     var value = faviconInput.value;
-    var valid = /^img\/favicons\/(flat|glass)_[a-z]+_(black|white)\.png$/.test(value);
-    if (!valid) {
-      try {
-        var url = new URL(value);
-        valid = (url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password;
-      } catch (_) { valid = false; }
+    var source = '';
+    if (value.length <= 2048 && !/[\x00-\x20\x7f]/.test(value)) {
+      if (/^img\/favicons\/(flat|glass)_(red|blue|green|yellow|purple|black|white)_(black|white)\.png$/.test(value)) {
+        source = encodeURI(value);
+      } else {
+        try {
+          var url = new URL(value);
+          if ((url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password) {
+            // Encode URL metacharacters without altering query separators or existing % escapes.
+            source = url.href.replace(/[<>"'`]/g, function (character) {
+              return '%' + character.charCodeAt(0).toString(16).toUpperCase();
+            });
+          }
+        } catch (_) { source = ''; }
+      }
     }
-    faviconPreview.hidden = !valid;
-    if (valid) faviconPreview.src = value;
+    faviconPreview.hidden = !source;
+    if (source) faviconPreview.src = source;
     else faviconPreview.removeAttribute('src');
   }
   faviconInput.addEventListener('input', function () {

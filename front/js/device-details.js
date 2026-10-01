@@ -12,6 +12,7 @@
   var preferences = {period:'1 month',tab:'tabDetails',sessionsRows:10,eventsRows:10,eventsHide:true,speedtestRows:10};
   var period = preferences.period;
   var deviceList = [];
+  var deviceListUrl = './devices.php';
   var position = -1;
   var dirty = false;
   var loaded = false;
@@ -136,10 +137,13 @@
     var local = row.dev_ScanSource === 'local';
     field('tabNmap').parentElement.hidden = !local;
     if (!local && field('tabNmap').classList.contains('active')) window.bootstrap.Tab.getOrCreateInstance(field('tabDetails')).show();
-    var back = new URL(config.back, window.location.href);
-    if (!local && row.dev_ScanSource) back.searchParams.set('scansource', row.dev_ScanSource);
-    field('deviceDetailsBack').href = back.pathname + back.search;
-    if (field('navbar-back-button')) field('navbar-back-button').href = back.pathname + back.search;
+    // The destination is fixed; a scan source is only an encoded query value.
+    deviceListUrl = './devices.php';
+    if (!local && typeof row.dev_ScanSource === 'string' && row.dev_ScanSource) {
+      deviceListUrl += '?scansource=' + encodeURIComponent(row.dev_ScanSource);
+    }
+    field('deviceDetailsBack').href = deviceListUrl;
+    if (field('navbar-back-button')) field('navbar-back-button').href = deviceListUrl;
     listPosition(row);
     setDirty(false);
     updateTools();
@@ -330,7 +334,7 @@
   }
   function ask(title, message, callback) { window.showModalWarning(title,message,labels.cancel,labels.delete,callback); }
   function deleteEvents() { post(endpoint('devices','deleteDeviceEvents'),{mac:mac},function (message) { notify(message); loadDevice(false); }); }
-  function deleteDevice() { post(endpoint('devices','deleteDevice'),{mac:mac},function (message) { notify(message); window.location.assign(field('deviceDetailsBack').href); }); }
+  function deleteDevice() { post(endpoint('devices','deleteDevice'),{mac:mac},function (message) { notify(message); window.location.assign(deviceListUrl); }); }
   function wake() { post(endpoint('devices','wakeonlan'),{mac:mac,ip:value('txtLastIP')},notify); }
   function safeOutput(markup) {
     var output = field('scanoutput');
@@ -492,7 +496,7 @@
     field('panDetails').addEventListener('input',function (event) { if (loaded && !event.target.readOnly) setDirty(true); });
     field('panDetails').addEventListener('change',function (event) { if (loaded && !event.target.readOnly) setDirty(true); });
     field('btnSave').addEventListener('click',function () { saveDevice(); });
-    field('btnRestore').addEventListener('click',function () { if (dirty) loadDevice(false); else window.location.assign(field('deviceDetailsBack').href); });
+    field('btnRestore').addEventListener('click',function () { if (dirty) loadDevice(false); else window.location.assign(deviceListUrl); });
     field('btnPrevious').addEventListener('click',function () { navigate(-1); });
     field('btnNext').addEventListener('click',function () { navigate(1); });
     field('btnDeleteEvents').addEventListener('click',function () { ask(labels.deleteEventsTitle,labels.deleteEventsWarning,deleteEvents); });

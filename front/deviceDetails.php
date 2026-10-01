@@ -118,7 +118,7 @@ $labels = array(
     'notFound'=>$L('DevDetail_NotFound','Device not found'), 'ignore'=>$L('MT_Tool_ignorelist','Ignore list'),
     'ignoreText'=>$L('DevDetail_add_ignore_noti_text',''), 'saved'=>$L('BE_Dev_DBTools_UpdDev','Device updated'),
 );
-$config = array('mac'=>$requestedMac,'internet'=>$isInternet,'back'=>pialert_v4_route('home'),'labels'=>$labels,
+$config = array('mac'=>$requestedMac,'internet'=>$isInternet,'labels'=>$labels,
     'calendarLocale'=>$L('PRE_CalHead_lang','en'),'speedtestInstalled'=>$speedtestInstalled,
     'speedtestRows'=>array_map(static fn($row): array => array($row['speed_date'],$row['speed_isp'],$row['speed_server'],$row['speed_ping'],$row['speed_down'],$row['speed_up']), $speedtestRows));
 $title = $L('DevDetail_Title','Device details');
