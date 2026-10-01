@@ -358,6 +358,10 @@ $pia_lang['WEBS_Stats_Time_max'] = 'lėčiausias';
 $pia_lang['WEBS_Stats_Location'] = 'Vieta';
 $pia_lang['WEBS_Stats_IP'] = 'Dabartinis IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Šalies nustatymas';
+$pia_lang['WEBS_Location_Map'] = 'Pasaulio žemėlapis';
+$pia_lang['WEBS_Location_Unknown'] = 'Šiam IP adresui šalies nustatyti nepavyko.';
+$pia_lang['WEBS_Location_Map_Missing'] = 'Nustatytos šalies šiame pasaulio žemėlapyje nėra.';
+$pia_lang['WEBS_Events_Hide200_Note'] = 'HTTP 200 (OK) įrašai rodomi tik tada, kai jų atsako laikas daugiau nei du kartus viršija visų galiojančių šios žiniatinklio paslaugos HTTP 200 matavimų vidurkį.';
 $pia_lang['WEBS_Stats_comment_a'] = '(Apskaičiuota pagal visus šios paslaugos skenavimus)';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////

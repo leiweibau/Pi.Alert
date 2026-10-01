@@ -122,7 +122,7 @@ $config = array('mac'=>$requestedMac,'internet'=>$isInternet,'back'=>pialert_v4_
     'calendarLocale'=>$L('PRE_CalHead_lang','en'),'speedtestInstalled'=>$speedtestInstalled,
     'speedtestRows'=>array_map(static fn($row): array => array($row['speed_date'],$row['speed_isp'],$row['speed_server'],$row['speed_ping'],$row['speed_down'],$row['speed_up']), $speedtestRows));
 $title = $L('DevDetail_Title','Device details');
-pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css','lib/coloris-0.25.0/coloris.min.css','css/device-details.css','css/presence-calendar.css','css/nmap-results.css','css/entity-actions.css'));
+pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css','lib/coloris-0.25.0/coloris.min.css','css/device-details.css','css/presence-calendar.css','css/nmap-results.css','css/entity-actions.css'), mobileBackRoute: 'home');
 ?>
 <script type="application/json" id="device-details-config"><?= json_encode($config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
 <div id="device-details-page" class="mb-4">

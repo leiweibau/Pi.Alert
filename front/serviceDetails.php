@@ -29,6 +29,7 @@ $service_details_title_array = explode('://', $request_url);
 pialert_v4_load_language();
 require_once __DIR__ . '/php/shell.php';
 require_once __DIR__ . '/php/server/db.php';
+require_once __DIR__ . '/php/server/service_events.php';
 require_once __DIR__ . '/php/server/journal.php';
 require_once __DIR__ . '/php/server/geodb_location.php';
 
@@ -76,14 +77,7 @@ if (!in_array((string) $http_filter, array('all', '2', '3', '4', '5', '99999999'
 
 function get_service_events_table($service_URL, $service_filter) {
     global $db;
-    if ($service_filter == 'all') $filter_sql = '';
-    elseif ($service_filter == 2) $filter_sql = 'AND moneve_StatusCode LIKE "2%"';
-    elseif ($service_filter == 3) $filter_sql = 'AND moneve_StatusCode LIKE "3%"';
-    elseif ($service_filter == 4) $filter_sql = 'AND moneve_StatusCode LIKE "4%"';
-    elseif ($service_filter == 5) $filter_sql = 'AND moneve_StatusCode LIKE "5%"';
-    elseif ($service_filter == '99999999') $filter_sql = 'AND moneve_Latency="99999999"';
-    else $filter_sql = '';
-    $moneve_res = db_execute_prepared($db, 'SELECT * FROM Services_Events WHERE moneve_URL = :url ' . $filter_sql . ' ORDER BY rowid DESC LIMIT 2000', array(':url' => (string) $service_URL));
+    $moneve_res = pialert_service_visible_events($db, (string) $service_URL, (string) $service_filter);
     while ($moneve_res && ($row = $moneve_res->fetchArray())) {
         echo '<tr><td>' . h($row['moneve_DateTime']) . '</td><td>' . h($row['moneve_StatusCode']) . '</td><td>' . h($row['moneve_Latency']) . '</td><td>' . h($row['moneve_ssl_fc']) . '</td></tr>';
     }
@@ -159,16 +153,18 @@ $geoDatabaseInstalled = is_file($geoDatabase);
 $selectedLanguage = pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME);
 $location = $geoDatabaseInstalled
     ? pialert_geodb_service_location($geoDatabase, (string) ($servicedetails['mon_TargetIP'] ?? ''), $selectedLanguage)
-    : array('country' => null, 'continent' => null);
-$locationLabel = $location['country'] ?? 'IP not found in DB';
+    : array('country' => null, 'country_code' => null, 'continent' => null);
+$locationLabel = $location['country'] ?? $pia_lang['WEBS_Location_Unknown'];
 if ($location['country'] !== null && $location['continent'] !== null) $locationLabel .= ' (' . $location['continent'] . ')';
 $displayTitle = '[' . strtoupper($service_details_title_array[0]) . '] ' . ($service_details_title_array[1] ?? '');
 
-pialert_v4_shell_start($displayTitle, 'services', array(
+$serviceStyles = array(
     'lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css',
     'css/service-details.css',
     'css/presence-calendar.css',
-));
+);
+if ($geoDatabaseInstalled) array_unshift($serviceStyles, 'lib/jsvectormap-1.7.0/jsvectormap.min.css');
+pialert_v4_shell_start($displayTitle, 'services', $serviceStyles, mobileBackRoute: 'services');
 ?>
 <section id="service-details-page" data-service-url="<?= h($service_details_title); ?>" data-filter="<?= h((string) $http_filter); ?>"
   data-endpoint="php/server/services.php" data-delete-title="<?= h($pia_lang['WEBS_button_Delete_label']); ?>"
@@ -221,18 +217,34 @@ pialert_v4_shell_start($displayTitle, 'services', array(
             </div>
           </div>
         </div>
-        <section class="mt-4"><h2 class="h5 border-bottom border-primary pb-2"><?= h($pia_lang['V4_SSL_Certificate_Info']); ?></h2><div class="service-fields service-fields-wide">
+        <div class="row g-4 mt-0 service-certificate-location">
+        <div class="col-12<?= $geoDatabaseInstalled ? ' col-lg-6' : ''; ?>"><section id="service-certificate" class="card h-100 mb-0"><div class="card-header"><h2 class="card-title"><?= h($pia_lang['V4_SSL_Certificate_Info']); ?></h2></div><div class="card-body service-fields<?= $geoDatabaseInstalled ? '' : ' service-fields-wide'; ?>">
           <label for="txtSSLSubject"><?= h($pia_lang['V4_Subject']); ?></label><input class="form-control" id="txtSSLSubject" readonly value="<?= h(str_replace('<Name(', '', str_replace(')>', '', (string) ($servicedetails['mon_ssl_subject'] ?? '')))); ?>">
           <label for="txtSSLIssuer"><?= h($pia_lang['V4_Issuer']); ?></label><input class="form-control" id="txtSSLIssuer" readonly value="<?= h(str_replace('<Name(', '', str_replace(')>', '', (string) ($servicedetails['mon_ssl_issuer'] ?? '')))); ?>">
           <label for="txtSSLFrom"><?= h($pia_lang['V4_Valid_From']); ?></label><input class="form-control" id="txtSSLFrom" readonly value="<?= h($servicedetails['mon_ssl_valid_from'] ?? ''); ?>">
           <label for="txtSSLTo"><?= h($pia_lang['V4_Valid_To']); ?></label><input class="form-control" id="txtSSLTo" readonly value="<?= h($servicedetails['mon_ssl_valid_to'] ?? ''); ?>">
-        </div></section>
+        </div></section></div>
+        <?php if ($geoDatabaseInstalled): ?>
+        <div class="col-12 col-lg-6"><section id="service-location-card" class="card h-100 mb-0">
+          <div class="card-header"><h2 class="card-title"><?= h($pia_lang['WEBS_Stats_Location']); ?></h2></div>
+          <div class="card-body">
+            <div id="service-location-map" class="service-location-map" role="img" aria-label="<?= h($pia_lang['WEBS_Location_Map'] . ': ' . $locationLabel); ?>"
+              data-country-code="<?= h($location['country_code'] ?? ''); ?>" data-country-name="<?= h($location['country'] ?? ''); ?>" data-locale="<?= h($pia_lang['PRE_CalHead_lang'] ?? 'en'); ?>"></div>
+            <div class="service-location-caption mt-2">
+              <p class="mb-1"><span id="service-location-key" class="service-location-key me-2" hidden aria-hidden="true"></span><?= h($locationLabel); ?></p>
+              <p class="small text-body-secondary mb-0"><?= h($pia_lang['WEBS_Stats_IP']); ?>: <span class="font-monospace"><?= h($servicedetails['mon_TargetIP'] ?? ''); ?></span></p>
+              <p id="service-location-map-missing" class="small text-body-secondary mt-2 mb-0" hidden><?= h($pia_lang['WEBS_Location_Map_Missing']); ?></p>
+            </div>
+          </div>
+        </section></div>
+        <?php endif; ?>
+        </div>
         <div class="d-flex flex-wrap justify-content-end gap-2 mt-4"><button class="btn btn-danger" id="btnDelete" type="button"><?= h($pia_lang['Gen_Delete']); ?></button><button class="btn btn-secondary" id="btnRestore" type="button"><?= h($pia_lang['Gen_Cancel']); ?></button><button class="btn btn-primary" id="btnSave" type="button"><?= h($pia_lang['Gen_Save']); ?></button></div>
       </div>
 
       <div class="tab-pane fade" id="panEvents" role="tabpanel" aria-labelledby="tabEvents"><h2 class="h5 text-primary mb-3" id="service-events-heading"><?= h(service_filter_label($http_filter)); ?></h2><div class="table-responsive">
         <table id="tableEvents" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr><th><?= h($pia_lang['WEBS_tablehead_ScanTime']); ?></th><th><?= h($pia_lang['WEBS_tablehead_Status_Code']); ?></th><th><?= h($pia_lang['WEBS_tablehead_Response_Time']); ?></th><th><?= h($pia_lang['V4_SSL_Status']); ?></th></tr></thead><tbody><?php get_service_events_table($service_details_title, $http_filter); ?></tbody></table>
-      </div></div>
+      </div><p id="service-events-note" class="small text-body-secondary mt-3 mb-0"><?= h($pia_lang['WEBS_Events_Hide200_Note']); ?></p></div>
 
       <div class="tab-pane fade" id="panGraph" role="tabpanel" aria-labelledby="tabGraph">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -255,10 +267,17 @@ pialert_v4_shell_start($displayTitle, 'services', array(
     </div>
   </div>
 </section>
-<?php pialert_v4_shell_end(array(
+<?php
+$serviceScripts = array(
     'lib/datatables/datatables.net-3.1.2/dataTables.min.js',
     'lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js',
     'lib/fullcalendar-scheduler-6.1.21/index.global.min.js',
     'lib/fullcalendar-6.1.21/locales-all.global.min.js',
     'js/service-details.js',
-)); ?>
+);
+if ($geoDatabaseInstalled) {
+    $serviceScripts[] = 'lib/jsvectormap-1.7.0/jsvectormap.min.js';
+    $serviceScripts[] = 'lib/jsvectormap-1.7.0/maps/world.js';
+    $serviceScripts[] = 'js/service-location-map.js';
+}
+pialert_v4_shell_end($serviceScripts); ?>

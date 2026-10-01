@@ -11,6 +11,20 @@
 }
 .service-fields label { font-weight: 600; margin-bottom: 0; }
 .service-fields-wide { grid-template-columns: minmax(8rem, 15%) minmax(0, 1fr); }
+.service-certificate-location .service-fields { align-content: start; }
+.service-location-map.jvm-container,
+.service-location-map {
+  width: 100%;
+  height: 230px;
+  --service-map-land: color-mix(in srgb, var(--bs-body-color) 24%, var(--bs-body-bg));
+  --service-map-border: var(--bs-body-bg);
+  --service-map-highlight: var(--pa-blue, var(--pialert-accent));
+}
+.service-location-map .jvm-region { vector-effect: non-scaling-stroke; }
+.service-location-key { display: inline-block; width: .8rem; height: .8rem; border-radius: .2rem; background: var(--pa-blue, var(--pialert-accent)); }
+.service-location-key[hidden] { display: none; }
+.service-location-caption { overflow-wrap: anywhere; }
+.jvm-tooltip.service-location-tooltip { color: var(--bs-body-color); background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); }
 .service-alert-switches { display: flex; flex-wrap: wrap; gap: 1.5rem; }
 .service-alert-switches > .form-check { min-width: 0; }
 @media (min-width: 768px) {

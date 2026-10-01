@@ -97,7 +97,12 @@ $assetVersion = rawurlencode(pialert_v4_asset_version());
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="<?= h(pialert_v4_asset('manifest.php')); ?>">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Pi.Alert">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <link rel="apple-touch-icon" href="<?= h(safe_web_url($appearance['favicon'], 'img/favicons/flat_blue_white.png')); ?>">
   <title>Pi.Alert | <?= h($pia_lang['Login_Submit']); ?></title>
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/css/adminlte.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('css/pialert-v4.css')); ?>?v=<?= $assetVersion; ?>">

@@ -139,6 +139,7 @@
     var back = new URL(config.back, window.location.href);
     if (!local && row.dev_ScanSource) back.searchParams.set('scansource', row.dev_ScanSource);
     field('deviceDetailsBack').href = back.pathname + back.search;
+    if (field('navbar-back-button')) field('navbar-back-button').href = back.pathname + back.search;
     listPosition(row);
     setDirty(false);
     updateTools();

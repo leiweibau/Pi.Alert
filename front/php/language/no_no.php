@@ -358,6 +358,10 @@ $pia_lang['WEBS_Stats_Time_max'] = 'tregeste';
 $pia_lang['WEBS_Stats_Location'] = 'Plassering';
 $pia_lang['WEBS_Stats_IP'] = 'Nåværende IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Lands­tilordning';
+$pia_lang['WEBS_Location_Map'] = 'Verdenskart';
+$pia_lang['WEBS_Location_Unknown'] = 'Ingen landtilknytning er tilgjengelig for denne IP-adressen.';
+$pia_lang['WEBS_Location_Map_Missing'] = 'Det identifiserte landet er ikke med på dette verdenskartet.';
+$pia_lang['WEBS_Events_Hide200_Note'] = 'HTTP 200-oppføringer (OK) vises bare når svartiden er mer enn dobbelt så høy som gjennomsnittet av alle gyldige HTTP 200-målinger for denne webtjenesten.';
 $pia_lang['WEBS_Stats_comment_a'] = '(Beregnet fra alle skanninger av denne tjenesten)';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////

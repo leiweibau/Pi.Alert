@@ -170,7 +170,7 @@ function pialert_v4_enqueue_style(string $path): void {
     if (!in_array($path, $pialertV4PageStyles, true)) $pialertV4PageStyles[] = $path;
 }
 
-function pialert_v4_shell_start(string $title, string $activePage = 'home', array $pageStyles = array(), ?callable $pageHeaderAction = null, ?string $baseHref = null): void {
+function pialert_v4_shell_start(string $title, string $activePage = 'home', array $pageStyles = array(), ?callable $pageHeaderAction = null, ?string $baseHref = null, ?string $mobileBackRoute = null): void {
     global $pia_lang, $pialertV4PageStyles;
     $withoutSidebar = $activePage === 'dashboard';
     foreach ($pageStyles as $pageStyle) {
@@ -190,6 +190,10 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <?php if ($baseHref !== null): ?><base href="<?= h($baseHref); ?>"><?php endif; ?>
+  <link rel="manifest" href="<?= h(pialert_v4_asset('manifest.php')); ?>">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Pi.Alert">
   <meta name="csrf-token" content="<?= h(pialert_csrf_token()); ?>"><meta http-equiv="x-dns-prefetch-control" content="off"><meta http-equiv="cache-control" content="max-age=60,private">
   <title><?= h($title); ?> | Pi.Alert</title>
   <link rel="icon" type="image/x-icon" href="<?= h($favicon); ?>"><link rel="apple-touch-icon" href="<?= h($favicon); ?>">
@@ -207,8 +211,9 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
 <body class="layout-fixed fixed-header sidebar-expand-lg bg-body-tertiary<?= $withoutSidebar ? ' pialert-dashboard-no-sidebar' : ''; ?>">
 <div class="app-wrapper">
   <nav class="app-header navbar navbar-expand <?= h($theme['header']['class']); ?>" data-bs-theme="<?= h($theme['header']['mode']); ?>" aria-label="<?= h($pia_lang['V4_Toolbar']); ?>"><div class="container-fluid">
-    <ul class="navbar-nav align-items-center">
+    <ul class="navbar-nav align-items-center<?= $mobileBackRoute !== null ? ' pialert-detail-header-nav' : ''; ?>">
       <?php if ($withoutSidebar): ?><li class="nav-item"><span class="navbar-brand pialert-dashboard-brand">Pi.<strong>Alert</strong></span></li><?php else: ?><li class="nav-item"><button class="nav-link btn" type="button" data-lte-toggle="sidebar" aria-label="<?= h($pia_lang['V4_Toggle_Navigation']); ?>"><i class="fa-solid fa-bars" aria-hidden="true"></i></button></li><?php endif; ?>
+      <?php if ($mobileBackRoute !== null): ?><li class="nav-item d-lg-none"><a id="navbar-back-button" class="nav-link" href="<?= h(pialert_v4_route($mobileBackRoute)); ?>" aria-label="<?= h($pia_lang['Device_Table_nav_prev']); ?>"><i class="bi bi-chevron-left" aria-hidden="true"></i></a></li><?php endif; ?>
       <?php if ($theme['name'] !== 'standard' && !$withoutSidebar): ?><li class="nav-item pa-mobile-brand"><span>Pi.<strong>Alert</strong></span><small><?= h($title); ?></small></li><?php endif; ?>
       <li class="nav-item d-none d-sm-block"><a id="navbar-reload-button" class="nav-link" href="<?= h($baseHref !== null ? (string) ($_SERVER['SCRIPT_NAME'] ?? '') : ''); ?>" aria-label="<?= h($pia_lang['V4_Reload_Page']); ?>"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></a></li>
     </ul>

@@ -58,6 +58,14 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 #navbar-pihole-button > i, #navbar-help-button > i { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; line-height: 1; }
 #navbar-pihole-button > i { font-size: 1.5rem; }
 #navbar-help-button > i { font-size: 1.25rem; }
+#navbar-back-button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+#navbar-back-button > i { font-size: 1.25rem; }
+@media (max-width: 991.98px) {
+  .app-header .pialert-detail-header-nav { flex: 1 1 auto; min-width: 0; }
+  .app-header .pialert-detail-header-nav > .nav-item,
+  .app-header .pialert-detail-header-nav + .navbar-nav { flex-shrink: 0; }
+  .app-header .pialert-detail-header-nav > .pa-mobile-brand { flex-shrink: 1; min-width: 0; }
+}
 .pialert-dashboard-no-sidebar .app-wrapper { grid-template-areas: "lte-app-header" "lte-app-main" "lte-app-footer"; grid-template-columns: minmax(0, 1fr); }
 .pialert-dashboard-no-sidebar .app-header, .pialert-dashboard-no-sidebar .app-main, .pialert-dashboard-no-sidebar .app-footer { grid-column: 1; }
 .pialert-dashboard-brand { color: inherit; font-size: 1.2rem; margin-right: 1rem; }
@@ -72,6 +80,27 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 .app-content table a.badge:hover,
 .app-content table a.badge:focus-visible { text-decoration: none; }
 #tableDevices_wrapper > .row { --bs-gutter-x: 0; }
+/* Paint DataTables states as flat fills instead of 9999px inset shadows.
+   Mix with the existing cell background to retain transparent theme surfaces. */
+.app-content table.table.dataTable > tbody > tr > * {
+  box-shadow: none !important;
+  background-color: var(--pialert-dt-cell-bg, var(--bs-table-bg));
+}
+.app-content table.table.dataTable > tbody > tr.selected > * {
+  --pialert-dt-cell-bg: rgb(var(--dt-row_background-selected));
+}
+.app-content table.table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --pialert-dt-cell-bg: color-mix(in srgb, rgb(var(--dt-row_background-stripe)) 5%, var(--bs-table-bg));
+}
+.app-content table.table.dataTable.table-striped > tbody > tr:nth-of-type(odd).selected > * {
+  --pialert-dt-cell-bg: color-mix(in srgb, rgb(var(--dt-row_background-selected)) 95%, var(--bs-table-bg));
+}
+.app-content table.table.dataTable.table-hover > tbody > tr:hover > * {
+  --pialert-dt-cell-bg: color-mix(in srgb, rgb(var(--dt-row_background-hover)) 7.5%, var(--bs-table-bg));
+}
+.app-content table.table.dataTable.table-hover > tbody > tr.selected:hover > * {
+  --pialert-dt-cell-bg: color-mix(in srgb, rgb(var(--dt-row_background-selected)) 97.5%, var(--bs-table-bg));
+}
 .pialert-availability-table { table-layout: fixed; width: 100%; }
 .pialert-availability-table th, .pialert-availability-table td { overflow-wrap: break-word; }
 .pialert-availability-table th:first-child, .pialert-availability-table td:first-child { width: 20%; }

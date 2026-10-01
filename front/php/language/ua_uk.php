@@ -358,6 +358,10 @@ $pia_lang['WEBS_Stats_Time_max'] = 'найповільніший';
 $pia_lang['WEBS_Stats_Location'] = 'Розташування';
 $pia_lang['WEBS_Stats_IP'] = 'Поточний IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Визначення країни';
+$pia_lang['WEBS_Location_Map'] = 'Карта світу';
+$pia_lang['WEBS_Location_Unknown'] = 'Для цієї IP-адреси не вдалося визначити країну.';
+$pia_lang['WEBS_Location_Map_Missing'] = 'Визначена країна відсутня на цій карті світу.';
+$pia_lang['WEBS_Events_Hide200_Note'] = 'Записи HTTP 200 (OK) відображаються лише тоді, коли час відповіді більш ніж удвічі перевищує середнє значення всіх коректних вимірювань HTTP 200 цього вебсервісу.';
 $pia_lang['WEBS_Stats_comment_a'] = '(Обчислено з усіх сканувань цього сервісу)';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////

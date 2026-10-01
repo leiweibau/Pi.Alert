@@ -1,0 +1,6 @@
+jsVectorMap 1.7.0
+Upstream: https://github.com/themustafaomar/jsvectormap/tree/v1.7.0
+Package: https://registry.npmjs.org/jsvectormap/-/jsvectormap-1.7.0.tgz
+License: MIT (see LICENSE)
+Bundled files are unchanged from the upstream package.
+Package SHA-256: 111f6d1f8c8a590639a375db48b1eea17bc473fc3f7de2bfff2ca719459685db

@@ -123,7 +123,7 @@ $faviconLabel = static function (string $path, string $location) use (&$pia_lang
         . ($pia_lang['FavIcon_' . $location] ?? $location) . ')';
 };
 $title = $uiText('title');
-pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'));
+pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'), mobileBackRoute: 'maintenance');
 ?>
 <section id="v4-ui-settings" class="container-fluid px-0" aria-label="<?= h($title); ?>">
   <?php if (($_GET['saved'] ?? '') === '1'): ?><div class="alert alert-success" role="status"><?= h($uiText('saved')); ?></div><?php endif; ?>

@@ -358,6 +358,10 @@ $pia_lang['WEBS_Stats_Time_max'] = 'langsamste';
 $pia_lang['WEBS_Stats_Location'] = 'Standort';
 $pia_lang['WEBS_Stats_IP'] = 'Aktuelle IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Länderzuordnung';
+$pia_lang['WEBS_Location_Map'] = 'Weltkarte';
+$pia_lang['WEBS_Location_Unknown'] = 'Für diese IP ist keine Länderzuordnung verfügbar.';
+$pia_lang['WEBS_Location_Map_Missing'] = 'Das ermittelte Land ist in dieser Weltkarte nicht enthalten.';
+$pia_lang['WEBS_Events_Hide200_Note'] = 'HTTP-200-Einträge (OK) werden nur angezeigt, wenn ihre Antwortzeit mehr als doppelt so hoch ist wie der Mittelwert aller gültigen HTTP-200-Messungen dieses Webservices.';
 $pia_lang['WEBS_Stats_comment_a'] = '(Berechnet aus allen Scans von diesem Service)';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////

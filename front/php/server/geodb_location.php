@@ -19,7 +19,7 @@ function pialert_geodb_lookup_string(string $database, string $ip, array $path):
 }
 
 function pialert_geodb_service_location(string $database, string $ip, string $language): array {
-    $empty = array('country' => null, 'continent' => null);
+    $empty = array('country' => null, 'country_code' => null, 'continent' => null);
     if (!is_file($database) || !is_readable($database) || filter_var($ip, FILTER_VALIDATE_IP) === false) return $empty;
 
     $locale = strtolower(substr($language, 0, 2));
@@ -27,17 +27,17 @@ function pialert_geodb_service_location(string $database, string $ip, string $la
     $locales = array_values(array_unique(array($locale, 'en')));
 
     $country = null;
+    $countryCode = null;
     foreach (array('country', 'registered_country') as $section) {
+        $code = pialert_geodb_lookup_string($database, $ip, array($section, 'iso_code'));
+        $countryCode = is_string($code) && preg_match('/^[A-Z]{2}$/D', $code) ? $code : null;
         foreach ($locales as $nameLocale) {
             $country = pialert_geodb_lookup_string($database, $ip, array($section, 'names', $nameLocale));
-            if ($country !== null) break 2;
-        }
-    }
-    if ($country === null) {
-        foreach (array('country', 'registered_country') as $section) {
-            $country = pialert_geodb_lookup_string($database, $ip, array($section, 'iso_code'));
             if ($country !== null) break;
         }
+        // Keep the displayed name and highlighted ISO code from the same record.
+        if ($country === null) $country = $countryCode;
+        if ($country !== null) break;
     }
 
     $continent = null;
@@ -47,5 +47,5 @@ function pialert_geodb_service_location(string $database, string $ip, string $la
             if ($continent !== null) break;
         }
     }
-    return array('country' => $country, 'continent' => $continent);
+    return array('country' => $country, 'country_code' => $countryCode, 'continent' => $continent);
 }

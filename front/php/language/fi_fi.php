@@ -358,6 +358,10 @@ $pia_lang['WEBS_Stats_Time_max'] = 'hitain';
 $pia_lang['WEBS_Stats_Location'] = 'Sijainti';
 $pia_lang['WEBS_Stats_IP'] = 'Nykyinen IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Maan tunnistus';
+$pia_lang['WEBS_Location_Map'] = 'Maailmankartta';
+$pia_lang['WEBS_Location_Unknown'] = 'Tälle IP-osoitteelle ei ole saatavilla maatietoa.';
+$pia_lang['WEBS_Location_Map_Missing'] = 'Tunnistettu maa ei sisälly tähän maailmankarttaan.';
+$pia_lang['WEBS_Events_Hide200_Note'] = 'HTTP 200 (OK) -merkinnät näytetään vain, jos niiden vasteaika on yli kaksinkertainen tämän verkkopalvelun kaikkien kelvollisten HTTP 200 -mittausten keskiarvoon verrattuna.';
 $pia_lang['WEBS_Stats_comment_a'] = '(Laskettu kaikista tämän palvelun skannauksista)';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////

@@ -358,6 +358,10 @@ $pia_lang['WEBS_Stats_Time_max'] = 'långsammaste';
 $pia_lang['WEBS_Stats_Location'] = 'Plats';
 $pia_lang['WEBS_Stats_IP'] = 'Aktuell IP';
 $pia_lang['WEBS_Stats_IPLocation'] = 'Lands­identifiering';
+$pia_lang['WEBS_Location_Map'] = 'Världskarta';
+$pia_lang['WEBS_Location_Unknown'] = 'Ingen landkoppling är tillgänglig för denna IP-adress.';
+$pia_lang['WEBS_Location_Map_Missing'] = 'Det identifierade landet finns inte med på denna världskarta.';
+$pia_lang['WEBS_Events_Hide200_Note'] = 'HTTP 200-poster (OK) visas endast när svarstiden är mer än dubbelt så hög som genomsnittet av alla giltiga HTTP 200-mätningar för denna webbtjänst.';
 $pia_lang['WEBS_Stats_comment_a'] = '(Beräknat från alla skanningar av denna tjänst)';
 // WebServices Details Page - Backend
 //////////////////////////////////////////////////////////////////
