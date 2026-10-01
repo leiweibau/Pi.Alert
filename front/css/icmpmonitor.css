@@ -2,7 +2,11 @@
 .icmp-filter[aria-pressed="true"] { outline: .2rem solid rgba(var(--bs-primary-rgb), .35); outline-offset: .15rem; }
 .icmp-history-chart { position: relative; height: 150px; }
 #tableDevices th { white-space: nowrap; }
-#tableDevices tbody td.icmp-actions { padding: 0; white-space: nowrap; }
+#tableDevices tbody td.icmp-actions { min-width: 0; padding: 0; white-space: nowrap; }
+#tableDevices .icmp-actions .entity-actions-buttons { flex-wrap: nowrap; }
+/* Keep the action column at its content width; the host name takes spare space. */
+#tableDevices col[data-dt-column="9"] { width: 1% !important; }
+#tableDevices col[data-dt-column="0"] { width: auto !important; }
 .icmp-bulk-field { min-height: 5.5rem; padding: .85rem; border: 1px solid var(--bs-border-color); border-radius: var(--bs-border-radius); }
 .icmp-bulk-switch-field { min-height: 2.75rem; padding-block: .35rem; }
 .icmp-bulk-notes-column { display: flex; align-items: center; }
