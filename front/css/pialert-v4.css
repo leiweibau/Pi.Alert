@@ -82,20 +82,23 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 #tableDevices_wrapper > .row { --bs-gutter-x: 0; }
 /* Paint DataTables states as flat fills instead of 9999px inset shadows.
    Mix with the existing cell background to retain transparent theme surfaces. */
-.app-content table.table.dataTable > tbody > tr > * {
+.app-content table.table.dataTable > tbody > tr > *,
+#logical-members-modal .pialert-logical-members > tbody > tr > * {
   box-shadow: none !important;
   background-color: var(--pialert-dt-cell-bg, var(--bs-table-bg));
 }
 .app-content table.table.dataTable > tbody > tr.selected > * {
   --pialert-dt-cell-bg: rgb(var(--dt-row_background-selected));
 }
-.app-content table.table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > * {
+.app-content table.table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > *,
+#logical-members-modal .pialert-logical-members.table-striped > tbody > tr:nth-of-type(odd) > * {
   --pialert-dt-cell-bg: color-mix(in srgb, rgb(var(--dt-row_background-stripe)) 5%, var(--bs-table-bg));
 }
 .app-content table.table.dataTable.table-striped > tbody > tr:nth-of-type(odd).selected > * {
   --pialert-dt-cell-bg: color-mix(in srgb, rgb(var(--dt-row_background-selected)) 95%, var(--bs-table-bg));
 }
-.app-content table.table.dataTable.table-hover > tbody > tr:hover > * {
+.app-content table.table.dataTable.table-hover > tbody > tr:hover > *,
+#logical-members-modal .pialert-logical-members.table-hover > tbody > tr:hover > * {
   --pialert-dt-cell-bg: color-mix(in srgb, rgb(var(--dt-row_background-hover)) 7.5%, var(--bs-table-bg));
 }
 .app-content table.table.dataTable.table-hover > tbody > tr.selected:hover > * {

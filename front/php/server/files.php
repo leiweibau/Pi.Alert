@@ -577,51 +577,21 @@ function BackupDBtoArchive() {
 
 //  Backup DB to CSV
 function BackupDBtoCSV() {
-	global $pia_lang;
-
-	$Pia_Archive_Name = 'pialertcsv.zip';
-	$Pia_Archive_Path = '../../../db/';
-
-	$db_file_path = '../../../db';
-	$db_file_name_org = 'pialert.db';
-	$db_file_path_temp = '../../../db/temp';
-
-	$db_file_org_full = $db_file_path . '/' . $db_file_name_org; # ../../../db/pialert.db
-	$csv_file_devices = $db_file_path_temp . '/devices.csv'; # ../../../db/temp/devices.csv
-	$csv_file_services = $db_file_path_temp . '/services.csv'; # ../../../db/temp/services.csv
-	$csv_file_icmphosts = $db_file_path_temp . '/icmphosts.csv'; # ../../../db/temp/icmphosts.csv
-
-	// delete old archive
-	unlink($Pia_Archive_Path . $Pia_Archive_Name);
-
-	exec('sqlite3 -header -csv "' . $db_file_org_full . '" "select * from devices;" > ' . $csv_file_devices, $output);
-	exec('sqlite3 -header -csv "' . $db_file_org_full . '" "select * from services;" > ' . $csv_file_services, $output);
-	exec('sqlite3 -header -csv "' . $db_file_org_full . '" "select * from ICMP_Mon;" > ' . $csv_file_icmphosts, $output);
-
-	if (!file_exists($csv_file_devices) || !file_exists($csv_file_services) || !file_exists($csv_file_icmphosts)) {
-		echo $pia_lang['BE_Dev_BackupCSV_FailedExport'];
-		// delete csv files
-		unlink($csv_file_devices);
-		unlink($csv_file_services);
-		unlink($csv_file_icmphosts);
-		exit;
-	}
-
-	// create new archive
-	exec('zip -j ' . $Pia_Archive_Path . $Pia_Archive_Name . ' ' . $db_file_path_temp . '/*.csv', $output);
-	// delete csv files
-	unlink($csv_file_devices);
-	unlink($csv_file_services);
-	unlink($csv_file_icmphosts);
-
-	if (!file_exists($Pia_Archive_Path . $Pia_Archive_Name)) {
-		echo $pia_lang['BE_Dev_BackupCSV_FailedZip'];
-		exit;
-	}
-
-	echo $pia_lang['BE_Dev_BackupCSV_okay'];
-	// Logging
-	pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0036', '', '');
+    global $pia_lang;
+    $databasePath = realpath(__DIR__ . '/../../../db');
+    $output = array(); $status = 1;
+    exec('/usr/bin/python3 ' . escapeshellarg(__DIR__ . '/../../../install/export_device_csv.py')
+        . ' ' . escapeshellarg($databasePath . '/pialert.db')
+        . ' ' . escapeshellarg($databasePath . '/pialertcsv.zip') . ' 2>&1', $output, $status);
+    if ($status !== 0) {
+        error_log('Pi.Alert CSV export failed');
+        http_response_code(500);
+        echo $pia_lang['BE_Dev_BackupCSV_FailedExport'];
+        return;
+    }
+    echo $pia_lang['BE_Dev_BackupCSV_okay'];
+    pialert_logging('a_010', $_SERVER['REMOTE_ADDR'], 'LogStr_0036', '',
+        'All MAC entries (all scan sources, including archived), logical_devices.csv, services, ICMP hosts');
 }
 
 // Restore the database archive selected on the maintenance page.
@@ -686,6 +656,14 @@ function RestoreDBfromArchive() {
 			$modes[$name] = (fileperms($current) & 0777) | 0220;
 			if (!chmod($stage . '/' . $name, $modes[$name])) throw new RuntimeException('Cannot set database permissions');
 		}
+
+        // Migrate the verified staging copy, before touching current databases.
+        // Existing identities/timestamps are preserved, old backups gain NULL refs.
+        $migrationOutput = array();
+        exec('/usr/bin/python3 ' . escapeshellarg(__DIR__ . '/../../../install/migrate_logical_devices.py')
+            . ' ' . escapeshellarg($stage . '/pialert.db') . ' 2>&1', $migrationOutput, $status);
+        if ($status !== 0) throw new RuntimeException('Logical device migration failed');
+        $validate($stage . '/pialert.db');
 
 		// files.php opens the main database before dispatching actions. Release it
 		// before checkpointing and replacing the files.

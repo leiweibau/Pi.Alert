@@ -13,3 +13,13 @@ html[data-pialert-high-contrast-status="1"] #tableDevices .pialert-device-status
   color: #fff !important;
   background: #898989 !important;
 }
+
+html[data-pialert-high-contrast-status="1"] { --pialert-status-partial-bg: #1556a6; }
+html[data-pialert-high-contrast-status="1"] .pialert-status-partial {
+  color: #fff !important;
+  background: var(--pialert-status-partial-bg) !important;
+}
+/* The member dialog preserves the individual status palette. */
+html[data-pialert-high-contrast-status="1"] #logical-members-modal .pialert-device-status-link.text-bg-success { color: #17210b !important; background: #a8d63f !important; }
+html[data-pialert-high-contrast-status="1"] #logical-members-modal .pialert-device-status-link.text-bg-danger { color: #fff !important; background: #a51b36 !important; }
+html[data-pialert-high-contrast-status="1"] #logical-members-modal .pialert-device-status-link.text-bg-secondary { color: #fff !important; background: #898989 !important; }

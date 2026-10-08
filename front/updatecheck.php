@@ -19,6 +19,7 @@ if (($_SESSION['login'] ?? 0) != 1) {
 
 pialert_v4_load_language();
 require_once __DIR__ . '/php/shell.php';
+require_once __DIR__ . '/php/update-command.php';
 
 $title = $pia_lang['Updatecheck_Title'] ?? 'Update Check';
 $autoUpdateFile = PIALERT_V4_FRONT_ROOT . '/auto_Update.info';
@@ -64,17 +65,11 @@ pialert_v4_shell_start($title, 'updatecheck', array('css/updatecheck.css'));
     <h2 class="h4 text-aqua text-center"><?= h($pia_lang['Auto_Updatecheck_RN'] ?? 'Automatic Update Check'); ?></h2>
     <?php foreach ($autoUpdateRows as $row) echo pialert_v4_update_note((string) $row); ?>
     <?php
-    if (!is_dir('/opt/pialert')) {
-        $updateCommand = 'sudo bash -c &quot;$(wget -qLO - https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update_old.sh)&quot;';
-        $updateEnvironment = ' (' . $pia_lang['V4_Outdated'] . ')';
-    } else {
-        $updateCommand = 'bash -c &quot;$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)&quot; -s';
-        $updateEnvironment = '';
-    }
+    $updateInstructions = pialert_update_instructions();
     ?>
     <div class="mt-4">
-      <label for="bashupdatecommand" class="text-red fst-italic"><?= h($pia_lang['V4_Update_Command']); ?><?= h($updateEnvironment); ?>:</label>
-      <input id="bashupdatecommand" class="form-control-plaintext font-monospace" readonly value="<?= $updateCommand; ?>">
+      <label for="bashupdatecommand" class="text-red fst-italic"><?= h($pia_lang['V4_Update_Command']); ?>:</label>
+      <input id="bashupdatecommand" class="form-control-plaintext font-monospace" readonly value="<?= h($updateInstructions['command']); ?>">
     </div>
   </div>
   <div class="card-footer">

@@ -13,6 +13,15 @@
   var period = preferences.period;
   var deviceList = [];
   var deviceListUrl = './devices.php';
+  var pageAddress = new URL(window.location.href);
+  var logicalContextRequested = pageAddress.searchParams.has('logical_id');
+  var logicalContextId = /^[1-9][0-9]*$/.test(pageAddress.searchParams.get('logical_id') || '') ? pageAddress.searchParams.get('logical_id') : '';
+  var returnListUrl = '';
+  var logicalDevices = [];
+  var logicalDevicesLoaded = false;
+  var logicalAssignmentReady = false;
+  var currentDevice = null;
+  var navigating = false;
   var position = -1;
   var dirty = false;
   var loaded = false;
@@ -81,9 +90,46 @@
   }
   function setValue(id, next) { field(id).value = next == null ? '' : String(next); }
   function setCheck(id, next) { field(id).checked = Number(next) === 1; }
+  function readLogicalDevices() {
+    return Promise.resolve($.getJSON(endpoint('logical_devices','list'))).then(function (response) {
+      if (!response || response.ok !== true || !Array.isArray(response.devices)) throw new Error(labels.logicalLoadError);
+      return response.devices;
+    }).catch(function () { return null; });
+  }
+  function logicalMembers(row) {
+    if (!logicalDevicesLoaded || !logicalContextId || String(row.dev_LogicalDeviceID || '') !== logicalContextId) return [];
+    var device = logicalDevices.find(function (item) { return String(item.id) === logicalContextId; });
+    return device && Array.isArray(device.members) ? device.members.filter(function (member) {
+      return typeof member.dev_MAC === 'string' && member.dev_MAC !== '';
+    }) : [];
+  }
+  function isContextMember(row) {
+    return logicalMembers(row).some(function (member) { return member.dev_MAC.toLowerCase() === String(row.dev_MAC).toLowerCase(); });
+  }
+  function updateNewDeviceControl() {
+    var assigned = logicalAssignmentReady ? value('txtLogicalDevice') !== '' : !!(currentDevice && currentDevice.dev_LogicalDeviceID);
+    if (assigned) setCheck('chkNewDevice',0);
+    field('chkNewDevice').disabled = assigned;
+  }
+  function fillLogicalDevices(row) {
+    var select = field('txtLogicalDevice');
+    select.replaceChildren(new Option(labels.unassigned,''));
+    logicalDevices.forEach(function (device) { select.add(new Option(String(device.name || ''),String(device.id))); });
+    var selected = row.dev_LogicalDeviceID == null ? '' : String(row.dev_LogicalDeviceID);
+    logicalAssignmentReady = logicalDevicesLoaded && (!selected || logicalDevices.some(function (device) { return String(device.id) === selected; }));
+    select.value = selected;
+    select.disabled = !logicalAssignmentReady;
+    select.title = logicalAssignmentReady ? '' : labels.logicalLoadError;
+    updateNewDeviceControl();
+  }
   function listPosition(row) {
-    position = deviceList.findIndex(function (item) { return String(item) === String(row.rowid); });
-    if (position < 0) { deviceList = [row.rowid]; position = 0; }
+    if (logicalContextRequested) {
+      deviceList = isContextMember(row) ? logicalMembers(row).map(function (member) { return member.dev_MAC; }) : [row.dev_MAC];
+      position = deviceList.findIndex(function (item) { return String(item).toLowerCase() === String(row.dev_MAC).toLowerCase(); });
+    } else {
+      position = deviceList.findIndex(function (item) { return String(item) === String(row.rowid); });
+      if (position < 0) { deviceList = [row.rowid]; position = 0; }
+    }
     field('txtRecord').textContent = (position + 1) + ' / ' + deviceList.length;
     field('btnPrevious').disabled = position <= 0;
     field('btnNext').disabled = position >= deviceList.length - 1;
@@ -91,6 +137,7 @@
   function updateData(row) {
     if (!row || !row.dev_MAC) {
       loaded = false;
+      currentDevice = null;
       if (window.pialertEntityActionsEditor) window.pialertEntityActionsEditor.setTarget('device', '');
       field('pageTitle').textContent = labels.notFound + ': ' + mac;
       field('txtRecord').textContent = '0 / 0';
@@ -100,6 +147,7 @@
       return;
     }
     loaded = true;
+    currentDevice = row;
     mac = String(row.dev_MAC);
     if (window.pialertEntityActionsEditor) window.pialertEntityActionsEditor.setTarget('device', mac);
     var address = new URL(window.location.href);
@@ -128,6 +176,7 @@
       chkAlertEvents:'dev_AlertEvents',chkAlertDown:'dev_AlertDeviceDown',chkNewDevice:'dev_NewDevice',
       chkArchived:'dev_Archived',chkShowPresence:'dev_PresencePage'};
     Object.keys(checks).forEach(function (id) { setCheck(id, row[checks[id]]); });
+    fillLogicalDevices(row);
     var randomMacIndicator = field('iconRandomMAC');
     var hasRandomMac = Number(row.dev_RandomMAC) === 1;
     randomMacIndicator.classList.toggle('is-active', hasRandomMac);
@@ -142,20 +191,40 @@
     if (!local && typeof row.dev_ScanSource === 'string' && row.dev_ScanSource) {
       deviceListUrl += '?scansource=' + encodeURIComponent(row.dev_ScanSource);
     }
+    if (returnListUrl) deviceListUrl = returnListUrl;
     field('deviceDetailsBack').href = deviceListUrl;
     if (field('navbar-back-button')) field('navbar-back-button').href = deviceListUrl;
     listPosition(row);
     setDirty(false);
     updateTools();
   }
-  function loadDevice(first) {
+  function loadDevice(first, previousMac) {
     if (!mac) return;
     var requestGeneration = ++deviceLoadGeneration;
-    $.getJSON(endpoint('devices','getDeviceData',{mac:mac,period:period})).done(function (row) {
+    Promise.all([Promise.resolve($.getJSON(endpoint('devices','getDeviceData',{mac:mac,period:period}))),readLogicalDevices()]).then(function (response) {
       if (requestGeneration !== deviceLoadGeneration) return;
+      var row = response[0];
+      logicalDevicesLoaded = response[1] !== null;
+      logicalDevices = response[1] || [];
+      if (previousMac && logicalContextRequested && (!row || !isContextMember(row))) {
+        mac = previousMac;
+        loaded = !!currentDevice;
+        if (window.pialertEntityActionsEditor) window.pialertEntityActionsEditor.setTarget('device',loaded ? mac : '');
+        if (currentDevice) listPosition(currentDevice);
+        notify(labels.logicalLoadError);
+        return;
+      }
       updateData(row);
+      if (!logicalDevicesLoaded) notify(labels.logicalLoadError);
       if (first || loaded) loadActivity();
-    }).fail(function (xhr) { if (requestGeneration === deviceLoadGeneration) notify(xhr.responseText || window.pialertV4Text('V4_Device_Load_Failed')); });
+    }).catch(function (xhr) {
+      if (requestGeneration !== deviceLoadGeneration) return;
+      if (previousMac) {
+        mac = previousMac; loaded = !!currentDevice;
+        if (window.pialertEntityActionsEditor) window.pialertEntityActionsEditor.setTarget('device',loaded ? mac : '');
+      }
+      notify(xhr.responseText || window.pialertV4Text('V4_Device_Load_Failed'));
+    }).finally(function () { if (requestGeneration === deviceLoadGeneration) navigating = false; });
   }
   function loadActivity() {
     if (!loaded) return;
@@ -307,15 +376,22 @@
       linkspeed:value('txtLinkSpeed'),staticIP:check('chkStaticIP'),mqttdevice:check('chkMQTTDevice'),scancycle:value('txtScanCycle'),
       alertevents:check('chkAlertEvents'),alertdown:check('chkAlertDown'),skiprepeated:value('txtSkipRepeated'),
       scanvalid:value('txtScanValidation'),newdevice:check('chkNewDevice'),archived:check('chkArchived')};
+    if (logicalAssignmentReady) data.logical_device_id = value('txtLogicalDevice');
+    if (data.logical_device_id || (currentDevice && currentDevice.dev_LogicalDeviceID && !logicalAssignmentReady)) data.newdevice = 0;
     post('php/server/devices.php',data,function (message) {
       notify(message);
       if (String(message).trim() !== String(labels.saved).trim()) return;
+      if (currentDevice && logicalAssignmentReady) currentDevice.dev_LogicalDeviceID = data.logical_device_id || null;
+      if (currentDevice) currentDevice.dev_NewDevice = data.newdevice;
+      if (logicalContextRequested && currentDevice) listPosition(currentDevice);
+      updateNewDeviceControl();
       setDirty(false);
       fillSuggestions();
       if (callback) callback();
     });
   }
   function navigate(delta, actionHandled) {
+    if (navigating || !loaded || !currentDevice) return;
     var editor = window.pialertEntityActionsEditor;
     if (!actionHandled && editor && editor.dirty()) {
       editor.navigationChoice().then(function (choice) {
@@ -325,12 +401,29 @@
       return;
     }
     if (dirty) { saveDevice(function () { navigate(delta, true); }); return; }
+    if (logicalContextRequested) {
+      navigating = true;
+      readLogicalDevices().then(function (devices) {
+        logicalDevicesLoaded = devices !== null;
+        logicalDevices = devices || [];
+        listPosition(currentDevice);
+        if (!logicalDevicesLoaded || !isContextMember(currentDevice)) { navigating = false; return; }
+        moveToDevice(delta);
+      });
+      return;
+    }
+    moveToDevice(delta);
+  }
+  function moveToDevice(delta) {
     var next = position + delta;
-    if (next < 0 || next >= deviceList.length) return;
+    if (next < 0 || next >= deviceList.length) { navigating = false; return; }
+    var previousMac = mac;
     mac = String(deviceList[next]);
     loaded = false;
+    var editor = window.pialertEntityActionsEditor;
     if (editor) editor.setTarget('device', '');
-    loadDevice(true);
+    navigating = true;
+    loadDevice(true,previousMac);
   }
   function ask(title, message, callback) { window.showModalWarning(title,message,labels.cancel,labels.delete,callback); }
   function deleteEvents() { post(endpoint('devices','deleteDeviceEvents'),{mac:mac},function (message) { notify(message); loadDevice(false); }); }
@@ -483,7 +576,14 @@
     if (saved === 'tabPresence') refreshCalendarLayout();
   }
   function init() {
-    try { var cookieList = JSON.parse(readCookie('devicesList')); if (Array.isArray(cookieList)) deviceList = cookieList; } catch (_error) { deviceList = []; }
+    if (!logicalContextRequested) {
+      try { var cookieList = JSON.parse(readCookie('devicesList')); if (Array.isArray(cookieList)) deviceList = cookieList; } catch (_error) { deviceList = []; }
+    }
+    try {
+      var returnAddress = new URL(pageAddress.searchParams.get('return_url') || '',window.location.href);
+      var devicesAddress = new URL('devices.php',window.location.href);
+      if (returnAddress.origin === devicesAddress.origin && returnAddress.pathname === devicesAddress.pathname) returnListUrl = returnAddress.pathname + returnAddress.search;
+    } catch (_error) { /* Ignore invalid return addresses. */ }
     readPreferences().then(function () {
       period = preferences.period;
       field('period').value = period;
@@ -495,6 +595,7 @@
     root.querySelectorAll('.device-summary').forEach(function (button) { button.addEventListener('click',function () { window.bootstrap.Tab.getOrCreateInstance(field(button.dataset.openTab)).show(); }); });
     field('panDetails').addEventListener('input',function (event) { if (loaded && !event.target.readOnly) setDirty(true); });
     field('panDetails').addEventListener('change',function (event) { if (loaded && !event.target.readOnly) setDirty(true); });
+    field('txtLogicalDevice').addEventListener('change',updateNewDeviceControl);
     field('btnSave').addEventListener('click',function () { saveDevice(); });
     field('btnRestore').addEventListener('click',function () { if (dirty) loadDevice(false); else window.location.assign(deviceListUrl); });
     field('btnPrevious').addEventListener('click',function () { navigate(-1); });

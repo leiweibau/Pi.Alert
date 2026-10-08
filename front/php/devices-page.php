@@ -143,11 +143,13 @@ $labels = array(
     'status'=>$L('Device_TableHead_Status','Status'),'details'=>$L('DevDetail_Tab_Details','Details'),'empty'=>$pia_lang['V4_No_Data'],
     'deleteDeviceTitle'=>$L('DevDetail_button_Delete','Delete device'),'deleteDeviceWarning'=>$L('DevDetail_button_Delete_Warning','Delete this device?')
 );
-$pageConfig = array('scanSource'=>$SCANSOURCE,'predefinedFilter'=>$predefined_filter,'filterId'=>$filter_id,'filterFields'=>$filter_fields,'hiddenColumns'=>$hiddenColumns,'columnIds'=>array_keys($deviceColumns),'pageLength'=>$uiSettings['devices']['page_length'],'order'=>pialert_v4_ui_numeric_order($uiSettings),'labels'=>$labels,
+$logicalLabels = array_filter($pia_lang, static fn($key): bool => str_starts_with((string) $key, 'LD_'), ARRAY_FILTER_USE_KEY);
+$pageConfig = array('viewMode'=>$uiSettings['devices']['view_mode'],'logicalLabels'=>$logicalLabels,'scanSource'=>$SCANSOURCE,'predefinedFilter'=>$predefined_filter,'filterId'=>$filter_id,'filterFields'=>$filter_fields,'hiddenColumns'=>$hiddenColumns,'columnIds'=>array_keys($deviceColumns),'pageLength'=>$uiSettings['devices']['page_length'],'order'=>pialert_v4_ui_numeric_order($uiSettings),'labels'=>$labels,
     'history'=>array('time'=>array_reverse($history[0]),'down'=>array_reverse($history[1]),'online'=>array_reverse($history[3]),'archived'=>array_reverse($history[4])));
 
 pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-3.1.2/css/dataTables.bootstrap5.min.css','css/devices.css','css/entity-actions.css'));
 ?>
 <script type="application/json" id="devices-page-config"><?= json_encode($pageConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?></script>
+<?php if ($bulkMode): ?><p class="alert alert-info"><?= h($pia_lang['LD_BulkScope']); ?></p><?php endif; ?>
 <?php if ($bulkMode): require __DIR__ . '/devices-page-bulk.php'; else: require __DIR__ . '/devices-page-list.php'; endif; ?>
-<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-3.1.2/dataTables.min.js','lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js','lib/chart.js-4.5.1/chart.umd.js','js/entity-actions-renderer.js','js/devices.js')); ?>
+<?php pialert_v4_shell_end(array('lib/datatables/datatables.net-3.1.2/dataTables.min.js','lib/datatables/datatables.net-bs5-3.1.2/js/dataTables.bootstrap5.min.js','lib/chart.js-4.5.1/chart.umd.js','js/entity-actions-renderer.js','js/logical-device-model.js','js/devices.js')); ?>

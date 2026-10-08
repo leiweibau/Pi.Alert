@@ -349,6 +349,12 @@ install_pialert() {
   print_msg "- Installing Entity_Actions database schema..."
   sudo "$PYTHON_BIN" "$PIALERT_HOME/install/migrate_entity_actions.py" \
     "$PIALERT_HOME/db/pialert.db" >> "$LOG" 2>&1
+  print_msg "- Installing LogicalDevices database schema..."
+  if ! sudo "$PYTHON_BIN" "$PIALERT_HOME/install/migrate_logical_devices.py" \
+    "$PIALERT_HOME/db/pialert.db" >> "$LOG" 2>&1; then
+    print_msg "- LogicalDevices migration failed. Installation stopped."
+    exit 1
+  fi
   test_pialert
   add_jobs_to_crontab
   publish_pialert

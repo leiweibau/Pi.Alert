@@ -53,3 +53,42 @@
 .presence-underlined { text-decoration: underline; text-decoration-style: dotted; }
 @media (max-width: 575.98px) { .pialert-bulk-device-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .pialert-device-filter { transition: none !important; } }
+
+/* Logical devices use the same cards, controls and dialogs as individual MACs. */
+.pialert-logical-open { text-align: inherit; vertical-align: baseline; text-decoration: none; font: inherit; overflow-wrap: anywhere; }
+.pialert-logical-open:hover, .pialert-logical-open:focus-visible { text-decoration: underline; }
+.pialert-logical-hints { display: grid; gap: .15rem; margin-top: .25rem; color: var(--bs-secondary-color); white-space: normal; }
+:root { --pialert-status-partial-bg: #1763b0; }
+[data-bs-theme="dark"],
+html[data-pialert-theme="glas"],
+html[data-pialert-theme="piano"] { --pialert-status-partial-bg: #236ebd; }
+html[data-pialert-theme="console"] { --pialert-status-partial-bg: #72b6ff; }
+.pialert-status-partial { color: #fff !important; background: var(--pialert-status-partial-bg) !important; }
+html[data-pialert-theme="console"] .pialert-status-partial { color: #081b36 !important; }
+#tableDevices .pialert-device-partial { border-left: 2px solid var(--pialert-status-partial-bg); }
+#logical-members-modal .modal-body { overscroll-behavior: contain; }
+#logical-members-modal .modal-header { gap: .75rem; }
+#logical-members-modal .modal-title { flex: 1 1 auto; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+#logical-members-modal .modal-header .btn-close { flex: 0 0 auto; margin-left: 0; }
+.pialert-logical-members td { overflow-wrap: anywhere; padding-block: .25rem; }
+.pialert-logical-members .pialert-device-wol-cell { width: 52px; min-width: 52px; max-width: 52px; white-space: nowrap; }
+.pialert-logical-members td.pialert-device-wol-cell { padding: 0; }
+.pialert-logical-members th:nth-child(2), .pialert-logical-members td:nth-child(2) { min-width: 9rem; }
+.pialert-logical-members .pialert-member-source { white-space: normal; }
+.pialert-logical-member-match td:first-child { border-left: .25rem solid var(--bs-primary); }
+.pialert-member-match-label { display: block; color: var(--bs-primary); font-weight: 600; }
+#logical-device-list { max-height: 65vh; overflow-y: auto; }
+.logical-device-options { max-height: 20rem; max-width: calc(100vw - 2rem); overflow-y: auto; }
+.logical-device-options .dropdown-item { white-space: normal; overflow-wrap: anywhere; }
+#logical-device-list button, #logical-editor-members-list li { overflow-wrap: anywhere; }
+#logical-device-list .list-group-item.active { color: var(--bs-list-group-active-color); }
+#logical-unsaved { white-space: normal; }
+#logical-view-feedback[hidden], #logical-feedback[hidden], #logical-unsaved[hidden] { display: none !important; }
+@media (max-width: 575.98px) {
+  #logical-members-modal .modal-dialog { margin: .5rem; max-width: calc(100vw - 1rem); }
+  #logical-members-modal .modal-body { padding: .75rem; }
+  .pialert-logical-members { font-size: .85rem; }
+  .pialert-logical-members th { padding: .4rem; }
+  .pialert-logical-members td { padding-inline: .4rem; }
+  #logical-device-list { max-height: 35vh; }
+}

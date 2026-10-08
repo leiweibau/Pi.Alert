@@ -52,6 +52,12 @@ function formatIPlong($IP) {
 }
 
 // Others functions
+function pialert_v4_config_enabled(string $name): bool {
+    if (!preg_match('/^[A-Z][A-Z0-9_]*$/D', $name)) return false;
+    $contents = @file_get_contents(__DIR__ . '/../../../config/pialert.conf');
+    return is_string($contents) && preg_match('/^\s*' . preg_quote($name, '/') . '\s*=\s*(?:1|true)\s*(?:#.*)?$/mi', $contents) === 1;
+}
+
 function getDateFromPeriodValue() {
 	$request = function_exists('pialert_request_data') ? pialert_request_data() : $_GET;
 	$period = $request['period'] ?? '1 day';

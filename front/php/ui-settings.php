@@ -1,6 +1,6 @@
 <?php
 
-// Personal UI preferences are stored in JSON. Until the first save, the
+// Installation-wide UI preferences are stored in JSON. Until the first save, the
 // packaged default file is read without importing legacy marker files.
 function pialert_v4_ui_path(): string {
     return defined('PIALERT_V4_UI_SETTINGS_PATH') ? PIALERT_V4_UI_SETTINGS_PATH : PIALERT_V4_FRONT_ROOT . '/../config/setting_ui_v4.json';
@@ -34,6 +34,7 @@ function pialert_v4_device_columns(): array {
         'WakeOnLAN'=>array('label'=>'Device_TableHead_WakeOnLAN','fallback'=>'Wake on LAN','configurable'=>true),
         'NmapQueue'=>array('label'=>null,'fallback'=>'NmapQueue','internal'=>true),
         'Actions'=>array('label'=>'MT_SET_SatEdit_FORM_Action','fallback'=>'Actions','configurable'=>true),
+        'LogicalDevice'=>array('label'=>'LD_AssignedDevice','fallback'=>'Assigned device','configurable'=>true),
     );
 }
 
@@ -81,10 +82,11 @@ function pialert_v4_ui_valid_favicon($value): bool {
 
 function pialert_v4_ui_defaults(): array {
     return array(
-        'schema'=>13,
+        'schema'=>14,
         'revision'=>0,
         'devices'=>array(
-            'columns'=>array('ConnectionType'=>false,'Owner'=>true,'Type'=>true,'Favorites'=>true,'Group'=>true,'Location'=>false,'FirstSession'=>true,'LastSession'=>true,'LastIP'=>true,'MACType'=>true,'MACAddress'=>false,'MACVendor'=>true,'WakeOnLAN'=>false,'Actions'=>true),
+            'view_mode'=>'interfaces',
+            'columns'=>array('ConnectionType'=>false,'Owner'=>true,'Type'=>true,'Favorites'=>true,'Group'=>true,'Location'=>false,'FirstSession'=>true,'LastSession'=>true,'LastIP'=>true,'MACType'=>true,'MACAddress'=>false,'MACVendor'=>true,'WakeOnLAN'=>false,'Actions'=>true,'LogicalDevice'=>false),
             'page_length'=>10,
             'order'=>array(array('Type','desc'),array('Name','asc')),
         ),
@@ -154,9 +156,10 @@ function pialert_v4_ui_exact_keys(array $value, array $keys): bool {
 
 function pialert_v4_ui_validate(array $data): array {
     $defaults = pialert_v4_ui_defaults();
-    if (!pialert_v4_ui_exact_keys($data, array_keys($defaults)) || $data['schema'] !== 13 || !is_int($data['revision']) || $data['revision'] < 0 || !is_array($data['devices']) || !is_array($data['icmp']) || !is_array($data['appearance'])) throw new InvalidArgumentException('Invalid UI settings schema');
+    if (!pialert_v4_ui_exact_keys($data, array_keys($defaults)) || $data['schema'] !== 14 || !is_int($data['revision']) || $data['revision'] < 0 || !is_array($data['devices']) || !is_array($data['icmp']) || !is_array($data['appearance'])) throw new InvalidArgumentException('Invalid UI settings schema');
     $devices = $data['devices']; $icmp = $data['icmp']; $appearance = $data['appearance'];
     if (!pialert_v4_ui_exact_keys($devices, array_keys($defaults['devices'])) || !is_array($devices['columns']) || !pialert_v4_ui_exact_keys($devices['columns'], array_keys($defaults['devices']['columns']))) throw new InvalidArgumentException('Invalid device preferences');
+    if (!in_array($devices['view_mode'], array('interfaces','devices'), true)) throw new InvalidArgumentException('Invalid device view mode');
     foreach ($devices['columns'] as $visible) if (!is_bool($visible)) throw new InvalidArgumentException('Invalid column visibility');
     if (!in_array($devices['page_length'], array(-1,10,25,50,100,500), true)) throw new InvalidArgumentException('Invalid page length');
     if (!is_array($devices['order']) || count($devices['order']) < 1 || count($devices['order']) > 3 || !array_is_list($devices['order'])) throw new InvalidArgumentException('Invalid sort order');
@@ -273,6 +276,13 @@ function pialert_v4_ui_read(): array {
         }
         $data['schema'] = 13;
     }
+    if (($data['schema'] ?? null) === 13) {
+        if (is_array($data['devices'] ?? null)) {
+            $data['devices']['view_mode'] = 'interfaces';
+            if (is_array($data['devices']['columns'] ?? null)) $data['devices']['columns']['LogicalDevice'] = false;
+        }
+        $data['schema'] = 14;
+    }
     try { return pialert_v4_ui_validate($data); } catch (InvalidArgumentException $e) { throw new RuntimeException('Invalid UI settings content', 0, $e); }
 }
 
@@ -281,7 +291,7 @@ function pialert_v4_ui_update(string $section, $value, ?int $expectedRevision = 
 }
 
 function pialert_v4_ui_update_many(array $patches, ?int $expectedRevision = null): array {
-    $allowed = array('devices.columns','devices.page_length','devices.order','icmp.columns','icmp.page_length','icmp.order','appearance.language','appearance.theme','appearance.dark_mode','appearance.high_contrast_status_badges','appearance.activity_history','appearance.settings_sidebar','appearance.settings_popup','appearance.network_sidebar','appearance.events_sidebar','appearance.reports_sidebar','appearance.reports_popup','appearance.favicon','appearance.sidebar_color','appearance.header_color','appearance.pihole_url','appearance.header_widgets');
+    $allowed = array('devices.view_mode','devices.columns','devices.page_length','devices.order','icmp.columns','icmp.page_length','icmp.order','appearance.language','appearance.theme','appearance.dark_mode','appearance.high_contrast_status_badges','appearance.activity_history','appearance.settings_sidebar','appearance.settings_popup','appearance.network_sidebar','appearance.events_sidebar','appearance.reports_sidebar','appearance.reports_popup','appearance.favicon','appearance.sidebar_color','appearance.header_color','appearance.pihole_url','appearance.header_widgets');
     if ($patches === array() || count($patches) > count($allowed)) throw new InvalidArgumentException('Invalid UI settings patch');
     foreach (array_keys($patches) as $section) if (!is_string($section) || !in_array($section, $allowed, true)) throw new InvalidArgumentException('Unknown UI settings section');
     $path = pialert_v4_ui_path();

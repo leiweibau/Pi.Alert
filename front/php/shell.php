@@ -36,12 +36,6 @@ function pialert_v4_header_widget_column_class(array $visible): string {
     return 'col-6 col-md-4 col-xl';
 }
 
-function pialert_v4_config_enabled(string $name): bool {
-    if (!preg_match('/^[A-Z][A-Z0-9_]*$/D', $name)) return false;
-    $contents = @file_get_contents(PIALERT_V4_FRONT_ROOT . '/../config/pialert.conf');
-    return is_string($contents) && preg_match('/^\s*' . preg_quote($name, '/') . '\s*=\s*(?:1|true)\s*(?:#.*)?$/mi', $contents) === 1;
-}
-
 function pialert_v4_sidebar_data(): array {
     static $data = null;
     if ($data !== null) return $data;

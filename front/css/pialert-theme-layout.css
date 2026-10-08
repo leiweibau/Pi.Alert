@@ -69,7 +69,8 @@ html[data-pialert-theme] .sidebar-brand .brand-link { display: flex; align-items
 html[data-pialert-theme] .brand-text { font-size: 1.35rem; letter-spacing: -.02em; }
 html[data-pialert-theme] .pialert-system-status { margin: .75rem; padding: .65rem .5rem .8rem; color: var(--pa-text); border-bottom-color: var(--pa-divider); }
 html[data-pialert-theme] .sidebar-menu .nav-header { color: var(--pa-text-muted); font-size: .7rem; letter-spacing: .035em; padding-block: .4rem .3rem; }
-html[data-pialert-theme] .sidebar-menu .nav-link { min-height: 2.65rem; margin-inline: .5rem; color: var(--pa-text-muted); border-radius: var(--pa-radius-sm); }
+/* The sidebar wrapper supplies both gutters; full-width links need no extra margin. */
+html[data-pialert-theme] .sidebar-menu .nav-link { min-height: 2.65rem; color: var(--pa-text-muted); border-radius: var(--pa-radius-sm); }
 html[data-pialert-theme] .sidebar-menu > .nav-item > .nav-link:not(.pialert-sidebar-subitem) { min-height: 2.4rem; margin-bottom: .1rem; padding-block: .375rem; }
 html[data-pialert-theme] .sidebar-menu .pialert-sidebar-subitem { min-height: 2rem; padding-block: .15rem; }
 html[data-pialert-theme] .sidebar-menu .nav-link:hover { color: var(--pa-text); background: var(--pa-nav-hover); }

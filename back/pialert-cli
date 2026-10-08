@@ -1073,6 +1073,12 @@ EOM
         exit 1
     fi
 
+    # Independent device identities and transactional membership audit.
+    if ! /usr/bin/python3 "${SCRIPTPATH}/../install/migrate_logical_devices.py" "$PIA_DB_FILE"; then
+        echo "LogicalDevices migration failed" >&2
+        exit 1
+    fi
+
     echo -e "\nUpdate finished!\n"
 
     # Enter to Journal

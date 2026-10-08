@@ -11,13 +11,14 @@
   <?php endforeach; ?>
   </div>
 
-  <?php if ($historyEnabled): ?><section class="card mb-4"><div class="card-header"><h2 class="card-title"><?= h($L('Device_Shortcut_OnlineChart_a','Online history ') . '12 ' . $L('Device_Shortcut_OnlineChart_b','hours')); ?></h2></div><div class="card-body"><div class="pialert-history-chart"><canvas id="OnlineChart"></canvas></div></div></section><?php endif; ?>
+  <?php if ($historyEnabled): ?><section class="card mb-4"><div class="card-header"><h2 class="card-title"><?= h($L('Device_Shortcut_OnlineChart_a','Online history ') . '12 ' . $L('Device_Shortcut_OnlineChart_b','hours')); ?></h2></div><div class="card-body"><p class="small text-body-secondary"><?= h($pia_lang['LD_HistoryHelp']); ?></p><div class="pialert-history-chart"><canvas id="OnlineChart"></canvas></div></div></section><?php endif; ?>
 
   <section id="tableDevicesBox" class="card card-primary card-outline" aria-labelledby="tableDevicesTitle">
-    <div class="card-header d-flex align-items-center gap-2"><h2 id="tableDevicesTitle" class="card-title me-auto"><?= h($labels['all']); ?></h2><a href="<?= h(pialert_v4_route('ui_settings')); ?>" class="btn btn-sm btn-outline-secondary" aria-label="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>" title="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>"><i class="fa-solid fa-table-columns" aria-hidden="true"></i></a>
+    <div class="card-header d-flex align-items-center gap-2 flex-wrap"><h2 id="tableDevicesTitle" class="card-title me-auto"><?= h($labels['all']); ?></h2><a href="<?= h(pialert_v4_route('ui_settings')); ?>" class="btn btn-sm btn-outline-secondary" aria-label="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>" title="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>"><i class="fa-solid fa-table-columns" aria-hidden="true"></i></a>
+      <a id="device-assignments-link" href="deviceAssignments.php?return_url=<?= rawurlencode('devices.php?' . http_build_query(array('scansource'=>$SCANSOURCE,'predefined_filter'=>$predefined_filter,'filter_fields'=>implode(',', $filter_fields),'filter_id'=>$filter_id))); ?>" class="btn btn-sm btn-outline-primary" title="<?= h($pia_lang['LD_Title']); ?>" aria-label="<?= h($pia_lang['LD_Title']); ?>"><i class="fa-solid fa-code-fork" aria-hidden="true"></i></a>
       <?php if ($predefined_filter === ''): ?><a href="devices.php?mod=bulkedit&amp;scansource=<?= rawurlencode($SCANSOURCE); ?>" class="btn btn-sm btn-outline-warning" aria-label="<?= h($L('Device_bulkEditor_mode','Bulk editor')); ?>"><i class="fa-solid fa-pencil"></i></a><button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modal-set-predefined-filter" aria-label="<?= h($L('Device_predef_table_filter','Create filter')); ?>"><i class="fa-solid fa-filter"></i></button><?php else: ?><button type="button" class="btn btn-sm btn-outline-danger" id="deleteDeviceFilter"><i class="fa-solid fa-filter-circle-xmark"></i><span class="visually-hidden"><?= h($labels['filterDeleteTitle']); ?></span></button><?php endif; ?>
     </div>
-    <div class="card-body"><div class="table-responsive pa-device-table"><table id="tableDevices" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr>
+    <div class="card-body"><p id="logical-load-error" class="alert alert-danger" role="alert" hidden></p><div class="table-responsive pa-device-table"><table id="tableDevices" class="table table-bordered table-hover table-striped align-middle w-100"><thead><tr>
     <?php foreach ($deviceColumns as $columnId => $column):
       $label = $column['label'] === null ? $column['fallback'] : $L($column['label'], $column['fallback']);
       $isFavorite = $columnId === 'Favorites';
@@ -35,3 +36,9 @@
     </div><div class="modal-footer"><button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal"><?= h($L('Gen_Close','Close')); ?></button><button type="button" class="btn btn-primary" id="btnFilterSave"><?= h($L('Gen_Save','Save')); ?></button></div>
   </div></div></div>
 </section>
+
+<div class="modal fade" id="logical-members-modal" tabindex="-1" aria-labelledby="logical-members-title" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+  <div class="modal-header"><h2 class="modal-title fs-5" id="logical-members-title"></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= h($pia_lang['Gen_Close']); ?>"></button></div>
+  <div class="modal-body"><p id="logical-members-own-match" class="small" hidden></p><div class="table-responsive"><table class="table table-bordered table-striped table-hover align-middle pialert-logical-members"><thead><tr><th scope="col"><?= h($labels['mac']); ?></th><th scope="col"><?= h($labels['lastIp']); ?></th><th scope="col" class="text-center"><?= h($labels['status']); ?></th><th scope="col" id="logical-members-wol" class="text-center pialert-device-wol-cell" hidden><?= h($L('Device_TableHead_WakeOnLAN','Wake on LAN')); ?></th></tr></thead><tbody id="logical-members-body"></tbody></table></div></div>
+  <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Close']); ?></button></div>
+</div></div></div>
