@@ -9,11 +9,21 @@
 #tableDevices .pialert-device-favorite { min-width: 38px; }
 #tableDevices .pialert-device-timestamp { min-width: 157px; white-space: nowrap; }
 #tableDevices .pialert-device-last-ip { min-width: 118px; }
-#tableDevices .pialert-device-mac { min-width: 165px; }
+#tableDevices .pialert-device-mac { box-sizing: border-box; width: 185px; min-width: 175px; max-width: 185px; padding-inline: 8px; }
+#tableDevices .pialert-device-vendor { box-sizing: border-box; width: 170px; min-width: 120px; max-width: 170px; padding-inline: 8px; }
+/* Keep long vendor names out of the table's intrinsic width calculation. */
+#tableDevices .pialert-device-vendor-text { display: block; width: 0; min-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #tableDevices .pialert-device-status { white-space: nowrap; }
 #tableDevices .pialert-device-wol-cell { width: 52px; min-width: 52px; max-width: 52px; }
-/* DataTables writes col widths; keep WoL fixed and share spare width with Name and Type. */
+/* One to four 2rem buttons, .3rem gaps, the delete margin and .25rem side padding. */
+#tableDevices th.pialert-device-actions-cell,
+#tableDevices tbody td.pialert-device-actions-cell { box-sizing: border-box; width: 1px; min-width: calc(2.75rem + 2px); max-width: calc(9.65rem + 2px); padding-inline: .25rem; white-space: nowrap; }
+#tableDevices .pialert-device-actions-cell .entity-actions-buttons { flex-wrap: nowrap; }
+/* Override bounded column widths; share spare width with Name and Type. */
 #tableDevices col[data-dt-column="17"] { width: 52px !important; }
+#tableDevices col[data-dt-column="11"] { width: 185px !important; }
+#tableDevices col[data-dt-column="12"] { width: 170px !important; }
+#tableDevices col[data-dt-column="19"] { width: 1px !important; }
 #tableDevices col[data-dt-column="0"],
 #tableDevices col[data-dt-column="3"] { width: auto !important; }
 .pialert-device-status-link, .pialert-device-status-link:hover, .pialert-device-status-link:focus-visible { text-decoration: none; }

@@ -80,6 +80,11 @@ body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-acce
 .app-content table a.badge:hover,
 .app-content table a.badge:focus-visible { text-decoration: none; }
 #tableDevices_wrapper > .row { --bs-gutter-x: 0; }
+/* Scroll the table row only, keeping search, page length and pagination in view. */
+#devices-page .table-responsive:has(> #tableDevices_wrapper),
+#icmpmonitor-page .table-responsive:has(> #tableDevices_wrapper) { overflow: visible; }
+#devices-page #tableDevices_wrapper > .dt-layout-table,
+#icmpmonitor-page #tableDevices_wrapper > .dt-layout-table { overflow-x: auto; }
 /* Paint DataTables states as flat fills instead of 9999px inset shadows.
    Mix with the existing cell background to retain transparent theme surfaces. */
 .app-content table.table.dataTable > tbody > tr > *,

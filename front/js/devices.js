@@ -151,6 +151,10 @@
   var lastSavedPreferences = JSON.stringify({ length: config.pageLength, order: config.order });
 
   function text (value) { return String(value == null ? '' : value); }
+  function macLabel (value) {
+    value = text(value);
+    return value.indexOf('Internet') === 0 && value.length > 20 ? value.slice(0, 20) + '…' : value;
+  }
   function setCookie (name, value) { document.cookie = name + '=' + value + '; SameSite=Strict; path=/'; }
   function savePreferences (patch) {
     return window.pialertPost('php/server/v4_ui_settings.php', { action: 'save', patch: JSON.stringify(patch) })
@@ -244,7 +248,12 @@
       ajax: loadTableData,
       columnDefs: [
         { targets: '_all', render: function(value, type, row, meta) {
+          // Button cells are populated below; their row data must not set widths.
+          if (meta.col === 17 || meta.col === 19) return '';
           if (type === 'sort' && (meta.col === 9 || meta.col === 11)) return logical.addressSortKey(row, meta.col);
+          // Measure the visible Internet label, not the satellite's internal ID.
+          if (type === 'display' && meta.col === 11) value = macLabel(value);
+          if (type === 'display' && meta.col === 12) return '<span class="pialert-device-vendor-text">' + $.fn.dataTable.render.text().display(value) + '</span>';
           return $.fn.dataTable.render.text().display(value);
         } },
         { visible: false, targets: config.hiddenColumns || [14,15,16,18] },
@@ -253,11 +262,12 @@
         { className: 'text-center', targets: [4,9,10,11,13] },
         { className: 'pialert-device-last-ip', targets: [9] },
         { className: 'pialert-device-mac', targets: [11] },
+        { className: 'pialert-device-vendor', targets: [12], createdCell: function (td, cellData) { td.title = text(cellData); } },
         { className: 'pialert-device-status', targets: [13] },
         { className: 'text-center pialert-device-wol-cell', targets: [17] },
         { className: 'text-center pialert-device-actions-cell', targets: [19] },
         { className: 'pialert-device-timestamp', width: '7rem', targets: [7,8] },
-        { width: '30px', targets: [10] }, { width: '52px', targets: [17] }, { width: '10rem', targets: [19] },
+        { width: '30px', targets: [10] }, { width: '52px', targets: [17] },
         { type: 'pialert-address', targets: [9,11] },
         { targets: [20], searchable: false, defaultContent: '', createdCell: function (td, _value, row) {
           td.replaceChildren();
@@ -275,7 +285,7 @@
         { targets: [4], createdCell: function (td, cellData) { td.replaceChildren(); if (cellData == 1) { var icon=document.createElement('i'); icon.className='fa-solid fa-star text-warning'; td.append(icon); } } },
         { targets: [9], createdCell: function (td, cellData, rowData) { if (rowData._logical) { td.replaceChildren(groupButton(rowData, countLabel('LD_IPCount', cellData), L('LD_IPHelp'))); return; } td.textContent=(rowData[18]===true||rowData[18]===1?'* ':'')+text(cellData)+(rowData[18]===true||rowData[18]===1?' *':''); td.classList.toggle('nmap-queued-ip',rowData[18]===true||rowData[18]===1); } },
         { targets: [10], createdCell: function (td, cellData) { td.replaceChildren(); if (cellData == 1) { var icon=document.createElement('i'); icon.className='fa-solid fa-shuffle text-warning'; icon.title=window.pialertV4Text('V4_Random_MAC'); td.append(icon); } } },
-        { targets: [11], createdCell: function (td, cellData, rowData) { if (rowData._logical) { td.replaceChildren(groupButton(rowData, countLabel('LD_MACCount', cellData))); return; } var value=text(cellData); td.textContent=value.indexOf('Internet')===0&&value.length>20?value.slice(0,20)+'…':value; } },
+        { targets: [11], createdCell: function (td, cellData, rowData) { if (rowData._logical) { td.replaceChildren(groupButton(rowData, countLabel('LD_MACCount', cellData))); return; } td.textContent=macLabel(cellData); } },
         { targets: [13], createdCell: function (td, _cellData, rowData) {
           if (rowData._logical) {
             var aggregate = rowData._logical, statusBadge = badge(rowData[13]);

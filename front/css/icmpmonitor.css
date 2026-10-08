@@ -3,7 +3,7 @@
 .icmp-history-chart { position: relative; height: 150px; }
 #tableDevices th { white-space: nowrap; }
 #tableDevices thead th[data-dt-column="9"] { padding-inline: .25rem; }
-#tableDevices tbody td.icmp-actions { min-width: 0; padding: 0; white-space: nowrap; }
+#tableDevices tbody td.icmp-actions { min-width: 0; padding: 0 .25rem; white-space: nowrap; }
 #tableDevices .icmp-actions .entity-actions-buttons { flex-wrap: nowrap; }
 /* Keep the action column at its content width; the host name takes spare space. */
 #tableDevices col[data-dt-column="9"] { width: 1px !important; }
