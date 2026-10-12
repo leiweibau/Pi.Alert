@@ -90,7 +90,7 @@ $appearance = pialert_v4_ui_read()['appearance'];
 $darkMode = $appearance['dark_mode'];
 $defaultPassword = $Pia_Password === '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
 $loginFailed = ($_GET['login'] ?? '') === 'failed';
-$assetVersion = rawurlencode(pialert_v4_asset_version());
+$assetVersion = rawurlencode(pialert_v4_asset_version() . '-login-remember-switch');
 ?>
 <!doctype html>
 <html lang="<?= h(str_replace('_', '-', pathinfo(pialert_v4_language_file(), PATHINFO_FILENAME))); ?>" data-bs-theme="<?= $darkMode ? 'dark' : 'light'; ?>" data-lte-color-mode="off">
@@ -117,7 +117,7 @@ $assetVersion = rawurlencode(pialert_v4_asset_version());
       <form action="<?= h(pialert_v4_route('login')); ?>" method="post">
         <input type="hidden" name="_csrf" value="<?= h(pialert_csrf_token()); ?>">
         <div class="mb-3"><label for="loginpassword" class="form-label"><?= h($pia_lang['Login_Psw-box']); ?></label><input id="loginpassword" type="password" class="form-control" name="loginpassword" autocomplete="current-password" required autofocus></div>
-        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="PWRemember" id="PWRememberBox"><label class="form-check-label" for="PWRememberBox"><?= h($pia_lang['Login_Remember']); ?> <small><?= h($pia_lang['Login_Remember_small']); ?></small></label></div>
+        <div class="form-check form-switch pialert-login-remember mb-3"><input class="form-check-input" type="checkbox" role="switch" name="PWRemember" id="PWRememberBox"><label class="form-check-label" for="PWRememberBox"><?= h($pia_lang['Login_Remember']); ?> <small><?= h($pia_lang['Login_Remember_small']); ?></small></label></div>
         <button type="submit" class="btn btn-primary w-100"><?= h($pia_lang['Login_Submit']); ?></button>
       </form>
       <button class="btn btn-link w-100 mt-2" type="button" data-pialert-toggle="password-info" aria-controls="password-info" aria-expanded="<?= $defaultPassword ? 'true' : 'false'; ?>"><?= h($pia_lang['Login_Toggle_Info']); ?></button>

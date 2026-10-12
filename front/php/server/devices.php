@@ -1232,7 +1232,7 @@ function BulkDeletion() {
 function EnableSatelliteScan() {
 	global $pia_lang;
 
-	if ($_SESSION['Scan_Satellite'] == True) {
+	if (pialert_v4_config_enabled('SATELLITES_ACTIVE')) {
 		exec('../../../back/pialert-cli disable_satellites', $output);
 		echo $pia_lang['BE_Dev_satellites_disabled'];
 		// Logging
@@ -1251,7 +1251,7 @@ function EnableSatelliteScan() {
 function EnableMainScan() {
 	global $pia_lang;
 
-	if ($_SESSION['Scan_MainScan'] == True) {
+	if (pialert_v4_config_enabled('ARPSCAN_ACTIVE')) {
 		exec('../../../back/pialert-cli disable_mainscan', $output);
 		echo $pia_lang['BE_Dev_MainScan_disabled'];
 		// Logging

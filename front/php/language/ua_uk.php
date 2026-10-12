@@ -1173,6 +1173,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Тест швидкості онлайн'; /
 $pia_lang['V4_Start_Speedtest'] = 'Запустити тест швидкості'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Клієнт Speedtest встановлено'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Завантажити Speedtest клієнт'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Для автоматичного тестування швидкості потрібно завантажити клієнт Ookla Speedtest.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Nmap сканування'; // @machine-translated
 $pia_lang['V4_Period'] = 'Період'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Системні дії'; // @machine-translated

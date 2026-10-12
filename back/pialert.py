@@ -1341,6 +1341,35 @@ def copy_pihole_network_five():
     sql.execute ("DETACH PH")
 
 #-------------------------------------------------------------------------------
+def pihole_six_api_request(method, endpoint, **kwargs):
+    """Keep HTTP/JSON failures local to the Pi-hole import."""
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    try:
+        response = requests.request(
+            method, PIHOLE6_URL + endpoint, verify=False, timeout=15, **kwargs)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print('        Pi-hole API request timed out after 15 seconds; import skipped')
+        return None
+    except requests.exceptions.HTTPError as error:
+        status = error.response.status_code if error.response is not None else 'unknown'
+        print(f'        Pi-hole API returned HTTP {status}; check PIHOLE6_URL and credentials')
+        return None
+    except requests.exceptions.RequestException:
+        print('        Pi-hole API request failed; check PIHOLE6_URL and connectivity')
+        return None
+    if method == 'DELETE':
+        return {}
+    try:
+        data = response.json()
+        if not isinstance(data, dict):
+            raise ValueError('Expected a JSON object')
+        return data
+    except ValueError:
+        print('        Pi-hole API returned invalid JSON; check PIHOLE6_URL (base URL without /admin)')
+    return None
+
+#-------------------------------------------------------------------------------
 def pihole_six_api_auth():
     global PIHOLE6_URL
     global PIHOLE6_PASSWORD
@@ -1348,14 +1377,26 @@ def pihole_six_api_auth():
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
 
-    if not PIHOLE6_URL :
-        print('        ...Skipped (Config Error)')
+    # Never retain a stale session after a failed authentication attempt.
+    PIHOLE6_SES_VALID = False
+    PIHOLE6_SES_SID = ''
+    PIHOLE6_SES_CSRF = ''
+    try:
+        url = urlparse(PIHOLE6_URL.strip())
+        if (url.scheme not in ('http', 'https') or not url.hostname or
+                url.query or url.fragment or url.params):
+            raise ValueError('Expected an HTTP(S) base URL')
+        # Accessing .port also rejects malformed ports before a request is sent.
+        url.port
+    except ValueError:
+        print('        Invalid PIHOLE6_URL; use an HTTP(S) base URL such as https://pi.hole')
         return
+    path = url.path.rstrip('/')
+    if path.endswith('/admin'):
+        path = path[:-len('/admin')]
+        print('        PIHOLE6_URL ends in /admin; using the base URL instead. Please update the configuration.')
+    PIHOLE6_URL = url._replace(path=path + '/').geturl()
 
-    if not PIHOLE6_URL.endswith('/'):
-        PIHOLE6_URL += '/'
-
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
@@ -1364,34 +1405,25 @@ def pihole_six_api_auth():
     data = {
         "password": PIHOLE6_PASSWORD
     }
-    try:
-        response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False, timeout=15)
-    except requests.exceptions.Timeout:
-        print(f"        Request timed out after 15 seconds")
+    response_json = pihole_six_api_request('POST', 'api/auth', headers=headers, json=data)
+    if response_json is None:
         return
-    except requests.exceptions.ConnectionError as e:
-        print(f"        Connection error occurred")
+    session_data = response_json.get('session')
+    if not isinstance(session_data, dict):
+        print('        Invalid Pi-hole authentication response; check PIHOLE6_URL')
         return
-    except Exception as e:
-        print(f"        An unexpected error occurred")
+    if session_data.get('valid') is not True:
+        print('        Pi-hole authentication failed; check PIHOLE6_PASSWORD')
         return
-
-    response_json = response.json()
-    
-    try:
-        session_data = response_json.get('session', {})
-        if session_data.get('valid', False):  # Default False, if 'valid' is missing
-            PIHOLE6_SES_VALID = session_data['valid']
-            PIHOLE6_SES_SID = session_data['sid']
-            # to prevent key error if pihole has no password
-            if PIHOLE6_PASSWORD:
-                PIHOLE6_SES_CSRF = session_data['csrf']
-        else:
-            print("        Auth required")
-            return
-    except KeyError as e:
-        print(f"        Invalid response. Check Pi-hole URL")
+    sid = session_data.get('sid')
+    csrf = session_data.get('csrf', '')
+    if (not isinstance(sid, str) or not sid or not isinstance(csrf, str) or
+            (PIHOLE6_PASSWORD and not csrf)):
+        print('        Invalid Pi-hole session response; import skipped')
         return
+    PIHOLE6_SES_SID = sid
+    PIHOLE6_SES_CSRF = csrf
+    PIHOLE6_SES_VALID = True
 
 #-------------------------------------------------------------------------------
 def pihole_six_api_deauth():
@@ -1400,24 +1432,15 @@ def pihole_six_api_deauth():
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
 
-    if not PIHOLE6_URL.endswith('/'):
-        PIHOLE6_URL += '/'
-
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    if not PIHOLE6_SES_VALID:
+        return
     headers = {
         "X-FTL-SID": PIHOLE6_SES_SID
     }
-    try:
-        response = requests.delete(PIHOLE6_URL+'api/auth', headers=headers, verify=False, timeout=15)
-    except requests.exceptions.Timeout:
-        print(f"        Request timed out after 15 seconds")
-        return
-    except requests.exceptions.ConnectionError as e:
-        print(f"        Connection error occurred")
-        return
-    except Exception as e:
-        print(f"        An unexpected error occurred")
-        return
+    pihole_six_api_request('DELETE', 'api/auth', headers=headers)
+    PIHOLE6_SES_VALID = False
+    PIHOLE6_SES_SID = ''
+    PIHOLE6_SES_CSRF = ''
 
 #-------------------------------------------------------------------------------
 def copy_pihole_network_six():
@@ -1433,10 +1456,15 @@ def copy_pihole_network_six():
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
         #max_addresses=2 IPs per host
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=' + str(PIHOLE6_API_MAXCLIENTS) + '&max_addresses=2', headers=headers, verify=False)
+        deviceslist = pihole_six_api_request(
+            'GET', 'api/network/devices?max_devices=' + str(PIHOLE6_API_MAXCLIENTS) + '&max_addresses=2', headers=headers)
+        if deviceslist is None:
+            return
+        if not isinstance(deviceslist.get('devices'), list):
+            print('        Invalid Pi-hole devices response; import skipped')
+            return
 
         result = {}
-        deviceslist = raw_deviceslist.json()
 
         # If pi-hole is outside the local Pi.Alert network and cannot be found with arp.
         interfaces = get_pihole_interface_data()
@@ -1474,7 +1502,6 @@ def copy_pihole_network_six():
                 VALUES (?, ?, ?, ?, ?)
             """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
 
-        deviceslist = raw_deviceslist.json()
     else:
         print(f"        ...Skipped")
         return
@@ -1493,8 +1520,12 @@ def get_pihole_interface_data():
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        raw_interfacelist = requests.get(PIHOLE6_URL+'api/network/interfaces', headers=headers, verify=False)
-        data = raw_interfacelist.json()
+        data = pihole_six_api_request('GET', 'api/network/interfaces', headers=headers)
+        if data is None:
+            return result
+        if not isinstance(data.get('interfaces'), list):
+            print('        Invalid Pi-hole interfaces response; interface import skipped')
+            return result
 
         for interface in data['interfaces']:
             mac_address = interface.get('address')
@@ -2538,16 +2569,18 @@ def read_DHCP_leases_six():
 
     if PIHOLE6_SES_VALID == True:
 
-        sql.execute ("DELETE FROM DHCP_Leases")
-
         headers = {
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/dhcp/leases', headers=headers, verify=False)
+        deviceslist = pihole_six_api_request('GET', 'api/dhcp/leases', headers=headers)
+        if deviceslist is None:
+            return
+        if not isinstance(deviceslist.get('leases'), list):
+            print('        Invalid Pi-hole DHCP response; import skipped')
+            return
 
-        result = {}
-        deviceslist = raw_deviceslist.json()
+        sql.execute ("DELETE FROM DHCP_Leases")
 
         # Get Pi-hole local MAC-Adresses an IPs
         interfaces = get_pihole_interface_data()

@@ -19,6 +19,8 @@ html[data-pialert-accent="yellow"] { --pialert-accent: #f39c12; --pialert-accent
 .form-switch .bulk-value { width: 2em; height: 1em; }
 body { --bs-primary: var(--pialert-accent); --bs-primary-rgb: var(--pialert-accent-rgb); }
 .login-page .login-box { width: min(92vw, 420px); }
+.login-page .pialert-login-remember { display: flex; align-items: center; gap: .625rem; padding-left: 0; }
+.login-page .pialert-login-remember .form-check-input { flex: 0 0 2.5rem; width: 2.5rem; height: 1.25rem; margin: 0; float: none; }
 .app-sidebar .nav-link.active { box-shadow: inset 3px 0 0 var(--pialert-accent); }
 /* Follow the visible viewport when mobile browser toolbars expand or collapse. */
 .layout-fixed.sidebar-expand-lg .app-sidebar { max-height: 100dvh; }

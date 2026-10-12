@@ -1173,6 +1173,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Online-nopeustesti'; // @machine-translated
 $pia_lang['V4_Start_Speedtest'] = 'Käynnistysnopeustesti'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Speedtest-asiakas asennettu'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Lataa Speedtest-asiakas'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Ookla Speedtest -asiakasohjelma on ladattava automaattisten nopeustestien mahdollistamiseksi.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Nmap- skannaukset'; // @machine-translated
 $pia_lang['V4_Period'] = 'Ajanjakso'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Järjestelmän toimet'; // @machine-translated

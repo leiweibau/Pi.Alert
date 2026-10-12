@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/server/config_read.php';
 // Header - Delete Single WebGUI Reports
 function useRegex($input) {
 	$regex = '/[0-9]+-[0-9]+_.*\\.txt/i';
@@ -254,10 +255,7 @@ function create_satellite_badges() {
 }
 // Parse Config file
 function get_config_parmeter($config_param) {
-	$configContent = file_get_contents('../config/pialert.conf');
-	$configContent = preg_replace('/^\s*#.*$/m', '', $configContent);
-	$configArray = parse_ini_string($configContent);
-	if (isset($configArray[$config_param])) {return $configArray[$config_param];} else {return False;}
+	return pialert_config_value($config_param);
 }
 // Set Session Vars
 $config_mappings = [

@@ -234,7 +234,7 @@ function insertNewICMPHost() {
 function EnableICMPMon() {
 	global $pia_lang;
 
-	if ($_SESSION['ICMPScan'] == True) {
+	if (pialert_v4_config_enabled('ICMPSCAN_ACTIVE')) {
 		exec('../../../back/pialert-cli disable_icmp_mon', $output);
 		echo $pia_lang['BackICMP_mon_disabled'];
 		// Logging

@@ -1173,6 +1173,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Greičio internete bandymas'; // @machine-tr
 $pia_lang['V4_Start_Speedtest'] = 'Pradinio greičio bandymas'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Įdiegtas Speedtest klientas'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Parsisiųsti Speedtest klientą'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Norint įjungti automatinius greičio testus, reikia atsisiųsti „Ookla Speedtest“ klientą.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Nmap skenavimas'; // @machine-translated
 $pia_lang['V4_Period'] = 'Laikotarpis'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Sistemos veiksmai'; // @machine-translated

@@ -1176,6 +1176,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Onlinesnelheidstest'; // @machine-translated
 $pia_lang['V4_Start_Speedtest'] = 'Beginsnelheidstest'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Speedtest client geïnstalleerd'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Speedtest-client downloaden'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'De Ookla Speedtest-client moet worden gedownload om automatische snelheidstests mogelijk te maken.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Nmap-scans'; // @machine-translated
 $pia_lang['V4_Period'] = 'Periode'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Systeemacties'; // @machine-translated

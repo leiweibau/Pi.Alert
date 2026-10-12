@@ -1286,6 +1286,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Онлайн тест скорости'; // 
 $pia_lang['V4_Start_Speedtest'] = 'Начать тест скорости'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Клиент Speedtest установлен'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Скачать клиент Speedtest'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Для автоматического тестирования скорости необходимо скачать клиент Ookla Speedtest.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Сканирование Nmap'; // @machine-translated
 $pia_lang['V4_Period'] = 'Период'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Системные действия'; // @machine-translated

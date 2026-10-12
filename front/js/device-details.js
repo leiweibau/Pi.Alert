@@ -608,7 +608,20 @@
     field('manualnmap_detail').addEventListener('click',function () { scan('detail'); });
     if (field('btnwakeonlan')) field('btnwakeonlan').addEventListener('click',function () { window.showModalWarning(labels.wolTitle,labels.wolText,labels.cancel,labels.run,wake); });
     if (field('speedtestcli')) field('speedtestcli').addEventListener('click',function () { toolPost('php/server/speedtestcli.php',{},function (response) { safeOutput(response); refreshSpeedtest(); }); });
-    if (field('speedtestcli_ookla') && !config.speedtestInstalled) field('speedtestcli_ookla').addEventListener('click',function () { toolPost('php/server/speedtest_ookla.php',{mod:'get'},function (response) { safeOutput(response); var reload=document.createElement('button'); reload.type='button'; reload.className='btn btn-outline-primary mt-2'; reload.textContent=window.pialertV4Text('V4_Reload_Page'); reload.addEventListener('click',function () { window.location.reload(); }); field('scanoutput').appendChild(reload); }); });
+    if (field('speedtestcli_ookla') && !config.speedtestInstalled) field('speedtestcli_ookla').addEventListener('click',function () {
+      toolPost('php/server/speedtest_ookla.php',{mod:'get'},function (response) {
+        safeOutput(response);
+        var actions=document.createElement('div'); actions.className='mt-2';
+        var reload=document.createElement('button'); reload.type='button';
+        reload.className='btn btn-outline-primary d-inline-flex align-items-center gap-2';
+        var icon=document.createElement('i'); icon.className='bi bi-arrow-clockwise'; icon.setAttribute('aria-hidden','true');
+        var label=document.createElement('span'); label.textContent=window.pialertV4Text('V4_Reload_Page');
+        reload.append(icon,label);
+        reload.addEventListener('click',function () { window.location.reload(); });
+        actions.appendChild(reload);
+        field('scanoutput').appendChild(actions);
+      });
+    });
     window.addEventListener('beforeunload',function (event) { if ((dirty || (window.pialertEntityActionsEditor && window.pialertEntityActionsEditor.dirty())) && !unloading) { event.preventDefault(); event.returnValue = ''; } });
     window.addEventListener('pagehide',function () { unloading = true; ++nmapGeneration; ++calendarGeneration; window.clearTimeout(detailTimer); window.clearTimeout(calendarLayoutTimer); if (nmapRequest) nmapRequest.abort(); if (queueRequest) queueRequest.abort(); if (calendarRequest) calendarRequest.abort(); Object.keys(tables).forEach(function (key) { tables[key].destroy(); }); if (speedChart) speedChart.destroy(); if (calendar) calendar.destroy(); });
   }

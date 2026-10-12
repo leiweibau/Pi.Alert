@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/config_read.php';
 //------------------------------------------------------------------------------
 //  Pi.Alert
 //  Open Source Network Guard / WIFI & LAN intrusion detector
@@ -53,9 +54,8 @@ function formatIPlong($IP) {
 
 // Others functions
 function pialert_v4_config_enabled(string $name): bool {
-    if (!preg_match('/^[A-Z][A-Z0-9_]*$/D', $name)) return false;
-    $contents = @file_get_contents(__DIR__ . '/../../../config/pialert.conf');
-    return is_string($contents) && preg_match('/^\s*' . preg_quote($name, '/') . '\s*=\s*(?:1|true)\s*(?:#.*)?$/mi', $contents) === 1;
+    $value = pialert_config_value($name);
+    return $value === true || $value === 1;
 }
 
 function getDateFromPeriodValue() {

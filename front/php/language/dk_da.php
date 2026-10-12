@@ -1176,6 +1176,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Online hastighedstest'; // @machine-translat
 $pia_lang['V4_Start_Speedtest'] = 'Starthastighedsprøvning'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Speedtest klient installeret'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Download Speedtest klient'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Ookla Speedtest-klienten skal downloades for at aktivere automatiske hastighedstests.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Nmap- scanninger'; // @machine-translated
 $pia_lang['V4_Period'] = 'Periode'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Systemhandlinger'; // @machine-translated

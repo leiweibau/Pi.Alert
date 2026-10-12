@@ -1176,6 +1176,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Zkouška rychlosti online'; // @machine-tran
 $pia_lang['V4_Start_Speedtest'] = 'Zkouška rychlosti při startu'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Nainstalovaný klient Speedtest'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Stáhnout Speedtest klient'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Pro automatické testy rychlosti je nutné stáhnout klienta Ookla Speedtest.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Snímky Nmap'; // @machine-translated
 $pia_lang['V4_Period'] = 'Období'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Systémové činnosti'; // @machine-translated

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/config_read.php';
 // Some restricted runtime environments cannot allocate executable memory for PCRE JIT.
 // Disabling it prevents noisy warnings; regular expressions still work normally.
 ini_set('pcre.jit', '0');
@@ -24,13 +25,7 @@ function GetTimezoneFromConfig($configfile) {
 	if ($configfile === '') {
 		return $fallback_tz;
 	}
-	$configContent = @file_get_contents($configfile);
-	if (!is_string($configContent)) {
-		return $fallback_tz;
-	}
-	$configContent = preg_replace('/^\s*#.*$/m', '', $configContent);
-	$configArray = @parse_ini_string($configContent);
-	$configuredTimezone = is_array($configArray) ? ($configArray['SYSTEM_TIMEZONE'] ?? null) : null;
+	$configuredTimezone = pialert_config_value('SYSTEM_TIMEZONE', $configfile);
 	return is_string($configuredTimezone) && ValidateTimezone($configuredTimezone)
 		? $configuredTimezone : $fallback_tz;
 }

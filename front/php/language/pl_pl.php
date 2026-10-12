@@ -1177,6 +1177,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Badanie prędkości w trybie online'; // @ma
 $pia_lang['V4_Start_Speedtest'] = 'Badanie prędkości początkowej'; // @machine-translated
 $pia_lang['V4_Speedtest_Installed'] = 'Zainstalowano klienta Speedtest'; // @machine-translated
 $pia_lang['V4_Speedtest_Download'] = 'Pobierz klienta Speedtest'; // @machine-translated
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Aby umożliwić automatyczne testy prędkości, należy pobrać klienta Ookla Speedtest.'; // @machine-translated
 $pia_lang['V4_Nmap_Scans'] = 'Skanowanie Nmap'; // @machine-translated
 $pia_lang['V4_Period'] = 'Okres'; // @machine-translated
 $pia_lang['V4_System_Actions'] = 'Działania systemowe'; // @machine-translated

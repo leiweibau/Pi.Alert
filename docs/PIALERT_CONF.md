@@ -222,6 +222,16 @@ broker merely to remove speculative legacy topics.
 | SCAN_SUBNETS          | `--localnet` scans the automatically detected local network. `--localnet --interface=<name>` selects a specific interface. To scan several networks, use a list. Each entry starts with an IPv4 network in CIDR notation and then uses `--interface=<name>`, `--vlan=<id>`, or both. For an existing Linux VLAN interface use, for example, `'192.168.123.0/24 --interface=eth0.123'`; the kernel handles the VLAN tag. To make `arp-scan` add an 802.1Q tag on a parent interface, use `'192.168.123.0/24 --interface=eth0 --vlan=123'`. Do not combine a VLAN subinterface such as `eth0.123` with `--vlan=123`, because that can produce double tagging. The shorter form `'192.168.123.0/24 --vlan=123'` is supported, but then `arp-scan` automatically selects an interface and may choose the wrong one on multi-interface systems. VLAN IDs from 0 through 4095 are accepted, matching `arp-scan`. Options are passed before the target network in the generated command. Interface names are not restricted to `eth*`; classic, predictable, WLAN, bridge, bond, VLAN, virtual, alias, and custom valid Linux names are supported. Interface existence and VLAN availability are checked by the scan at runtime, not while parsing the configuration. A saved configuration must contain exactly one active assignment. If the WebEditor submission contains several, it keeps the last semantically valid assignment from the newly edited text and removes the others; the backup is never used to choose this value. Direct backend loading remains strict and rejects duplicate keys. |
 
 
+Subnet lists can span multiple lines. Comments and a trailing comma are supported;
+the GUI reads the import switches independently of the list layout:
+
+```python
+SCAN_SUBNETS = [
+    '192.168.10.0/24 --interface=eth0',
+    '192.168.20.0/24 --interface=eth0 --vlan=20',
+]
+```
+
 #### :eight_spoked_asterisk: ICMP Monitoring Options
 
 | Option               | Description |
@@ -237,13 +247,24 @@ broker merely to remove speculative legacy topics.
 | PIHOLE_ACTIVE            | This variable is set during installation.                                                                                                                                   |
 | PIHOLE_VERSION           | The version information is necessary because access to the Pi-hole data has fundamentally changed from version 5 to 6. Default is 6 after the official realease of Pihole 6 |
 | PIHOLE_DB                | This variable is set during installation and should not be changed.                                                                                                         |
-| PIHOLE6_URL              | If you want to access the Pi-hole data of version 6, enter the URL to the web interface (without the "/admin" suffix) here.                                                 |
+| PIHOLE6_URL              | Pi-hole 6 HTTP(S) base URL, for example `https://192.168.10.4` or `http://pi.hole:8080`. Do not append `/admin` or `/api`; Pi.Alert adds the API endpoint itself. A trailing slash is optional. |
 | PIHOLE6_PASSWORD         | Enter the password for the Pi-hole web interface here.                                                                                                                      |
 | PIHOLE6_API_MAXCLIENTS   | Specifies the maximum number of clients that are returned as a response from the API                                                                                        |
 | DHCP_ACTIVE              | This variable is valid for the DHCP server of Pihole 5.x as well as for 6.x                                                                                                 |
 | DHCP_LEASES              | This path is only relevant for version 5.x of Pihole and should not be changed.                                                                                             |
 | DHCP_INCL_SELF_TO_LEASES | Adds the Mac addresses of Pi-hole itself to the DHCP leases to import Pi-hole itself into the database if it is not in the local network of Pi.Alert                        |
 
+
+For example, use `PIHOLE6_URL = 'https://192.168.10.4'` even when the browser opens
+`https://192.168.10.4/admin/`. Pi.Alert authenticates at
+`https://192.168.10.4/api/auth`. If a reverse proxy exposes Pi-hole under a path,
+keep that base path, for example `https://example.net/pihole`.
+
+An accidental trailing `/admin` or `/admin/` is removed in memory with a scan-log
+notice; the configuration file is not rewritten. Correct the saved URL to avoid
+the notice on subsequent scans. HTTP errors, timeouts and invalid JSON responses
+are logged and the affected Pi-hole request is skipped so other scan sources can
+continue. The configuration validator does not test API connectivity or credentials.
 
 #### :eight_spoked_asterisk: Fritzbox Configuration
 

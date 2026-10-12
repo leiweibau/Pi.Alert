@@ -1157,6 +1157,7 @@ $pia_lang['V4_Online_Speedtest'] = 'Online-Speedtest';
 $pia_lang['V4_Start_Speedtest'] = 'Speedtest starten';
 $pia_lang['V4_Speedtest_Installed'] = 'Speedtest-Client installiert';
 $pia_lang['V4_Speedtest_Download'] = 'Speedtest-Client herunterladen';
+$pia_lang['V4_Speedtest_Automatic_Requires_Client'] = 'Für automatische Speedtests muss der Ookla-Speedtest-Client heruntergeladen werden.';
 $pia_lang['V4_Nmap_Scans'] = 'Nmap-Scans';
 $pia_lang['V4_Period'] = 'Zeitraum';
 $pia_lang['V4_System_Actions'] = 'Systemaktionen';
