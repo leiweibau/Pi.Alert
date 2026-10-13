@@ -45,7 +45,7 @@ pialert_v4_shell_start($pia_lang['LD_Title'], 'home', array('css/devices.css'));
   <div id="logical-feedback" role="status" aria-live="polite" class="alert" hidden></div>
   <div class="row g-4">
     <div class="col-12 col-lg-4"><section class="card h-100"><div class="card-header"><button id="logical-create" type="button" class="btn btn-primary w-100"><i class="fa-solid fa-plus me-1" aria-hidden="true"></i><?= h($pia_lang['LD_Create']); ?></button></div><div class="card-body"><p id="logical-empty" hidden><?= h($pia_lang['LD_Empty']); ?></p><div id="logical-device-list" class="list-group"></div></div></section></div>
-    <div class="col-12 col-lg-8"><section class="card"><div class="card-header"><h2 id="logical-editor-title" class="card-title"><?= h($pia_lang['LD_Create']); ?></h2><span id="logical-unsaved" class="badge text-bg-warning ms-2" hidden><?= h($pia_lang['LD_Unsaved']); ?></span></div><div class="card-body">
+    <div class="col-12 col-lg-8"><section id="logical-editor" class="card"><div class="card-header"><h2 id="logical-editor-title" class="card-title"><?= h($pia_lang['LD_Create']); ?></h2><span id="logical-unsaved" class="badge text-bg-warning ms-2" hidden><?= h($pia_lang['LD_Unsaved']); ?></span></div><div class="card-body">
       <form id="logical-device-form"><div class="row g-3">
       <?php foreach (array('name'=>'LD_DeviceName','device_type'=>'DevDetail_MainInfo_Type','owner'=>'DevDetail_MainInfo_Owner','location'=>'DevDetail_MainInfo_Location','vendor'=>'DevDetail_MainInfo_Vendor','group'=>'DevDetail_MainInfo_Group') as $field=>$label):
         $fieldLabel = pialert_v4_ui_plain_label($pia_lang[$label]);

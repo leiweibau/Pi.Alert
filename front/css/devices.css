@@ -88,6 +88,10 @@ html[data-pialert-theme="console"] .pialert-status-partial { color: #081b36 !imp
 .pialert-logical-member-match td:first-child { border-left: .25rem solid var(--bs-primary); }
 .pialert-member-match-label { display: block; color: var(--bs-primary); font-weight: 600; }
 #logical-device-list { max-height: 65vh; overflow-y: auto; }
+/* Suggestion menus must escape the themed card's clipping in either direction. */
+#logical-editor { overflow: visible; }
+#logical-editor:has(.logical-device-options.show) { z-index: 1; }
+#logical-editor > .card-header { border-top-left-radius: inherit; border-top-right-radius: inherit; }
 .logical-device-options { max-height: 20rem; max-width: calc(100vw - 2rem); overflow-y: auto; }
 .logical-device-options .dropdown-item { white-space: normal; overflow-wrap: anywhere; }
 #logical-device-list button, #logical-editor-members-list li { overflow-wrap: anywhere; }
