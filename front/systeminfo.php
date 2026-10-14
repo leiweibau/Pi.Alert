@@ -20,6 +20,7 @@ if (($_SESSION['login'] ?? 0) != 1) {
 pialert_v4_load_language();
 require_once __DIR__ . '/php/shell.php';
 require_once __DIR__ . '/php/library-versions.php';
+require_once __DIR__ . '/php/systeminfo-data.php';
 
 function pialert_v4_sysinfo_command(string $command): string {
     $result = shell_exec($command);
@@ -84,19 +85,8 @@ $osRelease = @parse_ini_file('/etc/os-release');
 $osVersion = is_array($osRelease) ? (string) ($osRelease['PRETTY_NAME'] ?? '') : '';
 if ($osVersion === '') $osVersion = pialert_v4_sysinfo_command('uname -o');
 $uptime = str_replace('up ', '', pialert_v4_sysinfo_command('uptime -p'));
-$cpuInfo = is_readable('/proc/cpuinfo') ? (string) file_get_contents('/proc/cpuinfo') : '';
-$cpuCount = preg_match_all('/^processor\s*:/m', $cpuInfo);
-$cpuModel = '';
-if (preg_match('/^Model\s*:\s*(.+)$/m', $cpuInfo, $cpuMatch) || preg_match('/^model name\s*:\s*(.+)$/m', $cpuInfo, $cpuMatch)) $cpuModel = trim($cpuMatch[1]);
-$cpuFrequency = 'unknown';
-$frequencyFile = '/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq';
-if (is_readable($frequencyFile) && is_numeric(trim((string) file_get_contents($frequencyFile)))) {
-    $cpuFrequency = (string) round((float) trim((string) file_get_contents($frequencyFile)) / 1000);
-} elseif (preg_match('/^cpu MHz\s*:\s*([0-9.,]+)/mi', $cpuInfo, $frequencyMatch)) {
-    $cpuFrequency = (string) round((float) str_replace(',', '.', $frequencyMatch[1]));
-}
-$kernelArch = pialert_v4_sysinfo_command('dpkg --print-architecture');
-if ($kernelArch === '') $kernelArch = php_uname('m');
+$cpu = pialert_v4_sysinfo_cpu();
+$kernelArch = php_uname('m');
 
 $memoryInfo = is_readable('/proc/meminfo') ? (string) file_get_contents('/proc/meminfo') : '';
 $memoryValues = array();
@@ -257,10 +247,10 @@ pialert_v4_shell_start($title, 'systeminfo', array('css/systeminfo.css'));
     <div class="tab-pane fade show active" id="general-local" role="tabpanel" aria-labelledby="general-local-tab" tabindex="0"><dl class="mb-0">
       <?php pialert_v4_sysinfo_metric($pia_lang['V4_Uptime'], h($uptime), 'text-success'); ?>
       <?php pialert_v4_sysinfo_metric($pia_lang['V4_Operating_System'], h($osVersion)); ?>
-      <?php pialert_v4_sysinfo_metric($pia_lang['V4_Kernel_Architecture'], h($kernelArch)); ?>
-      <?php pialert_v4_sysinfo_metric($pia_lang['V4_CPU_Name'], h($cpuModel)); ?>
-      <?php pialert_v4_sysinfo_metric($pia_lang['V4_CPU_Cores'], h((string) $cpuCount . ' @ ' . $cpuFrequency . ' MHz')); ?>
-      <?php pialert_v4_sysinfo_metric($pia_lang['V4_Memory'], h($memoryTotal . ' MB / ' . $memoryUsed . '% ' . $pia_lang['V4_Percent_Used'])); ?>
+      <?php pialert_v4_sysinfo_metric($pia_lang['V4_Kernel_Architecture'], h($kernelArch !== '' ? $kernelArch : $pia_lang['V4_Unknown'])); ?>
+      <?php pialert_v4_sysinfo_metric($pia_lang['V4_CPU_Name'], h($cpu['name'] ?? $pia_lang['V4_Unknown'])); ?>
+      <?php pialert_v4_sysinfo_metric($pia_lang['V4_CPU_Cores'], h(pialert_v4_sysinfo_cpu_cores($cpu, $pia_lang['V4_Unknown']))); ?>
+      <?php pialert_v4_sysinfo_metric($pia_lang['V4_Memory'], h($memoryTotal . ' GiB / ' . $memoryUsed . '% ' . $pia_lang['V4_Percent_Used'])); ?>
       <?php pialert_v4_sysinfo_metric($pia_lang['V4_Running_Processes'], h($processCount)); ?>
       <?php pialert_v4_sysinfo_metric($pia_lang['V4_Timezone_PHP_System'], h('"' . date_default_timezone_get() . '" / "' . $systemTimezone . '"')); ?>
       <?php pialert_v4_sysinfo_metric($pia_lang['V4_PHP_Version'], h(PHP_VERSION)); ?>
