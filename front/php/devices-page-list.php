@@ -11,7 +11,10 @@
   <?php endforeach; ?>
   </div>
 
-  <?php if ($historyEnabled): ?><section class="card mb-4"><div class="card-header"><h2 class="card-title"><?= h($L('Device_Shortcut_OnlineChart_a','Online history ') . '12 ' . $L('Device_Shortcut_OnlineChart_b','hours')); ?></h2></div><div class="card-body"><p class="small text-body-secondary"><?= h($pia_lang['LD_HistoryHelp']); ?></p><div class="pialert-history-chart"><canvas id="OnlineChart"></canvas></div></div></section><?php endif; ?>
+  <?php if ($historyEnabled): ?><section class="card mb-4"><div class="card-header"><h2 class="card-title"><?= h($L('Device_Shortcut_OnlineChart_a','Online history ') . '12 ' . $L('Device_Shortcut_OnlineChart_b','hours')); ?></h2></div><div class="card-body">
+    <?php if ($uiSettings['devices']['view_mode'] === 'devices'): ?><p class="small text-body-secondary"><?= h($pia_lang['LD_HistoryHelp']); ?></p><?php endif; ?>
+    <div class="pialert-history-chart"><canvas id="OnlineChart"></canvas></div>
+  </div></section><?php endif; ?>
 
   <section id="tableDevicesBox" class="card card-primary card-outline" aria-labelledby="tableDevicesTitle">
     <div class="card-header d-flex align-items-center gap-2 flex-wrap"><h2 id="tableDevicesTitle" class="card-title me-auto"><?= h($labels['all']); ?></h2><a href="<?= h(pialert_v4_route('ui_settings')); ?>" class="btn btn-sm btn-outline-secondary" aria-label="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>" title="<?= h($pia_lang['V4_Configure_Table_Columns']); ?>"><i class="fa-solid fa-table-columns" aria-hidden="true"></i></a>

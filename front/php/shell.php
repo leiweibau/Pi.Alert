@@ -191,8 +191,8 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
   <meta name="csrf-token" content="<?= h(pialert_csrf_token()); ?>"><meta http-equiv="x-dns-prefetch-control" content="off"><meta http-equiv="cache-control" content="max-age=60,private">
   <title><?= h($title); ?> | Pi.Alert</title>
   <link rel="icon" type="image/x-icon" href="<?= h($favicon); ?>"><link rel="apple-touch-icon" href="<?= h($favicon); ?>">
-  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/css/adminlte.min.css')); ?>">
-  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/css/adminlte-colors.min.css')); ?>">
+  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.10.1/css/adminlte.min.css')); ?>">
+  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.10.1/css/adminlte-colors.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/bootstrap-icons-1.13.1/font/bootstrap-icons.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/font-awesome-7.3.1/css/all.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/ionicons/css/ionicons.min.css')); ?>">
@@ -224,6 +224,7 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
           <a class="btn btn-outline-secondary w-100 mb-2" id="custom-menu-default-button" href="./deviceDetails.php?mac=Internet"><i class="fa-solid fa-globe me-2" aria-hidden="true"></i>Internet</a>
           <?php if ($withoutSidebar): ?><a class="btn btn-outline-secondary w-100 mb-2" id="custom-menu-dashboard-button" href="<?= h(pialert_v4_route('home')); ?>"><i class="fa-solid fa-laptop me-2" aria-hidden="true"></i>Pi.Alert <i>(1)</i></a><?php else: ?><a class="btn btn-outline-secondary w-100 mb-2" id="custom-menu-dashboard-button" href="<?= h(pialert_v4_route('dashboard')); ?>"><i class="fa-solid fa-gauge-high me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Dashboard']); ?> <i>(D)</i></a><?php endif; ?>
           <?php if ($appearance['reports_popup']): ?><a class="btn btn-outline-secondary w-100 mb-2" id="custom-menu-report-button" href="<?= h(pialert_v4_route('reports')); ?>"><i class="fa-regular fa-envelope-open me-2" id="Menu_Report_Envelope_Icon" aria-hidden="true"></i><?= h($pia_lang['About_Reports'] ?? 'Reports'); ?> <i>(R)</i></a><?php endif; ?>
+          <?php if ($appearance['journal_popup']): ?><a class="btn btn-outline-secondary w-100 mb-2" id="custom-menu-journal-button" href="<?= h(pialert_v4_route('journal')); ?>"<?= $activePage === 'journal' ? ' aria-current="page"' : ''; ?>><i class="ion ion-md-list-box me-2" aria-hidden="true"></i><?= h($pia_lang['V4_Journal']); ?> <i>(J)</i></a><?php endif; ?>
           <hr class="dropdown-divider">
           <?php if ($appearance['settings_popup']): ?><a class="btn btn-outline-secondary w-100 mb-2" id="custom-menu-settings-button" href="<?= h(pialert_v4_route('maintenance')); ?>"<?= $activePage === 'maintenance' ? ' aria-current="page"' : ''; ?>><i class="fa-solid fa-gear me-2" aria-hidden="true"></i><?= h($pia_lang['NAV_Maintenance'] ?? 'Settings'); ?> <i>(0)</i></a><?php endif; ?>
           <form method="post" action="<?= h(pialert_v4_route('login')); ?>" class="m-0"><input type="hidden" name="action" value="logout"><input type="hidden" name="_csrf" value="<?= h(pialert_csrf_token()); ?>"><button type="submit" id="custom-menu-logout-button" class="btn btn-danger w-100"><i class="fa-solid fa-arrow-right-from-bracket me-2" aria-hidden="true"></i><?= h($pia_lang['About_Exit'] ?? 'Log out'); ?></button></form>
@@ -251,7 +252,7 @@ function pialert_v4_shell_start(string $title, string $activePage = 'home', arra
         <?php if ($appearance['events_sidebar']): ?><li class="nav-item"><a href="<?= h(pialert_v4_route('events')); ?>" class="nav-link<?= $activePage === 'events' ? ' active' : ''; ?>"><i class="nav-icon fa-solid fa-list-check" aria-hidden="true"></i><p><?= h($pia_lang['NAV_Events'] ?? 'Events'); ?></p></a></li><?php endif; ?>
         <li class="nav-item"><a href="<?= h(pialert_v4_route('presence')); ?>" class="nav-link<?= $activePage === 'presence' ? ' active' : ''; ?>"><i class="nav-icon fa-regular fa-calendar" aria-hidden="true"></i><p><?= h($pia_lang['NAV_Presence'] ?? 'Presence'); ?><span class="pialert-nav-badges ms-auto"><span class="badge text-bg-secondary" id="header_local_presence"></span></span></p></a></li>
         <?php pialert_v4_sidebar_satellites('presence'); ?>
-        <li class="nav-item"><a href="<?= h(pialert_v4_route('journal')); ?>" class="nav-link<?= $activePage === 'journal' ? ' active' : ''; ?>"><i class="nav-icon ion ion-md-list-box" aria-hidden="true"></i><p><?= h($pia_lang['NAV_Journal'] ?? 'Journal'); ?></p></a></li>
+        <?php if ($appearance['journal_sidebar']): ?><li class="nav-item"><a id="sidebar-journal-link" href="<?= h(pialert_v4_route('journal')); ?>" class="nav-link<?= $activePage === 'journal' ? ' active' : ''; ?>"<?= $activePage === 'journal' ? ' aria-current="page"' : ''; ?>><i class="nav-icon ion ion-md-list-box" aria-hidden="true"></i><p><?= h($pia_lang['V4_Journal']); ?></p></a></li><?php endif; ?>
         <?php if ($appearance['reports_sidebar']): ?><li class="nav-item"><a id="sidebar-reports-link" href="<?= h(pialert_v4_route('reports')); ?>" class="nav-link<?= $activePage === 'reports' ? ' active' : ''; ?>"<?= $activePage === 'reports' ? ' aria-current="page"' : ''; ?>><i class="nav-icon fa-regular fa-envelope-open" aria-hidden="true"></i><p>Reports</p></a></li><?php endif; ?>
         <li class="nav-header"><?= h($pia_lang['NAV_Section_C'] ?? 'Other'); ?></li>
         <?php if ($appearance['settings_sidebar']): ?><li class="nav-item"><a href="<?= h(pialert_v4_route('maintenance')); ?>" class="nav-link<?= $activePage === 'maintenance' ? ' active' : ''; ?>"<?= $activePage === 'maintenance' ? ' aria-current="page"' : ''; ?>><i class="nav-icon fa-solid fa-gear" aria-hidden="true"></i><p><?= h($pia_lang['NAV_Maintenance'] ?? 'Settings'); ?></p></a></li><?php endif; ?>
@@ -277,7 +278,7 @@ function pialert_v4_shell_end(array $pageScripts = array()): void {
 <script type="application/json" id="pialert-v4-labels"><?= json_encode(array_filter($pia_lang, static fn($key): bool => str_starts_with((string) $key, 'V4_'), ARRAY_FILTER_USE_KEY), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE); ?></script>
 <script src="<?= h(pialert_v4_asset('lib/jquery-4.0.0/jquery.min.js')); ?>"></script>
 <script src="<?= h(pialert_v4_asset('lib/bootstrap-5.3.8/js/bootstrap.bundle.min.js')); ?>"></script>
-<script src="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/js/adminlte.min.js')); ?>"></script>
+<script src="<?= h(pialert_v4_asset('lib/adminlte-4.10.1/js/adminlte.min.js')); ?>"></script>
 <script src="<?= h(pialert_v4_asset('js/pialert-common.js')); ?>?v=<?= $assetVersion; ?>"></script>
 <script src="<?= h(pialert_v4_asset('js/pialert-shell-runtime.js')); ?>?v=<?= $assetVersion; ?>"></script>
 <?php foreach (($pialertV4PageScripts ?? array()) as $pageScript): ?>

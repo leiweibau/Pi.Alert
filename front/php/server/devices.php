@@ -455,7 +455,20 @@ function SaveFilterID() {
 	global $db; global $pia_lang;
 	$filterid = filter_var($GLOBALS["pialert_request"]['filterid'] ?? null, FILTER_VALIDATE_INT);
 	if ($filterid === false || $filterid === null) { echo $pia_lang['BE_Dev_Upd_FilterError']; return; }
-	$params = array(':name' => (string)($GLOBALS["pialert_request"]['filtername'] ?? ''), ':string' => (string)($GLOBALS["pialert_request"]['filterstring'] ?? ''), ':index' => (string)($GLOBALS["pialert_request"]['filterindex'] ?? ''), ':column' => (string)($GLOBALS["pialert_request"]['filtercolumn'] ?? ''), ':group' => (string)($GLOBALS["pialert_request"]['filtergroup'] ?? ''), ':id' => array((int)$filterid, SQLITE3_INTEGER));
+	$indexValue = $GLOBALS["pialert_request"]['filterindex'] ?? null;
+	$filterindex = false;
+	if ($indexValue === null || (is_string($indexValue) && trim($indexValue) === '')) {
+		$filterindex = 0;
+	} elseif ((is_string($indexValue) || is_int($indexValue)) && preg_match('/^[+-]?[0-9]+$/D', trim((string)$indexValue))) {
+		// Treat leading zeros as decimal and reject values outside the integer range.
+		$filterindex = filter_var(preg_replace('/^([+-]?)0+(?=[0-9])/', '$1', trim((string)$indexValue)), FILTER_VALIDATE_INT);
+	}
+	if ($filterindex === false) {
+		http_response_code(400);
+		echo $pia_lang['BE_Dev_FilterIndexError'];
+		return;
+	}
+	$params = array(':name' => (string)($GLOBALS["pialert_request"]['filtername'] ?? ''), ':string' => (string)($GLOBALS["pialert_request"]['filterstring'] ?? ''), ':index' => array($filterindex, SQLITE3_INTEGER), ':column' => (string)($GLOBALS["pialert_request"]['filtercolumn'] ?? ''), ':group' => (string)($GLOBALS["pialert_request"]['filtergroup'] ?? ''), ':id' => array((int)$filterid, SQLITE3_INTEGER));
 	$result = db_execute_prepared($db, 'UPDATE Devices_table_filter SET filtername=:name, filterstring=:string, reserve_a=:index, reserve_b=:column, reserve_c=:group WHERE id=:id', $params);
 	if ($result) { echo $pia_lang['BE_Dev_Upd_Filter']; pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0046', '', 'ID: '.$filterid); }
 	else { logServerConsole('Device filter update failed: ' . $db->lastErrorMsg()); echo $pia_lang['BE_Dev_Upd_FilterError']; pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0047', '', 'ID: '.$filterid); }
@@ -498,7 +511,7 @@ function SetDeviceFilter() {
 		
 		if ($filtername != "" && $filterstring != "") {
 			try {
-				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_b", "reserve_c") VALUES (:name, :string, :columns, :group_name)';
+				$sql_insert_data = 'INSERT INTO Devices_table_filter ("filtername", "filterstring", "reserve_a", "reserve_b", "reserve_c") VALUES (:name, :string, 0, :columns, :group_name)';
 				$result = db_execute_prepared($db, $sql_insert_data, array(':name' => $filtername, ':string' => $filterstring, ':columns' => $newcolfilter, ':group_name' => $filtergroup));
 				echo $pia_lang['BE_Dev_table_filter_ok_a'] . '"' . h($filtername) . '"' . $pia_lang['BE_Dev_table_filter_ok_b'] . '"' . h($filterstring) . '"' . $pia_lang['BE_Dev_table_filter_ok_c'];
 				pialert_logging('a_005', $_SERVER['REMOTE_ADDR'], 'LogStr_0042', '', $filtername.'/'.$filterstring);

@@ -82,7 +82,7 @@ function pialert_v4_ui_valid_favicon($value): bool {
 
 function pialert_v4_ui_defaults(): array {
     return array(
-        'schema'=>14,
+        'schema'=>15,
         'revision'=>0,
         'devices'=>array(
             'view_mode'=>'interfaces',
@@ -98,6 +98,7 @@ function pialert_v4_ui_defaults(): array {
         'appearance'=>array(
             'language'=>'en_us','skin'=>'skin-blue','theme'=>'standard','dark_mode'=>false,'high_contrast_status_badges'=>false,'activity_history'=>true,
             'settings_sidebar'=>true,'settings_popup'=>true,'network_sidebar'=>true,'events_sidebar'=>true,'reports_sidebar'=>true,'reports_popup'=>true,
+            'journal_sidebar'=>true,'journal_popup'=>false,
             'favicon'=>'img/favicons/flat_blue_white.png',
             'sidebar_color'=>'body-secondary','header_color'=>'body','pihole_url'=>'',
             'header_widgets'=>array(
@@ -156,7 +157,7 @@ function pialert_v4_ui_exact_keys(array $value, array $keys): bool {
 
 function pialert_v4_ui_validate(array $data): array {
     $defaults = pialert_v4_ui_defaults();
-    if (!pialert_v4_ui_exact_keys($data, array_keys($defaults)) || $data['schema'] !== 14 || !is_int($data['revision']) || $data['revision'] < 0 || !is_array($data['devices']) || !is_array($data['icmp']) || !is_array($data['appearance'])) throw new InvalidArgumentException('Invalid UI settings schema');
+    if (!pialert_v4_ui_exact_keys($data, array_keys($defaults)) || $data['schema'] !== 15 || !is_int($data['revision']) || $data['revision'] < 0 || !is_array($data['devices']) || !is_array($data['icmp']) || !is_array($data['appearance'])) throw new InvalidArgumentException('Invalid UI settings schema');
     $devices = $data['devices']; $icmp = $data['icmp']; $appearance = $data['appearance'];
     if (!pialert_v4_ui_exact_keys($devices, array_keys($defaults['devices'])) || !is_array($devices['columns']) || !pialert_v4_ui_exact_keys($devices['columns'], array_keys($defaults['devices']['columns']))) throw new InvalidArgumentException('Invalid device preferences');
     if (!in_array($devices['view_mode'], array('interfaces','devices'), true)) throw new InvalidArgumentException('Invalid device view mode');
@@ -188,6 +189,7 @@ function pialert_v4_ui_validate(array $data): array {
     if (!is_bool($appearance['network_sidebar'])) throw new InvalidArgumentException('Invalid network navigation visibility');
     if (!is_bool($appearance['events_sidebar'])) throw new InvalidArgumentException('Invalid events navigation visibility');
     if (!is_bool($appearance['reports_sidebar']) || !is_bool($appearance['reports_popup'])) throw new InvalidArgumentException('Invalid reports navigation visibility');
+    if (!is_bool($appearance['journal_sidebar']) || !is_bool($appearance['journal_popup'])) throw new InvalidArgumentException('Invalid journal navigation visibility');
     if (!pialert_v4_ui_valid_favicon($appearance['favicon'])) throw new InvalidArgumentException('Invalid favicon');
     if (!is_string($appearance['sidebar_color']) || !array_key_exists($appearance['sidebar_color'], pialert_v4_ui_color_names()) || !is_string($appearance['header_color']) || !array_key_exists($appearance['header_color'], pialert_v4_ui_color_names())) throw new InvalidArgumentException('Invalid chrome colour');
     $url = $appearance['pihole_url'];
@@ -283,6 +285,14 @@ function pialert_v4_ui_read(): array {
         }
         $data['schema'] = 14;
     }
+    if (($data['schema'] ?? null) === 14) {
+        // Preserve the existing Journal placement; the new popup link is opt-in.
+        if (is_array($data['appearance'] ?? null)) {
+            $data['appearance']['journal_sidebar'] = true;
+            $data['appearance']['journal_popup'] = false;
+        }
+        $data['schema'] = 15;
+    }
     try { return pialert_v4_ui_validate($data); } catch (InvalidArgumentException $e) { throw new RuntimeException('Invalid UI settings content', 0, $e); }
 }
 
@@ -291,7 +301,7 @@ function pialert_v4_ui_update(string $section, $value, ?int $expectedRevision = 
 }
 
 function pialert_v4_ui_update_many(array $patches, ?int $expectedRevision = null): array {
-    $allowed = array('devices.view_mode','devices.columns','devices.page_length','devices.order','icmp.columns','icmp.page_length','icmp.order','appearance.language','appearance.theme','appearance.dark_mode','appearance.high_contrast_status_badges','appearance.activity_history','appearance.settings_sidebar','appearance.settings_popup','appearance.network_sidebar','appearance.events_sidebar','appearance.reports_sidebar','appearance.reports_popup','appearance.favicon','appearance.sidebar_color','appearance.header_color','appearance.pihole_url','appearance.header_widgets');
+    $allowed = array('devices.view_mode','devices.columns','devices.page_length','devices.order','icmp.columns','icmp.page_length','icmp.order','appearance.language','appearance.theme','appearance.dark_mode','appearance.high_contrast_status_badges','appearance.activity_history','appearance.settings_sidebar','appearance.settings_popup','appearance.network_sidebar','appearance.events_sidebar','appearance.reports_sidebar','appearance.reports_popup','appearance.journal_sidebar','appearance.journal_popup','appearance.favicon','appearance.sidebar_color','appearance.header_color','appearance.pihole_url','appearance.header_widgets');
     if ($patches === array() || count($patches) > count($allowed)) throw new InvalidArgumentException('Invalid UI settings patch');
     foreach (array_keys($patches) as $section) if (!is_string($section) || !in_array($section, $allowed, true)) throw new InvalidArgumentException('Unknown UI settings section');
     $path = pialert_v4_ui_path();

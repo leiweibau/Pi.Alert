@@ -7,6 +7,8 @@
 #tableDevices tbody td.pialert-device-actions-cell { padding: 0; }
 #tableDevices .pialert-device-name { min-width: 130px; }
 #tableDevices .pialert-device-favorite { min-width: 38px; }
+/* Favorites sort numerically, but the sorting control belongs on the right. */
+#tableDevices .pialert-device-favorite .dt-column-header { flex-direction: row; }
 #tableDevices .pialert-device-timestamp { min-width: 157px; white-space: nowrap; }
 #tableDevices .pialert-device-last-ip { min-width: 118px; }
 #tableDevices .pialert-device-mac { box-sizing: border-box; width: 185px; min-width: 175px; max-width: 185px; padding-inline: 8px; }

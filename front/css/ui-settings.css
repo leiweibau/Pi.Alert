@@ -1,3 +1,13 @@
 #v4-ui-settings .ui-favicon-menu { max-height: min(22rem, 60vh); overflow-y: auto; min-width: min(24rem, 90vw); }
-#v4-ui-settings #ui-favicon-preview { object-fit: contain; background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); border-radius: .375rem; }
+#v4-ui-settings #ui-favicon-preview { object-fit: contain; background: var(--bs-tertiary-bg); border: 0; border-radius: .375rem; }
 #v4-ui-settings .pialert-ui-button-group { background: var(--pa-surface-soft, var(--bs-tertiary-bg)); }
+/* Match the widget palette, using each theme's tint for its gradient cards. */
+#v4-ui-settings .pialert-widget-switch { --pialert-widget-color: var(--bs-primary); }
+#v4-ui-settings .pialert-widget-switch[data-widget-tone="success"] { --pialert-widget-color: rgb(var(--pa-kpi-success, var(--bs-success-rgb))); }
+#v4-ui-settings .pialert-widget-switch[data-widget-tone="warning"] { --pialert-widget-color: rgb(var(--pa-kpi-warning, var(--bs-warning-rgb))); }
+#v4-ui-settings .pialert-widget-switch[data-widget-tone="danger"] { --pialert-widget-color: rgb(var(--pa-kpi-danger, var(--bs-danger-rgb))); }
+#v4-ui-settings .pialert-widget-switch[data-widget-tone="secondary"] { --pialert-widget-color: rgb(var(--pa-kpi-secondary, var(--bs-secondary-rgb))); }
+html[data-pialert-theme] #v4-ui-settings .pialert-widget-switch[data-widget-tone="primary"] { --pialert-widget-color: #45a5ff; }
+#v4-ui-settings .pialert-widget-switch:checked { background-color: var(--pialert-widget-color); border-color: var(--pialert-widget-color); }
+#v4-ui-settings .pialert-widget-switch:focus { border-color: var(--pialert-widget-color); box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--pialert-widget-color) 25%, transparent); }
+#v4-ui-settings .pialert-widget-switch[data-widget-tone="warning"]:checked { --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23212529'/%3e%3c/svg%3e"); }

@@ -104,7 +104,7 @@ $assetVersion = rawurlencode(pialert_v4_asset_version() . '-login-remember-switc
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <link rel="apple-touch-icon" href="<?= h(safe_web_url($appearance['favicon'], 'img/favicons/flat_blue_white.png')); ?>">
   <title>Pi.Alert | <?= h($pia_lang['Login_Submit']); ?></title>
-  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/css/adminlte.min.css')); ?>">
+  <link rel="stylesheet" href="<?= h(pialert_v4_asset('lib/adminlte-4.10.1/css/adminlte.min.css')); ?>">
   <link rel="stylesheet" href="<?= h(pialert_v4_asset('css/pialert-v4.css')); ?>?v=<?= $assetVersion; ?>">
 </head>
 <body class="login-page bg-body-secondary">
@@ -130,7 +130,7 @@ $assetVersion = rawurlencode(pialert_v4_asset_version() . '-login-remember-switc
   </div>
 </div>
 <script src="<?= h(pialert_v4_asset('lib/bootstrap-5.3.8/js/bootstrap.bundle.min.js')); ?>"></script>
-<script src="<?= h(pialert_v4_asset('lib/adminlte-4.9.1/js/adminlte.min.js')); ?>"></script>
+<script src="<?= h(pialert_v4_asset('lib/adminlte-4.10.1/js/adminlte.min.js')); ?>"></script>
 <script src="<?= h(pialert_v4_asset('js/pialert-v4.js')); ?>?v=<?= $assetVersion; ?>"></script>
 </body>
 </html>

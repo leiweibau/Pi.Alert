@@ -16,6 +16,15 @@
 .icmp-detail-switch > .form-check-label { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
 .icmp-detail-field > .input-group { min-width: 0; }
 .icmp-detail-options { max-height: 20rem; overflow-y: auto; }
+#tableEvents th:nth-child(2),
+#tableEvents td:nth-child(2) { text-align: center; }
+/* Reserve equal space around the title so it aligns with the centered dates. */
+#tableEvents th:nth-child(2) .dt-column-header {
+  display: grid;
+  grid-template-columns: var(--dt-order-arrow-width) minmax(0, 1fr) var(--dt-order-arrow-width);
+}
+#tableEvents th:nth-child(2) .dt-column-title { grid-column: 2; }
+#tableEvents th:nth-child(2) .dt-column-order { grid-column: 3; }
 @media (min-width: 768px) {
   .icmp-detail-field { display: grid; grid-template-columns: minmax(0, 34%) minmax(0, 1fr); align-items: center; column-gap: .5rem; }
   .icmp-detail-field > .form-label { margin-bottom: 0; text-align: right; }

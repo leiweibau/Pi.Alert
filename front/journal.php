@@ -101,7 +101,7 @@ pialert_v4_shell_start($title, 'journal', array(
       <div class="table-responsive">
         <table id="tableJournal" class="table table-bordered table-hover table-striped align-middle w-100">
           <thead><tr>
-            <th><?= h($pia_lang['EVE_TableHead_Date'] ?? 'Date'); ?></th>
+            <th class="dt-head-left"><?= h($pia_lang['EVE_TableHead_Date'] ?? 'Date'); ?></th>
             <th><?= h($pia_journ_lang['Journal_TableHead_Class'] ?? 'Method'); ?></th>
             <th><?= h($pia_journ_lang['Journal_TableHead_Trigger'] ?? 'Trigger'); ?></th>
             <th><?= h($pia_lang['V4_Hash']); ?></th>

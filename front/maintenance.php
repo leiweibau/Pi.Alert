@@ -101,6 +101,13 @@ $logs = array(
     'nmap'=>array('MT_Tools_Logviewer_Nmap','Nmap (Session)'),
 );
 $columns = array('Group'=>'getGroups','Owner'=>'getOwners','Type'=>'getDeviceTypes','Location'=>'getLocations','ConnectType'=>'getConnectionType','LinkSpeed'=>'getLinkSpeed');
+$filterSearchColumns = array();
+$deviceColumns = pialert_v4_device_columns();
+foreach (array('Name', 'Owner', 'Group', 'Location', 'Type', 'LastIP', 'MACAddress', 'MACVendor', 'ConnectionType') as $columnId) {
+    $index = array_search($columnId, array_keys($deviceColumns), true);
+    $column = $deviceColumns[$columnId];
+    $filterSearchColumns[$index] = v4_mt_label($column['label'] ?? '', $column['fallback']);
+}
 $apiKey = (string) (get_config_parmeter('PIALERT_APIKEY') ?: '');
 pialert_v4_shell_start(v4_mt_label('MT_Title','Settings'), 'maintenance', array('css/maintenance.css'));
 ?>
@@ -129,7 +136,35 @@ pialert_v4_shell_start(v4_mt_label('MT_Title','Settings'), 'maintenance', array(
       </div>
       <h3 class="h5"><?= h($pia_lang['V4_Advanced']); ?></h3><div class="d-flex flex-wrap justify-content-center gap-2"><a class="btn btn-outline-secondary" href="./php/debugging/test_json_calls.php"><?= h($pia_lang['V4_Test_JSON_Calls']); ?></a><a class="btn btn-outline-secondary" href="./php/debugging/test_main_tables_rawcontent.php"><?= h($pia_lang['V4_Raw_Device_Tables']); ?></a><a class="btn btn-outline-secondary" href="./php/debugging/validate_languages.php"><?= h($pia_lang['V4_Compare_Languages']); ?></a></div>
     </section>
-    <section class="tab-pane fade<?= $tab === '4' ? ' show active' : ''; ?>" id="mt-pane-4" role="tabpanel" aria-labelledby="mt-tab-4"><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_a','Appearance')); ?></h3><p><?= h(v4_mt_label('MT_Tools_Tab_Settings_Intro','')); ?></p><a class="btn btn-primary mb-4" href="<?= h(pialert_v4_route('ui_settings')); ?>"><?= h($pia_lang['NAV_UISettings'] ?? 'Sprache, Farben, Darkmode, Spalten und Header-Widgets einstellen'); ?></a><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_f','Device filters')); ?></h3><div class="row g-3"><?php foreach ($filters as $filter): $id=filter_var($filter['id'] ?? null,FILTER_VALIDATE_INT); if ($id === false || $id < 0) continue; ?><div class="col-12"><div class="border rounded p-3 mt-filter" data-filter-id="<?= (int) $id; ?>"><div class="row g-2 align-items-end"><?php foreach (array('filtername'=>array('name','Device_del_table_filtername'),'filterstring'=>array('string','Device_del_table_filterstring'),'filterindex'=>array('reserve_a','Device_del_table_filterindex'),'filtercolumn'=>array('reserve_b','Device_del_table_filtercol'),'filtergroup'=>array('reserve_c','Device_del_table_filtergroup')) as $field=>[$source,$label]): ?><div class="col-md"><label class="form-label" for="filter-<?= h($field); ?>-<?= (int) $id; ?>"><?= h(v4_mt_label($label,$field)); ?></label><input class="form-control" id="filter-<?= h($field); ?>-<?= (int) $id; ?>" data-field="<?= h($field); ?>" value="<?= h($filter[$source] ?? $filter[$field] ?? ''); ?>"></div><?php endforeach; ?><div class="col-md-auto"><button type="button" class="btn btn-outline-primary save-filter" aria-label="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>" title="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>"><i class="bi bi-floppy" aria-hidden="true"></i></button></div></div></div></div><?php endforeach; ?></div></section>
+    <section class="tab-pane fade<?= $tab === '4' ? ' show active' : ''; ?>" id="mt-pane-4" role="tabpanel" aria-labelledby="mt-tab-4">
+      <h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_a','Appearance')); ?></h3>
+      <p><?= h(v4_mt_label('MT_Tools_Tab_Settings_Intro','')); ?></p>
+      <a class="btn btn-primary mb-4" href="<?= h(pialert_v4_route('ui_settings')); ?>"><?= h($pia_lang['NAV_UISettings'] ?? 'Sprache, Farben, Darkmode, Spalten und Header-Widgets einstellen'); ?></a>
+      <h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_f','Device filters')); ?></h3>
+      <div class="row g-3">
+      <?php foreach ($filters as $filter): $id=filter_var($filter['id'] ?? null,FILTER_VALIDATE_INT); if ($id === false || $id < 0) continue; ?>
+        <div class="col-12"><div class="border rounded p-3 mt-filter" data-filter-id="<?= (int) $id; ?>"><div class="row g-2 align-items-end">
+          <?php foreach (array('filtername'=>array('name','Device_del_table_filtername','Device_del_table_filtername_help'),'filterstring'=>array('string','Device_del_table_filterstring','Device_del_table_filterstring_help'),'filtercolumn'=>array('reserve_b','V4_Filter_Search_Area','V4_Filter_Search_Area_Tooltip'),'filterindex'=>array('reserve_a','Device_del_table_filterindex','Device_del_table_filterindex_help'),'filtergroup'=>array('reserve_c','Device_del_table_filtergroup','Device_del_table_filtergroup_help')) as $field=>[$source,$label,$help]): ?>
+          <div class="<?= $field === 'filtercolumn' ? 'col-auto text-center' : ($field === 'filterindex' ? 'col-auto ms-3 mt-filter-index' : 'col-md'); ?>">
+            <div class="form-label d-flex align-items-center gap-1<?= $field === 'filtercolumn' ? ' justify-content-center' : ''; ?>">
+              <?php if ($field === 'filtercolumn'): ?><span><?= h(v4_mt_label($label,$field)); ?></span><?php else: ?><label class="mb-0" for="filter-<?= h($field); ?>-<?= (int) $id; ?>"><?= h(v4_mt_label($label,$field)); ?></label><?php endif; ?>
+              <button type="button" class="mt-filter-help btn-outline-primary" data-bs-toggle="tooltip" title="<?= h($pia_lang[$help]); ?>" aria-label="<?= h(v4_mt_label($label,$field) . ': ' . $pia_lang[$help]); ?>"><i class="bi bi-info-circle" aria-hidden="true"></i></button>
+            </div>
+            <?php if ($field === 'filtercolumn'): ?>
+            <input type="hidden" data-field="filtercolumn" value="<?= h($filter['reserve_b'] ?? $filter['filtercolumn'] ?? ''); ?>">
+            <button type="button" class="btn btn-outline-primary" id="filter-columns-<?= (int) $id; ?>" data-bs-toggle="modal" data-bs-target="#modal-mt-filter-columns" aria-label="<?= h($pia_lang['V4_Filter_Search_Area'] . ': ' . ($filter['name'] ?? $filter['filtername'] ?? '')); ?>" title="<?= h($pia_lang['V4_Filter_Search_Area']); ?>"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+            <?php elseif ($field === 'filterindex'): ?>
+            <input class="form-control" type="number" step="1" id="filter-filterindex-<?= (int) $id; ?>" data-field="filterindex" value="<?= h($filter[$source] ?? $filter[$field] ?? 0); ?>">
+            <?php else: ?>
+            <input class="form-control" id="filter-<?= h($field); ?>-<?= (int) $id; ?>" data-field="<?= h($field); ?>" value="<?= h($filter[$source] ?? $filter[$field] ?? ''); ?>">
+            <?php endif; ?>
+          </div>
+          <?php endforeach; ?>
+          <div class="col-auto"><button type="button" class="btn btn-outline-primary save-filter" aria-label="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>" title="<?= h($pia_lang['Gen_Save'] ?? 'Save'); ?>"><i class="bi bi-floppy" aria-hidden="true"></i></button></div>
+        </div><div class="invalid-feedback mt-2" id="filter-filterindex-<?= (int) $id; ?>-error" role="alert"></div></div></div>
+      <?php endforeach; ?>
+      </div>
+    </section>
     <section class="tab-pane fade<?= $tab === '2' ? ' show active' : ''; ?>" id="mt-pane-2" role="tabpanel" aria-labelledby="mt-tab-2"><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_j','Database tools')); ?></h3><div class="row g-2 mb-4"><?php foreach ($actionGroups['tools'] as $action) v4_mt_button($action); ?></div><h3 class="h5"><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_k','Edit column values')); ?></h3><p><?= h(v4_mt_label('MT_Tools_Tab_Subheadline_k_Intro','')); ?></p><div class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label" for="txtMTTableColumn"><?= h(v4_mt_label('MT_ColumnEdit_a','Column')); ?></label><select class="form-select" id="txtMTTableColumn"><option value=""></option><?php foreach ($columns as $column=>$query): ?><option value="<?= h($column); ?>" data-query="<?= h($query); ?>"><?= h($pia_lang['V4_Column_' . $column] ?? $column); ?></option><?php endforeach; ?></select></div><div class="col-md-3"><label class="form-label" for="txtMTColumnContent"><?= h(v4_mt_label('MT_ColumnEdit_b','Current value')); ?></label><select class="form-select" id="txtMTColumnContent"><option value=""></option></select></div><div class="col-md-3"><label class="form-label" for="txtMTNewColumnContent"><?= h(v4_mt_label('MT_ColumnEdit_c','New value')); ?></label><input class="form-control" id="txtMTNewColumnContent"></div>
       <div class="col-md-3 d-flex flex-wrap gap-2">
         <button type="button" class="btn btn-outline-secondary" id="reset-column" aria-label="<?= h($pia_lang['V4_Reset']); ?>" title="<?= h($pia_lang['V4_Reset']); ?>"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></button>
@@ -144,6 +179,21 @@ pialert_v4_shell_start(v4_mt_label('MT_Title','Settings'), 'maintenance', array(
   </div></div>
   <div class="card mb-3"><div class="card-header"><h2 class="card-title mb-0"><?= h(v4_mt_label('MT_ConfEditor_Start','Config Editor')); ?></h2></div><div class="card-body"><button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#modal-mt-config"><?= h(v4_mt_label('MT_ConfEditor_Start','Open Config Editor')); ?></button><details class="mt-3"><summary class="text-danger"><?= h(v4_mt_label('MT_ConfEditor_Hint','Help')); ?></summary><dl class="row mt-2 mb-0"><?php foreach (array('Restore','Backup','Save') as $action): ?><dt class="col-sm-3"><?= h(v4_mt_label('MT_ConfEditor_' . $action,$action)); ?></dt><dd class="col-sm-9"><?= h(v4_mt_label('MT_ConfEditor_' . $action . '_info','')); ?></dd><?php endforeach; ?></dl></details></div></div>
 </section>
+<div class="modal fade" id="modal-mt-filter-columns" tabindex="-1" aria-labelledby="mt-filter-columns-title" aria-describedby="mt-filter-columns-help" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><form class="modal-content" id="mt-filter-columns-form">
+    <div class="modal-header"><h2 class="modal-title fs-5" id="mt-filter-columns-title"><?= h($pia_lang['V4_Filter_Search_Area']); ?></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= h($pia_lang['Gen_Close']); ?>"></button></div>
+    <div class="modal-body">
+      <p class="fw-semibold" id="mt-filter-columns-name"></p>
+      <p class="text-body-secondary" id="mt-filter-columns-help"><?= h($pia_lang['V4_Filter_Search_Area_Help']); ?></p>
+      <div class="row g-3">
+      <?php foreach ($filterSearchColumns as $index => $label): ?>
+        <div class="col-12 col-sm-6"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="mt-filter-column-<?= (int) $index; ?>" data-search-column="<?= (int) $index; ?>"><label class="form-check-label" for="mt-filter-column-<?= (int) $index; ?>"><?= h($label); ?></label></div></div>
+      <?php endforeach; ?>
+      </div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Cancel']); ?></button><button type="submit" class="btn btn-primary"><?= h($pia_lang['MT_themeselector_apply']); ?></button></div>
+  </form></div>
+</div>
 <div class="modal fade" id="modal-mt-log" tabindex="-1" aria-labelledby="mt-log-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="mt-log-title"><?= h($pia_lang['V4_Log_Viewer']); ?></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= h($pia_lang['Gen_Close']); ?>"></button></div><div class="modal-body"><pre id="mt-log-content" class="mt-log mb-0"></pre></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Close'] ?? 'Close'); ?></button></div></div></div></div>
 <div class="modal fade" id="modal-mt-config" tabindex="-1" aria-labelledby="mt-config-title" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content"><div class="modal-header"><h2 class="modal-title fs-5" id="mt-config-title"><?= h($pia_lang['V4_Config_Editor']); ?></h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= h($pia_lang['Gen_Close']); ?>"></button></div><div class="modal-body"><div class="input-group mb-2"><input type="search" class="form-control" id="config-search" placeholder="<?= h(v4_mt_label('Device_Searchbox','Search')); ?>"><button type="button" class="btn btn-outline-primary" id="config-search-next"><?= h($pia_lang['V4_Next']); ?></button></div><label class="visually-hidden" for="ConfigFileEditor"><?= h($pia_lang['V4_Config_File']); ?></label><textarea class="form-control mt-config-editor" id="ConfigFileEditor" spellcheck="false" wrap="off"></textarea></div><div class="modal-footer"><button type="button" class="btn btn-outline-danger" id="restore-config"><?= h(v4_mt_label('MT_ConfEditor_Restore','Restore')); ?></button><button type="button" class="btn btn-outline-success" id="backup-config"><?= h(v4_mt_label('MT_ConfEditor_Backup','Backup')); ?></button><button type="button" class="btn btn-danger" id="save-config"><?= h($pia_lang['Gen_Save'] ?? 'Save'); ?></button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= h($pia_lang['Gen_Close'] ?? 'Close'); ?></button></div></div></div></div>
 <?php pialert_v4_shell_end(array('js/maintenance.js')); ?>
