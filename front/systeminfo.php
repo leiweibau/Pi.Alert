@@ -84,7 +84,7 @@ $userCron = implode("\n", array_filter(array_map('trim', explode("\n", is_string
 $osRelease = @parse_ini_file('/etc/os-release');
 $osVersion = is_array($osRelease) ? (string) ($osRelease['PRETTY_NAME'] ?? '') : '';
 if ($osVersion === '') $osVersion = pialert_v4_sysinfo_command('uname -o');
-$uptime = str_replace('up ', '', pialert_v4_sysinfo_command('uptime -p'));
+$uptime = pialert_v4_sysinfo_uptime(pialert_v4_sysinfo_read('/proc/uptime'), $pia_lang['V4_Unknown']);
 $cpu = pialert_v4_sysinfo_cpu();
 $kernelArch = php_uname('m');
 

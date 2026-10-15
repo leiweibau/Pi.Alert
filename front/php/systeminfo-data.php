@@ -5,6 +5,18 @@ function pialert_v4_sysinfo_read(string $path): string {
     return is_string($value) ? trim($value) : '';
 }
 
+function pialert_v4_sysinfo_uptime(string $procUptime, string $unknown): string {
+    if (!preg_match('/^\s*(\d+(?:\.\d+)?)(?:\s|$)/', $procUptime, $match)) return $unknown;
+    $seconds = (float) $match[1];
+    if (!is_finite($seconds) || $seconds >= PHP_INT_MAX) return $unknown;
+    $minutes = (int) floor($seconds / 60);
+    $parts = array();
+    foreach (array('d' => intdiv($minutes, 1440), 'h' => intdiv($minutes % 1440, 60), 'm' => $minutes % 60) as $unit => $value) {
+        if ($value > 0) $parts[] = $value . $unit;
+    }
+    return $parts ? implode(' ', $parts) : '0m';
+}
+
 function pialert_v4_sysinfo_cpu_list(string $list): array {
     $cpus = array();
     foreach (explode(',', trim($list)) as $part) {
