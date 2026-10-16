@@ -131,7 +131,6 @@ if ($mod == "get") {
 		echo "\n";
 		delete_speedtest_archive();
 		echo "\n";
-		$show_hint = 1;
 	} elseif ($kernel_arch == "amd64") {
 		# Compatible client possible
 		# -----------------------------------
@@ -144,7 +143,6 @@ if ($mod == "get") {
 		echo "\n";
 		delete_speedtest_archive();
 		echo "\n";
-		$show_hint = 1;
 	} elseif ($kernel_arch == "arm64") {
 		# Compatible client possible
 		# -----------------------------------
@@ -157,26 +155,15 @@ if ($mod == "get") {
 		echo "\n";
 		delete_speedtest_archive();
 		echo "\n";
-		$show_hint = 1;
 	} else {
 		# Compatible client possible
 		# -----------------------------------
 		echo "Detected System Architecture: " . $kernel_arch . "\n\n";
 		echo "No client was found for the existing system architecture!!!";
-		$show_hint = 0;
 	}
 
 	echo '</pre>';
-	if ($show_hint == 1) {
-		if (!file_exists("/opt/pialert")) {
-			$post_message = $pia_lang['ookla_postinstall_note'];
-		} else {
-			$post_message = $pia_lang['ookla_postinstall_note_lxc'];
-		}
-
-		echo '<br><button type="button" class="btn btn-primary" onclick="location.reload();" style="font-size: 18px; width:100px;"><i class="bi bi-arrow-clockwise"></i></button>';
-		// echo '<span class="text-red" style="font-size: 18px;">' . $post_message . '</span>';
-	}
+	// The frontend adds the reload button after rendering the installation output.
 
 # Speedtest not installed
 # ------------------------------------------------------------------------------

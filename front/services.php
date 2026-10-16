@@ -112,7 +112,7 @@ pialert_v4_shell_start($title, 'services', array(
         <div class="card-header"><h2 id="services-journal-title" class="card-title mb-0"><?= h($pia_lang['WEBS_EVE_Title'] ?? 'Web Services - Events'); ?></h2></div>
         <div class="card-body"><div class="table-responsive services-journal-wrap">
           <table id="servicesJournalTable" class="table table-bordered table-hover table-striped align-middle w-100">
-            <thead><tr><th><?= h($pia_lang['EVE_TableHead_Date'] ?? 'Date'); ?></th><th><?= h($pia_lang['WEBS_label_URL'] ?? 'URL'); ?></th><th><?= h($pia_lang['EVE_TableHead_AdditionalInfo'] ?? 'Additional info'); ?></th></tr></thead>
+            <thead><tr><th class="dt-head-left"><?= h($pia_lang['EVE_TableHead_Date'] ?? 'Date'); ?></th><th><?= h($pia_lang['WEBS_label_URL'] ?? 'URL'); ?></th><th><?= h($pia_lang['EVE_TableHead_AdditionalInfo'] ?? 'Additional info'); ?></th></tr></thead>
           </table>
         </div></div>
       </section>

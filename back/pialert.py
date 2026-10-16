@@ -29,6 +29,7 @@ from datetime import datetime, timedelta, timezone
 from config_validation import ConfigValidationError, build_arpscan_arguments, load_pialert_config, load_version_config
 from notification_http import send_pushsafer_notification, send_pushover_notification
 from openwrt_transport import fetch_openwrt_devices, format_openwrt_exception
+import opnsense_import
 from service_url_policy import check_service_url, service_result_diagnostic, service_url_for_log
 from telegram_notification import send_telegram_message
 from paho.mqtt.client import Client, MQTTv311, CallbackAPIVersion
@@ -867,6 +868,15 @@ def cleanup_database():
     print('    ICMP_Mon_Events (14)')
     sql.execute("DELETE FROM ICMP_Mon_Events WHERE icmpeve_DateTime <= date('now', '-" + str(14) + " day')")
 
+    print('\nCleanup empty logical devices (30 days)')
+    # Shared, independently testable migration/cleanup module; no scanner changes.
+    import importlib.util
+    logical_spec = importlib.util.spec_from_file_location(
+        'pialert_logical_devices', PIALERT_PATH + '/install/migrate_logical_devices.py')
+    logical_module = importlib.util.module_from_spec(logical_spec)
+    logical_spec.loader.exec_module(logical_module)
+    logical_module.cleanup_empty(sql_connection)
+
     print('\nTrim Journal to the lastest 1000 entries')
     sql.execute("DELETE FROM pialert_journal WHERE journal_id NOT IN (SELECT journal_id FROM pialert_journal ORDER BY journal_id DESC LIMIT 1000) AND (SELECT COUNT(*) FROM pialert_journal) > 1000")
 
@@ -1100,62 +1110,66 @@ def scan_network():
     read_pfsense_clients()
     openDB()
     print_log ('OPNsense copy starts...')
-    read_opnsense_clients()
-    openDB()
-    print_log ('AdGuard copy starts...')
-    read_adguard_data()
-    # Import Satellites Scans
-    openDB()
-    get_satellite_scans()
-    # Load current scan data 1/2
-    print('\nProcessing scan results...')
-    # Load current scan data 2/2
-    print_log ('Save scanned devices')
-    save_scanned_devices (arpscan_devices, cycle_interval)
-    print_log ('Dump all results to Log')
-    dump_all_resulttables()
-    # Process Ignore list
-    print('    Processing ignore list 1/2...')
-    remove_entries_from_table()
-        # Print stats
-    print_log ('Print Stats')
-    print_scan_stats()
-    print_log ('Stats end')
-    # Create Events
-    print('\nUpdating DB Info...')
-    print('    Sessions Events (connect / discconnect) ...')
-    insert_events()
-    # Create New Devices
-    # after create events -> avoid 'connection' event
-    print('    Creating new devices...')
-    create_new_devices()
-    # Update devices info
-    print('    Updating Devices Info...')
-    update_devices_data_from_scan()
-    # Resolve devices names
-    print_log ('   Resolve devices names...')
-    update_devices_names()
-    # Process Ignore list
-    print('    Processing ignore list 2/2...')
-    #### Remove Devices from devicelist and event
-    remove_entries_from_devicelist()
-    # Void false connection - disconnections
-    print('    Voiding false (ghost) disconnections...')
-    void_ghost_disconnections()
-    # Pair session events (Connection / Disconnection)
-    print('    Pairing session events (connection / disconnection) ...')
-    pair_sessions_events()
-    # Sessions snapshot
-    print('    Creating sessions snapshot...')
-    create_sessions_snapshot()
-    # Skip repeated notifications
-    print('    Skipping repeated notifications...')
-    skip_repeated_notifications()
-    # Calc Activity History
-    print('    Calculate Activity History...')
-    calc_activity_history_main_scan()
-    sql_connection.commit()
-    closeDB()
+    opnsense_ready = read_opnsense_clients()
+    if opnsense_ready:
+        openDB()
+        print_log ('AdGuard copy starts...')
+        read_adguard_data()
+        # Import Satellites Scans
+        openDB()
+        get_satellite_scans()
+        # Load current scan data 1/2
+        print('\nProcessing scan results...')
+        # Load current scan data 2/2
+        print_log ('Save scanned devices')
+        save_scanned_devices (arpscan_devices, cycle_interval)
+        print_log ('Dump all results to Log')
+        dump_all_resulttables()
+        # Process Ignore list
+        print('    Processing ignore list 1/2...')
+        remove_entries_from_table()
+            # Print stats
+        print_log ('Print Stats')
+        print_scan_stats()
+        print_log ('Stats end')
+        # Create Events
+        print('\nUpdating DB Info...')
+        print('    Sessions Events (connect / discconnect) ...')
+        insert_events()
+        # Create New Devices
+        # after create events -> avoid 'connection' event
+        print('    Creating new devices...')
+        create_new_devices()
+        # Update devices info
+        print('    Updating Devices Info...')
+        update_devices_data_from_scan()
+        # Resolve devices names
+        print_log ('   Resolve devices names...')
+        update_devices_names()
+        # Process Ignore list
+        print('    Processing ignore list 2/2...')
+        #### Remove Devices from devicelist and event
+        remove_entries_from_devicelist()
+        # Void false connection - disconnections
+        print('    Voiding false (ghost) disconnections...')
+        void_ghost_disconnections()
+        # Pair session events (Connection / Disconnection)
+        print('    Pairing session events (connection / disconnection) ...')
+        pair_sessions_events()
+        # Sessions snapshot
+        print('    Creating sessions snapshot...')
+        create_sessions_snapshot()
+        # Skip repeated notifications
+        print('    Skipping repeated notifications...')
+        skip_repeated_notifications()
+        # Calc Activity History
+        print('    Calculate Activity History...')
+        calc_activity_history_main_scan()
+        sql_connection.commit()
+        closeDB()
+    else:
+        print("    Device evaluation skipped; retrying on the next regular scan.")
+        closeDB()
 
     # Web Service Monitoring
     if SCAN_WEBSERVICES:
@@ -1327,6 +1341,35 @@ def copy_pihole_network_five():
     sql.execute ("DETACH PH")
 
 #-------------------------------------------------------------------------------
+def pihole_six_api_request(method, endpoint, **kwargs):
+    """Keep HTTP/JSON failures local to the Pi-hole import."""
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    try:
+        response = requests.request(
+            method, PIHOLE6_URL + endpoint, verify=False, timeout=15, **kwargs)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print('        Pi-hole API request timed out after 15 seconds; import skipped')
+        return None
+    except requests.exceptions.HTTPError as error:
+        status = error.response.status_code if error.response is not None else 'unknown'
+        print(f'        Pi-hole API returned HTTP {status}; check PIHOLE6_URL and credentials')
+        return None
+    except requests.exceptions.RequestException:
+        print('        Pi-hole API request failed; check PIHOLE6_URL and connectivity')
+        return None
+    if method == 'DELETE':
+        return {}
+    try:
+        data = response.json()
+        if not isinstance(data, dict):
+            raise ValueError('Expected a JSON object')
+        return data
+    except ValueError:
+        print('        Pi-hole API returned invalid JSON; check PIHOLE6_URL (base URL without /admin)')
+    return None
+
+#-------------------------------------------------------------------------------
 def pihole_six_api_auth():
     global PIHOLE6_URL
     global PIHOLE6_PASSWORD
@@ -1334,14 +1377,26 @@ def pihole_six_api_auth():
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
 
-    if not PIHOLE6_URL :
-        print('        ...Skipped (Config Error)')
+    # Never retain a stale session after a failed authentication attempt.
+    PIHOLE6_SES_VALID = False
+    PIHOLE6_SES_SID = ''
+    PIHOLE6_SES_CSRF = ''
+    try:
+        url = urlparse(PIHOLE6_URL.strip())
+        if (url.scheme not in ('http', 'https') or not url.hostname or
+                url.query or url.fragment or url.params):
+            raise ValueError('Expected an HTTP(S) base URL')
+        # Accessing .port also rejects malformed ports before a request is sent.
+        url.port
+    except ValueError:
+        print('        Invalid PIHOLE6_URL; use an HTTP(S) base URL such as https://pi.hole')
         return
+    path = url.path.rstrip('/')
+    if path.endswith('/admin'):
+        path = path[:-len('/admin')]
+        print('        PIHOLE6_URL ends in /admin; using the base URL instead. Please update the configuration.')
+    PIHOLE6_URL = url._replace(path=path + '/').geturl()
 
-    if not PIHOLE6_URL.endswith('/'):
-        PIHOLE6_URL += '/'
-
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
@@ -1350,34 +1405,25 @@ def pihole_six_api_auth():
     data = {
         "password": PIHOLE6_PASSWORD
     }
-    try:
-        response = requests.post(PIHOLE6_URL+'api/auth', headers=headers, json=data, verify=False, timeout=15)
-    except requests.exceptions.Timeout:
-        print(f"        Request timed out after 15 seconds")
+    response_json = pihole_six_api_request('POST', 'api/auth', headers=headers, json=data)
+    if response_json is None:
         return
-    except requests.exceptions.ConnectionError as e:
-        print(f"        Connection error occurred")
+    session_data = response_json.get('session')
+    if not isinstance(session_data, dict):
+        print('        Invalid Pi-hole authentication response; check PIHOLE6_URL')
         return
-    except Exception as e:
-        print(f"        An unexpected error occurred")
+    if session_data.get('valid') is not True:
+        print('        Pi-hole authentication failed; check PIHOLE6_PASSWORD')
         return
-
-    response_json = response.json()
-    
-    try:
-        session_data = response_json.get('session', {})
-        if session_data.get('valid', False):  # Default False, if 'valid' is missing
-            PIHOLE6_SES_VALID = session_data['valid']
-            PIHOLE6_SES_SID = session_data['sid']
-            # to prevent key error if pihole has no password
-            if PIHOLE6_PASSWORD:
-                PIHOLE6_SES_CSRF = session_data['csrf']
-        else:
-            print("        Auth required")
-            return
-    except KeyError as e:
-        print(f"        Invalid response. Check Pi-hole URL")
+    sid = session_data.get('sid')
+    csrf = session_data.get('csrf', '')
+    if (not isinstance(sid, str) or not sid or not isinstance(csrf, str) or
+            (PIHOLE6_PASSWORD and not csrf)):
+        print('        Invalid Pi-hole session response; import skipped')
         return
+    PIHOLE6_SES_SID = sid
+    PIHOLE6_SES_CSRF = csrf
+    PIHOLE6_SES_VALID = True
 
 #-------------------------------------------------------------------------------
 def pihole_six_api_deauth():
@@ -1386,24 +1432,15 @@ def pihole_six_api_deauth():
     global PIHOLE6_SES_SID
     global PIHOLE6_SES_CSRF
 
-    if not PIHOLE6_URL.endswith('/'):
-        PIHOLE6_URL += '/'
-
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    if not PIHOLE6_SES_VALID:
+        return
     headers = {
         "X-FTL-SID": PIHOLE6_SES_SID
     }
-    try:
-        response = requests.delete(PIHOLE6_URL+'api/auth', headers=headers, verify=False, timeout=15)
-    except requests.exceptions.Timeout:
-        print(f"        Request timed out after 15 seconds")
-        return
-    except requests.exceptions.ConnectionError as e:
-        print(f"        Connection error occurred")
-        return
-    except Exception as e:
-        print(f"        An unexpected error occurred")
-        return
+    pihole_six_api_request('DELETE', 'api/auth', headers=headers)
+    PIHOLE6_SES_VALID = False
+    PIHOLE6_SES_SID = ''
+    PIHOLE6_SES_CSRF = ''
 
 #-------------------------------------------------------------------------------
 def copy_pihole_network_six():
@@ -1419,10 +1456,15 @@ def copy_pihole_network_six():
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
         #max_addresses=2 IPs per host
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/network/devices?max_devices=' + str(PIHOLE6_API_MAXCLIENTS) + '&max_addresses=2', headers=headers, verify=False)
+        deviceslist = pihole_six_api_request(
+            'GET', 'api/network/devices?max_devices=' + str(PIHOLE6_API_MAXCLIENTS) + '&max_addresses=2', headers=headers)
+        if deviceslist is None:
+            return
+        if not isinstance(deviceslist.get('devices'), list):
+            print('        Invalid Pi-hole devices response; import skipped')
+            return
 
         result = {}
-        deviceslist = raw_deviceslist.json()
 
         # If pi-hole is outside the local Pi.Alert network and cannot be found with arp.
         interfaces = get_pihole_interface_data()
@@ -1460,7 +1502,6 @@ def copy_pihole_network_six():
                 VALUES (?, ?, ?, ?, ?)
             """, (hwaddr, details['macVendor'], details['lastQuery'], details['name'], details['ip']))
 
-        deviceslist = raw_deviceslist.json()
     else:
         print(f"        ...Skipped")
         return
@@ -1479,8 +1520,12 @@ def get_pihole_interface_data():
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        raw_interfacelist = requests.get(PIHOLE6_URL+'api/network/interfaces', headers=headers, verify=False)
-        data = raw_interfacelist.json()
+        data = pihole_six_api_request('GET', 'api/network/interfaces', headers=headers)
+        if data is None:
+            return result
+        if not isinstance(data.get('interfaces'), list):
+            print('        Invalid Pi-hole interfaces response; interface import skipped')
+            return result
 
         for interface in data['interfaces']:
             mac_address = interface.get('address')
@@ -1836,186 +1881,53 @@ def read_pfsense_clients():
 
 #-------------------------------------------------------------------------------
 def opnsense_connect(endpoint, topic):
-    global OPNSENSE_PORT
-
     try:
-        OPNSENSE_PORT = int(OPNSENSE_PORT)
-    except (TypeError, ValueError):
-        print(f"        ...{topic} Request canceled: Incorrect Port.")
-        return None
-
+        port = int(OPNSENSE_PORT)
+    except (TypeError, ValueError) as exc:
+        raise opnsense_import.APIError('Invalid OPNsense port') from exc
     protocol = "https" if OPNSENSE_SSL else "http"
-    port = str(OPNSENSE_PORT)
     url = f"{protocol}://{OPNSENSE_IP}:{port}{endpoint}"
-    headers = {
-        "Accept": "application/json"
-    }
-
     try:
         response = requests.get(
-            url,
-            headers=headers,
+            url, headers={"Accept": "application/json"},
             auth=(OPNSENSE_APIKEY, OPNSENSE_APISECRET),
-            verify=False,
-            timeout=10
-        )
-        if response.status_code == 200:
+            verify=False, timeout=10, allow_redirects=False)
+        if response.status_code != 200:
+            # Never log response bodies, URLs containing credentials or config data.
+            raise opnsense_import.APIError(
+                '{}: HTTP {}'.format(topic, response.status_code), response.status_code)
+        try:
             return response.json()
-        else:
-            print(f"        ...Error {response.status_code}: {response.text}")
-            return None
-
-    except requests.Timeout:
-        print(f"        ...{topic} Request canceled: Timeout reached.")
-        return None
-
-    except requests.RequestException:
-        print(f"        ...{topic} Skipped - Connection error")
-        return None
+        except ValueError as exc:
+            raise opnsense_import.APIError(topic + ': invalid JSON') from exc
+    except requests.RequestException as exc:
+        raise opnsense_import.APIError(topic + ': request failed (' + type(exc).__name__ + ')') from exc
 
 #-------------------------------------------------------------------------------
 def read_opnsense_clients():
-
+    if not OPNSENSE_ACTIVE:
+        return True
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-    opnsense_dhcpleases = ""
-    opnsense_arptable = ""
-    opnsense_interfaces = ""
-    opnsense_interface_names = ""
-
-    if OPNSENSE_ACTIVE:
-        sql.execute("DELETE FROM opnsense_Network")
-
-        print("    OPNsense Method...")
-        result = opnsense_fetch_dhcp_leases()
-        if result:
-            opnsense_dhcpleases = json.dumps(result, indent=4)
-
-        endpoint = "/api/diagnostics/interface/search_arp"
-        result = opnsense_connect(endpoint, "ARP")
-        print_log(result)
-        if result:
-            opnsense_arptable = json.dumps(result, indent=4)
-
-        endpoint = "/api/diagnostics/interface/get_interface_config"
-        result = opnsense_connect(endpoint, "Interfaces")
-        print_log(result)
-        if result:
-            opnsense_interfaces = json.dumps(result, indent=4)
-
-        endpoint = "/api/diagnostics/interface/get_interface_names"
-        result = opnsense_connect(endpoint, "Interface Names")
-        print_log(result)
-        if result:
-            opnsense_interface_names = json.dumps(result, indent=4)
-
-        opnsense_save_dhcp_data(opnsense_dhcpleases)
-        opnsense_save_arp_data(opnsense_arptable, opnsense_interfaces, opnsense_interface_names)
-        opnsense_mark_local_interfaces(opnsense_interfaces, opnsense_interface_names)
-
+    print("    OPNsense Method...")
+    try:
+        arp = opnsense_import.fetch_arp(opnsense_connect, print_log)
+        interfaces = opnsense_connect('/api/diagnostics/interface/get_interface_config', 'Interfaces')
+        interface_names = opnsense_connect('/api/diagnostics/interface/get_interface_names', 'Interface names')
+        opnsense_import.interface_context(interfaces, interface_names)
+        leases = opnsense_import.fetch_dhcp(opnsense_connect, print)
+        snapshot = opnsense_import.merge_snapshot(
+            leases, arp, interfaces, interface_names, OPNSENSE_EXCLUDE_INT,
+            opnsense_import.previous_rows(sql_connection), print_log)
+        opnsense_import.replace_snapshot(sql_connection, snapshot)
+        print_log('OPNsense: published {} MAC/IP rows'.format(len(snapshot)))
+        return True
+    except (opnsense_import.ImportFailure, sqlite3.Error) as exc:
+        print('    OPNsense: device evaluation suspended ({})'.format(type(exc).__name__))
+        if isinstance(exc, opnsense_import.ImportFailure):
+            print('        ' + str(exc))
+        return False
+    finally:
         closeDB()
-    else:
-        return
-
-#-------------------------------------------------------------------------------
-def opnsense_fetch_dhcp_leases():
-    dhcp_endpoints = [
-        ("/api/dhcpv4/leases/search_lease?inactive=1", "DHCP"),
-        ("/api/dnsmasq/leases/search", "Dnsmasq DHCP"),
-        ("/api/kea/leases4/search", "Kea DHCP")
-    ]
-
-    first_response = None
-
-    for endpoint, topic in dhcp_endpoints:
-        result = opnsense_connect(endpoint, topic)
-        print_log(result)
-
-        if first_response is None and result is not None:
-            first_response = result
-
-        if opnsense_get_rows(result):
-            print_log(f"        ...OPNsense DHCP backend selected: {topic}")
-            return result
-
-    return first_response
-
-#-------------------------------------------------------------------------------
-def opnsense_get_rows(payload):
-    if isinstance(payload, str):
-        try:
-            payload = json.loads(payload)
-        except json.JSONDecodeError:
-            return []
-
-    if isinstance(payload, dict):
-        if "rows" in payload and isinstance(payload["rows"], list):
-            return payload["rows"]
-        if "data" in payload and isinstance(payload["data"], list):
-            return payload["data"]
-
-    if isinstance(payload, list):
-        return payload
-
-    return []
-
-#-------------------------------------------------------------------------------
-def opnsense_get_interface_map(interface_names):
-    if isinstance(interface_names, str):
-        try:
-            interface_names = json.loads(interface_names)
-        except json.JSONDecodeError:
-            return {}
-
-    if isinstance(interface_names, dict):
-        return interface_names
-
-    return {}
-
-#-------------------------------------------------------------------------------
-def opnsense_mark_local_interfaces(interfaces, interface_names):
-
-    if isinstance(interfaces, str):
-        try:
-            interfaces = json.loads(interfaces)
-        except json.JSONDecodeError:
-            print_log("        ...Error: invalid JSON-format (interfaces)")
-            return
-
-    interface_map = opnsense_get_interface_map(interface_names)
-    if not isinstance(interfaces, dict):
-        print_log("        Info: no local interfaces were found")
-        return
-
-    local_interfaces = []
-
-    for if_name, if_data in interfaces.items():
-        if not isinstance(if_data, dict):
-            continue
-
-        mac = (
-            if_data.get("mac")
-            or if_data.get("macaddr")
-            or if_data.get("ether")
-            or ""
-        ).strip().lower()
-
-        if not mac:
-            continue
-
-        local_interfaces.append({
-            "MAC": mac,
-            "Description": interface_map.get(if_name, if_name.upper())
-        })
-
-    for entry in local_interfaces:
-        sql_update = """UPDATE opnsense_Network
-                        SET OPN_Name = ?
-                        WHERE OPN_MAC = ? AND OPN_Name = '(unknown)';"""
-
-        new_name = f"OPNsense {entry['Description']}"
-        sql.execute(sql_update, (new_name, entry["MAC"]))
-
-    print_log(local_interfaces)
 
 #-------------------------------------------------------------------------------
 def adguard_try_login(protocol, host, port, headers, payload):
@@ -2368,254 +2280,6 @@ def read_adguard_data():
     print_log(activity_rows)
 
 #-------------------------------------------------------------------------------
-def opnsense_save_dhcp_data(opnsense_dhcpleases):
-
-    if isinstance(opnsense_dhcpleases, str):
-        try:
-            opnsense_dhcpleases = json.loads(opnsense_dhcpleases)
-        except json.JSONDecodeError:
-            print_log("        ...Error: invalid JSON-format (opnsense_dhcpleases)")
-            return [], []
-
-    opnsense_network_dhcp = []
-    lease_rows = opnsense_get_rows(opnsense_dhcpleases)
-
-    if not lease_rows:
-        print_log("        ...Info: no DHCP-Leases were found")
-        return opnsense_network_dhcp
-
-    for entry in lease_rows:
-        mac = (entry.get("mac") or entry.get("hwaddr") or "").strip().lower()
-        ip = (entry.get("address") or entry.get("ip") or "").strip()
-        hostname = (entry.get("hostname") or entry.get("host") or entry.get("name") or entry.get("descr") or "(unknown)").strip() or "(unknown)"
-        ends_str = entry.get("ends")
-        expire_value = entry.get("expire")
-        if_descr = entry.get("if_descr") or entry.get("if_name") or entry.get("if") or ""
-        vendor = entry.get("man") or entry.get("mac_info") or entry.get("manufacturer") or ""
-
-        if not mac or not ip:
-            continue
-
-        try:
-            ends_ts = int(datetime.datetime.strptime(ends_str, "%Y/%m/%d %H:%M:%S").timestamp())
-        except (ValueError, TypeError):
-            try:
-                ends_ts = int(ends_str)
-            except (ValueError, TypeError):
-                try:
-                    ends_ts = int(expire_value)
-                except (ValueError, TypeError):
-                    ends_ts = 0
-
-        status = str(entry.get("status") or "").lower()
-        state = str(entry.get("state") or "").lower()
-        active = entry.get("active")
-        expired = entry.get("expired")
-
-        if status != "":
-            opn_connected = status == "online"
-        elif active is not None:
-            opn_connected = bool(active)
-        elif expired is not None:
-            opn_connected = not bool(expired)
-        elif state != "":
-            opn_connected = state not in ["expired", "offline", "released", "free"]
-        else:
-            opn_connected = True
-
-        opnsense_network_dhcp.append({
-            "MAC": mac,
-            "IP": ip,
-            "Name": hostname,
-            "Vendor": vendor,
-            "Method": "OPNsense",
-            "Interface": if_descr,
-            "Custom_a": entry.get("type", ""),
-            "Custom_b": entry.get("state", ""),
-            "Connected": opn_connected,
-            "Datetime": ends_ts
-        })
-
-    sql_insert = """INSERT INTO opnsense_Network
-                    (OPN_MAC, OPN_IP, OPN_Name, OPN_Vendor, OPN_Method, OPN_Interface,
-                     OPN_Custom_a, OPN_Custom_b, OPN_Connected, OPN_Datetime)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
-
-    for entry in opnsense_network_dhcp:
-        sql.execute(sql_insert, (
-            entry["MAC"],
-            entry["IP"],
-            entry["Name"],
-            entry["Vendor"],
-            entry["Method"],
-            entry["Interface"],
-            entry["Custom_a"],
-            entry["Custom_b"],
-            entry["Connected"],
-            entry["Datetime"]
-        ))
-
-    sql_connection.commit()
-
-    print_log(opnsense_network_dhcp)
-
-#-------------------------------------------------------------------------------
-def opnsense_save_arp_data(opnsense_arptable, interfaces, interface_names):
-
-    if isinstance(opnsense_arptable, str):
-        try:
-            opnsense_arptable = json.loads(opnsense_arptable)
-        except json.JSONDecodeError:
-            print_log("        ...Error: invalid JSON-format (opnsense_arptable)")
-            return [], []
-
-    if isinstance(interfaces, str):
-        try:
-            interfaces = json.loads(interfaces)
-        except json.JSONDecodeError:
-            print_log("        ...Error: invalid JSON-format (interfaces)")
-            return [], []
-
-    interface_map = opnsense_get_interface_map(interface_names)
-    arp_rows = opnsense_get_rows(opnsense_arptable)
-    opnsense_arp_list = []
-
-    if not arp_rows:
-        print_log("        ...Info: no valid ARP-data found.")
-        return opnsense_arp_list
-
-    local_interfaces = []
-    if isinstance(interfaces, dict):
-        for if_name, if_data in interfaces.items():
-            if not isinstance(if_data, dict):
-                continue
-
-            mac = (
-                if_data.get("mac")
-                or if_data.get("macaddr")
-                or if_data.get("ether")
-                or ""
-            ).strip().lower()
-
-            if mac:
-                local_interfaces.append({
-                    "MAC": mac,
-                    "Description": interface_map.get(if_name, if_name.upper())
-                })
-
-    for entry in arp_rows:
-        mac = (entry.get("mac") or entry.get("mac-address") or entry.get("mac_address") or "").strip().lower()
-        ip = (entry.get("ip") or entry.get("ip-address") or entry.get("ip_address") or "").strip()
-        hostname = (entry.get("hostname") or "").strip()
-        dnsresolve = (entry.get("dnsresolve") or "").strip()
-        interface = (entry.get("intf_description") or entry.get("interface") or entry.get("intf") or "").strip()
-        interface_raw = (entry.get("intf") or entry.get("interface") or "").strip()
-        manufacturer = (entry.get("manufacturer") or entry.get("vendor") or "").strip()
-        expires_raw = entry.get("expires")
-        permanent = bool(entry.get("permanent"))
-        expired = bool(entry.get("expired"))
-
-        if not mac or not ip:
-            continue
-
-        arpexpires = "" if expires_raw is None else str(expires_raw).strip()
-
-        if interface.lower() in (i.lower() for i in OPNSENSE_EXCLUDE_INT) and all(mac != local_entry["MAC"] for local_entry in local_interfaces):
-            continue
-        if interface_raw.lower() in (i.lower() for i in OPNSENSE_EXCLUDE_INT) and all(mac != local_entry["MAC"] for local_entry in local_interfaces):
-            continue
-
-        match = re.search(r"Expires\\s+in\\s+(\\d+)\\s+seconds", arpexpires, flags=re.I)
-        if match:
-            seconds = match.group(1)
-        elif arpexpires.isdigit():
-            seconds = arpexpires
-        else:
-            seconds = ""
-
-        if permanent or arpexpires.lower() == "permanent":
-            connected = True
-        elif expired:
-            connected = False
-        elif seconds != "":
-            connected = int(seconds) > 0
-        else:
-            connected = True
-
-        if hostname == "" or hostname == "?":
-            if dnsresolve != "" and dnsresolve != "?":
-                hostname = dnsresolve
-            else:
-                hostname = "(unknown)"
-
-        opnsense_arp_list.append({
-            "MAC": mac,
-            "IP": ip,
-            "Name": hostname,
-            "Vendor": manufacturer,
-            "Method": "OPNsense",
-            "Interface": interface or interface_raw,
-            "Custom_a": seconds,
-            "Custom_b": "",
-            "Connected": connected,
-            "Datetime": ""
-        })
-
-    arp_macs = {entry["MAC"] for entry in opnsense_arp_list}
-
-    sql_select = "SELECT OPN_Name, OPN_Interface, OPN_Connected FROM opnsense_Network WHERE OPN_MAC = ? COLLATE NOCASE;"
-    sql_insert = """INSERT INTO opnsense_Network
-                    (OPN_MAC, OPN_IP, OPN_Name, OPN_Vendor, OPN_Method, OPN_Interface,
-                     OPN_Custom_a, OPN_Custom_b, OPN_Connected, OPN_Datetime)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"""
-    sql_update_name = "UPDATE opnsense_Network SET OPN_Name = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
-    sql_update_interface = "UPDATE opnsense_Network SET OPN_Interface = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
-    sql_update_connected = "UPDATE opnsense_Network SET OPN_Connected = ? WHERE OPN_MAC = ? COLLATE NOCASE;"
-    sql_update_presence = "UPDATE opnsense_Network SET OPN_Connected = 0 WHERE OPN_MAC NOT IN ({})".format(
-        ", ".join(["?"] * len(arp_macs))
-    ) if arp_macs else "UPDATE opnsense_Network SET OPN_Connected = 0"
-
-    for entry in opnsense_arp_list:
-        mac = entry["MAC"]
-        sql.execute(sql_select, (mac,))
-        row = sql.fetchone()
-
-        if row:
-            db_name, db_interface, db_connected = row
-
-            if (not db_interface or db_interface.strip() == "") and entry["Interface"]:
-                sql.execute(sql_update_interface, (entry["Interface"], mac))
-
-            if (not db_name or db_name.strip() == "") and entry["Name"]:
-                sql.execute(sql_update_name, (entry["Name"], mac))
-
-            if db_connected != entry["Connected"]:
-                sql.execute(sql_update_connected, (1 if entry["Connected"] else 0, mac))
-
-        else:
-            sql.execute(sql_insert, (
-                entry["MAC"],
-                entry["IP"],
-                entry["Name"],
-                entry["Vendor"],
-                entry["Method"],
-                entry["Interface"],
-                entry["Custom_a"],
-                entry["Custom_b"],
-                entry["Connected"],
-                entry["Datetime"]
-            ))
-
-    if arp_macs:
-        sql.execute(sql_update_presence, tuple(arp_macs))
-    else:
-        sql.execute(sql_update_presence)
-
-    sql_connection.commit()
-
-    print_log(opnsense_arp_list)
-
-#-------------------------------------------------------------------------------
 def pfsense_mark_local_interfaces(interfaces):
 
     if isinstance(interfaces, str):
@@ -2905,16 +2569,18 @@ def read_DHCP_leases_six():
 
     if PIHOLE6_SES_VALID == True:
 
-        sql.execute ("DELETE FROM DHCP_Leases")
-
         headers = {
             "X-FTL-SID": PIHOLE6_SES_SID,
             "X-FTL-CSRF": PIHOLE6_SES_CSRF
         }
-        raw_deviceslist = requests.get(PIHOLE6_URL+'api/dhcp/leases', headers=headers, verify=False)
+        deviceslist = pihole_six_api_request('GET', 'api/dhcp/leases', headers=headers)
+        if deviceslist is None:
+            return
+        if not isinstance(deviceslist.get('leases'), list):
+            print('        Invalid Pi-hole DHCP response; import skipped')
+            return
 
-        result = {}
-        deviceslist = raw_deviceslist.json()
+        sql.execute ("DELETE FROM DHCP_Leases")
 
         # Get Pi-hole local MAC-Adresses an IPs
         interfaces = get_pihole_interface_data()
@@ -3229,18 +2895,9 @@ def save_scanned_devices(p_arpscan_devices, p_cycle_interval):
           )
     """, (cycle, cycle))
 
-    # Insert OPNsense import
-    sql.execute("""
-        INSERT INTO CurrentScan (cur_ScanCycle, cur_MAC, cur_IP, cur_Vendor, cur_ScanMethod)
-        SELECT ?, OPN_MAC, OPN_IP, OPN_Vendor, OPN_Method
-        FROM opnsense_Network
-        WHERE OPN_Connected = 1
-          AND NOT EXISTS (
-              SELECT 1 FROM CurrentScan
-              WHERE cur_MAC = OPN_MAC COLLATE NOCASE
-                AND cur_ScanCycle = ?
-          )
-    """, (cycle, cycle))
+    # OPNsense: select one validated IP per MAC, preserving source priority.
+    if OPNSENSE_ACTIVE:
+        opnsense_import.insert_current_scan(sql_connection, cycle, print_log)
 
     # Insert AdGuard devices with known MAC addresses
     if table_exists("AdGuard_Network"):
@@ -4124,17 +3781,21 @@ def update_devices_data_from_scan():
                                     AND PF_Name IS NOT NULL
                                     AND PF_Name <> '') """)
 
-    # OPNsense - Update (unknown) Name
-    sql.execute ("""UPDATE Devices
-                    SET dev_Name = (SELECT OPN_Name FROM opnsense_Network
-                                    WHERE OPN_MAC = dev_MAC)
-                    WHERE (dev_Name = "(unknown)"
-                           OR dev_Name = ""
-                           OR dev_Name IS NULL)
-                      AND EXISTS (SELECT 1 FROM opnsense_Network
-                                  WHERE OPN_MAC = dev_MAC
-                                    AND OPN_Name IS NOT NULL
-                                    AND OPN_Name <> '') """)
+    # Use the selected current MAC/IP pair, never an old lease of the same MAC.
+    if OPNSENSE_ACTIVE:
+        sql.execute("""UPDATE Devices
+                        SET dev_Name = (SELECT OPN_Name FROM opnsense_Network
+                                        WHERE OPN_MAC = dev_MAC COLLATE NOCASE
+                                          AND OPN_IP = dev_LastIP
+                                          AND OPN_Connected = 1
+                                          AND OPN_Name NOT IN ('', '(unknown)', '?')
+                                        ORDER BY OPN_Name LIMIT 1)
+                        WHERE (dev_Name = '(unknown)' OR dev_Name = '' OR dev_Name IS NULL)
+                          AND EXISTS (SELECT 1 FROM opnsense_Network
+                                      WHERE OPN_MAC = dev_MAC COLLATE NOCASE
+                                        AND OPN_IP = dev_LastIP
+                                        AND OPN_Connected = 1
+                                        AND OPN_Name NOT IN ('', '(unknown)', '?'))""")
 
     # AdGuard - Update (unknown) Name
     if table_exists("AdGuard_Network"):

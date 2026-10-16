@@ -4,6 +4,12 @@ pialert_start_session();
 require 'timezone.php';
 require 'db.php';
 require_once 'util.php';
+require_once __DIR__ . '/../update-command.php';
+
+// Fresh logins have no legacy feature flags until particular pages are visited.
+// Use the current configuration, as the sidebar does, for both requests and output.
+$checkGeoLite = pialert_v4_config_enabled('SCAN_WEBSERVICES');
+$checkSatellites = pialert_v4_config_enabled('SATELLITES_ACTIVE');
 
 OpenDB();
 
@@ -46,7 +52,7 @@ $updatenotes_array = array_filter($updatenotes_array);
 $pialert_new_version = substr($updatenotes_array[0], -10);
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Get MaxMind DB Release
-if ($_SESSION['Scan_WebServices'] == True) {
+if ($checkGeoLite) {
 	$curl_handle = curl_init();
 	curl_setopt($curl_handle, CURLOPT_URL, 'https://api.github.com/repos/P3TERX/GeoLite.mmdb/releases/latest');
 	curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
@@ -89,7 +95,7 @@ if ($_SESSION['Scan_WebServices'] == True) {
 }
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Get Pi.Alert-Satellite Release
-if ($_SESSION['SATELLITES_ACTIVE'] == True) {
+if ($checkSatellites) {
 	$curl_handle = curl_init();
 	curl_setopt($curl_handle, CURLOPT_URL, 'https://api.github.com/repos/leiweibau/Pi.Alert-Satellite/commits?path=tar%2Fpialert_satellite_latest.tar&page=1&per_page=1');
 	curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
@@ -144,7 +150,7 @@ $satellite_new_version = h($satellite_new_version ?? '');
 $satellite_cur_versions = array_map('h', $satellite_cur_versions ?? []);
 
 // Print Update Box for GeoIP
-if ($_SESSION['Scan_WebServices'] == True) {
+if ($checkGeoLite) {
 	if (($temp_geolite_new_version > $temp_geolite_cur_version) && ($geolite_cur_version != "###")) {
 	// DB present and github is newer as local
 		echo '<div class="box">
@@ -239,11 +245,11 @@ if ($pialert_cur_version != $pialert_new_version && $valid_update_notes) {
 		}
 	}
 
-	$updatecommand = 'sudo bash -c &quot;$(curl -fsSL https://github.com/leiweibau/Pi.Alert/raw/main/install/pialert_update.sh)&quot; -s';
-	$updateenv = '';
+	$updateInstructions = pialert_update_instructions();
+	$updatecommand = h($updateInstructions['command']);
 
 	echo '<br><br>
-			<lable for="bashupdatecommand" class="text-red"><i>Update command'.$updateenv.':</i></lable>
+			<label for="bashupdatecommand" class="text-red"><i>' . h($pia_lang['V4_Update_Command']) . ':</i></label>
 			<input id="bashupdatecommand" readonly value="'.$updatecommand.'" style="width:100%; overflow-x: scroll; border: none; background: transparent; margin: 0px; padding: 0px;">
 		</div>
     <div class="text-center mt-3">
@@ -263,7 +269,7 @@ if ($pialert_cur_version == $pialert_new_version) {
 			</div>
 		  </div>';
 }
-if ($_SESSION['SATELLITES_ACTIVE'] == True) {
+if ($checkSatellites) {
 	// Print Update Box for Pi.Alert Satellites
 	if (sizeof($different_sat_versions) > 0 && $valid_sat_update_notes) {
 	// github version is not equal to local version (only a local dev version could be newer than github version)

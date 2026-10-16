@@ -1,6 +1,7 @@
 <section id="devices-bulk-page" aria-label="<?= h($title); ?>">
   <?php if (($pageRequest['saved'] ?? '') === '1'): ?><div class="alert alert-success" role="status"><?= h($L('Device_bulkEditor_savebox_title','Changes saved')); ?></div><?php endif; ?>
   <div class="d-flex justify-content-end mb-3"><a href="devices.php?scansource=<?= rawurlencode($SCANSOURCE); ?>" class="btn btn-success"><?= h($L('Device_bulkEditor_mode_quit','Quit bulk editor')); ?></a></div>
+  <p class="small text-body-secondary mb-3"><?= h($pia_lang['LD_BulkScope']); ?></p>
   <form method="post" action="devices.php?scansource=<?= rawurlencode($SCANSOURCE); ?>" id="bulkEditForm">
     <input type="hidden" name="mod" value="bulkedit"><input type="hidden" name="savedata" value="yes"><input type="hidden" name="_csrf" value="<?= h(pialert_csrf_token()); ?>">
     <section class="card mb-3"><div class="card-header"><h2 class="card-title"><?= h($L('Device_bulkEditor_inputbox_title','Bulk fields')); ?></h2></div><div class="card-body"><p class="text-body-secondary mb-3"><?= h($L('Device_bulkEditor_inputbox_help','Select a field checkbox to enable editing. When you save, its value is applied to all devices or hosts selected below.')); ?></p><div class="row g-3">

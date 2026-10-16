@@ -7,13 +7,25 @@
 #tableDevices tbody td.pialert-device-actions-cell { padding: 0; }
 #tableDevices .pialert-device-name { min-width: 130px; }
 #tableDevices .pialert-device-favorite { min-width: 38px; }
+/* Favorites sort numerically, but the sorting control belongs on the right. */
+#tableDevices .pialert-device-favorite .dt-column-header { flex-direction: row; }
 #tableDevices .pialert-device-timestamp { min-width: 157px; white-space: nowrap; }
 #tableDevices .pialert-device-last-ip { min-width: 118px; }
-#tableDevices .pialert-device-mac { min-width: 165px; }
+#tableDevices .pialert-device-mac { box-sizing: border-box; width: 185px; min-width: 175px; max-width: 185px; padding-inline: 8px; }
+#tableDevices .pialert-device-vendor { box-sizing: border-box; width: 170px; min-width: 120px; max-width: 170px; padding-inline: 8px; }
+/* Keep long vendor names out of the table's intrinsic width calculation. */
+#tableDevices .pialert-device-vendor-text { display: block; width: 0; min-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #tableDevices .pialert-device-status { white-space: nowrap; }
 #tableDevices .pialert-device-wol-cell { width: 52px; min-width: 52px; max-width: 52px; }
-/* DataTables writes col widths; keep WoL fixed and share spare width with Name and Type. */
+/* One to four 2rem buttons, .3rem gaps, the delete margin and .25rem side padding. */
+#tableDevices th.pialert-device-actions-cell,
+#tableDevices tbody td.pialert-device-actions-cell { box-sizing: border-box; width: 1px; min-width: calc(2.75rem + 2px); max-width: calc(9.65rem + 2px); padding-inline: .25rem; white-space: nowrap; }
+#tableDevices .pialert-device-actions-cell .entity-actions-buttons { flex-wrap: nowrap; }
+/* Override bounded column widths; share spare width with Name and Type. */
 #tableDevices col[data-dt-column="17"] { width: 52px !important; }
+#tableDevices col[data-dt-column="11"] { width: 185px !important; }
+#tableDevices col[data-dt-column="12"] { width: 170px !important; }
+#tableDevices col[data-dt-column="19"] { width: 1px !important; }
 #tableDevices col[data-dt-column="0"],
 #tableDevices col[data-dt-column="3"] { width: auto !important; }
 .pialert-device-status-link, .pialert-device-status-link:hover, .pialert-device-status-link:focus-visible { text-decoration: none; }
@@ -53,3 +65,46 @@
 .presence-underlined { text-decoration: underline; text-decoration-style: dotted; }
 @media (max-width: 575.98px) { .pialert-bulk-device-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .pialert-device-filter { transition: none !important; } }
+
+/* Logical devices use the same cards, controls and dialogs as individual MACs. */
+.pialert-logical-open { text-align: inherit; vertical-align: baseline; text-decoration: none; font: inherit; overflow-wrap: anywhere; }
+.pialert-logical-open:hover, .pialert-logical-open:focus-visible { text-decoration: underline; }
+.pialert-logical-hints { display: grid; gap: .15rem; margin-top: .25rem; color: var(--bs-secondary-color); white-space: normal; }
+:root { --pialert-status-partial-bg: #1763b0; }
+[data-bs-theme="dark"],
+html[data-pialert-theme="glas"],
+html[data-pialert-theme="piano"] { --pialert-status-partial-bg: #236ebd; }
+html[data-pialert-theme="console"] { --pialert-status-partial-bg: #72b6ff; }
+.pialert-status-partial { color: #fff !important; background: var(--pialert-status-partial-bg) !important; }
+html[data-pialert-theme="console"] .pialert-status-partial { color: #081b36 !important; }
+#tableDevices .pialert-device-partial { border-left: 2px solid var(--pialert-status-partial-bg); }
+#logical-members-modal .modal-body { overscroll-behavior: contain; }
+#logical-members-modal .modal-header { gap: .75rem; }
+#logical-members-modal .modal-title { flex: 1 1 auto; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+#logical-members-modal .modal-header .btn-close { flex: 0 0 auto; margin-left: 0; }
+.pialert-logical-members td { overflow-wrap: anywhere; padding-block: .25rem; }
+.pialert-logical-members .pialert-device-wol-cell { width: 52px; min-width: 52px; max-width: 52px; white-space: nowrap; }
+.pialert-logical-members td.pialert-device-wol-cell { padding: 0; }
+.pialert-logical-members th:nth-child(2), .pialert-logical-members td:nth-child(2) { min-width: 9rem; }
+.pialert-logical-members .pialert-member-source { white-space: normal; }
+.pialert-logical-member-match td:first-child { border-left: .25rem solid var(--bs-primary); }
+.pialert-member-match-label { display: block; color: var(--bs-primary); font-weight: 600; }
+#logical-device-list { max-height: 65vh; overflow-y: auto; }
+/* Suggestion menus must escape the themed card's clipping in either direction. */
+#logical-editor { overflow: visible; }
+#logical-editor:has(.logical-device-options.show) { z-index: 1; }
+#logical-editor > .card-header { border-top-left-radius: inherit; border-top-right-radius: inherit; }
+.logical-device-options { max-height: 20rem; max-width: calc(100vw - 2rem); overflow-y: auto; }
+.logical-device-options .dropdown-item { white-space: normal; overflow-wrap: anywhere; }
+#logical-device-list button, #logical-editor-members-list li { overflow-wrap: anywhere; }
+#logical-device-list .list-group-item.active { color: var(--bs-list-group-active-color); }
+#logical-unsaved { white-space: normal; }
+#logical-view-feedback[hidden], #logical-feedback[hidden], #logical-unsaved[hidden] { display: none !important; }
+@media (max-width: 575.98px) {
+  #logical-members-modal .modal-dialog { margin: .5rem; max-width: calc(100vw - 1rem); }
+  #logical-members-modal .modal-body { padding: .75rem; }
+  .pialert-logical-members { font-size: .85rem; }
+  .pialert-logical-members th { padding: .4rem; }
+  .pialert-logical-members td { padding-inline: .4rem; }
+  #logical-device-list { max-height: 35vh; }
+}

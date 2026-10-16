@@ -70,6 +70,8 @@ html[data-pialert-theme="piano"] .card-header { background: var(--pa-card-header
 html[data-pialert-theme="piano"] .card canvas { filter: saturate(.85); }
 html[data-pialert-theme="piano"] .table > :not(caption) > * > * { background-color: transparent; color: var(--pa-text); }
 html[data-pialert-theme="piano"] .app-footer { color: #4d565b; border-top-color: #c7c4bd; }
+/* The assignment hint sits on the light page background, outside the dark cards. */
+html[data-pialert-theme="piano"] #logical-devices-page > .text-body-secondary { color: #4d565b !important; }
 /* Bootstrap's link-body-emphasis utility sets color with !important. */
 html[data-pialert-theme="piano"] .app-footer a { color: #2c3c4b !important; text-decoration-color: currentColor !important; }
 /* Back links sit on Piano's light page canvas, outside the dark cards. */

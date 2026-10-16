@@ -58,6 +58,7 @@ $fields = array(
     array('txtDeviceType','DevDetail_MainInfo_Type','Type','getDeviceTypes'), array('txtVendor','DevDetail_MainInfo_Vendor','Vendor'),
     array('txtModel','DevDetail_MainInfo_Model','Model'), array('txtSerialnumber','DevDetail_MainInfo_Serialnumber','Serial number'),
     array('txtGroup','DevDetail_MainInfo_Group','Group','getGroups'), array('txtLocation','DevDetail_MainInfo_Location','Location','getLocations'),
+    array('txtLogicalDevice','LD_AssignedDevice','Assigned device','', 'logical-device'),
     array('txtComments','DevDetail_MainInfo_Comments','Comments','', 'textarea'),
 );
 $networkFields = array(
@@ -83,7 +84,8 @@ $checks = array(
 $renderField = static function(array $field) use ($L, $pia_lang): void {
     $id = $field[0]; $label = pialert_v4_ui_plain_label($L($field[1], $field[2])); $suggestions = $field[3] ?? ''; $kind = $field[4] ?? 'input';
     echo '<div class="device-detail-field mb-3"><label for="', h($id), '" class="form-label">', h($label), '</label><div class="device-detail-control">';
-    if ($kind === 'textarea') echo '<textarea class="form-control" id="', h($id), '" rows="3"></textarea>';
+    if ($kind === 'logical-device') echo '<select class="form-select" id="', h($id), '" disabled><option value="">', h($L('LD_Unassigned','No assignment')), '</option></select>';
+    elseif ($kind === 'textarea') echo '<textarea class="form-control" id="', h($id), '" rows="3"></textarea>';
     elseif ($id === 'txtLastIP') echo '<div class="input-group"><input class="form-control" id="txtLastIP" type="text" readonly><button id="copyIP" class="btn btn-outline-secondary" type="button" data-copy-target="txtLastIP" aria-label="', h($pia_lang['V4_Copy_IP']), '"><i class="bi bi-clipboard" aria-hidden="true"></i></button><button id="ignoreIP" class="btn btn-outline-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-label="', h($pia_lang['V4_Ignore_IP_Prefix']), '"></button><ul class="dropdown-menu dropdown-menu-end" id="ignoreIPOptions"></ul></div>';
     elseif ($suggestions !== '') echo '<div class="input-group"><input class="form-control" id="', h($id), '" type="text"><button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-controls="menu-', h($id), '" aria-expanded="false" aria-label="', h($label), '"></button><ul class="dropdown-menu dropdown-menu-end device-detail-options" id="menu-', h($id), '" data-suggestion-action="', h($suggestions), '" data-suggestion-target="', h($id), '"></ul></div>';
     else echo '<input class="form-control" id="', h($id), '" type="text"', $kind === 'readonly' ? ' readonly' : '', '>';
@@ -117,6 +119,7 @@ $labels = array(
     'calendarMonth'=>$L('PRE_CalHead_month','Month'), 'calendarWeek'=>$L('PRE_CalHead_week','Week'), 'calendarDay'=>$L('PRE_CalHead_day','Day'),
     'notFound'=>$L('DevDetail_NotFound','Device not found'), 'ignore'=>$L('MT_Tool_ignorelist','Ignore list'),
     'ignoreText'=>$L('DevDetail_add_ignore_noti_text',''), 'saved'=>$L('BE_Dev_DBTools_UpdDev','Device updated'),
+    'unassigned'=>$L('LD_Unassigned','No assignment'), 'logicalLoadError'=>$L('LD_LoadError','Device assignments could not be loaded.'),
 );
 $config = array('mac'=>$requestedMac,'internet'=>$isInternet,'labels'=>$labels,
     'calendarLocale'=>$L('PRE_CalHead_lang','en'),'speedtestInstalled'=>$speedtestInstalled,
@@ -171,7 +174,7 @@ pialert_v4_shell_start($title, 'home', array('lib/datatables/datatables.net-bs5-
         <div class="row g-3">
           <div class="col-12 col-lg-6"><section class="card h-100 pialert-tool-card"><div class="card-header"><h2 class="card-title"><?= h($isInternet ? $pia_lang['V4_Online_Speedtest'] : $pia_lang['DevDetail_Tools_WOL_noti']); ?></h2></div><div class="card-body"><div class="pialert-tool-button-row">
             <?php if ($isInternet): ?><button id="speedtestcli" type="button" class="btn btn-primary"><?= h($pia_lang['V4_Start_Speedtest']); ?></button><button id="speedtestcli_ookla" type="button" class="btn <?= $speedtestInstalled ? 'btn-success' : 'btn-outline-primary'; ?>" <?= $speedtestInstalled ? 'disabled' : ''; ?>><?= h($speedtestInstalled ? $pia_lang['V4_Speedtest_Installed'] : $pia_lang['V4_Speedtest_Download']); ?></button><?php else: ?><button type="button" id="btnwakeonlan" class="btn btn-primary"><?= h($labels['wol']); ?></button><?php endif; ?>
-          </div></div></section></div>
+          </div><?php if ($isInternet && !$speedtestInstalled): ?><p class="small text-body-secondary mt-3 mb-0"><?= h($pia_lang['V4_Speedtest_Automatic_Requires_Client']); ?></p><?php endif; ?></div></section></div>
           <div class="col-12 col-lg-6"><section class="card h-100 pialert-tool-card"><div class="card-header"><h2 class="card-title"><?= h($pia_lang['V4_Nmap_Scans']); ?></h2></div><div class="card-body"><div class="pialert-tool-button-row"><button type="button" id="manualnmap_fast" class="btn btn-outline-primary"><?= h($labels['nmapFast']); ?></button><button type="button" id="manualnmap_normal" class="btn btn-outline-primary"><?= h($labels['nmapNormal']); ?></button><button type="button" id="manualnmap_detail" class="btn btn-outline-primary" disabled><?= h($labels['nmapPending']); ?></button></div><div id="nmapstatus" class="pialert-nmap-state" role="status" aria-live="polite"></div></div></section></div>
         </div>
         <div id="scanoutput" class="device-tool-output mt-3"></div>

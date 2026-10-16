@@ -15,6 +15,10 @@
 .mt-status-card details > dl.row > dt { font-weight: 400; }
 .mt-status-card details > summary:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
 #mt-api-key { min-width: 0; max-width: 100%; }
+.mt-filter-index .form-control { width: 6rem; }
+.mt-filter-help { padding: 0; border: 0; background: none; color: var(--bs-btn-color); font-size: .75em; line-height: 1; flex: 0 0 auto; }
+.mt-filter-help:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 50%; }
+.mt-filter > .invalid-feedback:not(:empty) { display: block; overflow-wrap: anywhere; }
 #v4-maintenance-page .mt-security-list { border-top: 1px solid var(--bs-border-color); }
 #v4-maintenance-page .mt-security-row { display: grid; grid-template-columns: minmax(12rem, 14rem) minmax(0, 1fr); gap: 1rem; align-items: center; padding: .9rem 0; border-bottom: 1px solid var(--bs-border-color); }
 #v4-maintenance-page .mt-security-control { min-width: 0; }

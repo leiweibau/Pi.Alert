@@ -48,6 +48,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             'appearance.events_sidebar'=>isset($_POST['events_sidebar']),
             'appearance.reports_sidebar'=>isset($_POST['reports_sidebar']),
             'appearance.reports_popup'=>isset($_POST['reports_popup']),
+            'appearance.journal_sidebar'=>isset($_POST['journal_sidebar']),
+            'appearance.journal_popup'=>isset($_POST['journal_popup']),
             'appearance.sidebar_color'=>$sidebarColor,
             'appearance.header_color'=>$headerColor,
             'appearance.pihole_url'=>$piholeUrl,
@@ -123,12 +125,18 @@ $faviconLabel = static function (string $path, string $location) use (&$pia_lang
         . ($pia_lang['FavIcon_' . $location] ?? $location) . ')';
 };
 $title = $uiText('title');
-pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'), mobileBackRoute: 'maintenance');
+pialert_v4_shell_start(
+    $title,
+    'ui_settings',
+    array('css/ui-settings.css'),
+    pageHeaderAction: static fn(): string => '<button class="btn btn-primary" type="submit" form="ui-settings-form">' . h($uiText('save')) . '</button>',
+    mobileBackRoute: 'maintenance'
+);
 ?>
 <section id="v4-ui-settings" class="container-fluid px-0" aria-label="<?= h($title); ?>">
   <?php if (($_GET['saved'] ?? '') === '1'): ?><div class="alert alert-success" role="status"><?= h($uiText('saved')); ?></div><?php endif; ?>
   <?php if ($error !== ''): ?><div class="alert alert-danger" role="alert"><?= h($error); ?></div><?php endif; ?>
-  <form method="post" action="./ui_settings.php">
+  <form id="ui-settings-form" method="post" action="./ui_settings.php">
     <input type="hidden" name="_csrf" value="<?= h(pialert_csrf_token()); ?>">
     <input type="hidden" name="revision" value="<?= h((string) $settings['revision']); ?>">
     <div class="row g-3">
@@ -205,12 +213,11 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'), mobi
             </div>
           </div></div>
           <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
-            <h4 class="h6 mb-3"><?= h($uiText('network_label')); ?></h4>
-            <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-network-sidebar" name="network_sidebar" value="1"<?= $settings['appearance']['network_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-network-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
-          </div></div>
-          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
-            <h4 class="h6 mb-3"><?= h($uiText('events_label')); ?></h4>
-            <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-events-sidebar" name="events_sidebar" value="1"<?= $settings['appearance']['events_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-events-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
+            <h4 class="h6 mb-3"><?= h($pia_lang['V4_Journal']); ?></h4>
+            <div class="d-grid gap-2">
+              <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-journal-sidebar" name="journal_sidebar" value="1"<?= $settings['appearance']['journal_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-journal-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
+              <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-journal-popup" name="journal_popup" value="1"<?= $settings['appearance']['journal_popup'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-journal-popup"><?= h($uiText('settings_popup')); ?></label></div>
+            </div>
           </div></div>
           <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
             <h4 class="h6 mb-3">Reports</h4>
@@ -220,13 +227,12 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'), mobi
             </div>
           </div></div>
           <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
-            <h4 class="h6 mb-3"><?= h($uiText('pihole')); ?></h4>
-            <label class="form-label" for="ui-pihole">URL</label><input class="form-control" id="ui-pihole" type="url" name="pihole_url" maxlength="2048" placeholder="https://pi.hole/" value="<?= h($settings['appearance']['pihole_url']); ?>"><div class="form-text"><?= h($uiText('pihole_help')); ?></div>
+            <h4 class="h6 mb-3"><?= h($uiText('network_label')); ?></h4>
+            <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-network-sidebar" name="network_sidebar" value="1"<?= $settings['appearance']['network_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-network-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
           </div></div>
           <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
-            <h4 class="h6 mb-3"><?= h($pia_lang['V4_Temperature']); ?></h4>
-            <label class="visually-hidden" for="ui-tempunit-selector"><?= h($pia_lang['V4_Temperature']); ?></label><select class="form-select" id="ui-tempunit-selector"><option value="C">°C</option><option value="F">°F</option><option value="K">K</option></select>
-            <div class="form-text mt-2"><?= h($pia_lang['V4_UI_Temperature_Help']); ?></div>
+            <h4 class="h6 mb-3"><?= h($uiText('events_label')); ?></h4>
+            <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" id="ui-events-sidebar" name="events_sidebar" value="1"<?= $settings['appearance']['events_sidebar'] ? ' checked' : ''; ?>><label class="form-check-label" for="ui-events-sidebar"><?= h($uiText('settings_sidebar')); ?></label></div>
           </div></div>
           <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
             <h4 class="h6 mb-3"><?= h($pia_lang['MT_Tool_onlinehistorygraph'] ?? 'Activity history'); ?></h4>
@@ -239,10 +245,19 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'), mobi
             data-confirm-label="<?= h($pia_lang['Gen_Okay'] ?? 'OK'); ?>"
             data-error-label="<?= h($pia_lang['Gen_error'] ?? 'Error'); ?>"><label class="form-check-label" for="ui-activity-history"><?= h($pia_lang['UI_Activity_History_Enable'] ?? 'enable (Devices, ICMP and Presence)'); ?></label></div>
           </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($pia_lang['V4_Temperature']); ?></h4>
+            <label class="visually-hidden" for="ui-tempunit-selector"><?= h($pia_lang['V4_Temperature']); ?></label><select class="form-select" id="ui-tempunit-selector"><option value="C">°C</option><option value="F">°F</option><option value="K">K</option></select>
+            <div class="form-text mt-2"><?= h($pia_lang['V4_UI_Temperature_Help']); ?></div>
+          </div></div>
+          <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100">
+            <h4 class="h6 mb-3"><?= h($uiText('pihole')); ?></h4>
+            <label class="form-label" for="ui-pihole">URL</label><input class="form-control" id="ui-pihole" type="url" name="pihole_url" maxlength="2048" placeholder="https://pi.hole/" value="<?= h($settings['appearance']['pihole_url']); ?>"><div class="form-text"><?= h($uiText('pihole_help')); ?></div>
+          </div></div>
         </div>
         <div class="mt-4 pt-3 border-top">
           <h3 class="h6"><?= h($pia_lang['MT_Tools_Tab_Subheadline_e']); ?></h3>
-          <p class="text-body-secondary"><?= h($pia_lang['MT_Tools_Tab_Subheadline_e_Intro']); ?> (<a href="https://github.com/leiweibau/Pi.Alert/blob/main/docs/ICONS.md" target="_blank" rel="noopener noreferrer">GitHub</a>)</p>
+          <p class="text-body-secondary"><?= h($pia_lang['MT_Tools_Tab_Subheadline_e_Intro']); ?> (<a href="https://github.com/leiweibau/Pi.Alert/blob/main/docs/ICONS.md" target="_blank" rel="noopener noreferrer"><?= h($pia_lang['V4_UI_Favicon_Preview']); ?> <i class="fa-brands fa-github" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>)</p>
           <div class="row g-3 align-items-end">
             <div class="col-12 col-md-8 col-lg-9">
               <label class="visually-hidden" for="ui-favicon-url"><?= h($pia_lang['V4_Favicon']); ?></label>
@@ -264,15 +279,16 @@ pialert_v4_shell_start($title, 'ui_settings', array('css/ui-settings.css'), mobi
           </div>
         </div>
       </div></section></div>
-      <div class="col-12"><section class="card"><div class="card-header"><h2 class="card-title"><?= h($uiText('widgets')); ?></h2></div><div class="card-body row g-3">
+      <div class="col-12"><section class="card"><div class="card-header"><h2 class="card-title"><?= h($uiText('widgets')); ?></h2></div><div class="card-body"><div class="row g-3">
       <?php foreach ($settings['appearance']['header_widgets'] as $group => $items): ?>
-        <fieldset class="col-12 col-md-4"><legend class="fs-6"><?= h(match ($group) { 'devices' => $pia_lang['V4_UI_Group_Devices'], 'services' => $pia_lang['V4_UI_Group_Services'], 'presence' => $pia_lang['NAV_Presence'], 'icmp' => 'ICMP', default => $group }); ?></legend>
-        <?php foreach ($items as $id => $visible): ?><div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="widget-<?= h($group . '-' . $id); ?>" name="widgets[<?= h($group); ?>][<?= h($id); ?>]" value="1"<?= $visible ? ' checked' : ''; ?>><label class="form-check-label" for="widget-<?= h($group . '-' . $id); ?>"><?= h($uiText(array('all'=>'all','con'=>'connected','fav'=>'favorites','dnw'=>'down','arc'=>'archived','new'=>'new')[$id])); ?></label></div><?php endforeach; ?>
-        </fieldset>
+        <div class="col-12 col-lg-4"><div class="pialert-ui-button-group rounded-3 p-3 h-100" role="group" aria-labelledby="widget-group-<?= h($group); ?>">
+          <h3 class="h6 mb-3" id="widget-group-<?= h($group); ?>"><?= h(match ($group) { 'devices' => $pia_lang['V4_UI_Group_Devices'], 'services' => $pia_lang['V4_UI_Group_Services'], 'presence' => $pia_lang['NAV_Presence'], 'icmp' => 'ICMP', default => $group }); ?></h3>
+          <?php foreach ($items as $id => $visible): ?><div class="form-check form-switch"><input class="form-check-input pialert-widget-switch" data-widget-tone="<?= h(array('all'=>'primary','con'=>'success','fav'=>'warning','dnw'=>'danger','arc'=>'secondary','new'=>'warning')[$id]); ?>" type="checkbox" role="switch" id="widget-<?= h($group . '-' . $id); ?>" name="widgets[<?= h($group); ?>][<?= h($id); ?>]" value="1"<?= $visible ? ' checked' : ''; ?>><label class="form-check-label" for="widget-<?= h($group . '-' . $id); ?>"><?= h($uiText(array('all'=>'all','con'=>'connected','fav'=>'favorites','dnw'=>'down','arc'=>'archived','new'=>'new')[$id])); ?></label></div><?php endforeach; ?>
+        </div></div>
       <?php endforeach; ?>
-      </div></section></div>
+      </div></div></section></div>
     </div>
-    <div class="d-flex gap-2 mt-4"><button class="btn btn-primary" type="submit"><?= h($uiText('save')); ?></button><a class="btn btn-outline-secondary pialert-back-link" href="<?= h(pialert_v4_route('maintenance') . '?tab=4'); ?>"><i class="fa-solid fa-arrow-left me-1" aria-hidden="true"></i><?= h($uiText('back')); ?></a></div>
+    <div class="d-flex justify-content-between gap-2 mt-4"><a class="btn btn-outline-secondary pialert-back-link" href="<?= h(pialert_v4_route('maintenance') . '?tab=4'); ?>"><i class="fa-solid fa-arrow-left me-1" aria-hidden="true"></i><?= h($uiText('back')); ?></a><button class="btn btn-primary" type="submit"><?= h($uiText('save')); ?></button></div>
   </form>
 </section>
 <?php pialert_v4_shell_end(array('js/ui-settings.js', 'js/ui-activity-history.js')); ?>

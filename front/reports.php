@@ -65,10 +65,7 @@ function pialert_v4_report_colors(): array {
 }
 
 function pialert_v4_report_config(string $name) {
-    $contents = @file_get_contents('../config/pialert.conf');
-    if (!is_string($contents)) return false;
-    $values = @parse_ini_string(preg_replace('/^\s*#.*$/m', '', $contents));
-    return is_array($values) && array_key_exists($name, $values) ? $values[$name] : false;
+    return pialert_config_value($name);
 }
 
 function pialert_v4_report_class(string $filename): ?array {

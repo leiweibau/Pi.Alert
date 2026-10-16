@@ -189,7 +189,7 @@ function updateGeoDB() {
 function EnableWebServiceMon() {
 	global $pia_lang;
 
-	if ($_SESSION['Scan_WebServices'] == True) {
+	if (pialert_v4_config_enabled('SCAN_WEBSERVICES')) {
 		exec('../../../back/pialert-cli disable_service_mon', $output);
 		echo $pia_lang['BE_Dev_webservicemon_disabled'];
 		// Logging

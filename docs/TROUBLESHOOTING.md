@@ -61,6 +61,36 @@ the configuration file [pialert.conf](./PIALERT_CONF.md).
 
 <hr>
 
+### Imports appear disabled despite `True` in pialert.conf
+
+Older GUI code parsed the Python configuration as an INI file. A valid multiline
+`SCAN_SUBNETS` list could make that parser fail and display all imports as disabled.
+It did not change their values in the configuration. The GUI now reads individual
+literal settings and supports multiline lists, including comments and VLAN options.
+Update Pi.Alert to obtain this fix. On an affected older installation, putting the
+entire `SCAN_SUBNETS = [...]` assignment on one line is a temporary workaround.
+
+### Pi-hole 6 URL or JSON errors during a scan
+
+Set `PIHOLE6_URL` to the base URL, for example:
+
+```python
+PIHOLE6_URL = 'https://192.168.10.4'
+```
+
+The browser's `/admin/` page is not the API base URL. Pi.Alert adds `/api/auth`
+and the other API paths itself. An accidental final `/admin` or `/admin/` is
+removed for the running scan and reported in the scan log. Save the base URL in
+the configuration to remove that notice permanently.
+
+If the log reports an HTTP error, timeout or invalid JSON, check the configured
+scheme, host, port and any reverse-proxy path. For authentication errors, also
+check `PIHOLE6_PASSWORD`. These request failures no longer abort the entire scan.
+Passing the configuration validator only confirms configuration rules, not a
+working connection to Pi-hole. See the Pi-hole section in the [configuration documentation](./PIALERT_CONF.md).
+
+<hr>
+
 ### Broken Pi.Alert Webinterface after Pi-hole update from 5.x to 6.x
 
 During the Pi-hole 6.x update, you were asked if you wanted to deactivate the web server that Pi-hole used before. 

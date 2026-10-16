@@ -47,6 +47,8 @@ html[data-pialert-theme="console"] .service-location-map { --service-map-land: #
 .service-timeline-down { background: #dc3545; }
 .flip-horizontal { transform: scaleX(-1); }
 #tableEvents th, #tableEvents td { white-space: nowrap; }
+/* Keep sorting controls on the right for date and numeric columns too. */
+#tableEvents thead .dt-column-header { flex-direction: row; }
 
 @media (max-width: 767.98px) {
   #serviceDetailsTabs { max-width: 100%; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding-bottom: 1px; -webkit-overflow-scrolling: touch; }

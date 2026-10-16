@@ -30,6 +30,54 @@
     return target.pathname + target.search;
   }
 
+  var filterHelpButtons = root.querySelectorAll('.mt-filter-help');
+  filterHelpButtons.forEach(function (button) {
+    window.bootstrap.Tooltip.getOrCreateInstance(button, { container: 'body', trigger: 'hover focus' });
+  });
+  root.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') filterHelpButtons.forEach(function (button) {
+      window.bootstrap.Tooltip.getInstance(button).hide();
+    });
+  });
+
+  var filterColumnsModal = element('modal-mt-filter-columns');
+  var filterColumnsField = null;
+  var filterColumnSwitches = Array.from(filterColumnsModal.querySelectorAll('[data-search-column]'));
+  var editableFilterColumns = new Set(filterColumnSwitches.map(function (input) { return input.dataset.searchColumn; }));
+  function filterColumnTokens(value) {
+    return String(value || '').split(',').map(function (token) { return token.trim(); }).filter(Boolean);
+  }
+  function normalizedFilterColumn(token) {
+    return /^\d+$/.test(token) ? String(Number(token)) : token;
+  }
+  filterColumnsModal.addEventListener('show.bs.modal', function (event) {
+    var row = event.relatedTarget ? event.relatedTarget.closest('.mt-filter') : null;
+    filterColumnsField = row ? row.querySelector('[data-field="filtercolumn"]') : null;
+    if (!filterColumnsField) { event.preventDefault(); return; }
+    element('mt-filter-columns-name').textContent = row.querySelector('[data-field="filtername"]').value;
+    var excluded = new Set(filterColumnTokens(filterColumnsField.value).map(normalizedFilterColumn));
+    filterColumnSwitches.forEach(function (input) { input.checked = !excluded.has(input.dataset.searchColumn); });
+  });
+  filterColumnsModal.addEventListener('hidden.bs.modal', function () { filterColumnsField = null; });
+  element('mt-filter-columns-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!filterColumnsField) return;
+    // Keep legacy or technical exclusions that are not editable in this dialog.
+    var excluded = filterColumnTokens(filterColumnsField.value).filter(function (token) { return !editableFilterColumns.has(normalizedFilterColumn(token)); });
+    filterColumnSwitches.forEach(function (input) { if (!input.checked) excluded.push(input.dataset.searchColumn); });
+    filterColumnsField.value = excluded.join(',');
+    filterColumnsField.dispatchEvent(new Event('change', { bubbles: true }));
+    window.bootstrap.Modal.getOrCreateInstance(filterColumnsModal).hide();
+  });
+
+  root.querySelectorAll('[data-field="filterindex"]').forEach(function (input) {
+    input.addEventListener('input', function () {
+      if (!input.validity.valid) return;
+      input.classList.remove('is-invalid');
+      element(input.id + '-error').textContent = '';
+    });
+  });
+
   root.addEventListener('click', function (event) {
     var action = event.target.closest('[data-mt-action]');
     if (action && root.contains(action)) {
@@ -63,6 +111,7 @@
     var filter = event.target.closest('.save-filter');
     if (filter && root.contains(filter)) {
       var row = filter.closest('.mt-filter');
+      if (!row.querySelector('[data-field="filterindex"]').reportValidity()) return;
       var payload = { action: 'SaveFilterID', filterid: row.dataset.filterId };
       row.querySelectorAll('[data-field]').forEach(function (field) { payload[field.dataset.field] = field.value; });
       post('php/server/devices.php', payload);
